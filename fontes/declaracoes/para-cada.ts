@@ -1,11 +1,12 @@
 import { Construto, Dupla, Variavel } from '../construtos';
-import { VisitanteComumInterface } from '../interfaces';
+import { VisitanteDeleguaInterface } from '../interfaces';
+import { ParaCadaInterface } from '../interfaces/delegua';
 import { Bloco } from './bloco';
 import { Declaracao } from './declaracao';
 
-export class ParaCada extends Declaracao {
+export class ParaCada extends Declaracao implements ParaCadaInterface {
     variavelIteracao: Variavel | Dupla;
-    vetor: Construto;
+    vetorOuDicionario: Construto;
     corpo: Bloco;
     posicaoAtual: number;
 
@@ -18,12 +19,12 @@ export class ParaCada extends Declaracao {
     ) {
         super(linha, hashArquivo);
         this.variavelIteracao = variavelIteracao;
-        this.vetor = vetor;
+        this.vetorOuDicionario = vetor;
         this.corpo = corpo;
         this.posicaoAtual = 0;
     }
 
-    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
+    async aceitar(visitante: VisitanteDeleguaInterface): Promise<any> {
         return await visitante.visitarDeclaracaoParaCada(this);
     }
 

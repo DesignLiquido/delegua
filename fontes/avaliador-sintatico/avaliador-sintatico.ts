@@ -17,12 +17,16 @@ import {
     Decorador,
     DefinirValor,
     Dicionario,
+    EnquantoComoConstruto,
     ExpressaoRegular,
+    FazerComoConstruto,
     FuncaoConstruto,
     Isto,
     Leia,
     Literal,
     Logico,
+    ParaCadaComoConstruto,
+    ParaComoConstruto,
     ReferenciaFuncao,
     Separador,
     Super,
@@ -71,6 +75,7 @@ import { TipoInferencia } from '../inferenciador';
 import { PilhaEscopos } from './pilha-escopos';
 import { InformacaoEscopo } from './informacao-escopo';
 import { InformacaoVariavelOuConstante } from '../informacao-variavel-ou-constante';
+import { buscarRetornos, registrarPrimitiva } from './comum';
 
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
@@ -80,7 +85,6 @@ import primitivasNumero from '../bibliotecas/primitivas-numero';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
 
-import { buscarRetornos, registrarPrimitiva } from './comum';
 
 // Será usado para forçar tipagem em construtos e em algumas funções internas.
 type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolos];
@@ -272,6 +276,103 @@ export class AvaliadorSintatico
         return new SeletorTuplas(...argumentos) as Tupla;
     }
 
+    protected enquantoComoConstruto(): EnquantoComoConstruto {
+        const { condicao, corpo } = this.logicaComumEnquanto();
+
+        return new EnquantoComoConstruto(
+            condicao,
+            corpo
+        );
+    }
+
+    protected fazerComoConstruto(simboloFazer: SimboloInterface): Construto {
+        try {
+            this.blocos += 1;
+
+            const { caminhoFazer, condicaoEnquanto } = this.logicaComumFazer();
+            return new FazerComoConstruto(
+                simboloFazer.hashArquivo,
+                Number(simboloFazer.linha),
+                caminhoFazer as Bloco,
+                condicaoEnquanto
+            );
+        } finally {
+            this.blocos -= 1;
+        }
+    }
+
+    protected paraCadaComoConstrutoVetor(simboloPara: SimboloInterface) {
+        const { variavelIteracao, vetor, corpo } = this.logicaComumParaCadaVetor(simboloPara);
+
+        return new ParaCadaComoConstruto(
+            this.hashArquivo,
+            Number(simboloPara.linha),
+            variavelIteracao,
+            vetor,
+            corpo
+        );
+    }
+
+    protected paraCadaComoConstrutoDicionario(simboloPara: SimboloInterface) {
+        const { nomeVariavelChave, nomeVariavelValor, dicionario, corpo } = this.logicaParaCadaDicionario(simboloPara);
+
+        return new ParaCadaComoConstruto(
+            this.hashArquivo,
+            Number(simboloPara.linha),
+            new Dupla(
+                new Literal(this.hashArquivo, Number(simboloPara.linha), nomeVariavelChave.lexema),
+                new Literal(this.hashArquivo, Number(simboloPara.linha), nomeVariavelValor.lexema)
+            ),
+            dicionario,
+            corpo
+        );
+    }
+
+    protected paraCadaComoConstruto(simboloPara: SimboloInterface): ParaCadaComoConstruto {
+        if (this.verificarTipoSimboloAtual(tiposDeSimbolos.IDENTIFICADOR)) {
+            return this.paraCadaComoConstrutoVetor(simboloPara);
+        }
+
+        if (this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_ESQUERDA)) {
+            return this.paraCadaComoConstrutoDicionario(simboloPara);
+        }
+
+        throw this.erro(
+            simboloPara,
+            'Identificador de iteração deve ser ou um par chave-valor, ou um nome de variável.'
+        );
+    }
+
+    protected paraTradicionalComoConstruto(simboloPara: SimboloInterface) {
+        const { inicializador, condicao, incrementar, corpo } = this.logicaComumPara(simboloPara);
+        
+        return new ParaComoConstruto(
+            simboloPara.hashArquivo,
+            simboloPara.linha, 
+            inicializador,
+            condicao,
+            incrementar,
+            corpo
+        );
+    }
+
+    /**
+     * Método que resolve `para` ou `para cada` como construto.
+     */
+    protected paraComoConstruto(simboloPara: SimboloInterface): ParaCadaComoConstruto | ParaComoConstruto {
+        try {
+            this.blocos += 1;
+
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CADA)) {
+                return this.paraCadaComoConstruto(simboloPara);
+            }
+
+            return this.paraTradicionalComoConstruto(simboloPara);
+        } finally {
+            this.blocos -= 1;
+        }
+    }
+
     override primario(): Construto {
         const simboloAtual = this.simbolos[this.atual];
         let valores = [];
@@ -351,6 +452,9 @@ export class AvaliadorSintatico
                     tipoVetor
                 );
 
+            case tiposDeSimbolos.ENQUANTO:
+                this.avancarEDevolverAnterior();
+                return this.enquantoComoConstruto();
             case tiposDeSimbolos.EXPRESSAO_REGULAR:
                 let valor: string = '';
                 let linhaAtual = this.simbolos[this.atual].linha;
@@ -375,6 +479,9 @@ export class AvaliadorSintatico
                 this.avancarEDevolverAnterior();
                 return new Literal(this.hashArquivo, Number(simboloAtual.linha), false, 'lógico');
 
+            case tiposDeSimbolos.FAZER:
+                const simboloFazer = this.avancarEDevolverAnterior();
+                return this.fazerComoConstruto(simboloFazer);
             case tiposDeSimbolos.FUNCAO:
             case tiposDeSimbolos.FUNÇÃO:
                 const simboloFuncao = this.avancarEDevolverAnterior();
@@ -459,6 +566,9 @@ export class AvaliadorSintatico
                     tipoDadosElementar
                 );
 
+            case tiposDeSimbolos.PARA:
+                const simboloPara = this.avancarEDevolverAnterior();
+                return this.paraComoConstruto(simboloPara);
             case tiposDeSimbolos.PARENTESE_ESQUERDO:
                 this.avancarEDevolverAnterior();
                 const expressao = this.expressao();
@@ -1353,13 +1463,22 @@ export class AvaliadorSintatico
         return new Continua(this.simbolos[this.atual - 1]);
     }
 
+    protected logicaComumEnquanto() {
+        const condicao = this.expressao();
+        // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
+        const corpo: Bloco = this.resolverDeclaracao() as Bloco;
+
+        return {
+            condicao,
+            corpo
+        };
+    }
+
     override declaracaoEnquanto(): Enquanto {
         try {
             this.blocos += 1;
 
-            const condicao = this.expressao();
-            // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
-            const corpo: Bloco = this.resolverDeclaracao() as Bloco;
+            const { condicao, corpo } = this.logicaComumEnquanto();
 
             return new Enquanto(condicao, corpo);
         } finally {
@@ -1494,17 +1613,25 @@ export class AvaliadorSintatico
         return new Falhar(simboloFalha, this.declaracaoExpressao().expressao);
     }
 
-    protected declaracaoFazer(): Fazer {
-        const simboloFazer: SimboloInterface = this.simbolos[this.atual - 1];
+    protected logicaComumFazer() {
+        const caminhoFazer = this.resolverDeclaracao();
+        this.consumir(
+            tiposDeSimbolos.ENQUANTO,
+            "Esperado declaração do 'enquanto' após o escopo do 'fazer'."
+        );
+        const condicaoEnquanto = this.expressao();
+
+        return {
+            caminhoFazer, 
+            condicaoEnquanto
+        }
+    }
+
+    protected declaracaoFazer(simboloFazer: SimboloInterface): Fazer {
         try {
             this.blocos += 1;
 
-            const caminhoFazer = this.resolverDeclaracao();
-            this.consumir(
-                tiposDeSimbolos.ENQUANTO,
-                "Esperado declaração do 'enquanto' após o escopo do 'fazer'."
-            );
-            const condicaoEnquanto = this.expressao();
+            const { caminhoFazer, condicaoEnquanto } = this.logicaComumFazer();
             return new Fazer(
                 simboloFazer.hashArquivo,
                 Number(simboloFazer.linha),
@@ -1544,7 +1671,7 @@ export class AvaliadorSintatico
         }
     }
 
-    protected declaracaoParaCadaDicionario(simboloPara: SimboloInterface) {
+    protected logicaParaCadaDicionario(simboloPara: SimboloInterface) {
         this.avancarEDevolverAnterior(); // chave esquerda
         const nomeVariavelChave = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
@@ -1597,6 +1724,17 @@ export class AvaliadorSintatico
         // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
         const corpo: Bloco = this.resolverDeclaracao() as Bloco;
 
+        return {
+            nomeVariavelChave, 
+            nomeVariavelValor,
+            dicionario,
+            corpo
+        }
+    }
+
+    protected declaracaoParaCadaDicionario(simboloPara: SimboloInterface) {
+        const { nomeVariavelChave, nomeVariavelValor, dicionario, corpo } = this.logicaParaCadaDicionario(simboloPara);
+
         return new ParaCada(
             this.hashArquivo,
             Number(simboloPara.linha),
@@ -1609,7 +1747,7 @@ export class AvaliadorSintatico
         );
     }
 
-    protected declaracaoParaCadaVetor(simboloPara: SimboloInterface) {
+    protected logicaComumParaCadaVetor(simboloPara: SimboloInterface) {
         const nomeVariavelIteracao = this.avancarEDevolverAnterior();
         const variavelIteracao = new Variavel(this.hashArquivo, nomeVariavelIteracao);
 
@@ -1649,6 +1787,16 @@ export class AvaliadorSintatico
         // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
         const corpo: Bloco = this.resolverDeclaracao() as Bloco;
 
+        return {
+            variavelIteracao, 
+            vetor,
+            corpo
+        };
+    }
+
+    protected declaracaoParaCadaVetor(simboloPara: SimboloInterface) {
+        const { variavelIteracao, vetor, corpo } = this.logicaComumParaCadaVetor(simboloPara);
+
         return new ParaCada(
             this.hashArquivo,
             Number(simboloPara.linha),
@@ -1673,7 +1821,7 @@ export class AvaliadorSintatico
         );
     }
 
-    protected declaracaoParaTradicional(simboloPara: SimboloInterface): Para {
+    protected logicaComumPara(simboloPara: SimboloInterface) {
         const comParenteses = this.verificarSeSimboloAtualEIgualA(
             tiposDeSimbolos.PARENTESE_ESQUERDO
         );
@@ -1715,6 +1863,17 @@ export class AvaliadorSintatico
 
         // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
         const corpo: Bloco = this.resolverDeclaracao() as Bloco;
+
+        return {
+            inicializador,
+            condicao,
+            incrementar,
+            corpo
+        };
+    }
+
+    protected declaracaoParaTradicional(simboloPara: SimboloInterface): Para {
+        const { inicializador, condicao, incrementar, corpo } = this.logicaComumPara(simboloPara);
 
         return new Para(
             this.hashArquivo,
@@ -1918,8 +2077,8 @@ export class AvaliadorSintatico
                 this.avancarEDevolverAnterior();
                 return this.declaracaoFalhar();
             case tiposDeSimbolos.FAZER:
-                this.avancarEDevolverAnterior();
-                return this.declaracaoFazer();
+                const simboloFazer = this.avancarEDevolverAnterior();
+                return this.declaracaoFazer(simboloFazer);
             case tiposDeSimbolos.LINHA_COMENTARIO:
                 return this.declaracaoComentarioMultilinha();
             case tiposDeSimbolos.PARA:

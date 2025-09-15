@@ -4,7 +4,7 @@
   <h3 align="center">Linguagem Delégua</h3>
 
   <p align="center">
-    Linguagem de programação 100% em português com suporte a múltiplos dialetos, como Portugol VisuAlg, Portugol Studio, Mapler e BIRL.</a>
+    Linguagem de programação 100% em português com suporte a múltiplos dialetos, como variações de Portugol (VisuAlg, Portugol Studio, Portugol IPT, Mapler), e outros (Pituguês, BIRL, Calango).</a>
   </p>
 
   <p align="center">
@@ -43,7 +43,7 @@
 
 ## Introdução
 
-Delégua é uma linguagem de programação baseada na língua portuguesa, cujo código começou como uma variação (_fork_) da [linguagem Égua](https://egua.dev), usada para fins educacionais e comerciais pela Design Líquido. A variação começou na versão 1.2.0 de Égua.
+Delégua é uma linguagem de programação baseada na língua portuguesa, usada para fins educacionais e comerciais pela Design Líquido, cujo código começou como uma variação (_fork_) da [linguagem Égua](https://egua.dev). A variação começou na versão 1.2.0 de Égua.
 
 Delégua tem retrocompatibilidade parcial com a linguagem Égua e compreende sua extensão de arquivo (`.egua`), para
 aplicações por linha de comando. Em outras palavras, todo programa escrito em Égua funciona no dialeto de Delégua correspondente. No mais, Delégua se diferenciou substancialmente de Égua com o passar dos anos, [e essas diferenças estão descritas em nossa documentação](https://github.com/DesignLiquido/delegua/wiki).

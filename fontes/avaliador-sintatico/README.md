@@ -1,6 +1,6 @@
 # Avaliador Sintático
 
-O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível. Essas estruturas de alto nível são as partes chamadas resolvidas do código, e que podem conter lógica de programação de fato, ou que contêm informações importantes a serem consideradas em etapas posteriores. É a funcionalidade mais importante de Delégua, já que seu resultado é utilizado para:
+O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível. Essas estruturas de alto nível são as partes do código chamadas _resolvidas_, e que podem executar lógica de programação de fato, ou contêm informações importantes a serem consideradas em etapas posteriores (por exemplo, decoradores). É a funcionalidade mais importante de Delégua, já que seu resultado é utilizado para:
 
 - Interpretar o código e executá-lo;
 - Formatar o código;
@@ -10,17 +10,19 @@ O avaliador sintático (_Parser_) é responsável por transformar os símbolos d
 Há dois grupos de estruturas de alto nível: Construtos e Declarações. 
 
 - Um Construto não executa por si só;
-- Uma combinação de Construtos precisa estar contida em uma Expressão para ser válida;
-- Uma Expressão é um tipo de Declaração;
+- Uma combinação de Construtos precisa estar contida em uma Declaração para ser válida;
+- Uma Expressão é um tipo de Declaração, mas que normalmente não possui utilidade prática, que não seja resolver um valor para outra Declaração;
 - Uma Declaração é um elemento que
     - Pode ser executado pelo Interpretador;
     - Pode ser traduzido pelo Tradutor;
     - Pode ser analisado pelo Analisador Semântico;
     - Pode ser compilado em instruções binárias.
 
+Todo elemento declarativo da linguagem, como atribuição de variável, fluxo condicional, laço de repetição, etc., conta com suas Declarações correspondentes.
+
 ## Dialetos
 
-No diretório `dialetos`, temos a implementação de avaliadores sintáticos de dialetos de Delégua que começam sendo implementados aqui. Conforme a necessidade, são separados em diferentes pacotes. Outros dialetos, como VisuAlg, Portugol Studio, Mapler, Potigol e BIRL, começaram sendo implementados aqui, mas maturaram e foram separados. Os dialetos que ainda estão aqui podem um dia ser separados também, mas isso requer uma certa evolução nas suas particularidades.
+No diretório `dialetos` temos a implementação de avaliadores sintáticos de dialetos de Delégua, que começam sendo implementados neste núcleo. Conforme a necessidade, são separados em diferentes pacotes. Outros dialetos, como VisuAlg, Portugol Studio, Mapler, Potigol e BIRL, começaram sendo implementados aqui, mas maturaram e foram separados. Os dialetos que ainda estão aqui podem um dia ser separados também, mas isso requer uma certa evolução nas suas particularidades, junto com uma real necessidade para essa separação.
 
 ## Micro Avaliador Sintático
 

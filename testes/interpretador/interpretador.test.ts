@@ -1246,6 +1246,25 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Enquanto com retorno pelo escopo', async () => {
+                    const retornoLexador = lexador.mapear(
+                    [
+                        'var a = 0',
+                        'var teste = enquanto a <= 5 {',
+                        '    a++',
+                        '    retorna a * 6',
+                        '}',
+                        'escreva(teste)'
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe("[6, 12, 18, 24, 30, 36]");
+                });
+
                 it('fazer ... enquanto', async () => {
                     const retornoLexador = lexador.mapear(['var a = 0', 'fazer { a = a + 1 } enquanto (a < 10)'], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -1254,6 +1273,25 @@ describe('Interpretador', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
+
+                it('fazer ... enquanto com retorno pelo escopo', async () => {
+                    const retornoLexador = lexador.mapear(
+                    [
+                        'var a = 1',
+                        'var teste = fazer {',
+                        '    ++a',
+                        '    retorna a * 6',
+                        '} enquanto a <= 5',
+                        'escreva(teste)'
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe("[12, 18, 24, 30, 36]");
+                });                
 
                 describe('Para cada', () => {
                     it('para cada - trivial', async () => {
@@ -1378,41 +1416,79 @@ describe('Interpretador', () => {
                         expect(retornoInterpretador.erros).toHaveLength(0);
                         expect(_saidas).toHaveLength(4);
                     });
-                });
 
-                it('para', async () => {
-                    const saidasMensagens = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-                    const retornoLexador = lexador.mapear(['para (var i = 0; i < 10; i = i + 1) { escreva(i) }'], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        expect(saidasMensagens.includes(saida)).toBeTruthy();
-                    };
-
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-
-                    expect(retornoInterpretador.erros).toHaveLength(0);
-                });
-
-                it('para, com vetor declarado em escopo anterior', async () => {
-                    const retornoLexador = lexador.mapear(
+                    it('para cada como construto', async () => {
+                        const retornoLexador = lexador.mapear(
                         [
-                            'var numeros = [1, 2, 3, 4]',
-                            'var novaLista = []',
-                            'para (var i = 0; i < numeros.tamanho(); i++) {',
-                            '    var novoNumero = numeros[i] * 2',
-                            '    novaLista.adicionar(novoNumero)',
+                            'var teste = para cada elemento em [1, 2, 3] {',
+                            '    retorna elemento * 4',
                             '}',
-                            'escreva(novaLista)',
-                        ], -1
-                    );
+                            'escreva(teste)'
+                        ], -1);
 
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                    expect(retornoInterpretador.erros).toHaveLength(0);
-                    expect(_saidas).toHaveLength(1);
-                    expect(_saidas[0]).toBe('[2, 4, 6, 8]');
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe("[4, 8, 12]");
+                    });
+                });
+
+                describe('Para tradicional', () => {
+                    it('Trivial', async () => {
+                        const saidasMensagens = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+                        const retornoLexador = lexador.mapear(['para (var i = 0; i < 10; i = i + 1) { escreva(i) }'], -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                        interpretador.funcaoDeRetorno = (saida: any) => {
+                            expect(saidasMensagens.includes(saida)).toBeTruthy();
+                        };
+
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                    });
+
+                    it('para, com vetor declarado em escopo anterior', async () => {
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'var numeros = [1, 2, 3, 4]',
+                                'var novaLista = []',
+                                'para (var i = 0; i < numeros.tamanho(); i++) {',
+                                '    var novoNumero = numeros[i] * 2',
+                                '    novaLista.adicionar(novoNumero)',
+                                '}',
+                                'escreva(novaLista)',
+                            ], -1
+                        );
+
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('[2, 4, 6, 8]');
+                    });
+
+                    it('Para com retorno pelo escopo', async () => {
+                        const retornoLexador = lexador.mapear(
+                        [
+                            'var teste = para (var i = 0; i < 10; i = i + 1) {',
+                            '    se (i == 5) { sustar; }',
+                            '    retorna i ** i',
+                            '}',
+                            'escreva(teste)'
+                        ], -1);
+
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe("[1, 1, 4, 27, 256]");
+                    });
                 });
             });
 

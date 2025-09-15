@@ -529,8 +529,8 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         ](declaracaoParaCada.variavelIteracao);
         let resultado = `for (let ${variavelIteracao} of `;
         resultado +=
-            this.dicionarioConstrutos[declaracaoParaCada.vetor.constructor.name](
-                declaracaoParaCada.vetor
+            this.dicionarioConstrutos[declaracaoParaCada.vetorOuDicionario.constructor.name](
+                declaracaoParaCada.vetorOuDicionario
             ) + ') ';
 
         resultado += this.dicionarioDeclaracoes[declaracaoParaCada.corpo.constructor.name](

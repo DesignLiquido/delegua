@@ -6,10 +6,10 @@ São divididas em duas categorias: bibliotecas de métodos tradicionais e biblio
 
 Bibliotecas de métodos tradicionais são métodos independentes que normalmente trabalham com variáveis e constantes de diferentes tipos. Por exemplo, o método `tamanho()` trabalha com tuplas, dicionários, textos e vetores.
 
-Bibliotecas de primitivas são métodos que pertencem a estruturas de dados elementares da linguagem. Por exemplo:
+Bibliotecas de primitivas são conjuntos de métodos que pertencem a estruturas de dados elementares da linguagem. Por exemplo:
 
 ```js
 escreva("1 2 3".dividir(' ')) // Imprime um vetor, [1, 2, 3]
 ```
 
-Neste caso, `"1 2 3"` é um literal de texto. Como Delégua tenta ser puramente orientada a objetos, estruturas de dados elementares são, a rigor, classes, e suas variáveis, constantes e literais são objetos dessas classes.
+Neste caso, `"1 2 3"` é um literal de texto, e portanto pode usar todo e qualquer método da biblioteca de primitivas de texto. Como Delégua tenta ser puramente orientada a objetos, estruturas de dados elementares são, a rigor, classes, e suas variáveis, constantes e literais são objetos dessas classes.
