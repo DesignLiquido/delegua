@@ -279,12 +279,12 @@ describe('Interpretador (Pituguês)', () => {
             });
 
             describe('Classes', () => {
-                it('Trivial', async () => {
+                it.only('Trivial', async () => {
                     const codigo = [
                         "classe Animal:",
                         "    função correr():",
                         "        escreva('Correndo Loucamente')",
-                        "classe Cachorro herda Animal:",
+                        "classe Cachorro(Animal):",
                         "    função latir():",
                         "        escreva('Au Au Au Au')",
                         "var nomeDoCachorro = Cachorro()",

@@ -1430,13 +1430,16 @@ export class AvaliadorSintaticoPitugues
         );
 
         let superClasse = null;
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.HERDA)) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
+
             const simboloSuperclasse = this.consumir(
                 tiposDeSimbolos.IDENTIFICADOR,
                 'Esperado nome da Superclasse.'
             );
             this.superclasseAtual = simboloSuperclasse.lexema;
             superClasse = new Variavel(this.hashArquivo, this.simboloAnterior());
+
+            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração.");
         }
 
         this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' antes do escopo da classe.");
