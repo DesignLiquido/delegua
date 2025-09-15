@@ -1,10 +1,10 @@
 // Exemplo de declaração de variáveis em Prisma
-var nome = "João";
-var idade = 25;
-var salario = 3500.50;
-var ativo = verdadeiro;
+local nome = "João";
+local idade = 25;
+local salario = 3500.50;
+local ativo = verdadeiro;
 
-escreva("Nome:", nome);
-escreva("Idade:", idade);
-escreva("Salário:", salario);
-escreva("Ativo:", ativo);
+imprima("Nome:", nome);
+imprima("Idade:", idade);
+imprima("Salário:", salario);
+imprima("Ativo:", ativo);

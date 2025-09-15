@@ -26,25 +26,25 @@ Este diretório contém exemplos de código escritos no dialeto **Prisma** da li
 
 ### Variáveis
 ```prisma
-var nome = "João";
-var idade = 25;
-var ativo = verdadeiro;
+local nome = "João";
+local idade = 25;
+local ativo = verdadeiro;
 ```
 
 ### Condicionais
 ```prisma
 se (idade >= 18) {
-    escreva("Maior de idade");
+    imprima("Maior de idade");
 } senão {
-    escreva("Menor de idade");
+    imprima("Menor de idade");
 }
 ```
 
 ### Loops
 ```prisma
 // For tradicional
-para (var i = 0; i < 5; i = i + 1) {
-    escreva(i);
+para (local i = 0; i < 5; i = i + 1) {
+    imprima(i);
 }
 
 // While
@@ -54,7 +54,7 @@ enquanto (contador < 10) {
 
 // Para cada
 para cada item em lista {
-    escreva(item);
+    imprima(item);
 }
 ```
 
@@ -64,7 +64,7 @@ funcao somar(a, b) {
     retorna a + b;
 }
 
-var resultado = somar(3, 4);
+local resultado = somar(3, 4);
 ```
 
 ### Classes
@@ -80,13 +80,13 @@ classe Pessoa {
     }
 }
 
-var pessoa = Pessoa("Maria", 30);
-escreva(pessoa.apresentar());
+local pessoa = Pessoa("Maria", 30);
+imprima(pessoa.apresentar());
 ```
 
 ## Palavras-chave
 
-- `var` - Declaração de variável
+- `local` - Declaração de variável
 - `funcao` - Declaração de função
 - `classe` - Declaração de classe
 - `construtor` - Construtor de classe
@@ -102,7 +102,7 @@ escreva(pessoa.apresentar());
 - `nulo` - Null
 - `isto` - This
 - `super` - Super
-- `escreva` - Print/output
+- `imprima` - Print/output
 - `leia` - Input
 - `e` - Operador AND lógico
 - `ou` - Operador OR lógico

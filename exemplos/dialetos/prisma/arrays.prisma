@@ -1,27 +1,27 @@
 // Exemplo de trabalho com arrays/vetores em Prisma
 
 // Criando arrays
-var frutas = ["maçã", "banana", "laranja"];
-var numeros = [1, 2, 3, 4, 5];
-var misto = [1, "texto", verdadeiro, 3.14];
+local frutas = ["maçã", "banana", "laranja"];
+local numeros = [1, 2, 3, 4, 5];
+local misto = [1, "texto", verdadeiro, 3.14];
 
 // Acessando elementos
-escreva("Primeira fruta:", frutas[0]);
-escreva("Segundo número:", numeros[1]);
+imprima("Primeira fruta:", frutas[0]);
+imprima("Segundo número:", numeros[1]);
 
 // Modificando elementos
 frutas[0] = "pêra";
-escreva("Nova primeira fruta:", frutas[0]);
+imprima("Nova primeira fruta:", frutas[0]);
 
 // Trabalhando com métodos de array
-escreva("Tamanho do array frutas:", tamanho(frutas));
+imprima("Tamanho do array frutas:", tamanho(frutas));
 
 // Adicionando elementos
 frutas[3] = "uva";
-escreva("Array após adição:", frutas);
+imprima("Array após adição:", frutas);
 
 // Iterando sobre array
-escreva("Todas as frutas:");
+imprima("Todas as frutas:");
 para cada fruta em frutas {
-    escreva("-", fruta);
+    imprima("-", fruta);
 }

@@ -27,12 +27,12 @@ classe Estudante(Pessoa) {
 }
 
 // Criando objetos
-var pessoa1 = Pessoa("João", 25);
-var estudante1 = Estudante("Maria", 20, "Computação");
+local pessoa1 = Pessoa("João", 25);
+local estudante1 = Estudante("Maria", 20, "Computação");
 
 // Usando métodos
-escreva(pessoa1.apresentar());
-escreva(estudante1.apresentar());
+imprima(pessoa1.apresentar());
+imprima(estudante1.apresentar());
 
 pessoa1.envelhecer();
-escreva("Após envelhecer:", pessoa1.apresentar());
+imprima("Após envelhecer:", pessoa1.apresentar());

@@ -1,10 +1,10 @@
 // Exemplo de operações matemáticas em Prisma
-var a = 10;
-var b = 3;
+local a = 10;
+local b = 3;
 
-escreva("Soma:", a + b);
-escreva("Subtração:", a - b);
-escreva("Multiplicação:", a * b);
-escreva("Divisão:", a / b);
-escreva("Módulo:", a % b);
-escreva("Exponenciação:", a ** b);
+imprima("Soma:", a + b);
+imprima("Subtração:", a - b);
+imprima("Multiplicação:", a * b);
+imprima("Divisão:", a / b);
+imprima("Módulo:", a % b);
+imprima("Exponenciação:", a ** b);

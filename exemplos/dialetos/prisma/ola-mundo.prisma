@@ -1,2 +1,2 @@
 // Exemplo básico: Olá Mundo em Prisma
-escreva("Olá, mundo!");
+imprima("Olá, mundo!");

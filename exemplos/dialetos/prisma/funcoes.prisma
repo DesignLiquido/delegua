@@ -20,12 +20,12 @@ funcao fibonacci(n) {
 }
 
 // Testando as funções
-var mensagem = saudacao("Maria");
-escreva(mensagem);
+local mensagem = saudacao("Maria");
+imprima(mensagem);
 
-var area1 = calcularArea(5, 3);
-var area2 = calcularArea(4); // usa altura padrão
-escreva("Área 1:", area1);
-escreva("Área 2:", area2);
+local area1 = calcularArea(5, 3);
+local area2 = calcularArea(4); // usa altura padrão
+imprima("Área 1:", area1);
+imprima("Área 2:", area2);
 
-escreva("Fibonacci de 6:", fibonacci(6));
+imprima("Fibonacci de 6:", fibonacci(6));

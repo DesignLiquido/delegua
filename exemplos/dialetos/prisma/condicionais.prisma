@@ -1,20 +1,20 @@
 // Exemplo de estruturas condicionais em Prisma
-var idade = 18;
+local idade = 18;
 
 se (idade >= 18) {
-    escreva("Maior de idade");
+    imprima("Maior de idade");
 } senão {
-    escreva("Menor de idade");
+    imprima("Menor de idade");
 }
 
-var nota = 7.5;
+local nota = 7.5;
 
 se (nota >= 9) {
-    escreva("Excelente");
+    imprima("Excelente");
 } senão se (nota >= 7) {
-    escreva("Bom");
+    imprima("Bom");
 } senão se (nota >= 5) {
-    escreva("Regular");
+    imprima("Regular");
 } senão {
-    escreva("Insuficiente");
+    imprima("Insuficiente");
 }
