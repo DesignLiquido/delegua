@@ -80,6 +80,21 @@ describe('Avaliador sintático (Pituguês)', () => {
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
             });
+
+
+            it('Lista Compreensão', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                    'var lista = [1, 2, 3, 4, 5]',
+                    'var minhaListaCompreensao = [x para cada x em lista se x % 2 == 0] # Lista de compreensão para números pares'
+                    ], -1
+                );
+                const retornoAvaliadorSintatico =
+                    avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+            });
         });
         
         describe('Casos de falha', () => {

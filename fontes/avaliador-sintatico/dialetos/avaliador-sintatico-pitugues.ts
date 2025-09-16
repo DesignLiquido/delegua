@@ -446,14 +446,13 @@ export class AvaliadorSintaticoPitugues
             case tiposDeSimbolos.COLCHETE_ESQUERDO:
                 this.avancarEDevolverAnterior();
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
-
-                    if(this.verificarTipoProximoSimbolo(tiposDeSimbolos.IDENTIFICADOR)) {
-                        /* Na linha abaixo, ainda fico um pouco na dúvida se uso "avancarEDevolverAnterior" ou não */
-                        let simboloVariavelIteravel: SimboloInterface = this.simboloAtual()
-                        let listaCompreensao = this.resolverListaDeCompreensao(simboloVariavelIteravel);
-                    }
-
                     return new Vetor(this.hashArquivo, simboloAtual.linha, [], 0, 'qualquer[]');
+                }
+
+                let listaCompreensao = null;
+                if(this.verificarTipoProximoSimbolo(tiposDeSimbolos.IDENTIFICADOR)) {
+                    let simboloVariavelIteravel: SimboloInterface = this.simboloAtual()
+                    listaCompreensao = this.resolverListaDeCompreensao(simboloVariavelIteravel);
                 }
 
                 while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
