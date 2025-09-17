@@ -434,6 +434,8 @@ export class TradutorReversoJavaScript
 
     traduzirDeclaracao(declaracao: any): string {
         switch (declaracao.type) {
+            case 'BlockStatement':
+                return this.logicaComumBlocoEscopo(declaracao);
             case 'ClassDeclaration':
                 return this.traduzirDeclaracaoClasse(declaracao);
             case 'DoWhileStatement':
