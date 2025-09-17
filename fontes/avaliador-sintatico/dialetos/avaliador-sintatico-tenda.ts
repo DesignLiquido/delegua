@@ -658,7 +658,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
                     );
                 if (informacoesPossivelFuncaoBibliotecaGlobal !== undefined) {
                     const erros = this.validarArgumentosEntidadeChamada(
-                        informacoesPossivelFuncaoBibliotecaGlobal.subElementos,
+                        informacoesPossivelFuncaoBibliotecaGlobal.subElementos as InformacaoElementoSintatico[],
                         argumentos
                     );
                     if (erros.length > 0) {
@@ -681,7 +681,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
                 var informacoesPrimitiva =
                     this.primitivasConhecidas[entidadeChamadaResolvidaVariavel.simbolo.lexema];
                 const erros = this.validarArgumentosEntidadeChamada(
-                    informacoesPrimitiva.subElementos,
+                    informacoesPrimitiva.subElementos as InformacaoElementoSintatico[],
                     argumentos
                 );
                 if (erros.length > 0) {

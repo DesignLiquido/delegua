@@ -282,7 +282,7 @@ describe('Interpretador', () => {
                         expect(_saidas[0]).toBe('[{"um":"dois","tres":{"quatro":5}}, {"seis":7,"oito":9}]');
                     });
 
-                    it.skip('Dicionários com vetores', async () => {
+                    it('Dicionários com vetores', async () => {
                         const retornoLexador = lexador.mapear([
                             'var meuDicionario = { "minhaLista": [] }',
                             'meuDicionario.minhaLista.adicionar({"outro": "dicionário"})',

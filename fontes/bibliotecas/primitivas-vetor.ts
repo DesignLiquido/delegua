@@ -21,12 +21,14 @@ export default {
             elemento: any
         ): Promise<any> => {
             vetor.push(elemento);
-            interpretador.pilhaEscoposExecucao.atribuirVariavel(
-                {
-                    lexema: nomePrimitiva,
-                } as SimboloInterface,
-                vetor
-            );
+            // TODO: Será que apenas isso é suficiente aqui? 
+            if (nomePrimitiva !== '') {
+                interpretador.pilhaEscoposExecucao.atribuirVariavel(
+                    { lexema: nomePrimitiva } as SimboloInterface,
+                    vetor
+                );
+            }
+            
             return Promise.resolve(vetor);
         },
         assinaturaFormato: 'vetor.adicionar(...elemento: qualquer)',

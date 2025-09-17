@@ -92,12 +92,17 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         return valorMontao;
     }
 
-    override resolverValor(objeto: any) {
+    override resolverValor(objeto: any, referencia: boolean = false) {
         if (objeto === null || objeto === undefined) {
             return objeto;
         }
 
         if (Array.isArray(objeto)) {
+            // Caso interpretador precise da referência ao vetor original (por exemplo, visita a `AcessoMetodoOuPropriedade`).
+            if (referencia) {
+                return objeto;
+            }
+
             const vetorResolvido: any[] = [];
             for (const elemento of objeto) {
                 vetorResolvido.push(this.resolverValor(elemento));
@@ -713,7 +718,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             variavelObjeto = retornoQuebra.valor;
         }
 
-        const objeto = this.resolverValor(variavelObjeto);
+        const objeto = this.resolverValor(variavelObjeto, true);
 
         if (objeto.constructor === ObjetoDeleguaClasse) {
             return (objeto as ObjetoDeleguaClasse).obter(expressao.simbolo);

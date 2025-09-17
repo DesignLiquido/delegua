@@ -1,7 +1,8 @@
 import { FuncaoDeclaracao } from '../declaracoes';
-import { PilhaInterface, VariavelInterface } from '../interfaces';
+import { PilhaInterface } from '../interfaces';
 import { InformacaoEscopo } from './informacao-escopo';
 import { InformacaoElementoSintatico as InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
+import { ElementoMontaoTipos } from './elemento-montao-tipos';
 
 export class PilhaEscopos implements PilhaInterface<InformacaoEscopo> {
     pilha: InformacaoEscopo[];
@@ -43,7 +44,23 @@ export class PilhaEscopos implements PilhaInterface<InformacaoEscopo> {
         throw new Error("Variável não definida: '" + nome + "'.");
     }
 
-    definirInformacoesVariavel(nomeVariavel: string, informacoes: InformacaoElementoSintatico) {
+    obterElementoMontaoTipos(nome: string): ElementoMontaoTipos {
+        for (let i = 1; i <= this.pilha.length; i++) {
+            const informacaoEscopo = this.pilha[this.pilha.length - i];
+            if (informacaoEscopo.elementosSintaticos[nome] !== undefined) {
+                const elementoMontaoTipos = informacaoEscopo.elementosSintaticos[nome];
+                if (!(elementoMontaoTipos instanceof ElementoMontaoTipos)) {
+                    throw new Error(`Elemento não é um dicionário ou objeto por não pertencer ao montão de tipos: ${nome}`);
+                }
+
+                return elementoMontaoTipos;
+            }
+        }
+
+        throw new Error("Elemento não existente no montão de tipos: '" + nome + "'.");
+    }
+
+    definirInformacoesVariavel(nomeVariavel: string, informacoes: InformacaoElementoSintatico | ElementoMontaoTipos) {
         const topoDaPilha = this.topoDaPilha();
         topoDaPilha.elementosSintaticos[nomeVariavel] = informacoes;
     }

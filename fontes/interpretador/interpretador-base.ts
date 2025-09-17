@@ -772,12 +772,12 @@ export class InterpretadorBase implements InterpretadorInterface {
      * Faz a chamada do método de uma primitiva (por exemplo, número, texto, etc.) com seus
      * respectivos argumentos.
      * @param {Chamada} expressao A expressão de chamada.
-     * @param {MetodoPrimitiva} entidadeChamada O método da primitiva chamado.
+     * @param {MetodoPrimitiva} metodoPrimitivaChamado O método da primitiva chamado.
      * @returns O resultado da chamada do método da primitiva.
      */
     protected async chamarMetodoPrimitiva(
         expressao: Chamada,
-        entidadeChamada: MetodoPrimitiva
+        metodoPrimitivaChamado: MetodoPrimitiva
     ): Promise<any> {
         const argumentosResolvidos: any[] = [];
 
@@ -786,7 +786,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             argumentosResolvidos.push(this.resolverValor(valorResolvido));
         }
 
-        return await entidadeChamada.chamar(this, argumentosResolvidos);
+        return await metodoPrimitivaChamado.chamar(this, argumentosResolvidos);
     }
 
     protected async resolverArgumentosChamada(expressao: Chamada): Promise<ArgumentoInterface[]> {

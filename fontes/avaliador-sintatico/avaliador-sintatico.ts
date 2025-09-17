@@ -76,6 +76,7 @@ import { PilhaEscopos } from './pilha-escopos';
 import { InformacaoEscopo } from './informacao-escopo';
 import { InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
 import { buscarRetornos, registrarPrimitiva } from './comum';
+import { MontaoTipos } from './montao-tipos';
 
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
@@ -84,7 +85,7 @@ import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
-
+import { ElementoMontaoTipos } from './elemento-montao-tipos';
 
 // Será usado para forçar tipagem em construtos e em algumas funções internas.
 type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolos];
@@ -99,11 +100,14 @@ type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolo
  *
  * Este é o avaliador sintático de Delégua que, assim como todos os demais dialetos baseados
  * neste núcleo, são uma derivação do avaliador sintático base. Aqui estão implementadas várias mecânicas
- * a mais relacionadas a tipagem e registros de bibliotecas externas. Por exemplo, `tiposDeFerramentasExternas`
- * é utilizada em [Liquido](https://github.com/DesignLiquido/liquido) para registro de tipos exclusivos
- * de Liquido, como classes de requisição e resposta. `primitivasConhecidas` é utilizada aqui para
- * registro de métodos relacionados a tipos, e também para as bibliotecas externas de Delégua registrarem
- * suas respectivas resoluções de tipos.
+ * a mais relacionadas a tipagem e registros de bibliotecas externas: 
+ * 
+ * - `tiposDeFerramentasExternas` é utilizada em [Liquido](https://github.com/DesignLiquido/liquido) 
+ * para registro de tipos exclusivos de Liquido, como classes de requisição e resposta; 
+ * - `primitivasConhecidas` é utilizada aqui para registro de métodos relacionados a tipos, e também 
+ * para as bibliotecas externas de Delégua registrarem suas respectivas resoluções de tipos;
+ * - `montaoTipos` é uma implementação de montão muito semelhante ao montão do interpretador, para
+ * tipos complexos com N níveis de profundidade, como dicionários e objetos.
  */
 export class AvaliadorSintatico
     extends AvaliadorSintaticoBase
@@ -118,6 +122,7 @@ export class AvaliadorSintatico
     primitivasConhecidas: {
         [nomeModuloOuClasse: string]: { [nomePrimitiva: string]: InformacaoElementoSintatico };
     };
+    montaoTipos: MontaoTipos;
 
     hashArquivo: number;
     atual: number;
@@ -135,13 +140,13 @@ export class AvaliadorSintatico
         this.tiposDefinidosEmCodigo = {};
         this.tiposDeFerramentasExternas = {};
         this.primitivasConhecidas = {};
+        this.pilhaEscopos = new PilhaEscopos();
+        this.montaoTipos = new MontaoTipos();
 
         registrarPrimitiva(this.primitivasConhecidas, 'dicionário', primitivasDicionario);
         registrarPrimitiva(this.primitivasConhecidas, 'número', primitivasNumero);
         registrarPrimitiva(this.primitivasConhecidas, 'texto', primitivasTexto);
         registrarPrimitiva(this.primitivasConhecidas, 'vetor', primitivasVetor);
-
-        this.pilhaEscopos = new PilhaEscopos();
     }
 
     protected verificarDefinicaoTipoAtual(): string {
@@ -753,9 +758,24 @@ export class AvaliadorSintatico
                     "Esperado nome de método ou propriedade após '.'."
                 );
 
-                const novoTipoInferido = expressaoAnterior.tipo;
-                const acesso = new AcessoMetodoOuPropriedade(this.hashArquivo, expressaoAnterior, nome);
-                return this.resolverCadeiaChamadas(acesso, novoTipoInferido);
+                let tipoInferido = expressaoAnterior.tipo;
+                // Se não for um dicionário anônimo (ou seja, ser variável ou constante com nome)
+                if (expressaoAnterior.tipo === 'dicionário' && expressaoAnterior.constructor !== Dicionario) {
+                    const nomeDicionario = (expressaoAnterior as Variavel).simbolo.lexema;
+                    const elementoDicionarioPilha = this.pilhaEscopos.obterElementoMontaoTipos(nomeDicionario);
+                    const referenciaMontaoTipos = this.montaoTipos.obterReferencia(
+                        expressaoAnterior.hashArquivo, 
+                        expressaoAnterior.linha, 
+                        elementoDicionarioPilha.endereco
+                    );
+
+                    if (nome.lexema in referenciaMontaoTipos.subElementos) {
+                        tipoInferido = referenciaMontaoTipos.subElementos[nome.lexema].tipo;
+                    }
+                }
+
+                const acesso = new AcessoMetodoOuPropriedade(this.hashArquivo, expressaoAnterior, nome, tipoInferido);
+                return this.resolverCadeiaChamadas(acesso, tipoInferido);
             case tiposDeSimbolos.COLCHETE_ESQUERDO:
                 this.avancarEDevolverAnterior();
                 const indice = this.expressao();
@@ -777,38 +797,7 @@ export class AvaliadorSintatico
 
     override chamar(): Construto {
         let expressao = this.primario();
-        let tipoPrimitiva: string = undefined;
-
-        /* while (true) {
-            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
-                expressao = this.finalizarChamada(expressao, tipoPrimitiva);
-            } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
-                const nome = this.consumir(
-                    tiposDeSimbolos.IDENTIFICADOR,
-                    "Esperado nome de método ou propriedade após '.'."
-                );
-
-                tipoPrimitiva = expressao.tipo;
-                expressao = new AcessoMetodoOuPropriedade(this.hashArquivo, expressao, nome);
-            } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
-                const indice = this.expressao();
-                const simboloFechamento = this.consumir(
-                    tiposDeSimbolos.COLCHETE_DIREITO,
-                    "Esperado ']' após escrita do indice."
-                );
-                expressao = new AcessoIndiceVariavel(
-                    this.hashArquivo,
-                    expressao,
-                    indice,
-                    simboloFechamento
-                );
-            } else {
-                break;
-            }
-        } */ 
-
         return this.resolverCadeiaChamadas(expressao);
-        // return expressao;
     }
 
     /**
@@ -1002,13 +991,15 @@ export class AvaliadorSintatico
 
             if (tipoPrimitiva === 'qualquer') {
                 // Provavelmente uma chamada a alguma função da biblioteca global.
-                const informacoesPossivelFuncaoBibliotecaGlobal =
+                // Até então, é sempre do tipo `InformacaoElementoSintatico`.
+                const informacoesPossivelFuncaoBibliotecaGlobal: InformacaoElementoSintatico =
                     this.pilhaEscopos.obterBibliotecaGlobal(
                         entidadeChamadaResolvidaVariavel.simbolo.lexema
-                    );
+                    ) as InformacaoElementoSintatico;
+
                 if (informacoesPossivelFuncaoBibliotecaGlobal) {
                     const erros = this.validarArgumentosEntidadeChamada(
-                        informacoesPossivelFuncaoBibliotecaGlobal.subElementos,
+                        informacoesPossivelFuncaoBibliotecaGlobal.subElementos as InformacaoElementoSintatico[],
                         argumentos
                     );
                     if (erros.length > 0) {
@@ -1033,7 +1024,7 @@ export class AvaliadorSintatico
                         entidadeChamadaResolvidaVariavel.simbolo.lexema
                     ];
                 const erros = this.validarArgumentosEntidadeChamada(
-                    informacoesPrimitiva.subElementos,
+                    informacoesPrimitiva.subElementos as InformacaoElementoSintatico[],
                     argumentos
                 );
                 if (erros.length > 0) {
@@ -2359,20 +2350,35 @@ export class AvaliadorSintatico
         }
     }
 
-    protected resolverInformacaoElementoSintaticoDeDicionario(identificador: string, dicionario: Dicionario) {
-        const retorno = new InformacaoElementoSintatico(identificador, 'dicionário');
-        const tiposValores = [];
-        for (var i = 0; i < dicionario.valores.length; i++) {
-            const chaveCorrespondente = dicionario.chaves[i];
-            const valorCorrespondente = dicionario.valores[i];
-            if (valorCorrespondente.tipo !== 'dicionário') {
-                tiposValores.push(new InformacaoElementoSintatico(chaveCorrespondente, valorCorrespondente.tipo));
-            } else {
-                tiposValores.push(this.resolverInformacaoElementoSintaticoDeDicionario(chaveCorrespondente, valorCorrespondente as Dicionario));
-            }
+    protected resolverValorConstruto(construto: Construto) {
+        if (construto instanceof Literal) {
+            return construto.valor;
         }
 
-        retorno.subElementos = tiposValores;
+        throw this.erro(
+            { hashArquivo: construto.hashArquivo, linha: construto.linha } as SimboloInterface, 
+            `Construto do tipo ${construto.constructor.name} não possui um mapeamento de valor.`
+        )
+    }
+
+    protected resolverInformacaoElementoSintaticoDeDicionario(construto: Construto): ElementoMontaoTipos {
+        let retorno: ElementoMontaoTipos;
+        if (construto instanceof Dicionario) {
+            retorno = new ElementoMontaoTipos('dicionário');
+            const subElementos = {};
+            for (var i = 0; i < construto.valores.length; i++) {
+                const chaveCorrespondente = this.resolverValorConstruto(construto.chaves[i]);
+                const valorCorrespondente = construto.valores[i];
+                subElementos[chaveCorrespondente] = this.resolverInformacaoElementoSintaticoDeDicionario(valorCorrespondente);
+            }
+
+            retorno.subElementos = subElementos;
+            const endereco = this.montaoTipos.adicionarReferencia(retorno);
+            retorno.endereco = endereco;
+        } else {
+            retorno = new ElementoMontaoTipos(construto.tipo);
+        }
+        
         return retorno;
     }
 
@@ -2453,7 +2459,7 @@ export class AvaliadorSintatico
                 const inicializadorDicionario = inicializadores[indice] as Dicionario;
                 this.pilhaEscopos.definirInformacoesVariavel(
                     identificador.lexema,
-                    this.resolverInformacaoElementoSintaticoDeDicionario(identificador.lexema, inicializadorDicionario)
+                    this.resolverInformacaoElementoSintaticoDeDicionario(inicializadorDicionario)
                 );
             }
             
@@ -3081,6 +3087,7 @@ export class AvaliadorSintatico
         this.simbolos = retornoLexador?.simbolos || [];
         this.pilhaDecoradores = [];
         this.tiposDefinidosEmCodigo = {};
+        this.montaoTipos = new MontaoTipos();
         this.inicializarPilhaEscopos();
 
         let declaracoes: Declaracao[] = [];

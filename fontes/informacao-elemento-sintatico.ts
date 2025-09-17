@@ -1,21 +1,23 @@
+import { ElementoMontaoTipos } from "./avaliador-sintatico/elemento-montao-tipos";
+
 export class InformacaoElementoSintatico {
     nome: string;
     tipo: string;
     obrigatorio: boolean;
-    subElementos: InformacaoElementoSintatico[] = [];
+    subElementos: InformacaoElementoSintatico[] | ElementoMontaoTipos[] = [];
     documentacao: string;
 
     constructor(
         nome: string,
         tipo: string,
         obrigatorio: boolean = true,
-        elementos: InformacaoElementoSintatico[] = [],
+        subElementos: InformacaoElementoSintatico[] | ElementoMontaoTipos[] = [],
         documentacao: string = ''
     ) {
         this.nome = nome;
         this.tipo = tipo;
         this.obrigatorio = obrigatorio;
-        this.subElementos = elementos;
+        this.subElementos = subElementos;
         this.documentacao = documentacao;
     }
 
