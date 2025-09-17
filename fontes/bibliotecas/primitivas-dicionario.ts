@@ -1,11 +1,11 @@
-import { InformacaoVariavelOuConstante } from '../informacao-variavel-ou-constante';
+import { InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
 import { InterpretadorInterface, PrimitivaInterface } from '../interfaces';
 
 const contemComum = (nome: string) => {
     return {
         tipoRetorno: 'lógico',
         argumentos: [
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'chave',
                 'qualquer',
                 true,
@@ -59,7 +59,7 @@ export default {
     contém: contemComum('contém'),
     remover: {
         tipoRetorno: 'lógico',
-        argumentos: [new InformacaoVariavelOuConstante('chave', 'texto')],
+        argumentos: [new InformacaoElementoSintatico('chave', 'texto')],
         implementacao: (
             interpretador: InterpretadorInterface,
             nomePrimitiva: string,

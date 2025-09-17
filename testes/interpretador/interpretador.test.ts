@@ -281,6 +281,21 @@ describe('Interpretador', () => {
                         expect(_saidas).toHaveLength(1);
                         expect(_saidas[0]).toBe('[{"um":"dois","tres":{"quatro":5}}, {"seis":7,"oito":9}]');
                     });
+
+                    it.skip('Dicionários com vetores', async () => {
+                        const retornoLexador = lexador.mapear([
+                            'var meuDicionario = { "minhaLista": [] }',
+                            'meuDicionario.minhaLista.adicionar({"outro": "dicionário"})',
+                            'escreva(meuDicionario.minhaLista)'
+                        ], -1);
+                        
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                    })
                 });
 
                 it('Concatenação com um operador sendo tipo texto e outro operador qualquer', async () => {

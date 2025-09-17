@@ -1,6 +1,6 @@
 import { FuncaoConstruto } from '../construtos';
 import { Bloco, Declaracao, Retorna, Se } from '../declaracoes';
-import { InformacaoVariavelOuConstante } from '../informacao-variavel-ou-constante';
+import { InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
 import {
     AvaliadorSintaticoInterface,
     InterpretadorInterface,
@@ -123,14 +123,14 @@ export function logicaDescobertaRetornoFuncao(
 
 export function registrarPrimitiva(
     primitivasConhecidas: {
-        [nomeModuloOuClasse: string]: { [nomePrimitiva: string]: InformacaoVariavelOuConstante };
+        [nomeModuloOuClasse: string]: { [nomePrimitiva: string]: InformacaoElementoSintatico };
     },
     tipo: string,
     catalogoPrimitivas: { [nome: string]: PrimitivaInterface }
 ) {
     primitivasConhecidas[tipo] = {};
     for (const [nomePrimitivaDicionario, dadosPrimitiva] of Object.entries(catalogoPrimitivas)) {
-        primitivasConhecidas[tipo][nomePrimitivaDicionario] = new InformacaoVariavelOuConstante(
+        primitivasConhecidas[tipo][nomePrimitivaDicionario] = new InformacaoElementoSintatico(
             nomePrimitivaDicionario,
             tipo,
             true,

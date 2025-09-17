@@ -708,13 +708,14 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         // Por exemplo, `objeto1.metodo1().metodo2()`.
         // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
         // valor dele primeiro.
-        if (variavelObjeto.constructor && variavelObjeto.constructor.name === 'RetornoQuebra') {
-            variavelObjeto = variavelObjeto.valor;
+        if (variavelObjeto.constructor === RetornoQuebra) {
+            const retornoQuebra = variavelObjeto as RetornoQuebra;
+            variavelObjeto = retornoQuebra.valor;
         }
 
         const objeto = this.resolverValor(variavelObjeto);
 
-        if (objeto.constructor && objeto.constructor.name === 'ObjetoDeleguaClasse') {
+        if (objeto.constructor === ObjetoDeleguaClasse) {
             return (objeto as ObjetoDeleguaClasse).obter(expressao.simbolo);
         }
 
@@ -974,8 +975,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             indice = await this.avaliar(expressao.indice);
         }
 
-        switch (expressao.alvo.constructor.name) {
-            case 'Variavel':
+        switch (expressao.alvo.constructor) {
+            case Variavel:
                 const alvoVariavel = expressao.alvo as Variavel;
                 const variavelResolvida = this.pilhaEscoposExecucao.obterValorVariavel(
                     alvoVariavel.simbolo
@@ -997,7 +998,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 }
 
                 break;
-            case 'AcessoMetodoOuPropriedade':
+            case AcessoMetodoOuPropriedade:
                 // Nunca será método aqui: apenas propriedade.
                 const alvoPropriedade = expressao.alvo as AcessoMetodoOuPropriedade;
                 const variavelObjeto = await this.avaliar(alvoPropriedade.objeto);
@@ -1027,7 +1028,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         const variavelObjeto = await this.avaliar(expressao.objeto);
         const objeto = this.resolverValor(variavelObjeto);
 
-        if (objeto.constructor.name !== 'ObjetoDeleguaClasse' && objeto.constructor !== Object) {
+        if (objeto.constructor !== ObjetoDeleguaClasse && objeto.constructor !== Object) {
             return Promise.reject(
                 new ErroEmTempoDeExecucao(
                     expressao.nome,

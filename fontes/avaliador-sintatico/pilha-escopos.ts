@@ -1,7 +1,7 @@
 import { FuncaoDeclaracao } from '../declaracoes';
 import { PilhaInterface, VariavelInterface } from '../interfaces';
 import { InformacaoEscopo } from './informacao-escopo';
-import { InformacaoVariavelOuConstante } from '../informacao-variavel-ou-constante';
+import { InformacaoElementoSintatico as InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
 
 export class PilhaEscopos implements PilhaInterface<InformacaoEscopo> {
     pilha: InformacaoEscopo[];
@@ -29,23 +29,23 @@ export class PilhaEscopos implements PilhaInterface<InformacaoEscopo> {
     }
 
     obterBibliotecaGlobal(nome: string) {
-        return this.pilha[0].variaveisEConstantes[nome];
+        return this.pilha[0].elementosSintaticos[nome];
     }
 
     obterTipoVariavelPorNome(nome: string): string {
         for (let i = 1; i <= this.pilha.length; i++) {
             const informacaoEscopo = this.pilha[this.pilha.length - i];
-            if (informacaoEscopo.variaveisEConstantes[nome] !== undefined) {
-                return informacaoEscopo.variaveisEConstantes[nome].tipo;
+            if (informacaoEscopo.elementosSintaticos[nome] !== undefined) {
+                return informacaoEscopo.elementosSintaticos[nome].tipo;
             }
         }
 
         throw new Error("Variável não definida: '" + nome + "'.");
     }
 
-    definirInformacoesVariavel(nomeVariavel: string, informacoes: InformacaoVariavelOuConstante) {
+    definirInformacoesVariavel(nomeVariavel: string, informacoes: InformacaoElementoSintatico) {
         const topoDaPilha = this.topoDaPilha();
-        topoDaPilha.variaveisEConstantes[nomeVariavel] = informacoes;
+        topoDaPilha.elementosSintaticos[nomeVariavel] = informacoes;
     }
 
     registrarReferenciaFuncao(nome: string, definicao: FuncaoDeclaracao) {

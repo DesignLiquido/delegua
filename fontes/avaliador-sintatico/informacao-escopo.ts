@@ -1,12 +1,12 @@
 import { FuncaoDeclaracao } from '../declaracoes';
-import { InformacaoVariavelOuConstante } from '../informacao-variavel-ou-constante';
+import { InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
 
 export class InformacaoEscopo {
-    variaveisEConstantes: { [nome: string]: InformacaoVariavelOuConstante };
+    elementosSintaticos: { [nome: string]: InformacaoElementoSintatico };
     referenciasFuncoes: { [nome: string]: FuncaoDeclaracao };
 
     constructor() {
-        this.variaveisEConstantes = {};
+        this.elementosSintaticos = {};
         this.referenciasFuncoes = {};
     }
 }

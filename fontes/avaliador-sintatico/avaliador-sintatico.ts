@@ -40,7 +40,7 @@ import { AvaliadorSintaticoInterface, ParametroInterface, SimboloInterface } fro
 
 import { ErroAvaliadorSintatico } from './erro-avaliador-sintatico';
 
-import { Dupla, SeletorTuplas } from '../construtos/tuplas';
+import { Deceto, Dupla, Noneto, Octeto, Quarteto, Quinteto, SeletorTuplas, Septeto, Sexteto, Trio } from '../construtos/tuplas';
 import {
     Bloco,
     Classe,
@@ -74,7 +74,7 @@ import { inferirTipoVariavel, tipoInferenciaParaTipoDadosElementar } from '../in
 import { TipoInferencia } from '../inferenciador';
 import { PilhaEscopos } from './pilha-escopos';
 import { InformacaoEscopo } from './informacao-escopo';
-import { InformacaoVariavelOuConstante } from '../informacao-variavel-ou-constante';
+import { InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
 import { buscarRetornos, registrarPrimitiva } from './comum';
 
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
@@ -116,7 +116,7 @@ export class AvaliadorSintatico
     pilhaEscopos: PilhaEscopos;
     tiposDeFerramentasExternas: { [nomeFerramenta: string]: { [nomeTipo: string]: string } };
     primitivasConhecidas: {
-        [nomeModuloOuClasse: string]: { [nomePrimitiva: string]: InformacaoVariavelOuConstante };
+        [nomeModuloOuClasse: string]: { [nomePrimitiva: string]: InformacaoElementoSintatico };
     };
 
     hashArquivo: number;
@@ -488,7 +488,7 @@ export class AvaliadorSintatico
                 const corpoDaFuncao = this.corpoDaFuncao(simboloFuncao.lexema);
                 this.pilhaEscopos.definirInformacoesVariavel(
                     simboloFuncao.lexema,
-                    new InformacaoVariavelOuConstante(simboloFuncao.lexema, 'função')
+                    new InformacaoElementoSintatico(simboloFuncao.lexema, 'função')
                 );
                 return corpoDaFuncao;
 
@@ -736,11 +736,50 @@ export class AvaliadorSintatico
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
     }
 
+    protected resolverCadeiaChamadas(expressaoAnterior: Construto, tipoAnterior: string = 'qualquer') {
+        if (!this.simbolos[this.atual]) {
+            return expressaoAnterior;
+        }
+
+        switch (this.simbolos[this.atual].tipo) {
+            case tiposDeSimbolos.PARENTESE_ESQUERDO:
+                this.avancarEDevolverAnterior();
+                const chamada = this.finalizarChamada(expressaoAnterior, tipoAnterior);
+                return this.resolverCadeiaChamadas(chamada);
+            case tiposDeSimbolos.PONTO:
+                this.avancarEDevolverAnterior();
+                const nome = this.consumir(
+                    tiposDeSimbolos.IDENTIFICADOR,
+                    "Esperado nome de método ou propriedade após '.'."
+                );
+
+                const novoTipoInferido = expressaoAnterior.tipo;
+                const acesso = new AcessoMetodoOuPropriedade(this.hashArquivo, expressaoAnterior, nome);
+                return this.resolverCadeiaChamadas(acesso, novoTipoInferido);
+            case tiposDeSimbolos.COLCHETE_ESQUERDO:
+                this.avancarEDevolverAnterior();
+                const indice = this.expressao();
+                const simboloFechamento = this.consumir(
+                    tiposDeSimbolos.COLCHETE_DIREITO,
+                    "Esperado ']' após escrita do indice."
+                );
+                const acessoVariavel = new AcessoIndiceVariavel(
+                    this.hashArquivo,
+                    expressaoAnterior,
+                    indice,
+                    simboloFechamento
+                );
+                return this.resolverCadeiaChamadas(acessoVariavel);
+            default:
+                return expressaoAnterior;
+        }
+    }
+
     override chamar(): Construto {
         let expressao = this.primario();
         let tipoPrimitiva: string = undefined;
 
-        while (true) {
+        /* while (true) {
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
                 expressao = this.finalizarChamada(expressao, tipoPrimitiva);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
@@ -766,9 +805,10 @@ export class AvaliadorSintatico
             } else {
                 break;
             }
-        }
+        } */ 
 
-        return expressao;
+        return this.resolverCadeiaChamadas(expressao);
+        // return expressao;
     }
 
     /**
@@ -880,7 +920,7 @@ export class AvaliadorSintatico
     }
 
     protected validarArgumentosEntidadeChamada(
-        argumentosEntidadeChamada: InformacaoVariavelOuConstante[],
+        argumentosEntidadeChamada: InformacaoElementoSintatico[],
         argumentosUtilizados: Construto[]
     ): string[] {
         if (argumentosEntidadeChamada.length === 0) {
@@ -957,10 +997,10 @@ export class AvaliadorSintatico
         argumentos: Construto[],
         tipoPrimitiva: string | undefined = undefined
     ): Construto {
-        if (entidadeChamada.constructor.name === 'Variavel') {
+        if (entidadeChamada.constructor === Variavel) {
             const entidadeChamadaResolvidaVariavel = entidadeChamada as Variavel;
 
-            if (tipoPrimitiva === undefined) {
+            if (tipoPrimitiva === 'qualquer') {
                 // Provavelmente uma chamada a alguma função da biblioteca global.
                 const informacoesPossivelFuncaoBibliotecaGlobal =
                     this.pilhaEscopos.obterBibliotecaGlobal(
@@ -968,7 +1008,7 @@ export class AvaliadorSintatico
                     );
                 if (informacoesPossivelFuncaoBibliotecaGlobal) {
                     const erros = this.validarArgumentosEntidadeChamada(
-                        informacoesPossivelFuncaoBibliotecaGlobal.argumentos,
+                        informacoesPossivelFuncaoBibliotecaGlobal.subElementos,
                         argumentos
                     );
                     if (erros.length > 0) {
@@ -983,7 +1023,7 @@ export class AvaliadorSintatico
             }
 
             if (
-                tipoPrimitiva !== undefined &&
+                tipoPrimitiva !== 'qualquer' &&
                 this.primitivasConhecidas[tipoPrimitiva].hasOwnProperty(
                     entidadeChamadaResolvidaVariavel.simbolo.lexema
                 )
@@ -993,7 +1033,7 @@ export class AvaliadorSintatico
                         entidadeChamadaResolvidaVariavel.simbolo.lexema
                     ];
                 const erros = this.validarArgumentosEntidadeChamada(
-                    informacoesPrimitiva.argumentos,
+                    informacoesPrimitiva.subElementos,
                     argumentos
                 );
                 if (erros.length > 0) {
@@ -1016,8 +1056,8 @@ export class AvaliadorSintatico
 
             if (possivelReferencia !== null) {
                 return new ReferenciaFuncao(
-                    entidadeChamada.hashArquivo,
-                    entidadeChamada.linha,
+                    entidadeChamadaResolvidaVariavel.hashArquivo,
+                    entidadeChamadaResolvidaVariavel.linha,
                     entidadeChamadaResolvidaVariavel.simbolo,
                     entidadeChamadaResolvidaVariavel.tipo,
                     possivelReferencia.id
@@ -1025,13 +1065,13 @@ export class AvaliadorSintatico
             }
 
             return new ArgumentoReferenciaFuncao(
-                entidadeChamada.hashArquivo,
-                entidadeChamada.linha,
+                entidadeChamadaResolvidaVariavel.hashArquivo,
+                entidadeChamadaResolvidaVariavel.linha,
                 entidadeChamadaResolvidaVariavel.simbolo
             );
         }
 
-        if (entidadeChamada.constructor.name === 'AcessoMetodoOuPropriedade') {
+        if (entidadeChamada.constructor === AcessoMetodoOuPropriedade) {
             return this.resolverEntidadeChamadaAcessoMetodoOuPropriedade(
                 entidadeChamada as AcessoMetodoOuPropriedade
             );
@@ -1715,11 +1755,11 @@ export class AvaliadorSintatico
 
         this.pilhaEscopos.definirInformacoesVariavel(
             nomeVariavelChave.lexema,
-            new InformacaoVariavelOuConstante(nomeVariavelChave.lexema, 'qualquer')
+            new InformacaoElementoSintatico(nomeVariavelChave.lexema, 'qualquer')
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             nomeVariavelValor.lexema,
-            new InformacaoVariavelOuConstante(nomeVariavelValor.lexema, 'qualquer')
+            new InformacaoElementoSintatico(nomeVariavelValor.lexema, 'qualquer')
         );
         // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
         const corpo: Bloco = this.resolverDeclaracao() as Bloco;
@@ -1782,7 +1822,7 @@ export class AvaliadorSintatico
 
         this.pilhaEscopos.definirInformacoesVariavel(
             nomeVariavelIteracao.lexema,
-            new InformacaoVariavelOuConstante(nomeVariavelIteracao.lexema, tipoVariavelIteracao)
+            new InformacaoElementoSintatico(nomeVariavelIteracao.lexema, tipoVariavelIteracao)
         );
         // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
         const corpo: Bloco = this.resolverDeclaracao() as Bloco;
@@ -2165,7 +2205,7 @@ export class AvaliadorSintatico
 
         this.pilhaEscopos.definirInformacoesVariavel(
             simboloNomeVariavel.lexema,
-            new InformacaoVariavelOuConstante(simboloNomeVariavel.lexema, tipoInicializacao)
+            new InformacaoElementoSintatico(simboloNomeVariavel.lexema, tipoInicializacao)
         );
 
         const blocoCorpo = this.blocoEscopo();
@@ -2201,7 +2241,7 @@ export class AvaliadorSintatico
         for (let identificador of identificadores) {
             this.pilhaEscopos.definirInformacoesVariavel(
                 identificador.lexema,
-                new InformacaoVariavelOuConstante(
+                new InformacaoElementoSintatico(
                     identificador.lexema,
                     this.logicaComumInferenciaTiposVariaveisEConstantes(inicializador, 'qualquer')
                 )
@@ -2226,15 +2266,13 @@ export class AvaliadorSintatico
             return tipo;
         }
 
-        switch (inicializador.constructor.name) {
-            case 'AcessoIndiceVariavel':
+        switch (inicializador.constructor) {
+            case AcessoIndiceVariavel:
                 const entidadeChamadaAcessoIndiceVariavel = (inicializador as AcessoIndiceVariavel)
                     .entidadeChamada;
 
                 // Este condicional ocorre com chamadas aninhadas. Por exemplo, `vetor[1][2]`.
-                if (
-                    entidadeChamadaAcessoIndiceVariavel.constructor.name === 'AcessoIndiceVariavel'
-                ) {
+                if (entidadeChamadaAcessoIndiceVariavel.constructor === AcessoIndiceVariavel) {
                     return this.logicaComumInferenciaTiposVariaveisEConstantes(
                         entidadeChamadaAcessoIndiceVariavel,
                         tipo
@@ -2247,13 +2285,13 @@ export class AvaliadorSintatico
 
                 // Normalmente, `entidadeChamadaAcessoIndiceVariavel.tipo` aqui será 'vetor'.
                 return 'qualquer';
-            case 'Chamada':
+            case Chamada:
                 const entidadeChamadaChamada = (inicializador as Chamada).entidadeChamada;
-                switch (entidadeChamadaChamada.constructor.name) {
-                    case 'AcessoMetodo':
+                switch (entidadeChamadaChamada.constructor) {
+                    case AcessoMetodo:
                         const entidadeChamadaAcessoMetodo = entidadeChamadaChamada as AcessoMetodo;
                         return entidadeChamadaAcessoMetodo.tipoRetornoMetodo;
-                    case 'AcessoMetodoOuPropriedade':
+                    case AcessoMetodoOuPropriedade:
                         // Este caso ocorre quando a variável/constante é do tipo 'qualquer',
                         // e a chamada normalmente é feita para uma primitiva.
                         // A inferência, portanto, ocorre pelo uso da primitiva.
@@ -2276,44 +2314,66 @@ export class AvaliadorSintatico
                             entidadeChamadaAcessoMetodoOuPropriedade.simbolo,
                             `Primitiva '${entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema}' não existe.`
                         );
-                    case 'AcessoPropriedade':
+                    case AcessoPropriedade:
                         const entidadeChamadaAcessoPropriedade =
                             entidadeChamadaChamada as AcessoPropriedade;
                         return entidadeChamadaAcessoPropriedade.tipoRetornoPropriedade;
-                    case 'ArgumentoReferenciaFuncao':
+                    case ArgumentoReferenciaFuncao:
                         // TODO: Voltar aqui se necessário.
                         return 'qualquer';
-                    case 'ReferenciaFuncao':
+                    case ReferenciaFuncao:
                         const entidadeChamadaReferenciaFuncao =
                             entidadeChamadaChamada as ReferenciaFuncao;
                         return entidadeChamadaReferenciaFuncao.tipo;
-                    case 'Variavel':
+                    case Variavel:
                         const entidadeChamadaVariavel = entidadeChamadaChamada as Variavel;
                         return entidadeChamadaVariavel.tipo;
                 }
 
                 break;
-            case 'FuncaoConstruto':
+            case FuncaoConstruto:
                 const funcaoConstruto = inicializador as FuncaoConstruto;
                 return `função<${funcaoConstruto.tipo}>`;
-            case 'Leia':
+            case Leia:
                 return 'texto';
-            case 'Dupla':
-            case 'Trio':
-            case 'Quarteto':
-            case 'Quinteto':
-            case 'Sexteto':
-            case 'Septeto':
-            case 'Octeto':
-            case 'Noneto':
-            case 'Deceto':
+            case Dupla:
+            case Trio:
+            case Quarteto:
+            case Quinteto:
+            case Sexteto:
+            case Septeto:
+            case Octeto:
+            case Noneto:
+            case Deceto:
                 return tipoDeDadosDelegua.TUPLA;
-            case 'ImportarBiblioteca':
-            case 'ModuloDeclaracoes':
-                return 'módulo';
+            
             default:
+                // Construtos mapeados em `delegua-node`.
+                switch (inicializador.constructor.name) {
+                    case 'ImportarBiblioteca':
+                    case 'ModuloDeclaracoes':
+                        return 'módulo';
+                }
+
                 return inicializador.tipo;
         }
+    }
+
+    protected resolverInformacaoElementoSintaticoDeDicionario(identificador: string, dicionario: Dicionario) {
+        const retorno = new InformacaoElementoSintatico(identificador, 'dicionário');
+        const tiposValores = [];
+        for (var i = 0; i < dicionario.valores.length; i++) {
+            const chaveCorrespondente = dicionario.chaves[i];
+            const valorCorrespondente = dicionario.valores[i];
+            if (valorCorrespondente.tipo !== 'dicionário') {
+                tiposValores.push(new InformacaoElementoSintatico(chaveCorrespondente, valorCorrespondente.tipo));
+            } else {
+                tiposValores.push(this.resolverInformacaoElementoSintaticoDeDicionario(chaveCorrespondente, valorCorrespondente as Dicionario));
+            }
+        }
+
+        retorno.subElementos = tiposValores;
+        return retorno;
     }
 
     /**
@@ -2348,7 +2408,7 @@ export class AvaliadorSintatico
             for (let identificador of identificadores.values()) {
                 this.pilhaEscopos.definirInformacoesVariavel(
                     identificador.lexema,
-                    new InformacaoVariavelOuConstante(identificador.lexema, tipo)
+                    new InformacaoElementoSintatico(identificador.lexema, tipo)
                 );
                 retorno.push(
                     new Var(
@@ -2384,10 +2444,19 @@ export class AvaliadorSintatico
                 tipo
             );
 
-            this.pilhaEscopos.definirInformacoesVariavel(
-                identificador.lexema,
-                new InformacaoVariavelOuConstante(identificador.lexema, tipo)
-            );
+            if (tipo !== 'dicionário') {
+                this.pilhaEscopos.definirInformacoesVariavel(
+                    identificador.lexema,
+                    new InformacaoElementoSintatico(identificador.lexema, tipo)
+                );
+            } else {
+                const inicializadorDicionario = inicializadores[indice] as Dicionario;
+                this.pilhaEscopos.definirInformacoesVariavel(
+                    identificador.lexema,
+                    this.resolverInformacaoElementoSintaticoDeDicionario(identificador.lexema, inicializadorDicionario)
+                );
+            }
+            
             retorno.push(
                 new Var(
                     identificador,
@@ -2428,7 +2497,7 @@ export class AvaliadorSintatico
             // TODO: Melhorar dicionário para intuir o tipo de cada propriedade.
             this.pilhaEscopos.definirInformacoesVariavel(
                 identificador.lexema,
-                new InformacaoVariavelOuConstante(identificador.lexema, 'qualquer')
+                new InformacaoElementoSintatico(identificador.lexema, 'qualquer')
             );
             const declaracaoConst = new Const(
                 identificador,
@@ -2495,7 +2564,7 @@ export class AvaliadorSintatico
 
             this.pilhaEscopos.definirInformacoesVariavel(
                 identificador.lexema,
-                new InformacaoVariavelOuConstante(identificador.lexema, tipo)
+                new InformacaoElementoSintatico(identificador.lexema, tipo)
             );
 
             retorno.push(
@@ -2533,14 +2602,14 @@ export class AvaliadorSintatico
         // para ela. Vai ser atualizado após avaliação do corpo da função.
         this.pilhaEscopos.definirInformacoesVariavel(
             simbolo.lexema,
-            new InformacaoVariavelOuConstante(simbolo.lexema, 'qualquer')
+            new InformacaoElementoSintatico(simbolo.lexema, 'qualquer')
         );
 
         const corpoDaFuncao = this.corpoDaFuncao(tipo);
         const tipoDaFuncao = `função<${corpoDaFuncao.tipo}>`;
         this.pilhaEscopos.definirInformacoesVariavel(
             simbolo.lexema,
-            new InformacaoVariavelOuConstante(simbolo.lexema, tipoDaFuncao)
+            new InformacaoElementoSintatico(simbolo.lexema, tipoDaFuncao)
         );
         const funcaoDeclaracao = new FuncaoDeclaracao(
             simbolo,
@@ -2583,7 +2652,7 @@ export class AvaliadorSintatico
 
             this.pilhaEscopos.definirInformacoesVariavel(
                 parametro.nome.lexema,
-                new InformacaoVariavelOuConstante(
+                new InformacaoElementoSintatico(
                     parametro.nome.lexema,
                     parametro.tipoDado || 'qualquer'
                 )
@@ -2844,147 +2913,147 @@ export class AvaliadorSintatico
         // Funções nativas de Delégua
         this.pilhaEscopos.definirInformacoesVariavel(
             'aleatorio',
-            new InformacaoVariavelOuConstante('aleatorio', 'número')
+            new InformacaoElementoSintatico('aleatorio', 'número')
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'aleatorioEntre',
-            new InformacaoVariavelOuConstante('aleatorioEntre', 'número', true, [
-                new InformacaoVariavelOuConstante('minimo', 'número'),
-                new InformacaoVariavelOuConstante('maximo', 'número'),
+            new InformacaoElementoSintatico('aleatorioEntre', 'número', true, [
+                new InformacaoElementoSintatico('minimo', 'número'),
+                new InformacaoElementoSintatico('maximo', 'número'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'algum',
-            new InformacaoVariavelOuConstante('algum', 'lógico', true, [
-                new InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
-                new InformacaoVariavelOuConstante('funcaoPesquisa', 'função'),
+            new InformacaoElementoSintatico('algum', 'lógico', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+                new InformacaoElementoSintatico('funcaoPesquisa', 'função'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'encontrar',
-            new InformacaoVariavelOuConstante('encontrar', 'qualquer', true, [
-                new InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
-                new InformacaoVariavelOuConstante('funcaoPesquisa', 'função'),
+            new InformacaoElementoSintatico('encontrar', 'qualquer', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+                new InformacaoElementoSintatico('funcaoPesquisa', 'função'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'encontrarIndice',
-            new InformacaoVariavelOuConstante('encontrarIndice', 'inteiro', true, [
-                new InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
-                new InformacaoVariavelOuConstante('funcaoPesquisa', 'função'),
+            new InformacaoElementoSintatico('encontrarIndice', 'inteiro', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+                new InformacaoElementoSintatico('funcaoPesquisa', 'função'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'encontrarUltimo',
-            new InformacaoVariavelOuConstante('encontrarUltimo', 'inteiro', true, [
-                new InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
-                new InformacaoVariavelOuConstante('funcaoPesquisa', 'função'),
+            new InformacaoElementoSintatico('encontrarUltimo', 'inteiro', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+                new InformacaoElementoSintatico('funcaoPesquisa', 'função'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'encontrarUltimoIndice',
-            new InformacaoVariavelOuConstante('encontrarUltimoIndice', 'inteiro', true, [
-                new InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
-                new InformacaoVariavelOuConstante('funcaoPesquisa', 'função'),
+            new InformacaoElementoSintatico('encontrarUltimoIndice', 'inteiro', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+                new InformacaoElementoSintatico('funcaoPesquisa', 'função'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'filtrarPor',
-            new InformacaoVariavelOuConstante('filtrarPor', 'qualquer[]', true, [
-                new InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
-                new InformacaoVariavelOuConstante('funcaoFiltragem', 'função'),
+            new InformacaoElementoSintatico('filtrarPor', 'qualquer[]', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+                new InformacaoElementoSintatico('funcaoFiltragem', 'função'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'incluido',
-            new InformacaoVariavelOuConstante('incluido', 'lógico', true, [
-                new InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
-                new InformacaoVariavelOuConstante('valor', 'qualquer'),
+            new InformacaoElementoSintatico('incluido', 'lógico', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+                new InformacaoElementoSintatico('valor', 'qualquer'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'inteiro',
-            new InformacaoVariavelOuConstante('inteiro', 'inteiro', true, [
-                new InformacaoVariavelOuConstante('valor', 'qualquer'),
+            new InformacaoElementoSintatico('inteiro', 'inteiro', true, [
+                new InformacaoElementoSintatico('valor', 'qualquer'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'mapear',
-            new InformacaoVariavelOuConstante('mapear', 'qualquer[]', true, [
-                new InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
-                new InformacaoVariavelOuConstante('funcaoMapeamento', 'função'),
+            new InformacaoElementoSintatico('mapear', 'qualquer[]', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+                new InformacaoElementoSintatico('funcaoMapeamento', 'função'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'numero',
-            new InformacaoVariavelOuConstante('número', 'número', true, [
-                new InformacaoVariavelOuConstante('valorParaConverter', 'qualquer'),
+            new InformacaoElementoSintatico('número', 'número', true, [
+                new InformacaoElementoSintatico('valorParaConverter', 'qualquer'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'número',
-            new InformacaoVariavelOuConstante('número', 'número', true, [
-                new InformacaoVariavelOuConstante('valorParaConverter', 'qualquer'),
+            new InformacaoElementoSintatico('número', 'número', true, [
+                new InformacaoElementoSintatico('valorParaConverter', 'qualquer'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'ordenar',
-            new InformacaoVariavelOuConstante('ordenar', 'qualquer[]', true, [
-                new InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
-                new InformacaoVariavelOuConstante('funcaoOrdenacao', 'função'),
+            new InformacaoElementoSintatico('ordenar', 'qualquer[]', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+                new InformacaoElementoSintatico('funcaoOrdenacao', 'função'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'paraCada',
-            new InformacaoVariavelOuConstante('paraCada', 'qualquer[]', true, [
-                new InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
-                new InformacaoVariavelOuConstante('funcaoFiltragem', 'função'),
+            new InformacaoElementoSintatico('paraCada', 'qualquer[]', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+                new InformacaoElementoSintatico('funcaoFiltragem', 'função'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'primeiroEmCondicao',
-            new InformacaoVariavelOuConstante('primeiroEmCondicao', 'qualquer', true, [
-                new InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
-                new InformacaoVariavelOuConstante('funcaoFiltragem', 'função'),
+            new InformacaoElementoSintatico('primeiroEmCondicao', 'qualquer', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+                new InformacaoElementoSintatico('funcaoFiltragem', 'função'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'real',
-            new InformacaoVariavelOuConstante('real', 'número', true, [
-                new InformacaoVariavelOuConstante('valorParaConverter', 'qualquer'),
+            new InformacaoElementoSintatico('real', 'número', true, [
+                new InformacaoElementoSintatico('valorParaConverter', 'qualquer'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'reduzir',
-            new InformacaoVariavelOuConstante('reduzir', 'qualquer', true, [
-                new InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
-                new InformacaoVariavelOuConstante('funcaoReducao', 'função'),
-                new InformacaoVariavelOuConstante('valorInicial', 'qualquer'),
+            new InformacaoElementoSintatico('reduzir', 'qualquer', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+                new InformacaoElementoSintatico('funcaoReducao', 'função'),
+                new InformacaoElementoSintatico('valorInicial', 'qualquer'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'tamanho',
-            new InformacaoVariavelOuConstante('tamanho', 'inteiro', true, [
-                new InformacaoVariavelOuConstante('objeto', 'qualquer'),
+            new InformacaoElementoSintatico('tamanho', 'inteiro', true, [
+                new InformacaoElementoSintatico('objeto', 'qualquer'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'texto',
-            new InformacaoVariavelOuConstante('texto', 'texto', true, [
-                new InformacaoVariavelOuConstante('valorParaConverter', 'qualquer'),
+            new InformacaoElementoSintatico('texto', 'texto', true, [
+                new InformacaoElementoSintatico('valorParaConverter', 'qualquer'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'todosEmCondicao',
-            new InformacaoVariavelOuConstante('todosEmCondicao', 'lógico', true, [
-                new InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
-                new InformacaoVariavelOuConstante('funcaoCondicional', 'função'),
+            new InformacaoElementoSintatico('todosEmCondicao', 'lógico', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+                new InformacaoElementoSintatico('funcaoCondicional', 'função'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'tupla',
-            new InformacaoVariavelOuConstante('tupla', 'tupla', true, [
-                new InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
+            new InformacaoElementoSintatico('tupla', 'tupla', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
             ])
         );
 
@@ -2993,7 +3062,7 @@ export class AvaliadorSintatico
             for (const [nomeTipo, tipo] of Object.entries(tipos)) {
                 this.pilhaEscopos.definirInformacoesVariavel(
                     nomeTipo,
-                    new InformacaoVariavelOuConstante(nomeTipo, tipo)
+                    new InformacaoElementoSintatico(nomeTipo, tipo)
                 );
             }
         }

@@ -1,6 +1,6 @@
 import { InterpretadorInterface } from '../interfaces';
 import { PrimitivaInterface } from '../interfaces/primitiva-interface';
-import { InformacaoVariavelOuConstante } from '../informacao-variavel-ou-constante';
+import { InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
 
 export default {
     aparar: {
@@ -60,7 +60,7 @@ export default {
     concatenar: {
         tipoRetorno: 'texto',
         argumentos: [
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'outroTexto',
                 'texto',
                 true,
@@ -87,14 +87,14 @@ export default {
     dividir: {
         tipoRetorno: 'texto[]',
         argumentos: [
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'delimitador',
                 'texto',
                 true,
                 [],
                 'O delimitador usado para dividir o texto.'
             ),
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'limite',
                 'número',
                 false,
@@ -128,14 +128,14 @@ export default {
     fatiar: {
         tipoRetorno: 'texto',
         argumentos: [
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'inicio',
                 'número',
                 true,
                 [],
                 'A posição inicial da fatia.'
             ),
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'fim',
                 'número',
                 false,
@@ -166,7 +166,7 @@ export default {
     inclui: {
         tipoRetorno: 'texto',
         argumentos: [
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'elemento',
                 'texto',
                 true,
@@ -251,14 +251,14 @@ export default {
     substituir: {
         tipoRetorno: 'texto',
         argumentos: [
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'textoASerSubstituido',
                 'texto',
                 true,
                 [],
                 'Texto a ser substituído.'
             ),
-            new InformacaoVariavelOuConstante('substituto', 'texto', true, [], 'A substituição'),
+            new InformacaoElementoSintatico('substituto', 'texto', true, [], 'A substituição'),
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
@@ -280,14 +280,14 @@ export default {
     subtexto: {
         tipoRetorno: 'texto',
         argumentos: [
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'inicio',
                 'inteiro',
                 true,
                 [],
                 'A posição de início do texto a ser extraído.'
             ),
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'fim',
                 'inteiro',
                 true,
