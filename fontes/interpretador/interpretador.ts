@@ -1106,13 +1106,13 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
         const retornoQuebra = new RetornoQuebra(valor, declaracao.tipo);
 
-        // Se o retorno for uma função anônima, o escopo precisa ser preservado.
+        // Se o retorno for uma função anônima ou referência ao montão, o escopo precisa ser preservado.
         // Como quebras matam o topo da pilha de escopos, precisamos dizer
-        // para a finalização para copiar as variáveis para o escopo de baixo.
+        // para a finalização para copiar valores importantes para o escopo de baixo.
         if (retornoQuebra.valor) {
             const construtorRetorno = retornoQuebra.valor.constructor.name.replaceAll('_', '');
-            if (construtorRetorno === 'DeleguaFuncao') {
-                retornoQuebra.preservarEscopo = true;
+            if (['DeleguaFuncao', 'ReferenciaMontao'].includes(construtorRetorno)) {
+                retornoQuebra.preservarEscopo = true; // TODO: Ver se é mesmo o caso de manter isso para referências ao montão.
             }
         }
 
@@ -1227,9 +1227,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             }
         } finally {
             const escopoFinalizado = this.pilhaEscoposExecucao.removerUltimo();
-            const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
-
-            this.montao.excluirReferencias(...escopoFinalizado.espacoMemoria.enderecosMontao);
+            const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();            
 
             if (
                 manterAmbiente ||
@@ -1239,6 +1237,13 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                     escopoAnterior.espacoMemoria.valores,
                     ultimoEscopo.espacoMemoria.valores
                 );
+
+                escopoAnterior.espacoMemoria.enderecosMontao = new Set([
+                    ...escopoAnterior.espacoMemoria.enderecosMontao, 
+                    ...ultimoEscopo.espacoMemoria.enderecosMontao
+                ]);
+            } else {
+                this.montao.excluirReferencias(...escopoFinalizado.espacoMemoria.enderecosMontao);
             }
         }
     }
@@ -1255,6 +1260,20 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         manterAmbiente?: boolean
     ): Promise<RetornoInterpretadorInterface> {
         this.montao = new Montao();
-        return super.interpretar(declaracoes, manterAmbiente);
+        const resultados = await super.interpretar(declaracoes, manterAmbiente);
+        if (resultados.resultado.length > 0) {
+            const ultimoResultado = resultados.resultado[resultados.resultado.length - 1];
+            
+            if (ultimoResultado && ultimoResultado.valorRetornado instanceof RetornoQuebra && ultimoResultado.valorRetornado.valor instanceof ReferenciaMontao) {
+                const ultimaDeclaracao = declaracoes[declaracoes.length - 1];
+                ultimoResultado.valorRetornado.valor = this.montao.obterReferencia(
+                    ultimaDeclaracao.hashArquivo,
+                    ultimaDeclaracao.linha,
+                    ultimoResultado.valorRetornado.valor.endereco
+                );
+            }
+        }
+        
+        return resultados;
     }
 }
