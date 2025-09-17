@@ -1,6 +1,8 @@
 import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
+import { ResultadoParcialInterpretadorInterface } from '../../fontes/interfaces';
 import { Interpretador } from '../../fontes/interpretador';
 import { Lexador } from '../../fontes/lexador';
+import { RetornoQuebra } from '../../fontes/quebras';
 
 describe('Interpretador', () => {
     describe('interpretar()', () => {
@@ -2405,7 +2407,6 @@ describe('Interpretador', () => {
                 });
 
                 it('Tipo de elementos de objeto', async () => {
-                    let _saidas: string[] = [];
                     const retornoLexador = lexador.mapear([
                         'classe Vendedor {',
                         '  recebaCliente() {}',
@@ -2416,10 +2417,6 @@ describe('Interpretador', () => {
                         'escreva(tipo de vendedor.recebaCliente)',
                     ], -1);
 
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        _saidas.push(saida);
-                    };
-
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -2428,6 +2425,28 @@ describe('Interpretador', () => {
                     expect(_saidas[0]).toBe('método<qualquer[]>');
                     expect(_saidas[1]).toBe('método<qualquer[]>');
                     expect(_saidas[2]).toBe('método<função<vazio>>');
+                });
+            });
+
+            describe('Retornos do interpretador', () => {
+                it("Último retorno não pode ter uma referência ao montão", async () => {
+                    const retornoLexador = lexador.mapear([
+                        'funcao acheAPrincesa(castelo) {',
+                        '    retorna  { "chave": 20 }',
+                        '}',
+                        'acheAPrincesa(1)'
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(retornoInterpretador.resultado).toHaveLength(1);
+                    const retornoFuncao = retornoInterpretador.resultado[0] as ResultadoParcialInterpretadorInterface;
+                    expect(retornoFuncao.valorRetornado).toBeInstanceOf(RetornoQuebra);
+                    expect(retornoFuncao.valorRetornado.valor).toBeInstanceOf(Object);
+                    expect(retornoFuncao.valorRetornado.valor).toHaveProperty('chave');
+                    expect(retornoFuncao.valorRetornado.valor['chave']).toBe(20);
                 });
             });
 
