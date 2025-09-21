@@ -761,6 +761,7 @@ export class AvaliadorSintatico
                 let tipoInferido = expressaoAnterior.tipo;
                 // Se não for um dicionário anônimo (ou seja, ser variável ou constante com nome)
                 if (expressaoAnterior.tipo === 'dicionário' && expressaoAnterior.constructor !== Dicionario) {
+                    // TODO: Achar algum caso em que aqui não seja variável.
                     const nomeDicionario = (expressaoAnterior as Variavel).simbolo.lexema;
                     const elementoDicionarioPilha = this.pilhaEscopos.obterElementoMontaoTipos(nomeDicionario);
                     const referenciaMontaoTipos = this.montaoTipos.obterReferencia(
@@ -2568,10 +2569,18 @@ export class AvaliadorSintatico
                 tipo
             );
 
-            this.pilhaEscopos.definirInformacoesVariavel(
-                identificador.lexema,
-                new InformacaoElementoSintatico(identificador.lexema, tipo)
-            );
+            if (tipo !== 'dicionário') {
+                this.pilhaEscopos.definirInformacoesVariavel(
+                    identificador.lexema,
+                    new InformacaoElementoSintatico(identificador.lexema, tipo)
+                );
+            } else {
+                const inicializadorDicionario = inicializadores[indice] as Dicionario;
+                this.pilhaEscopos.definirInformacoesVariavel(
+                    identificador.lexema,
+                    this.resolverInformacaoElementoSintaticoDeDicionario(inicializadorDicionario)
+                );
+            }
 
             retorno.push(
                 new Const(

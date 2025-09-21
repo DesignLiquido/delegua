@@ -1451,6 +1451,42 @@ describe('Interpretador', () => {
                         expect(_saidas).toHaveLength(1);
                         expect(_saidas[0]).toBe("[4, 8, 12]");
                     });
+
+                    it('para cada, dicionário contendo listas com outros dicionários', async () => {
+                        const retornoLexador = lexador.mapear(
+                        [
+                            `const dados = {`,
+                            `    "funcionarios":[],`,
+                            `    "areas":[`,
+                            `        {`,
+                            `            "codigo":"SD",`,
+                            `            "nome":"Desenvolvimento de Software"`,
+                            `        },`,
+                            `        {`,
+                            `            "codigo":"SM",`,
+                            `            "nome":"Gerenciamento de Software"`,
+                            `        },`,
+                            `        {`,
+                            `            "codigo":"UD",`,
+                            `            "nome":"Designer de UI/UX"`,
+                            `        }`,
+                            `    ]`,
+                            `}`,
+                            'para cada area em dados.areas {',
+                            '   escreva(area.codigo)',
+                            '}'
+                        ], -1);
+
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(3);
+                        expect(_saidas[0]).toBe("SD");
+                        expect(_saidas[1]).toBe("SM");
+                        expect(_saidas[2]).toBe("UD");
+                    });
                 });
 
                 describe('Para tradicional', () => {
