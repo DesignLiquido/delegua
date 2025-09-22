@@ -23,6 +23,7 @@ import {
     AcessoMetodo,
     AcessoPropriedade,
     ReferenciaFuncao,
+    ComentarioComoConstruto,
 } from '../../construtos';
 import {
     Escreva,
@@ -91,8 +92,7 @@ import { ListaCompreensao } from '../../construtos/lista-compreensao';
  * Este avaliador espera uma estrutura de pragmas, que explica quantos espaços há na frente de cada linha.
  */
 export class AvaliadorSintaticoPitugues
-    implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao>
-{
+    implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao> {
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
     pragmas: { [linha: number]: Pragma };
@@ -373,37 +373,6 @@ export class AvaliadorSintaticoPitugues
         const simboloAtual = this.simbolos[this.atual];
         let valores = [];
         switch (simboloAtual.tipo) {
-            case tiposDeSimbolos.COLCHETE_ESQUERDO:
-                this.avancarEDevolverAnterior();
-                if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                    return new Vetor(this.hashArquivo, simboloAtual.linha, [], 0, 'qualquer[]');
-                }
-
-
-                if(this.simbolos[this.atual].tipo == 'IDENTIFICADOR' && !this.verificarTipoProximoSimbolo(tiposDeSimbolos.VIRGULA)) {
-                    return this.resolverListaDeCompreensao();
-                }               
-
-
-                while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {   
-                    const valor = this.atribuir();
-                    valores.push(valor);
-                    if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
-                        this.consumir(
-                            tiposDeSimbolos.VIRGULA,
-                            'Esperado vírgula antes da próxima expressão.'
-                        );
-                    }
-                }
-
-                const tipoVetor = inferirTipoVariavel(valores);
-                return new Vetor(
-                    this.hashArquivo,
-                    simboloAtual.linha,
-                    valores,
-                    valores.length,
-                    tipoVetor
-                );
             case tiposDeSimbolos.CHAVE_ESQUERDA:
                 this.avancarEDevolverAnterior();
                 const chaves = [];
@@ -429,6 +398,42 @@ export class AvaliadorSintaticoPitugues
                 }
 
                 return new Dicionario(this.hashArquivo, simboloAtual.linha, chaves, valores);
+
+            case tiposDeSimbolos.COLCHETE_ESQUERDO:
+                this.avancarEDevolverAnterior();
+                if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
+                    return new Vetor(this.hashArquivo, simboloAtual.linha, [], 0, 'qualquer[]');
+                }
+
+
+                if (this.simbolos[this.atual].tipo == 'IDENTIFICADOR' && !this.verificarTipoProximoSimbolo(tiposDeSimbolos.VIRGULA)) {
+                    return this.resolverListaDeCompreensao();
+                }
+
+
+                while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
+                    const valor = this.atribuir();
+                    valores.push(valor);
+                    if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
+                        this.consumir(
+                            tiposDeSimbolos.VIRGULA,
+                            'Esperado vírgula antes da próxima expressão.'
+                        );
+                    }
+                }
+
+                const tipoVetor = inferirTipoVariavel(valores);
+                return new Vetor(
+                    this.hashArquivo,
+                    simboloAtual.linha,
+                    valores,
+                    valores.length,
+                    tipoVetor
+                );
+            
+            case tiposDeSimbolos.COMENTARIO:
+                const simboloComentario = this.avancarEDevolverAnterior();
+                return new ComentarioComoConstruto(simboloComentario);
             case tiposDeSimbolos.FALSO:
             case tiposDeSimbolos.VERDADEIRO:
                 const simboloLogico = this.avancarEDevolverAnterior();
@@ -824,8 +829,8 @@ export class AvaliadorSintaticoPitugues
                 throw this.erro(
                     simboloAtual,
                     `Indentação inconsistente na linha ${simboloAtual.linha}. ` +
-                        `Esperado: >= ${espacosIndentacaoLinhaAnterior}. ` +
-                        `Atual: ${espacosIndentacaoLinhaAtual}`
+                    `Esperado: >= ${espacosIndentacaoLinhaAnterior}. ` +
+                    `Atual: ${espacosIndentacaoLinhaAtual}`
                 );
             }
 
@@ -1269,8 +1274,12 @@ export class AvaliadorSintaticoPitugues
         return parametros;
     }
 
-    /* Função racunho de proposta para resolução de list comprehension */
-    protected resolverListaDeCompreensao() {     
+    /**
+     * Resolve uma lista de compreensão.
+     * @returns {ListaCompreensao} A lista de compreensão resolvida.
+     */
+    protected resolverListaDeCompreensao(): ListaCompreensao {
+        // TODO: Mais futuramente, aceitar uma Expressão (Construto) aqui.
         const identificador = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
             "Esperado identificador de variável de iteração na instrução 'para cada'."
@@ -1286,12 +1295,12 @@ export class AvaliadorSintaticoPitugues
             "Esperado instrução 'cada' após 'para'."
         );
 
-        const confirmacaoIdenficador = this.consumir(
+        const simboloVariavelIteracao = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
             "Esperado identificador de variável após 'para cada'."
         );
 
-        if (identificador.lexema != confirmacaoIdenficador.lexema) {
+        if (identificador.lexema != simboloVariavelIteracao.lexema) {
             throw this.erro(
                 this.simbolos[this.atual],
                 "Identificadores de variáveis não correspondentes"
@@ -1306,21 +1315,25 @@ export class AvaliadorSintaticoPitugues
         }
 
         const localizacaoVetor = this.simboloAnterior();
-
         const vetor = this.expressao();
 
         this.consumir(
             tiposDeSimbolos.SE,
             "Esperado condição 'se' após vetor."
         );
-        
+
+        // Antes de avaliar a condição, precisamos registrar a variável de iteração.
+        this.pilhaEscopos.definirInformacoesVariavel(
+            simboloVariavelIteracao.lexema,
+            new InformacaoElementoSintatico(simboloVariavelIteracao.lexema, 'qualquer') // TODO: Talvez um dia inferir o tipo aqui.
+        );
+
         const condicao = this.expressao();
 
         this.consumir(
             tiposDeSimbolos.COLCHETE_DIREITO,
             'Espero fechamento de colchetes após condição.'
         );
-
 
         const tipoVetor = (vetor as any).tipo as string;
         if (!tipoVetor.endsWith('[]') && !['qualquer', 'vetor'].includes(tipoVetor)) {
@@ -1336,7 +1349,7 @@ export class AvaliadorSintaticoPitugues
             identificador,
             vetor,
             condicao,
-            'qualquer[]'
+            'qualquer[]' // TODO: Talvez um dia inferir o tipo aqui.
         );
     }
 

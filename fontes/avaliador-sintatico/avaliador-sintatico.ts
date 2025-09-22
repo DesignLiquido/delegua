@@ -422,12 +422,12 @@ export class AvaliadorSintatico
 
                 // Remover comentários, verificar se vírgulas fazem sentido.
                 const valoresSemComentarios: Construto[] = valores.filter(
-                    (v) => v.constructor.name !== 'ComentarioComoConstruto'
+                    (v) => v.constructor !== ComentarioComoConstruto
                 );
                 let elementoSeparador = false; // O primeiro elemento não pode ser separador.
                 for (const elemento of valoresSemComentarios) {
                     if (elementoSeparador) {
-                        if (elemento.constructor.name !== 'Separador') {
+                        if (elemento.constructor !== Separador) {
                             throw this.erro(
                                 (elemento as any).simbolo,
                                 'Não podem haver duas vírgulas seguidas em uma definição de vetor, ou definição de vetor começando em vírgula.'
@@ -435,7 +435,7 @@ export class AvaliadorSintatico
                         }
                         elementoSeparador = false;
                     } else {
-                        if (elemento.constructor.name === 'Separador') {
+                        if (elemento.constructor === Separador) {
                             throw this.erro(
                                 (elemento as any).simbolo,
                                 'Não podem haver duas vírgulas seguidas em uma definição de vetor, ou definição de vetor começando em vírgula.'

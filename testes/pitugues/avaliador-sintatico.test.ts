@@ -82,7 +82,7 @@ describe('Avaliador sintático (Pituguês)', () => {
             });
 
 
-            it('Lista Compreensão', () => {
+            it('Listas de Compreensão', () => {
                 const retornoLexador = lexador.mapear(
                     [
                     'var lista = [1, 2, 3, 4, 5]',
@@ -93,7 +93,7 @@ describe('Avaliador sintático (Pituguês)', () => {
                     avaliadorSintatico.analisar(retornoLexador, -1);
 
                 expect(retornoAvaliadorSintatico).toBeTruthy();
-                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
             });
         });
         
