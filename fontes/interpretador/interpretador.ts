@@ -119,20 +119,22 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             return this.resolverValor(objeto.valor);
         }
 
-        if (objeto.hasOwnProperty && objeto.hasOwnProperty('valorRetornado')) {
-            return this.resolverValor(objeto.valorRetornado);
-        }
-
-        if (objeto.hasOwnProperty('valor')) {
-            if (Array.isArray(objeto.valor)) {
-                return this.resolverValor(objeto.valor);
+        if (objeto.hasOwnProperty) {
+            if (objeto.hasOwnProperty('valorRetornado')) {
+                return this.resolverValor(objeto.valorRetornado);
             }
 
-            if (objeto.valor instanceof ReferenciaMontao) {
-                return this.resolverReferenciaMontao(objeto.valor);
-            }
+            if (objeto.hasOwnProperty('valor')) {
+                if (Array.isArray(objeto.valor)) {
+                    return this.resolverValor(objeto.valor);
+                }
 
-            return objeto.valor;
+                if (objeto.valor instanceof ReferenciaMontao) {
+                    return this.resolverReferenciaMontao(objeto.valor);
+                }
+
+                return objeto.valor;
+            }
         }
 
         return objeto;
@@ -145,7 +147,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         }
 
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
-        if (objeto instanceof ObjetoDeleguaClasse || objeto instanceof DeleguaFuncao)
+        if (
+            objeto instanceof ObjetoDeleguaClasse ||
+            objeto instanceof DeleguaFuncao
+        )
             return objeto.paraTexto();
 
         if (objeto instanceof RetornoQuebra) {
@@ -209,7 +214,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                             return objeto.valor;
                     }
                 }
-        }
+        }       
 
         return objeto.toString();
     }
