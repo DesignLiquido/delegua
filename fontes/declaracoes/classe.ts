@@ -33,10 +33,10 @@ export class Classe extends Declaracao {
     paraTexto(): string {
         let resultado = `<classe nome=${this.simbolo.lexema} `;
         if (this.superClasse) {
-            resultado += `herda=${this.superClasse} `
+            resultado += `herda=${this.superClasse} `;
         }
 
-        resultado += ">";
+        resultado += '>';
 
         for (const propriedade of this.propriedades) {
             resultado += `${propriedade.paraTexto()}`;

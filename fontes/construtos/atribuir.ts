@@ -36,13 +36,13 @@ export class Atribuir<TTipoSimbolo extends string = string> implements Construto
             this.simboloOperador = simboloOperador;
         }
     }
-    
+
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoDeAtribuicao(this);
     }
 
     paraTexto(): string {
-        let indiceResolvido = "índice=(não definido)";
+        let indiceResolvido = 'índice=(não definido)';
         if (this.indice) {
             indiceResolvido = `índice=${this.indice.paraTexto()}`;
         }

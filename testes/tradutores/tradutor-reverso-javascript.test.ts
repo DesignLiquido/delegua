@@ -13,6 +13,15 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
     });
 
     describe('Código', () => {
+        it('Bloco vazio', () => {
+            const codigo = `{}`;
+
+            const retornoLexador = lexador.mapear(codigo.split('\n'), -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+        });
+
         it('comparacao de valores -> igualdade', () => {
             const codigo = `console.log(1 === 2)\nconsole.log(1 == '1')\nconsole.log('1' === '1')`;
 

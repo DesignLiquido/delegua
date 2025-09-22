@@ -24,6 +24,6 @@ export class Aleatorio extends Declaracao {
     }
 
     paraTexto(): string {
-        return `<aleatório />`
+        return `<aleatório />`;
     }
 }

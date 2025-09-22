@@ -37,7 +37,7 @@ export abstract class AvaliadorSintaticoBase
     hashArquivo: number;
     atual: number;
     blocos: number;
-    
+
     erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico {
         const excecao = new ErroAvaliadorSintatico(simbolo, mensagemDeErro);
         return excecao;

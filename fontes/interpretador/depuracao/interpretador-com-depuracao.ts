@@ -8,9 +8,9 @@ import { RetornoQuebra } from '../../quebras';
 import { RetornoInterpretadorInterface } from '../../interfaces/retornos/retorno-interpretador-interface';
 import { Chamada, Construto } from '../../construtos';
 import { Interpretador } from '../interpretador';
+import { EspacoMemoria } from '../espaco-memoria';
 
 import * as comum from './comum';
-import { EspacoMemoria } from '../espaco-memoria';
 
 /**
  * Implementação do Interpretador com suporte a depuração.
@@ -98,9 +98,7 @@ export class InterpretadorComDepuracao
 
         for (const argumento of argumentos) {
             const resultadoAvaliacao = await this.avaliar(argumento);
-            let valor = resultadoAvaliacao?.hasOwnProperty('valor')
-                ? resultadoAvaliacao.valor
-                : resultadoAvaliacao;
+            let valor = this.resolverValor(resultadoAvaliacao);
             formatoTexto += `${this.paraTexto(valor)} `;
         }
 

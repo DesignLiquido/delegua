@@ -56,7 +56,7 @@ import { inferirTipoVariavel, tipoInferenciaParaTipoDadosElementar } from '../..
 import { TipoInferencia } from '../../inferenciador';
 import { PilhaEscopos } from './../pilha-escopos';
 import { InformacaoEscopo } from './../informacao-escopo';
-import { InformacaoVariavelOuConstante } from '../../informacao-variavel-ou-constante';
+import { InformacaoElementoSintatico } from '../../informacao-elemento-sintatico';
 import { Simbolo } from '../../lexador/simbolo';
 
 import tipoDeDadosDelegua from '../../tipos-de-dados/delegua';
@@ -83,7 +83,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
     tiposDefinidosEmCodigo: { [key: string]: Declaracao };
     pilhaEscopos: PilhaEscopos;
     tiposDeFerramentasExternas: { [key: string]: { [key: string]: string } };
-    primitivasConhecidas: { [key: string]: InformacaoVariavelOuConstante };
+    primitivasConhecidas: { [key: string]: InformacaoElementoSintatico };
 
     hashArquivo: number;
     atual: number;
@@ -105,7 +105,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         for (const [nomePrimitivaDicionario, dadosPrimitiva] of Object.entries(
             primitivasDicionario
         )) {
-            this.primitivasConhecidas[nomePrimitivaDicionario] = new InformacaoVariavelOuConstante(
+            this.primitivasConhecidas[nomePrimitivaDicionario] = new InformacaoElementoSintatico(
                 nomePrimitivaDicionario,
                 'dicionário',
                 true,
@@ -114,7 +114,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         }
 
         for (const [nomePrimitivaNumero, dadosPrimitiva] of Object.entries(primitivasNumero)) {
-            this.primitivasConhecidas[nomePrimitivaNumero] = new InformacaoVariavelOuConstante(
+            this.primitivasConhecidas[nomePrimitivaNumero] = new InformacaoElementoSintatico(
                 nomePrimitivaNumero,
                 'número',
                 true,
@@ -123,7 +123,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         }
 
         for (const [nomePrimitivaTexto, dadosPrimitiva] of Object.entries(primitivasTexto)) {
-            this.primitivasConhecidas[nomePrimitivaTexto] = new InformacaoVariavelOuConstante(
+            this.primitivasConhecidas[nomePrimitivaTexto] = new InformacaoElementoSintatico(
                 nomePrimitivaTexto,
                 'texto',
                 true,
@@ -132,7 +132,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         }
 
         for (const [nomePrimitivaVetor, dadosPrimitiva] of Object.entries(primitivasVetor)) {
-            this.primitivasConhecidas[nomePrimitivaVetor] = new InformacaoVariavelOuConstante(
+            this.primitivasConhecidas[nomePrimitivaVetor] = new InformacaoElementoSintatico(
                 nomePrimitivaVetor,
                 'vetor',
                 true,
@@ -141,13 +141,13 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         }
 
         // TODO: Por enquanto não há necessidade de validar argumentos aqui, mas isso pode mudar no futuro.
-        this.primitivasConhecidas['inteiro'] = new InformacaoVariavelOuConstante(
+        this.primitivasConhecidas['inteiro'] = new InformacaoElementoSintatico(
             'inteiro',
             'inteiro'
         );
-        this.primitivasConhecidas['numero'] = new InformacaoVariavelOuConstante('numero', 'número');
-        this.primitivasConhecidas['número'] = new InformacaoVariavelOuConstante('número', 'número');
-        this.primitivasConhecidas['texto'] = new InformacaoVariavelOuConstante('texto', 'texto');
+        this.primitivasConhecidas['numero'] = new InformacaoElementoSintatico('numero', 'número');
+        this.primitivasConhecidas['número'] = new InformacaoElementoSintatico('número', 'número');
+        this.primitivasConhecidas['texto'] = new InformacaoElementoSintatico('texto', 'texto');
 
         this.pilhaEscopos = new PilhaEscopos();
     }
@@ -364,7 +364,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
                 const corpoDaFuncao = this.corpoDaFuncao(simboloFuncao.lexema as any);
                 this.pilhaEscopos.definirInformacoesVariavel(
                     simboloFuncao.lexema,
-                    new InformacaoVariavelOuConstante(simboloFuncao.lexema, 'função')
+                    new InformacaoElementoSintatico(simboloFuncao.lexema, 'função')
                 );
                 return corpoDaFuncao;
 
@@ -595,7 +595,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
     }
 
     protected validarArgumentosEntidadeChamada(
-        argumentosEntidadeChamada: InformacaoVariavelOuConstante[],
+        argumentosEntidadeChamada: InformacaoElementoSintatico[],
         argumentosUtilizados: Construto[]
     ): string[] {
         if (argumentosEntidadeChamada.length === 0) {
@@ -658,7 +658,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
                     );
                 if (informacoesPossivelFuncaoBibliotecaGlobal !== undefined) {
                     const erros = this.validarArgumentosEntidadeChamada(
-                        informacoesPossivelFuncaoBibliotecaGlobal.argumentos,
+                        informacoesPossivelFuncaoBibliotecaGlobal.subElementos as InformacaoElementoSintatico[],
                         argumentos
                     );
                     if (erros.length > 0) {
@@ -681,7 +681,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
                 var informacoesPrimitiva =
                     this.primitivasConhecidas[entidadeChamadaResolvidaVariavel.simbolo.lexema];
                 const erros = this.validarArgumentosEntidadeChamada(
-                    informacoesPrimitiva.argumentos,
+                    informacoesPrimitiva.subElementos as InformacaoElementoSintatico[],
                     argumentos
                 );
                 if (erros.length > 0) {
@@ -733,13 +733,13 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         // para ela. Vai ser atualizado após avaliação do corpo da função.
         this.pilhaEscopos.definirInformacoesVariavel(
             identificador.lexema,
-            new InformacaoVariavelOuConstante(identificador.lexema, 'qualquer')
+            new InformacaoElementoSintatico(identificador.lexema, 'qualquer')
         );
 
         const corpoDaFuncao = this.corpoDaFuncao('implícita');
         this.pilhaEscopos.definirInformacoesVariavel(
             identificador.lexema,
-            new InformacaoVariavelOuConstante(identificador.lexema, corpoDaFuncao.tipo)
+            new InformacaoElementoSintatico(identificador.lexema, corpoDaFuncao.tipo)
         );
         const funcaoDeclaracao = new FuncaoDeclaracao(
             identificador,
@@ -1218,7 +1218,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
 
         this.pilhaEscopos.definirInformacoesVariavel(
             simboloVariavelIteracao.lexema,
-            new InformacaoVariavelOuConstante(simboloVariavelIteracao.lexema, tipoVariavelIteracao)
+            new InformacaoElementoSintatico(simboloVariavelIteracao.lexema, tipoVariavelIteracao)
         );
 
         this.consumir(
@@ -1258,7 +1258,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         // seja capaz de reconhecer a variável e seu tipo.
         this.pilhaEscopos.definirInformacoesVariavel(
             simboloVariavelIteracao.lexema,
-            new InformacaoVariavelOuConstante(simboloVariavelIteracao.lexema, 'inteiro')
+            new InformacaoElementoSintatico(simboloVariavelIteracao.lexema, 'inteiro')
         );
 
         const corpo: Array<Declaracao> = this.blocoEscopo();
@@ -1550,7 +1550,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         const tipo = this.logicaComumInferenciaTiposVariaveis(inicializador);
         this.pilhaEscopos.definirInformacoesVariavel(
             identificador.lexema,
-            new InformacaoVariavelOuConstante(identificador.lexema, tipo)
+            new InformacaoElementoSintatico(identificador.lexema, tipo)
         );
 
         return new Var(identificador, inicializador, tipo);
@@ -1580,7 +1580,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
 
             this.pilhaEscopos.definirInformacoesVariavel(
                 parametro.nome.lexema,
-                new InformacaoVariavelOuConstante(
+                new InformacaoElementoSintatico(
                     parametro.nome.lexema,
                     parametro.tipoDado || 'qualquer'
                 )
@@ -1707,7 +1707,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
             for (const [nomeTipo, tipo] of Object.entries(tipos)) {
                 this.pilhaEscopos.definirInformacoesVariavel(
                     nomeTipo,
-                    new InformacaoVariavelOuConstante(nomeTipo, tipo)
+                    new InformacaoElementoSintatico(nomeTipo, tipo)
                 );
             }
         }

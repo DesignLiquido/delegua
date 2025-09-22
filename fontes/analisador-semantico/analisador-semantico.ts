@@ -85,10 +85,14 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             if (['vetor', 'qualquer[]', 'inteiro[]', 'texto[]'].includes(declaracao.tipo)) {
                 if (declaracao.inicializador instanceof Vetor) {
                     const vetor = declaracao.inicializador as Vetor;
-                    const vetorSemSeparadores = vetor.valores.filter((v) => v.constructor.name !== 'Separador');
+                    const vetorSemSeparadores = vetor.valores.filter(
+                        (v) => v.constructor.name !== 'Separador'
+                    );
 
-                    if (declaracao.tipo === 'inteiro[]') {    
-                        const apenasValores = vetorSemSeparadores.find((v) => typeof v?.valor !== 'number');
+                    if (declaracao.tipo === 'inteiro[]') {
+                        const apenasValores = vetorSemSeparadores.find(
+                            (v) => typeof v?.valor !== 'number'
+                        );
                         if (apenasValores) {
                             this.erro(
                                 declaracao.simbolo,
@@ -97,7 +101,9 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                         }
                     }
                     if (declaracao.tipo === 'texto[]') {
-                        const apenasValores = vetorSemSeparadores.find((v) => typeof v?.valor !== 'string');
+                        const apenasValores = vetorSemSeparadores.find(
+                            (v) => typeof v?.valor !== 'string'
+                        );
                         if (apenasValores) {
                             this.erro(
                                 declaracao.simbolo,
@@ -352,7 +358,9 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 }
             }
             if (expressao.valor instanceof Vetor) {
-                let valoresSemSeparador = (expressao.valor as Vetor).valores.filter((v) => v.constructor.name !== 'Separador');
+                let valoresSemSeparador = (expressao.valor as Vetor).valores.filter(
+                    (v) => v.constructor.name !== 'Separador'
+                );
                 if (!['qualquer[]'].includes(valor.tipo)) {
                     if (valor.tipo === 'texto[]') {
                         if (!valoresSemSeparador.every((v) => typeof v.valor === 'string')) {

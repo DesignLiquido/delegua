@@ -284,7 +284,7 @@ describe('Interpretador (Pituguês)', () => {
                         "classe Animal:",
                         "    função correr():",
                         "        escreva('Correndo Loucamente')",
-                        "classe Cachorro herda Animal:",
+                        "classe Cachorro(Animal):",
                         "    função latir():",
                         "        escreva('Au Au Au Au')",
                         "var nomeDoCachorro = Cachorro()",
@@ -299,6 +299,33 @@ describe('Interpretador (Pituguês)', () => {
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(3);
+                    expect(_saidas[0]).toBe('Correndo Loucamente');
+                    expect(_saidas[1]).toBe('Au Au Au Au');
+                    expect(_saidas[2]).toBe('Classe: OK!');
+                });
+
+                it('Classes - declaração `super()` ', async () => {
+                    const codigo = [
+                        "classe Procurando:",
+                        "    construtor():",
+                        "        imprima('Amigo, onde está você?')",
+                        "classe Amigo(Procurando):",
+                        "    construtor():",
+                        "        super()",
+                        "        imprima('Amigo, estou aqui!')",
+                        "var amigo = Amigo()",
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(2);
+                    expect(_saidas[0]).toBe('Amigo, onde está você?');
+                    expect(_saidas[1]).toBe('Amigo, estou aqui!');
                 });
             });
 

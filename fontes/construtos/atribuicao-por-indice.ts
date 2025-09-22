@@ -29,9 +29,11 @@ export class AtribuicaoPorIndice implements Construto {
     }
 
     paraTexto(): string {
-        return `<atribuição-por-índice objeto=${this.objeto.paraTexto()} ` +
+        return (
+            `<atribuição-por-índice objeto=${this.objeto.paraTexto()} ` +
             `índice=${this.indice.paraTexto()} ` +
             `valor=${this.valor.paraTexto()} ` +
-            `/>`;
+            `/>`
+        );
     }
 }

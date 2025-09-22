@@ -1,6 +1,6 @@
 import { Lexador } from '../../fontes/lexador';
 import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
-import { Bloco, Classe, Const, Escreva, Expressao, FuncaoDeclaracao, Retorna, TendoComo, Var } from '../../fontes/declaracoes';
+import { Bloco, Classe, Const, Escreva, Expressao, FuncaoDeclaracao, ParaCada, Retorna, TendoComo, Var } from '../../fontes/declaracoes';
 import { Binario, Chamada, FuncaoConstruto, Leia, Literal, Variavel } from '../../fontes/construtos';
 
 describe('Avaliador sintático', () => {
@@ -176,7 +176,7 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                     const declaracao = retornoAvaliadorSintatico.declaracoes[0];
-                    expect(declaracao.constructor.name).toBe('Var');
+                    expect(declaracao.constructor).toBe(Var);
                     const declaracaoTipada = declaracao as Var;
                     expect(declaracaoTipada.tipo).toBe('número');
                 });
@@ -195,7 +195,7 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
                     const declaracao = retornoAvaliadorSintatico.declaracoes[1];
-                    expect(declaracao.constructor.name).toBe('Var');
+                    expect(declaracao.constructor).toBe(Var);
                     const declaracaoTipada = declaracao as Var;
                     expect(declaracaoTipada.tipo).toBe('número');
                 });
@@ -214,7 +214,7 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
                     const declaracao = retornoAvaliadorSintatico.declaracoes[1];
-                    expect(declaracao.constructor.name).toBe('Var');
+                    expect(declaracao.constructor).toBe(Var);
                     const declaracaoTipada = declaracao as Var;
                     expect(declaracaoTipada.tipo).toBe('número');
                 });
@@ -232,7 +232,7 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                     const declaracao = retornoAvaliadorSintatico.declaracoes[0];
-                    expect(declaracao.constructor.name).toBe('Const');
+                    expect(declaracao.constructor).toBe(Const);
                     const declaracaoTipada = declaracao as Const;
                     expect(declaracaoTipada.tipo).toBe('texto');
                 });
@@ -251,7 +251,7 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
                     const declaracao = retornoAvaliadorSintatico.declaracoes[1];
-                    expect(declaracao.constructor.name).toBe('Const');
+                    expect(declaracao.constructor).toBe(Const);
                     const declaracaoTipada = declaracao as Const;
                     expect(declaracaoTipada.tipo).toBe('texto');
                 });
@@ -270,9 +270,47 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
                     const declaracao = retornoAvaliadorSintatico.declaracoes[1];
-                    expect(declaracao.constructor.name).toBe('Const');
+                    expect(declaracao.constructor).toBe(Const);
                     const declaracaoTipada = declaracao as Const;
                     expect(declaracaoTipada.tipo).toBe('texto');
+                });
+            });
+
+            describe('Enquanto', () => {
+                it('Enquanto com retorno pelo escopo', () => {
+                    const retornoLexador = lexador.mapear(
+                    [
+                        'var a = 1',
+                        'var teste = enquanto a <= 5 {',
+                        '    a++',
+                        '    retorna a * 6',
+                        '}',
+                        'escreva(teste)'
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+                });
+            });
+
+            describe('Fazer ... enquanto', () => {
+                it('Fazer com retorno pelo escopo', () => {
+                    const retornoLexador = lexador.mapear(
+                    [
+                        'var a = 1',
+                        'var teste = fazer {',
+                        '    ++a',
+                        '    retorna a * 6',
+                        '} enquanto a <= 5',
+                        'escreva(teste)'
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
                 });
             });
 
@@ -306,7 +344,7 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                     const declaracao = retornoAvaliadorSintatico.declaracoes[0];
-                    expect(declaracao.constructor.name).toBe('ParaCada');
+                    expect(declaracao.constructor).toBe(ParaCada);
                 });
 
                 it('Para cada com vetor variável', () => {
@@ -365,21 +403,54 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(4);
                 });
-            });            
 
-            it('Para/sustar', async () => {
-                const retornoLexador = lexador.mapear(
+                it('Para cada com retorno pelo escopo', () => {
+                    const retornoLexador = lexador.mapear(
                     [
-                        'para (var i = 0; i < 10; i = i + 1) {',
-                        '   se (i == 5) { sustar; }',
-                        "   escreva('Valor: ', i)",
+                        'var teste = para cada elemento em [1, 2, 3] {',
+                        '    retorna elemento * 4',
                         '}',
-                    ],
-                    -1
-                );
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        'escreva(teste)'
+                    ], -1);
 
-                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                });
+            });
+            
+            describe('Para tradicional', () => {
+                it('Para/sustar', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'para (var i = 0; i < 10; i = i + 1) {',
+                            '   se (i == 5) { sustar; }',
+                            "   escreva('Valor: ', i)",
+                            '}',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+
+                it('Para com retorno pelo escopo', () => {
+                    const retornoLexador = lexador.mapear(
+                    [
+                        'var teste = para (var i = 0; i < 10; i = i + 1) {',
+                        '    se (i == 5) { sustar; }',
+                        '    retorna i ** i',
+                        '}',
+                        'escreva(teste)'
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                });
             });
 
             it('Desestruturação de variáveis', async () => {

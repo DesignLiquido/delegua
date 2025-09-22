@@ -27,7 +27,7 @@ import { RetornoLexador, SimboloInterface, RetornoAvaliadorSintatico } from '../
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 import { PilhaEscopos } from '../pilha-escopos';
 import { InformacaoEscopo } from '../informacao-escopo';
-import { InformacaoVariavelOuConstante } from '../../informacao-variavel-ou-constante';
+import { InformacaoElementoSintatico } from '../../informacao-elemento-sintatico';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/calango';
 
@@ -108,12 +108,12 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         );
 
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-        this.                     verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
 
         return new Escreva(Number(simboloAtual.linha), this.hashArquivo, argumentos);
     }
 
-    /** 
+    /**
      * Em Calango, este é o método `escreva()`.
      * @returns {EscrevaMesmaLinha} Uma declaracao de escrita na mesma linha.
      */
@@ -174,7 +174,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
 
             this.pilhaEscopos.definirInformacoesVariavel(
                 identificador.lexema,
-                new InformacaoVariavelOuConstante(identificador.lexema, 'inteiro')
+                new InformacaoElementoSintatico(identificador.lexema, 'inteiro')
             );
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
@@ -195,15 +195,12 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
     }
 
     protected resolverBloco(simbolosParada: string[]): Bloco {
-        const declaracoes =  [];
+        const declaracoes = [];
         this.pilhaEscopos.empilhar(new InformacaoEscopo());
 
         const primeiroSimbolo = this.simbolos[this.atual];
 
-        while(
-            !this.estaNoFinal() &&
-            !simbolosParada.includes(this.simbolos[this.atual].lexema)
-        ) {
+        while (!this.estaNoFinal() && !simbolosParada.includes(this.simbolos[this.atual].lexema)) {
             declaracoes.push(this.resolverDeclaracaoForaDeBloco());
         }
 
@@ -224,20 +221,14 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
 
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
 
-        const caminhoEntao = this.resolverBloco([
-            'senao',
-            'fimSe'
-        ]); 
+        const caminhoEntao = this.resolverBloco(['senao', 'fimSe']);
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA));
 
         let caminhoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
-            caminhoSenao = this.resolverBloco([
-                'senao',
-                'fimSe'
-            ]);
+            caminhoSenao = this.resolverBloco(['senao', 'fimSe']);
         }
 
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
@@ -266,7 +257,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração 'leia'");
 
-        this.consumir( 
+        this.consumir(
             tiposDeSimbolos.PONTO_E_VIRGULA,
             'Esperado ponto e vírgula após declaração leia'
         );
@@ -279,7 +270,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.IDENTIFICADOR:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
                 let tipoOperando: string;
-                
+
                 try {
                     tipoOperando = this.pilhaEscopos.obterTipoVariavelPorNome(
                         simboloIdentificador.lexema
@@ -290,25 +281,34 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
 
                 return new Variavel(this.hashArquivo, simboloIdentificador, tipoOperando);
             case tiposDeSimbolos.INTEIRO:
-            case tiposDeSimbolos.NUMERO:               // Precisamos substituir 'NUMERO' por 'REAL' pois Calango não possui 'NUMERO'
+            case tiposDeSimbolos.NUMERO: // Precisamos substituir 'NUMERO' por 'REAL' pois Calango não possui 'NUMERO'
             case tiposDeSimbolos.TEXTO:
                 const simboloAnterior: SimboloInterface = this.avancarEDevolverAnterior();
                 return new Literal(
                     this.hashArquivo,
                     Number(simboloAnterior.linha),
                     simboloAnterior.literal,
-                    simboloAnterior.tipo == tiposDeSimbolos.TEXTO ? 'texto' : 'inteiro', 
+                    simboloAnterior.tipo == tiposDeSimbolos.TEXTO ? 'texto' : 'inteiro'
                 );
             case tiposDeSimbolos.PARENTESE_ESQUERDO:
                 this.avancarEDevolverAnterior();
                 const expressao = this.expressao();
                 this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
 
-                return new Agrupamento(this.hashArquivo, this.simbolos[this.atual].linha, expressao);
+                return new Agrupamento(
+                    this.hashArquivo,
+                    this.simbolos[this.atual].linha,
+                    expressao
+                );
         }
     }
 
-    override resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] | Construto | Construto[] | any {
+    override resolverDeclaracaoForaDeBloco():
+        | Declaracao
+        | Declaracao[]
+        | Construto
+        | Construto[]
+        | any {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.ESCREVA:
@@ -348,7 +348,6 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.PRINCIPAL, `Expressão 'principal' não declarada`);
     }
 
-
     analisar(
         retornoLexador: RetornoLexador<SimboloInterface>,
         hashArquivo: number
@@ -366,12 +365,15 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         }
 
         let declaracoes = [];
-        
-        this.validarSegmentoAlgoritmo(); 
-        this.validarSegmentoPrincipal('principal'); 
 
-        while(!this.estaNoFinal() && this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIM_PRINCIPAL) {
-            const resolucaoDeclaracao = this. resolverDeclaracaoForaDeBloco();
+        this.validarSegmentoAlgoritmo();
+        this.validarSegmentoPrincipal('principal');
+
+        while (
+            !this.estaNoFinal() &&
+            this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIM_PRINCIPAL
+        ) {
+            const resolucaoDeclaracao = this.resolverDeclaracaoForaDeBloco();
 
             if (Array.isArray(resolucaoDeclaracao)) {
                 declaracoes = declaracoes.concat(resolucaoDeclaracao);

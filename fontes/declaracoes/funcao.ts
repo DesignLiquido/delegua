@@ -33,6 +33,6 @@ export class FuncaoDeclaracao extends Declaracao {
 
     paraTexto(): string {
         // TODO: Corpo.
-        return `<declaração-função nome=${this.simbolo.lexema} tipo=${this.tipo} />`; 
+        return `<declaração-função nome=${this.simbolo.lexema} tipo=${this.tipo} />`;
     }
 }

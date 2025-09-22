@@ -44,7 +44,8 @@ export class Noneto extends Tupla {
     }
 
     paraTexto(): string {
-        return `<noneto primeiro=${this.primeiro.paraTexto()} ` +
+        return (
+            `<noneto primeiro=${this.primeiro.paraTexto()} ` +
             `segundo=${this.segundo.paraTexto()} ` +
             `terceiro=${this.terceiro.paraTexto()} ` +
             `quarto=${this.quarto.paraTexto()} ` +
@@ -53,6 +54,7 @@ export class Noneto extends Tupla {
             `sétimo=${this.setimo.paraTexto()} ` +
             `oitavo=${this.oitavo.paraTexto()} ` +
             `nono=${this.nono.paraTexto()} ` +
-            ` />`;
+            ` />`
+        );
     }
 }

@@ -418,12 +418,13 @@ export class InterpretadorComDepuracao
             case 'proximo':
                 if (!this.executandoChamada) {
                     return this.executarUmPassoNoEscopo();
-                } else {
-                    return this.executarUltimoEscopoComandoContinuar(
-                        manterAmbiente,
-                        naoVerificarPrimeiraExecucao
-                    );
                 }
+                 
+                return this.executarUltimoEscopoComandoContinuar(
+                    manterAmbiente,
+                    naoVerificarPrimeiraExecucao
+                );
+                
             default:
                 return this.executarUltimoEscopoComandoContinuar(
                     manterAmbiente,
@@ -682,17 +683,6 @@ export class InterpretadorComDepuracao
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         this.escopoAtual++;
-    }
-
-    /**
-     * Reimplementando este método aqui porque a execução por depuração não requer
-     * mostrar o resultado em momento algum, ou lidar com o retorno.
-     * @param declaracao A declaracao a ser executada.
-     * @param mostrarResultado Sempre falso.
-     * @returns O resultado da execução.
-     */
-    override async executar(declaracao: Declaracao, mostrarResultado = false): Promise<any> {
-        return await declaracao.aceitar(this);
     }
 
     /**

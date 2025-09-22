@@ -1,8 +1,8 @@
-import tiposDeSimbolos from "../../../tipos-de-simbolos/calango"
+import tiposDeSimbolos from '../../../tipos-de-simbolos/calango';
 
 export default {
     algoritmo: tiposDeSimbolos.ALGORITMO,
-    principal: tiposDeSimbolos.PRINCIPAL, 
+    principal: tiposDeSimbolos.PRINCIPAL,
     fimPrincipal: tiposDeSimbolos.FIM_PRINCIPAL,
     escreva: tiposDeSimbolos.ESCREVA,
     escreval: tiposDeSimbolos.ESCREVAL,
@@ -12,4 +12,4 @@ export default {
     entao: tiposDeSimbolos.ENTAO,
     senao: tiposDeSimbolos.SENAO,
     fimSe: tiposDeSimbolos.FIM_SE,
-}
+};

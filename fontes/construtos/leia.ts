@@ -30,6 +30,6 @@ export class Leia implements Construto {
     }
 
     paraTexto(): string {
-        return `<leia argumentos=[${this.argumentos.reduce((anterior, atual) => anterior += atual.paraTexto(), "")}] />`;
+        return `<leia argumentos=[${this.argumentos.reduce((anterior, atual) => (anterior += atual.paraTexto()), '')}] />`;
     }
 }

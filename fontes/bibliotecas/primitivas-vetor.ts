@@ -1,18 +1,18 @@
 import { DeleguaFuncao } from '../interpretador/estruturas';
 import { InterpretadorInterface, PrimitivaInterface, SimboloInterface } from '../interfaces';
-import { InformacaoVariavelOuConstante } from '../informacao-variavel-ou-constante';
+import { InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
 
 export default {
     adicionar: {
         tipoRetorno: 'qualquer[]',
         argumentos: [
-            new InformacaoVariavelOuConstante(
-                'elemento', 
+            new InformacaoElementoSintatico(
+                'elemento',
                 'qualquer',
                 true,
                 [],
                 'Os elementos a serem adicionados ao vetor.'
-            )
+            ),
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
@@ -21,16 +21,19 @@ export default {
             elemento: any
         ): Promise<any> => {
             vetor.push(elemento);
-            interpretador.pilhaEscoposExecucao.atribuirVariavel(
-                { 
-                    lexema: nomePrimitiva,
-                } as SimboloInterface, 
-                vetor
-            );
+            // TODO: Será que apenas isso é suficiente aqui? 
+            if (nomePrimitiva !== '') {
+                interpretador.pilhaEscoposExecucao.atribuirVariavel(
+                    { lexema: nomePrimitiva } as SimboloInterface,
+                    vetor
+                );
+            }
+            
             return Promise.resolve(vetor);
         },
         assinaturaFormato: 'vetor.adicionar(...elemento: qualquer)',
-        documentacao: '# `vetor.adicionar(elemento)` \n \n' +
+        documentacao:
+            '# `vetor.adicionar(elemento)` \n \n' +
             'Adiciona um ou mais elementos em um vetor.' +
             '\n\n ## Exemplo de Código\n' +
             '```delegua\nv.adicionar(7)\n' +
@@ -38,18 +41,18 @@ export default {
             'v.adicionar(3)\n' +
             'escreva(v) // [7, 5, 3]\n```' +
             '\n\n ### Formas de uso  \n',
-        exemploCodigo: 'vetor.adicionar(elemento)'
+        exemploCodigo: 'vetor.adicionar(elemento)',
     },
     concatenar: {
         tipoRetorno: 'qualquer[]',
         argumentos: [
-            new InformacaoVariavelOuConstante(
-                'outroVetor', 
+            new InformacaoElementoSintatico(
+                'outroVetor',
                 'qualquer[]',
                 true,
                 [],
                 'O outro vetorm ou outros vetores, a serem concatenados a este vetor.'
-            )
+            ),
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
@@ -60,25 +63,18 @@ export default {
             return Promise.resolve(vetor.concat(outroVetor));
         },
         assinaturaFormato: 'vetor.concatenar(...outroVetor: qualquer[])',
-        documentacao: '# `vetor.concatenar(outroVetor)` \n \n' +
+        documentacao:
+            '# `vetor.concatenar(outroVetor)` \n \n' +
             'Adiciona ao conteúdo do vetor um ou mais elementos' +
             '\n\n ## Exemplo de Código\n' +
             '\n\n```delegua\nvar v = [7, 5, 3]\n' +
             'escreva(v.concatenar([1, 2, 4])) // [7, 5, 3, 1, 2, 4]\n```' +
             '\n\n ### Formas de uso  \n',
-        exemploCodigo: 'vetor.concatenar(...argumentos)'
+        exemploCodigo: 'vetor.concatenar(...argumentos)',
     },
     empilhar: {
         tipoRetorno: 'qualquer[]',
-        argumentos: [
-            new InformacaoVariavelOuConstante(
-                'elemento', 
-                'qualquer',
-                true,
-                [],
-                ''
-            )
-        ],
+        argumentos: [new InformacaoElementoSintatico('elemento', 'qualquer', true, [], '')],
         implementacao: (
             interpretador: InterpretadorInterface,
             nomePrimitiva: string,
@@ -89,7 +85,8 @@ export default {
             return Promise.resolve(vetor);
         },
         assinaturaFormato: 'vetor.empilhar(elemento: qualquer)',
-        documentacao: '# `vetor.empilhar(elemento)` \n \n' +
+        documentacao:
+            '# `vetor.empilhar(elemento)` \n \n' +
             'Adiciona um elemento ao final do vetor, como se o vetor fosse uma pilha na vertical.' +
             '\n\n ## Exemplo de Código\n' +
             '\n\n```delegua\nvar v = []\n' +
@@ -98,23 +95,14 @@ export default {
             'v.empilhar(3)\n' +
             'escreva(v) // [7, 5, 3]\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'vetor.empilhar(elemento)'
+        exemploCodigo: 'vetor.empilhar(elemento)',
     },
     encaixar: {
         tipoRetorno: 'qualquer[]',
         argumentos: [
-            new InformacaoVariavelOuConstante(
-                'inicio', 
-                'inteiro'
-            ),
-            new InformacaoVariavelOuConstante(
-                'excluirQuantidade', 
-                'número'
-            ),
-            new InformacaoVariavelOuConstante(
-                'itens', 
-                'qualquer[]'
-            ),
+            new InformacaoElementoSintatico('inicio', 'inteiro'),
+            new InformacaoElementoSintatico('excluirQuantidade', 'número'),
+            new InformacaoElementoSintatico('itens', 'qualquer[]'),
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
@@ -139,15 +127,15 @@ export default {
     fatiar: {
         tipoRetorno: 'qualquer[]',
         argumentos: [
-            new InformacaoVariavelOuConstante(
-                'inicio', 
+            new InformacaoElementoSintatico(
+                'inicio',
                 'número',
                 false,
                 [],
                 'A posição de início do vetor a ser fatiado. Se não fornecido, retorna o vetor inteiro.'
             ),
-            new InformacaoVariavelOuConstante(
-                'fim', 
+            new InformacaoElementoSintatico(
+                'fim',
                 'número',
                 false,
                 [],
@@ -162,7 +150,8 @@ export default {
             fim: number
         ): Promise<any> => Promise.resolve(vetor.slice(inicio, fim)),
         assinaturaFormato: 'vetor.fatiar(inicio?: número, fim?: número)',
-        documentacao: '# `vetor.fatiar(inicio, fim)` \n \n' +
+        documentacao:
+            '# `vetor.fatiar(inicio, fim)` \n \n' +
             'Extrai uma fatia do vetor, dadas posições de início e fim. \n' +
             '\n\n ## Exemplo de Código\n' +
             '\n\n```delegua\nvar v = [1, 2, 3, 4, 5]\n' +
@@ -171,19 +160,20 @@ export default {
             'escreva(v.fatiar(2)) // "[3, 4, 5]", ou seja, seleciona tudo da posição 3 até o final do vetor.\n```' +
             '\n\n ### Formas de uso \n' +
             'Fatiar suporta sobrecarga do método.\n\n',
-        exemploCodigo: 'vetor.fatiar(<a partir desta posição>)\n' +
-            'vetor.fatiar(<a partir desta posição>, <até esta posição>)'
+        exemploCodigo:
+            'vetor.fatiar(<a partir desta posição>)\n' +
+            'vetor.fatiar(<a partir desta posição>, <até esta posição>)',
     },
     filtrarPor: {
         tipoRetorno: 'qualquer[]',
         argumentos: [
-            new InformacaoVariavelOuConstante(
-                'funcao', 
+            new InformacaoElementoSintatico(
+                'funcao',
                 'função',
                 true,
                 [],
                 'A função de filtragem.'
-            )
+            ),
         ],
         implementacao: async (
             interpretador: InterpretadorInterface,
@@ -198,7 +188,10 @@ export default {
             const retorno = [];
             for (let elemento of vetor) {
                 const resultadoChamada = await funcao.chamar(interpretador, [elemento]);
-                if (resultadoChamada.hasOwnProperty('valorRetornado') && resultadoChamada.valorRetornado.valor === true) {
+                if (
+                    resultadoChamada.hasOwnProperty('valorRetornado') &&
+                    resultadoChamada.valorRetornado.valor === true
+                ) {
                     retorno.push(elemento);
                 }
             }
@@ -206,7 +199,8 @@ export default {
             return retorno;
         },
         assinaturaFormato: 'vetor.filtrarPor(funcao: função)',
-        documentacao: '# `vetor.filtrarPor(funcao)` \n \n' +
+        documentacao:
+            '# `vetor.filtrarPor(funcao)` \n \n' +
             'Dada uma função passada como parâmetro, executa essa função para cada elemento do vetor. \n' +
             'Elementos cujo retorno da função é `falso` são excluídos. \n' +
             '\n\n ### Exemplo de Código\n' +
@@ -214,18 +208,18 @@ export default {
             'var funcaoNumerosImpares = funcao (n) { retorna n % 2 > 0 }\n' +
             'escreva(v.filtrarPor(funcaoNumerosImpares)) // "[1, 3, 5]"\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'vetor.filtrarPor(funcao (argumento) { <corpo da função com retorna> })'
+        exemploCodigo: 'vetor.filtrarPor(funcao (argumento) { <corpo da função com retorna> })',
     },
     inclui: {
         tipoRetorno: 'lógico',
         argumentos: [
-            new InformacaoVariavelOuConstante(
-                'elemento', 
+            new InformacaoElementoSintatico(
+                'elemento',
                 'qualquer',
                 true,
                 [],
                 'O elemento a ser verificado se está presente no vetor.'
-            )
+            ),
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
@@ -242,32 +236,36 @@ export default {
             'escreva(v.inclui(2)) // verdadeiro\n' +
             'escreva(v.inclui(4)) // falso\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'vetor.inclui(elemento)'
+        exemploCodigo: 'vetor.inclui(elemento)',
     },
     inverter: {
         tipoRetorno: 'qualquer[]',
         argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, nomePrimitiva: string, vetor: Array<any>): Promise<any> =>
-            Promise.resolve(vetor.reverse()),
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
+            vetor: Array<any>
+        ): Promise<any> => Promise.resolve(vetor.reverse()),
         assinaturaFormato: 'vetor.inverter()',
-        documentacao: '# `vetor.inverter()` \n \n' +
+        documentacao:
+            '# `vetor.inverter()` \n \n' +
             'Inverte a ordem dos elementos de um vetor.\n' +
             '\n\n ## Exemplo de Código\n' +
             '\n\n```delegua\nvar v = [1, 2, 3]\n' +
             'escreva(v.inverter()) // [3, 2, 1]\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'vetor.inverter()'
+        exemploCodigo: 'vetor.inverter()',
     },
     juntar: {
         tipoRetorno: 'texto',
         argumentos: [
-            new InformacaoVariavelOuConstante(
-                'separador', 
+            new InformacaoElementoSintatico(
+                'separador',
                 'texto',
                 true,
                 [],
                 'O separador entre elementos do vetor para o texto.'
-            )
+            ),
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
@@ -276,24 +274,25 @@ export default {
             separador: string
         ): Promise<any> => Promise.resolve(vetor.join(separador)),
         assinaturaFormato: 'vetor.juntar(separador: texto)',
-        documentacao: '# `vetor.juntar(separador)` \n \n' +
+        documentacao:
+            '# `vetor.juntar(separador)` \n \n' +
             'Junta todos os elementos de um vetor em um texto, separando cada elemento pelo separador passado como parâmetro.\n' +
             '\n\n ## Exemplo de Código\n' +
             '\n\n```delegua\nvar v = [1, 2, 3]\n' +
             'escreva(v.juntar(":")) // "1:2:3"\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'vetor.juntar()'
+        exemploCodigo: 'vetor.juntar()',
     },
     mapear: {
         tipoRetorno: 'qualquer[]',
         argumentos: [
-            new InformacaoVariavelOuConstante(
-                'funcao', 
+            new InformacaoElementoSintatico(
+                'funcao',
                 'função',
                 true,
                 [],
                 'A função que transforma cada elemento de um vetor em outro elemento a ser retornado em um novo vetor.'
-            )
+            ),
         ],
         implementacao: async (
             interpretador: InterpretadorInterface,
@@ -314,7 +313,8 @@ export default {
             return retorno;
         },
         assinaturaFormato: 'vetor.mapear(funcao: função)',
-        documentacao: '# `vetor.mapear(funcao)` \n \n' +
+        documentacao:
+            '# `vetor.mapear(funcao)` \n \n' +
             'Dada uma função passada como parâmetro, executa essa função para cada elemento do vetor. \n' +
             'Cada elemento retornado por esta função é adicionado ao vetor resultante. \n' +
             '\n\n ## Exemplo de Código\n' +
@@ -322,18 +322,18 @@ export default {
             'var funcaoPotenciasDeDois = funcao (n) { retorna n ** 2 }\n' +
             'escreva(v.mapear(funcaoPotenciasDeDois)) // [1, 4, 9, 16, 25]\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'vetor.mapear(funcao (argumento) { <corpo da função com retorna> })'
+        exemploCodigo: 'vetor.mapear(funcao (argumento) { <corpo da função com retorna> })',
     },
     ordenar: {
         tipoRetorno: 'qualquer[]',
         argumentos: [
-            new InformacaoVariavelOuConstante(
-                'funcaoOrdenacao', 
+            new InformacaoElementoSintatico(
+                'funcaoOrdenacao',
                 'função',
                 false,
                 [],
                 '(Opcional) Função para guiar a ordenação.'
-            )
+            ),
         ],
         implementacao: async (
             interpretador: InterpretadorInterface,
@@ -348,7 +348,8 @@ export default {
                             vetor[j - 1],
                             vetor[j],
                         ]);
-                        const valorComparacaoResolvido = interpretador.resolverValor(valorComparacao);
+                        const valorComparacaoResolvido =
+                            interpretador.resolverValor(valorComparacao);
 
                         if (valorComparacaoResolvido > 0) {
                             const aux = vetor[j];
@@ -360,9 +361,9 @@ export default {
 
                 if (nomePrimitiva !== '') {
                     interpretador.pilhaEscoposExecucao.atribuirVariavel(
-                        { 
+                        {
                             lexema: nomePrimitiva,
-                        } as SimboloInterface, 
+                        } as SimboloInterface,
                         vetor
                     );
                 }
@@ -378,9 +379,9 @@ export default {
 
             if (nomePrimitiva !== '') {
                 interpretador.pilhaEscoposExecucao.atribuirVariavel(
-                    { 
+                    {
                         lexema: nomePrimitiva,
-                    } as SimboloInterface, 
+                    } as SimboloInterface,
                     vetor
                 );
             }
@@ -388,7 +389,8 @@ export default {
             return vetor;
         },
         assinaturaFormato: 'vetor.ordenar()',
-        documentacao: '# `vetor.ordenar()` \n \n' +
+        documentacao:
+            '# `vetor.ordenar()` \n \n' +
             'Ordena valores de um vetor em ordem crescente.\n' +
             '\n\n ## Exemplo de Código\n' +
             '\n\n```delegua\n// A ordenação padrão é ascendente, ou seja, para o caso de números, a ordem fica do menor para o maior.\n' +
@@ -398,18 +400,18 @@ export default {
             'var v = ["aaa", "a", "aba", "abb", "abc"]\n' +
             'escreva(v.ordenar()) // ["a", "aaa", "aba", "abb", "abc"]\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'vetor.ordenar()'
+        exemploCodigo: 'vetor.ordenar()',
     },
     remover: {
         tipoRetorno: 'qualquer[]',
         argumentos: [
-            new InformacaoVariavelOuConstante(
-                'elemento', 
+            new InformacaoElementoSintatico(
+                'elemento',
                 'qualquer',
                 true,
                 [],
                 'O elemento a ser removido do vetor.'
-            )
+            ),
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
@@ -422,24 +424,30 @@ export default {
             return Promise.resolve(vetor);
         },
         assinaturaFormato: 'vetor.remover(elemento: qualquer)',
-        documentacao: '# `vetor.remover(elemento)` \n \n' +
+        documentacao:
+            '# `vetor.remover(elemento)` \n \n' +
             'Remove um elemento do vetor caso o elemento exista no vetor.\n' +
             '\n\n ## Exemplo de Código\n' +
             '\n\n```delegua\nvar vetor = [1, 2, 3]\n' +
             'vetor.remover(2)\n' +
             'escreva(vetor) // [1, 3]\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'vetor.remover(elemento)'
+        exemploCodigo: 'vetor.remover(elemento)',
     },
     removerPrimeiro: {
         tipoRetorno: 'qualquer',
         argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, nomePrimitiva: string, vetor: Array<any>): Promise<any> => {
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
+            vetor: Array<any>
+        ): Promise<any> => {
             let elemento = vetor.shift();
             return Promise.resolve(elemento);
         },
         assinaturaFormato: 'vetor.removerPrimeiro()',
-        documentacao: '# `vetor.removerPrimeiro()` \n \n' +
+        documentacao:
+            '# `vetor.removerPrimeiro()` \n \n' +
             'Remove o primeiro elemento do vetor caso o elemento exista no vetor.\n' +
             '\n\n ## Exemplo de Código\n' +
             '\n\n```delegua\nvar vetor = [1, 2, 3]\n' +
@@ -447,17 +455,22 @@ export default {
             'escreva(primeiroElemento) // 1\n' +
             'escreva(vetor) // [2, 3]\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'vetor.removerPrimeiro()'
+        exemploCodigo: 'vetor.removerPrimeiro()',
     },
     removerUltimo: {
         tipoRetorno: 'qualquer',
         argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, nomePrimitiva: string, vetor: Array<any>): Promise<any> => {
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
+            vetor: Array<any>
+        ): Promise<any> => {
             let elemento = vetor.pop();
             return Promise.resolve(elemento);
         },
         assinaturaFormato: 'vetor.removerUltimo()',
-        documentacao: '# `vetor.removerUltimo()` \n \n' +
+        documentacao:
+            '# `vetor.removerUltimo()` \n \n' +
             'Remove o último elemento do vetor caso o elemento exista no vetor.\n' +
             '\n\n ## Exemplo de Código\n' +
             '\n\n```delegua\nvar vetor = [1, 2, 3]\n' +
@@ -465,7 +478,7 @@ export default {
             'escreva(ultimoElemento) // 3\n' +
             'escreva(vetor) // [1, 2]\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'vetor.removerUltimo()'
+        exemploCodigo: 'vetor.removerUltimo()',
     },
     somar: {
         tipoRetorno: 'qualquer',
@@ -483,26 +496,31 @@ export default {
             );
         },
         assinaturaFormato: 'vetor.somar()',
-        documentacao: '# `vetor.somar()` \n \n' +
+        documentacao:
+            '# `vetor.somar()` \n \n' +
             'Soma ou concatena todos os elementos do vetor (de acordo com o tipo de dados desses elementos) e retorna o resultado.\n' +
             '\n\n ### Exemplo de Código\n' +
             '\n\n```delegua\nvar vetor = [1, 2, 3, 4, 5]\n' +
             'escreva(vetor.somar()) // 15\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'vetor.somar()'
+        exemploCodigo: 'vetor.somar()',
     },
     tamanho: {
         tipoRetorno: 'número',
         argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, nomePrimitiva: string, vetor: Array<any>): Promise<any> =>
-            Promise.resolve(vetor.length),
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
+            vetor: Array<any>
+        ): Promise<any> => Promise.resolve(vetor.length),
         assinaturaFormato: 'vetor.tamanho()',
-        documentacao: '# `vetor.tamanho()` \n \n' +
+        documentacao:
+            '# `vetor.tamanho()` \n \n' +
             'Retorna o número de elementos que compõem o vetor.\n' +
             '\n\n ## Exemplo de Código\n' +
             '\n\n```delegua\nvar vetor = [0, 1, 2, 3, 4]\n' +
             'escreva(vetor.tamanho()) // 5\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'vetor.tamanho()'
+        exemploCodigo: 'vetor.tamanho()',
     },
 } as { [nome: string]: PrimitivaInterface };

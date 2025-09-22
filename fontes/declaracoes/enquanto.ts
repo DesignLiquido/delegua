@@ -1,9 +1,10 @@
 import { Construto } from '../construtos';
 import { VisitanteComumInterface } from '../interfaces';
+import { EnquantoInterface } from '../interfaces/delegua';
 import { Bloco } from './bloco';
 import { Declaracao } from './declaracao';
 
-export class Enquanto extends Declaracao {
+export class Enquanto extends Declaracao implements EnquantoInterface {
     condicao: Construto;
     corpo: Bloco;
 

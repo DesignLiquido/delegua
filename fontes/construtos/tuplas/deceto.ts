@@ -56,7 +56,8 @@ export class Deceto extends Tupla {
     }
 
     paraTexto(): string {
-        return `<deceto primeiro=${this.primeiro.paraTexto()} ` +
+        return (
+            `<deceto primeiro=${this.primeiro.paraTexto()} ` +
             `segundo=${this.segundo.paraTexto()} ` +
             `terceiro=${this.terceiro.paraTexto()} ` +
             `quarto=${this.quarto.paraTexto()} ` +
@@ -66,6 +67,7 @@ export class Deceto extends Tupla {
             `oitavo=${this.oitavo.paraTexto()} ` +
             `nono=${this.nono.paraTexto()} ` +
             `décimo=${this.decimo.paraTexto()} ` +
-            ` />`;
+            ` />`
+        );
     }
 }

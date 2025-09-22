@@ -32,10 +32,12 @@ export class AtribuicaoPorIndicesMatriz implements Construto {
     }
 
     paraTexto(): string {
-        return `<atribuição-por-índices-matriz objeto=${this.objeto.paraTexto()} ` +
+        return (
+            `<atribuição-por-índices-matriz objeto=${this.objeto.paraTexto()} ` +
             `índice-primário=${this.indicePrimario.paraTexto()} ` +
             `índice-secundário=${this.indiceSecundario.paraTexto()} ` +
             `valor=${this.valor.paraTexto()} ` +
-            ` />`;
+            ` />`
+        );
     }
 }

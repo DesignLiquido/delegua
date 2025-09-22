@@ -2,7 +2,7 @@
 
 Em Delégua, tradutores são peças de código que traduzem código de uma linguagem de programação em outra. Tradutores reversos especificamente traduzem de alguma linguagem de programação para Delégua. 
 
-Na grande maioria dos tradutores reversos, [ANTLR](https://www.antlr.org/) é usado, mas ANTLR é bastante complexo e caro no processamento. É o método preferido de implementação de um mecanismo de tradução reversa, já que quando uma linguagem tem alguma gramática definida em ANTLR, sua importação para o projeto é bastante simples, ainda que bastante verbosa. 
+Na grande maioria dos tradutores reversos, [ANTLR](https://www.antlr.org/) é usada, mas ANTLR é bastante verbosa - por gerar métodos de entrada e saída para todo elemento sintático definido -, e pode ser cara no processamento se não for otimizada. É o método preferido de implementação de um mecanismo de tradução reversa, já que quando uma linguagem tem alguma gramática definida em ANTLR, sua importação para o projeto é bastante simples, ainda que bastante verbosa. 
 
 Em outros casos, como no caso de JavaScript, uma biblioteca dedicada é usada. Nesse exemplo, usamos [Esprima](https://www.npmjs.com/package/esprima), uma bem consolidada biblioteca de análise para JavaScript. Ainda, temos o caso em que nenhum desses recursos está disponível, como por exemplo nos dialetos de Portugol. Para esses casos, usamos tradutores customizados.
 

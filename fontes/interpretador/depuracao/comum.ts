@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 import { Chamada, Construto, Leia } from '../../construtos';
 import { Bloco, Declaracao, Enquanto, Escreva, Expressao, Para, Retorna } from '../../declaracoes';
-import { InterpretadorComDepuracaoInterface } from '../../interfaces';
+import { InterpretadorComDepuracaoInterface, ResultadoParcialInterpretadorInterface } from '../../interfaces';
 import { Quebra, SustarQuebra, ContinuarQuebra, RetornoQuebra } from '../../quebras';
 import { PontoParada } from '../../depuracao';
 import { EscopoExecucao, TipoEscopoExecucao } from '../../interfaces/escopo-execucao';
@@ -17,9 +17,7 @@ async function avaliarArgumentosEscreva(
 
     for (const argumento of argumentos) {
         const resultadoAvaliacao = await interpretador.avaliar(argumento);
-        let valor = resultadoAvaliacao?.hasOwnProperty('valor')
-            ? resultadoAvaliacao.valor
-            : resultadoAvaliacao;
+        let valor = interpretador.resolverValor(resultadoAvaliacao);
         formatoTexto += `${interpretador.paraTexto(valor)} `;
     }
 
@@ -148,18 +146,18 @@ export async function visitarDeclaracaoEnquanto(
         default:
             let retornoExecucao: any;
             while (
-                !(retornoExecucao instanceof Quebra) &&
+                !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
                 !interpretador.pontoDeParadaAtivo &&
                 interpretador.eVerdadeiro(await interpretador.avaliar(declaracao.condicao))
             ) {
                 escopoAtual.emLacoRepeticao = true;
                 try {
                     retornoExecucao = await interpretador.executar(declaracao.corpo);
-                    if (retornoExecucao instanceof SustarQuebra) {
+                    if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                         return null;
                     }
 
-                    if (retornoExecucao instanceof ContinuarQuebra) {
+                    if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) {
                         retornoExecucao = null;
                     }
                 } catch (erro: any) {
@@ -244,7 +242,7 @@ export async function visitarDeclaracaoPara(
             return null;
         default:
             let retornoExecucao: any;
-            while (!(retornoExecucao instanceof Quebra) && !interpretador.pontoDeParadaAtivo) {
+            while (!(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) && !interpretador.pontoDeParadaAtivo) {
                 if (
                     cloneDeclaracao.condicao !== null &&
                     !interpretador.eVerdadeiro(
@@ -256,11 +254,11 @@ export async function visitarDeclaracaoPara(
 
                 try {
                     retornoExecucao = await interpretador.executar(corpoExecucao);
-                    if (retornoExecucao instanceof SustarQuebra) {
+                    if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                         return null;
                     }
 
-                    if (retornoExecucao instanceof ContinuarQuebra) {
+                    if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) {
                         retornoExecucao = null;
                     }
                 } catch (erro: any) {
@@ -325,7 +323,7 @@ export async function executarBloco(
         const proximoEscopo = interpretador.pilhaEscoposExecucao.naPosicao(
             interpretador.escopoAtual
         );
-        let retornoExecucao: any;
+        let retornoExecucao: ResultadoParcialInterpretadorInterface;
 
         // Sempre executa a próxima instrução, mesmo que haja ponto de parada.
         retornoExecucao = await interpretador.executar(
@@ -335,13 +333,16 @@ export async function executarBloco(
 
         for (
             ;
-            !(retornoExecucao instanceof Quebra) &&
+            !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
             proximoEscopo.declaracaoAtual < proximoEscopo.declaracoes.length;
             proximoEscopo.declaracaoAtual++
         ) {
+            const declaracaoAtual = proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual];
+            interpretador.linhaDeclaracaoAtual = declaracaoAtual.linha;
+            interpretador.hashArquivoDeclaracaoAtual = declaracaoAtual.hashArquivo;
             interpretador.pontoDeParadaAtivo = verificarPontoParada(
                 interpretador,
-                proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual]
+                declaracaoAtual
             );
 
             if (interpretador.pontoDeParadaAtivo) {
@@ -350,7 +351,7 @@ export async function executarBloco(
             }
 
             retornoExecucao = await interpretador.executar(
-                proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual]
+                declaracaoAtual
             );
 
             // Um ponto de parada ativo pode ter vindo de um escopo mais interno.
@@ -478,21 +479,25 @@ export async function executarUltimoEscopoComandoContinuar(
     naoVerificarPrimeiraExecucao = false
 ): Promise<any> {
     const ultimoEscopo = interpretador.pilhaEscoposExecucao.topoDaPilha();
-    let retornoExecucao: any;
+    let retornoExecucao: ResultadoParcialInterpretadorInterface;
 
     try {
         for (
             ;
-            !(retornoExecucao instanceof Quebra) &&
+            !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
             ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length;
             ultimoEscopo.declaracaoAtual++
         ) {
+            const declaracaoAtual = ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual];
+            interpretador.linhaDeclaracaoAtual = declaracaoAtual.linha;
+            interpretador.hashArquivoDeclaracaoAtual = declaracaoAtual.hashArquivo;
+
             if (naoVerificarPrimeiraExecucao) {
                 naoVerificarPrimeiraExecucao = false;
             } else {
                 interpretador.pontoDeParadaAtivo = verificarPontoParada(
                     interpretador,
-                    ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]
+                    declaracaoAtual
                 );
 
                 if (interpretador.pontoDeParadaAtivo) {
@@ -500,10 +505,8 @@ export async function executarUltimoEscopoComandoContinuar(
                     break;
                 }
             }
-
-            retornoExecucao = await interpretador.executar(
-                ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]
-            );
+            
+            retornoExecucao = await interpretador.executar(declaracaoAtual);
 
             // Um ponto de parada ativo pode ter vindo de um escopo mais interno.
             // Por isso verificamos outra parada aqui para evitar que
@@ -554,9 +557,8 @@ export async function instrucaoContinuarInterpretacao(
     interpretador: InterpretadorComDepuracaoInterface,
     escopo = 1
 ): Promise<any> {
-    let retornoExecucao: any;
     if (escopo < interpretador.escopoAtual) {
-        retornoExecucao = await instrucaoContinuarInterpretacao(interpretador, escopo + 1);
+        await instrucaoContinuarInterpretacao(interpretador, escopo + 1);
     }
 
     if (interpretador.pontoDeParadaAtivo) {
@@ -646,13 +648,14 @@ export async function executarUltimoEscopo(
         case 'proximo':
             if (!interpretador.executandoChamada) {
                 return executarUmPassoNoEscopo(interpretador);
-            } else {
-                return executarUltimoEscopoComandoContinuar(
-                    interpretador,
-                    manterespacoMemoria,
-                    naoVerificarPrimeiraExecucao
-                );
-            }
+            } 
+
+            return executarUltimoEscopoComandoContinuar(
+                interpretador,
+                manterespacoMemoria,
+                naoVerificarPrimeiraExecucao
+            );
+            
         default:
             return executarUltimoEscopoComandoContinuar(
                 interpretador,

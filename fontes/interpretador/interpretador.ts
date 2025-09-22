@@ -7,10 +7,14 @@ import {
     AtribuicaoPorIndice,
     Atribuir,
     ComentarioComoConstruto,
-    Construto,
     DefinirValor,
     Dicionario,
+    Dupla,
+    EnquantoComoConstruto,
+    FazerComoConstruto,
     Literal,
+    ParaCadaComoConstruto,
+    ParaComoConstruto,
     ReferenciaFuncao,
     Separador,
     TipoDe,
@@ -26,13 +30,32 @@ import {
     ObjetoPadrao,
     ReferenciaMontao,
 } from './estruturas';
-import { ResultadoParcialInterpretadorInterface, RetornoInterpretadorInterface, SimboloInterface, VariavelInterface } from '../interfaces';
+import {
+    ResultadoParcialInterpretadorInterface,
+    RetornoInterpretadorInterface,
+    SimboloInterface,
+    VariavelInterface,
+    VisitanteDeleguaInterface,
+} from '../interfaces';
 import { InterpretadorBase } from './interpretador-base';
 import { inferirTipoVariavel } from '../inferenciador';
 import { ErroEmTempoDeExecucao } from '../excecoes';
-import { Const, ConstMultiplo, Declaracao, FuncaoDeclaracao, Retorna, Var, VarMultiplo } from '../declaracoes';
-import { Quebra, RetornoQuebra } from '../quebras';
+import {
+    Const,
+    ConstMultiplo,
+    Declaracao,
+    Enquanto,
+    Fazer,
+    FuncaoDeclaracao,
+    Para,
+    ParaCada,
+    Retorna,
+    Var,
+    VarMultiplo,
+} from '../declaracoes';
+import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras';
 import { Montao } from './montao';
+import { EnquantoInterface, FazerInterface, ParaCadaInterface, ParaInterface } from '../interfaces/delegua';
 
 import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
@@ -45,8 +68,9 @@ import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 /**
  * O interpretador de Delégua.
  */
-export class Interpretador extends InterpretadorBase {
+export class Interpretador extends InterpretadorBase implements VisitanteDeleguaInterface {
     montao: Montao;
+    acumularRetornos: boolean;
 
     constructor(
         diretorioBase: string,
@@ -68,12 +92,17 @@ export class Interpretador extends InterpretadorBase {
         return valorMontao;
     }
 
-    override resolverValor(objeto: any) {
+    override resolverValor(objeto: any, referencia: boolean = false) {
         if (objeto === null || objeto === undefined) {
             return objeto;
         }
 
         if (Array.isArray(objeto)) {
+            // Caso interpretador precise da referência ao vetor original (por exemplo, visita a `AcessoMetodoOuPropriedade`).
+            if (referencia) {
+                return objeto;
+            }
+
             const vetorResolvido: any[] = [];
             for (const elemento of objeto) {
                 vetorResolvido.push(this.resolverValor(elemento));
@@ -116,10 +145,7 @@ export class Interpretador extends InterpretadorBase {
         }
 
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
-        if (
-            objeto instanceof ObjetoDeleguaClasse ||
-            objeto instanceof DeleguaFuncao
-        )
+        if (objeto instanceof ObjetoDeleguaClasse || objeto instanceof DeleguaFuncao)
             return objeto.paraTexto();
 
         if (objeto instanceof RetornoQuebra) {
@@ -183,7 +209,7 @@ export class Interpretador extends InterpretadorBase {
                             return objeto.valor;
                     }
                 }
-        }       
+        }
 
         return objeto.toString();
     }
@@ -212,8 +238,260 @@ export class Interpretador extends InterpretadorBase {
 
         return {
             tipo: `função<${funcao.declaracao.tipo || 'qualquer'}>`,
-            tipoExplicito: funcao.declaracao.tipoExplicito
+            tipoExplicito: funcao.declaracao.tipoExplicito,
         };
+    }
+
+    protected async logicaComumExecucaoEnquanto(enquanto: EnquantoInterface, acumularRetornos: boolean) {
+        let retornoExecucao: ResultadoParcialInterpretadorInterface;
+        const retornos = [];
+        while (
+            (acumularRetornos || !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) &&
+            this.eVerdadeiro(await this.avaliar(enquanto.condicao))
+        ) {
+            try {
+                retornoExecucao = await this.executar(enquanto.corpo);
+                if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
+                    if (acumularRetornos) {
+                        return {
+                            valorRetornado: retornos,
+                            tipo: 'vetor'
+                        }
+                    }
+
+                    return null;
+                }
+
+                if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) {
+                    retornoExecucao = null;
+                }
+
+                if (acumularRetornos) {
+                    retornos.push(retornoExecucao);
+                }
+            } catch (erro: any) {
+                this.erros.push({
+                    erroInterno: erro,
+                    linha: enquanto.linha,
+                    hashArquivo: enquanto.hashArquivo,
+                });
+                return Promise.reject(erro);
+            }
+        }
+
+        if (acumularRetornos) {
+            return {
+                valorRetornado: retornos,
+                tipo: 'vetor'
+            }
+        }
+
+        return retornoExecucao;
+    }
+
+    override async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
+        return this.logicaComumExecucaoEnquanto(declaracao, false);
+    }
+
+    protected async logicaComumExecucaoFazer(fazer: FazerInterface, acumularRetornos: boolean) {
+        let retornoExecucao: ResultadoParcialInterpretadorInterface;
+        const retornos = [];
+        do {
+            try {
+                retornoExecucao = await this.executar(fazer.caminhoFazer);
+                if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
+                    if (acumularRetornos) {
+                        return {
+                            valorRetornado: retornos,
+                            tipo: 'vetor'
+                        }
+                    }
+
+                    return null;
+                }
+
+                if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) {
+                    retornoExecucao = null;
+                }
+
+                if (acumularRetornos) {
+                    retornos.push(retornoExecucao);
+                }
+            } catch (erro: any) {
+                this.erros.push({
+                    erroInterno: erro,
+                    linha: fazer.linha,
+                    hashArquivo: fazer.hashArquivo,
+                });
+                return Promise.reject(erro);
+            }
+        } while (
+            (acumularRetornos || !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) &&
+            this.eVerdadeiro(await this.avaliar(fazer.condicaoEnquanto))
+        );
+
+        if (acumularRetornos) {
+            return {
+                valorRetornado: retornos,
+                tipo: 'vetor'
+            }
+        }
+    }
+
+    override async visitarDeclaracaoFazer(declaracao: Fazer): Promise<any> {
+        return this.logicaComumExecucaoFazer(declaracao, false);
+    }
+
+    protected async logicaComumExecucaoPara(para: ParaInterface, acumularRetornos: boolean): Promise<any> {
+        const declaracaoInicializador = Array.isArray(para.inicializador)
+            ? para.inicializador[0]
+            : para.inicializador;
+
+        if (declaracaoInicializador !== null) {
+            await this.avaliar(declaracaoInicializador);
+        }
+
+        let retornoExecucao: ResultadoParcialInterpretadorInterface;
+        const retornos = [];
+        while (acumularRetornos || !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) {
+            if (
+                para.condicao !== null &&
+                !this.eVerdadeiro(await this.avaliar(para.condicao))
+            ) {
+                break;
+            }
+            
+            retornoExecucao = await this.executar(para.corpo);
+            if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
+                if (acumularRetornos) {
+                    return {
+                        valorRetornado: retornos,
+                        tipo: 'vetor'
+                    }
+                }
+
+                return null;
+            }
+
+            if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) {
+                retornoExecucao = null;
+            }
+
+            if (acumularRetornos) {
+                retornos.push(retornoExecucao);
+            }
+
+            if (para.incrementar !== null) {
+                await this.avaliar(para.incrementar);
+            }
+        }
+
+        if (acumularRetornos) {
+            return {
+                valorRetornado: retornos,
+                tipo: 'vetor'
+            }
+        }
+
+        return retornoExecucao;
+    }
+
+    override async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
+        return this.logicaComumExecucaoPara(declaracao, false);
+    }
+
+    protected async logicaComumExecucaoParaCada(paraCada: ParaCadaInterface, acumularRetornos: boolean): Promise<any> {
+        let retornoExecucao: ResultadoParcialInterpretadorInterface;
+        // Posição atual precisa ser reiniciada, pois pode estar dentro de outro
+        // laço de repetição.
+        paraCada.posicaoAtual = 0;
+        const vetorOuDicionarioResolvido = await this.avaliar(paraCada.vetorOuDicionario);
+        let valorVetorOuDicionarioResolvido: any = this.resolverValor(vetorOuDicionarioResolvido);
+
+        // Se até aqui vetor resolvido é um dicionário, converte dicionário
+        // para vetor de duplas.
+        // TODO: Converter elementos para `Construto` se necessário.
+        if (paraCada.vetorOuDicionario.tipo === 'dicionário') {
+            valorVetorOuDicionarioResolvido = Object.entries(valorVetorOuDicionarioResolvido).map(
+                (v) => new Dupla(v[0] as any, v[1] as any)
+            );
+        }
+
+        if (!Array.isArray(valorVetorOuDicionarioResolvido)) {
+            return Promise.reject(
+                "Variável ou literal provida em instrução 'para cada' não é um vetor."
+            );
+        }
+
+        const retornos = [];
+        while (
+            (acumularRetornos || !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) &&
+            paraCada.posicaoAtual < valorVetorOuDicionarioResolvido.length
+        ) {
+            try {
+                if (paraCada.variavelIteracao instanceof Variavel) {
+                    this.pilhaEscoposExecucao.definirVariavel(
+                        paraCada.variavelIteracao.simbolo.lexema,
+                        valorVetorOuDicionarioResolvido[paraCada.posicaoAtual]
+                    );
+                }
+
+                if (paraCada.variavelIteracao instanceof Dupla) {
+                    const valorComoDupla = valorVetorOuDicionarioResolvido[paraCada.posicaoAtual] as Dupla;
+                    this.pilhaEscoposExecucao.definirVariavel(
+                        (paraCada.variavelIteracao.primeiro as Literal).valor,
+                        valorComoDupla.primeiro
+                    );
+
+                    this.pilhaEscoposExecucao.definirVariavel(
+                        (paraCada.variavelIteracao.segundo as Literal).valor,
+                        valorComoDupla.segundo
+                    );
+                }
+
+                retornoExecucao = await this.executar(paraCada.corpo);
+                if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
+                    if (acumularRetornos) {
+                        return {
+                            valorRetornado: retornos,
+                            tipo: 'vetor'
+                        }
+                    }
+
+                    return null;
+                }
+
+                if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) {
+                    retornoExecucao = null;
+                }
+
+                if (acumularRetornos) {
+                    retornos.push(retornoExecucao);
+                }
+
+                paraCada.posicaoAtual++;
+            } catch (erro: any) {
+                this.erros.push({
+                    erroInterno: erro,
+                    linha: paraCada.linha,
+                    hashArquivo: paraCada.hashArquivo,
+                });
+                return Promise.reject(erro);
+            }
+        }
+
+        if (acumularRetornos) {
+            return {
+                valorRetornado: retornos,
+                tipo: 'vetor'
+            }
+        }
+
+        return retornoExecucao;
+    }
+
+    async visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
+        return this.logicaComumExecucaoParaCada(declaracao, false);
     }
 
     override async visitarExpressaoAcessoIndiceVariavel(
@@ -435,13 +713,14 @@ export class Interpretador extends InterpretadorBase {
         // Por exemplo, `objeto1.metodo1().metodo2()`.
         // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
         // valor dele primeiro.
-        if (variavelObjeto.constructor && variavelObjeto.constructor.name === 'RetornoQuebra') {
-            variavelObjeto = variavelObjeto.valor;
+        if (variavelObjeto.constructor === RetornoQuebra) {
+            const retornoQuebra = variavelObjeto as RetornoQuebra;
+            variavelObjeto = retornoQuebra.valor;
         }
 
-        const objeto = this.resolverValor(variavelObjeto);
+        const objeto = this.resolverValor(variavelObjeto, true);
 
-        if (objeto.constructor && objeto.constructor.name === 'ObjetoDeleguaClasse') {
+        if (objeto.constructor === ObjetoDeleguaClasse) {
             return (objeto as ObjetoDeleguaClasse).obter(expressao.simbolo);
         }
 
@@ -503,13 +782,13 @@ export class Interpretador extends InterpretadorBase {
                 break;
         }
 
-        // Objeto de uma classe JavaScript regular (ou seja, com construtor e propriedades) 
+        // Objeto de uma classe JavaScript regular (ou seja, com construtor e propriedades)
         // que possua a propriedade.
         // Exemplos: classes de LinConEs, como `RetornoComando`, ou bibliotecas globais com objetos próprios.
         if (objeto.hasOwnProperty && objeto.hasOwnProperty(expressao.simbolo.lexema)) {
             return objeto[expressao.simbolo.lexema];
         }
-        
+
         // Último caso: objeto simples, sem construtor, sem protótipo. Exemplo: {'a': 1, 'b': 2}
         if (typeof objeto[expressao.simbolo.lexema] !== 'undefined') {
             return objeto[expressao.simbolo.lexema];
@@ -542,7 +821,7 @@ export class Interpretador extends InterpretadorBase {
         // então testamos também o nome do construtor.
         if (
             objeto instanceof ObjetoDeleguaClasse ||
-            objeto.constructor && objeto.constructor.name === 'ObjetoDeleguaClasse'
+            (objeto.constructor && objeto.constructor.name === 'ObjetoDeleguaClasse')
         ) {
             return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomePropriedade) || null;
         }
@@ -602,7 +881,9 @@ export class Interpretador extends InterpretadorBase {
         return deleguaFuncao;
     }
 
-    override async visitarExpressaoAtribuicaoPorIndice(expressao: AtribuicaoPorIndice): Promise<any> {
+    override async visitarExpressaoAtribuicaoPorIndice(
+        expressao: AtribuicaoPorIndice
+    ): Promise<any> {
         const promises = await Promise.all([
             this.avaliar(expressao.objeto),
             this.avaliar(expressao.indice),
@@ -633,7 +914,10 @@ export class Interpretador extends InterpretadorBase {
             // TODO: Terminar
             const nomeVariavel = (expressao.objeto as any).simbolo.lexema;
             if (this.pilhaEscoposExecucao.obterVariavelEm(1, nomeVariavel) === undefined) {
-                this.pilhaEscoposExecucao.migrarReferenciaMontaoParaEscopoDeVariavel(nomeVariavel, valor.endereco);
+                this.pilhaEscoposExecucao.migrarReferenciaMontaoParaEscopoDeVariavel(
+                    nomeVariavel,
+                    valor.endereco
+                );
             }
         }
 
@@ -649,10 +933,7 @@ export class Interpretador extends InterpretadorBase {
             }
 
             objeto[indice] = valor;
-            this.pilhaEscoposExecucao.atribuirVariavel(
-                (expressao.objeto as any).simbolo,
-                objeto
-            );
+            this.pilhaEscoposExecucao.atribuirVariavel((expressao.objeto as any).simbolo, objeto);
         } else if (
             objeto.constructor === Object ||
             objeto instanceof ObjetoDeleguaClasse ||
@@ -674,7 +955,7 @@ export class Interpretador extends InterpretadorBase {
 
     /**
      * Em Delégua e Pituguês, comentários não são importantes para a interpretação.
-     * @param expressao 
+     * @param expressao Uma `Promise` sempre resolvida.
      */
     override async visitarExpressaoComentario(expressao: ComentarioComoConstruto): Promise<any> {
         return Promise.resolve();
@@ -699,8 +980,8 @@ export class Interpretador extends InterpretadorBase {
             indice = await this.avaliar(expressao.indice);
         }
 
-        switch (expressao.alvo.constructor.name) {
-            case 'Variavel':
+        switch (expressao.alvo.constructor) {
+            case Variavel:
                 const alvoVariavel = expressao.alvo as Variavel;
                 const variavelResolvida = this.pilhaEscoposExecucao.obterValorVariavel(
                     alvoVariavel.simbolo
@@ -722,7 +1003,7 @@ export class Interpretador extends InterpretadorBase {
                 }
 
                 break;
-            case 'AcessoMetodoOuPropriedade':
+            case AcessoMetodoOuPropriedade:
                 // Nunca será método aqui: apenas propriedade.
                 const alvoPropriedade = expressao.alvo as AcessoMetodoOuPropriedade;
                 const variavelObjeto = await this.avaliar(alvoPropriedade.objeto);
@@ -736,7 +1017,7 @@ export class Interpretador extends InterpretadorBase {
                     // Se cair aqui, provavelmente `objeto.constructor.name` é 'Object'.
                     objeto[alvoPropriedade.simbolo.lexema] = valor;
                 }
-                
+
                 break;
             default:
                 throw new ErroEmTempoDeExecucao(
@@ -752,7 +1033,7 @@ export class Interpretador extends InterpretadorBase {
         const variavelObjeto = await this.avaliar(expressao.objeto);
         const objeto = this.resolverValor(variavelObjeto);
 
-        if (objeto.constructor.name !== 'ObjetoDeleguaClasse' && objeto.constructor !== Object) {
+        if (objeto.constructor !== ObjetoDeleguaClasse && objeto.constructor !== Object) {
             return Promise.reject(
                 new ErroEmTempoDeExecucao(
                     expressao.nome,
@@ -764,7 +1045,7 @@ export class Interpretador extends InterpretadorBase {
 
         const valor = await this.avaliar(expressao.valor);
         const valorResolvido = this.resolverValor(valor);
-        if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
+        if (objeto.constructor === ObjetoDeleguaClasse) {
             objeto.definir(expressao.nome, valorResolvido);
             return valorResolvido;
         }
@@ -800,6 +1081,18 @@ export class Interpretador extends InterpretadorBase {
         return new ReferenciaMontao(enderecoDicionarioMontao);
     }
 
+    visitarExpressaoEnquanto(expressao: EnquantoComoConstruto): Promise<any> | void {
+        return this.logicaComumExecucaoEnquanto(expressao, true);
+    }
+
+    visitarExpressaoFazer(expressao: FazerComoConstruto): Promise<any> | void {
+        return this.logicaComumExecucaoFazer(expressao, true);
+    }
+
+    visitarExpressaoParaCada(expressao: ParaCadaComoConstruto): Promise<any> {
+        return this.logicaComumExecucaoParaCada(expressao, true);
+    }
+
     override async visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> {
         const deleguaFuncao = this.pilhaEscoposExecucao.obterReferenciaFuncao(expressao.idFuncao);
         return deleguaFuncao;
@@ -813,23 +1106,27 @@ export class Interpretador extends InterpretadorBase {
 
         const retornoQuebra = new RetornoQuebra(valor, declaracao.tipo);
 
-        // Se o retorno for uma função anônima, o escopo precisa ser preservado.
+        // Se o retorno for uma função anônima ou referência ao montão, o escopo precisa ser preservado.
         // Como quebras matam o topo da pilha de escopos, precisamos dizer
-        // para a finalização para copiar as variáveis para o escopo de baixo.
+        // para a finalização para copiar valores importantes para o escopo de baixo.
         if (retornoQuebra.valor) {
             const construtorRetorno = retornoQuebra.valor.constructor.name.replaceAll('_', '');
-            if (construtorRetorno === 'DeleguaFuncao') {
-                retornoQuebra.preservarEscopo = true;
+            if (['DeleguaFuncao', 'ReferenciaMontao'].includes(construtorRetorno)) {
+                retornoQuebra.preservarEscopo = true; // TODO: Ver se é mesmo o caso de manter isso para referências ao montão.
             }
         }
 
         return retornoQuebra;
     }
 
+    visitarExpressaoPara(expressao: ParaComoConstruto): Promise<any> | void {
+        return this.logicaComumExecucaoPara(expressao, true);
+    }
+
     /**
      * Para Delégua e Pituguês, o separador é apenas um elemento de sintaxe.
      * Não há qualquer avaliação a ser feita.
-     * @param expressao 
+     * @param expressao
      */
     override async visitarExpressaoSeparador(expressao: Separador): Promise<any> {
         return Promise.resolve(null);
@@ -879,7 +1176,9 @@ export class Interpretador extends InterpretadorBase {
                 return valorTipoDe.tipo;
             case 'Vetor':
                 const vetor = valorTipoDe as Vetor;
-                const apenasValores = vetor.valores.filter(v => !['ComentarioComoConstruto', 'Separador'].includes(v.constructor.name));
+                const apenasValores = vetor.valores.filter(
+                    (v) => !['ComentarioComoConstruto', 'Separador'].includes(v.constructor.name)
+                );
                 return inferirTipoVariavel(apenasValores);
             default:
                 return inferirTipoVariavel(valorTipoDe);
@@ -896,7 +1195,9 @@ export class Interpretador extends InterpretadorBase {
      * @param manterAmbiente Se verdadeiro, ambiente do topo da pilha de escopo é copiado para o ambiente imediatamente abaixo.
      * @returns O resultado da execução do escopo, se houver.
      */
-    override async executarUltimoEscopo(manterAmbiente = false): Promise<ResultadoParcialInterpretadorInterface> {
+    override async executarUltimoEscopo(
+        manterAmbiente = false
+    ): Promise<ResultadoParcialInterpretadorInterface> {
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
         let retornoExecucao: ResultadoParcialInterpretadorInterface;
         try {
@@ -926,15 +1227,23 @@ export class Interpretador extends InterpretadorBase {
             }
         } finally {
             const escopoFinalizado = this.pilhaEscoposExecucao.removerUltimo();
-            const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
+            const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();            
 
-            this.montao.excluirReferencias(...escopoFinalizado.espacoMemoria.enderecosMontao);
-
-            if (manterAmbiente || (retornoExecucao && retornoExecucao.valorRetornado.preservarEscopo === true)) {
+            if (
+                manterAmbiente ||
+                (retornoExecucao && retornoExecucao.valorRetornado.preservarEscopo === true)
+            ) {
                 escopoAnterior.espacoMemoria.valores = Object.assign(
                     escopoAnterior.espacoMemoria.valores,
                     ultimoEscopo.espacoMemoria.valores
                 );
+
+                escopoAnterior.espacoMemoria.enderecosMontao = new Set([
+                    ...escopoAnterior.espacoMemoria.enderecosMontao, 
+                    ...ultimoEscopo.espacoMemoria.enderecosMontao
+                ]);
+            } else {
+                this.montao.excluirReferencias(...escopoFinalizado.espacoMemoria.enderecosMontao);
             }
         }
     }
@@ -951,6 +1260,20 @@ export class Interpretador extends InterpretadorBase {
         manterAmbiente?: boolean
     ): Promise<RetornoInterpretadorInterface> {
         this.montao = new Montao();
-        return super.interpretar(declaracoes, manterAmbiente);
+        const resultados = await super.interpretar(declaracoes, manterAmbiente);
+        if (resultados.resultado.length > 0) {
+            const ultimoResultado = resultados.resultado[resultados.resultado.length - 1];
+            
+            if (ultimoResultado && ultimoResultado.valorRetornado instanceof RetornoQuebra && ultimoResultado.valorRetornado.valor instanceof ReferenciaMontao) {
+                const ultimaDeclaracao = declaracoes[declaracoes.length - 1];
+                ultimoResultado.valorRetornado.valor = this.montao.obterReferencia(
+                    ultimaDeclaracao.hashArquivo,
+                    ultimaDeclaracao.linha,
+                    ultimoResultado.valorRetornado.valor.endereco
+                );
+            }
+        }
+        
+        return resultados;
     }
 }

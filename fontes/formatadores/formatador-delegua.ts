@@ -279,7 +279,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         if (declaracao.argumentos.length > 0) {
             this.codigoFormatado = this.codigoFormatado.slice(0, -2);
         }
-        
+
         this.codigoFormatado += `)${this.quebraLinha}`;
     }
 
@@ -337,7 +337,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
 
     visitarDeclaracaoParaCada(declaracao: ParaCada): any {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}para cada ${declaracao.variavelIteracao} de `;
-        this.formatarDeclaracaoOuConstruto(declaracao.vetor);
+        this.formatarDeclaracaoOuConstruto(declaracao.vetorOuDicionario);
         this.visitarExpressaoBloco(declaracao.corpo);
     }
 

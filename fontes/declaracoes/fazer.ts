@@ -1,13 +1,19 @@
 import { Construto } from '../construtos';
 import { VisitanteComumInterface } from '../interfaces';
+import { FazerInterface } from '../interfaces/delegua';
 import { Bloco } from './bloco';
 import { Declaracao } from './declaracao';
 
-export class Fazer extends Declaracao {
+export class Fazer extends Declaracao implements FazerInterface {
     caminhoFazer: Bloco;
     condicaoEnquanto: Construto;
 
-    constructor(hashArquivo: number, linha: number, caminhoFazer: Bloco, condicaoEnquanto: Construto) {
+    constructor(
+        hashArquivo: number,
+        linha: number,
+        caminhoFazer: Bloco,
+        condicaoEnquanto: Construto
+    ) {
         super(linha, hashArquivo);
         this.caminhoFazer = caminhoFazer;
         this.condicaoEnquanto = condicaoEnquanto;
@@ -19,6 +25,6 @@ export class Fazer extends Declaracao {
 
     paraTexto(): string {
         // TODO: Bloco.
-        return `<fazer condição=${this.condicaoEnquanto.paraTexto()} />`; 
+        return `<fazer condição=${this.condicaoEnquanto.paraTexto()} />`;
     }
 }

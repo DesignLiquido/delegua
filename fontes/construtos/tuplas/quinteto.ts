@@ -24,11 +24,13 @@ export class Quinteto extends Tupla {
     }
 
     paraTexto(): string {
-        return `<quinteto primeiro=${this.primeiro.paraTexto()} ` +
+        return (
+            `<quinteto primeiro=${this.primeiro.paraTexto()} ` +
             `segundo=${this.segundo.paraTexto()} ` +
             `terceiro=${this.terceiro.paraTexto()} ` +
             `quarto=${this.quarto.paraTexto()} ` +
             `quinto=${this.quinto.paraTexto()} ` +
-            ` />`;
+            ` />`
+        );
     }
 }

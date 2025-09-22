@@ -1,10 +1,10 @@
-import { LexadorInterface, SimboloInterface } from "../../interfaces";
+import { LexadorInterface, SimboloInterface } from '../../interfaces';
 import { RetornoLexador } from '../../interfaces/retornos';
-import { ErroLexador } from "../erro-lexador";
-import { Simbolo } from "../simbolo";
+import { ErroLexador } from '../erro-lexador';
+import { Simbolo } from '../simbolo';
 
-import palavrasReservadas from "./palavras-reservadas/calango";
-import tiposDeSimbolos from "../../tipos-de-simbolos/calango"
+import palavrasReservadas from './palavras-reservadas/calango';
+import tiposDeSimbolos from '../../tipos-de-simbolos/calango';
 
 export class LexadorCalango implements LexadorInterface<SimboloInterface> {
     simbolos: SimboloInterface<string>[];
@@ -18,7 +18,6 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
 
     eDigito(caractere: string): boolean {
         return caractere >= '0' && caractere <= '9';
-
     }
     eAlfabeto(caractere: string): boolean {
         const acentuacoes = [
@@ -60,10 +59,11 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
     }
 
     eFinalDoCodigo(): boolean {
-        if (this.linha > this.codigo.length - 1) 
-            return true;
-        return this.linha == this.codigo.length - 1 && 
-            this.codigo[this.codigo.length - 1].length <= this.atual;
+        if (this.linha > this.codigo.length - 1) return true;
+        return (
+            this.linha == this.codigo.length - 1 &&
+            this.codigo[this.codigo.length - 1].length <= this.atual
+        );
     }
 
     eUltimaLinha(): boolean {
@@ -166,14 +166,20 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
 
     identificarPalavraChave(): void {
         const linhaPrimeiroCaracter: number = this.linha;
-        while (this.eAlfabetoOuDigito(this.simboloAtual()) && this.linha === linhaPrimeiroCaracter) {
+        while (
+            this.eAlfabetoOuDigito(this.simboloAtual()) &&
+            this.linha === linhaPrimeiroCaracter
+        ) {
             this.avancar();
         }
 
         let textoPalavraChave: string;
         if (linhaPrimeiroCaracter < this.linha) {
             const linhaPalavraChave: string = this.codigo[linhaPrimeiroCaracter];
-            textoPalavraChave = linhaPalavraChave.substring(this.inicioSimbolo, linhaPalavraChave.length);
+            textoPalavraChave = linhaPalavraChave.substring(
+                this.inicioSimbolo,
+                linhaPalavraChave.length
+            );
         } else {
             textoPalavraChave = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
         }
@@ -183,9 +189,11 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
                 ? palavrasReservadas[textoPalavraChave]
                 : tiposDeSimbolos.IDENTIFICADOR;
 
-        this.simbolos.push(new Simbolo(tipo, textoPalavraChave, null, linhaPrimeiroCaracter + 1, this.hashArquivo));
+        this.simbolos.push(
+            new Simbolo(tipo, textoPalavraChave, null, linhaPrimeiroCaracter + 1, this.hashArquivo)
+        );
     }
-    
+
     analisarToken(): void {
         const caractere = this.simboloAtual();
 
@@ -201,7 +209,7 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
                 this.avancar();
                 break;
             case ';': // Calango exige o ponto e vírgula para indicar final do código
-                this.adicionarSimbolo(tiposDeSimbolos.PONTO_E_VIRGULA)
+                this.adicionarSimbolo(tiposDeSimbolos.PONTO_E_VIRGULA);
                 this.avancar();
                 break;
             case '"':
@@ -251,7 +259,6 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
                     this.avancar();
                 }
         }
-
     }
     mapear(codigo: string[], hashArquivo: number): RetornoLexador<SimboloInterface<string>> {
         this.simbolos = [];
@@ -260,7 +267,7 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
         this.inicioSimbolo = 0;
         this.atual = 0;
         this.linha = 0;
-        
+
         this.codigo = codigo || [''];
         this.hashArquivo = hashArquivo;
 
@@ -271,8 +278,7 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
 
         return {
             simbolos: this.simbolos,
-            erros: this.erros
+            erros: this.erros,
         } as RetornoLexador<SimboloInterface>;
     }
-
 }

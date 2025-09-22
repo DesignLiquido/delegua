@@ -32,8 +32,10 @@ export class AcessoIndiceVariavel<TTipoSimbolo extends string = string> implemen
     }
 
     paraTexto(): string {
-        return `<acesso-índice-variável entidadeChamada=${this.entidadeChamada.paraTexto()} ` +
+        return (
+            `<acesso-índice-variável entidadeChamada=${this.entidadeChamada.paraTexto()} ` +
             `índice=${this.indice.paraTexto()} ` +
-            `/>`;
+            `/>`
+        );
     }
 }

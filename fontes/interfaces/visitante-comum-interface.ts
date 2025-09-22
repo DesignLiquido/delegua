@@ -81,7 +81,6 @@ export interface VisitanteComumInterface {
     visitarDeclaracaoImportar(declaracao: Importar): Promise<any> | void;
     visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> | void;
     visitarDeclaracaoPara(declaracao: Para): Promise<any> | void;
-    visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> | void;
     visitarDeclaracaoSe(declaracao: Se): Promise<any> | void;
     visitarDeclaracaoTendoComo(declaracao: TendoComo): Promise<any> | void;
     visitarDeclaracaoTente(declaracao: Tente): Promise<any> | void;

@@ -71,7 +71,7 @@ export class FormatadorPitugues implements VisitanteComumInterface {
     visitarExpressaoComentario(expressao: ComentarioComoConstruto): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
-    
+
     visitarExpressaoArgumentoReferenciaFuncao(
         expressao: ArgumentoReferenciaFuncao
     ): Promise<any> | void {

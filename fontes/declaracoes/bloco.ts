@@ -1,6 +1,8 @@
 import { VisitanteComumInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
+// TODO: `Bloco` só deveria ser declaração quando representa um escopo órfão.
+// Estudar transformar em construto e suas implicações.
 export class Bloco extends Declaracao {
     declaracoes: Declaracao[];
 
@@ -14,12 +16,12 @@ export class Bloco extends Declaracao {
     }
 
     paraTexto(): string {
-        let resultado = "<bloco>";
+        let resultado = '<bloco>';
         for (const declaracao of this.declaracoes) {
             resultado += `${declaracao.paraTexto()}`;
         }
 
-        resultado += "</bloco>";
+        resultado += '</bloco>';
         return resultado;
     }
 }

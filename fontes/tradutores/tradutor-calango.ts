@@ -31,7 +31,9 @@ export class TradutorCalango {
     traduzirDeclaracaoEscreva(declaracaoEscreva: any): string {
         let resultado = 'escreva(';
         for (const argumento of declaracaoEscreva.argumentos) {
-            const valor = this.dicionarioConstrutos[argumento.expressao.constructor.name](argumento.expressao);
+            const valor = this.dicionarioConstrutos[argumento.expressao.constructor.name](
+                argumento.expressao
+            );
             resultado += valor + ', ';
         }
 
@@ -43,7 +45,9 @@ export class TradutorCalango {
     traduzirDeclaracaoEscrevaMesmaLinha(declaracaoEscreva: any): string {
         let resultado = 'escreva(';
         for (const argumento of declaracaoEscreva.argumentos) {
-            const valor = this.dicionarioConstrutos[argumento.expressao.constructor.name](argumento.expressao);
+            const valor = this.dicionarioConstrutos[argumento.expressao.constructor.name](
+                argumento.expressao
+            );
             resultado += valor + ', ';
         }
 
@@ -58,10 +62,10 @@ export class TradutorCalango {
         this.lexador = new LexadorCalango();
         // TODO: Implementar quando houver avaliador sintático pronto.
         // this.avaliadorSintatico = new AvaliadorSintaticoCalango();
- 
+
         // const retornoLexador = this.lexador.mapear(codigo.split('\n'), -1);
         // const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador, -1);
- 
+
         // for (const declaracao of retornoAvaliadorSintatico.declaracoes) {
         //     resultado += `${this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao)} \n`;
         // }

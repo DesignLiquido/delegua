@@ -1,6 +1,6 @@
 {
     "name": "@designliquido/delegua",
-    "version": "0.52.0",
+    "version": "0.54.2",
     "description": "Linguagem de programação simples e moderna usando português estruturado.",
     "main": "index.js",
     "types": "index.d.ts",
@@ -14,7 +14,7 @@
         "testes-unitarios:insignias": "yarn jest-coverage-badges --output ./recursos/imagens",
         "observar-testes-unitarios": "yarn jest --watchAll",
         "observar-testes-unitarios-com-coverage": "yarn jest --coverage --watchAll",
-        "lint": "yarn eslint . --ext .ts",
+        "lint": "yarn eslint . --ext .ts --fix",
         "deixar-codigo-bonito": "yarn prettier --config .prettierrc --write fontes/**/*.ts",
         "umd": "yarn browserify dist/index.js --s Delegua -o dist/umd/delegua.js"
     },
@@ -23,10 +23,11 @@
         "url": "git+https://github.com/DesignLiquido/delegua.git"
     },
     "keywords": [
-        "egua",
-        "pitugues",
         "delegua",
+        "calango",
+        "egua",
         "mapler",
+        "pitugues",
         "português",
         "portugol",
         "potigol"

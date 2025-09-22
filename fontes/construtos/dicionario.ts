@@ -6,10 +6,10 @@ export class Dicionario implements Construto {
     hashArquivo: number;
 
     chaves: any[];
-    valores: any[];
+    valores: Construto[];
     tipo: 'dicionário';
 
-    constructor(hashArquivo: number, linha: number, chaves: any[], valores: any[]) {
+    constructor(hashArquivo: number, linha: number, chaves: any[], valores: Construto[]) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
 

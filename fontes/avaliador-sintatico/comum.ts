@@ -1,9 +1,14 @@
 import { FuncaoConstruto } from '../construtos';
 import { Bloco, Declaracao, Retorna, Se } from '../declaracoes';
-import { InformacaoVariavelOuConstante } from '../informacao-variavel-ou-constante';
-import { AvaliadorSintaticoInterface, InterpretadorInterface, PrimitivaInterface, SimboloInterface } from '../interfaces';
+import { InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
+import {
+    AvaliadorSintaticoInterface,
+    InterpretadorInterface,
+    PrimitivaInterface,
+    SimboloInterface,
+} from '../interfaces';
 
-function *buscarRetornosEmBloco(construtoBloco: Bloco): Generator<Retorna> {
+function* buscarRetornosEmBloco(construtoBloco: Bloco): Generator<Retorna> {
     for (const declaracao of construtoBloco.declaracoes) {
         if (declaracao.constructor.name === 'Retorna') {
             yield declaracao as Retorna;
@@ -11,7 +16,7 @@ function *buscarRetornosEmBloco(construtoBloco: Bloco): Generator<Retorna> {
     }
 }
 
-function *buscarRetornosEmSe(construtoSe: Se): Generator<Retorna> {
+function* buscarRetornosEmSe(construtoSe: Se): Generator<Retorna> {
     const blocoEntao: Bloco = construtoSe.caminhoEntao as Bloco;
     for (const declaracao of buscarRetornosEmBloco(blocoEntao)) {
         if (declaracao.constructor.name === 'Retorna') {
@@ -81,7 +86,9 @@ export function logicaDescobertaRetornoFuncao(
         }
     }
 
-    const tiposRetornos = new Set(expressoesRetorna.filter((e) => e.tipo !== 'qualquer').map((e) => e.tipo));
+    const tiposRetornos = new Set(
+        expressoesRetorna.filter((e) => e.tipo !== 'qualquer').map((e) => e.tipo)
+    );
     let retornaChamadoExplicitamente = tiposRetornos.size > 0;
     if (tiposRetornos.size > 1 && tipoRetorno !== 'qualquer') {
         let tiposEncontrados = Array.from(tiposRetornos).reduce(
@@ -116,14 +123,14 @@ export function logicaDescobertaRetornoFuncao(
 
 export function registrarPrimitiva(
     primitivasConhecidas: {
-        [nomeModuloOuClasse: string]: { [nomePrimitiva: string]: InformacaoVariavelOuConstante };
+        [nomeModuloOuClasse: string]: { [nomePrimitiva: string]: InformacaoElementoSintatico };
     },
     tipo: string,
     catalogoPrimitivas: { [nome: string]: PrimitivaInterface }
 ) {
     primitivasConhecidas[tipo] = {};
     for (const [nomePrimitivaDicionario, dadosPrimitiva] of Object.entries(catalogoPrimitivas)) {
-        primitivasConhecidas[tipo][nomePrimitivaDicionario] = new InformacaoVariavelOuConstante(
+        primitivasConhecidas[tipo][nomePrimitivaDicionario] = new InformacaoElementoSintatico(
             nomePrimitivaDicionario,
             tipo,
             true,

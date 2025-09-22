@@ -1,8 +1,9 @@
 export * from './avaliador-sintatico';
 export * from './construtos';
 export * from './declaracoes';
-export { PontoParada, cyrb53 } from './depuracao';
+export { PontoParada } from './depuracao';
 export * from './formatadores';
+export * from './geracao-identificadores';
 export * from './interfaces';
 export * from './interpretador';
 export * from './lexador';
