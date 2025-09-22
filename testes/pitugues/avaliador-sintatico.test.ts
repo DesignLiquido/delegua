@@ -93,7 +93,7 @@ describe('Avaliador sintático (Pituguês)', () => {
                     avaliadorSintatico.analisar(retornoLexador, -1);
 
                 expect(retornoAvaliadorSintatico).toBeTruthy();
-                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
             });
         });
         

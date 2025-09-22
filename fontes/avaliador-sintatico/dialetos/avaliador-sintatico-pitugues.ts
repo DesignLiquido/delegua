@@ -449,13 +449,13 @@ export class AvaliadorSintaticoPitugues
                     return new Vetor(this.hashArquivo, simboloAtual.linha, [], 0, 'qualquer[]');
                 }
 
-                let listaCompreensao = null;
-                if(this.verificarTipoProximoSimbolo(tiposDeSimbolos.IDENTIFICADOR)) {
-                    let simboloVariavelIteravel: SimboloInterface = this.simboloAtual()
-                    listaCompreensao = this.resolverListaDeCompreensao(simboloVariavelIteravel);
-                }
 
-                while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
+                if(this.simbolos[this.atual].tipo == 'IDENTIFICADOR' && !this.verificarTipoProximoSimbolo(tiposDeSimbolos.VIRGULA)) {
+                    return this.resolverListaDeCompreensao();
+                }               
+
+
+                while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {   
                     const valor = this.atribuir();
                     valores.push(valor);
                     if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
@@ -1343,48 +1343,70 @@ export class AvaliadorSintaticoPitugues
     }
 
     /* Função racunho de proposta para resolução de list comprehension */
-    protected resolverListaDeCompreensao(simboloVariavelIteracao: SimboloInterface): ListaCompreensao {
-        const variavelIteracao = this.consumir(
+    protected resolverListaDeCompreensao() {     
+        const identificador = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
-            "Esperado identificador de variável de iteração antes da instrução 'para cada'."
-        )
+            "Esperado identificador de variável de iteração na instrução 'para cada'."
+        );
 
         this.consumir(
             tiposDeSimbolos.PARA,
-            "Esperado instrução 'para' na lista de compreensão."
-        )
+            "Esperado instrução 'para' após identificado."
+        );
 
         this.consumir(
             tiposDeSimbolos.CADA,
-            "Esperado instrução 'cada' após instrução 'para' na lista de compreensão."
-        )
+            "Esperado instrução 'cada' após 'para'."
+        );
 
-        const vetor = this.expressao();
-        if (!vetor.hasOwnProperty('qualquer')) {
+        const confirmacaoIdenficador = this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            "Esperado identificador de variável após 'para cada'."
+        );
+
+        if (identificador.lexema != confirmacaoIdenficador.lexema) {
             throw this.erro(
-                simboloVariavelIteracao,
-                `Variável ou constante em 'para cada' não parece possuir um tipo iterável.`
+                this.simbolos[this.atual],
+                "Identificadores de variáveis não correspondentes"
+            )
+        }
+
+        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DE, tiposDeSimbolos.EM)) {
+            throw this.erro(
+                this.simbolos[this.atual],
+                "Esperado palavras reservadas 'em' ou 'de' após variável de iteração em instrução em lista de compreensão."
             );
         }
+
+        const localizacaoVetor = this.simboloAnterior();
+
+        const vetor = this.expressao();
+
+        this.consumir(
+            tiposDeSimbolos.SE,
+            "Esperado condição 'se' após vetor."
+        );
+        
+        const condicao = this.expressao();
+
+        this.consumir(
+            tiposDeSimbolos.COLCHETE_DIREITO,
+            'Espero fechamento de colchetes após condição.'
+        );
+
 
         const tipoVetor = (vetor as any).tipo as string;
         if (!tipoVetor.endsWith('[]') && !['qualquer', 'vetor'].includes(tipoVetor)) {
             throw this.erro(
-                simboloVariavelIteracao,
+                localizacaoVetor,
                 `Variável ou constante em 'para cada' não é iterável. Tipo resolvido: ${tipoVetor}.`
             );
-        }
-
-        let condicao = null;
-        if(this.verificarTipoProximoSimbolo(tiposDeSimbolos.SE)) {
-            this.avancarEDevolverAnterior() // Para avançar o símbolo 'se' e alcançar a condição
-            condicao = this.expressao();
         }
 
         return new ListaCompreensao(
             Number(this.simbolos[this.atual]),
             this.hashArquivo,
-            simboloVariavelIteracao,
+            identificador,
             vetor,
             condicao,
             'qualquer[]'
