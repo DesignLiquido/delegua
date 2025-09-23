@@ -77,6 +77,7 @@ import { InformacaoEscopo } from './informacao-escopo';
 import { InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
 import { buscarRetornos, registrarPrimitiva } from './comum';
 import { MontaoTipos } from './montao-tipos';
+import { ElementoMontaoTipos } from './elemento-montao-tipos';
 
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
@@ -85,7 +86,6 @@ import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
-import { ElementoMontaoTipos } from './elemento-montao-tipos';
 
 // Será usado para forçar tipagem em construtos e em algumas funções internas.
 type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolos];

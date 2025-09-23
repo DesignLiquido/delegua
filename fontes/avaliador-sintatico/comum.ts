@@ -129,10 +129,10 @@ export function registrarPrimitiva(
     catalogoPrimitivas: { [nome: string]: PrimitivaInterface }
 ) {
     primitivasConhecidas[tipo] = {};
-    for (const [nomePrimitivaDicionario, dadosPrimitiva] of Object.entries(catalogoPrimitivas)) {
-        primitivasConhecidas[tipo][nomePrimitivaDicionario] = new InformacaoElementoSintatico(
-            nomePrimitivaDicionario,
-            tipo,
+    for (const [nomePrimitiva, dadosPrimitiva] of Object.entries(catalogoPrimitivas)) {
+        primitivasConhecidas[tipo][nomePrimitiva] = new InformacaoElementoSintatico(
+            nomePrimitiva,
+            dadosPrimitiva.tipoRetorno,
             true,
             dadosPrimitiva.argumentos
         );

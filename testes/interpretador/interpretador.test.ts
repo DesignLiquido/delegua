@@ -1542,6 +1542,39 @@ describe('Interpretador', () => {
                         expect(_saidas).toHaveLength(1);
                         expect(_saidas[0]).toBe("[1, 1, 4, 27, 256]");
                     });
+
+                    it('Para com decremento', async () => {
+                        const retornoLexador = lexador.mapear(
+                        [
+                            'const castelo = [[0,0,0], [0,0,0], [1,0,0]]',
+                            'funcao acheAPrincesa(castelo) {',
+                            '    var andares = []',
+                            '    const ta = castelo.tamanho() - 1;',
+                            '    para var i = ta; i >= 0; i-- {',
+                            '        var conteudoAndar = 0',
+                            '        para var j = 0; j < castelo[i].tamanho(); j++ {',
+                            '            se castelo[i][j] == 1 {',
+                            '                conteudoAndar = 1',
+                            '                sustar',
+                            '            }',
+                            '        }',
+                            '        se conteudoAndar > 0 {',
+                            '            andares.adicionar("princesa")',
+                            '        } senão {',
+                            '            andares.adicionar(0)',
+                            '        }',
+                            '    }',
+                            '    retorna andares',
+                            '}',
+                            'escreva(acheAPrincesa(castelo))'
+                        ], -1);
+
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                    });
                 });
             });
 
