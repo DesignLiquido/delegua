@@ -3,21 +3,26 @@ import {
     AcessoMetodo,
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
+    Agrupamento,
     ArgumentoReferenciaFuncao,
     AtribuicaoPorIndice,
     Atribuir,
+    Binario,
+    Chamada,
     ComentarioComoConstruto,
     DefinirValor,
     Dicionario,
     Dupla,
     EnquantoComoConstruto,
     FazerComoConstruto,
+    Leia,
     Literal,
     ParaCadaComoConstruto,
     ParaComoConstruto,
     ReferenciaFuncao,
     Separador,
     TipoDe,
+    Unario,
     Variavel,
     Vetor,
 } from '../construtos';
@@ -45,6 +50,7 @@ import {
     ConstMultiplo,
     Declaracao,
     Enquanto,
+    Escreva,
     Fazer,
     FuncaoDeclaracao,
     Para,
@@ -194,7 +200,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                     valor = valor ? 'verdadeiro' : 'falso';
                 }
 
-                if (valor instanceof ReferenciaMontao) {
+                if (valor instanceof ReferenciaMontao || (valor?.hasOwnProperty && valor?.hasOwnProperty('tipo'))) {
                     valor = this.resolverValor(valor);
                 }
 
@@ -732,6 +738,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         // Objeto simples do JavaScript, ou dicionário de Delégua.
         if (objeto.constructor === Object) {
             if (expressao.simbolo.lexema in primitivasDicionario) {
+                if (!(expressao.simbolo.lexema in primitivasNumero)) {
+                    throw new ErroEmTempoDeExecucao(expressao.simbolo, `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo dicionário.`);
+                }
+
                 const metodoDePrimitivaDicionario: Function =
                     primitivasDicionario[expressao.simbolo.lexema].implementacao;
                 return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario);
@@ -758,6 +768,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             case tipoDeDadosDelegua.INTEIRO:
             case tipoDeDadosDelegua.NUMERO:
             case tipoDeDadosDelegua.NÚMERO:
+                if (!(expressao.simbolo.lexema in primitivasNumero)) {
+                    throw new ErroEmTempoDeExecucao(expressao.simbolo, `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo ${tipoObjeto}.`);
+                }
+
                 const metodoDePrimitivaNumero: Function =
                     primitivasNumero[expressao.simbolo.lexema].implementacao;
                 if (metodoDePrimitivaNumero) {
@@ -765,6 +779,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 }
                 break;
             case tipoDeDadosDelegua.TEXTO:
+                if (!(expressao.simbolo.lexema in primitivasTexto)) {
+                    throw new ErroEmTempoDeExecucao(expressao.simbolo, `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo ${tipoObjeto}.`);
+                }
+
                 const metodoDePrimitivaTexto: Function =
                     primitivasTexto[expressao.simbolo.lexema].implementacao;
                 if (metodoDePrimitivaTexto) {
@@ -779,6 +797,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             case tipoDeDadosDelegua.VETOR_NÚMERO:
             case tipoDeDadosDelegua.VETOR_QUALQUER:
             case tipoDeDadosDelegua.VETOR_TEXTO:
+                if (!(expressao.simbolo.lexema in primitivasVetor)) {
+                    throw new ErroEmTempoDeExecucao(expressao.simbolo, `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo ${tipoObjeto}.`);
+                }
+
                 const metodoDePrimitivaVetor: Function =
                     primitivasVetor[expressao.simbolo.lexema].implementacao;
                 if (metodoDePrimitivaVetor) {
@@ -1140,13 +1162,13 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
     override async visitarExpressaoTipoDe(expressao: TipoDe): Promise<string> {
         let valorTipoDe = expressao.valor;
 
-        switch (valorTipoDe.constructor.name) {
-            case 'AcessoIndiceVariavel':
-            case 'Agrupamento':
-            case 'Binario':
-            case 'Chamada':
-            case 'Dicionario':
-            case 'Unario':
+        switch (valorTipoDe.constructor) {
+            case AcessoIndiceVariavel:
+            case Agrupamento:
+            case Binario:
+            case Chamada:
+            case Dicionario:
+            case Unario:
                 valorTipoDe = await this.avaliar(valorTipoDe);
                 if (valorTipoDe instanceof ReferenciaMontao) {
                     valorTipoDe = this.montao.obterReferencia(
@@ -1157,29 +1179,30 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 }
 
                 return valorTipoDe.tipo || inferirTipoVariavel(valorTipoDe);
-            case 'AcessoMetodo':
+            case AcessoMetodo:
                 const acessoMetodo = valorTipoDe as AcessoMetodo;
-                return `método<${acessoMetodo.tipoRetornoMetodo}>`;
-            case 'AcessoPropriedade':
+                const tipoRetornoMetodoResolvido = acessoMetodo.tipoRetornoMetodo.replace('<T>', acessoMetodo.objeto.tipo);
+                return `método<${tipoRetornoMetodoResolvido}>`;
+            case AcessoPropriedade:
                 const acessoPropriedade = valorTipoDe as AcessoPropriedade;
                 return acessoPropriedade.tipoRetornoPropriedade;
-            case 'AcessoMetodoOuPropriedade':
+            case AcessoMetodoOuPropriedade:
                 // TODO: Deve ser removido mais futuramente.
                 // Apenas `AcessoMetodo` e `AcessoPropriedade` devem funcionar aqui.
                 throw new ErroEmTempoDeExecucao(expressao.simbolo, 'Não deveria cair aqui.');
-            case 'Escreva':
+            case Escreva:
                 return 'função<vazio>';
-            case 'Leia':
+            case Leia:
                 return 'função<texto>';
-            case 'Literal':
+            case Literal:
                 const tipoLiteral = valorTipoDe as Literal;
                 return tipoLiteral.tipo;
-            case 'TipoDe':
+            case TipoDe:
                 const alvoTipoDe = await this.avaliar(valorTipoDe);
                 return `tipo de<${alvoTipoDe}>`;
-            case 'Variavel':
+            case Variavel:
                 return valorTipoDe.tipo;
-            case 'Vetor':
+            case Vetor:
                 const vetor = valorTipoDe as Vetor;
                 const apenasValores = vetor.valores.filter(
                     (v) => !['ComentarioComoConstruto', 'Separador'].includes(v.constructor.name)

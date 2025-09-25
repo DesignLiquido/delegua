@@ -69,7 +69,7 @@ export default {
         assinaturaFormato: `dicionário.remover(chave: qualquer)`,
     },
     valores: {
-        tipoRetorno: 'qualquer[]',
+        tipoRetorno: '<T>[]',
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
