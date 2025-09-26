@@ -77,6 +77,7 @@ import { InformacaoEscopo } from './informacao-escopo';
 import { InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
 import { buscarRetornos, registrarPrimitiva } from './comum';
 import { MontaoTipos } from './montao-tipos';
+import { ElementoMontaoTipos } from './elemento-montao-tipos';
 
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
@@ -85,7 +86,6 @@ import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
-import { ElementoMontaoTipos } from './elemento-montao-tipos';
 
 // Será usado para forçar tipagem em construtos e em algumas funções internas.
 type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolos];
@@ -987,6 +987,12 @@ export class AvaliadorSintatico
         argumentos: Construto[],
         tipoPrimitiva: string | undefined = undefined
     ): Construto {
+        if (entidadeChamada.constructor === AcessoMetodoOuPropriedade) {
+            return this.resolverEntidadeChamadaAcessoMetodoOuPropriedade(
+                entidadeChamada as AcessoMetodoOuPropriedade
+            );
+        }
+
         if (entidadeChamada.constructor === Variavel) {
             const entidadeChamadaResolvidaVariavel = entidadeChamada as Variavel;
 
@@ -1060,12 +1066,6 @@ export class AvaliadorSintatico
                 entidadeChamadaResolvidaVariavel.hashArquivo,
                 entidadeChamadaResolvidaVariavel.linha,
                 entidadeChamadaResolvidaVariavel.simbolo
-            );
-        }
-
-        if (entidadeChamada.constructor === AcessoMetodoOuPropriedade) {
-            return this.resolverEntidadeChamadaAcessoMetodoOuPropriedade(
-                entidadeChamada as AcessoMetodoOuPropriedade
             );
         }
 
@@ -1790,7 +1790,18 @@ export class AvaliadorSintatico
             );
         }
 
-        const vetor = this.expressao();
+        let vetor = this.expressao();
+
+        if (vetor.constructor === AcessoIndiceVariavel) {
+            const construtoAcessoIndiceVariavel = vetor as AcessoIndiceVariavel;
+            if (construtoAcessoIndiceVariavel.entidadeChamada.tipo === 'dicionário') {
+                // A avaliação sintática não deve verificar valores de dicionários.
+                // Aqui se supõe que o programador sabe o que está fazendo.
+                // TODO: Talvez pensar numa forma melhor de fazer isso.
+                (vetor as any).tipo = 'vetor';
+            }
+        }
+
         if (!vetor.hasOwnProperty('tipo')) {
             throw this.erro(
                 simboloPara,
@@ -2282,7 +2293,8 @@ export class AvaliadorSintatico
                 switch (entidadeChamadaChamada.constructor) {
                     case AcessoMetodo:
                         const entidadeChamadaAcessoMetodo = entidadeChamadaChamada as AcessoMetodo;
-                        return entidadeChamadaAcessoMetodo.tipoRetornoMetodo;
+                        const tipoRetornoAcessoMetodoResolvido = entidadeChamadaAcessoMetodo.tipoRetornoMetodo.replace('<T>', entidadeChamadaAcessoMetodo.objeto.tipo);
+                        return tipoRetornoAcessoMetodoResolvido;
                     case AcessoMetodoOuPropriedade:
                         // Este caso ocorre quando a variável/constante é do tipo 'qualquer',
                         // e a chamada normalmente é feita para uma primitiva.

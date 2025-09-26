@@ -387,7 +387,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         for (const elemento of interpolacoes) {
             // TODO: Há alguma chance de `elemento` ser `undefined` aqui?
             let valor = elemento?.valor;
-            if (valor.hasOwnProperty('valorRetornado')) {
+            if (valor.hasOwnProperty && valor.hasOwnProperty('valorRetornado')) {
                 valor = valor.valorRetornado;
             }
 

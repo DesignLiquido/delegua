@@ -433,7 +433,7 @@ describe('Interpretador (Pituguês)', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(_saidas).toHaveLength(1);
-                    expect(_saidas[0]).toBe('Eu,sou,um,abacaxi');
+                    expect(_saidas[0]).toBe(`['Eu', 'sou', 'um', 'abacaxi']`);
                 });
 
                 it('mapear', async () => {
