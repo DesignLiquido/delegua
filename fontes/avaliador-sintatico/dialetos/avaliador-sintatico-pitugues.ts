@@ -24,6 +24,7 @@ import {
     AcessoPropriedade,
     ReferenciaFuncao,
     ComentarioComoConstruto,
+    ParaCadaComoConstruto,
 } from '../../construtos';
 import {
     Escreva,
@@ -1342,12 +1343,44 @@ export class AvaliadorSintaticoPitugues
             );
         }
 
+        const variavelIteracao = new Variavel(this.hashArquivo, simboloVariavelIteracao);
+
         return new ListaCompreensao(
             Number(this.simbolos[this.atual]),
             this.hashArquivo,
             identificador,
             vetor,
-            condicao,
+            new ParaCadaComoConstruto(
+                identificador.hashArquivo,
+                identificador.linha,
+                variavelIteracao,
+                vetor,
+                new Bloco(
+                    identificador.hashArquivo,
+                    identificador.linha,
+                    [
+                        new Se(
+                            condicao,
+                        new Bloco(
+                            identificador.hashArquivo,
+                            identificador.linha,
+                            [
+                                new Retorna(
+                                    simboloVariavelIteracao,
+                                    new Variavel(
+                                        identificador.hashArquivo,
+                                        simboloVariavelIteracao,
+                                        'qualquer'
+                                    )
+                                )
+                            ]
+                        ),
+                        [],
+                        null
+                    )
+                    ]
+                )
+            ),
             'qualquer[]' // TODO: Talvez um dia inferir o tipo aqui.
         );
     }

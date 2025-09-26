@@ -45,7 +45,7 @@ describe('Interpretador (Pituguês)', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Vetor', async () => {
+                it('Lista de Compreensão', async () => {
                     const retornoLexador = lexador.mapear(
                         [
                         'var lista = [1, 2, 3, 4, 5]',
@@ -57,9 +57,10 @@ describe('Interpretador (Pituguês)', () => {
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
+                    // expect(retornoInterpretador.resultado).toBeTruthy()
                 });
 
-                it('Lista de Compreensão', async () => {
+                it('Vetor', async () => {
                     const retornoLexador = lexador.mapear(["var a = [1, 2, 3]"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 

@@ -1090,18 +1090,22 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         return this.logicaComumExecucaoFazer(expressao, true);
     }
 
-    visitarExpressaoListaCompreensao(listaCompreensao: ListaCompreensao): Promise<any> | void {
+    async visitarExpressaoListaCompreensao(listaCompreensao: ListaCompreensao): Promise<any> {
         let retornoExecucao: ResultadoParcialInterpretadorInterface; 
         
-        const vetorVariavelIteracao = this.avaliar(listaCompreensao.referenciaVariavelIteracao);
-        let valorVetorVatiralIteracao: any = this.resolverValor(vetorVariavelIteracao);
-        
+        const vetorVariavelIteracao = await this.avaliar(listaCompreensao.referenciaVariavelIteracao);
+        let valorVetorVariavelIteracao: any = this.resolverValor(vetorVariavelIteracao);
 
-        if (!Array.isArray(valorVetorVatiralIteracao)) {
+        if (!Array.isArray(valorVetorVariavelIteracao)) {
             return Promise.reject(
                 "Variável ou literal provida em instrução 'para cada' não é um vetor."
             );
         }
+
+        const resultadoCompreensao = await this.avaliar(listaCompreensao.paraCada);
+        const resultadoCompreensaoResolvido = resultadoCompreensao.valorRetornado.filter(r => r !== null).map(r => this.resolverValor(r));
+
+        return resultadoCompreensaoResolvido;
     }
 
     visitarExpressaoParaCada(expressao: ParaCadaComoConstruto): Promise<any> {

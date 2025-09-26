@@ -1,5 +1,7 @@
+import { Para } from '../declaracoes';
 import { SimboloInterface, VisitanteDeleguaInterface } from '../interfaces';
 import { Construto } from './construto';
+import { ParaCadaComoConstruto } from './para-cada-como-construto';
 
 export class ListaCompreensao implements Construto {
     linha: number;
@@ -9,21 +11,21 @@ export class ListaCompreensao implements Construto {
 
     variavelIteracao: SimboloInterface;
     referenciaVariavelIteracao: Construto;
-    condicao: Construto;
+    paraCada: ParaCadaComoConstruto; 
 
     constructor(
         hashArquivo: number,
         linha: number,
         variavelIteracao: SimboloInterface,
         referenciaVariavelIteracao: Construto,
-        condicao: Construto,
+        paraCada: ParaCadaComoConstruto,
         tipo?: string
     ) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
         this.variavelIteracao = variavelIteracao;
         this.referenciaVariavelIteracao = referenciaVariavelIteracao;
-        this.condicao = condicao;
+        this.paraCada = paraCada;
         this.tipo = tipo;
     }
 
