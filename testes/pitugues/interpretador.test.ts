@@ -49,7 +49,8 @@ describe('Interpretador (Pituguês)', () => {
                     const retornoLexador = lexador.mapear(
                         [
                         'var lista = [1, 2, 3, 4, 5]',
-                        'var minhaListaCompreensao = [x para cada x em lista se x % 2 == 0] # Lista de compreensão para números pares'
+                        'var minhaListaCompreensao = [x para cada x em lista se x % 2 == 0] # Lista de compreensão para números pares',
+                        'escreva(minhaListaCompreensao)'
                         ], -1
                     );
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -57,7 +58,8 @@ describe('Interpretador (Pituguês)', () => {
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
-                    // expect(retornoInterpretador.resultado).toBeTruthy()
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('[2, 4]');
                 });
 
                 it('Vetor', async () => {
