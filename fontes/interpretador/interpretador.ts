@@ -12,6 +12,7 @@ import {
     Dupla,
     EnquantoComoConstruto,
     FazerComoConstruto,
+    ListaCompreensao,
     Literal,
     ParaCadaComoConstruto,
     ParaComoConstruto,
@@ -1087,6 +1088,20 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
     visitarExpressaoFazer(expressao: FazerComoConstruto): Promise<any> | void {
         return this.logicaComumExecucaoFazer(expressao, true);
+    }
+
+    visitarExpressaoListaCompreensao(listaCompreensao: ListaCompreensao): Promise<any> | void {
+        let retornoExecucao: ResultadoParcialInterpretadorInterface; 
+        
+        const vetorVariavelIteracao = this.avaliar(listaCompreensao.referenciaVariavelIteracao);
+        let valorVetorVatiralIteracao: any = this.resolverValor(vetorVariavelIteracao);
+        
+
+        if (!Array.isArray(valorVetorVatiralIteracao)) {
+            return Promise.reject(
+                "Variável ou literal provida em instrução 'para cada' não é um vetor."
+            );
+        }
     }
 
     visitarExpressaoParaCada(expressao: ParaCadaComoConstruto): Promise<any> {

@@ -82,7 +82,7 @@ describe('Avaliador sintático (Pituguês)', () => {
             });
 
 
-            it('Listas de Compreensão', () => {
+            it('Lista de Compreensão', () => {
                 const retornoLexador = lexador.mapear(
                     [
                     'var lista = [1, 2, 3, 4, 5]',

@@ -410,7 +410,6 @@ export class AvaliadorSintaticoPitugues
                     return this.resolverListaDeCompreensao();
                 }
 
-
                 while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
                     const valor = this.atribuir();
                     valores.push(valor);
@@ -1303,7 +1302,7 @@ export class AvaliadorSintaticoPitugues
         if (identificador.lexema != simboloVariavelIteracao.lexema) {
             throw this.erro(
                 this.simbolos[this.atual],
-                "Identificadores de variáveis não correspondentes"
+                "Identificadores de variáveis não correspondentes."
             )
         }
 

@@ -46,6 +46,20 @@ describe('Interpretador (Pituguês)', () => {
                 });
 
                 it('Vetor', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                        'var lista = [1, 2, 3, 4, 5]',
+                        'var minhaListaCompreensao = [x para cada x em lista se x % 2 == 0] # Lista de compreensão para números pares'
+                        ], -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Lista de Compreensão', async () => {
                     const retornoLexador = lexador.mapear(["var a = [1, 2, 3]"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 

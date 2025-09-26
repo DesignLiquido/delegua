@@ -1,4 +1,4 @@
-import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
+import { SimboloInterface, VisitanteDeleguaInterface } from '../interfaces';
 import { Construto } from './construto';
 
 export class ListaCompreensao implements Construto {
@@ -27,8 +27,8 @@ export class ListaCompreensao implements Construto {
         this.tipo = tipo;
     }
 
-    aceitar(visitante: VisitanteComumInterface): Promise<any> {
-        throw new Error('Method not implemented.');
+    async aceitar(visitante: VisitanteDeleguaInterface): Promise<any> {
+        return await visitante.visitarExpressaoListaCompreensao(this);
     }
     paraTexto(): string {
         throw new Error('Method not implemented.');
