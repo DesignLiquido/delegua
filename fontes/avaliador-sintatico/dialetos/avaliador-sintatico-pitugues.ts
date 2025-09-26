@@ -430,7 +430,7 @@ export class AvaliadorSintaticoPitugues
                     valores.length,
                     tipoVetor
                 );
-            
+
             case tiposDeSimbolos.COMENTARIO:
                 const simboloComentario = this.avancarEDevolverAnterior();
                 return new ComentarioComoConstruto(simboloComentario);
@@ -1279,11 +1279,18 @@ export class AvaliadorSintaticoPitugues
      * @returns {ListaCompreensao} A lista de compreensão resolvida.
      */
     protected resolverListaDeCompreensao(): ListaCompreensao {
-        // TODO: Mais futuramente, aceitar uma Expressão (Construto) aqui.
-        const identificador = this.consumir(
-            tiposDeSimbolos.IDENTIFICADOR,
-            "Esperado identificador de variável de iteração na instrução 'para cada'."
-        );
+        // TODO: Se expressão não começar com um identificador, por exemplo `3 * x`, como faríamos para
+        // aceitar o `x` na avaliação da expressão?
+        if (this.simbolos[this.atual].tipo === tiposDeSimbolos.IDENTIFICADOR) {
+            // Antes de avaliar a condição, precisamos registrar a variável de iteração.
+            const simboloVariavelIteracao = this.simbolos[this.atual];
+            this.pilhaEscopos.definirInformacoesVariavel(
+                simboloVariavelIteracao.lexema,
+                new InformacaoElementoSintatico(simboloVariavelIteracao.lexema, 'qualquer') // TODO: Talvez um dia inferir o tipo aqui.
+            );
+        }
+
+        const retornoExpressao = this.expressao();
 
         this.consumir(
             tiposDeSimbolos.PARA,
@@ -1300,12 +1307,13 @@ export class AvaliadorSintaticoPitugues
             "Esperado identificador de variável após 'para cada'."
         );
 
-        if (identificador.lexema != simboloVariavelIteracao.lexema) {
+        // TODO: Manter essa validação aqui? Se sim, como resolver a expressão?
+        /* if (identificador.lexema != simboloVariavelIteracao.lexema) {
             throw this.erro(
                 this.simbolos[this.atual],
                 "Identificadores de variáveis não correspondentes."
             )
-        }
+        } */
 
         if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DE, tiposDeSimbolos.EM)) {
             throw this.erro(
@@ -1320,12 +1328,6 @@ export class AvaliadorSintaticoPitugues
         this.consumir(
             tiposDeSimbolos.SE,
             "Esperado condição 'se' após vetor."
-        );
-
-        // Antes de avaliar a condição, precisamos registrar a variável de iteração.
-        this.pilhaEscopos.definirInformacoesVariavel(
-            simboloVariavelIteracao.lexema,
-            new InformacaoElementoSintatico(simboloVariavelIteracao.lexema, 'qualquer') // TODO: Talvez um dia inferir o tipo aqui.
         );
 
         const condicao = this.expressao();
@@ -1348,36 +1350,32 @@ export class AvaliadorSintaticoPitugues
         return new ListaCompreensao(
             Number(this.simbolos[this.atual]),
             this.hashArquivo,
-            identificador,
+            retornoExpressao,
             vetor,
             new ParaCadaComoConstruto(
-                identificador.hashArquivo,
-                identificador.linha,
+                retornoExpressao.hashArquivo,
+                retornoExpressao.linha,
                 variavelIteracao,
                 vetor,
                 new Bloco(
-                    identificador.hashArquivo,
-                    identificador.linha,
+                    retornoExpressao.hashArquivo,
+                    retornoExpressao.linha,
                     [
                         new Se(
                             condicao,
-                        new Bloco(
-                            identificador.hashArquivo,
-                            identificador.linha,
-                            [
-                                new Retorna(
-                                    simboloVariavelIteracao,
-                                    new Variavel(
-                                        identificador.hashArquivo,
+                            new Bloco(
+                                retornoExpressao.hashArquivo,
+                                retornoExpressao.linha,
+                                [
+                                    new Retorna(
                                         simboloVariavelIteracao,
-                                        'qualquer'
+                                        retornoExpressao
                                     )
-                                )
-                            ]
-                        ),
-                        [],
-                        null
-                    )
+                                ]
+                            ),
+                            [],
+                            null
+                        )
                     ]
                 )
             ),

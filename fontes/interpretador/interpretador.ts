@@ -1118,8 +1118,6 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
     }
 
     async visitarExpressaoListaCompreensao(listaCompreensao: ListaCompreensao): Promise<any> {
-        let retornoExecucao: ResultadoParcialInterpretadorInterface; 
-        
         const vetorVariavelIteracao = await this.avaliar(listaCompreensao.referenciaVariavelIteracao);
         let valorVetorVariavelIteracao: any = this.resolverValor(vetorVariavelIteracao);
 
