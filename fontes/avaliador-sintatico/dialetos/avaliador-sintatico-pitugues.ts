@@ -23,6 +23,8 @@ import {
     AcessoMetodo,
     AcessoPropriedade,
     ReferenciaFuncao,
+    ComentarioComoConstruto,
+    ParaCadaComoConstruto,
 } from '../../construtos';
 import {
     Escreva,
@@ -80,6 +82,7 @@ import primitivasDicionario from '../../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../../bibliotecas/primitivas-numero';
 import primitivasTexto from '../../bibliotecas/primitivas-texto';
 import primitivasVetor from '../../bibliotecas/primitivas-vetor';
+import { ListaCompreensao } from '../../construtos/lista-compreensao';
 
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -90,8 +93,7 @@ import primitivasVetor from '../../bibliotecas/primitivas-vetor';
  * Este avaliador espera uma estrutura de pragmas, que explica quantos espaços há na frente de cada linha.
  */
 export class AvaliadorSintaticoPitugues
-    implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao>
-{
+    implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao> {
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
     pragmas: { [linha: number]: Pragma };
@@ -372,31 +374,6 @@ export class AvaliadorSintaticoPitugues
         const simboloAtual = this.simbolos[this.atual];
         let valores = [];
         switch (simboloAtual.tipo) {
-            case tiposDeSimbolos.COLCHETE_ESQUERDO:
-                this.avancarEDevolverAnterior();
-                if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                    return new Vetor(this.hashArquivo, simboloAtual.linha, [], 0, 'qualquer[]');
-                }
-
-                while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                    const valor = this.atribuir();
-                    valores.push(valor);
-                    if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
-                        this.consumir(
-                            tiposDeSimbolos.VIRGULA,
-                            'Esperado vírgula antes da próxima expressão.'
-                        );
-                    }
-                }
-
-                const tipoVetor = inferirTipoVariavel(valores);
-                return new Vetor(
-                    this.hashArquivo,
-                    simboloAtual.linha,
-                    valores,
-                    valores.length,
-                    tipoVetor
-                );
             case tiposDeSimbolos.CHAVE_ESQUERDA:
                 this.avancarEDevolverAnterior();
                 const chaves = [];
@@ -422,6 +399,41 @@ export class AvaliadorSintaticoPitugues
                 }
 
                 return new Dicionario(this.hashArquivo, simboloAtual.linha, chaves, valores);
+
+            case tiposDeSimbolos.COLCHETE_ESQUERDO:
+                this.avancarEDevolverAnterior();
+                if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
+                    return new Vetor(this.hashArquivo, simboloAtual.linha, [], 0, 'qualquer[]');
+                }
+
+
+                if (this.simbolos[this.atual].tipo == 'IDENTIFICADOR' && !this.verificarTipoProximoSimbolo(tiposDeSimbolos.VIRGULA)) {
+                    return this.resolverListaDeCompreensao();
+                }
+
+                while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
+                    const valor = this.atribuir();
+                    valores.push(valor);
+                    if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
+                        this.consumir(
+                            tiposDeSimbolos.VIRGULA,
+                            'Esperado vírgula antes da próxima expressão.'
+                        );
+                    }
+                }
+
+                const tipoVetor = inferirTipoVariavel(valores);
+                return new Vetor(
+                    this.hashArquivo,
+                    simboloAtual.linha,
+                    valores,
+                    valores.length,
+                    tipoVetor
+                );
+
+            case tiposDeSimbolos.COMENTARIO:
+                const simboloComentario = this.avancarEDevolverAnterior();
+                return new ComentarioComoConstruto(simboloComentario);
             case tiposDeSimbolos.FALSO:
             case tiposDeSimbolos.VERDADEIRO:
                 const simboloLogico = this.avancarEDevolverAnterior();
@@ -817,8 +829,8 @@ export class AvaliadorSintaticoPitugues
                 throw this.erro(
                     simboloAtual,
                     `Indentação inconsistente na linha ${simboloAtual.linha}. ` +
-                        `Esperado: >= ${espacosIndentacaoLinhaAnterior}. ` +
-                        `Atual: ${espacosIndentacaoLinhaAtual}`
+                    `Esperado: >= ${espacosIndentacaoLinhaAnterior}. ` +
+                    `Atual: ${espacosIndentacaoLinhaAtual}`
                 );
             }
 
@@ -1260,6 +1272,115 @@ export class AvaliadorSintaticoPitugues
             if (parametro.abrangencia === 'multiplo') break;
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         return parametros;
+    }
+
+    /**
+     * Resolve uma lista de compreensão.
+     * @returns {ListaCompreensao} A lista de compreensão resolvida.
+     */
+    protected resolverListaDeCompreensao(): ListaCompreensao {
+        // TODO: Se expressão não começar com um identificador, por exemplo `3 * x`, como faríamos para
+        // aceitar o `x` na avaliação da expressão?
+        if (this.simbolos[this.atual].tipo === tiposDeSimbolos.IDENTIFICADOR) {
+            // Antes de avaliar a condição, precisamos registrar a variável de iteração.
+            const simboloVariavelIteracao = this.simbolos[this.atual];
+            this.pilhaEscopos.definirInformacoesVariavel(
+                simboloVariavelIteracao.lexema,
+                new InformacaoElementoSintatico(simboloVariavelIteracao.lexema, 'qualquer') // TODO: Talvez um dia inferir o tipo aqui.
+            );
+        }
+
+        const retornoExpressao = this.expressao();
+
+        this.consumir(
+            tiposDeSimbolos.PARA,
+            "Esperado instrução 'para' após identificado."
+        );
+
+        this.consumir(
+            tiposDeSimbolos.CADA,
+            "Esperado instrução 'cada' após 'para'."
+        );
+
+        const simboloVariavelIteracao = this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            "Esperado identificador de variável após 'para cada'."
+        );
+
+        // TODO: Manter essa validação aqui? Se sim, como resolver a expressão?
+        /* if (identificador.lexema != simboloVariavelIteracao.lexema) {
+            throw this.erro(
+                this.simbolos[this.atual],
+                "Identificadores de variáveis não correspondentes."
+            )
+        } */
+
+        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DE, tiposDeSimbolos.EM)) {
+            throw this.erro(
+                this.simbolos[this.atual],
+                "Esperado palavras reservadas 'em' ou 'de' após variável de iteração em instrução em lista de compreensão."
+            );
+        }
+
+        const localizacaoVetor = this.simboloAnterior();
+        const vetor = this.expressao();
+
+        this.consumir(
+            tiposDeSimbolos.SE,
+            "Esperado condição 'se' após vetor."
+        );
+
+        const condicao = this.expressao();
+
+        this.consumir(
+            tiposDeSimbolos.COLCHETE_DIREITO,
+            'Espero fechamento de colchetes após condição.'
+        );
+
+        const tipoVetor = (vetor as any).tipo as string;
+        if (!tipoVetor.endsWith('[]') && !['qualquer', 'vetor'].includes(tipoVetor)) {
+            throw this.erro(
+                localizacaoVetor,
+                `Variável ou constante em 'para cada' não é iterável. Tipo resolvido: ${tipoVetor}.`
+            );
+        }
+
+        const variavelIteracao = new Variavel(this.hashArquivo, simboloVariavelIteracao);
+
+        return new ListaCompreensao(
+            Number(this.simbolos[this.atual]),
+            this.hashArquivo,
+            retornoExpressao,
+            vetor,
+            new ParaCadaComoConstruto(
+                retornoExpressao.hashArquivo,
+                retornoExpressao.linha,
+                variavelIteracao,
+                vetor,
+                new Bloco(
+                    retornoExpressao.hashArquivo,
+                    retornoExpressao.linha,
+                    [
+                        new Se(
+                            condicao,
+                            new Bloco(
+                                retornoExpressao.hashArquivo,
+                                retornoExpressao.linha,
+                                [
+                                    new Retorna(
+                                        simboloVariavelIteracao,
+                                        retornoExpressao
+                                    )
+                                ]
+                            ),
+                            [],
+                            null
+                        )
+                    ]
+                )
+            ),
+            'qualquer[]' // TODO: Talvez um dia inferir o tipo aqui.
+        );
     }
 
     protected verificarDefinicaoTipoAtual(): string {

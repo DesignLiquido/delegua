@@ -1,4 +1,4 @@
-import { EnquantoComoConstruto, FazerComoConstruto, ParaComoConstruto } from "../construtos";
+import { EnquantoComoConstruto, FazerComoConstruto, ListaCompreensao, ParaComoConstruto } from "../construtos";
 import { ParaCadaComoConstruto } from "../construtos/para-cada-como-construto";
 import { ParaCada } from "../declaracoes";
 import { VisitanteComumInterface } from "./visitante-comum-interface";
@@ -9,4 +9,5 @@ export interface VisitanteDeleguaInterface extends VisitanteComumInterface {
     visitarExpressaoFazer(expressao: FazerComoConstruto): Promise<any> | void;
     visitarExpressaoPara(expressao: ParaComoConstruto): Promise<any> | void;
     visitarExpressaoParaCada(expressao: ParaCadaComoConstruto): Promise<any> | void;
+    visitarExpressaoListaCompreensao(listaCompreensao: ListaCompreensao): Promise<any> | void;
 }

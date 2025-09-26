@@ -32,6 +32,7 @@ import {
     Variavel,
     Vetor,
 } from '../construtos';
+import { ListaCompreensao } from '../construtos/lista-compreensao';
 
 import {
     Aleatorio,
@@ -128,4 +129,5 @@ export interface VisitanteComumInterface {
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> | void;
     visitarExpressaoUnaria(expressao: Unario): Promise<any> | void;
     visitarExpressaoVetor(expressao: Vetor): Promise<any> | void;
+    
 }
