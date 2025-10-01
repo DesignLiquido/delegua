@@ -60,6 +60,7 @@ import {
     Retorna,
     Sustar,
     Comentario,
+    Quebrar,
 } from '../declaracoes';
 import { VisitanteComumInterface } from '../interfaces';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
@@ -225,6 +226,9 @@ export class FormatadorPitugues implements VisitanteComumInterface {
         throw new Error('Método não implementado.');
     }
     visitarExpressaoLogica(expressao: Logico): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+    visitarExpressaoQuebrar(declaracao?: Quebrar): SustarQuebra | void {
         throw new Error('Método não implementado.');
     }
     visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> | void {

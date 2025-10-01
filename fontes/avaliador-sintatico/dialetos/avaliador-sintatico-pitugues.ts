@@ -46,6 +46,7 @@ import {
     Sustar,
     Falhar,
     ParaCada,
+    Quebrar
 } from '../../declaracoes';
 
 import {
@@ -1063,6 +1064,16 @@ export class AvaliadorSintaticoPitugues
 
         return new Sustar(this.simboloAtual());
     }
+    
+    declaracaoQuebrar(): Quebrar {
+        if (this.blocos < 1) {
+            throw this.erro(
+                this.simboloAnterior(),
+                "'quebrar' precisa estar em um laço de repetição."
+            );
+        }
+        return new Quebrar(this.simboloAtual());
+    }
 
     declaracaoContinua(): Continua {
         if (this.blocos < 1) {
@@ -1190,6 +1201,9 @@ export class AvaliadorSintaticoPitugues
             case tiposDeSimbolos.PARA:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoPara();
+            case tiposDeSimbolos.QUEBRAR:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoQuebrar();
             case tiposDeSimbolos.SUSTAR:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoSustar();
