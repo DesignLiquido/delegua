@@ -69,6 +69,7 @@ import {
     Unario,
     Variavel,
     Vetor,
+    ListaCompreensao,
 } from '../construtos';
 import { ErroInterpretador } from '../interfaces/erros/erro-interpretador';
 import { RetornoInterpretadorInterface } from '../interfaces/retornos/retorno-interpretador-interface';
@@ -386,7 +387,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         for (const elemento of interpolacoes) {
             // TODO: Há alguma chance de `elemento` ser `undefined` aqui?
             let valor = elemento?.valor;
-            if (valor.hasOwnProperty('valorRetornado')) {
+            if (valor.hasOwnProperty && valor.hasOwnProperty('valorRetornado')) {
                 valor = valor.valorRetornado;
             }
 
@@ -773,12 +774,12 @@ export class InterpretadorBase implements InterpretadorInterface {
      * Faz a chamada do método de uma primitiva (por exemplo, número, texto, etc.) com seus
      * respectivos argumentos.
      * @param {Chamada} expressao A expressão de chamada.
-     * @param {MetodoPrimitiva} entidadeChamada O método da primitiva chamado.
+     * @param {MetodoPrimitiva} metodoPrimitivaChamado O método da primitiva chamado.
      * @returns O resultado da chamada do método da primitiva.
      */
     protected async chamarMetodoPrimitiva(
         expressao: Chamada,
-        entidadeChamada: MetodoPrimitiva
+        metodoPrimitivaChamado: MetodoPrimitiva
     ): Promise<any> {
         const argumentosResolvidos: any[] = [];
 
@@ -787,7 +788,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             argumentosResolvidos.push(this.resolverValor(valorResolvido));
         }
 
-        return await entidadeChamada.chamar(this, argumentosResolvidos);
+        return await metodoPrimitivaChamado.chamar(this, argumentosResolvidos);
     }
 
     protected async resolverArgumentosChamada(expressao: Chamada): Promise<ArgumentoInterface[]> {
@@ -1074,16 +1075,15 @@ export class InterpretadorBase implements InterpretadorInterface {
         // Posição atual precisa ser reiniciada, pois pode estar dentro de outro
         // laço de repetição.
         declaracao.posicaoAtual = 0;
-        const vetorResolvido = await this.avaliar(declaracao.vetor);
+        const vetorResolvido = await this.avaliar(declaracao.vetorOuDicionario);
         let valorVetorResolvido: any = this.resolverValor(vetorResolvido);
 
         // Se até aqui vetor resolvido é um dicionário, converte dicionário
         // para vetor de duplas.
         // TODO: Converter elementos para `Construto` se necessário.
-        if (declaracao.vetor.tipo === 'dicionário') {
-            valorVetorResolvido = Object.entries(valorVetorResolvido).map(
-                (v) => new Dupla(v[0] as any, v[1] as any)
-            );
+        if (declaracao.vetorOuDicionario.tipo === 'dicionário') {
+            valorVetorResolvido = Object.entries(valorVetorResolvido)
+                .map(v => new Dupla(v[0] as any, v[1] as any));
         }
 
         if (!Array.isArray(valorVetorResolvido)) {
@@ -1103,7 +1103,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                         valorVetorResolvido[declaracao.posicaoAtual]
                     );
                 }
-
+                
                 if (declaracao.variavelIteracao instanceof Dupla) {
                     const valorComoDupla = valorVetorResolvido[declaracao.posicaoAtual] as Dupla;
                     this.pilhaEscoposExecucao.definirVariavel(

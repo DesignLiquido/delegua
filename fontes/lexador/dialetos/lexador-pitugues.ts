@@ -242,6 +242,19 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
         };
     }
 
+    comentarioUmaLinha(): void {
+        this.avancar();
+        const linhaAtual = this.linha;
+        let ultimoAtual = this.atual;
+        while (linhaAtual === this.linha && !this.eFinalDoCodigo()) {
+            ultimoAtual = this.atual;
+            this.avancar();
+        }
+
+        const conteudo = this.codigo[linhaAtual].substring(this.inicioSimbolo + 2, ultimoAtual);
+        this.adicionarSimbolo(tiposDeSimbolos.COMENTARIO, conteudo.trim());
+    }
+
     avancarParaProximaLinha(): void {
         this.linha++;
         this.atual = 0;
@@ -276,9 +289,8 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
                 break;
 
             case '#':
-                this.avancarParaProximaLinha();
+                this.comentarioUmaLinha()
                 break;
-
             case '[':
                 this.adicionarSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO);
                 this.avancar();

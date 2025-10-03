@@ -1,12 +1,12 @@
 import { DeleguaFuncao } from '../interpretador/estruturas';
 import { InterpretadorInterface, PrimitivaInterface, SimboloInterface } from '../interfaces';
-import { InformacaoVariavelOuConstante } from '../informacao-variavel-ou-constante';
+import { InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
 
 export default {
     adicionar: {
         tipoRetorno: 'qualquer[]',
         argumentos: [
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'elemento',
                 'qualquer',
                 true,
@@ -21,12 +21,14 @@ export default {
             elemento: any
         ): Promise<any> => {
             vetor.push(elemento);
-            interpretador.pilhaEscoposExecucao.atribuirVariavel(
-                {
-                    lexema: nomePrimitiva,
-                } as SimboloInterface,
-                vetor
-            );
+            // TODO: Será que apenas isso é suficiente aqui? 
+            if (nomePrimitiva !== '') {
+                interpretador.pilhaEscoposExecucao.atribuirVariavel(
+                    { lexema: nomePrimitiva } as SimboloInterface,
+                    vetor
+                );
+            }
+            
             return Promise.resolve(vetor);
         },
         assinaturaFormato: 'vetor.adicionar(...elemento: qualquer)',
@@ -44,7 +46,7 @@ export default {
     concatenar: {
         tipoRetorno: 'qualquer[]',
         argumentos: [
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'outroVetor',
                 'qualquer[]',
                 true,
@@ -72,7 +74,7 @@ export default {
     },
     empilhar: {
         tipoRetorno: 'qualquer[]',
-        argumentos: [new InformacaoVariavelOuConstante('elemento', 'qualquer', true, [], '')],
+        argumentos: [new InformacaoElementoSintatico('elemento', 'qualquer', true, [], '')],
         implementacao: (
             interpretador: InterpretadorInterface,
             nomePrimitiva: string,
@@ -98,9 +100,9 @@ export default {
     encaixar: {
         tipoRetorno: 'qualquer[]',
         argumentos: [
-            new InformacaoVariavelOuConstante('inicio', 'inteiro'),
-            new InformacaoVariavelOuConstante('excluirQuantidade', 'número'),
-            new InformacaoVariavelOuConstante('itens', 'qualquer[]'),
+            new InformacaoElementoSintatico('inicio', 'inteiro'),
+            new InformacaoElementoSintatico('excluirQuantidade', 'número'),
+            new InformacaoElementoSintatico('itens', 'qualquer[]'),
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
@@ -125,14 +127,14 @@ export default {
     fatiar: {
         tipoRetorno: 'qualquer[]',
         argumentos: [
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'inicio',
                 'número',
                 false,
                 [],
                 'A posição de início do vetor a ser fatiado. Se não fornecido, retorna o vetor inteiro.'
             ),
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'fim',
                 'número',
                 false,
@@ -165,7 +167,7 @@ export default {
     filtrarPor: {
         tipoRetorno: 'qualquer[]',
         argumentos: [
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'funcao',
                 'função',
                 true,
@@ -211,7 +213,7 @@ export default {
     inclui: {
         tipoRetorno: 'lógico',
         argumentos: [
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'elemento',
                 'qualquer',
                 true,
@@ -257,7 +259,7 @@ export default {
     juntar: {
         tipoRetorno: 'texto',
         argumentos: [
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'separador',
                 'texto',
                 true,
@@ -284,7 +286,7 @@ export default {
     mapear: {
         tipoRetorno: 'qualquer[]',
         argumentos: [
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'funcao',
                 'função',
                 true,
@@ -325,7 +327,7 @@ export default {
     ordenar: {
         tipoRetorno: 'qualquer[]',
         argumentos: [
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'funcaoOrdenacao',
                 'função',
                 false,
@@ -403,7 +405,7 @@ export default {
     remover: {
         tipoRetorno: 'qualquer[]',
         argumentos: [
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'elemento',
                 'qualquer',
                 true,

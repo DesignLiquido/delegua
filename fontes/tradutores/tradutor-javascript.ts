@@ -185,12 +185,13 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
 
     traduzirConstrutoBinario(binario: Binario): string {
         let resultado = '';
-        if (binario.esquerda.constructor.name === 'Agrupamento')
+        if (binario.esquerda.constructor === Agrupamento) {
+            const agrupamento = binario.esquerda as Agrupamento;
             resultado +=
                 '(' +
-                this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda) +
+                this.dicionarioConstrutos[agrupamento.constructor.name](binario.esquerda) +
                 ')';
-        else
+        } else
             resultado += this.dicionarioConstrutos[binario.esquerda.constructor.name](
                 binario.esquerda
             );
@@ -529,8 +530,8 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         ](declaracaoParaCada.variavelIteracao);
         let resultado = `for (let ${variavelIteracao} of `;
         resultado +=
-            this.dicionarioConstrutos[declaracaoParaCada.vetor.constructor.name](
-                declaracaoParaCada.vetor
+            this.dicionarioConstrutos[declaracaoParaCada.vetorOuDicionario.constructor.name](
+                declaracaoParaCada.vetorOuDicionario
             ) + ') ';
 
         resultado += this.dicionarioDeclaracoes[declaracaoParaCada.corpo.constructor.name](

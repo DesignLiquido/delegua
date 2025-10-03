@@ -32,6 +32,7 @@ import {
     Variavel,
     Vetor,
 } from '../construtos';
+import { ListaCompreensao } from '../construtos/lista-compreensao';
 
 import {
     Aleatorio,
@@ -81,7 +82,6 @@ export interface VisitanteComumInterface {
     visitarDeclaracaoImportar(declaracao: Importar): Promise<any> | void;
     visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> | void;
     visitarDeclaracaoPara(declaracao: Para): Promise<any> | void;
-    visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> | void;
     visitarDeclaracaoSe(declaracao: Se): Promise<any> | void;
     visitarDeclaracaoTendoComo(declaracao: TendoComo): Promise<any> | void;
     visitarDeclaracaoTente(declaracao: Tente): Promise<any> | void;
@@ -129,4 +129,5 @@ export interface VisitanteComumInterface {
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> | void;
     visitarExpressaoUnaria(expressao: Unario): Promise<any> | void;
     visitarExpressaoVetor(expressao: Vetor): Promise<any> | void;
+    
 }

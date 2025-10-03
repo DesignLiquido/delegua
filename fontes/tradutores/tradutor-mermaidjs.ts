@@ -532,8 +532,8 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         ](declaracaoParaCada.variavelIteracao);
         let texto = `Linha${declaracaoParaCada.linha}(para cada ${textoVariavelIteracao} em `;
         const textoVariavelIterada = this.dicionarioConstrutos[
-            declaracaoParaCada.vetor.constructor.name
-        ](declaracaoParaCada.vetor);
+            declaracaoParaCada.vetorOuDicionario.constructor.name
+        ](declaracaoParaCada.vetorOuDicionario);
         texto += textoVariavelIterada + ')';
         const aresta = new ArestaFluxograma(declaracaoParaCada, texto);
         let vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);

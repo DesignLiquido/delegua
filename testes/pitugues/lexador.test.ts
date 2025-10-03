@@ -56,6 +56,18 @@ describe('Lexador (Pituguês)', () => {
 
                 expect(resultado).toBeTruthy();
             });
+
+            it('Vetor (Lista de Compreensão)', () => {
+                const resultado = lexador.mapear(
+                    [
+                    'var lista = [1, 2, 3, 4, 5]',
+                    'var minhaListaCompreensao = [x para cada x em lista se x % 2 == 0] # Lista de compreensão para números pares'
+                    ], 
+                    -1
+                );
+
+                expect(resultado).toBeTruthy();
+            });
         });
 
         describe('Cenários de falha', () => {
