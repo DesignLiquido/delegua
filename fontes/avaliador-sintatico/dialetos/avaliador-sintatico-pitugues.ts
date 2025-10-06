@@ -45,7 +45,7 @@ import {
     Bloco,
     Sustar,
     Falhar,
-    ParaCada,
+    ParaCada
 } from '../../declaracoes';
 
 import {
@@ -1063,7 +1063,8 @@ export class AvaliadorSintaticoPitugues
 
         return new Sustar(this.simboloAtual());
     }
-
+    
+    
     declaracaoContinua(): Continua {
         if (this.blocos < 1) {
             throw this.erro(
@@ -1190,6 +1191,7 @@ export class AvaliadorSintaticoPitugues
             case tiposDeSimbolos.PARA:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoPara();
+            case tiposDeSimbolos.QUEBRAR:
             case tiposDeSimbolos.SUSTAR:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoSustar();

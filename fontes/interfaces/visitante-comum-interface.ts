@@ -62,6 +62,7 @@ import {
     Tente,
     Var,
     VarMultiplo,
+
 } from '../declaracoes';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
 
@@ -125,6 +126,7 @@ export interface VisitanteComumInterface {
     visitarExpressaoSeparador(expressao: Separador): Promise<any> | void;
     visitarExpressaoSuper(expressao: Super): Promise<any> | void;
     visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra | void;
+
     visitarExpressaoTupla(expressao: Tupla): Promise<any> | void;
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> | void;
     visitarExpressaoUnaria(expressao: Unario): Promise<any> | void;
