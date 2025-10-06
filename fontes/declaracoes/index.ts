@@ -28,4 +28,3 @@ export * from './tendo-como';
 export * from './tente';
 export * from './var';
 export * from './var-multiplo';
-export * from './quebrar';
