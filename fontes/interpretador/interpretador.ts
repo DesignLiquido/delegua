@@ -251,6 +251,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         return {
             tipo: `função<${funcao.declaracao.tipo || 'qualquer'}>`,
             tipoExplicito: funcao.declaracao.tipoExplicito,
+            declaracao: funcao
         };
     }
 

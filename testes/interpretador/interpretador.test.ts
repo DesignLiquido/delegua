@@ -1825,6 +1825,17 @@ describe('Interpretador', () => {
             });
 
             describe('Declaração e chamada de funções', () => {
+                it('Aglutinação de argumentos', async () => {
+                    const codigo = ['função teste(*argumentos) {', '   escreva(argumentos)', '}', 'teste(1, 2, 3)'];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it("Chamada de função com retorno 'vazio'", async () => {
                     const codigo = [
                         'funcao executar(valor1, valor2): vazio {',
@@ -1953,8 +1964,12 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Aglutinação de argumentos', async () => {
-                    const codigo = ['função teste(*argumentos) {', '   escreva(argumentos)', '}', 'teste(1, 2, 3)'];
+                it('Definição de chamadas e funções anônimas', async () => {
+                    const codigo = [
+                        'escreva((função (*argumentos) {', 
+                        '   retorna argumentos', 
+                        '})(1, 2, 3))'
+                    ];
 
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -1962,6 +1977,8 @@ describe('Interpretador', () => {
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('[1, 2, 3]');
                 });
 
                 it('Fibonacci', async () => {

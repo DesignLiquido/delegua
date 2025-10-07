@@ -457,8 +457,21 @@ export class InterpretadorBase implements InterpretadorInterface {
         return expressao.valor;
     }
 
+    /**
+     * Avaliação de agrupamento. Se resultado da avaliação é uma declaração de
+     * função (por exemplo, funções anônimas), a declaração é retornada. Este
+     * retorno é utilizado, entre outros lugares, por `visitarExpressaoDeChamada`.
+     * @param {Agrupamento} expressao O construto de agrupamento.
+     * @returns O resultado da avaliação.
+     * @see this.visitarExpressaoDeChamada
+     */
     async visitarExpressaoAgrupamento(expressao: Agrupamento): Promise<any> {
-        return await this.avaliar(expressao.expressao);
+        const avaliacaoAgrupamento = await this.avaliar(expressao.expressao);
+        if (avaliacaoAgrupamento.declaracao !== undefined) {
+            return avaliacaoAgrupamento.declaracao;
+        }
+
+        return avaliacaoAgrupamento;
     }
 
     eVerdadeiro(objeto: any): boolean {
@@ -836,7 +849,12 @@ export class InterpretadorBase implements InterpretadorInterface {
                 variavelEntidadeChamada = variavelEntidadeChamada.valorRetornado;
             }
 
-            const entidadeChamada = this.resolverValor(variavelEntidadeChamada);
+            let entidadeChamada = this.resolverValor(variavelEntidadeChamada);
+
+            // Funções anônimas
+            if (entidadeChamada instanceof FuncaoConstruto) {
+                entidadeChamada = new DeleguaFuncao(null, entidadeChamada);
+            }
 
             if (entidadeChamada instanceof DeleguaModulo) {
                 return Promise.reject(
@@ -873,7 +891,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 try {
                     return entidadeChamada.chamar(
                         this,
-                        argumentos.map((a) => a && a.valor && this.resolverValor(a.valor)),
+                        argumentos.map((a) => a && this.resolverValor(a.valor)),
                         expressao.entidadeChamada.simbolo
                     );
                 } catch (erro: any) {
@@ -1661,6 +1679,10 @@ export class InterpretadorBase implements InterpretadorInterface {
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
         const funcao = new DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
+
+        return {
+            declaracao: funcao
+        };
     }
 
     /**
