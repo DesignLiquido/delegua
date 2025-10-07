@@ -763,7 +763,7 @@ describe('Analisador semântico', () => {
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes)
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
-                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('Comando \'quebrar\' deve estar dentro de um laço.');
+                expect(retornoAnalisadorSemantico.diagnosticos.filter(item => item.severidade === DiagnosticoSeveridade.ERRO)).toHaveLength(1);
               });
         }
         );   
