@@ -92,7 +92,7 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     adicionarDiagnostico(
         simbolo: SimboloInterface,
         mensagem: string,
-        severidade: DiagnosticoSeveridade = DiagnosticoSeveridade.ERRO
+        severidade: DiagnosticoSeveridade = DiagnosticoSeveridade.AVISO
     ): void {
         this.diagnosticos.push({
             simbolo: simbolo,
