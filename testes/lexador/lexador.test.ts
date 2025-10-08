@@ -11,7 +11,7 @@ describe('Lexador', () => {
         });
 
         describe('Cenários de sucesso', () => {
-            it('Sucesso - Vetor de código vazio', () => {
+            it('Vetor de código vazio', () => {
                 const resultado = lexador.mapear([], -1);
 
                 expect(resultado).toBeTruthy();
@@ -19,21 +19,21 @@ describe('Lexador', () => {
                 expect(resultado.erros).toHaveLength(0);
             });
 
-            it('Sucesso - Código vazio', () => {
+            it('Código vazio', () => {
                 const resultado = lexador.mapear([''], -1);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(0);
             });
 
-            it('Sucesso - Ponto-e-vírgula, opcional', () => {
+            it('Ponto-e-vírgula, opcional', () => {
                 const resultado = lexador.mapear([';;;;;;;;;;;;;;;;;;;;;'], -1);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(21);
             });
 
-            it('Sucesso - Olá mundo', () => {
+            it('Olá mundo', () => {
                 const resultado = lexador.mapear(["escreva('Olá mundo')"], -1);
 
                 expect(resultado).toBeTruthy();
@@ -48,7 +48,7 @@ describe('Lexador', () => {
                 );
             });
 
-            it('Sucesso - Soma - Maior Igual', () => {
+            it('Soma - Maior Igual', () => {
                 const resultado = lexador.mapear(["var valor = 1", "valor += 2"], -1);
 
                 expect(resultado).toBeTruthy();
@@ -64,7 +64,7 @@ describe('Lexador', () => {
                 );
             });
 
-            it('Sucesso - Subtração - Menor Igual', () => {
+            it('Subtração - Menor Igual', () => {
                 const resultado = lexador.mapear(["var valor = 5", "valor -= 2"], -1);
 
                 expect(resultado).toBeTruthy();
@@ -80,7 +80,7 @@ describe('Lexador', () => {
                 );
             });
 
-            it('Sucesso - Multiplicação Igual', () => {
+            it('Multiplicação Igual', () => {
                 const resultado = lexador.mapear(["var valor = 5", "valor *= 2"], -1);
 
                 expect(resultado).toBeTruthy();
@@ -96,7 +96,7 @@ describe('Lexador', () => {
                 );
             });
 
-            it('Sucesso - Diferente Igual', () => {
+            it('Diferente Igual', () => {
                 const resultado = lexador.mapear(["1 != 2"], -1);
 
                 expect(resultado).toBeTruthy();
@@ -110,7 +110,7 @@ describe('Lexador', () => {
                 );
             });
 
-            it('Sucesso - Divisão Igual', () => {
+            it('Divisão Igual', () => {
                 const resultado = lexador.mapear(["var valor = 10", "valor /= 2"], -1);
 
                 expect(resultado).toBeTruthy();
@@ -126,7 +126,7 @@ describe('Lexador', () => {
                 );
             });
 
-            it('Sucesso - Módulo Igual', () => {
+            it('Módulo Igual', () => {
                 const resultado = lexador.mapear(["var valor = 5", "valor %= 2"], -1);
 
                 expect(resultado).toBeTruthy();
@@ -142,7 +142,7 @@ describe('Lexador', () => {
                 );
             });
 
-            it('Sucesso - Comentários multilinha', () => {
+            it('Comentários multilinha', () => {
                 const resultado = lexador.mapear(["/* comentário ", "outro comentário*/"], -1);
 
                 expect(resultado).toBeTruthy();
@@ -151,7 +151,7 @@ describe('Lexador', () => {
                 expect(resultado.simbolos[1].tipo).toBe(tiposDeSimbolos.LINHA_COMENTARIO);
             });
 
-            it('Sucesso - Comentários de uma linha', () => {
+            it('Comentários de uma linha', () => {
                 const resultado = lexador.mapear(["// comentário ", "// outro comentário"], -1);
 
                 expect(resultado).toBeTruthy();
@@ -160,7 +160,7 @@ describe('Lexador', () => {
                 expect(resultado.simbolos[1].tipo).toBe(tiposDeSimbolos.COMENTARIO);
             });
 
-            it('Sucesso - Se', () => {
+            it('Se', () => {
                 const resultado = lexador.mapear(["se (1 == 1) { escreva('Tautologia') }"], -1);
 
                 expect(resultado).toBeTruthy();
@@ -180,7 +180,7 @@ describe('Lexador', () => {
                 );
             });
 
-            it('Sucesso - Operação Matemática (soma e igualdade)', () => {
+            it('Operação Matemática (soma e igualdade)', () => {
                 const resultado = lexador.mapear(['2 + 3 == 5'], -1);
 
                 expect(resultado).toBeTruthy();
@@ -194,13 +194,13 @@ describe('Lexador', () => {
                 );
             });
 
-            it('Sucesso - Atribução de variável e Operação Matemática (diferença, multiplicação e módulo)', () => {
+            it('Atribução de variável e Operação Matemática (diferença, multiplicação e módulo)', () => {
                 const resultado = lexador.mapear(['var numero = 1 * 2 - 3 % 4'], -1);
 
                 expect(resultado).toBeTruthy();
             });
 
-            it('Sucesso - Suporte a strings multilinha', () => {
+            it('Suporte a strings multilinha', () => {
                 const resultado = lexador.mapear(
                     [
                         'escreva("a',
@@ -223,6 +223,19 @@ describe('Lexador', () => {
                         expect.objectContaining({ tipo: tiposDeSimbolos.PARENTESE_DIREITO })
                     ])
                 );
+            });
+
+            it('Suporte a símbolos de tabulação e quebra de linha dentro de texto', () => {
+                const resultado = lexador.mapear(
+                    [
+                        '"a\tb\nc"'
+                    ],
+                    -1
+                );
+
+                expect(resultado).toBeTruthy();
+                expect(resultado.simbolos).toHaveLength(1);
+                expect(resultado.simbolos[0].lexema).toBe("a\tb\nc");
             });
         });
 

@@ -2346,6 +2346,27 @@ describe('Interpretador', () => {
                         expect(retornoInterpretador.erros).toHaveLength(0);
                     });
                 });
+
+                describe('Textos', () => {
+                    it('Dividir usando símbolo de quebra de linha', async () => {
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'var meuTexto = "a\nb\nc"',
+                                "escreva(meuTexto.dividir('\n'))"
+                            ],
+                            -1
+                        );
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe("['a', 'b', 'c']");
+                    });
+                });
             });
 
             describe('Expressões Regulares', () => {
