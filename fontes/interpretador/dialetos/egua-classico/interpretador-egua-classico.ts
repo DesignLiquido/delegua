@@ -689,8 +689,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         try {
             const resultadoAvaliacao = await this.avaliar(declaracao.argumentos[0]);
             let valor = this.resolverValor(resultadoAvaliacao);
-            // eslint-disable-next-line no-undef
-            console.log(this.paraTexto(valor));
+            this.funcaoDeRetorno(this.paraTexto(valor));
             return null;
         } catch (erro: any) {
             this.erros.push({

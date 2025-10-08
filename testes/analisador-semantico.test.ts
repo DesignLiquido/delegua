@@ -755,20 +755,7 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
             });
-
-            // TODO: Provavelmente este teste não será mais necessário.
-            it.skip('Erro - fora de laço', () => {
-                const retornoLexador = lexador.mapear([
-                    "quebrar;",
-                ], -1)
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes)
-                expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
-                expect(retornoAnalisadorSemantico.diagnosticos.filter(item => item.severidade === DiagnosticoSeveridade.AVISO)).toHaveLength(1);
-              });
-        }
-        );   
+        });   
     });
 }
 )
