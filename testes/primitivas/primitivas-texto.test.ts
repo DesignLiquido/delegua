@@ -100,4 +100,18 @@ describe('Primitivas de texto', () => {
             expect(resultado).toBe(10);
         });
     });
+
+    describe('tudoMaiusculo()', () => {
+        it('Trivial', async () => {
+            const resultado = await primitivasTexto.tudoMaiusculo.implementacao(interpretador, '', 'DELÉGUA');
+            expect(resultado).toBe(true);
+        });
+    });
+
+    describe('tudoMinusculo()', () => {
+        it('Trivial', async () => {
+            const resultado = await primitivasTexto.tudoMinusculo.implementacao(interpretador, '', 'delégua');
+            expect(resultado).toBe(true);
+        });
+    });
 });
