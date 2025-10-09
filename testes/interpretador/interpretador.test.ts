@@ -1351,6 +1351,24 @@ describe('Interpretador', () => {
                         expect(_saidas[2]).toContain('{\"primeiro\":\"c\",\"segundo\":3}');
                     });
 
+                    it('para cada - texto', async () => {
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'para cada elemento em "UgUNFYGaFYFYGtNUoH" {',
+                                "   escreva(elemento)", 
+                                '}'
+                            ],
+                            -1
+                        );
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toBeTruthy();
+                        expect(_saidas).toHaveLength(18);
+                    });
+
                     it('dicionário com desestruturação', async () => {
                         const retornoLexador = lexador.mapear(
                             [

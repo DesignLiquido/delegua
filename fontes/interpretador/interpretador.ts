@@ -430,6 +430,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             );
         }
 
+        if (paraCada.vetorOuDicionario.tipo === 'texto') {
+            valorVetorOuDicionarioResolvido = valorVetorOuDicionarioResolvido.split('');
+        }
+
         if (!Array.isArray(valorVetorOuDicionarioResolvido)) {
             return Promise.reject(
                 "Variável ou literal provida em instrução 'para cada' não é um vetor."

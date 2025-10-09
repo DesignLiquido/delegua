@@ -1802,16 +1802,9 @@ export class AvaliadorSintatico
             }
         }
 
-        if (!vetor.hasOwnProperty('tipo')) {
-            throw this.erro(
-                simboloPara,
-                `Variável ou constante em 'para cada' não parece possuir um tipo iterável.`
-            );
-        }
-
         const tipoVetor = (vetor as any).tipo as string;
 
-        if (!tipoVetor.endsWith('[]') && !['dicionário', 'qualquer', 'vetor'].includes(tipoVetor)) {
+        if (!tipoVetor.endsWith('[]') && !['dicionário', 'qualquer', 'texto', 'vetor'].includes(tipoVetor)) {
             throw this.erro(
                 simboloPara,
                 `Variável ou constante em 'para cada' não é iterável. Tipo resolvido: ${tipoVetor}.`
