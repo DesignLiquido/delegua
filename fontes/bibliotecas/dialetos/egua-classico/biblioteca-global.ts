@@ -62,10 +62,182 @@ export default function (interpreter, globals) {
         })
     );
 
+        globals.definirVariavel(
+        'algum',
+        new FuncaoPadrao(2, async function (_: any, array: any, callback: any) {
+            const arrayResolvido = array && array.hasOwnProperty('valor') ? array.valor : array;
+            const callbackResolvido = callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
+
+            if (!Array.isArray(arrayResolvido)) {
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.'
+                );
+            }
+
+            if (callbackResolvido.constructor.name !== 'DeleguaFuncao') {
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Parâmetro inválido. O segundo parâmetro da função, deve ser uma função.'
+                );
+            }
+
+            for (let index = 0; index < arrayResolvido.length; ++index) {
+                if (await callbackResolvido.chamar(interpreter, [arrayResolvido[index]])) {
+                    return true;
+                }
+            }
+
+            return false;
+        })
+    );
+
+    globals.definirVariavel(
+        'encontrar',
+        new FuncaoPadrao(2, async function (_: any, array: any, callback: any) {
+            const arrayResolvido = array && array.hasOwnProperty('valor') ? array.valor : array;
+            const callbackResolvido = callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
+
+            if (!Array.isArray(arrayResolvido)) {
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.'
+                );
+            }
+
+            if (callbackResolvido.constructor.name !== 'DeleguaFuncao') {
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Parâmetro inválido. O segundo parâmetro da função, deve ser uma função.'
+                );
+            }
+
+            for (let index = 0; index < arrayResolvido.length; ++index) {
+                if (await callbackResolvido.chamar(interpreter, [arrayResolvido[index]])) {
+                    return arrayResolvido[index];
+                }
+            }
+
+            return null;
+        })
+    );
+
+    globals.definirVariavel(
+        'encontrarUltimo',
+        new FuncaoPadrao(1, async function (_: any, array: any, callback: any) {
+            const arrayResolvido = array && array.hasOwnProperty('valor') ? array.valor : array;
+            const callbackResolvido = callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
+
+            if (!Array.isArray(arrayResolvido)) {
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.'
+                );
+            }
+
+            if (callbackResolvido.constructor.name !== 'DeleguaFuncao') {
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Parâmetro inválido. O segundo parâmetro da função, deve ser uma função.'
+                );
+            }
+
+            for (let index = arrayResolvido.length - 1; index >= 0; --index) {
+                if (await callbackResolvido.chamar(interpreter, [arrayResolvido[index]])) {
+                    return array[index];
+                }
+            }
+        })
+    );
+
+    globals.definirVariavel(
+        'encontrarIndice',
+        new FuncaoPadrao(2, async function (_: any, array: any, callback: any) {
+            const arrayResolvido = array && array.hasOwnProperty('valor') ? array.valor : array;
+            const callbackResolvido = callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
+
+            if (!Array.isArray(arrayResolvido)) {
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.'
+                );
+            }
+
+            if (callbackResolvido.constructor.name !== 'DeleguaFuncao') {
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Parâmetro inválido. O segundo parâmetro da função, deve ser uma função.'
+                );
+            }
+
+            for (let index = 0; index < arrayResolvido.length; ++index) {
+                if (await callbackResolvido.chamar(interpreter, [arrayResolvido[index]])) {
+                    return index;
+                }
+            }
+
+            return -1;
+        })
+    );
+
+    globals.definirVariavel(
+        'encontrarUltimoIndice',
+        new FuncaoPadrao(2, async function (_: any, array: any, callback: any) {
+            const arrayResolvido = array && array.hasOwnProperty('valor') ? array.valor : array;
+            const callbackResolvido = callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
+
+            if (!Array.isArray(arrayResolvido)) {
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.'
+                );
+            }
+
+            if (callbackResolvido.constructor.name !== 'DeleguaFuncao') {
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Parâmetro inválido. O segundo parâmetro da função, deve ser uma função.'
+                );
+            }
+
+            for (let index = arrayResolvido.length - 1; index >= 0; --index) {
+                if (await callbackResolvido.chamar(interpreter, [arrayResolvido[index]])) {
+                    return index;
+                }
+            }
+
+            return -1;
+        })
+    );
+
+    globals.definirVariavel(
+        'incluido',
+        new FuncaoPadrao(2, function (_: any, array: any, valor: any) {
+            const arrayResolvido = array && array.hasOwnProperty('valor') ? array.valor : array;
+            const valorResolvido = valor.hasOwnProperty('valor') ? valor.valor : valor;
+
+            if (!Array.isArray(arrayResolvido)) {
+                throw new ErroEmTempoDeExecucao(
+                    this.simbolo,
+                    'Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.'
+                );
+            }
+
+            for (let index = 0; index < arrayResolvido.length; ++index) {
+                if (arrayResolvido[index] == valorResolvido) {
+                    return true;
+                }
+            }
+
+            return false;
+        })
+    );
+
     globals.definirVariavel(
         'inteiro',
         new FuncaoPadrao(1, function (_: any, value: any) {
             const valorResolvido = value && value.hasOwnProperty('valor') ? value.valor : value;
+
             if (valorResolvido === undefined || valorResolvido === null) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
@@ -86,15 +258,18 @@ export default function (interpreter, globals) {
 
     globals.definirVariavel(
         'mapear',
-        new FuncaoPadrao(1, async function (_: any, array: any, callback: any) {
-            if (!Array.isArray(array)) {
+        new FuncaoPadrao(2, async function (_: any, array: any, callback: any) {
+            const arrayResolvido = array && array.hasOwnProperty('valor') ? array.valor : array;
+            const callbackResolvido = callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
+
+            if (!Array.isArray(arrayResolvido)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.'
                 );
             }
 
-            if (callback.constructor.name !== 'DeleguaFuncao') {
+            if (callbackResolvido.constructor.name !== 'DeleguaFuncao') {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Parâmetro inválido. O segundo parâmetro da função, deve ser uma função.'
@@ -102,8 +277,8 @@ export default function (interpreter, globals) {
             }
 
             let provisorio = [];
-            for (let index = 0; index < array.length; ++index) {
-                provisorio.push(await callback.chamar(interpreter, [array[index]]));
+            for (let index = 0; index < arrayResolvido.length; ++index) {
+                provisorio.push(await callbackResolvido.chamar(interpreter, [arrayResolvido[index]]));
             }
 
             return provisorio;
@@ -112,15 +287,18 @@ export default function (interpreter, globals) {
 
     globals.definirVariavel(
         'filtrar',
-        new FuncaoPadrao(1, async function (_: any, array: any, callback: any) {
-            if (!Array.isArray(array)) {
+        new FuncaoPadrao(2, async function (_: any, array: any, callback: any) {
+            const arrayResolvido = array && array.hasOwnProperty('valor') ? array.valor : array;
+            const callbackResolvido = callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
+
+            if (!Array.isArray(arrayResolvido)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.'
                 );
             }
 
-            if (callback.constructor.name !== 'DeleguaFuncao') {
+            if (callbackResolvido.constructor.name !== 'DeleguaFuncao') {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Parâmetro inválido. O segundo parâmetro da função, deve ser uma função.'
@@ -128,9 +306,9 @@ export default function (interpreter, globals) {
             }
 
             let provisorio = [];
-            for (let index = 0; index < array.length; ++index) {
-                if (await callback.chamar(interpreter, [array[index]])) {
-                    provisorio.push(array[index]);
+            for (let index = 0; index < arrayResolvido.length; ++index) {
+                if (await callbackResolvido.chamar(interpreter, [array[index]])) {
+                    provisorio.push(arrayResolvido[index]);
                 }
             }
 
@@ -140,38 +318,44 @@ export default function (interpreter, globals) {
 
     globals.definirVariavel(
         'paraCada',
-        new FuncaoPadrao(1, async function (_: any, array: any, callback: any) {
-            if (!Array.isArray(array)) {
+        new FuncaoPadrao(2, async function (_: any, array: any, callback: any) {
+            const arrayResolvido = array && array.hasOwnProperty('valor') ? array.valor : array;
+            const callbackResolvido = callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
+
+            if (!Array.isArray(arrayResolvido)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.'
                 );
             }
 
-            if (callback.constructor.name !== 'DeleguaFuncao') {
+            if (callbackResolvido.constructor.name !== 'DeleguaFuncao') {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Parâmetro inválido. O segundo parâmetro da função, deve ser uma função.'
                 );
             }
 
-            for (let index = 0; index < array.length; ++index) {
-                await callback.chamar(interpreter, [array[index]]);
+            for (let index = 0; index < arrayResolvido.length; ++index) {
+                await callbackResolvido.chamar(interpreter, [arrayResolvido[index]]);
             }
         })
     );
 
     globals.definirVariavel(
         'reduzir',
-        new FuncaoPadrao(1, async function (_: any, array: any, callback: any, padrao: any) {
-            if (!Array.isArray(array)) {
+        new FuncaoPadrao(2, async function (_: any, array: any, callback: any, padrao: any) {
+            const arrayResolvido = array && array.hasOwnProperty('valor') ? array.valor : array;
+            const callbackResolvido = callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
+
+            if (!Array.isArray(arrayResolvido)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.'
                 );
             }
 
-            if (callback.constructor.name !== 'DeleguaFuncao') {
+            if (callbackResolvido.constructor.name !== 'DeleguaFuncao') {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Parâmetro inválido. O segundo parâmetro da função, deve ser uma função.'
@@ -182,12 +366,12 @@ export default function (interpreter, globals) {
             let inicio = 0;
 
             if (!provisorio) {
-                provisorio = array[0];
+                provisorio = arrayResolvido[0];
                 inicio = 1;
             }
 
-            for (let index = inicio; index < array.length; ++index) {
-                provisorio = await callback.chamar(interpreter, [provisorio, array[index]]);
+            for (let index = inicio; index < arrayResolvido.length; ++index) {
+                provisorio = await callbackResolvido.chamar(interpreter, [provisorio, arrayResolvido[index]]);
             }
 
             return provisorio;
@@ -195,176 +379,27 @@ export default function (interpreter, globals) {
     );
 
     globals.definirVariavel(
-        'encontrar',
-        new FuncaoPadrao(1, async function (_: any, array: any, callback: any) {
-            if (!Array.isArray(array)) {
-                throw new ErroEmTempoDeExecucao(
-                    this.simbolo,
-                    'Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.'
-                );
-            }
-
-            if (callback.constructor.name !== 'DeleguaFuncao') {
-                throw new ErroEmTempoDeExecucao(
-                    this.simbolo,
-                    'Parâmetro inválido. O segundo parâmetro da função, deve ser uma função.'
-                );
-            }
-
-            for (let index = 0; index < array.length; ++index) {
-                if (await callback.chamar(interpreter, [array[index]])) {
-                    return array[index];
-                }
-            }
-
-            return null;
-        })
-    );
-
-    globals.definirVariavel(
-        'encontrarUltimo',
-        new FuncaoPadrao(1, async function (_: any, array: any, callback: any) {
-            if (!Array.isArray(array)) {
-                throw new ErroEmTempoDeExecucao(
-                    this.simbolo,
-                    'Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.'
-                );
-            }
-
-            if (callback.constructor.name !== 'DeleguaFuncao') {
-                throw new ErroEmTempoDeExecucao(
-                    this.simbolo,
-                    'Parâmetro inválido. O segundo parâmetro da função, deve ser uma função.'
-                );
-            }
-
-            for (let index = array.length - 1; index >= 0; --index) {
-                if (await callback.chamar(interpreter, [array[index]])) {
-                    return array[index];
-                }
-            }
-        })
-    );
-
-    globals.definirVariavel(
-        'encontrarIndice',
-        new FuncaoPadrao(1, async function (_: any, array: any, callback: any) {
-            if (!Array.isArray(array)) {
-                throw new ErroEmTempoDeExecucao(
-                    this.simbolo,
-                    'Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.'
-                );
-            }
-
-            if (callback.constructor.name !== 'DeleguaFuncao') {
-                throw new ErroEmTempoDeExecucao(
-                    this.simbolo,
-                    'Parâmetro inválido. O segundo parâmetro da função, deve ser uma função.'
-                );
-            }
-
-            for (let index = 0; index < array.length; ++index) {
-                if (await callback.chamar(interpreter, [array[index]])) {
-                    return index;
-                }
-            }
-
-            return -1;
-        })
-    );
-
-    globals.definirVariavel(
-        'encontrarUltimoIndice',
-        new FuncaoPadrao(1, async function (_: any, array: any, callback: any) {
-            if (!Array.isArray(array)) {
-                throw new ErroEmTempoDeExecucao(
-                    this.simbolo,
-                    'Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.'
-                );
-            }
-
-            if (callback.constructor.name !== 'DeleguaFuncao') {
-                throw new ErroEmTempoDeExecucao(
-                    this.simbolo,
-                    'Parâmetro inválido. O segundo parâmetro da função, deve ser uma função.'
-                );
-            }
-
-            for (let index = array.length - 1; index >= 0; --index) {
-                if (await callback.chamar(interpreter, [array[index]])) {
-                    return index;
-                }
-            }
-        })
-    );
-
-    globals.definirVariavel(
-        'incluido',
-        new FuncaoPadrao(1, function (_: any, array: any, valor: any) {
-            const valorResolvido = valor.hasOwnProperty('valor') ? valor.valor : valor;
-            if (!Array.isArray(array)) {
-                throw new ErroEmTempoDeExecucao(
-                    this.simbolo,
-                    'Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.'
-                );
-            }
-
-            for (let index = 0; index < array.length; ++index) {
-                if (array[index] == valorResolvido) {
-                    return true;
-                }
-            }
-
-            return false;
-        })
-    );
-
-    globals.definirVariavel(
-        'algum',
-        new FuncaoPadrao(1, async function (_: any, array: any, callback: any) {
-            if (!Array.isArray(array)) {
-                throw new ErroEmTempoDeExecucao(
-                    this.simbolo,
-                    'Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.'
-                );
-            }
-
-            if (callback.constructor.name !== 'DeleguaFuncao') {
-                throw new ErroEmTempoDeExecucao(
-                    this.simbolo,
-                    'Parâmetro inválido. O segundo parâmetro da função, deve ser uma função.'
-                );
-            }
-
-            for (let index = 0; index < array.length; ++index) {
-                if (await callback.chamar(interpreter, [array[index]])) {
-                    return true;
-                }
-            }
-
-            return false;
-        })
-    );
-
-    globals.definirVariavel(
         'todos',
-        new FuncaoPadrao(1, async function (_: any, array: any, callback: any) {
-            if (!Array.isArray(array)) {
+        new FuncaoPadrao(2, async function (_: any, array: any, callback: any) {
+            const arrayResolvido = array && array.hasOwnProperty('valor') ? array.valor : array;
+            const callbackResolvido = callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
+
+            if (!Array.isArray(arrayResolvido)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.'
                 );
             }
 
-            if (callback.constructor.name !== 'DeleguaFuncao') {
+            if (callbackResolvido.constructor.name !== 'DeleguaFuncao') {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Parâmetro inválido. O segundo parâmetro da função, deve ser uma função.'
                 );
             }
 
-            for (let index = 0; index < array.length; ++index) {
-                if (!(await callback.chamar(interpreter, [array[index]]))) {
+            for (let index = 0; index < arrayResolvido.length; ++index) {
+                if (!(await callbackResolvido.chamar(interpreter, [arrayResolvido[index]]))) {
                     return false;
                 }
             }
@@ -376,7 +411,9 @@ export default function (interpreter, globals) {
     globals.definirVariavel(
         'ordenar',
         new FuncaoPadrao(1, function (_: any, obj: any) {
-            if (Array.isArray(obj) == false) {
+            let objetoResolvido = obj && obj.hasOwnProperty('valor') ? obj.valor : obj;
+
+            if (Array.isArray(objetoResolvido) == false) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Valor Inválido. Objeto inserido não é um vetor.'
@@ -384,17 +421,18 @@ export default function (interpreter, globals) {
             }
 
             let trocado;
-            let length = obj.length;
+            let length = objetoResolvido.length;
             do {
                 trocado = false;
                 for (let i = 0; i < length - 1; i++) {
-                    if (obj[i] > obj[i + 1]) {
-                        [obj[i], obj[i + 1]] = [obj[i + 1], obj[i]];
+                    if (objetoResolvido[i] > objetoResolvido[i + 1]) {
+                        [objetoResolvido[i], objetoResolvido[i + 1]] = [objetoResolvido[i + 1], objetoResolvido[i]];
                         trocado = true;
                     }
                 }
             } while (trocado);
-            return obj;
+
+            return objetoResolvido;
         })
     );
 
@@ -402,11 +440,13 @@ export default function (interpreter, globals) {
         'real',
         new FuncaoPadrao(1, function (_: any, value: any) {
             const valorResolvido = value.hasOwnProperty('valor') ? value.valor : value;
+
             if (!/^-{0,1}\d+$/.test(valorResolvido) && !/^\d+\.\d+$/.test(valorResolvido))
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Somente números podem passar para real.'
                 );
+
             return parseFloat(valorResolvido);
         })
     );
@@ -414,22 +454,24 @@ export default function (interpreter, globals) {
     globals.definirVariavel(
         'tamanho',
         new FuncaoPadrao(1, function (_: any, obj: any) {
-            if (!isNaN(obj)) {
+            let objetoResolvido = obj && obj.hasOwnProperty('valor') ? obj.valor : obj;
+
+            if (objetoResolvido instanceof DeleguaFuncao) {
+                return objetoResolvido.declaracao.parametros.length;
+            }
+
+            if (objetoResolvido instanceof FuncaoPadrao) {
+                return objetoResolvido.valorAridade;
+            }
+
+            if (!isNaN(objetoResolvido)) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Não é possível encontrar o tamanho de um número.'
                 );
             }
 
-            if (obj instanceof DeleguaFuncao) {
-                return obj.declaracao.parametros.length;
-            }
-
-            if (obj instanceof FuncaoPadrao) {
-                return obj.valorAridade;
-            }
-
-            return obj.length;
+            return objetoResolvido.length;
         })
     );
 
@@ -437,6 +479,7 @@ export default function (interpreter, globals) {
         'texto',
         new FuncaoPadrao(1, function (_: any, value: any) {
             const valorResolvido = value.hasOwnProperty('valor') ? value.valor : value;
+            
             return `${valorResolvido}`;
         })
     );

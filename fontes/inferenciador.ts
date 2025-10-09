@@ -75,7 +75,7 @@ export function inferirTipoVariavel(variavel: any): TipoInferencia | TipoNativoS
         return 'nulo';
     }
 
-    const tipo = variavel.constructor ? variavel.constructor.name : typeof variavel;
+    const tipo = variavel && variavel.constructor ? variavel.constructor.name : typeof variavel;
     switch (tipo) {
         case 'String':
         case 'string':

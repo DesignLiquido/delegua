@@ -94,6 +94,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     interfaceEntradaSaida: any = null;
     hashArquivoDeclaracaoAtual: number;
     linhaDeclaracaoAtual: number;
+    emDeclaracaoTente: boolean = false;
 
     constructor(diretorioBase: string) {
         this.resolvedor = new ResolvedorEguaClassico();
@@ -635,6 +636,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         let valorRetorno: any;
         try {
             let sucesso = true;
+            this.emDeclaracaoTente = true;
+
             try {
                 valorRetorno = await this.executarBloco(declaracao.caminhoTente);
             } catch (erro: any) {
@@ -655,6 +658,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         } finally {
             if (declaracao.caminhoFinalmente !== null)
                 valorRetorno = await this.executarBloco(declaracao.caminhoFinalmente);
+
+            this.emDeclaracaoTente = false;
         }
 
         return valorRetorno;
@@ -1055,7 +1060,16 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
             return retornoExecucao;
         } catch (erro: any) {
-            return Promise.reject(erro);
+            const declaracaoAtual = ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual];
+            if (!this.emDeclaracaoTente) {
+                this.erros.push({
+                    erroInterno: erro,
+                    linha: declaracaoAtual.linha,
+                    hashArquivo: declaracaoAtual.hashArquivo,
+                });
+            } else {
+                return Promise.reject(erro);
+            }
         } finally {
             this.pilhaEscoposExecucao.removerUltimo();
         }
