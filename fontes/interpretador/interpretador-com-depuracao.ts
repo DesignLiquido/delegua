@@ -175,20 +175,6 @@ export class InterpretadorComDepuracao
         }
     }
 
-    override async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
-        let formatoTexto: string = '';
-
-        for (const argumento of argumentos) {
-            const resultadoAvaliacao = await this.avaliar(argumento);
-            let valor = resultadoAvaliacao?.hasOwnProperty('valor')
-                ? resultadoAvaliacao.valor
-                : resultadoAvaliacao;
-            formatoTexto += `${this.paraTexto(valor)} `;
-        }
-
-        return formatoTexto.trimEnd();
-    }
-
     /**
      * Execução de uma escrita na saída configurada, que pode ser `console` (padrão) ou
      * alguma função para escrever numa página Web.

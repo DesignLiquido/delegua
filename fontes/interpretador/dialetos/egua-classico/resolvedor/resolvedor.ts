@@ -17,7 +17,6 @@ import {
     Variavel,
 } from '../../../../construtos';
 import {
-    Aleatorio,
     Bloco,
     CabecalhoPrograma,
     Comentario,
@@ -98,36 +97,44 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.cicloAtual = TipoClasse.NENHUM;
     }
 
+    /* istanbul ignore next */
     resolverValor(objeto: any) {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoSeparador(expressao: Separador): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoComentario(expressao: ComentarioComoConstruto): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoDeleguaFuncao(declaracao: any) {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoArgumentoReferenciaFuncao(
         expressao: ArgumentoReferenciaFuncao
     ): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoAcessoMetodo(expressao: any) {
         throw new Error('Método não implementado.');
     }
@@ -136,106 +143,132 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         return Promise.resolve();
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoTendoComo(declaracao: TendoComo): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoTupla(expressao: Tupla): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoAcessoElementoMatriz(expressao: any): never {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoFalhar(expressao: any): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoConst(declaracao: Const): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoFimPara(declaracao: FimPara): never {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita): never {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha): never {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     avaliar(expressao: any) {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     eVerdadeiro(objeto: any): boolean {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     verificarOperandoNumero(operador: SimboloInterface, operando: any): void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     eIgual(esquerda: any, direita: any): boolean {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     verificarOperandosNumeros(operador: SimboloInterface, direita: any, esquerda: any): void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     procurarVariavel(nome: SimboloInterface, expressao: any) {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoLeia(expressao: Leia): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     executarBloco(declaracoes: Declaracao[], ambiente?: EspacoMemoria): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     paraTexto(objeto: any) {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     executar(declaracao: Declaracao, mostrarResultado: boolean) {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     interpretar(
         declaracoes: Declaracao[],
         manterAmbiente?: boolean
@@ -243,6 +276,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     finalizacao(): void {
         throw new Error('Método não implementado.');
     }
@@ -314,6 +348,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         return null;
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): any {
         throw new Error('Método não implementado.');
     }
@@ -345,12 +380,12 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.funcaoAtual = enclosingFunc;
     }
 
-    visitarDeclaracaoDefinicaoFuncao(declaracao: any): any {
+    visitarDeclaracaoDefinicaoFuncao(declaracao: any): Promise<any> {
         this.declarar(declaracao.simbolo);
         this.definir(declaracao.simbolo);
 
         this.resolverFuncao(declaracao.funcao, TipoFuncao.FUNÇÃO);
-        return null;
+        return Promise.resolve(null);
     }
 
     visitarExpressaoFuncaoConstruto(declaracao: any): any {
@@ -514,9 +549,11 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         if (declaracao.inicializador !== null) {
             this.resolver(declaracao.inicializador);
         }
+
         if (declaracao.condicao !== null) {
             this.resolver(declaracao.condicao);
         }
+        
         if (declaracao.incrementar !== null) {
             this.resolver(declaracao.incrementar);
         }
@@ -625,10 +662,6 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         }
         this.resolverLocal(expressao, expressao.palavraChave);
         return null;
-    }
-
-    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
-        throw new Error('Método não implementado.');
     }
 
     async resolver(declaracoes: Construto | Declaracao | Declaracao[]): Promise<RetornoResolvedor> {

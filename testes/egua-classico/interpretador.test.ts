@@ -3,15 +3,22 @@ import { InterpretadorEguaClassico } from "../../fontes/interpretador/dialetos";
 import { LexadorEguaClassico } from "../../fontes/lexador/dialetos";
 
 describe('Interpretador (Égua Clássico)', () => {
-    describe('interpretar()', () => {
-        let lexador: LexadorEguaClassico;
-        let avaliadorSintatico: AvaliadorSintaticoEguaClassico;
-        let interpretador: InterpretadorEguaClassico;
+    let lexador: LexadorEguaClassico;
+    let avaliadorSintatico: AvaliadorSintaticoEguaClassico;
+    let interpretador: InterpretadorEguaClassico;
 
+    let _saidas: string[] = [];
+    const funcaoSaida = (texto: string) => {
+        _saidas.push(texto);
+    }
+
+    describe('interpretar()', () => {
         beforeEach(() => {
+            _saidas = [];
             lexador = new LexadorEguaClassico();
             avaliadorSintatico = new AvaliadorSintaticoEguaClassico();
             interpretador = new InterpretadorEguaClassico(process.cwd());
+            interpretador.funcaoDeRetorno = funcaoSaida;
         });
 
         describe('Cenários de sucesso', () => {

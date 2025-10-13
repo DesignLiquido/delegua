@@ -29,7 +29,6 @@ import {
     Variavel,
 } from '../../../construtos';
 import {
-    Aleatorio,
     CabecalhoPrograma,
     Classe,
     Comentario,
@@ -233,10 +232,6 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
     visitarExpressaoAgrupamento(expressao: any) {
         return this.avaliar(expressao.expressao);
-    }
-
-    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
-        throw new Error('Método não implementado');
     }
 
     eVerdadeiro(objeto: any): boolean {
@@ -901,7 +896,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         }
     }
 
-    visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
+    visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): void {
         const funcao = new DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
     }

@@ -54,7 +54,6 @@ import {
     Sustar,
     Declaracao,
     Falhar,
-    Aleatorio,
     CabecalhoPrograma,
     TendoComo,
     Comentario,
@@ -560,10 +559,6 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         }
 
         this.codigoFormatado += ')';
-    }
-
-    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
-        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoDefinirValor(expressao: DefinirValor) {

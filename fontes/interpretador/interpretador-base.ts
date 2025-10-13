@@ -1,7 +1,6 @@
 import hrtime from 'browser-process-hrtime';
 
 import {
-    Aleatorio,
     Bloco,
     CabecalhoPrograma,
     Classe,
@@ -1676,13 +1675,13 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
     }
 
-    visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
+    visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> {
         const funcao = new DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
 
-        return {
+        return Promise.resolve({
             declaracao: funcao
-        };
+        });
     }
 
     /**
@@ -1821,10 +1820,6 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     visitarExpressaoIsto(expressao: any): any {
         return this.procurarVariavel(expressao.palavraChave);
-    }
-
-    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
-        return Promise.resolve();
     }
 
     async visitarExpressaoDicionario(expressao: Dicionario): Promise<any> {

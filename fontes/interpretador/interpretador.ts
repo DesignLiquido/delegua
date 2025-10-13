@@ -242,17 +242,17 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         return valorFinal;
     }
 
-    override visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
+    override visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> {
         const funcao = new DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
         // TODO: Depreciar essa abordagem a favor do uso por referências?
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
         this.pilhaEscoposExecucao.registrarReferenciaFuncao(declaracao.id, funcao);
 
-        return {
+        return Promise.resolve({
             tipo: `função<${funcao.declaracao.tipo || 'qualquer'}>`,
             tipoExplicito: funcao.declaracao.tipoExplicito,
             declaracao: funcao
-        };
+        });
     }
 
     protected async logicaComumExecucaoEnquanto(enquanto: EnquantoInterface, acumularRetornos: boolean) {

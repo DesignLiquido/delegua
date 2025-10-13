@@ -32,10 +32,8 @@ import {
     Variavel,
     Vetor,
 } from '../construtos';
-import { ListaCompreensao } from '../construtos/lista-compreensao';
 
 import {
-    Aleatorio,
     Bloco,
     CabecalhoPrograma,
     Classe,
@@ -54,7 +52,6 @@ import {
     Importar,
     InicioAlgoritmo,
     Para,
-    ParaCada,
     Retorna,
     Se,
     Sustar,
@@ -67,14 +64,13 @@ import {
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
 
 export interface VisitanteComumInterface {
-    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> | void;
     visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> | void;
     visitarDeclaracaoClasse(declaracao: Classe): Promise<any> | void;
     visitarDeclaracaoComentario(declaracao: Comentario): Promise<any> | void;
     visitarDeclaracaoConst(declaracao: Const): Promise<any> | void;
     visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any> | void;
     visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<any> | void;
-    visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): void;
+    visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> | void;
     visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> | void;
     visitarDeclaracaoEscolha(declaracao: Escolha): Promise<any> | void;
     visitarDeclaracaoEscreva(declaracao: Escreva): Promise<any> | void;

@@ -19,7 +19,6 @@ import {
     Variavel,
 } from '../../../construtos';
 import {
-    Aleatorio,
     Bloco,
     CabecalhoPrograma,
     Classe,
@@ -109,10 +108,12 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
     }
 
+    /* istanbul ignore next */
     visitarExpressaoSeparador(expressao: Separador): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoComentario(expressao: ComentarioComoConstruto): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
@@ -129,20 +130,24 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         return objeto;
     }
 
+    /* istanbul ignore next */
     visitarExpressaoArgumentoReferenciaFuncao(
         expressao: ArgumentoReferenciaFuncao
     ): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
@@ -151,42 +156,52 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         return Promise.resolve();
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoTendoComo(declaracao: TendoComo): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoTupla(expressao: Tupla): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoAcessoElementoMatriz(expressao: any): never {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoFalhar(expressao: any): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
         throw new Error('Método não implementado.');
     }
@@ -199,9 +214,9 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         // Descomente o código abaixo quando precisar detectar expressões undefined ou nulas.
         // Por algum motivo o depurador do VSCode não funciona direito aqui
         // com breakpoint condicional.
-        if (expressao === null || expressao === undefined) {
+        /* if (expressao === null || expressao === undefined) {
             console.log('Aqui');
-        }
+        } */
 
         return await expressao.aceitar(this);
     }
@@ -210,6 +225,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         return await this.avaliar(expressao.expressao);
     }
 
+    /* istanbul ignore next */
     visitarExpressaoUnaria(expressao: any): never {
         throw new Error('Método não implementado');
     }
@@ -342,10 +358,12 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         }
     }
 
+    /* istanbul ignore next */
     visitarExpressaoDeChamada(expressao: any): never {
         throw new Error('Método não implementado');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoDeAtribuicao(expressao: Atribuir): never {
         throw new Error('Método não implementado');
     }
@@ -358,6 +376,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         return this.procurarVariavel(expressao.simbolo);
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoDeExpressao(declaracao: Expressao): never {
         throw new Error('Método não implementado');
     }
@@ -378,6 +397,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         );
     }
 
+    /* istanbul ignore next */
     visitarExpressaoLogica(expressao: any): never {
         throw new Error('Método não implementado');
     }
@@ -410,14 +430,17 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         return null;
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoPara(declaracao: Para) {
         return Promise.reject('Método não implementado');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoFimPara(declaracao: FimPara): never {
         throw new Error('Método não implementado');
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoFazer(declaracao: Fazer): never {
         throw new Error('Método não implementado');
     }
@@ -446,18 +469,22 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         return resultado;
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoEscolha(declaracao: Escolha): never {
         throw new Error('Método não implementado');
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoTente(declaracao: Tente): never {
         throw new Error('Método não implementado');
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoEnquanto(declaracao: Enquanto): never {
         throw new Error('Método não implementado');
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoImportar(declaracao: Importar): never {
         throw new Error('Método não implementado');
     }
@@ -509,9 +536,12 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         }
     }
 
+    /* istanbul ignore next */
     executarBloco(declaracoes: Declaracao[], ambiente?: EspacoMemoria): Promise<any> {
         throw new Error('Método não implementado');
     }
+
+    /* istanbul ignore next */
     visitarExpressaoBloco(declaracao: Bloco): Promise<any> {
         throw new Error('Método não implementado');
     }
@@ -547,70 +577,87 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         return null;
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any> {
         throw new Error('Método não implementado');
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoConst(declaracao: Const): Promise<any> {
         throw new Error('Método não implementado');
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any> {
         throw new Error('Método não implementado');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra {
         throw new Error('Método não implementado');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra {
         throw new Error('Método não implementado');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
         throw new Error('Método não implementado');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoFuncaoConstruto(expressao: any): never {
         throw new Error('Método não implementado');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoAtribuicaoPorIndice(expressao: any): Promise<any> {
         throw new Error('Método não implementado');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoAcessoIndiceVariavel(expressao: any): never {
         throw new Error('Método não implementado');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoDefinirValor(expressao: any): never {
         throw new Error('Método não implementado');
     }
 
-    visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
+    /* istanbul ignore next */
+    visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): never {
         throw new Error('Método não implementado');
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoClasse(declaracao: Classe): never {
         throw new Error('Método não implementado');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoAcessoMetodoOuPropriedade(expressao: any): never {
         throw new Error('Método não implementado');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoIsto(expressao: any): never {
         throw new Error('Método não implementado');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoDicionario(expressao: any): never {
         throw new Error('Método não implementado');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoVetor(expressao: any): never {
         throw new Error('Método não implementado');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoSuper(expressao: Super): never {
         throw new Error('Método não implementado');
     }
@@ -652,9 +699,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         }
         return resultado;
     }
-    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
-        throw new Error('Método não implementado.');
-    }
+
     /**
      * Executa o último escopo empilhado no topo na pilha de escopos do interpretador.
      * Esse método pega exceções, mas apenas as devolve.

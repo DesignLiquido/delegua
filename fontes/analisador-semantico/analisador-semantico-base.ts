@@ -34,7 +34,6 @@ import {
     Declaracao,
     TendoComo,
     InicioAlgoritmo,
-    Aleatorio,
     CabecalhoPrograma,
     Classe,
     Const,
@@ -121,10 +120,6 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
         return Promise.resolve();
     }
 
-    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
-        return Promise.resolve();
-    }
-
     visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {
         return Promise.resolve();
     }
@@ -153,8 +148,8 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
         return Promise.resolve();
     }
 
-    visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): void {
-        // Nada acontece.
+    visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> {
+        return Promise.resolve();
     }
 
     visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {

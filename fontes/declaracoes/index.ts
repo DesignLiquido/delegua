@@ -1,4 +1,3 @@
-export * from './aleatorio';
 export * from './bloco';
 export * from './cabecalho-programa';
 export * from './classe';
