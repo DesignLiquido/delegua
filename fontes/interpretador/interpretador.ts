@@ -756,6 +756,17 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             return objeto[expressao.simbolo.lexema];
         }
 
+        // String do JavaScript, ou seja, primitiva de texto.
+        if (objeto.constructor === String) {
+            if (!(expressao.simbolo.lexema in primitivasTexto)) {
+                throw new ErroEmTempoDeExecucao(expressao.simbolo, `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo texto.`);
+            }
+
+            const metodoDePrimitivaTexto: Function =
+                primitivasTexto[expressao.simbolo.lexema].implementacao;
+            return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto);
+        }
+
         // A partir daqui, presume-se que o objeto é uma das estruturas
         // de Delégua.
         if (objeto instanceof DeleguaModulo) {

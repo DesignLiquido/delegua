@@ -175,7 +175,7 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
 
             if (caractere === delimitador) {
                 this.avancar();
-                this.adicionarSimbolo(tiposDeSimbolos.TEXTO, textoCompleto);
+                this.adicionarSimbolo(tiposDeSimbolos.TEXTO, textoCompleto.replace(/\\n/g, '\n'));
                 return;
             }
 
