@@ -4,7 +4,11 @@ Qualquer pessoa pode sugerir melhoramentos para a linguagem ou correções de _b
 
 Seguimos o padrão do GitHub para modificações. Modificações são feitas por meio de _Pull Requests_, que nos mostram quais partes do código mudaram da versão atual para a proposta de modificação.
 
-Havendo aprovação dos mantenedores do projeto, juntamos a modificação ao código atual (_merge_) e lançamos novas versões de tempos em tempos. 
+Havendo aprovação dos mantenedores do projeto, juntamos a modificação ao código atual (_merge_) e lançamos novas 
+versões de tempos em tempos.
+
+### Pituguês
+Para contribuições voltadas ao dialeto/linguagem de programação Pituguês, você pode encontrar o [guia de contribuição neste link](https://github.com/DesignLiquido/pitugues-docs/blob/principal/CONTRIBUTING.md).
 
 ## Conhecimentos e Recomendações
 
