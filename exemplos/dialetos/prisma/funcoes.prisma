@@ -1,23 +1,23 @@
 // Exemplo de funções em Prisma
 
 // Função simples
-funcao saudacao(nome) {
-    retorna "Olá, " + nome + "!";
-}
+funcao saudacao(nome)
+    retorne "Olá, " + nome + "!";
+fim
 
 // Função com parâmetros padrão
-funcao calcularArea(largura, altura = 1) {
-    retorna largura * altura;
-}
+funcao calcularArea(largura, altura)
+    retorne largura * altura;
+fim
 
 // Função recursiva - fibonacci
-funcao fibonacci(n) {
-    se (n <= 1) {
+funcao fibonacci(n)
+    se (n <= 1) entao
         retorna n;
-    } senão {
+    senao
         retorna fibonacci(n - 1) + fibonacci(n - 2);
-    }
-}
+    fim
+fim
 
 // Testando as funções
 local mensagem = saudacao("Maria");

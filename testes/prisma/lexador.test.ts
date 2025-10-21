@@ -9,14 +9,14 @@ describe('Lexador (Prisma)', () => {
         });
 
         describe('Cenários de sucesso', () => {
-            it('Sucesso - Código vazio', () => {
+            it('Código vazio', () => {
                 const resultado = lexador.mapear([''], -1);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado.erros).toHaveLength(0);
             });
 
-            it('Sucesso - Olá mundo', () => {
+            it('Olá mundo', () => {
                 const resultado = lexador.mapear(
                     ['imprima("Olá mundo");'],
                     -1
@@ -35,7 +35,7 @@ describe('Lexador (Prisma)', () => {
                 );
             });
 
-            it('Sucesso - Operação Matemática (soma e igualdade)', () => {
+            it('Operação Matemática (soma e igualdade)', () => {
                 const resultado = lexador.mapear(['2 + 3 == 5'], -1);
 
                 expect(resultado).toBeTruthy();
@@ -49,7 +49,7 @@ describe('Lexador (Prisma)', () => {
                 );
             });
 
-            it('Sucesso - Atribuição de variável e Operação Matemática', () => {
+            it('Atribuição de variável e Operação Matemática', () => {
                 const resultado = lexador.mapear(
                     ['local numero = 1 * 2 - 3 % 4;'],
                     -1
@@ -73,7 +73,7 @@ describe('Lexador (Prisma)', () => {
                 );
             });
 
-            it('Sucesso - Declaração de função', () => {
+            it('Declaração de função', () => {
                 const resultado = lexador.mapear(
                     ['funcao teste() { retorna 42; }'],
                     -1
@@ -95,7 +95,7 @@ describe('Lexador (Prisma)', () => {
                 );
             });
 
-            it('Sucesso - Estrutura condicional', () => {
+            it('Estrutura condicional', () => {
                 const resultado = lexador.mapear(
                     ['se (x > 0) { imprima("positivo"); }'],
                     -1
@@ -117,7 +117,7 @@ describe('Lexador (Prisma)', () => {
                 );
             });
 
-            it('Sucesso - Array/Vetor', () => {
+            it('Array/Vetor', () => {
                 const resultado = lexador.mapear(
                     ['local lista = [1, 2, 3];'],
                     -1
@@ -140,7 +140,7 @@ describe('Lexador (Prisma)', () => {
                 );
             });
 
-            it('Sucesso - Comentários', () => {
+            it('Comentários', () => {
                 const resultado = lexador.mapear(
                     [
                         '// Comentário de linha',
@@ -165,7 +165,7 @@ describe('Lexador (Prisma)', () => {
                 expect(resultado.simbolos.filter(s => s.lexema.includes('Comentário'))).toHaveLength(0);
             });
 
-            it('Sucesso - Palavras-chave booleanas', () => {
+            it('Palavras-chave booleanas', () => {
                 const resultado = lexador.mapear(
                     ['local ativo = verdadeiro; local inativo = falso;'],
                     -1

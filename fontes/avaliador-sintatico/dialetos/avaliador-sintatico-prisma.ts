@@ -28,19 +28,14 @@ import {
     Para,
     Continua,
     Retorna,
-    Escolha,
     Importar,
-    Tente,
-    Fazer,
     Var,
     FuncaoDeclaracao,
     Classe,
     Declaracao,
     Expressao,
     Bloco,
-    Sustar,
-    Falhar,
-    ParaCada,
+    Sustar
 } from '../../declaracoes';
 
 import { ParametroInterface, SimboloInterface } from '../../interfaces';
@@ -58,7 +53,6 @@ import {
 import { PilhaEscopos } from '../pilha-escopos';
 import { InformacaoEscopo } from '../informacao-escopo';
 import {
-    logicaDescobertaRetornoFuncao as logicaValidacaoRetornoFuncao,
     registrarPrimitiva,
 } from '../comum';
 import { InformacaoElementoSintatico } from '../../informacao-elemento-sintatico';
@@ -642,11 +636,9 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
     protected blocoEscopo(): any[] {
         this.pilhaEscopos.empilhar(new InformacaoEscopo());
         
-        this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' antes do bloco.");
-        
         let declaracoes: Array<Declaracao> = [];
         
-        while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
+        while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.FIM) && !this.estaNoFinal()) {
             const retornoDeclaracao = this.resolverDeclaracaoForaDeBloco();
             if (Array.isArray(retornoDeclaracao)) {
                 declaracoes = declaracoes.concat(retornoDeclaracao);
@@ -655,7 +647,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             }
         }
         
-        this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após o bloco.");
+        this.consumir(tiposDeSimbolos.FIM, "Esperado 'fim' após o bloco.");
         
         this.pilhaEscopos.removerUltimo();
         return declaracoes;
@@ -698,18 +690,56 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
     }
 
     declaracaoSe(): Se {
+        const simboloSe: SimboloInterface = this.simbolos[this.atual];
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'se'.");
         const condicao = this.expressao();
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após condição do se.");
 
-        const caminhoEntao = this.resolverDeclaracao();
+        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ENTAO)) {
+            this.consumir(
+                this.simbolos[this.atual].tipo,
+                "Esperado palavra reservada 'entao' ou 'então' após condição em declaração 'se'."
+            );
+        }
+
+        const declaracoes = [];
+        do {
+            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
+        } while (
+            !this.estaNoFinal() &&
+            ![tiposDeSimbolos.SENAO, tiposDeSimbolos.SENÃO, tiposDeSimbolos.FIM].includes(
+                this.simbolos[this.atual].tipo
+            )
+        );
 
         let caminhoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO, tiposDeSimbolos.SENÃO)) {
-            caminhoSenao = this.resolverDeclaracao();
+            const simboloSenao = this.simbolos[this.atual - 1];
+            const declaracoesSenao = [];
+
+            do {
+                declaracoesSenao.push(this.resolverDeclaracaoForaDeBloco());
+            } while (![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo));
+
+            caminhoSenao = new Bloco(
+                this.hashArquivo,
+                Number(simboloSenao.linha),
+                declaracoesSenao.filter((d) => d)
+            );
         }
 
-        return new Se(condicao, caminhoEntao, [], caminhoSenao);
+        this.consumir(tiposDeSimbolos.FIM, "Esperado palavra-chave 'fimse' para fechamento de declaração 'se'.");
+
+        return new Se(
+            condicao,
+            new Bloco(
+                this.hashArquivo,
+                Number(simboloSe.linha),
+                declaracoes.filter((d) => d)
+            ),
+            [],
+            caminhoSenao
+        );
     }
 
     declaracaoQuebre() {
@@ -849,7 +879,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
                 // Ignora ponto e vírgula supérfluo
                 this.avancarEDevolverAnterior();
                 return null;
-            case tiposDeSimbolos.CHAVE_ESQUERDA:
+            case tiposDeSimbolos.ENTAO:
                 const simboloInicioBloco: SimboloInterface = this.simboloAtual();
                 return new Bloco(
                     simboloInicioBloco.hashArquivo,
