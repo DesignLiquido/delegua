@@ -1,6 +1,6 @@
 import { Lexador } from '../../fontes/lexador';
 import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
-import { Bloco, Classe, Const, Escreva, Expressao, FuncaoDeclaracao, Retorna, TendoComo, Var } from '../../fontes/declaracoes';
+import { Bloco, Classe, Const, Escreva, Expressao, FuncaoDeclaracao, ParaCada, Retorna, TendoComo, Var } from '../../fontes/declaracoes';
 import { Binario, Chamada, FuncaoConstruto, Leia, Literal, Variavel } from '../../fontes/construtos';
 
 describe('Avaliador sintático', () => {
@@ -176,7 +176,7 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                     const declaracao = retornoAvaliadorSintatico.declaracoes[0];
-                    expect(declaracao.constructor.name).toBe('Var');
+                    expect(declaracao.constructor).toBe(Var);
                     const declaracaoTipada = declaracao as Var;
                     expect(declaracaoTipada.tipo).toBe('número');
                 });
@@ -195,7 +195,7 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
                     const declaracao = retornoAvaliadorSintatico.declaracoes[1];
-                    expect(declaracao.constructor.name).toBe('Var');
+                    expect(declaracao.constructor).toBe(Var);
                     const declaracaoTipada = declaracao as Var;
                     expect(declaracaoTipada.tipo).toBe('número');
                 });
@@ -214,7 +214,7 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
                     const declaracao = retornoAvaliadorSintatico.declaracoes[1];
-                    expect(declaracao.constructor.name).toBe('Var');
+                    expect(declaracao.constructor).toBe(Var);
                     const declaracaoTipada = declaracao as Var;
                     expect(declaracaoTipada.tipo).toBe('número');
                 });
@@ -232,7 +232,7 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                     const declaracao = retornoAvaliadorSintatico.declaracoes[0];
-                    expect(declaracao.constructor.name).toBe('Const');
+                    expect(declaracao.constructor).toBe(Const);
                     const declaracaoTipada = declaracao as Const;
                     expect(declaracaoTipada.tipo).toBe('texto');
                 });
@@ -251,7 +251,7 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
                     const declaracao = retornoAvaliadorSintatico.declaracoes[1];
-                    expect(declaracao.constructor.name).toBe('Const');
+                    expect(declaracao.constructor).toBe(Const);
                     const declaracaoTipada = declaracao as Const;
                     expect(declaracaoTipada.tipo).toBe('texto');
                 });
@@ -270,7 +270,7 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
                     const declaracao = retornoAvaliadorSintatico.declaracoes[1];
-                    expect(declaracao.constructor.name).toBe('Const');
+                    expect(declaracao.constructor).toBe(Const);
                     const declaracaoTipada = declaracao as Const;
                     expect(declaracaoTipada.tipo).toBe('texto');
                 });
@@ -344,7 +344,7 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                     const declaracao = retornoAvaliadorSintatico.declaracoes[0];
-                    expect(declaracao.constructor.name).toBe('ParaCada');
+                    expect(declaracao.constructor).toBe(ParaCada);
                 });
 
                 it('Para cada com vetor variável', () => {

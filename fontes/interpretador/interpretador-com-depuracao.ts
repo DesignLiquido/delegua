@@ -175,20 +175,6 @@ export class InterpretadorComDepuracao
         }
     }
 
-    override async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
-        let formatoTexto: string = '';
-
-        for (const argumento of argumentos) {
-            const resultadoAvaliacao = await this.avaliar(argumento);
-            let valor = resultadoAvaliacao?.hasOwnProperty('valor')
-                ? resultadoAvaliacao.valor
-                : resultadoAvaliacao;
-            formatoTexto += `${this.paraTexto(valor)} `;
-        }
-
-        return formatoTexto.trimEnd();
-    }
-
     /**
      * Execução de uma escrita na saída configurada, que pode ser `console` (padrão) ou
      * alguma função para escrever numa página Web.
@@ -683,17 +669,6 @@ export class InterpretadorComDepuracao
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         this.escopoAtual++;
-    }
-
-    /**
-     * Reimplementando este método aqui porque a execução por depuração não requer
-     * mostrar o resultado em momento algum, ou lidar com o retorno.
-     * @param declaracao A declaracao a ser executada.
-     * @param mostrarResultado Sempre falso.
-     * @returns O resultado da execução.
-     */
-    override async executar(declaracao: Declaracao, mostrarResultado = false): Promise<any> {
-        return await declaracao.aceitar(this);
     }
 
     /**

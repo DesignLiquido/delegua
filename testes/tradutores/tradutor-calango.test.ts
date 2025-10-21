@@ -4,8 +4,11 @@ describe('Tradutor Calango -> Delégua', () => {
     const tradutor: TradutorCalango = new TradutorCalango();
 
      describe('Código', () => {
-        it.skip('escreva -> escreva', () => {
-            const codigo = `escreva('Olá Mundo')`;
+        it('escreva -> escreva', () => {
+            const codigo = `algoritmo semNome;
+            principal
+	            escreva("Olá mundo");
+            fimPrincipal`;
 
             const resultado = tradutor.traduzir(codigo);
             expect(resultado).toBeTruthy();

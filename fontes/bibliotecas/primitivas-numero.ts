@@ -1,4 +1,4 @@
-import { InformacaoVariavelOuConstante } from '../informacao-variavel-ou-constante';
+import { InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
 import { InterpretadorInterface, PrimitivaInterface } from '../interfaces';
 
 export default {
@@ -68,7 +68,7 @@ export default {
     formatar: {
         tipoRetorno: 'texto',
         argumentos: [
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'opcoesFormatacao',
                 'dicionário',
                 false,

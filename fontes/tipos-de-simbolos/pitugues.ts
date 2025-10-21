@@ -1,3 +1,5 @@
+
+
 export default {
     ADICAO: 'ADICAO',
     BIT_AND: 'BIT_AND',
@@ -11,6 +13,7 @@ export default {
     CLASSE: 'CLASSE',
     COLCHETE_DIREITO: 'COLCHETE_DIREITO',
     COLCHETE_ESQUERDO: 'COLCHETE_ESQUERDO',
+    COMENTARIO: 'COMENTARIO',
     COMO: 'COMO',
     CONSTRUTOR: 'CONSTRUTOR',
     CONTINUA: 'CONTINUA',
@@ -35,7 +38,6 @@ export default {
     FINALMENTE: 'FINALMENTE',
     FUNCAO: 'FUNCAO',
     FUNÇÃO: 'FUNÇÃO',
-    HERDA: 'HERDA',
     IDENTIFICADOR: 'IDENTIFICADOR',
     IMPORTAR: 'IMPORTAR',
     ISTO: 'ISTO',
@@ -61,6 +63,7 @@ export default {
     PEGUE: 'PEGUE',
     PONTO: 'PONTO',
     PONTO_E_VIRGULA: 'PONTO_E_VIRGULA',
+    QUEBRAR: 'QUEBRAR',
     RETORNA: 'RETORNA',
     SUBTRACAO: 'SUBTRACAO',
     SE: 'SE',

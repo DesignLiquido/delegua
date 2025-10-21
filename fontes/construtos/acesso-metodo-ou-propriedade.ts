@@ -26,7 +26,7 @@ export class AcessoMetodoOuPropriedade<TTipoSimbolo extends string = string> imp
 
         this.objeto = objeto;
         this.simbolo = simbolo;
-        this.tipo = objeto.tipo || tipo;
+        this.tipo = tipo || objeto.tipo;
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {

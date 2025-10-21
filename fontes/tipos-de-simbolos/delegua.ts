@@ -74,6 +74,7 @@ export default {
     PEGUE: 'PEGUE',
     PONTO: 'PONTO',
     PONTO_E_VIRGULA: 'PONTO_E_VIRGULA',
+    QUEBRAR: 'QUEBRAR',
     RETORNA: 'RETORNA',
     SUBTRACAO: 'SUBTRACAO',
     SE: 'SE',

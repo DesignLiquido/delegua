@@ -1,6 +1,5 @@
 import { Binario, Chamada, Construto, FuncaoConstruto, Leia, Logico, Unario } from '../construtos';
 import {
-    Bloco,
     Classe,
     Continua,
     Declaracao,

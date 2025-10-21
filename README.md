@@ -131,3 +131,9 @@ Para instalar no seu computador ou na sua aplicação, veja o projeto [@designli
 * Para contribuições, por favor, leia o nosso [Guia de Contribuição](./CONTRIBUINDO.md) antes de submeter uma _Pull Request_.
 * [Veja nossas discussões atuais](https://github.com/DesignLiquido/delegua/discussions).
 * [Temos um grupo no Discord](https://discord.gg/4tBxWSSbdV).
+
+## Quem já Contribuiu
+
+<a href="https://github.com/DesignLiquido/delegua/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=DesignLiquido/delegua" />
+</a>

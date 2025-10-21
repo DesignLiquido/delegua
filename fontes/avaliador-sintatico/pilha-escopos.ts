@@ -1,7 +1,8 @@
 import { FuncaoDeclaracao } from '../declaracoes';
-import { PilhaInterface, VariavelInterface } from '../interfaces';
+import { PilhaInterface } from '../interfaces';
 import { InformacaoEscopo } from './informacao-escopo';
-import { InformacaoVariavelOuConstante } from '../informacao-variavel-ou-constante';
+import { InformacaoElementoSintatico as InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
+import { ElementoMontaoTipos } from './elemento-montao-tipos';
 
 export class PilhaEscopos implements PilhaInterface<InformacaoEscopo> {
     pilha: InformacaoEscopo[];
@@ -29,23 +30,39 @@ export class PilhaEscopos implements PilhaInterface<InformacaoEscopo> {
     }
 
     obterBibliotecaGlobal(nome: string) {
-        return this.pilha[0].variaveisEConstantes[nome];
+        return this.pilha[0].elementosSintaticos[nome];
     }
 
     obterTipoVariavelPorNome(nome: string): string {
         for (let i = 1; i <= this.pilha.length; i++) {
             const informacaoEscopo = this.pilha[this.pilha.length - i];
-            if (informacaoEscopo.variaveisEConstantes[nome] !== undefined) {
-                return informacaoEscopo.variaveisEConstantes[nome].tipo;
+            if (informacaoEscopo.elementosSintaticos[nome] !== undefined) {
+                return informacaoEscopo.elementosSintaticos[nome].tipo;
             }
         }
 
         throw new Error("Variável não definida: '" + nome + "'.");
     }
 
-    definirInformacoesVariavel(nomeVariavel: string, informacoes: InformacaoVariavelOuConstante) {
+    obterElementoMontaoTipos(nome: string): ElementoMontaoTipos {
+        for (let i = 1; i <= this.pilha.length; i++) {
+            const informacaoEscopo = this.pilha[this.pilha.length - i];
+            if (informacaoEscopo.elementosSintaticos[nome] !== undefined) {
+                const elementoMontaoTipos = informacaoEscopo.elementosSintaticos[nome];
+                if (!(elementoMontaoTipos instanceof ElementoMontaoTipos)) {
+                    throw new Error(`Elemento não é um dicionário ou objeto por não pertencer ao montão de tipos: ${nome}`);
+                }
+
+                return elementoMontaoTipos;
+            }
+        }
+
+        throw new Error("Elemento não existente no montão de tipos: '" + nome + "'.");
+    }
+
+    definirInformacoesVariavel(nomeVariavel: string, informacoes: InformacaoElementoSintatico | ElementoMontaoTipos) {
         const topoDaPilha = this.topoDaPilha();
-        topoDaPilha.variaveisEConstantes[nomeVariavel] = informacoes;
+        topoDaPilha.elementosSintaticos[nomeVariavel] = informacoes;
     }
 
     registrarReferenciaFuncao(nome: string, definicao: FuncaoDeclaracao) {

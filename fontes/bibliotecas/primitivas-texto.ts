@@ -1,6 +1,6 @@
 import { InterpretadorInterface } from '../interfaces';
 import { PrimitivaInterface } from '../interfaces/primitiva-interface';
-import { InformacaoVariavelOuConstante } from '../informacao-variavel-ou-constante';
+import { InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
 
 export default {
     aparar: {
@@ -60,7 +60,7 @@ export default {
     concatenar: {
         tipoRetorno: 'texto',
         argumentos: [
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'outroTexto',
                 'texto',
                 true,
@@ -87,14 +87,14 @@ export default {
     dividir: {
         tipoRetorno: 'texto[]',
         argumentos: [
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'delimitador',
                 'texto',
                 true,
                 [],
                 'O delimitador usado para dividir o texto.'
             ),
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'limite',
                 'número',
                 false,
@@ -128,14 +128,14 @@ export default {
     fatiar: {
         tipoRetorno: 'texto',
         argumentos: [
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'inicio',
                 'número',
                 true,
                 [],
                 'A posição inicial da fatia.'
             ),
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'fim',
                 'número',
                 false,
@@ -166,7 +166,7 @@ export default {
     inclui: {
         tipoRetorno: 'texto',
         argumentos: [
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'elemento',
                 'texto',
                 true,
@@ -251,14 +251,14 @@ export default {
     substituir: {
         tipoRetorno: 'texto',
         argumentos: [
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'textoASerSubstituido',
                 'texto',
                 true,
                 [],
                 'Texto a ser substituído.'
             ),
-            new InformacaoVariavelOuConstante('substituto', 'texto', true, [], 'A substituição'),
+            new InformacaoElementoSintatico('substituto', 'texto', true, [], 'A substituição'),
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
@@ -280,14 +280,14 @@ export default {
     subtexto: {
         tipoRetorno: 'texto',
         argumentos: [
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'inicio',
                 'inteiro',
                 true,
                 [],
                 'A posição de início do texto a ser extraído.'
             ),
-            new InformacaoVariavelOuConstante(
+            new InformacaoElementoSintatico(
                 'fim',
                 'inteiro',
                 true,
@@ -329,5 +329,45 @@ export default {
             't.tamanho() // 19\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'texto.tamanho()',
+    },
+    tudoMaiusculo: {
+        tipoRetorno: 'lógico',
+        argumentos: [],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
+            texto: string
+        ): Promise<boolean> => Promise.resolve(texto === texto.toUpperCase()),
+        assinaturaFormato: 'texto.tudoMaiusculo()',
+        documentacao:
+            '# `texto.tudoMaiusculo()` \n\n' +
+            'Devolve verdadeiro se todos os caracteres alfabéticos do texto estão em maiúsculo, e falso em caso contrário.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t1 = "TUDO EM MAIÚSCULO"\n' +
+            'var t2 = "Tudo em Maiúsculo"\n' +
+            't1.tudoMaiusculo() // verdadeiro\n' +
+            't2.tudoMaiusculo() // falso\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.tudoMaiusculo()',
+    },
+    tudoMinusculo: {
+        tipoRetorno: 'lógico',
+        argumentos: [],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
+            texto: string
+        ): Promise<boolean> => Promise.resolve(texto === texto.toLowerCase()),
+        assinaturaFormato: 'texto.tudoMinusculo()',
+        documentacao:
+            '# `texto.tudoMinusculo()` \n\n' +
+            'Devolve verdadeiro se todos os caracteres alfabéticos do texto estão em minúsculo, e falso em caso contrário.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t1 = "tudo em minúsculo"\n' +
+            'var t2 = "Tudo em Minúsculo"\n' +
+            't1.tudoMinusculo() // verdadeiro\n' +
+            't2.tudoMinusculo() // falso\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.tudoMinusculo()',
     },
 } as { [nome: string]: PrimitivaInterface };

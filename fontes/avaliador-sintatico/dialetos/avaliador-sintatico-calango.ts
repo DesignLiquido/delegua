@@ -27,7 +27,7 @@ import { RetornoLexador, SimboloInterface, RetornoAvaliadorSintatico } from '../
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 import { PilhaEscopos } from '../pilha-escopos';
 import { InformacaoEscopo } from '../informacao-escopo';
-import { InformacaoVariavelOuConstante } from '../../informacao-variavel-ou-constante';
+import { InformacaoElementoSintatico } from '../../informacao-elemento-sintatico';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/calango';
 
@@ -174,7 +174,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
 
             this.pilhaEscopos.definirInformacoesVariavel(
                 identificador.lexema,
-                new InformacaoVariavelOuConstante(identificador.lexema, 'inteiro')
+                new InformacaoElementoSintatico(identificador.lexema, 'inteiro')
             );
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 

@@ -54,7 +54,6 @@ import {
     Sustar,
     Declaracao,
     Falhar,
-    Aleatorio,
     CabecalhoPrograma,
     TendoComo,
     Comentario,
@@ -562,10 +561,6 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado += ')';
     }
 
-    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
-        throw new Error('Método não implementado.');
-    }
-
     visitarExpressaoDefinirValor(expressao: DefinirValor) {
         this.formatarDeclaracaoOuConstruto(expressao.objeto);
         this.codigoFormatado += `.${expressao.nome.lexema} = `;
@@ -658,7 +653,13 @@ export class FormatadorDelegua implements VisitanteComumInterface {
 
     visitarExpressaoLiteral(expressao: Literal): void {
         if (typeof expressao.valor === 'string') {
-            this.codigoFormatado += `'${expressao.valor}'`;
+            const valorStr = (expressao.valor as string)
+                .replace(/\\/g, '\\\\') 
+                .replace(/\r/g, '\\r')
+                .replace(/\n/g, '\\n')
+                .replace(/\t/g, '\\t')
+                .replace(/'/g, "\\'");
+            this.codigoFormatado += `'${valorStr}'`;
             return;
         }
 

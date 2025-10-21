@@ -34,7 +34,6 @@ import {
     Declaracao,
     TendoComo,
     InicioAlgoritmo,
-    Aleatorio,
     CabecalhoPrograma,
     Classe,
     Const,
@@ -92,7 +91,7 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     adicionarDiagnostico(
         simbolo: SimboloInterface,
         mensagem: string,
-        severidade: DiagnosticoSeveridade = DiagnosticoSeveridade.ERRO
+        severidade: DiagnosticoSeveridade = DiagnosticoSeveridade.AVISO
     ): void {
         this.diagnosticos.push({
             simbolo: simbolo,
@@ -118,10 +117,6 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     }
 
     visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> | void {
-        return Promise.resolve();
-    }
-
-    visitarDeclaracaoAleatorio(declaracao: Aleatorio): Promise<any> {
         return Promise.resolve();
     }
 
@@ -153,8 +148,8 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
         return Promise.resolve();
     }
 
-    visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): void {
-        // Nada acontece.
+    visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> {
+        return Promise.resolve();
     }
 
     visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {

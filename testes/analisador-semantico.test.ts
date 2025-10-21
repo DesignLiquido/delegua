@@ -716,4 +716,46 @@ describe('Analisador semântico', () => {
             });
         });
     });
-});
+    describe('Comando quebrar', () => {
+        describe('Cenários com laço for', () => {
+            it('Sucesso - dentro do laço for', () => {
+                const retornoLexador = lexador.mapear([
+                    "para (var i = 0; i < 10; i++) {",
+                        "   se (i == 5) {",
+                        "       quebrar;",
+                        "   }",
+                ], -1)
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+            it('Sucesso - dentro do laço enquanto', () => {
+                const retornoLexador = lexador.mapear([
+                    "enquanto (verdadeiro) {",
+                        "   se (i == 5) {",
+                        "       quebrar;",
+                        "   }",
+                ], -1)
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+            it('Sucesso - dentro do laço faça...enquanto', () => {
+                const retornoLexador = lexador.mapear([
+                    "faça {",
+                        "   se (i == 5) {",
+                        "       quebrar;",
+                        "   }",
+                    "} enquanto (verdadeiro);",
+                ], -1)
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+        });   
+    });
+}
+)

@@ -25,6 +25,7 @@ export * from './formatacao-escrita';
 export * from './funcao';
 export * from './isto';
 export * from './leia';
+export * from './lista-compreensao';
 export * from './literal';
 export * from './logico';
 export * from './para-cada-como-construto';

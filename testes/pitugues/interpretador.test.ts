@@ -45,6 +45,42 @@ describe('Interpretador (Pituguês)', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                describe('Lista de Compreensão', () => {
+                    it('Trivial', async () => {
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'var lista = [1, 2, 3, 4, 5]',
+                                'var minhaListaCompreensao = [x para cada x em lista se x % 2 == 0] # Lista de compreensão para números pares',
+                                'escreva(minhaListaCompreensao)'
+                            ], -1
+                        );
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('[2, 4]');
+                    });
+
+                    it('Com expressão para resolução', async () => {
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'var lista = [1, 2, 3, 4, 5]',
+                                'var minhaListaCompreensao = [x * 2 para cada x em lista se x % 2 == 0] # Lista de compreensão para números pares',
+                                'escreva(minhaListaCompreensao)'
+                            ], -1
+                        );
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('[4, 8]');
+                    });
+                });
+
                 it('Vetor', async () => {
                     const retornoLexador = lexador.mapear(["var a = [1, 2, 3]"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -304,6 +340,29 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas[1]).toBe('Au Au Au Au');
                     expect(_saidas[2]).toBe('Classe: OK!');
                 });
+
+                it('Classes - declaração `super()` ', async () => {
+                    const codigo = [
+                        "classe Procurando:",
+                        "    construtor():",
+                        "        imprima('Amigo, onde está você?')",
+                        "classe Amigo(Procurando):",
+                        "    construtor():",
+                        "        super()",
+                        "        imprima('Amigo, estou aqui!')",
+                        "var amigo = Amigo()",
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(2);
+                    expect(_saidas[0]).toBe('Amigo, onde está você?');
+                    expect(_saidas[1]).toBe('Amigo, estou aqui!');
+                });
             });
 
             describe('Declaração e chamada de funções', () => {
@@ -395,7 +454,7 @@ describe('Interpretador (Pituguês)', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(_saidas).toHaveLength(1);
-                    expect(_saidas[0]).toBe('Eu,sou,um,abacaxi');
+                    expect(_saidas[0]).toBe(`['Eu', 'sou', 'um', 'abacaxi']`);
                 });
 
                 it('mapear', async () => {

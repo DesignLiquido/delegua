@@ -111,7 +111,7 @@ describe('Biblioteca Global', () => {
             expect(retornoInterpretador.erros).toHaveLength(0);
         });
 
-        it('Sucesso - Nulo', async () => {
+        it('Nulo', async () => {
             const retornoLexador = lexador.mapear(["escreva(inteiro(nulo))"], -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -146,7 +146,7 @@ describe('Biblioteca Global', () => {
     });
 
     describe('todosEmCondicao()', () => {
-        it('Sucesso - todosEmCondicao', async () => {
+        it('todosEmCondicao', async () => {
             const codigo = [
                 "var f = funcao(x) { retorna(x < 10) }",
                 "escreva(todosEmCondicao([1, 2, 3, 4, 5, 6], f))"
@@ -249,7 +249,7 @@ describe('Biblioteca Global', () => {
             expect(retornoInterpretador.erros).toHaveLength(0);
         });
 
-        it('Sucesso - Nulo ou Indefinido (resolve para zero)', async () => {
+        it('Nulo ou Indefinido (resolve para zero)', async () => {
             const retornoLexador = lexador.mapear(["escreva(real(nulo))"], -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
