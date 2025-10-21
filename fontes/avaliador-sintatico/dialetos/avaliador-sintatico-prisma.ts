@@ -19,10 +19,7 @@ import {
     Unario,
     Variavel,
     Vetor,
-    Leia,
-    AcessoMetodo,
-    AcessoPropriedade,
-    ReferenciaFuncao,
+    Leia
 } from '../../construtos';
 import {
     Escreva,
@@ -52,21 +49,19 @@ import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
 import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
 
-import { Simbolo } from '../../lexador';
 import {
     inferirTipoVariavel,
     TipoInferencia,
     tipoInferenciaParaTipoDadosElementar,
 } from '../../inferenciador';
-import { TipoDadosElementar } from '../../tipo-dados-elementar';
 
 import { PilhaEscopos } from '../pilha-escopos';
 import { InformacaoEscopo } from '../informacao-escopo';
-import { InformacaoVariavelOuConstante } from '../../informacao-variavel-ou-constante';
 import {
     logicaDescobertaRetornoFuncao as logicaValidacaoRetornoFuncao,
     registrarPrimitiva,
 } from '../comum';
+import { InformacaoElementoSintatico } from '../../informacao-elemento-sintatico';
 
 import tiposDeDadosPrisma from '../../tipos-de-dados/dialetos/prisma';
 import tiposDeSimbolos from '../../tipos-de-simbolos/prisma';
@@ -90,7 +85,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
     tiposDefinidosEmCodigo: { [nomeTipo: string]: Declaracao };
     pilhaEscopos: PilhaEscopos;
     primitivasConhecidas: {
-        [nomeModuloOuClasse: string]: { [nomePrimitiva: string]: InformacaoVariavelOuConstante };
+        [nomeModuloOuClasse: string]: { [nomePrimitiva: string]: InformacaoElementoSintatico };
     };
 
     hashArquivo: number;
@@ -269,7 +264,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
                 const corpoDaFuncao = this.corpoDaFuncao(simboloFuncao.lexema);
                 this.pilhaEscopos.definirInformacoesVariavel(
                     simboloFuncao.lexema,
-                    new InformacaoVariavelOuConstante(simboloFuncao.lexema, 'função')
+                    new InformacaoElementoSintatico(simboloFuncao.lexema, 'função')
                 );
                 return corpoDaFuncao;
             case tiposDeSimbolos.IMPORTAR:
@@ -680,7 +675,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         const tipo = 'qualquer';
         this.pilhaEscopos.definirInformacoesVariavel(
             identificador.lexema,
-            new InformacaoVariavelOuConstante(identificador.lexema, tipo)
+            new InformacaoElementoSintatico(identificador.lexema, tipo)
         );
         
         return new Var(identificador, inicializador, tipo);
@@ -814,7 +809,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
 
             this.pilhaEscopos.definirInformacoesVariavel(
                 parametro.nome.lexema,
-                new InformacaoVariavelOuConstante(
+                new InformacaoElementoSintatico(
                     parametro.nome.lexema,
                     parametro.tipoDado || 'qualquer'
                 )
@@ -831,14 +826,14 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
 
         this.pilhaEscopos.definirInformacoesVariavel(
             simbolo.lexema,
-            new InformacaoVariavelOuConstante(simbolo.lexema, 'qualquer')
+            new InformacaoElementoSintatico(simbolo.lexema, 'qualquer')
         );
 
         const corpoDaFuncao = this.corpoDaFuncao(tipo);
         const tipoDaFuncao = `função<${corpoDaFuncao.tipo}>`;
         this.pilhaEscopos.definirInformacoesVariavel(
             simbolo.lexema,
-            new InformacaoVariavelOuConstante(simbolo.lexema, tipoDaFuncao)
+            new InformacaoElementoSintatico(simbolo.lexema, tipoDaFuncao)
         );
         const funcaoDeclaracao = new FuncaoDeclaracao(simbolo, corpoDaFuncao, tipoDaFuncao);
         this.pilhaEscopos.registrarReferenciaFuncao(simbolo.lexema, funcaoDeclaracao);
@@ -997,30 +992,30 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         // Funções nativas básicas
         this.pilhaEscopos.definirInformacoesVariavel(
             'aleatorio',
-            new InformacaoVariavelOuConstante('aleatorio', 'número')
+            new InformacaoElementoSintatico('aleatorio', 'número')
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'inteiro',
-            new InformacaoVariavelOuConstante('inteiro', 'inteiro', true, [
-                new InformacaoVariavelOuConstante('valor', 'qualquer'),
+            new InformacaoElementoSintatico('inteiro', 'inteiro', true, [
+                new InformacaoElementoSintatico('valor', 'qualquer'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'numero',
-            new InformacaoVariavelOuConstante('número', 'número', true, [
-                new InformacaoVariavelOuConstante('valorParaConverter', 'qualquer'),
+            new InformacaoElementoSintatico('número', 'número', true, [
+                new InformacaoElementoSintatico('valorParaConverter', 'qualquer'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'texto',
-            new InformacaoVariavelOuConstante('texto', 'texto', true, [
-                new InformacaoVariavelOuConstante('valorParaConverter', 'qualquer'),
+            new InformacaoElementoSintatico('texto', 'texto', true, [
+                new InformacaoElementoSintatico('valorParaConverter', 'qualquer'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'tamanho',
-            new InformacaoVariavelOuConstante('tamanho', 'inteiro', true, [
-                new InformacaoVariavelOuConstante('objeto', 'qualquer'),
+            new InformacaoElementoSintatico('tamanho', 'inteiro', true, [
+                new InformacaoElementoSintatico('objeto', 'qualquer'),
             ])
         );
     }
