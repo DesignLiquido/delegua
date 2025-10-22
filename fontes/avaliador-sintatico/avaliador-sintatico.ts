@@ -21,6 +21,7 @@ import {
     ExpressaoRegular,
     FazerComoConstruto,
     FuncaoConstruto,
+    ImportarComoConstruto,
     Isto,
     Leia,
     Literal,
@@ -266,6 +267,14 @@ export class AvaliadorSintatico
             chaves,
             valores
         );
+    }
+
+    protected construtoImportar(): ImportarComoConstruto {
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após declaração.");
+        const caminho = this.expressao();
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração.");
+
+        return new ImportarComoConstruto(caminho as Literal);
     }
 
     protected construtoTupla(): Tupla {
@@ -543,7 +552,7 @@ export class AvaliadorSintatico
 
             case tiposDeSimbolos.IMPORTAR:
                 this.avancarEDevolverAnterior();
-                return this.declaracaoImportar();
+                return this.construtoImportar();
 
             case tiposDeSimbolos.ISTO:
                 this.avancarEDevolverAnterior();
@@ -1680,12 +1689,72 @@ export class AvaliadorSintatico
      * sobrescrito em `delegua-node`.
      * @returns {Importar} Uma declaração `Importar`.
      */
-    override declaracaoImportar(): Importar {
-        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após declaração.");
-        const caminho = this.expressao();
-        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração.");
+    declaracaoImportar(): Importar {
+        let identificadorDeTudo: SimboloInterface | null = null;
+        const elementosImportacao: SimboloInterface[] = [];
 
-        return new Importar(caminho as Literal);
+        switch (this.simbolos[this.atual].tipo) {
+            case tiposDeSimbolos.TUDO:
+                this.avancarEDevolverAnterior();
+                this.consumir(tiposDeSimbolos.COMO, "Esperado 'como' após 'tudo' em declaração de importação.");
+                identificadorDeTudo = this.consumir(
+                    tiposDeSimbolos.IDENTIFICADOR,
+                    "Esperado identificador após 'como' em declaração de importação de 'tudo'."
+                );
+                break;
+            case tiposDeSimbolos.CHAVE_ESQUERDA:
+                this.avancarEDevolverAnterior();
+                
+                do {
+                    const identificadorImportacao = this.consumir(
+                        tiposDeSimbolos.IDENTIFICADOR,
+                        "Esperado identificador de elemento a ser importado."
+                    );
+                    elementosImportacao.push(identificadorImportacao);
+                } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+                this.consumir(
+                    tiposDeSimbolos.CHAVE_DIREITA,
+                    "Esperado '}' após lista de elementos a serem importados."
+                );
+                break;
+            default:
+                throw this.erro(
+                    this.simbolos[this.atual],
+                    "Esperado ou palavra reservada 'tudo' ou abertura de chaves após palavra reservada 'importar'."
+                );
+        }        
+
+        this.consumir(tiposDeSimbolos.DE, "Esperado 'de' após identificador em declaração de importação de 'tudo'.");
+        let construtoCaminhoModulo: Construto;
+        switch (this.simbolos[this.atual].tipo) {
+            case tiposDeSimbolos.TEXTO:
+                const simboloCaminhoModulo = this.avancarEDevolverAnterior();
+                construtoCaminhoModulo = new Literal(
+                    simboloCaminhoModulo.hashArquivo,
+                    Number(simboloCaminhoModulo.linha),
+                    simboloCaminhoModulo.literal
+                );
+                break;
+            case tiposDeSimbolos.IDENTIFICADOR:
+                const identificadorModulo = this.avancarEDevolverAnterior();
+                construtoCaminhoModulo = new Literal(
+                    identificadorModulo.hashArquivo,
+                    Number(identificadorModulo.linha),
+                    identificadorModulo.lexema
+                );
+                    
+                break;
+        }
+
+        const importar = new Importar(construtoCaminhoModulo);
+        if (identificadorDeTudo !== null) {
+            importar.simboloTudo = identificadorDeTudo;
+        } else {
+            importar.elementosImportacao = elementosImportacao;
+        }
+        
+        return importar;
     }
 
     override declaracaoPara(): Para | ParaCada {
@@ -2115,6 +2184,9 @@ export class AvaliadorSintatico
             case tiposDeSimbolos.FAZER:
                 const simboloFazer = this.avancarEDevolverAnterior();
                 return this.declaracaoFazer(simboloFazer);
+            case tiposDeSimbolos.IMPORTAR:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoImportar();
             case tiposDeSimbolos.LINHA_COMENTARIO:
                 return this.declaracaoComentarioMultilinha();
             case tiposDeSimbolos.PARA:

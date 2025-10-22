@@ -7,7 +7,6 @@ import {
     Escreva,
     Expressao,
     FuncaoDeclaracao,
-    Importar,
     Para,
     ParaCada,
     Retorna,
@@ -345,10 +344,6 @@ export abstract class AvaliadorSintaticoBase
     }
 
     protected declaracaoExpressao(simboloAnterior?: SimboloInterface): Expressao {
-        throw new Error('Método não implementado.');
-    }
-
-    protected declaracaoImportar(): Importar {
         throw new Error('Método não implementado.');
     }
 

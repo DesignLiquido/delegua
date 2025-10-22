@@ -86,6 +86,7 @@ export default {
     TENTE: 'TENTE',
     TEXTO: 'TEXTO',
     TIPO: 'TIPO',
+    TUDO: 'TUDO',
     VARIAVEL: 'VARIAVEL',
     VERDADEIRO: 'VERDADEIRO',
     VIRGULA: 'VIRGULA',
