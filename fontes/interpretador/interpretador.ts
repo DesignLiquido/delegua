@@ -26,6 +26,7 @@ import {
     Unario,
     Variavel,
     Vetor,
+    ImportarComoConstruto,
 } from '../construtos';
 import {
     DeleguaFuncao,
@@ -1131,6 +1132,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
     visitarExpressaoFazer(expressao: FazerComoConstruto): Promise<any> | void {
         return this.logicaComumExecucaoFazer(expressao, true);
+    }
+
+    visitarExpressaoImportar(expressao: ImportarComoConstruto): Promise<any> | void {
+        throw new Error('Importações não são suportadas neste interpretador.');
     }
 
     async visitarExpressaoListaCompreensao(listaCompreensao: ListaCompreensao): Promise<any> {

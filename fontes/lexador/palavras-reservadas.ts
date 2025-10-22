@@ -43,6 +43,7 @@ export const palavrasReservadas = {
     tendo: tiposDeSimbolos.TENDO,
     tente: tiposDeSimbolos.TENTE,
     tipo: tiposDeSimbolos.TIPO,
+    tudo: tiposDeSimbolos.TUDO,
     var: tiposDeSimbolos.VARIAVEL,
     variavel: tiposDeSimbolos.VARIAVEL,
     variável: tiposDeSimbolos.VARIAVEL,

@@ -23,6 +23,7 @@ export * from './fazer-como-construto';
 export * from './fim-para';
 export * from './formatacao-escrita';
 export * from './funcao';
+export * from './importar-como-construto';
 export * from './isto';
 export * from './leia';
 export * from './lista-compreensao';

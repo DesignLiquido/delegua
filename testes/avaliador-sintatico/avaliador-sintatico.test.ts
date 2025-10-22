@@ -1,6 +1,6 @@
 import { Lexador } from '../../fontes/lexador';
 import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
-import { Bloco, Classe, Const, Escreva, Expressao, FuncaoDeclaracao, ParaCada, Retorna, TendoComo, Var } from '../../fontes/declaracoes';
+import { Bloco, Classe, Const, Escreva, Expressao, FuncaoDeclaracao, Importar, ParaCada, Retorna, TendoComo, Var } from '../../fontes/declaracoes';
 import { Binario, Chamada, FuncaoConstruto, Leia, Literal, Variavel } from '../../fontes/construtos';
 
 describe('Avaliador sintático', () => {
@@ -159,6 +159,42 @@ describe('Avaliador sintático', () => {
                     expect(declaracaoTipada.inicializador.constructor.name).toBe('Leia');
                     const declaracaoLeia = declaracaoTipada.inicializador as Leia;
                     expect(declaracaoLeia.argumentos.length).toBeGreaterThan(0);
+                });
+            });
+
+            describe('Importar', () => {
+                it('Primeira forma', () => {
+                    const retornoLexador = lexador.mapear(['const matematica = importar("matematica")'], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                    expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Const);
+                });
+
+                it('Segunda forma', () => {
+                    const retornoLexador = lexador.mapear(['importar tudo como matematica de "matematica"'], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                    expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Importar);
+                    const importar = retornoAvaliadorSintatico.declaracoes[0] as Importar;
+                    expect(importar.simboloTudo).not.toBeNull();
+                });
+
+                it('Segunda forma com desestruturação', () => {
+                    const retornoLexador = lexador.mapear(['importar { logaritmo, potencia } de "matematica"'], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                    expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Importar);
+                    const importar = retornoAvaliadorSintatico.declaracoes[0] as Importar;
+                    expect(importar.elementosImportacao).toHaveLength(2);
                 });
             });
 

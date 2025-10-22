@@ -14,6 +14,7 @@ import {
     DefinirValor,
     Dicionario,
     FuncaoConstruto,
+    ImportarComoConstruto,
     Isto,
     Leia,
     Literal,
@@ -520,7 +521,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         return `'importar() não é suportado por este padrão de JavaScript'`;
     }
 
-    traduzirConstrutoLeia(declaracaoLeia: Leia) {
+    traduzirExpressaoLeia(declaracaoLeia: Leia) {
         return `'leia() não é suportado por este padrão de JavaScript.'`;
     }
 
@@ -687,15 +688,11 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         if (!declaracaoVar?.inicializador && adicionarPontoEVirgula) resultado += ';';
         else {
             resultado += ' = ';
-            if (this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name]) {
-                resultado += this.dicionarioConstrutos[
-                    declaracaoVar.inicializador.constructor.name
-                ](declaracaoVar.inicializador);
-            } else {
-                resultado += this.dicionarioDeclaracoes[
-                    declaracaoVar.inicializador.constructor.name
-                ](declaracaoVar.inicializador);
-            }
+            
+            resultado += this.dicionarioConstrutos[
+                declaracaoVar.inicializador.constructor.name
+            ](declaracaoVar.inicializador);
+
             if (adicionarPontoEVirgula) resultado += ';';
         }
 
@@ -707,7 +704,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         return '';
     }
 
-    traduzirAcessoMetodoVetor(
+    traduzirExpressaoAcessoMetodoVetor(
         objeto: Construto,
         nomeMetodo: string,
         argumentos: Construto[]
@@ -755,7 +752,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         }
     }
 
-    traduzirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodo, argumentos: Construto[]): string {
+    traduzirExpressaoAcessoMetodo(acessoMetodo: AcessoMetodo, argumentos: Construto[]): string {
         switch (acessoMetodo.objeto.constructor.name) {
             case 'Isto':
                 return `this.${acessoMetodo.nomeMetodo}`;
@@ -767,7 +764,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
                     argumentos
                 );
             case 'Vetor':
-                return this.traduzirAcessoMetodoVetor(
+                return this.traduzirExpressaoAcessoMetodoVetor(
                     acessoMetodo.objeto,
                     acessoMetodo.nomeMetodo,
                     argumentos
@@ -780,7 +777,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         }
     }
 
-    traduzirConstrutoAcessoMetodoOuPropriedade(
+    traduzirExpressaoAcessoMetodoOuPropriedade(
         acessoMetodo: AcessoMetodoOuPropriedade,
         argumentos: Construto[]
     ): string {
@@ -792,7 +789,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         return `this.${acessoMetodo.simbolo.lexema}`;
     }
 
-    traduzirConstrutoAcessoPropriedade(
+    traduzirExpressaoAcessoPropriedade(
         acessoMetodo: AcessoPropriedade,
         argumentos: Construto[]
     ): string {
@@ -820,7 +817,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         return resultado;
     }
 
-    traduzirConstrutoLogico(logico: Logico): string {
+    traduzirExpressaoLogica(logico: Logico): string {
         let direita = this.dicionarioConstrutos[logico.direita.constructor.name](logico.direita);
         let operador = this.traduzirSimboloOperador(logico.operador);
         let esquerda = this.dicionarioConstrutos[logico.esquerda.constructor.name](logico.esquerda);
@@ -829,7 +826,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
     }
 
     // TODO: Eliminar o soft cast para `any`.
-    traduzirConstrutoAtribuicaoPorIndice(AtribuicaoPorIndice: AtribuicaoPorIndice): string {
+    traduzirExpressaoAtribuicaoPorIndice(AtribuicaoPorIndice: AtribuicaoPorIndice): string {
         let resultado = '';
 
         resultado += (AtribuicaoPorIndice.objeto as any).simbolo.lexema + '[';
@@ -850,7 +847,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         return resultado;
     }
 
-    traduzirConstrutoAcessoIndiceVariavel(acessoIndiceVariavel: AcessoIndiceVariavel): string {
+    traduzirExpressaoAcessoIndiceVariavel(acessoIndiceVariavel: AcessoIndiceVariavel): string {
         let resultado = '';
 
         resultado += this.dicionarioConstrutos[
@@ -863,7 +860,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         return resultado;
     }
 
-    traduzirConstrutoArgumentoReferenciaFuncao(
+    traduzirExpressaoArgumentoReferenciaFuncao(
         argumentoReferenciaFuncao: ArgumentoReferenciaFuncao,
         argumentos: Construto[]
     ): string {
@@ -883,7 +880,11 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         return `${argumentoReferenciaFuncao.simboloFuncao.lexema}(${textoArgumentos})`;
     }
 
-    traduzirConstrutoReferenciaFuncao(
+    traduzirExpressaoImportar(_: ImportarComoConstruto) {
+        return `'importar() não é suportado por este padrão de JavaScript'`;
+    }
+
+    traduzirExpressaoReferenciaFuncao(
         referenciaFuncao: ReferenciaFuncao,
         argumentos: Construto[]
     ): string {
@@ -970,13 +971,13 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
     }
 
     dicionarioConstrutos = {
-        AcessoIndiceVariavel: this.traduzirConstrutoAcessoIndiceVariavel.bind(this),
-        AcessoMetodo: this.traduzirConstrutoAcessoMetodo.bind(this),
-        AcessoMetodoOuPropriedade: this.traduzirConstrutoAcessoMetodoOuPropriedade.bind(this),
-        AcessoPropriedade: this.traduzirConstrutoAcessoPropriedade.bind(this),
+        AcessoIndiceVariavel: this.traduzirExpressaoAcessoIndiceVariavel.bind(this),
+        AcessoMetodo: this.traduzirExpressaoAcessoMetodo.bind(this),
+        AcessoMetodoOuPropriedade: this.traduzirExpressaoAcessoMetodoOuPropriedade.bind(this),
+        AcessoPropriedade: this.traduzirExpressaoAcessoPropriedade.bind(this),
         Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
-        ArgumentoReferenciaFuncao: this.traduzirConstrutoArgumentoReferenciaFuncao.bind(this),
-        AtribuicaoPorIndice: this.traduzirConstrutoAtribuicaoPorIndice.bind(this),
+        ArgumentoReferenciaFuncao: this.traduzirExpressaoArgumentoReferenciaFuncao.bind(this),
+        AtribuicaoPorIndice: this.traduzirExpressaoAtribuicaoPorIndice.bind(this),
         Atribuir: this.traduzirConstrutoAtribuir.bind(this),
         Binario: this.traduzirConstrutoBinario.bind(this),
         ComentarioComoConstruto: this.traduzirDeclaracaoComentario.bind(this),
@@ -984,11 +985,12 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
         Dicionario: this.traduzirConstrutoDicionario.bind(this),
         FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
+        ImportarComoConstruto: this.traduzirExpressaoImportar.bind(this),
         Isto: () => 'this',
-        Leia: this.traduzirConstrutoLeia.bind(this),
+        Leia: this.traduzirExpressaoLeia.bind(this),
         Literal: this.traduzirConstrutoLiteral.bind(this),
-        Logico: this.traduzirConstrutoLogico.bind(this),
-        ReferenciaFuncao: this.traduzirConstrutoReferenciaFuncao.bind(this),
+        Logico: this.traduzirExpressaoLogica.bind(this),
+        ReferenciaFuncao: this.traduzirExpressaoReferenciaFuncao.bind(this),
         Separador: this.traduzirConstrutoSeparador.bind(this),
         TipoDe: this.traduzirConstrutoTipoDe.bind(this),
         Unario: this.traduzirConstrutoUnario.bind(this),
