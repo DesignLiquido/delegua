@@ -121,6 +121,13 @@ Delégua executa em qualquer dispositivo que interprete JavaScript, ou seja, com
 
 Para instalar no seu computador ou na sua aplicação, veja o projeto [@designliquido/delegua-node](https://github.com/DesignLiquido/delegua-node).
 
+## Compiladores
+
+Delégua possui alguns compiladores implementados. Compiladores passam código Delégua para binário, gerando executáveis, cuja execução ocorre com a máxima performance possível. São eles:
+
+- [`delegua-llvm`](https://github.com/DesignLiquido/delegua-llvm), o compilador oficial da Design Líquido;
+- [`cgd` (Compilador Geral Delégua)](https://github.com/FernandoTheDev/cgd). Documentação: https://fernandothedev.github.io/cgd/
+
 ## Documentação
 
 - [Delégua é documentada na Wiki deste GitHub](https://github.com/DesignLiquido/delegua/wiki).

@@ -174,7 +174,7 @@ describe('Avaliador sintático', () => {
                 });
 
                 it('Segunda forma', () => {
-                    const retornoLexador = lexador.mapear(['importar tudo como matematica de "matematica"'], -1);
+                    const retornoLexador = lexador.mapear(['importar tudo como matematica de matematica'], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico).toBeTruthy();
@@ -186,7 +186,7 @@ describe('Avaliador sintático', () => {
                 });
 
                 it('Segunda forma com desestruturação', () => {
-                    const retornoLexador = lexador.mapear(['importar { logaritmo, potencia } de "matematica"'], -1);
+                    const retornoLexador = lexador.mapear(['importar { logaritmo, potencia } de matematica'], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico).toBeTruthy();
