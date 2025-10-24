@@ -125,7 +125,7 @@ export default {
             '\n\n ### Formas de uso  \n',
         exemploCodigo: "texto.dividir('<delimitador (, ; ' ')>')",
     },
-    encontre: {
+    encontrar: {
         tipoRetorno: 'inteiro',
         argumentos: [
             new InformacaoElementoSintatico(
