@@ -871,7 +871,7 @@ describe('Interpretador (Pituguês)', () => {
                 it('encontre - subtexto não encontrado', async () => {
                     const codigo = [
                         'var t = "Ser ou não ser, eis a questão"',
-                        'escreva(t.encontre("abacaxi"))',
+                        'escreva(t.encontrar("abacaxi"))',
                     ];
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
