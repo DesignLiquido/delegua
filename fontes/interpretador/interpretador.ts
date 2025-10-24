@@ -27,6 +27,7 @@ import {
     Variavel,
     Vetor,
     ImportarComoConstruto,
+    Elvis,
 } from '../construtos';
 import {
     DeleguaFuncao,
@@ -1124,6 +1125,19 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         const enderecoDicionarioMontao = this.montao.adicionarReferencia(dicionario);
         this.pilhaEscoposExecucao.registrarReferenciaMontao(enderecoDicionarioMontao);
         return new ReferenciaMontao(enderecoDicionarioMontao);
+    }
+
+    async visitarExpressaoElvis(expressao: Elvis): Promise<any> {
+        const esquerda: VariavelInterface | any = await this.avaliar(expressao.esquerda);
+        const direita: VariavelInterface | any = await this.avaliar(expressao.direita);
+        const valorEsquerdo: any = this.resolverValor(esquerda);
+        const valorDireito: any = this.resolverValor(direita);
+
+        if (valorEsquerdo === null || valorEsquerdo === undefined) {
+            return valorDireito;
+        }
+
+        return valorEsquerdo;
     }
 
     visitarExpressaoEnquanto(expressao: EnquantoComoConstruto): Promise<any> | void {
