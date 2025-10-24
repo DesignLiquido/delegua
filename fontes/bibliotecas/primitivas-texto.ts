@@ -125,6 +125,48 @@ export default {
             '\n\n ### Formas de uso  \n',
         exemploCodigo: "texto.dividir('<delimitador (, ; ' ')>')",
     },
+    encontre: {
+        tipoRetorno: 'inteiro',
+        argumentos: [
+            new InformacaoElementoSintatico(
+                'subtexto',
+                'texto',
+                true,
+                [],
+                'O texto que deve ser buscado.'
+            ),
+            new InformacaoElementoSintatico(
+                'indiceInicio',
+                'número',
+                false,
+                [],
+                '(Opcional) O índice opcional para iniciar a busca.'
+            ),
+        ],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
+            texto: string,
+            subtexto: string,
+            indiceInicio?: number
+        ): Promise<number> => {
+            if (indiceInicio !== undefined) {
+                return Promise.resolve(texto.indexOf(subtexto, indiceInicio));
+            }
+            return Promise.resolve(texto.indexOf(subtexto));
+        },
+        assinaturaFormato: 'texto.encontre(subtexto: texto, indiceInicio?: número)',
+        documentacao:
+            '# `texto.encontre(subtexto, indiceInicio)` \n \n' +
+            'Retorna o índice inicial de um subtexto. Retorna -1 caso não encontre.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "um dois três"\n' +
+            't.encontre("dois") // 3\n' +
+            't.encontre("quatro") // -1\n' +
+            't.encontre("dois", 4) // -1\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.encontre(subtexto, indiceInicio?)',
+    },
     fatiar: {
         tipoRetorno: 'texto',
         argumentos: [
