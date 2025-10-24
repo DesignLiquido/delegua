@@ -237,6 +237,19 @@ describe('Lexador', () => {
                 expect(resultado.simbolos).toHaveLength(1);
                 expect(resultado.simbolos[0].lexema).toBe("a\tb\nc");
             });
+
+            it('Operador Elvis', () => {
+                const resultado = lexador.mapear(
+                    [
+                        'nulo ?: 123'
+                    ],
+                    -1
+                );
+
+                expect(resultado).toBeTruthy();
+                expect(resultado.simbolos).toHaveLength(3);
+                expect(resultado.simbolos[1].tipo).toBe(tiposDeSimbolos.ELVIS);
+            });
         });
 
         describe('Cenários de falha', () => {
