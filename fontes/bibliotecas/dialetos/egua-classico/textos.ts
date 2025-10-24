@@ -216,23 +216,3 @@ module.exports.apara = function (texto) {
     return texto.trim();
 };
 
-/**
- * Retornar o índice inicial de texto.
- *
- * @param {string} texto o texto original.
- * @param {string} subtexto o texto que deve ser buscado.
- * @param {number} indice_inicio [indice_inicio=0] O índice opcional para iniciar a busca.
- * @returns {number} o índice da primeira ocorrência no texto fornecido ou -1 caso contrário.
- */
-module.exports.encontre = function (texto, subtexto, indice_inicio=0) {
-     if (typeof texto !== 'string') {
-        throw new ErroEmTempoDeExecucao(this.token, 'O parâmetro passado deve ser um texto');
-    }
-    if (typeof subtexto !== 'string') {
-        throw new ErroEmTempoDeExecucao(this.token, 'O padrão passado deve ser um texto');
-    }
-    if (typeof indice_inicio !== 'number') {
-        throw new ErroEmTempoDeExecucao(this.token, 'O terceiro parâmetro opcional (início) deve ser um número.');
-    }
-   return texto.indexOf(subtexto, indice_inicio);
-};
