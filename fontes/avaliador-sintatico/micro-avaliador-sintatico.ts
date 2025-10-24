@@ -5,6 +5,7 @@ import {
     Binario,
     Chamada,
     Construto,
+    Elvis,
     Literal,
     Logico,
     Unario,
@@ -187,6 +188,33 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         }
 
         return this.chamar();
+    }
+
+    protected elvis(): Construto {
+        let expressao = this.unario();
+
+        if (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.ELVIS
+            )
+        ) {
+            const direito = this.unario();
+            return new Elvis(-1, expressao, direito);
+        }
+
+        return this.chamar();
+    }
+
+    override exponenciacao(): Construto {
+        let expressao = this.elvis();
+
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EXPONENCIACAO)) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.unario();
+            expressao = new Binario(-1, expressao, operador, direito);
+        }
+
+        return expressao;
     }
 
     protected bitShift(): Construto {

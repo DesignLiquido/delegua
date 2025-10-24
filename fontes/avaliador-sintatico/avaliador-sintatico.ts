@@ -17,6 +17,7 @@ import {
     Decorador,
     DefinirValor,
     Dicionario,
+    Elvis,
     EnquantoComoConstruto,
     ExpressaoRegular,
     FazerComoConstruto,
@@ -1138,6 +1139,33 @@ export class AvaliadorSintatico
         }
 
         return this.chamar();
+    }
+
+    protected elvis(): Construto {
+        let expressao = this.unario();
+
+        if (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.ELVIS
+            )
+        ) {
+            const direito = this.unario();
+            return new Elvis(this.hashArquivo, expressao, direito);
+        }
+
+        return expressao;
+    }
+
+    override exponenciacao(): Construto {
+        let expressao = this.elvis();
+
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EXPONENCIACAO)) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.unario();
+            expressao = new Binario(this.hashArquivo, expressao, operador, direito);
+        }
+
+        return expressao;
     }
 
     override multiplicar(): Construto {

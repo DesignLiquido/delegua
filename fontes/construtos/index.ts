@@ -17,6 +17,7 @@ export * from './construto';
 export * from './decorador';
 export * from './definir-valor';
 export * from './dicionario';
+export * from './elvis';
 export * from './enquanto-como-construto';
 export * from './expressao-regular';
 export * from './fazer-como-construto';
