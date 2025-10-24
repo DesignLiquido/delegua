@@ -851,7 +851,7 @@ describe('Interpretador (Pituguês)', () => {
                 it('encontre - índice inicial encontrado', async () => {
                     const codigo = [
                         'var t = "Ser ou não ser, eis a questão"',
-                        'escreva(t.encontre("ser"))',
+                        'escreva(t.encontrar("ser"))',
                     ];
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
