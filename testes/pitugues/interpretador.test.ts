@@ -929,7 +929,7 @@ describe('Interpretador (Pituguês)', () => {
                 });
 
                 it('encontre - primeira ocorrência no início', async () => {
-                    const codigo = ['var t = "abcabc"', 'escreva(t.encontre("abc"))'];
+                    const codigo = ['var t = "abcabc"', 'escreva(t.encontrar("abc"))'];
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
                         retornoLexador,

@@ -215,4 +215,3 @@ module.exports.apara = function (texto) {
     }
     return texto.trim();
 };
-
