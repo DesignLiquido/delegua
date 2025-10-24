@@ -202,7 +202,7 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
             return new Elvis(-1, expressao, direito);
         }
 
-        return this.chamar();
+        return expressao;
     }
 
     override exponenciacao(): Construto {
