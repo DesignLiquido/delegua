@@ -1,5 +1,7 @@
 import { MicroLexador } from '../../fontes/lexador/micro-lexador';
 
+import tiposDeSimbolos from '../../fontes/tipos-de-simbolos/microgramaticas/delegua';
+
 describe('Lexador', () => {
     describe('mapear()', () => {
         let microLexador: MicroLexador;
@@ -56,6 +58,14 @@ describe('Lexador', () => {
 
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(11);
+            });
+
+            it('Operador Elvis', () => {
+                const resultado = microLexador.mapear('nulo ?: 123');
+
+                expect(resultado).toBeTruthy();
+                expect(resultado.simbolos).toHaveLength(3);
+                expect(resultado.simbolos[1].tipo).toBe(tiposDeSimbolos.ELVIS);
             });
         });
     });

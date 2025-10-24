@@ -1,7 +1,7 @@
 import { Lexador } from '../../fontes/lexador';
 import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
 import { Bloco, Classe, Const, Escreva, Expressao, FuncaoDeclaracao, Importar, ParaCada, Retorna, TendoComo, Var } from '../../fontes/declaracoes';
-import { Binario, Chamada, FuncaoConstruto, Leia, Literal, Variavel } from '../../fontes/construtos';
+import { Binario, Chamada, Elvis, FuncaoConstruto, Leia, Literal, Variavel } from '../../fontes/construtos';
 
 describe('Avaliador sintático', () => {
     describe('analisar()', () => {
@@ -127,6 +127,24 @@ describe('Avaliador sintático', () => {
                     expect(literalEsquerdo.tipo).toBe('número');
                     expect(literalDireito.tipo).toBe('número');
                     expect(literalDireito.valor).toBe(3);
+                });
+
+                it('Operador Elvis', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var a = nulo',
+                            'escreva(a ?: 10)'
+                        ], 
+                    -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                    expect(retornoAvaliadorSintatico.declaracoes[1].constructor).toBe(Escreva);
+                    const escreva = retornoAvaliadorSintatico.declaracoes[1] as Escreva;
+                    expect(escreva.argumentos).toHaveLength(1);
+                    expect(escreva.argumentos[0].constructor).toBe(Elvis);
                 });
             });
 

@@ -192,6 +192,15 @@ export class MicroLexador {
                 this.atual++;
                 this.adicionarSimbolo(tiposDeSimbolos.DIVISAO_INTEIRA);
                 break;
+            case '?':
+                this.atual++;
+                if (this.codigo[this.atual] === ':') {
+                    this.adicionarSimbolo(tiposDeSimbolos.ELVIS, '?:');
+                    this.atual++;
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.INTERROGACAO);
+                }
+                break;
             case ' ':
             case '\0':
             case '\r':

@@ -1,5 +1,7 @@
 import { MicroLexador } from '../../fontes/lexador/micro-lexador';
 import { MicroAvaliadorSintatico } from '../../fontes/avaliador-sintatico';
+import { Expressao } from '../../fontes/declaracoes';
+import { Elvis } from '../../fontes/construtos';
 
 describe('Avaliador sintático', () => {
     describe('analisar()', () => {
@@ -50,6 +52,15 @@ describe('Avaliador sintático', () => {
 
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+            });
+
+            it('Operador Elvis', () => {
+                const retornoLexador = microLexador.mapear("a ?: b");
+                const retornoAvaliadorSintatico = microAvaliadorSintatico.analisar(retornoLexador, 1);
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                const expressao = retornoAvaliadorSintatico.declaracoes[0];
+                expect(expressao).toBeInstanceOf(Elvis);
             });
         });        
     });
