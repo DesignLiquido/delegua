@@ -88,6 +88,7 @@ import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
+import { ClasseDeModulo } from '../interpretador/estruturas';
 
 // Será usado para forçar tipagem em construtos e em algumas funções internas.
 type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolos];
@@ -119,6 +120,9 @@ export class AvaliadorSintatico
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
     tiposDefinidosEmCodigo: { [nomeTipo: string]: Declaracao };
+    tiposDefinidosPorBibliotecas: {
+        [nomeTipo: string]: ClasseDeModulo;
+    };
     pilhaEscopos: PilhaEscopos;
     tiposDeFerramentasExternas: { [nomeFerramenta: string]: { [nomeTipo: string]: string } };
     primitivasConhecidas: {
@@ -2389,12 +2393,40 @@ export class AvaliadorSintatico
                         const tipoRetornoAcessoMetodoResolvido = entidadeChamadaAcessoMetodo.tipoRetornoMetodo.replace('<T>', entidadeChamadaAcessoMetodo.objeto.tipo);
                         return tipoRetornoAcessoMetodoResolvido;
                     case AcessoMetodoOuPropriedade:
-                        // Este caso ocorre quando a variável/constante é do tipo 'qualquer',
-                        // e a chamada normalmente é feita para uma primitiva.
-                        // A inferência, portanto, ocorre pelo uso da primitiva.
                         const entidadeChamadaAcessoMetodoOuPropriedade =
                             entidadeChamadaChamada as AcessoMetodoOuPropriedade;
 
+                        // Algumas coisas podem acontecer aqui.
+                        // Uma delas é a variável/constante ser uma classe padrão.
+                        // Isso ocorre quando a importação é feita de uma biblioteca Node.js.
+                        // Nesse caso, o tipo de `entidadeChamadaAcessoMetodoOuPropriedade.objeto` começa com uma letra maiúscula.
+                        if (entidadeChamadaAcessoMetodoOuPropriedade.objeto.tipo.match(/^[A-Z]/)) {
+                            const tipoCorrespondente = this.tiposDefinidosPorBibliotecas[entidadeChamadaAcessoMetodoOuPropriedade.objeto.tipo];
+                            if (!tipoCorrespondente) {
+                                throw new ErroAvaliadorSintatico(
+                                    entidadeChamadaAcessoMetodoOuPropriedade.simbolo,
+                                    `Tipo '${entidadeChamadaAcessoMetodoOuPropriedade.objeto.tipo}' não foi encontrado entre os tipos definidos por bibliotecas.`
+                                );
+                            }
+
+                            if (!(entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema in tipoCorrespondente.metodos) && 
+                                !(entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema in tipoCorrespondente.propriedades)) {
+                                throw new ErroAvaliadorSintatico(
+                                    entidadeChamadaAcessoMetodoOuPropriedade.simbolo,
+                                    `Membro '${entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema}' não existe no tipo '${entidadeChamadaAcessoMetodoOuPropriedade.objeto.tipo}'.`
+                                );
+                            }
+
+                            if (entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema in tipoCorrespondente.metodos) {
+                                return tipoCorrespondente.metodos[entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema].tipo;
+                            }
+
+                            return tipoCorrespondente.propriedades[entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema].tipo;
+                        }
+
+                        // Este caso ocorre quando a variável/constante é do tipo 'qualquer',
+                        // e a chamada normalmente é feita para uma primitiva.
+                        // A inferência, portanto, ocorre pelo uso da primitiva.
                         for (const primitiva in this.primitivasConhecidas) {
                             if (
                                 this.primitivasConhecidas[primitiva].hasOwnProperty(
