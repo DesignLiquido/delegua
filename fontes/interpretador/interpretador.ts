@@ -28,6 +28,7 @@ import {
     Vetor,
     ImportarComoConstruto,
     Elvis,
+    SeTernario,
 } from '../construtos';
 import {
     DeleguaFuncao,
@@ -75,7 +76,7 @@ import tipoDeDadosPrimitivos from '../tipos-de-dados/primitivos';
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 
 /**
- * O interpretador de Delégua.
+ * O interpretador de Delégua. Usado também por Pituguês.
  */
 export class Interpretador extends InterpretadorBase implements VisitanteDeleguaInterface {
     montao: Montao;
@@ -1168,6 +1169,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         return resultadoCompreensaoResolvido;
     }
 
+    visitarExpressaoPara(expressao: ParaComoConstruto): Promise<any> | void {
+        return this.logicaComumExecucaoPara(expressao, true);
+    }
+
     visitarExpressaoParaCada(expressao: ParaCadaComoConstruto): Promise<any> {
         return this.logicaComumExecucaoParaCada(expressao, true);
     }
@@ -1198,10 +1203,6 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         return retornoQuebra;
     }
 
-    visitarExpressaoPara(expressao: ParaComoConstruto): Promise<any> | void {
-        return this.logicaComumExecucaoPara(expressao, true);
-    }
-
     /**
      * Para Delégua e Pituguês, o separador é apenas um elemento de sintaxe.
      * Não há qualquer avaliação a ser feita.
@@ -1209,6 +1210,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
      */
     override async visitarExpressaoSeparador(expressao: Separador): Promise<any> {
         return Promise.resolve(null);
+    }
+
+    visitarExpressaoSeTernario(expressao: SeTernario): Promise<any> | void {
+        throw new Error('Method not implemented.');
     }
 
     override async visitarExpressaoTipoDe(expressao: TipoDe): Promise<string> {

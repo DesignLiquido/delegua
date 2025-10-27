@@ -34,6 +34,7 @@ export * from './para-cada-como-construto';
 export * from './para-como-construto';
 export * from './referencia-biblioteca-global';
 export * from './referencia-funcao';
+export * from './se-ternario';
 export * from './separador';
 export * from './super';
 export * from './tipo-de';
