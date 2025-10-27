@@ -44,10 +44,10 @@ describe('Tradutor Delégua -> JavaScript', () => {
                 ['[1, 2, 3].adicionar(1)'],
                 -1
             );
-    
+
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
-    
+
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/\[1, 2, 3\].push\(1\)/i);
         });
@@ -99,14 +99,14 @@ describe('Tradutor Delégua -> JavaScript', () => {
         it('funções nativas', () => {
             const retornoLexador = lexador.mapear(
                 [
-                    'var vetor = [1, 2];', 
+                    'var vetor = [1, 2];',
                     'vetor.adicionar(3);',
                     'vetor.empilhar(4);',
                     'vetor.removerUltimo();',
                     'vetor.tamanho();',
                     'vetor.inverter();',
                     'vetor.removerPrimeiro();',
-    
+
                     'var nome = \'delégua > égua\';',
                     'nome = nome.maiusculo();',
                     'nome = nome.minusculo();',
@@ -352,6 +352,61 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/console\.log\(agrupamento\)/i);
         });
 
+        it('enquanto -> while', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var i = 0;',
+                    'fazer {',
+                    '    escreva(i);',
+                    '    i = i + 1;',
+                    '} enquanto (i < 5)'
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/let i = 0/i);
+            expect(resultado).toMatch(/do {/i);
+            expect(resultado).toMatch(/console\.log\(i\)/i);
+            expect(resultado).toMatch(/i = i \+ 1/i);
+            expect(resultado).toMatch(/}/i);
+            expect(resultado).toMatch(/while \(i < 5\)/i);
+        });
+
+        it('enquanto -> do while', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'enquanto (verdadeiro) {',
+                    '    escreva("sim");',
+                    '}'
+                ], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/while \(true\) {/i);
+            expect(resultado).toMatch(/console\.log\('sim'\)/i);
+            expect(resultado).toMatch(/}/i);
+        });
+
+        it('enquanto -> while', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'enquanto (verdadeiro) {',
+                    "    escreva('sim');",
+                    '}'
+                ], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/while \(true\) {/i);
+            expect(resultado).toMatch(/console\.log\(\'sim\'\)/i);
+            expect(resultado).toMatch(/}/i);
+        });
+
         it('isto -> this', () => {
             const retornoLexador = lexador.mapear(
                 [
@@ -384,11 +439,11 @@ describe('Tradutor Delégua -> JavaScript', () => {
         it('para/sustar -> for/break', () => {
             const retornoLexador = lexador.mapear(
                 [
-                    'para (var i = 0; i < 5; i = i + 1) {', 
-                    '    se (i == 3) {', 
-                    '        sustar;', 
-                    '    }', 
-                    '    escreva(i);', 
+                    'para (var i = 0; i < 5; i = i + 1) {',
+                    '    se (i == 3) {',
+                    '        sustar;',
+                    '    }',
+                    '    escreva(i);',
                     '}'
                 ],
                 -1
@@ -407,11 +462,11 @@ describe('Tradutor Delégua -> JavaScript', () => {
         it('para/continue -> for/continue', () => {
             const retornoLexador = lexador.mapear(
                 [
-                    'para (var i = 0; i < 5; i = i + 1) {', 
-                    '    se (i == 3) {', 
-                    '        continua', 
-                    '    }', 
-                    '    escreva(i);', 
+                    'para (var i = 0; i < 5; i = i + 1) {',
+                    '    se (i == 3) {',
+                    '        continua',
+                    '    }',
+                    '    escreva(i);',
                     '}'
                 ],
                 -1
@@ -429,7 +484,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
         it('para -> for', () => {
             const retornoLexador = lexador.mapear(
                 [
-                    'para (var i = 0; i < 5; i = i + 1) {', 
+                    'para (var i = 0; i < 5; i = i + 1) {',
                     '    escreva(i);',
                     '}'
                 ],
@@ -447,11 +502,11 @@ describe('Tradutor Delégua -> JavaScript', () => {
         it('para -> for i++ / i--', () => {
             const retornoLexador = lexador.mapear(
                 [
-                    'para (var i = 0; i < 5; i++) {', 
-                    '    escreva(i);', 
+                    'para (var i = 0; i < 5; i++) {',
+                    '    escreva(i);',
                     '}',
-                    'para (var i = 5; i > 0; i--) {', 
-                    '    escreva(i);', 
+                    'para (var i = 5; i > 0; i--) {',
+                    '    escreva(i);',
                     '}'
                 ],
                 -1
@@ -469,8 +524,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
         it('\'para\' sem parenteses -> for', () => {
             const retornoLexador = lexador.mapear(
                 [
-                    'para var i = 0; i < 5; i = i + 1 {', 
-                    '    escreva(i);', 
+                    'para var i = 0; i < 5; i = i + 1 {',
+                    '    escreva(i);',
                     '}'
                 ],
                 -1
@@ -548,60 +603,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/}/i);
         });
 
-        it('enquanto -> while', () => {
-            const retornoLexador = lexador.mapear(
-                [
-                    'var i = 0;', 
-                    'fazer {', 
-                    '    escreva(i);', 
-                    '    i = i + 1;', 
-                    '} enquanto (i < 5)'
-                ],
-                -1
-            );
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
-            expect(resultado).toBeTruthy();
-            expect(resultado).toMatch(/let i = 0/i);
-            expect(resultado).toMatch(/do {/i);
-            expect(resultado).toMatch(/console\.log\(i\)/i);
-            expect(resultado).toMatch(/i = i \+ 1/i);
-            expect(resultado).toMatch(/}/i);
-            expect(resultado).toMatch(/while \(i < 5\)/i);
-        });
-
-        it('enquanto -> do while', () => {
-            const retornoLexador = lexador.mapear(
-                [
-                    'enquanto (verdadeiro) {', 
-                    '    escreva("sim");',
-                    '}'
-                ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
-            expect(resultado).toBeTruthy();
-            expect(resultado).toMatch(/while \(true\) {/i);
-            expect(resultado).toMatch(/console\.log\('sim'\)/i);
-            expect(resultado).toMatch(/}/i);
-        });
-
-        it('enquanto -> while', () => {
-            const retornoLexador = lexador.mapear(
-                [
-                    'enquanto (verdadeiro) {', 
-                    "    escreva('sim');", 
-                    '}'
-                ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
-            expect(resultado).toBeTruthy();
-            expect(resultado).toMatch(/while \(true\) {/i);
-            expect(resultado).toMatch(/console\.log\(\'sim\'\)/i);
-            expect(resultado).toMatch(/}/i);
-        });
 
         it('tente - pegue - finalmente -> try - catch - finally', () => {
             const retornoLexador = lexador.mapear(
@@ -695,10 +697,10 @@ describe('Tradutor Delégua -> JavaScript', () => {
         it('classe sem parametros -> class', () => {
             const retornoLexador = lexador.mapear(
                 [
-                    'classe Teste {', 
-                    '    construtor() {', 
-                    '        escreva("começou")', 
-                    '    }', 
+                    'classe Teste {',
+                    '    construtor() {',
+                    '        escreva("começou")',
+                    '    }',
                     '}'
                 ],
                 -1
@@ -716,8 +718,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
             const retornoLexador = lexador.mapear(
                 [
                     'var a = 2',
-                    'se (a == 1) {', 
-                    '    escreva(10)', 
+                    'se (a == 1) {',
+                    '    escreva(10)',
                     '}'
                 ], -1);
 
@@ -734,10 +736,10 @@ describe('Tradutor Delégua -> JavaScript', () => {
             const retornoLexador = lexador.mapear(
                 [
                     'var a = 5',
-                    'se (a == 1) {', 
-                    '    escreva(10)', 
-                    '} senão {', 
-                    '    escreva(20)', 
+                    'se (a == 1) {',
+                    '    escreva(10)',
+                    '} senão {',
+                    '    escreva(20)',
                     '}'
                 ],
                 -1
@@ -816,7 +818,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
         it('escreva -> console.log', () => {
             const codigo = [
-                "var texto1 = 'Olá Mundo'", 
+                "var texto1 = 'Olá Mundo'",
                 'escreva(texto1)'
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
@@ -885,10 +887,10 @@ describe('Tradutor Delégua -> JavaScript', () => {
                 ],
                 -1
             );
-    
+
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
-    
+
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/let frase = ''/i);
             expect(resultado).toMatch(/frase \+= 'oi'/i);
@@ -897,7 +899,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
         it('chamada de função com parametros -> function', () => {
             const codigo = [
-                'funcao minhaFuncao(a, b, c) { }', 
+                'funcao minhaFuncao(a, b, c) { }',
                 'minhaFuncao(a, b, c)'
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
@@ -912,7 +914,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
 
         it('chamada de função sem parametros -> function', () => {
             const codigo = [
-                'funcao minhaFuncao() { }', 
+                'funcao minhaFuncao() { }',
                 'minhaFuncao()'
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
@@ -1012,8 +1014,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
         it('função -> function - com parametro', () => {
             const retornoLexador = lexador.mapear(
                 [
-                    'funcao minhaFuncaoComParametro(teste) {', 
-                    '    escreva(teste)', 
+                    'funcao minhaFuncaoComParametro(teste) {',
+                    '    escreva(teste)',
                     '}'
                 ],
                 -1
@@ -1030,8 +1032,8 @@ describe('Tradutor Delégua -> JavaScript', () => {
         it('função -> function - sem parametro', () => {
             const retornoLexador = lexador.mapear(
                 [
-                    'funcao minhaFuncaoSemParametro() {', 
-                    "    escreva('teste')", 
+                    'funcao minhaFuncaoSemParametro() {',
+                    "    escreva('teste')",
                     '}'
                 ],
                 -1
@@ -1045,65 +1047,81 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/console\.log\(\'teste\'\)/i);
         });
 
-        it('se -> if, código', () => {
-            const retornoLexador = lexador.mapear(
-                [
-                    'var a = 1',
-                    'se (a == 1) {', 
-                    '    escreva(10)', 
-                    '}'
-                ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        describe('Condicionais', () => {
+            it('se -> if, código', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'var a = 1',
+                        'se (a == 1) {',
+                        '    escreva(10)',
+                        '}'
+                    ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
-            expect(resultado).toBeTruthy();
-            expect(resultado).toMatch(/if/i);
-            expect(resultado).toMatch(/a === 1/i);
-            expect(resultado).toMatch(/console\.log\(10\)/i);
-        });
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/if/i);
+                expect(resultado).toMatch(/a === 1/i);
+                expect(resultado).toMatch(/console\.log\(10\)/i);
+            });
 
-        it('condicional \'se\' com parenteses -> if com operadores lógicos, código', () => {
-            const retornoLexador = lexador.mapear(
-                [
-                    'var a = 1',
-                    'se (a == 1 ou a == 2) {',
-                    '    escreva(10)', 
-                    '}',
-                    'se (a > 0 e a == 3) {',
-                    '    escreva(5)', 
-                    '}'
-                ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            it('condicional \'se\' com parenteses -> if com operadores lógicos, código', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'var a = 1',
+                        'se (a == 1 ou a == 2) {',
+                        '    escreva(10)',
+                        '}',
+                        'se (a > 0 e a == 3) {',
+                        '    escreva(5)',
+                        '}'
+                    ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
-            expect(resultado).toBeTruthy();
-            expect(resultado).toMatch(/if/i);
-            expect(resultado).toMatch(/a === 1 || a === 2/i);
-            expect(resultado).toMatch(/console\.log\(10\)/i);
-            expect(resultado).toMatch(/a === 3 && a > 0/i);
-            expect(resultado).toMatch(/console\.log\(5\)/i);
-        });
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/if/i);
+                expect(resultado).toMatch(/a === 1 || a === 2/i);
+                expect(resultado).toMatch(/console\.log\(10\)/i);
+                expect(resultado).toMatch(/a === 3 && a > 0/i);
+                expect(resultado).toMatch(/console\.log\(5\)/i);
+            });
 
-        it('condicional \'se\' sem parenteses -> if com operadores lógicos, código', () => {
-            const retornoLexador = lexador.mapear(
-                [
-                    'var a = 3',
-                    'se a == 1 ou a == 2 {',
-                    '    escreva(10)', 
-                    '}',
-                    'se a > 0 e a == 3 {',
-                    '    escreva(5)', 
-                    '}'
-                ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            it('condicional \'se\' sem parenteses -> if com operadores lógicos, código', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'var a = 3',
+                        'se a == 1 ou a == 2 {',
+                        '    escreva(10)',
+                        '}',
+                        'se a > 0 e a == 3 {',
+                        '    escreva(5)',
+                        '}'
+                    ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
-            expect(resultado).toBeTruthy();
-            expect(resultado).toMatch(/if/i);
-            expect(resultado).toMatch(/a === 1 || a === 2/i);
-            expect(resultado).toMatch(/console\.log\(10\)/i);
-            expect(resultado).toMatch(/a === 3 && a > 0/i);
-            expect(resultado).toMatch(/console\.log\(5\)/i);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/if/i);
+                expect(resultado).toMatch(/a === 1 || a === 2/i);
+                expect(resultado).toMatch(/console\.log\(10\)/i);
+                expect(resultado).toMatch(/a === 3 && a > 0/i);
+                expect(resultado).toMatch(/console\.log\(5\)/i);
+            });
+
+            it('se ternário', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'var a = 10',
+                        'var resultado = a > 5 ? "maior que cinco" : "cinco ou menor"',
+                    ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/let a = 10;/i);
+                expect(resultado).toMatch(/let resultado = a > 5 \? 'maior que cinco' : 'cinco ou menor';/i);
+            });
         });
 
         it('importar', () => {
@@ -1117,7 +1135,7 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/let lodash = \'importar\(\) não é suportado por este padrão de JavaScript\'/i);
         });
-        
+
         it('leia', () => {
             const retornoLexador = lexador.mapear(
                 [
@@ -1210,186 +1228,188 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toContain('// Exibe o resultado da divisão');
         });
 
-        it('MergeSort', () => {
-            const retornoLexador = lexador.mapear(
-                [
-                    'var vetor1 = [8, 2, 9, 5];',
-                    'var a = 0;',
-                    'var aux = 0;',
-                    'var i = 0;',
-                    'escreva ("Vetor: Posição[0]:" + texto(vetor1[0]));',
-                    'escreva ("Vetor: Posição[1]:" + texto(vetor1[1]));',
-                    'escreva ("Vetor: Posição[2]:" + texto(vetor1[2]));',
-                    'escreva ("Vetor: Posição[3]:" + texto(vetor1[3]));',
-                    'para (i = 0; i < 3; i = i + 1) {',
-                    '    se (vetor1[i] > vetor1[i+1]) {  ',
-                    '        escreva ("Vetor " + texto(i));',
-                    '        aux = vetor1[i];',
-                    '        vetor1[i] = vetor1[i+1];',
-                    '        vetor1[i+1] = aux;',
-                    '        escreva(vetor1[i]);',
-                    '        escreva(vetor1[i+1]);',
-                    '    }',
-                    '}',
-                    'var vetor2 = [vetor1[0], vetor1[1]];',
-                    'var vetor3 = [vetor1[2], vetor1[3]];',
-                    'var vetor4 = [];',
-                    'para (a = 0; a < 4; a = a + 1) {',
-                    '    escreva ("vetor1(" + texto(a) + ")");',
-                    '    escreva (vetor1[a]);',
-                    '}',
-                    'para (a = 0; a < 2; a = a + 1) {',
-                    '    escreva ("vetor2(" + texto(a) + ")");',
-                    '    escreva (vetor2[a]);',
-                    '}',
-                    'para (a = 0; a < 2; a = a + 1) {',
-                    '    escreva ("vetor3(" + texto(a) + ")");',
-                    '    escreva (vetor3[a]);',
-                    '}',
-                    'se (vetor2[0] < vetor3[0] e vetor2[1] < vetor3[1]) {',
-                    '    vetor4[0] = vetor2[0];',
-                    '    se (vetor3[0] < vetor2[1]) {',
-                    '        vetor4[1] = vetor3[0];',
-                    '        vetor4[2] = vetor2[1];',
-                    '        vetor4[3] = vetor3[1];',
-                    '    } senão {',
-                    '        vetor4[1] = vetor2[1];',
-                    '        vetor4[2] = vetor3[0];',
-                    '        vetor4[3] = vetor3[1];',
-                    '    }',
-                    '}',
-                    'para (a = 0; a < 4; a = a + 1) {',
-                    '    escreva ("vetor4(" + texto(vetor4[a]) + ")");',
-                    '}'
-                ],
-                -1
-            );
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        describe('Casos mais complexos', () => {
+            it('MergeSort', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'var vetor1 = [8, 2, 9, 5];',
+                        'var a = 0;',
+                        'var aux = 0;',
+                        'var i = 0;',
+                        'escreva ("Vetor: Posição[0]:" + texto(vetor1[0]));',
+                        'escreva ("Vetor: Posição[1]:" + texto(vetor1[1]));',
+                        'escreva ("Vetor: Posição[2]:" + texto(vetor1[2]));',
+                        'escreva ("Vetor: Posição[3]:" + texto(vetor1[3]));',
+                        'para (i = 0; i < 3; i = i + 1) {',
+                        '    se (vetor1[i] > vetor1[i+1]) {  ',
+                        '        escreva ("Vetor " + texto(i));',
+                        '        aux = vetor1[i];',
+                        '        vetor1[i] = vetor1[i+1];',
+                        '        vetor1[i+1] = aux;',
+                        '        escreva(vetor1[i]);',
+                        '        escreva(vetor1[i+1]);',
+                        '    }',
+                        '}',
+                        'var vetor2 = [vetor1[0], vetor1[1]];',
+                        'var vetor3 = [vetor1[2], vetor1[3]];',
+                        'var vetor4 = [];',
+                        'para (a = 0; a < 4; a = a + 1) {',
+                        '    escreva ("vetor1(" + texto(a) + ")");',
+                        '    escreva (vetor1[a]);',
+                        '}',
+                        'para (a = 0; a < 2; a = a + 1) {',
+                        '    escreva ("vetor2(" + texto(a) + ")");',
+                        '    escreva (vetor2[a]);',
+                        '}',
+                        'para (a = 0; a < 2; a = a + 1) {',
+                        '    escreva ("vetor3(" + texto(a) + ")");',
+                        '    escreva (vetor3[a]);',
+                        '}',
+                        'se (vetor2[0] < vetor3[0] e vetor2[1] < vetor3[1]) {',
+                        '    vetor4[0] = vetor2[0];',
+                        '    se (vetor3[0] < vetor2[1]) {',
+                        '        vetor4[1] = vetor3[0];',
+                        '        vetor4[2] = vetor2[1];',
+                        '        vetor4[3] = vetor3[1];',
+                        '    } senão {',
+                        '        vetor4[1] = vetor2[1];',
+                        '        vetor4[2] = vetor3[0];',
+                        '        vetor4[3] = vetor3[1];',
+                        '    }',
+                        '}',
+                        'para (a = 0; a < 4; a = a + 1) {',
+                        '    escreva ("vetor4(" + texto(vetor4[a]) + ")");',
+                        '}'
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
-            expect(resultado).toBeTruthy();
-            expect(resultado).toContain('let vetor1 = [8, 2, 9, 5];');
-            expect(resultado).toContain('let a = 0;');
-            expect(resultado).toContain('let aux = 0;');
-            expect(resultado).toContain('let i = 0;');
-            expect(resultado).toContain('console.log(\'Vetor: Posição[0]:\' + String(vetor1[0]))');
-            expect(resultado).toContain('console.log(\'Vetor: Posição[1]:\' + String(vetor1[1]))');
-            expect(resultado).toContain('console.log(\'Vetor: Posição[2]:\' + String(vetor1[2]))');
-            expect(resultado).toContain('console.log(\'Vetor: Posição[3]:\' + String(vetor1[3]))');
-            expect(resultado).toContain('for (i = 0; i < 3; i = i + 1) {');
-            expect(resultado).toContain('    if (vetor1[i] > vetor1[i + 1]){');
-            expect(resultado).toContain('        console.log(\'Vetor \' + String(i))');
-            expect(resultado).toContain('        aux = vetor1[i]');
-            expect(resultado).toContain('        vetor1[i] = vetor1[i + 1]');
-            expect(resultado).toContain('        vetor1[i + 1] = aux');
-            expect(resultado).toContain('        console.log(vetor1[i])');
-            expect(resultado).toContain('        console.log(vetor1[i + 1])');
-            expect(resultado).toContain('    }');
-            expect(resultado).toContain('}');
-            expect(resultado).toContain('let vetor2 = [vetor1[0], vetor1[1]];');
-            expect(resultado).toContain('let vetor3 = [vetor1[2], vetor1[3]];');
-            expect(resultado).toContain('let vetor4 = [];');
-            expect(resultado).toContain('for (a = 0; a < 4; a = a + 1) {');
-            expect(resultado).toContain('    console.log(\'vetor1(\' + String(a) + \')\')');
-            expect(resultado).toContain('    console.log(vetor1[a])');
-            expect(resultado).toContain('}');
-            expect(resultado).toContain('for (a = 0; a < 2; a = a + 1) {');
-            expect(resultado).toContain('    console.log(\'vetor2(\' + String(a) + \')\')');
-            expect(resultado).toContain('    console.log(vetor2[a])');
-            expect(resultado).toContain('}');
-            expect(resultado).toContain('for (a = 0; a < 2; a = a + 1) {');
-            expect(resultado).toContain('    console.log(\'vetor3(\' + String(a) + \')\')');
-            expect(resultado).toContain('    console.log(vetor3[a])');
-            expect(resultado).toContain('}');
-            expect(resultado).toContain('if (vetor2[1] < vetor3[1] && vetor2[0] < vetor3[0]){');
-            expect(resultado).toContain('    vetor4[0] = vetor2[0]');
-            expect(resultado).toContain('    if (vetor3[0] < vetor2[1]){');
-            expect(resultado).toContain('        vetor4[1] = vetor3[0]');
-            expect(resultado).toContain('        vetor4[2] = vetor2[1]');
-            expect(resultado).toContain('        vetor4[3] = vetor3[1]');
-            expect(resultado).toContain('    }');
-            expect(resultado).toContain('    else {');
-            expect(resultado).toContain('        vetor4[1] = vetor2[1]');
-            expect(resultado).toContain('        vetor4[2] = vetor3[0]');
-            expect(resultado).toContain('        vetor4[3] = vetor3[1]');
-            expect(resultado).toContain('    }');
-            expect(resultado).toContain('}');
-            expect(resultado).toContain('for (a = 0; a < 4; a = a + 1) {');
-            expect(resultado).toContain('    console.log(\'vetor4(\' + String(vetor4[a]) + \')\')');
-            expect(resultado).toContain('}');
-        });
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toBeTruthy();
+                expect(resultado).toContain('let vetor1 = [8, 2, 9, 5];');
+                expect(resultado).toContain('let a = 0;');
+                expect(resultado).toContain('let aux = 0;');
+                expect(resultado).toContain('let i = 0;');
+                expect(resultado).toContain('console.log(\'Vetor: Posição[0]:\' + String(vetor1[0]))');
+                expect(resultado).toContain('console.log(\'Vetor: Posição[1]:\' + String(vetor1[1]))');
+                expect(resultado).toContain('console.log(\'Vetor: Posição[2]:\' + String(vetor1[2]))');
+                expect(resultado).toContain('console.log(\'Vetor: Posição[3]:\' + String(vetor1[3]))');
+                expect(resultado).toContain('for (i = 0; i < 3; i = i + 1) {');
+                expect(resultado).toContain('    if (vetor1[i] > vetor1[i + 1]){');
+                expect(resultado).toContain('        console.log(\'Vetor \' + String(i))');
+                expect(resultado).toContain('        aux = vetor1[i]');
+                expect(resultado).toContain('        vetor1[i] = vetor1[i + 1]');
+                expect(resultado).toContain('        vetor1[i + 1] = aux');
+                expect(resultado).toContain('        console.log(vetor1[i])');
+                expect(resultado).toContain('        console.log(vetor1[i + 1])');
+                expect(resultado).toContain('    }');
+                expect(resultado).toContain('}');
+                expect(resultado).toContain('let vetor2 = [vetor1[0], vetor1[1]];');
+                expect(resultado).toContain('let vetor3 = [vetor1[2], vetor1[3]];');
+                expect(resultado).toContain('let vetor4 = [];');
+                expect(resultado).toContain('for (a = 0; a < 4; a = a + 1) {');
+                expect(resultado).toContain('    console.log(\'vetor1(\' + String(a) + \')\')');
+                expect(resultado).toContain('    console.log(vetor1[a])');
+                expect(resultado).toContain('}');
+                expect(resultado).toContain('for (a = 0; a < 2; a = a + 1) {');
+                expect(resultado).toContain('    console.log(\'vetor2(\' + String(a) + \')\')');
+                expect(resultado).toContain('    console.log(vetor2[a])');
+                expect(resultado).toContain('}');
+                expect(resultado).toContain('for (a = 0; a < 2; a = a + 1) {');
+                expect(resultado).toContain('    console.log(\'vetor3(\' + String(a) + \')\')');
+                expect(resultado).toContain('    console.log(vetor3[a])');
+                expect(resultado).toContain('}');
+                expect(resultado).toContain('if (vetor2[1] < vetor3[1] && vetor2[0] < vetor3[0]){');
+                expect(resultado).toContain('    vetor4[0] = vetor2[0]');
+                expect(resultado).toContain('    if (vetor3[0] < vetor2[1]){');
+                expect(resultado).toContain('        vetor4[1] = vetor3[0]');
+                expect(resultado).toContain('        vetor4[2] = vetor2[1]');
+                expect(resultado).toContain('        vetor4[3] = vetor3[1]');
+                expect(resultado).toContain('    }');
+                expect(resultado).toContain('    else {');
+                expect(resultado).toContain('        vetor4[1] = vetor2[1]');
+                expect(resultado).toContain('        vetor4[2] = vetor3[0]');
+                expect(resultado).toContain('        vetor4[3] = vetor3[1]');
+                expect(resultado).toContain('    }');
+                expect(resultado).toContain('}');
+                expect(resultado).toContain('for (a = 0; a < 4; a = a + 1) {');
+                expect(resultado).toContain('    console.log(\'vetor4(\' + String(vetor4[a]) + \')\')');
+                expect(resultado).toContain('}');
+            });
 
-        it('Bhaskara', () => {
-            const retornoLexador = lexador.mapear(
-                [
-                    'funcao bhaskara(a,b,c) {',
-                    '    // A variável "d" vai simbolizar o Delta.',
-                    '    // "a", "b", e "c" irão representar os coeficientes da equação.',
-                    '    var d = b ** 2;',
-                    '    var f = 4 * a * c; ',
-                    '    d = d - f;',
-                    '    escreva("O valor de Delta é: " + texto(d));',
-                    '    d = d ** 0.5;',
-                    '    // Encontrando os valores de X1 e X2.',
-                    '    var x1 = -b + d;',
-                    '    x1 = x1 / 2 * a;',
-                    '    escreva("O valor de X1 é: "+ texto(x1));',
-                    '    var x2 = -b-d;',
-                    '    x2 = x2 / 2 * a;',
-                    '    escreva("O valor de X2 é: "+ texto(x2));',
-                    '    // Resultado das substituições de X por X1 e X2 na equação.',
-                    '    var r1 = x1 ** 2;',
-                    '    r1 = a * r1;',
-                    '    r1 = b * x1 + r1;',
-                    '    r1 = r1 + c;',
-                    '    escreva("Substituindo X1 na equação obtém-se:"+ texto(r1));',
-                    '    var r2 = x2 ** 2;',
-                    '    r2 = a * r2;',
-                    '    r2 = b * x2 + r2;',
-                    '    r2 = r2 + c;',
-                    '    escreva("Substituindo X2 na equação obtém-se:"+ texto(r2));',
-                    '}',
-                    '// Insira o valor do coeficiente A:',
-                    'var a = 1;',
-                    '// Insira o valor do coeficiente B:',
-                    'var b = -1;',
-                    '// Insira o valor do coeficiente C:',
-                    'var c = -30;',
-                    'bhaskara(a,b,c);'
-                ],
-                -1
-            );
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            it('Bhaskara', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'funcao bhaskara(a,b,c) {',
+                        '    // A variável "d" vai simbolizar o Delta.',
+                        '    // "a", "b", e "c" irão representar os coeficientes da equação.',
+                        '    var d = b ** 2;',
+                        '    var f = 4 * a * c; ',
+                        '    d = d - f;',
+                        '    escreva("O valor de Delta é: " + texto(d));',
+                        '    d = d ** 0.5;',
+                        '    // Encontrando os valores de X1 e X2.',
+                        '    var x1 = -b + d;',
+                        '    x1 = x1 / 2 * a;',
+                        '    escreva("O valor de X1 é: "+ texto(x1));',
+                        '    var x2 = -b-d;',
+                        '    x2 = x2 / 2 * a;',
+                        '    escreva("O valor de X2 é: "+ texto(x2));',
+                        '    // Resultado das substituições de X por X1 e X2 na equação.',
+                        '    var r1 = x1 ** 2;',
+                        '    r1 = a * r1;',
+                        '    r1 = b * x1 + r1;',
+                        '    r1 = r1 + c;',
+                        '    escreva("Substituindo X1 na equação obtém-se:"+ texto(r1));',
+                        '    var r2 = x2 ** 2;',
+                        '    r2 = a * r2;',
+                        '    r2 = b * x2 + r2;',
+                        '    r2 = r2 + c;',
+                        '    escreva("Substituindo X2 na equação obtém-se:"+ texto(r2));',
+                        '}',
+                        '// Insira o valor do coeficiente A:',
+                        'var a = 1;',
+                        '// Insira o valor do coeficiente B:',
+                        'var b = -1;',
+                        '// Insira o valor do coeficiente C:',
+                        'var c = -30;',
+                        'bhaskara(a,b,c);'
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
-            expect(resultado).toBeTruthy();
-            expect(resultado).toContain('function bhaskara (a, b, c) {');
-            expect(resultado).toContain('    // A variável "d" vai simbolizar o Delta.');
-            expect(resultado).toContain('    // "a", "b", e "c" irão representar os coeficientes da equação.');
-            expect(resultado).toContain('    let d = b ** 2;');
-            expect(resultado).toContain('    let f = 4 * a * c;');
-            expect(resultado).toContain('    d = d - f');
-            expect(resultado).toContain('    console.log(\'O valor de Delta é: \' + String(d))');
-            expect(resultado).toContain('    d = d ** 0.5');
-            expect(resultado).toContain('    // Encontrando os valores de X1 e X2.');
-            expect(resultado).toContain('    let x1 = -b + d;');
-            expect(resultado).toContain('    x1 = x1 / 2 * a');
-            expect(resultado).toContain('    console.log(\'O valor de X1 é: \' + String(x1))');
-            expect(resultado).toContain('    let x2 = -b - d;');
-            expect(resultado).toContain('    x2 = x2 / 2 * a');
-            expect(resultado).toContain('    console.log(\'O valor de X2 é: \' + String(x2))');
-            expect(resultado).toContain('    // Resultado das substituições de X por X1 e X2 na equação.');
-            expect(resultado).toContain('    let r1 = x1 ** 2;');
-            expect(resultado).toContain('    r1 = a * r1');
-            expect(resultado).toContain('    r1 = b * x1 + r1');
-            expect(resultado).toContain('    r1 = r1 + c');
-            expect(resultado).toContain('    console.log(\'Substituindo X1 na equação obtém-se:\' + String(r1))');
-            expect(resultado).toContain('    let r2 = x2 ** 2;');
-            expect(resultado).toContain('    r2 = a * r2');
-            expect(resultado).toContain('    r2 = b * x2 + r2');
-            expect(resultado).toContain('    r2 = r2 + c');
-            expect(resultado).toContain('    console.log(\'Substituindo X2 na equação obtém-se:\' + String(r2))');
-            expect(resultado).toContain('}');
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toBeTruthy();
+                expect(resultado).toContain('function bhaskara (a, b, c) {');
+                expect(resultado).toContain('    // A variável "d" vai simbolizar o Delta.');
+                expect(resultado).toContain('    // "a", "b", e "c" irão representar os coeficientes da equação.');
+                expect(resultado).toContain('    let d = b ** 2;');
+                expect(resultado).toContain('    let f = 4 * a * c;');
+                expect(resultado).toContain('    d = d - f');
+                expect(resultado).toContain('    console.log(\'O valor de Delta é: \' + String(d))');
+                expect(resultado).toContain('    d = d ** 0.5');
+                expect(resultado).toContain('    // Encontrando os valores de X1 e X2.');
+                expect(resultado).toContain('    let x1 = -b + d;');
+                expect(resultado).toContain('    x1 = x1 / 2 * a');
+                expect(resultado).toContain('    console.log(\'O valor de X1 é: \' + String(x1))');
+                expect(resultado).toContain('    let x2 = -b - d;');
+                expect(resultado).toContain('    x2 = x2 / 2 * a');
+                expect(resultado).toContain('    console.log(\'O valor de X2 é: \' + String(x2))');
+                expect(resultado).toContain('    // Resultado das substituições de X por X1 e X2 na equação.');
+                expect(resultado).toContain('    let r1 = x1 ** 2;');
+                expect(resultado).toContain('    r1 = a * r1');
+                expect(resultado).toContain('    r1 = b * x1 + r1');
+                expect(resultado).toContain('    r1 = r1 + c');
+                expect(resultado).toContain('    console.log(\'Substituindo X1 na equação obtém-se:\' + String(r1))');
+                expect(resultado).toContain('    let r2 = x2 ** 2;');
+                expect(resultado).toContain('    r2 = a * r2');
+                expect(resultado).toContain('    r2 = b * x2 + r2');
+                expect(resultado).toContain('    r2 = r2 + c');
+                expect(resultado).toContain('    console.log(\'Substituindo X2 na equação obtém-se:\' + String(r2))');
+                expect(resultado).toContain('}');
+            });
         });
     });
 });

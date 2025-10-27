@@ -31,6 +31,7 @@ import {
     ParaComoConstruto,
     ReferenciaFuncao,
     Separador,
+    SeTernario,
     Super,
     TipoDe,
     Tupla,
@@ -1370,12 +1371,26 @@ export class AvaliadorSintatico
         return expressao;
     }
 
+    protected seTernario(): Construto {
+        let expressaoOuCondicao = this.ou();
+
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTERROGACAO)) {
+            const operador = this.simbolos[this.atual - 1];
+            const expressaoEntao = this.seTernario();
+            this.consumir(tiposDeSimbolos.DOIS_PONTOS, `Esperado dois-pontos após caminho positivo em se ternário. Atual: ${this.simbolos[this.atual].lexema}.`);
+            const expressaoSenao = this.seTernario();
+            expressaoOuCondicao = new SeTernario(this.hashArquivo, expressaoOuCondicao, expressaoEntao, operador, expressaoSenao);
+        }
+
+        return expressaoOuCondicao;
+    }
+
     /**
      * Método que resolve atribuições.
      * @returns Um construto do tipo `Atribuir`, `Conjunto` ou `AtribuicaoPorIndice`.
      */
     override atribuir(): Construto {
-        const expressao = this.ou();
+        const expressao = this.seTernario();
 
         if (
             expressao instanceof Binario &&
@@ -1408,12 +1423,12 @@ export class AvaliadorSintatico
             );
         } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
             const igual = this.simbolos[this.atual - 1];
-            const valor = this.expressao();
+            const valor = this.seTernario();
 
-            switch (expressao.constructor.name) {
-                case 'Variavel':
+            switch (expressao.constructor) {
+                case Variavel:
                     return new Atribuir(this.hashArquivo, expressao, valor);
-                case 'AcessoMetodoOuPropriedade':
+                case AcessoMetodoOuPropriedade:
                     const expressaoAcessoMetodoOuPropriedade =
                         expressao as AcessoMetodoOuPropriedade;
                     return new DefinirValor(
@@ -1423,7 +1438,7 @@ export class AvaliadorSintatico
                         expressaoAcessoMetodoOuPropriedade.simbolo,
                         valor
                     );
-                case 'AcessoIndiceVariavel':
+                case AcessoIndiceVariavel:
                     const expressaoAcessoIndiceVariavel = expressao as AcessoIndiceVariavel;
                     return new AtribuicaoPorIndice(
                         this.hashArquivo,
@@ -2400,7 +2415,9 @@ export class AvaliadorSintatico
                         // Uma delas é a variável/constante ser uma classe padrão.
                         // Isso ocorre quando a importação é feita de uma biblioteca Node.js.
                         // Nesse caso, o tipo de `entidadeChamadaAcessoMetodoOuPropriedade.objeto` começa com uma letra maiúscula.
-                        if (entidadeChamadaAcessoMetodoOuPropriedade.objeto.tipo.match(/^[A-Z]/)) {
+                        if (entidadeChamadaAcessoMetodoOuPropriedade.objeto.tipo && 
+                            entidadeChamadaAcessoMetodoOuPropriedade.objeto.tipo.match(/^[A-Z]/)
+                        ) {
                             const tipoCorrespondente = this.tiposDefinidosPorBibliotecas[entidadeChamadaAcessoMetodoOuPropriedade.objeto.tipo];
                             if (!tipoCorrespondente) {
                                 throw new ErroAvaliadorSintatico(

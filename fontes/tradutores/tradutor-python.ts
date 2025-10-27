@@ -9,7 +9,6 @@ import {
     Atribuir,
     Binario,
     Chamada,
-    ComentarioComoConstruto,
     Construto,
     DefinirValor,
     Dicionario,
@@ -19,6 +18,7 @@ import {
     Logico,
     ReferenciaFuncao,
     Separador,
+    SeTernario,
     Unario,
     Variavel,
     Vetor,
@@ -463,6 +463,13 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         return `${separador.conteudo} `;
     }
 
+    traduzirConstrutoSeTernario(seTernario: SeTernario) : string {
+        const condicao = this.dicionarioConstrutos[seTernario.condicao.constructor.name](seTernario.condicao);
+        const expressaoSe = this.dicionarioConstrutos[seTernario.expressaoSe.constructor.name](seTernario.expressaoSe);
+        const expressaoSenao = this.dicionarioConstrutos[seTernario.expressaoSenao.constructor.name](seTernario.expressaoSenao);
+        return `${expressaoSe} if ${condicao} else ${expressaoSenao}`;
+    }
+
     traduzirConstrutoUnario(unario: Unario) {
         const operador = this.traduzirSimboloOperador(unario.operador);
         const operando = this.dicionarioConstrutos[unario.operando.constructor.name](
@@ -852,6 +859,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         Logico: this.traduzirConstrutoLogico.bind(this),
         ReferenciaFuncao: this.traduzirConstrutoReferenciaFuncao.bind(this),
         Separador: this.traduzirConstrutoSeparador.bind(this),
+        SeTernario: this.traduzirConstrutoSeTernario.bind(this),
         Unario: this.traduzirConstrutoUnario.bind(this),
         Variavel: this.traduzirConstrutoVariavel.bind(this),
         Vetor: this.traduzirConstrutoVetor.bind(this),
