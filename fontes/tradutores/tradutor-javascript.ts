@@ -9,7 +9,6 @@ import {
     Atribuir,
     Binario,
     Chamada,
-    ComentarioComoConstruto,
     Construto,
     DefinirValor,
     Dicionario,
@@ -21,6 +20,7 @@ import {
     Logico,
     ReferenciaFuncao,
     Separador,
+    SeTernario,
     TipoDe,
     Unario,
     Variavel,
@@ -908,6 +908,23 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         return `${separador.conteudo} `;
     }
 
+    traduzirConstrutoSeTernario(seTernario: SeTernario): string {
+        let resultado = '';
+        resultado += this.dicionarioConstrutos[seTernario.condicao.constructor.name](
+            seTernario.condicao
+        );
+        resultado += ' ? ';
+        resultado += this.dicionarioConstrutos[seTernario.expressaoSe.constructor.name](
+            seTernario.expressaoSe
+        );
+        resultado += ' : ';
+        resultado += this.dicionarioConstrutos[seTernario.expressaoSenao.constructor.name](
+            seTernario.expressaoSenao
+        );
+        
+        return resultado;
+    }
+
     traduzirConstrutoTipoDe(tipoDe: TipoDe): string {
         let resultado = 'typeof ';
 
@@ -992,6 +1009,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         Logico: this.traduzirExpressaoLogica.bind(this),
         ReferenciaFuncao: this.traduzirExpressaoReferenciaFuncao.bind(this),
         Separador: this.traduzirConstrutoSeparador.bind(this),
+        SeTernario: this.traduzirConstrutoSeTernario.bind(this),
         TipoDe: this.traduzirConstrutoTipoDe.bind(this),
         Unario: this.traduzirConstrutoUnario.bind(this),
         Variavel: this.traduzirConstrutoVariavel.bind(this),

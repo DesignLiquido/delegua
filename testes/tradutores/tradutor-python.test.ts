@@ -349,103 +349,122 @@ describe('Tradutor Delégua -> Python', () => {
         expect(resultado).toMatch(/minhaFuncao\(\'Olá Mundo!!!\'\)/i);
     });
 
-    it('se -> if, código', () => {
-        const retornoLexador = lexador.mapear(
-            [
-                'var a = 2',
-                'se (a == 1) {', 
-                '    escreva(10)', 
-                '}'
-            ], -1);
-        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+    describe('Condicionais', () => {
+        it('se -> if, código', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var a = 2',
+                    'se (a == 1) {',
+                    '    escreva(10)',
+                    '}'
+                ], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-        const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
-        expect(resultado).toBeTruthy();
-        expect(resultado).toMatch(/if a \=\= 1:/i);
-        expect(resultado).toMatch(/print\(10\)/i);
-    });
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/if a \=\= 1:/i);
+            expect(resultado).toMatch(/print\(10\)/i);
+        });
 
-    it('senão -> else, código', () => {
-        const retornoLexador = lexador.mapear(
-            [
-                'var a = 2',
-                'se (a == 1) {', 
-                '    escreva(10)', 
-                '} senão {', 
-                '    escreva(20)', 
-                '}'
-            ],
-            -1
-        );
-        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        it('senão -> else, código', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var a = 2',
+                    'se (a == 1) {',
+                    '    escreva(10)',
+                    '} senão {',
+                    '    escreva(20)',
+                    '}'
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-        const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
-        expect(resultado).toBeTruthy();
-        expect(resultado).toMatch(/if a \=\= 1:/i);
-        expect(resultado).toMatch(/print\(10\)/i);
-        expect(resultado).toMatch(/else:/i);
-        expect(resultado).toMatch(/print\(20\)/i);
-    });
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/if a \=\= 1:/i);
+            expect(resultado).toMatch(/print\(10\)/i);
+            expect(resultado).toMatch(/else:/i);
+            expect(resultado).toMatch(/print\(20\)/i);
+        });
 
-    it('se senão 01 -> if/else, código', () => {
-        const retornoLexador = lexador.mapear(
-            [
-                'var a = 20',
-                'se (a == 10) {',
-                '   escreva(10)',
-                '} senão se (a == 20) {',
-                '   escreva(20)',
-                '} senão {',
-                "   escreva('Não é 10 e não é 20')",
-                '}',
-            ],
-            -1
-        );
-        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        it('se senão 01 -> if/else, código', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var a = 20',
+                    'se (a == 10) {',
+                    '   escreva(10)',
+                    '} senão se (a == 20) {',
+                    '   escreva(20)',
+                    '} senão {',
+                    "   escreva('Não é 10 e não é 20')",
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-        const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
-        expect(resultado).toBeTruthy();
-        expect(resultado).toMatch(/if a \=\= 10:/i);
-        expect(resultado).toMatch(/print\(10\)/i);
-        expect(resultado).toMatch(/elif a \=\= 20:/i);
-        expect(resultado).toMatch(/print\(20\)/i);
-        expect(resultado).toMatch(/else:/i);
-        expect(resultado).toMatch(/print\('Não é 10 e não é 20'\)/i);
-    });
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/if a \=\= 10:/i);
+            expect(resultado).toMatch(/print\(10\)/i);
+            expect(resultado).toMatch(/elif a \=\= 20:/i);
+            expect(resultado).toMatch(/print\(20\)/i);
+            expect(resultado).toMatch(/else:/i);
+            expect(resultado).toMatch(/print\('Não é 10 e não é 20'\)/i);
+        });
 
-    it('se senão 02 -> if/elif/else, código', () => {
-        const retornoLexador = lexador.mapear(
-            [
-                'var a = 20',
-                'se (a == 10) {',
-                '   escreva(10)',
-                '} senão se (a == 20) {',
-                '   escreva(20)',
-                '} senão se (a == 30) {',
-                '   escreva(30)',
-                '} senão se (a == \'40\') {',
-                '   escreva(\'40\')',
-                '}',
-                'senão {',
-                "   escreva('Não é nenhum desses valores: 10, 20, 30, 40')",
-                '}',
-            ],
-            -1
-        );
-        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        it('se senão 02 -> if/elif/else, código', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var a = 20',
+                    'se (a == 10) {',
+                    '   escreva(10)',
+                    '} senão se (a == 20) {',
+                    '   escreva(20)',
+                    '} senão se (a == 30) {',
+                    '   escreva(30)',
+                    '} senão se (a == \'40\') {',
+                    '   escreva(\'40\')',
+                    '}',
+                    'senão {',
+                    "   escreva('Não é nenhum desses valores: 10, 20, 30, 40')",
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-        const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
-        expect(resultado).toBeTruthy();
-        expect(resultado).toMatch(/if a \=\= 10:/i);
-        expect(resultado).toMatch(/print\(10\)/i);
-        expect(resultado).toMatch(/elif a \=\= 20:/i);
-        expect(resultado).toMatch(/print\(20\)/i);
-        expect(resultado).toMatch(/elif a \=\= 30:/i);
-        expect(resultado).toMatch(/print\(30\)/i);
-        expect(resultado).toMatch(/elif a \=\= \'40\':/i);
-        expect(resultado).toMatch(/print\(\'40\'\)/i);
-        expect(resultado).toMatch(/else:/i);
-        expect(resultado).toMatch(/print\('Não é nenhum desses valores: 10, 20, 30, 40'\)/i);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/if a \=\= 10:/i);
+            expect(resultado).toMatch(/print\(10\)/i);
+            expect(resultado).toMatch(/elif a \=\= 20:/i);
+            expect(resultado).toMatch(/print\(20\)/i);
+            expect(resultado).toMatch(/elif a \=\= 30:/i);
+            expect(resultado).toMatch(/print\(30\)/i);
+            expect(resultado).toMatch(/elif a \=\= \'40\':/i);
+            expect(resultado).toMatch(/print\(\'40\'\)/i);
+            expect(resultado).toMatch(/else:/i);
+            expect(resultado).toMatch(/print\('Não é nenhum desses valores: 10, 20, 30, 40'\)/i);
+        });
+
+        it('se ternário -> expressão condicional', () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var a = 10',
+                    'var resultado = a == 10 ? 100 : 200',
+                    'escreva(resultado)',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/resultado = 100 if a \=\= 10 else 200/i);
+            expect(resultado).toMatch(/print\(resultado\)/i);
+        });
     });
 
     it('leia -> input', () => {
