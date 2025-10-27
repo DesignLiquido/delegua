@@ -26,11 +26,11 @@ export class SeTernario<TTipoSimbolo extends string = string> implements Constru
         this.expressaoSenao = expressaoSenao;
     }
 
-    aceitar(visitante: VisitanteDeleguaInterface): Promise<any> {
-        throw new Error("Method not implemented.");
+    async aceitar(visitante: VisitanteDeleguaInterface): Promise<any> {
+        return await visitante.visitarExpressaoSeTernario(this);
     }
 
     paraTexto(): string {
-        throw new Error("Method not implemented.");
+        return `<se-ternário condicao=${this.condicao.paraTexto()} expressaoSe=${this.expressaoSe.paraTexto()} expressaoSenao=${this.expressaoSenao.paraTexto()} />`;
     }
 }

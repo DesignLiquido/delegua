@@ -1212,8 +1212,14 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         return Promise.resolve(null);
     }
 
-    visitarExpressaoSeTernario(expressao: SeTernario): Promise<any> | void {
-        throw new Error('Method not implemented.');
+    async visitarExpressaoSeTernario(expressao: SeTernario): Promise<any> {
+        const avaliacaoCondicao = await this.avaliar(expressao.condicao);
+        const valorAvaliacaoCondicao = this.resolverValor(avaliacaoCondicao);
+        if (valorAvaliacaoCondicao) {
+            return this.avaliar(expressao.expressaoSe);
+        }
+        
+        return this.avaliar(expressao.expressaoSenao);
     }
 
     override async visitarExpressaoTipoDe(expressao: TipoDe): Promise<string> {

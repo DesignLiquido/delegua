@@ -2415,7 +2415,9 @@ export class AvaliadorSintatico
                         // Uma delas é a variável/constante ser uma classe padrão.
                         // Isso ocorre quando a importação é feita de uma biblioteca Node.js.
                         // Nesse caso, o tipo de `entidadeChamadaAcessoMetodoOuPropriedade.objeto` começa com uma letra maiúscula.
-                        if (entidadeChamadaAcessoMetodoOuPropriedade.objeto.tipo.match(/^[A-Z]/)) {
+                        if (entidadeChamadaAcessoMetodoOuPropriedade.objeto.tipo && 
+                            entidadeChamadaAcessoMetodoOuPropriedade.objeto.tipo.match(/^[A-Z]/)
+                        ) {
                             const tipoCorrespondente = this.tiposDefinidosPorBibliotecas[entidadeChamadaAcessoMetodoOuPropriedade.objeto.tipo];
                             if (!tipoCorrespondente) {
                                 throw new ErroAvaliadorSintatico(
