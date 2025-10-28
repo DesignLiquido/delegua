@@ -433,7 +433,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             );
         }
 
-        if (paraCada.vetorOuDicionario.tipo === 'texto') {
+        if (paraCada.vetorOuDicionario.tipo === 'texto' || typeof valorVetorOuDicionarioResolvido === 'string') {
             valorVetorOuDicionarioResolvido = valorVetorOuDicionarioResolvido.split('');
         }
 
@@ -1016,7 +1016,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
     override async visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> {
         let valor = await this.avaliar(expressao.valor);
 
-        if (valor.hasOwnProperty('valorRetornado')) {
+        if (valor && valor.hasOwnProperty('valorRetornado')) {
             valor = valor.valorRetornado;
         }
 
