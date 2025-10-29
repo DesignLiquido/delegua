@@ -196,7 +196,7 @@ export default {
             '\n\n```delegua\nvar v = [1, 2, 3, 4, 5]\n' +
             'escreva(v.fatiar()) // "[1, 2, 3, 4, 5]", ou seja, não faz coisa alguma.\n' +
             'escreva(v.fatiar(2, 4)) // "[3, 4]"\n' +
-            'escreva(v.fatiar(2)) // "[3, 4, 5]", ou seja, seleciona tudo da posição 3 até o final do vetor.\n```' +
+            'escreva(v.fatiar(2)) // "[3, 4, 5]", ou seja, extrai trecho da 3ª posição até o final do vetor.\n```' +
             '\n\n ### Formas de uso \n' +
             'Fatiar suporta sobrecarga do método.\n\n',
         exemploCodigo:
@@ -240,8 +240,7 @@ export default {
         assinaturaFormato: 'vetor.filtrarPor(funcao: função)',
         documentacao:
             '# `vetor.filtrarPor(funcao)` \n \n' +
-            'Dada uma função passada como parâmetro, executa essa função para cada elemento do vetor. \n' +
-            'Elementos cujo retorno da função é `falso` são excluídos. \n' +
+            'Devolve todos os elementos de um vetor cujo resultado da execução de uma função, passada por parâmetro, seja verdadeiro.\n' +
             '\n\n ### Exemplo de Código\n' +
             '\n\n```delegua\nvar v = [1, 2, 3, 4, 5]\n' +
             'var funcaoNumerosImpares = funcao (n) { retorna n % 2 > 0 }\n' +
@@ -275,7 +274,7 @@ export default {
             'escreva(v.inclui(2)) // verdadeiro\n' +
             'escreva(v.inclui(4)) // falso\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'vetor.inclui(elemento)',
+        exemploCodigo: 'vetor.inclui(elemento)'
     },
     inverter: {
         tipoRetorno: 'qualquer[]',
@@ -314,13 +313,14 @@ export default {
         ): Promise<any> => Promise.resolve(vetor.join(separador)),
         assinaturaFormato: 'vetor.juntar(separador: texto)',
         documentacao:
-            '# `vetor.juntar(separador)` \n \n' +
+            '# `vetor.juntar(separador = ",")` \n \n' +
             'Junta todos os elementos de um vetor em um texto, separando cada elemento pelo separador passado como parâmetro.\n' +
             '\n\n ## Exemplo de Código\n' +
             '\n\n```delegua\nvar v = [1, 2, 3]\n' +
             'escreva(v.juntar(":")) // "1:2:3"\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'vetor.juntar()',
+        exemploCodigo: 'vetor.juntar()\n' +
+            'vetor.juntar(<separador>)',
     },
     mapear: {
         tipoRetorno: 'qualquer[]',
@@ -353,7 +353,7 @@ export default {
         },
         assinaturaFormato: 'vetor.mapear(funcao: função)',
         documentacao:
-            '# `vetor.mapear(funcao)` \n \n' +
+            '# `vetor.mapear(funcao)`\n\n' +
             'Dada uma função passada como parâmetro, executa essa função para cada elemento do vetor. \n' +
             'Cada elemento retornado por esta função é adicionado ao vetor resultante. \n' +
             '\n\n ## Exemplo de Código\n' +
