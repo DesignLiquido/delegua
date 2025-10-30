@@ -26,6 +26,9 @@ import {
     Unario,
     Variavel,
     Vetor,
+    ImportarComoConstruto,
+    Elvis,
+    SeTernario,
 } from '../construtos';
 import {
     DeleguaFuncao,
@@ -73,7 +76,7 @@ import tipoDeDadosPrimitivos from '../tipos-de-dados/primitivos';
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 
 /**
- * O interpretador de Delégua.
+ * O interpretador de Delégua. Usado também por Pituguês.
  */
 export class Interpretador extends InterpretadorBase implements VisitanteDeleguaInterface {
     montao: Montao;
@@ -430,7 +433,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             );
         }
 
-        if (paraCada.vetorOuDicionario.tipo === 'texto') {
+        if (paraCada.vetorOuDicionario.tipo === 'texto' || typeof valorVetorOuDicionarioResolvido === 'string') {
             valorVetorOuDicionarioResolvido = valorVetorOuDicionarioResolvido.split('');
         }
 
@@ -1013,7 +1016,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
     override async visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> {
         let valor = await this.avaliar(expressao.valor);
 
-        if (valor.hasOwnProperty('valorRetornado')) {
+        if (valor && valor.hasOwnProperty('valorRetornado')) {
             valor = valor.valorRetornado;
         }
 
@@ -1125,12 +1128,29 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         return new ReferenciaMontao(enderecoDicionarioMontao);
     }
 
+    async visitarExpressaoElvis(expressao: Elvis): Promise<any> {
+        const esquerda: VariavelInterface | any = await this.avaliar(expressao.esquerda);
+        const direita: VariavelInterface | any = await this.avaliar(expressao.direita);
+        const valorEsquerdo: any = this.resolverValor(esquerda);
+        const valorDireito: any = this.resolverValor(direita);
+
+        if (valorEsquerdo === null || valorEsquerdo === undefined) {
+            return valorDireito;
+        }
+
+        return valorEsquerdo;
+    }
+
     visitarExpressaoEnquanto(expressao: EnquantoComoConstruto): Promise<any> | void {
         return this.logicaComumExecucaoEnquanto(expressao, true);
     }
 
     visitarExpressaoFazer(expressao: FazerComoConstruto): Promise<any> | void {
         return this.logicaComumExecucaoFazer(expressao, true);
+    }
+
+    visitarExpressaoImportar(expressao: ImportarComoConstruto): Promise<any> | void {
+        throw new Error('Importações não são suportadas neste interpretador.');
     }
 
     async visitarExpressaoListaCompreensao(listaCompreensao: ListaCompreensao): Promise<any> {
@@ -1147,6 +1167,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         const resultadoCompreensaoResolvido = resultadoCompreensao.valorRetornado.filter(r => r !== null).map(r => this.resolverValor(r));
 
         return resultadoCompreensaoResolvido;
+    }
+
+    visitarExpressaoPara(expressao: ParaComoConstruto): Promise<any> | void {
+        return this.logicaComumExecucaoPara(expressao, true);
     }
 
     visitarExpressaoParaCada(expressao: ParaCadaComoConstruto): Promise<any> {
@@ -1179,10 +1203,6 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         return retornoQuebra;
     }
 
-    visitarExpressaoPara(expressao: ParaComoConstruto): Promise<any> | void {
-        return this.logicaComumExecucaoPara(expressao, true);
-    }
-
     /**
      * Para Delégua e Pituguês, o separador é apenas um elemento de sintaxe.
      * Não há qualquer avaliação a ser feita.
@@ -1190,6 +1210,16 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
      */
     override async visitarExpressaoSeparador(expressao: Separador): Promise<any> {
         return Promise.resolve(null);
+    }
+
+    async visitarExpressaoSeTernario(expressao: SeTernario): Promise<any> {
+        const avaliacaoCondicao = await this.avaliar(expressao.condicao);
+        const valorAvaliacaoCondicao = this.resolverValor(avaliacaoCondicao);
+        if (valorAvaliacaoCondicao) {
+            return this.avaliar(expressao.expressaoSe);
+        }
+        
+        return this.avaliar(expressao.expressaoSenao);
     }
 
     override async visitarExpressaoTipoDe(expressao: TipoDe): Promise<string> {

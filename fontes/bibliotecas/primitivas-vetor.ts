@@ -108,21 +108,60 @@ export default {
             interpretador: InterpretadorInterface,
             nomePrimitiva: string,
             vetor: Array<any>,
-            inicio: number,
-            excluirQuantidade?: number,
+            posicaoInicial: number,
+            quantidadeExclusao?: number,
             ...itens: any[]
         ): Promise<any> => {
             let elementos = [];
 
-            if (excluirQuantidade || excluirQuantidade === 0) {
+            if (quantidadeExclusao || quantidadeExclusao === 0) {
                 elementos = !itens.length
-                    ? vetor.splice(inicio, excluirQuantidade)
-                    : vetor.splice(inicio, excluirQuantidade, ...itens);
+                    ? vetor.splice(posicaoInicial, quantidadeExclusao)
+                    : vetor.splice(posicaoInicial, quantidadeExclusao, ...itens);
+
+                if (nomePrimitiva !== '') {
+                    interpretador.pilhaEscoposExecucao.atribuirVariavel(
+                        { lexema: nomePrimitiva } as SimboloInterface,
+                        vetor
+                    );
+                }
+
+                return Promise.resolve(elementos);
             } else {
-                elementos = !itens.length ? vetor.splice(inicio) : vetor.splice(inicio, ...itens);
+                elementos = !itens.length ? vetor.splice(posicaoInicial) : vetor.splice(posicaoInicial, ...itens);
+
+                if (nomePrimitiva !== '') {
+                    interpretador.pilhaEscoposExecucao.atribuirVariavel(
+                        { lexema: nomePrimitiva } as SimboloInterface,
+                        elementos
+                    );
+                }
+
+                return Promise.resolve(vetor);
             }
-            return Promise.resolve(elementos);
         },
+        assinaturaFormato: 'vetor.encaixar(posicaoInicial?: número, quantidadeExclusao?: número, itens?: qualquer[])',
+        documentacao:
+            '# `vetor.encaixar(posicaoInicial, quantidadeExclusao, itens)` \n \n' +
+            'Encaixa um vetor em outro, dadas posições de início e quantidade de ítens a serem excluídos do vetor original. \n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar v = [1, 2, 3, 4, 5]\n' +
+            'escreva(v.encaixar()) // "[1, 2, 3, 4, 5]", ou seja, não faz coisa alguma.\n' +
+            `var v1 = v.encaixar(2)\n` +
+            'escreva(v) // "[3, 4, 5]", ou seja, a posição 2, onde fica o 3, passa a ser a nova posição inicial do vetor.\n' +
+            'escreva(v1) // "[1, 2]", ou seja, o retorno de `encaixar()` são as posições removidas do vetor original.\n' +
+            'var v2 = [1, 2, 3, 4, 5]\n' +
+            'escreva(v2.encaixar(2, 1)) // "[3]"\n' +
+            'escreva(v2) // "[1, 2, 4, 5]"\n```' +
+            'var v3 = [1, 2, 3, 4, 5]\n' +
+            'escreva(v3.encaixar(2, 1, "teste")) // "[3]"\n' +
+            'escreva(v3) // "[1, 2, "teste", 4, 5]"\n```' +
+            '\n\n ### Formas de uso \n' +
+            '`encaixar` suporta sobrecarga do método.\n\n',
+        exemploCodigo:
+            'vetor.encaixar(<nova posição inicial>)\n' +
+            'vetor.encaixar(<a partir desta posição>, <exclua esta quantidade de elementos>)\n' +
+            'vetor.encaixar(<a partir desta posição>, <exclua esta quantidade de elementos>, <adicione estes elementos>)',
     },
     fatiar: {
         tipoRetorno: 'qualquer[]',
@@ -157,7 +196,7 @@ export default {
             '\n\n```delegua\nvar v = [1, 2, 3, 4, 5]\n' +
             'escreva(v.fatiar()) // "[1, 2, 3, 4, 5]", ou seja, não faz coisa alguma.\n' +
             'escreva(v.fatiar(2, 4)) // "[3, 4]"\n' +
-            'escreva(v.fatiar(2)) // "[3, 4, 5]", ou seja, seleciona tudo da posição 3 até o final do vetor.\n```' +
+            'escreva(v.fatiar(2)) // "[3, 4, 5]", ou seja, extrai trecho da 3ª posição até o final do vetor.\n```' +
             '\n\n ### Formas de uso \n' +
             'Fatiar suporta sobrecarga do método.\n\n',
         exemploCodigo:
@@ -201,8 +240,7 @@ export default {
         assinaturaFormato: 'vetor.filtrarPor(funcao: função)',
         documentacao:
             '# `vetor.filtrarPor(funcao)` \n \n' +
-            'Dada uma função passada como parâmetro, executa essa função para cada elemento do vetor. \n' +
-            'Elementos cujo retorno da função é `falso` são excluídos. \n' +
+            'Devolve todos os elementos de um vetor cujo resultado da execução de uma função, passada por parâmetro, seja verdadeiro.\n' +
             '\n\n ### Exemplo de Código\n' +
             '\n\n```delegua\nvar v = [1, 2, 3, 4, 5]\n' +
             'var funcaoNumerosImpares = funcao (n) { retorna n % 2 > 0 }\n' +
@@ -236,7 +274,7 @@ export default {
             'escreva(v.inclui(2)) // verdadeiro\n' +
             'escreva(v.inclui(4)) // falso\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'vetor.inclui(elemento)',
+        exemploCodigo: 'vetor.inclui(elemento)'
     },
     inverter: {
         tipoRetorno: 'qualquer[]',
@@ -275,13 +313,14 @@ export default {
         ): Promise<any> => Promise.resolve(vetor.join(separador)),
         assinaturaFormato: 'vetor.juntar(separador: texto)',
         documentacao:
-            '# `vetor.juntar(separador)` \n \n' +
+            '# `vetor.juntar(separador = ",")` \n \n' +
             'Junta todos os elementos de um vetor em um texto, separando cada elemento pelo separador passado como parâmetro.\n' +
             '\n\n ## Exemplo de Código\n' +
             '\n\n```delegua\nvar v = [1, 2, 3]\n' +
             'escreva(v.juntar(":")) // "1:2:3"\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'vetor.juntar()',
+        exemploCodigo: 'vetor.juntar()\n' +
+            'vetor.juntar(<separador>)',
     },
     mapear: {
         tipoRetorno: 'qualquer[]',
@@ -314,7 +353,7 @@ export default {
         },
         assinaturaFormato: 'vetor.mapear(funcao: função)',
         documentacao:
-            '# `vetor.mapear(funcao)` \n \n' +
+            '# `vetor.mapear(funcao)`\n\n' +
             'Dada uma função passada como parâmetro, executa essa função para cada elemento do vetor. \n' +
             'Cada elemento retornado por esta função é adicionado ao vetor resultante. \n' +
             '\n\n ## Exemplo de Código\n' +

@@ -1081,6 +1081,18 @@ describe('Interpretador', () => {
                 });
             });
 
+            describe('Operadores binários diversos', () => {
+                it('Operador Elvis', async () => {
+                    const retornoLexador = lexador.mapear(['var a = nulo ?: 10', 'escreva(a)'], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('10');
+                });
+            });
+
             describe('Tente - Pegue - Finalmente', () => {
                 it('Tente', async () => {
                     const saidasMensagens = ['sucesso', 'pronto'];
@@ -1250,6 +1262,26 @@ describe('Interpretador', () => {
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                describe('Se ternário', () => {
+                    it('Trivial', async () => {
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'var idade = 20',
+                                'var categoria = idade < 18 ? "menor" : "adulto"',
+                                'escreva(categoria)'
+                            ],
+                            -1
+                        );
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retorno).toBeTruthy();
+                        expect(retorno.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('adulto');
+                    });
                 });
             });
 

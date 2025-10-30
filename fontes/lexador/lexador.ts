@@ -450,6 +450,16 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
 
                 break;
 
+            case '?':
+                this.avancar();
+                if (this.simboloAtual() === ':') {
+                    this.adicionarSimbolo(tiposDeSimbolos.ELVIS, '?:');
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.INTERROGACAO);
+                }
+                break;
+
             // Esta sessão ignora espaços em branco (ou similares) na tokenização.
 
             case ' ':

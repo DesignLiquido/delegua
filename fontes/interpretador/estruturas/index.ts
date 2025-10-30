@@ -1,4 +1,5 @@
 export * from './chamavel';
+export * from './classe-de-modulo';
 export * from './classe-padrao';
 export * from './descritor-tipo-classe';
 export * from './funcao-padrao';

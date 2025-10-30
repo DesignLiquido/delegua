@@ -6,6 +6,7 @@ import { Simbolo } from '../../fontes/lexador';
 
 import primitivasVetor from '../../fontes/bibliotecas/primitivas-vetor';
 import tiposDeSimbolos from '../../fontes/tipos-de-simbolos/delegua';
+import { VariavelInterface } from '../../fontes/interfaces';
 
 describe('Primitivas de vetor', () => {
     let interpretador: InterpretadorBase;
@@ -158,39 +159,54 @@ describe('Primitivas de vetor', () => {
     });
 
     describe('encaixar()', () => {
-        it('Inserindo novo elemento', async () => {
-            let vetor = [1, 2, 3]
-            await primitivasVetor.encaixar.implementacao(interpretador, 'v', vetor, 2, 0, 10);
-            expect(vetor).toStrictEqual([1, 2, 10, 3]);
+        it('Apenas primeiro parâmetro, para pular elementos', async () => {
+            let vetor = [1, 2, 3];
+            interpretador.pilhaEscoposExecucao.definirVariavel('v', vetor);
+            var resultado = await primitivasVetor.encaixar.implementacao(interpretador, 'v', vetor, 1);
+            expect(resultado).toStrictEqual([1]);
+            
+            const variavelNaPilha: VariavelInterface = interpretador.pilhaEscoposExecucao.obterVariavelPorNome('v');
+            expect(variavelNaPilha.valor).toStrictEqual([2, 3]);
+        });
+
+        it('Inserindo novo elemento sem remoção', async () => {
+            let vetor = [1, 2, 3];
+            interpretador.pilhaEscoposExecucao.definirVariavel('v', vetor);
+            var resultado = await primitivasVetor.encaixar.implementacao(interpretador, 'v', vetor, 2, 0, 10);
+            expect(resultado).toStrictEqual([]);
+
+            const variavelNaPilha: VariavelInterface = interpretador.pilhaEscoposExecucao.obterVariavelPorNome('v');
+            expect(variavelNaPilha.valor).toStrictEqual([1, 2, 10, 3]);
         });
 
         it('Removendo elemento na posição 2', async () => {
-            let vetor = [1, 2, 3]
+            let vetor = [1, 2, 3];
+            interpretador.pilhaEscoposExecucao.definirVariavel('v', vetor);
             const resultado = await primitivasVetor.encaixar.implementacao(interpretador, 'v', vetor, 2, 1, 10);
-            expect(vetor).toStrictEqual([1, 2, 10]);
             expect(resultado).toStrictEqual([3]);
+
+            const variavelNaPilha: VariavelInterface = interpretador.pilhaEscoposExecucao.obterVariavelPorNome('v');
+            expect(variavelNaPilha.valor).toStrictEqual([1, 2, 10]);
         });
 
         it('Um elemento', async () => {
-            let vetor = [1, 2, 3, 4, 5]
+            let vetor = [1, 2, 3, 4, 5];
+            interpretador.pilhaEscoposExecucao.definirVariavel('v', vetor);
             const resultado = await primitivasVetor.encaixar.implementacao(interpretador, 'v', vetor, 1, 3, "texto");
-            expect(vetor).toStrictEqual([1, 'texto', 5]);
             expect(resultado).toStrictEqual([2, 3, 4]);
+
+            const variavelNaPilha: VariavelInterface = interpretador.pilhaEscoposExecucao.obterVariavelPorNome('v');
+            expect(variavelNaPilha.valor).toStrictEqual([1, 'texto', 5]);
         });
 
         it('Mais de um elemento', async () => {
-            let vetor = [1, 2, 3, 4, 5]
+            let vetor = [1, 2, 3, 4, 5];
+            interpretador.pilhaEscoposExecucao.definirVariavel('v', vetor);
             const resultado = await primitivasVetor.encaixar.implementacao(interpretador, 'v', vetor, 1, 3, "texto1", "texto2");
-            expect(vetor).toStrictEqual([1, 'texto1', 'texto2', 5]);
             expect(resultado).toStrictEqual([2, 3, 4]);
-        });
 
-        it('Apenas um parâmetro', async () => {
-            let vetor = ['Oscilador', 'Circuito', 'Modulador', 'Refrigerador']
-            const resultado = await primitivasVetor.encaixar.implementacao(interpretador, 'v', vetor, 1);
-            
-            expect(vetor).toStrictEqual(['Oscilador']);
-            expect(resultado).toStrictEqual([ 'Circuito', 'Modulador', 'Refrigerador' ]);
+            const variavelNaPilha: VariavelInterface = interpretador.pilhaEscoposExecucao.obterVariavelPorNome('v');
+            expect(variavelNaPilha.valor).toStrictEqual([1, 'texto1', 'texto2', 5]);
         });
     });
 

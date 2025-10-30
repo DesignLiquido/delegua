@@ -17,10 +17,12 @@ import {
     Decorador,
     DefinirValor,
     Dicionario,
+    Elvis,
     EnquantoComoConstruto,
     ExpressaoRegular,
     FazerComoConstruto,
     FuncaoConstruto,
+    ImportarComoConstruto,
     Isto,
     Leia,
     Literal,
@@ -29,6 +31,7 @@ import {
     ParaComoConstruto,
     ReferenciaFuncao,
     Separador,
+    SeTernario,
     Super,
     TipoDe,
     Tupla,
@@ -86,6 +89,7 @@ import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
+import { ClasseDeModulo } from '../interpretador/estruturas';
 
 // Será usado para forçar tipagem em construtos e em algumas funções internas.
 type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolos];
@@ -117,6 +121,9 @@ export class AvaliadorSintatico
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
     tiposDefinidosEmCodigo: { [nomeTipo: string]: Declaracao };
+    tiposDefinidosPorBibliotecas: {
+        [nomeTipo: string]: ClasseDeModulo;
+    };
     pilhaEscopos: PilhaEscopos;
     tiposDeFerramentasExternas: { [nomeFerramenta: string]: { [nomeTipo: string]: string } };
     primitivasConhecidas: {
@@ -266,6 +273,14 @@ export class AvaliadorSintatico
             chaves,
             valores
         );
+    }
+
+    protected construtoImportar(): ImportarComoConstruto {
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após declaração.");
+        const caminho = this.expressao();
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração.");
+
+        return new ImportarComoConstruto(caminho as Literal);
     }
 
     protected construtoTupla(): Tupla {
@@ -543,7 +558,7 @@ export class AvaliadorSintatico
 
             case tiposDeSimbolos.IMPORTAR:
                 this.avancarEDevolverAnterior();
-                return this.declaracaoImportar();
+                return this.construtoImportar();
 
             case tiposDeSimbolos.ISTO:
                 this.avancarEDevolverAnterior();
@@ -1131,6 +1146,33 @@ export class AvaliadorSintatico
         return this.chamar();
     }
 
+    protected elvis(): Construto {
+        let expressao = this.unario();
+
+        if (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.ELVIS
+            )
+        ) {
+            const direito = this.unario();
+            return new Elvis(this.hashArquivo, expressao, direito);
+        }
+
+        return expressao;
+    }
+
+    override exponenciacao(): Construto {
+        let expressao = this.elvis();
+
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EXPONENCIACAO)) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.unario();
+            expressao = new Binario(this.hashArquivo, expressao, operador, direito);
+        }
+
+        return expressao;
+    }
+
     override multiplicar(): Construto {
         let expressao = this.exponenciacao();
 
@@ -1329,12 +1371,26 @@ export class AvaliadorSintatico
         return expressao;
     }
 
+    protected seTernario(): Construto {
+        let expressaoOuCondicao = this.ou();
+
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTERROGACAO)) {
+            const operador = this.simbolos[this.atual - 1];
+            const expressaoEntao = this.seTernario();
+            this.consumir(tiposDeSimbolos.DOIS_PONTOS, `Esperado dois-pontos após caminho positivo em se ternário. Atual: ${this.simbolos[this.atual].lexema}.`);
+            const expressaoSenao = this.seTernario();
+            expressaoOuCondicao = new SeTernario(this.hashArquivo, expressaoOuCondicao, expressaoEntao, operador, expressaoSenao);
+        }
+
+        return expressaoOuCondicao;
+    }
+
     /**
      * Método que resolve atribuições.
      * @returns Um construto do tipo `Atribuir`, `Conjunto` ou `AtribuicaoPorIndice`.
      */
     override atribuir(): Construto {
-        const expressao = this.ou();
+        const expressao = this.seTernario();
 
         if (
             expressao instanceof Binario &&
@@ -1367,12 +1423,12 @@ export class AvaliadorSintatico
             );
         } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
             const igual = this.simbolos[this.atual - 1];
-            const valor = this.expressao();
+            const valor = this.seTernario();
 
-            switch (expressao.constructor.name) {
-                case 'Variavel':
+            switch (expressao.constructor) {
+                case Variavel:
                     return new Atribuir(this.hashArquivo, expressao, valor);
-                case 'AcessoMetodoOuPropriedade':
+                case AcessoMetodoOuPropriedade:
                     const expressaoAcessoMetodoOuPropriedade =
                         expressao as AcessoMetodoOuPropriedade;
                     return new DefinirValor(
@@ -1382,7 +1438,7 @@ export class AvaliadorSintatico
                         expressaoAcessoMetodoOuPropriedade.simbolo,
                         valor
                     );
-                case 'AcessoIndiceVariavel':
+                case AcessoIndiceVariavel:
                     const expressaoAcessoIndiceVariavel = expressao as AcessoIndiceVariavel;
                     return new AtribuicaoPorIndice(
                         this.hashArquivo,
@@ -1680,12 +1736,72 @@ export class AvaliadorSintatico
      * sobrescrito em `delegua-node`.
      * @returns {Importar} Uma declaração `Importar`.
      */
-    override declaracaoImportar(): Importar {
-        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após declaração.");
-        const caminho = this.expressao();
-        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração.");
+    declaracaoImportar(): Importar {
+        let identificadorDeTudo: SimboloInterface | null = null;
+        const elementosImportacao: SimboloInterface[] = [];
 
-        return new Importar(caminho as Literal);
+        switch (this.simbolos[this.atual].tipo) {
+            case tiposDeSimbolos.TUDO:
+                this.avancarEDevolverAnterior();
+                this.consumir(tiposDeSimbolos.COMO, "Esperado 'como' após 'tudo' em declaração de importação.");
+                identificadorDeTudo = this.consumir(
+                    tiposDeSimbolos.IDENTIFICADOR,
+                    "Esperado identificador após 'como' em declaração de importação de 'tudo'."
+                );
+                break;
+            case tiposDeSimbolos.CHAVE_ESQUERDA:
+                this.avancarEDevolverAnterior();
+                
+                do {
+                    const identificadorImportacao = this.consumir(
+                        tiposDeSimbolos.IDENTIFICADOR,
+                        "Esperado identificador de elemento a ser importado."
+                    );
+                    elementosImportacao.push(identificadorImportacao);
+                } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+                this.consumir(
+                    tiposDeSimbolos.CHAVE_DIREITA,
+                    "Esperado '}' após lista de elementos a serem importados."
+                );
+                break;
+            default:
+                throw this.erro(
+                    this.simbolos[this.atual],
+                    "Esperado ou palavra reservada 'tudo' ou abertura de chaves após palavra reservada 'importar'."
+                );
+        }        
+
+        this.consumir(tiposDeSimbolos.DE, "Esperado 'de' após identificador em declaração de importação de 'tudo'.");
+        let construtoCaminhoModulo: Construto;
+        switch (this.simbolos[this.atual].tipo) {
+            case tiposDeSimbolos.TEXTO:
+                const simboloCaminhoModulo = this.avancarEDevolverAnterior();
+                construtoCaminhoModulo = new Literal(
+                    simboloCaminhoModulo.hashArquivo,
+                    Number(simboloCaminhoModulo.linha),
+                    simboloCaminhoModulo.literal
+                );
+                break;
+            case tiposDeSimbolos.IDENTIFICADOR:
+                const identificadorModulo = this.avancarEDevolverAnterior();
+                construtoCaminhoModulo = new Literal(
+                    identificadorModulo.hashArquivo,
+                    Number(identificadorModulo.linha),
+                    identificadorModulo.lexema
+                );
+                    
+                break;
+        }
+
+        const importar = new Importar(construtoCaminhoModulo);
+        if (identificadorDeTudo !== null) {
+            importar.simboloTudo = identificadorDeTudo;
+        } else {
+            importar.elementosImportacao = elementosImportacao;
+        }
+        
+        return importar;
     }
 
     override declaracaoPara(): Para | ParaCada {
@@ -2115,6 +2231,9 @@ export class AvaliadorSintatico
             case tiposDeSimbolos.FAZER:
                 const simboloFazer = this.avancarEDevolverAnterior();
                 return this.declaracaoFazer(simboloFazer);
+            case tiposDeSimbolos.IMPORTAR:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoImportar();
             case tiposDeSimbolos.LINHA_COMENTARIO:
                 return this.declaracaoComentarioMultilinha();
             case tiposDeSimbolos.PARA:
@@ -2289,12 +2408,42 @@ export class AvaliadorSintatico
                         const tipoRetornoAcessoMetodoResolvido = entidadeChamadaAcessoMetodo.tipoRetornoMetodo.replace('<T>', entidadeChamadaAcessoMetodo.objeto.tipo);
                         return tipoRetornoAcessoMetodoResolvido;
                     case AcessoMetodoOuPropriedade:
-                        // Este caso ocorre quando a variável/constante é do tipo 'qualquer',
-                        // e a chamada normalmente é feita para uma primitiva.
-                        // A inferência, portanto, ocorre pelo uso da primitiva.
                         const entidadeChamadaAcessoMetodoOuPropriedade =
                             entidadeChamadaChamada as AcessoMetodoOuPropriedade;
 
+                        // Algumas coisas podem acontecer aqui.
+                        // Uma delas é a variável/constante ser uma classe padrão.
+                        // Isso ocorre quando a importação é feita de uma biblioteca Node.js.
+                        // Nesse caso, o tipo de `entidadeChamadaAcessoMetodoOuPropriedade.objeto` começa com uma letra maiúscula.
+                        if (entidadeChamadaAcessoMetodoOuPropriedade.objeto.tipo && 
+                            entidadeChamadaAcessoMetodoOuPropriedade.objeto.tipo.match(/^[A-Z]/)
+                        ) {
+                            const tipoCorrespondente = this.tiposDefinidosPorBibliotecas[entidadeChamadaAcessoMetodoOuPropriedade.objeto.tipo];
+                            if (!tipoCorrespondente) {
+                                throw new ErroAvaliadorSintatico(
+                                    entidadeChamadaAcessoMetodoOuPropriedade.simbolo,
+                                    `Tipo '${entidadeChamadaAcessoMetodoOuPropriedade.objeto.tipo}' não foi encontrado entre os tipos definidos por bibliotecas.`
+                                );
+                            }
+
+                            if (!(entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema in tipoCorrespondente.metodos) && 
+                                !(entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema in tipoCorrespondente.propriedades)) {
+                                throw new ErroAvaliadorSintatico(
+                                    entidadeChamadaAcessoMetodoOuPropriedade.simbolo,
+                                    `Membro '${entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema}' não existe no tipo '${entidadeChamadaAcessoMetodoOuPropriedade.objeto.tipo}'.`
+                                );
+                            }
+
+                            if (entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema in tipoCorrespondente.metodos) {
+                                return tipoCorrespondente.metodos[entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema].tipo;
+                            }
+
+                            return tipoCorrespondente.propriedades[entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema].tipo;
+                        }
+
+                        // Este caso ocorre quando a variável/constante é do tipo 'qualquer',
+                        // e a chamada normalmente é feita para uma primitiva.
+                        // A inferência, portanto, ocorre pelo uso da primitiva.
                         for (const primitiva in this.primitivasConhecidas) {
                             if (
                                 this.primitivasConhecidas[primitiva].hasOwnProperty(
