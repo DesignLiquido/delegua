@@ -8,10 +8,16 @@ describe('Interpretador (Prisma)', () => {
         let avaliadorSintatico: AvaliadorSintaticoPrisma;
         let interpretador: InterpretadorComDepuracao;
 
+        let _saidas: string[] = [];
+        const funcaoSaida = (texto: string) => {
+            _saidas.push(texto);
+        }
+
         beforeEach(() => {
+            _saidas = [];
             lexador = new LexadorPrisma();
             avaliadorSintatico = new AvaliadorSintaticoPrisma();
-            interpretador = new InterpretadorComDepuracao(process.cwd(), () => {}, () => {});
+            interpretador = new InterpretadorComDepuracao(process.cwd(), funcaoSaida, funcaoSaida);
         });
 
         describe('Cenários de sucesso', () => {

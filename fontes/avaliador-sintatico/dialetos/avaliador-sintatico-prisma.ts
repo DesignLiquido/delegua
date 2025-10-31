@@ -195,29 +195,12 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.COLCHETE_ESQUERDO:
                 this.avancarEDevolverAnterior();
-                if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                    return new Vetor(this.hashArquivo, simboloAtual.linha, [], 0, 'qualquer[]');
+                switch (this.simboloAtual().tipo) {
+                    case tiposDeSimbolos.COLCHETE_ESQUERDO: // Texto multilinhas
+                        return this.construtoTextoMultilinhas();
+                    default:
+                        throw this.erro(simboloAtual, 'Terminar.');
                 }
-
-                while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                    const valor = this.atribuir();
-                    valores.push(valor);
-                    if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
-                        this.consumir(
-                            tiposDeSimbolos.VIRGULA,
-                            'Esperado vírgula antes da próxima expressão.'
-                        );
-                    }
-                }
-
-                const tipoVetor = inferirTipoVariavel(valores);
-                return new Vetor(
-                    this.hashArquivo,
-                    simboloAtual.linha,
-                    valores,
-                    valores.length,
-                    tipoVetor
-                );
             case tiposDeSimbolos.CHAVE_ESQUERDA:
                 this.avancarEDevolverAnterior();
                 const chaves = [];
@@ -311,6 +294,26 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         }
 
         throw this.erro(this.simboloAtual(), 'Esperado expressão.');
+    }
+
+    /**
+     * Construto para texto multilinhas.
+     * @returns 
+     */
+    construtoTextoMultilinhas(): Construto {
+        const segundoColchete = this.consumir(tiposDeSimbolos.COLCHETE_ESQUERDO, "Esperado '[' antes do texto multilinhas.");
+        let texto = "";
+        let linha = segundoColchete.linha;
+        while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
+            texto += this.simbolos[this.atual].lexema + " ";
+            if (this.simbolos[this.atual].linha !== linha) {
+                texto += "\n";
+                linha = this.simbolos[this.atual].linha;
+            }
+            this.avancarEDevolverAnterior();
+        }
+        this.consumir(tiposDeSimbolos.COLCHETE_DIREITO, "Esperado ']' após o texto multilinhas.");
+        return new Literal(this.hashArquivo, segundoColchete.linha, texto);
     }
 
     expressaoLeia(): Leia {

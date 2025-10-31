@@ -181,8 +181,6 @@ export class LexadorPrisma implements LexadorInterface<SimboloInterface> {
             case ' ':
             case '\t':
             case '\r':
-                this.avancar();
-                break;
             case '\n':
                 this.avancar();
                 break;
