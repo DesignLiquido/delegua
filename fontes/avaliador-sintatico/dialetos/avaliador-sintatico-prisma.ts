@@ -628,6 +628,8 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             "Esperado ')' após os valores em escreva."
         );
 
+        this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, "Esperado ';' após fechamento de parênteses em escreva.");
+
         return new Escreva(Number(simboloEscreva.linha), simboloEscreva.hashArquivo, argumentos);
     }
 
@@ -680,9 +682,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         try {
             this.blocos += 1;
 
-            this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'enquanto'.");
             const condicao = this.expressao();
-            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após condição do enquanto.");
 
             const bloco = this.resolverDeclaracao();
 
@@ -694,16 +694,12 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
 
     declaracaoSe(): Se {
         const simboloSe: SimboloInterface = this.simbolos[this.atual];
-        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'se'.");
         const condicao = this.expressao();
-        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após condição do se.");
 
-        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ENTAO)) {
-            this.consumir(
-                this.simbolos[this.atual].tipo,
-                "Esperado palavra reservada 'entao' ou 'então' após condição em declaração 'se'."
-            );
-        }
+        this.consumir(
+            tiposDeSimbolos.ENTAO,
+            "Esperado palavra reservada 'entao' ou 'então' após condição em declaração 'se'."
+        );
 
         const declaracoes = [];
         do {
@@ -883,7 +879,8 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
                 this.avancarEDevolverAnterior();
                 return null;
             case tiposDeSimbolos.ENTAO:
-                const simboloInicioBloco: SimboloInterface = this.simboloAtual();
+            case tiposDeSimbolos.INICIO:
+                const simboloInicioBloco: SimboloInterface = this.avancarEDevolverAnterior();
                 return new Bloco(
                     simboloInicioBloco.hashArquivo,
                     Number(simboloInicioBloco.linha),

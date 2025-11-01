@@ -133,14 +133,14 @@ describe('Avaliador Sintático (Prisma)', () => {
                 expect(retornoAvaliadorSintatico.declaracoes[0].constructor.name).toBe('Se');
             });
 
-            it.skip('Loop enquanto', () => {
+            it('Loop enquanto', () => {
                 const retornoLexador = lexador.mapear(
                     [
                         'local i = 0;',
-                        'enquanto (i < 3) {',
+                        'enquanto i < 3 inicio',
                         '    imprima(i);',
                         '    i = i + 1;',
-                        '}'
+                        'fim'
                     ],
                     -1
                 );

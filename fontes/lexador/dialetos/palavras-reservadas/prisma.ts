@@ -19,6 +19,7 @@ export const palavrasReservadas = {
     funcao: tiposDeSimbolos.FUNCAO,
     função: tiposDeSimbolos.FUNÇÃO,
     importar: tiposDeSimbolos.IMPORTAR,
+    inicio: tiposDeSimbolos.INICIO,
     isto: tiposDeSimbolos.ISTO,
     leia: tiposDeSimbolos.LEIA,
     local: tiposDeSimbolos.LOCAL,
