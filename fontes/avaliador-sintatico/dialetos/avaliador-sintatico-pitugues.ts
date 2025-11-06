@@ -78,10 +78,10 @@ import {
 import tiposDeDadosPitugues from '../../tipos-de-dados/dialetos/pitugues';
 import tiposDeSimbolos from '../../tipos-de-simbolos/pitugues';
 
-import primitivasDicionario from '../../bibliotecas/primitivas-dicionario';
-import primitivasNumero from '../../bibliotecas/primitivas-numero';
-import primitivasTexto from '../../bibliotecas/primitivas-texto';
-import primitivasVetor from '../../bibliotecas/primitivas-vetor';
+import primitivasDicionario from '../../bibliotecas/dialetos/pitugues/primitivas-dicionario';
+import primitivasNumero from '../../bibliotecas/dialetos/pitugues/primitivas-numero';
+import primitivasTexto from '../../bibliotecas/dialetos/pitugues/primitivas-texto';
+import primitivasVetor from '../../bibliotecas/dialetos/pitugues/primitivas-vetor';
 import { ListaCompreensao } from '../../construtos/lista-compreensao';
 
 /**
@@ -1063,8 +1063,8 @@ export class AvaliadorSintaticoPitugues
 
         return new Sustar(this.simboloAtual());
     }
-    
-    
+
+
     declaracaoContinua(): Continua {
         if (this.blocos < 1) {
             throw this.erro(
