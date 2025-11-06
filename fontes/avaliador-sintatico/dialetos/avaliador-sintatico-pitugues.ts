@@ -722,10 +722,11 @@ export class AvaliadorSintaticoPitugues
      protected seTernario(): Construto {
             let expressaoOuCondicao = this.ou();
     
-            while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
+            while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SE)) {
                 const operador = this.simbolos[this.atual - 1];
                 const expressaoEntao = this.seTernario();
-                this.consumir(tiposDeSimbolos.DOIS_PONTOS, `Esperado dois-pontos após caminho positivo em se ternário. Atual: ${this.simbolos[this.atual].lexema}.`);
+              this.consumir(tiposDeSimbolos.SENAO, `Esperado 'senão' ou 'senao' após caminho positivo em se ternário. Atual:
+                 ${this.simbolos[this.atual].lexema}.`);
                 const expressaoSenao = this.seTernario();
                 expressaoOuCondicao = new SeTernario(this.hashArquivo, expressaoOuCondicao, expressaoEntao, operador, expressaoSenao);
             }
