@@ -949,7 +949,7 @@ describe('Interpretador (Pituguês)', () => {
                     const codigo = [
                         'var a = 10',
                         'var b = 20',
-                        'var maior = a > b se a senão b',
+                        'var maior = a se a > b senão b',
                         'escreva(maior)',
                     ];
                     const retornoLexador = lexador.mapear(codigo, -1);
@@ -962,6 +962,8 @@ describe('Interpretador (Pituguês)', () => {
                     );
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('20');
                 
                     
                 });
