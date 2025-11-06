@@ -83,6 +83,7 @@ import primitivasNumero from '../../bibliotecas/primitivas-numero';
 import primitivasTexto from '../../bibliotecas/primitivas-texto';
 import primitivasVetor from '../../bibliotecas/primitivas-vetor';
 import { ListaCompreensao } from '../../construtos/lista-compreensao';
+import { SeTernario } from '../../construtos/se-ternario';
 
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -718,6 +719,20 @@ export class AvaliadorSintaticoPitugues
 
         return expressao;
     }
+     protected seTernario(): Construto {
+            let expressaoOuCondicao = this.ou();
+    
+            while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
+                const operador = this.simbolos[this.atual - 1];
+                const expressaoEntao = this.seTernario();
+                this.consumir(tiposDeSimbolos.DOIS_PONTOS, `Esperado dois-pontos após caminho positivo em se ternário. Atual: ${this.simbolos[this.atual].lexema}.`);
+                const expressaoSenao = this.seTernario();
+                expressaoOuCondicao = new SeTernario(this.hashArquivo, expressaoOuCondicao, expressaoEntao, operador, expressaoSenao);
+            }
+    
+            return expressaoOuCondicao;
+        }
+    
 
     ou(): Construto {
         let expressao = this.e();

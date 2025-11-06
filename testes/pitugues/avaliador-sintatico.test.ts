@@ -95,6 +95,18 @@ describe('Avaliador sintático (Pituguês)', () => {
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
             });
+            it('SE ternário', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                    'var idade = 20',
+                    'var categoria = "Adulto" se idade >= 18 senão "Menor de idade"'
+                    ], -1
+                );
+                const retornoAvaliadorSintatico =
+                    avaliadorSintatico.analisar(retornoLexador, -1);
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+            });
         });
         
         describe('Casos de falha', () => {
