@@ -48,7 +48,7 @@ describe('Avaliador Sintático (Prisma)', () => {
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 expect(retornoAvaliadorSintatico.declaracoes[0].constructor.name).toBe('Var');
                 const declaracao = retornoAvaliadorSintatico.declaracoes[0] as Var;
-                expect(declaracao.inicializador.constructor.name).toBe(Leia);
+                expect(declaracao.inicializador.constructor).toBe(Leia);
             });
 
             it('Declaração de variável numérica', () => {
