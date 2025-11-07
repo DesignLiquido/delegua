@@ -3099,6 +3099,12 @@ export class AvaliadorSintatico
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
+            'clonar',
+            new InformacaoElementoSintatico('clonar', 'qualquer', true, [
+                new InformacaoElementoSintatico('valor', 'qualquer'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
             'encontrar',
             new InformacaoElementoSintatico('encontrar', 'qualquer', true, [
                 new InformacaoElementoSintatico('vetor', 'qualquer[]'),
