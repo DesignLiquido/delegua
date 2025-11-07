@@ -1,6 +1,15 @@
-import { Elvis, EnquantoComoConstruto, FazerComoConstruto, ImportarComoConstruto, ListaCompreensao, ParaCadaComoConstruto, ParaComoConstruto, SeTernario } from "../construtos";
-import { Importar, ParaCada } from "../declaracoes";
-import { VisitanteComumInterface } from "./visitante-comum-interface";
+import {
+    Elvis,
+    EnquantoComoConstruto,
+    FazerComoConstruto,
+    ImportarComoConstruto,
+    ListaCompreensao,
+    ParaCadaComoConstruto,
+    ParaComoConstruto,
+    SeTernario,
+} from '../construtos';
+import { Importar, ParaCada } from '../declaracoes';
+import { VisitanteComumInterface } from './visitante-comum-interface';
 
 export interface VisitanteDeleguaInterface extends VisitanteComumInterface {
     visitarDeclaracaoImportar(declaracao: Importar): Promise<any> | void;

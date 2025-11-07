@@ -1,5 +1,3 @@
-
-
 export default {
     ADICAO: 'ADICAO',
     BIT_AND: 'BIT_AND',

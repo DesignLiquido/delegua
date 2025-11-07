@@ -289,7 +289,7 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
                 break;
 
             case '#':
-                this.comentarioUmaLinha()
+                this.comentarioUmaLinha();
                 break;
             case '[':
                 this.adicionarSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO);

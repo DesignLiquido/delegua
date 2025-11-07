@@ -174,7 +174,7 @@ export async function clonar(
     } else {
         valorResolvido = valor;
     }
-    
+
     // Map para evitar referências circulares
     const visitados = new WeakMap<object, any>();
 
@@ -197,11 +197,11 @@ export async function clonar(
         if (Array.isArray(valorAtual)) {
             const arrayClonado: any[] = [];
             visitados.set(valorAtual, arrayClonado);
-            
+
             for (let i = 0; i < valorAtual.length; i++) {
                 arrayClonado[i] = clonarProfundo(valorAtual[i]);
             }
-            
+
             return arrayClonado;
         }
 
@@ -210,30 +210,35 @@ export async function clonar(
             // Clonar propriedades do objeto
             const propriedadesClonadas: { [nome: string]: any } = {};
             visitados.set(valorAtual, propriedadesClonadas);
-            
+
             for (const chave in valorAtual.propriedades) {
                 if (valorAtual.propriedades.hasOwnProperty(chave)) {
                     propriedadesClonadas[chave] = clonarProfundo(valorAtual.propriedades[chave]);
                 }
             }
-            
+
             // Criar novo objeto com as propriedades clonadas
             // Nota: A classe em si não é clonada, apenas suas propriedades
             const objetoClonado = new ObjetoDeleguaClasse(valorAtual.classe);
             objetoClonado.propriedades = propriedadesClonadas;
-            
+
             return objetoClonado;
         }
 
         // Tuplas
         const nomeClasseTupla = valorAtual.constructor?.name;
-        if (nomeClasseTupla && /^(Dupla|Trio|Quarteto|Quinteto|Sexteto|Septeto|Octeto|Noneto|Deceto)$/.test(nomeClasseTupla)) {
+        if (
+            nomeClasseTupla &&
+            /^(Dupla|Trio|Quarteto|Quinteto|Sexteto|Septeto|Octeto|Noneto|Deceto)$/.test(
+                nomeClasseTupla
+            )
+        ) {
             const valoresClonados: any[] = [];
             visitados.set(valorAtual, valoresClonados);
-            
+
             // Extrair valores da tupla baseado no tipo
             let valores: any[] = [];
-            
+
             switch (nomeClasseTupla) {
                 case 'Dupla':
                     valores = [valorAtual.primeiro, valorAtual.segundo];
@@ -242,38 +247,96 @@ export async function clonar(
                     valores = [valorAtual.primeiro, valorAtual.segundo, valorAtual.terceiro];
                     break;
                 case 'Quarteto':
-                    valores = [valorAtual.primeiro, valorAtual.segundo, valorAtual.terceiro, valorAtual.quarto];
+                    valores = [
+                        valorAtual.primeiro,
+                        valorAtual.segundo,
+                        valorAtual.terceiro,
+                        valorAtual.quarto,
+                    ];
                     break;
                 case 'Quinteto':
-                    valores = [valorAtual.primeiro, valorAtual.segundo, valorAtual.terceiro, valorAtual.quarto, valorAtual.quinto];
+                    valores = [
+                        valorAtual.primeiro,
+                        valorAtual.segundo,
+                        valorAtual.terceiro,
+                        valorAtual.quarto,
+                        valorAtual.quinto,
+                    ];
                     break;
                 case 'Sexteto':
-                    valores = [valorAtual.primeiro, valorAtual.segundo, valorAtual.terceiro, valorAtual.quarto, valorAtual.quinto, valorAtual.sexto];
+                    valores = [
+                        valorAtual.primeiro,
+                        valorAtual.segundo,
+                        valorAtual.terceiro,
+                        valorAtual.quarto,
+                        valorAtual.quinto,
+                        valorAtual.sexto,
+                    ];
                     break;
                 case 'Septeto':
-                    valores = [valorAtual.primeiro, valorAtual.segundo, valorAtual.terceiro, valorAtual.quarto, valorAtual.quinto, valorAtual.sexto, valorAtual.setimo];
+                    valores = [
+                        valorAtual.primeiro,
+                        valorAtual.segundo,
+                        valorAtual.terceiro,
+                        valorAtual.quarto,
+                        valorAtual.quinto,
+                        valorAtual.sexto,
+                        valorAtual.setimo,
+                    ];
                     break;
                 case 'Octeto':
-                    valores = [valorAtual.primeiro, valorAtual.segundo, valorAtual.terceiro, valorAtual.quarto, valorAtual.quinto, valorAtual.sexto, valorAtual.setimo, valorAtual.oitavo];
+                    valores = [
+                        valorAtual.primeiro,
+                        valorAtual.segundo,
+                        valorAtual.terceiro,
+                        valorAtual.quarto,
+                        valorAtual.quinto,
+                        valorAtual.sexto,
+                        valorAtual.setimo,
+                        valorAtual.oitavo,
+                    ];
                     break;
                 case 'Noneto':
-                    valores = [valorAtual.primeiro, valorAtual.segundo, valorAtual.terceiro, valorAtual.quarto, valorAtual.quinto, valorAtual.sexto, valorAtual.setimo, valorAtual.oitavo, valorAtual.nono];
+                    valores = [
+                        valorAtual.primeiro,
+                        valorAtual.segundo,
+                        valorAtual.terceiro,
+                        valorAtual.quarto,
+                        valorAtual.quinto,
+                        valorAtual.sexto,
+                        valorAtual.setimo,
+                        valorAtual.oitavo,
+                        valorAtual.nono,
+                    ];
                     break;
                 case 'Deceto':
-                    valores = [valorAtual.primeiro, valorAtual.segundo, valorAtual.terceiro, valorAtual.quarto, valorAtual.quinto, valorAtual.sexto, valorAtual.setimo, valorAtual.oitavo, valorAtual.nono, valorAtual.decimo];
+                    valores = [
+                        valorAtual.primeiro,
+                        valorAtual.segundo,
+                        valorAtual.terceiro,
+                        valorAtual.quarto,
+                        valorAtual.quinto,
+                        valorAtual.sexto,
+                        valorAtual.setimo,
+                        valorAtual.oitavo,
+                        valorAtual.nono,
+                        valorAtual.decimo,
+                    ];
                     break;
                 default:
                     // Se não conseguir identificar, tentar extrair valores diretamente
                     if (valorAtual.valor) {
-                        valores = Array.isArray(valorAtual.valor) ? valorAtual.valor : [valorAtual.valor];
+                        valores = Array.isArray(valorAtual.valor)
+                            ? valorAtual.valor
+                            : [valorAtual.valor];
                     }
             }
-            
+
             // Clonar valores
             for (let i = 0; i < valores.length; i++) {
                 valoresClonados.push(clonarProfundo(valores[i]));
             }
-            
+
             // Recriar a tupla com valores clonados
             switch (nomeClasseTupla) {
                 case 'Dupla':
@@ -281,19 +344,75 @@ export async function clonar(
                 case 'Trio':
                     return new Trio(valoresClonados[0], valoresClonados[1], valoresClonados[2]);
                 case 'Quarteto':
-                    return new Quarteto(valoresClonados[0], valoresClonados[1], valoresClonados[2], valoresClonados[3]);
+                    return new Quarteto(
+                        valoresClonados[0],
+                        valoresClonados[1],
+                        valoresClonados[2],
+                        valoresClonados[3]
+                    );
                 case 'Quinteto':
-                    return new Quinteto(valoresClonados[0], valoresClonados[1], valoresClonados[2], valoresClonados[3], valoresClonados[4]);
+                    return new Quinteto(
+                        valoresClonados[0],
+                        valoresClonados[1],
+                        valoresClonados[2],
+                        valoresClonados[3],
+                        valoresClonados[4]
+                    );
                 case 'Sexteto':
-                    return new Sexteto(valoresClonados[0], valoresClonados[1], valoresClonados[2], valoresClonados[3], valoresClonados[4], valoresClonados[5]);
+                    return new Sexteto(
+                        valoresClonados[0],
+                        valoresClonados[1],
+                        valoresClonados[2],
+                        valoresClonados[3],
+                        valoresClonados[4],
+                        valoresClonados[5]
+                    );
                 case 'Septeto':
-                    return new Septeto(valoresClonados[0], valoresClonados[1], valoresClonados[2], valoresClonados[3], valoresClonados[4], valoresClonados[5], valoresClonados[6]);
+                    return new Septeto(
+                        valoresClonados[0],
+                        valoresClonados[1],
+                        valoresClonados[2],
+                        valoresClonados[3],
+                        valoresClonados[4],
+                        valoresClonados[5],
+                        valoresClonados[6]
+                    );
                 case 'Octeto':
-                    return new Octeto(valoresClonados[0], valoresClonados[1], valoresClonados[2], valoresClonados[3], valoresClonados[4], valoresClonados[5], valoresClonados[6], valoresClonados[7]);
+                    return new Octeto(
+                        valoresClonados[0],
+                        valoresClonados[1],
+                        valoresClonados[2],
+                        valoresClonados[3],
+                        valoresClonados[4],
+                        valoresClonados[5],
+                        valoresClonados[6],
+                        valoresClonados[7]
+                    );
                 case 'Noneto':
-                    return new Noneto(valoresClonados[0], valoresClonados[1], valoresClonados[2], valoresClonados[3], valoresClonados[4], valoresClonados[5], valoresClonados[6], valoresClonados[7], valoresClonados[8]);
+                    return new Noneto(
+                        valoresClonados[0],
+                        valoresClonados[1],
+                        valoresClonados[2],
+                        valoresClonados[3],
+                        valoresClonados[4],
+                        valoresClonados[5],
+                        valoresClonados[6],
+                        valoresClonados[7],
+                        valoresClonados[8]
+                    );
                 case 'Deceto':
-                    return new Deceto(valoresClonados[0], valoresClonados[1], valoresClonados[2], valoresClonados[3], valoresClonados[4], valoresClonados[5], valoresClonados[6], valoresClonados[7], valoresClonados[8], valoresClonados[9]);
+                    return new Deceto(
+                        valoresClonados[0],
+                        valoresClonados[1],
+                        valoresClonados[2],
+                        valoresClonados[3],
+                        valoresClonados[4],
+                        valoresClonados[5],
+                        valoresClonados[6],
+                        valoresClonados[7],
+                        valoresClonados[8],
+                        valoresClonados[9]
+                    );
                 default:
                     // Se não conseguir recriar, retornar os valores clonados como array
                     return valoresClonados;
@@ -309,13 +428,13 @@ export async function clonar(
         // Objetos simples (plain objects)
         const objetoClonado: { [chave: string]: any } = {};
         visitados.set(valorAtual, objetoClonado);
-        
+
         for (const chave in valorAtual) {
             if (valorAtual.hasOwnProperty(chave)) {
                 objetoClonado[chave] = clonarProfundo(valorAtual[chave]);
             }
         }
-        
+
         return objetoClonado;
     }
 

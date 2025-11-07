@@ -45,7 +45,7 @@ import {
     Bloco,
     Sustar,
     Falhar,
-    ParaCada
+    ParaCada,
 } from '../../declaracoes';
 
 import {
@@ -94,7 +94,8 @@ import { SeTernario } from '../../construtos/se-ternario';
  * Este avaliador espera uma estrutura de pragmas, que explica quantos espaços há na frente de cada linha.
  */
 export class AvaliadorSintaticoPitugues
-    implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao> {
+    implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao>
+{
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
     pragmas: { [linha: number]: Pragma };
@@ -407,8 +408,10 @@ export class AvaliadorSintaticoPitugues
                     return new Vetor(this.hashArquivo, simboloAtual.linha, [], 0, 'qualquer[]');
                 }
 
-
-                if (this.simbolos[this.atual].tipo == 'IDENTIFICADOR' && !this.verificarTipoProximoSimbolo(tiposDeSimbolos.VIRGULA)) {
+                if (
+                    this.simbolos[this.atual].tipo == 'IDENTIFICADOR' &&
+                    !this.verificarTipoProximoSimbolo(tiposDeSimbolos.VIRGULA)
+                ) {
                     return this.resolverListaDeCompreensao();
                 }
 
@@ -719,21 +722,29 @@ export class AvaliadorSintaticoPitugues
 
         return expressao;
     }
-     protected seTernario(): Construto {
-            let expressaoOuCondicao = this.ou();
-    
-            while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SE)) {
-                const operador = this.simbolos[this.atual - 1];
-                const expressaoEntao = this.seTernario();
-              this.consumir(tiposDeSimbolos.SENAO, `Esperado 'senão' ou 'senao' após caminho positivo em se ternário. Atual:
-                 ${this.simbolos[this.atual].lexema}.`);
-                const expressaoSenao = this.seTernario();
-                expressaoOuCondicao = new SeTernario(this.hashArquivo, expressaoOuCondicao, expressaoEntao, operador, expressaoSenao);
-            }
-    
-            return expressaoOuCondicao;
+    protected seTernario(): Construto {
+        let expressaoOuCondicao = this.ou();
+
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SE)) {
+            const operador = this.simbolos[this.atual - 1];
+            const expressaoEntao = this.seTernario();
+            this.consumir(
+                tiposDeSimbolos.SENAO,
+                `Esperado 'senão' ou 'senao' após caminho positivo em se ternário. Atual:
+                 ${this.simbolos[this.atual].lexema}.`
+            );
+            const expressaoSenao = this.seTernario();
+            expressaoOuCondicao = new SeTernario(
+                this.hashArquivo,
+                expressaoOuCondicao,
+                expressaoEntao,
+                operador,
+                expressaoSenao
+            );
         }
-    
+
+        return expressaoOuCondicao;
+    }
 
     ou(): Construto {
         let expressao = this.e();
@@ -845,8 +856,8 @@ export class AvaliadorSintaticoPitugues
                 throw this.erro(
                     simboloAtual,
                     `Indentação inconsistente na linha ${simboloAtual.linha}. ` +
-                    `Esperado: >= ${espacosIndentacaoLinhaAnterior}. ` +
-                    `Atual: ${espacosIndentacaoLinhaAtual}`
+                        `Esperado: >= ${espacosIndentacaoLinhaAnterior}. ` +
+                        `Atual: ${espacosIndentacaoLinhaAtual}`
                 );
             }
 
@@ -1079,8 +1090,7 @@ export class AvaliadorSintaticoPitugues
 
         return new Sustar(this.simboloAtual());
     }
-    
-    
+
     declaracaoContinua(): Continua {
         if (this.blocos < 1) {
             throw this.erro(
@@ -1310,15 +1320,9 @@ export class AvaliadorSintaticoPitugues
 
         const retornoExpressao = this.expressao();
 
-        this.consumir(
-            tiposDeSimbolos.PARA,
-            "Esperado instrução 'para' após identificado."
-        );
+        this.consumir(tiposDeSimbolos.PARA, "Esperado instrução 'para' após identificado.");
 
-        this.consumir(
-            tiposDeSimbolos.CADA,
-            "Esperado instrução 'cada' após 'para'."
-        );
+        this.consumir(tiposDeSimbolos.CADA, "Esperado instrução 'cada' após 'para'.");
 
         const simboloVariavelIteracao = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
@@ -1343,10 +1347,7 @@ export class AvaliadorSintaticoPitugues
         const localizacaoVetor = this.simboloAnterior();
         const vetor = this.expressao();
 
-        this.consumir(
-            tiposDeSimbolos.SE,
-            "Esperado condição 'se' após vetor."
-        );
+        this.consumir(tiposDeSimbolos.SE, "Esperado condição 'se' após vetor.");
 
         const condicao = this.expressao();
 
@@ -1375,27 +1376,16 @@ export class AvaliadorSintaticoPitugues
                 retornoExpressao.linha,
                 variavelIteracao,
                 vetor,
-                new Bloco(
-                    retornoExpressao.hashArquivo,
-                    retornoExpressao.linha,
-                    [
-                        new Se(
-                            condicao,
-                            new Bloco(
-                                retornoExpressao.hashArquivo,
-                                retornoExpressao.linha,
-                                [
-                                    new Retorna(
-                                        simboloVariavelIteracao,
-                                        retornoExpressao
-                                    )
-                                ]
-                            ),
-                            [],
-                            null
-                        )
-                    ]
-                )
+                new Bloco(retornoExpressao.hashArquivo, retornoExpressao.linha, [
+                    new Se(
+                        condicao,
+                        new Bloco(retornoExpressao.hashArquivo, retornoExpressao.linha, [
+                            new Retorna(simboloVariavelIteracao, retornoExpressao),
+                        ]),
+                        [],
+                        null
+                    ),
+                ])
             ),
             'qualquer[]' // TODO: Talvez um dia inferir o tipo aqui.
         );
@@ -1495,7 +1485,6 @@ export class AvaliadorSintaticoPitugues
 
         let superClasse = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
-
             const simboloSuperclasse = this.consumir(
                 tiposDeSimbolos.IDENTIFICADOR,
                 'Esperado nome da Superclasse.'

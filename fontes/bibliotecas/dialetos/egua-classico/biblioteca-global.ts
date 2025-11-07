@@ -16,8 +16,10 @@ export default function (interpreter, globals) {
     globals.definirVariavel(
         'aleatorioEntre',
         new FuncaoPadrao(1, function (_: any, min: any, max: any) {
-            const valorMinimoResolvido = min !== undefined && min.hasOwnProperty('valor') ? min.valor : min;
-            const valorMaximoResolvido = max !== undefined && max.hasOwnProperty('valor') ? max.valor : max;
+            const valorMinimoResolvido =
+                min !== undefined && min.hasOwnProperty('valor') ? min.valor : min;
+            const valorMaximoResolvido =
+                max !== undefined && max.hasOwnProperty('valor') ? max.valor : max;
             if (!arguments[1]) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
@@ -62,11 +64,12 @@ export default function (interpreter, globals) {
         })
     );
 
-        globals.definirVariavel(
+    globals.definirVariavel(
         'algum',
         new FuncaoPadrao(2, async function (_: any, array: any, callback: any) {
             const arrayResolvido = array && array.hasOwnProperty('valor') ? array.valor : array;
-            const callbackResolvido = callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
+            const callbackResolvido =
+                callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
 
             if (!Array.isArray(arrayResolvido)) {
                 throw new ErroEmTempoDeExecucao(
@@ -96,7 +99,8 @@ export default function (interpreter, globals) {
         'encontrar',
         new FuncaoPadrao(2, async function (_: any, array: any, callback: any) {
             const arrayResolvido = array && array.hasOwnProperty('valor') ? array.valor : array;
-            const callbackResolvido = callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
+            const callbackResolvido =
+                callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
 
             if (!Array.isArray(arrayResolvido)) {
                 throw new ErroEmTempoDeExecucao(
@@ -126,7 +130,8 @@ export default function (interpreter, globals) {
         'encontrarUltimo',
         new FuncaoPadrao(1, async function (_: any, array: any, callback: any) {
             const arrayResolvido = array && array.hasOwnProperty('valor') ? array.valor : array;
-            const callbackResolvido = callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
+            const callbackResolvido =
+                callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
 
             if (!Array.isArray(arrayResolvido)) {
                 throw new ErroEmTempoDeExecucao(
@@ -154,7 +159,8 @@ export default function (interpreter, globals) {
         'encontrarIndice',
         new FuncaoPadrao(2, async function (_: any, array: any, callback: any) {
             const arrayResolvido = array && array.hasOwnProperty('valor') ? array.valor : array;
-            const callbackResolvido = callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
+            const callbackResolvido =
+                callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
 
             if (!Array.isArray(arrayResolvido)) {
                 throw new ErroEmTempoDeExecucao(
@@ -184,7 +190,8 @@ export default function (interpreter, globals) {
         'encontrarUltimoIndice',
         new FuncaoPadrao(2, async function (_: any, array: any, callback: any) {
             const arrayResolvido = array && array.hasOwnProperty('valor') ? array.valor : array;
-            const callbackResolvido = callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
+            const callbackResolvido =
+                callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
 
             if (!Array.isArray(arrayResolvido)) {
                 throw new ErroEmTempoDeExecucao(
@@ -260,7 +267,8 @@ export default function (interpreter, globals) {
         'mapear',
         new FuncaoPadrao(2, async function (_: any, array: any, callback: any) {
             const arrayResolvido = array && array.hasOwnProperty('valor') ? array.valor : array;
-            const callbackResolvido = callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
+            const callbackResolvido =
+                callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
 
             if (!Array.isArray(arrayResolvido)) {
                 throw new ErroEmTempoDeExecucao(
@@ -278,7 +286,9 @@ export default function (interpreter, globals) {
 
             let provisorio = [];
             for (let index = 0; index < arrayResolvido.length; ++index) {
-                provisorio.push(await callbackResolvido.chamar(interpreter, [arrayResolvido[index]]));
+                provisorio.push(
+                    await callbackResolvido.chamar(interpreter, [arrayResolvido[index]])
+                );
             }
 
             return provisorio;
@@ -289,7 +299,8 @@ export default function (interpreter, globals) {
         'filtrar',
         new FuncaoPadrao(2, async function (_: any, array: any, callback: any) {
             const arrayResolvido = array && array.hasOwnProperty('valor') ? array.valor : array;
-            const callbackResolvido = callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
+            const callbackResolvido =
+                callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
 
             if (!Array.isArray(arrayResolvido)) {
                 throw new ErroEmTempoDeExecucao(
@@ -320,7 +331,8 @@ export default function (interpreter, globals) {
         'paraCada',
         new FuncaoPadrao(2, async function (_: any, array: any, callback: any) {
             const arrayResolvido = array && array.hasOwnProperty('valor') ? array.valor : array;
-            const callbackResolvido = callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
+            const callbackResolvido =
+                callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
 
             if (!Array.isArray(arrayResolvido)) {
                 throw new ErroEmTempoDeExecucao(
@@ -346,7 +358,8 @@ export default function (interpreter, globals) {
         'reduzir',
         new FuncaoPadrao(2, async function (_: any, array: any, callback: any, padrao: any) {
             const arrayResolvido = array && array.hasOwnProperty('valor') ? array.valor : array;
-            const callbackResolvido = callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
+            const callbackResolvido =
+                callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
 
             if (!Array.isArray(arrayResolvido)) {
                 throw new ErroEmTempoDeExecucao(
@@ -371,7 +384,10 @@ export default function (interpreter, globals) {
             }
 
             for (let index = inicio; index < arrayResolvido.length; ++index) {
-                provisorio = await callbackResolvido.chamar(interpreter, [provisorio, arrayResolvido[index]]);
+                provisorio = await callbackResolvido.chamar(interpreter, [
+                    provisorio,
+                    arrayResolvido[index],
+                ]);
             }
 
             return provisorio;
@@ -382,7 +398,8 @@ export default function (interpreter, globals) {
         'todos',
         new FuncaoPadrao(2, async function (_: any, array: any, callback: any) {
             const arrayResolvido = array && array.hasOwnProperty('valor') ? array.valor : array;
-            const callbackResolvido = callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
+            const callbackResolvido =
+                callback && callback.hasOwnProperty('valor') ? callback.valor : callback;
 
             if (!Array.isArray(arrayResolvido)) {
                 throw new ErroEmTempoDeExecucao(
@@ -426,7 +443,10 @@ export default function (interpreter, globals) {
                 trocado = false;
                 for (let i = 0; i < length - 1; i++) {
                     if (objetoResolvido[i] > objetoResolvido[i + 1]) {
-                        [objetoResolvido[i], objetoResolvido[i + 1]] = [objetoResolvido[i + 1], objetoResolvido[i]];
+                        [objetoResolvido[i], objetoResolvido[i + 1]] = [
+                            objetoResolvido[i + 1],
+                            objetoResolvido[i],
+                        ];
                         trocado = true;
                     }
                 }
@@ -479,7 +499,7 @@ export default function (interpreter, globals) {
         'texto',
         new FuncaoPadrao(1, function (_: any, value: any) {
             const valorResolvido = value.hasOwnProperty('valor') ? value.valor : value;
-            
+
             return `${valorResolvido}`;
         })
     );
