@@ -46,6 +46,274 @@ describe('Biblioteca Global', () => {
         });
     });
 
+    describe('clonar()', () => {
+        it('Clonar número primitivo', async () => {
+            const codigo = [
+                "var original = 42",
+                "var copia = clonar(original)",
+                "copia = 100",
+                "escreva(original)"
+            ];
+            let _saida = "";
+            interpretador.funcaoDeRetorno = (saida: string) => {
+                _saida += saida;
+            };
+
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saida).toBe("42");
+        });
+
+        it('Clonar texto primitivo', async () => {
+            const codigo = [
+                "var original = 'Olá'",
+                "var copia = clonar(original)",
+                "copia = 'Mundo'",
+                "escreva(original)"
+            ];
+            let _saida = "";
+            interpretador.funcaoDeRetorno = (saida: string) => {
+                _saida += saida;
+            };
+
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saida).toBe("Olá");
+        });
+
+        it('Clonar vetor simples', async () => {
+            const codigo = [
+                "var original = [1, 2, 3]",
+                "var copia = clonar(original)",
+                "copia[0] = 99",
+                "escreva(original[0])"
+            ];
+            let _saida = "";
+            interpretador.funcaoDeRetorno = (saida: string) => {
+                _saida += saida;
+            };
+
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saida).toBe("1");
+        });
+
+        it('Clonar vetor aninhado', async () => {
+            const codigo = [
+                "var original = [1, [2, 3], 4]",
+                "var copia = clonar(original)",
+                "var subVetor = copia[1]",
+                "subVetor[0] = 99",
+                "escreva(original[1][0])"
+            ];
+            let _saida = "";
+            interpretador.funcaoDeRetorno = (saida: string) => {
+                _saida += saida;
+            };
+
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saida).toBe("2");
+        });
+
+        it('Clonar objeto simples', async () => {
+            const codigo = [
+                "var original = {'a': 1, 'b': 2}",
+                "var copia = clonar(original)",
+                "var valorOriginal = original['a']",
+                "copia['a'] = 99",
+                "escreva(valorOriginal)"
+            ];
+            
+            let _saida = "";
+            interpretador.funcaoDeRetorno = (saida: string) => {
+                _saida += saida;
+            };
+
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saida).toBe("1");
+        });
+
+        it('Clonar objeto aninhado', async () => {
+            const codigo = [
+                "var original = {'a': 1, 'b': {'c': 2, 'd': 3}}",
+                "var copia = clonar(original)",
+                "var valorOriginal = original['b']['c']",
+                "var subObjeto = copia['b']",
+                "subObjeto['c'] = 99",
+                "escreva(valorOriginal)"
+            ];
+            let _saida = "";
+            interpretador.funcaoDeRetorno = (saida: string) => {
+                _saida += saida;
+            };
+
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saida).toBe("2");
+        });
+
+        it('Clonar vetor com objetos', async () => {
+            const codigo = [
+                "var original = [{'x': 1}, {'y': 2}]",
+                "var copia = clonar(original)",
+                "var valorOriginal = original[0]['x']",
+                "var primeiro = copia[0]",
+                "primeiro['x'] = 99",
+                "escreva(valorOriginal)"
+            ];
+            let _saida = "";
+            interpretador.funcaoDeRetorno = (saida: string) => {
+                _saida += saida;
+            };
+
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saida).toBe("1");
+        });
+
+        it('Clonar tupla', async () => {
+            const codigo = [
+                "var original = tupla([1, 2])",
+                "var copia = clonar(original)",
+                "escreva(copia.primeiro)"
+            ];
+            let _saida = "";
+            interpretador.funcaoDeRetorno = (saida: string) => {
+                _saida += saida;
+            };
+
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saida).toBe("1");
+        });
+
+        it('Clonar nulo', async () => {
+            const codigo = [
+                "var original = nulo",
+                "var copia = clonar(original)",
+                "escreva(copia == nulo)"
+            ];
+            let _saida = "";
+            interpretador.funcaoDeRetorno = (saida: string) => {
+                _saida += saida;
+            };
+
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saida).toBe("verdadeiro");
+        });
+
+        it('Clonar vetor vazio', async () => {
+            const codigo = [
+                "var original = []",
+                "var copia = clonar(original)",
+                "copia[0] = 1",
+                "escreva(tamanho(original))"
+            ];
+            let _saida = "";
+            interpretador.funcaoDeRetorno = (saida: string) => {
+                _saida += saida;
+            };
+
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saida).toBe("0");
+        });
+
+        it('Clonar objeto vazio', async () => {
+            const codigo = [
+                "var original = {}",
+                "var copia = clonar(original)",
+                "copia['novo'] = 'valor'",
+                "escreva(copia['novo'])"
+            ];
+            let _saida = "";
+            interpretador.funcaoDeRetorno = (saida: string) => {
+                _saida += saida;
+            };
+
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            // Verifica que a cópia foi modificada com sucesso
+            expect(_saida).toBe("valor");
+        });
+
+        it('Clonar estrutura complexa (vetor com objetos e vetores)', async () => {
+            const codigo = [
+                "var original = [{'a': [1, 2], 'b': 3}, {'c': 4}]",
+                "var copia = clonar(original)",
+                "var valorOriginal1 = original[0]['a'][0]",
+                "var valorOriginal2 = original[1]['c']",
+                "var primeiro = copia[0]",
+                "var vetorA = primeiro['a']",
+                "vetorA[0] = 99",
+                "var segundo = copia[1]",
+                "segundo['c'] = 88",
+                "escreva(valorOriginal1)",
+                "escreva(',')",
+                "escreva(valorOriginal2)"
+            ];
+            let _saida = "";
+            interpretador.funcaoDeRetorno = (saida: string) => {
+                _saida += saida;
+            };
+
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saida).toBe("1,4");
+        });
+    });
+
     describe('encontrar()', () => {
         it('Sucesso', async () => {
             const retornoLexador = lexador.mapear(["escreva(encontrar([1, 2, 3], funcao(a) { retorna(a == 1) }))"], -1);
