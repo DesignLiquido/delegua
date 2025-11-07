@@ -944,6 +944,29 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas).toHaveLength(1);
                     expect(_saidas[0]).toBe('0');
                 });
+                
+                it('SE ternário', async() => {
+                    const codigo = [
+                        'var a = 10',
+                        'var b = 20',
+                        'var maior = a se a > b senão b',
+                        'escreva(maior)',
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('20');
+                
+                    
+                });
             });
         });
 
