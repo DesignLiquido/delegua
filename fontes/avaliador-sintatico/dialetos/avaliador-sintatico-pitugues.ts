@@ -25,6 +25,8 @@ import {
     ReferenciaFuncao,
     ComentarioComoConstruto,
     ParaCadaComoConstruto,
+    SeTernario,
+    ListaCompreensao,
 } from '../../construtos';
 import {
     Escreva,
@@ -82,8 +84,6 @@ import primitivasDicionario from '../../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../../bibliotecas/primitivas-numero';
 import primitivasTexto from '../../bibliotecas/primitivas-texto';
 import primitivasVetor from '../../bibliotecas/primitivas-vetor';
-import { ListaCompreensao } from '../../construtos/lista-compreensao';
-import { SeTernario } from '../../construtos/se-ternario';
 
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -722,29 +722,6 @@ export class AvaliadorSintaticoPitugues
 
         return expressao;
     }
-    protected seTernario(): Construto {
-        let expressaoOuCondicao = this.ou();
-
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SE)) {
-            const operador = this.simbolos[this.atual - 1];
-            const expressaoEntao = this.seTernario();
-            this.consumir(
-                tiposDeSimbolos.SENAO,
-                `Esperado 'senão' ou 'senao' após caminho positivo em se ternário. Atual:
-                 ${this.simbolos[this.atual].lexema}.`
-            );
-            const expressaoSenao = this.seTernario();
-            expressaoOuCondicao = new SeTernario(
-                this.hashArquivo,
-                expressaoOuCondicao,
-                expressaoEntao,
-                operador,
-                expressaoSenao
-            );
-        }
-
-        return expressaoOuCondicao;
-    }
 
     ou(): Construto {
         let expressao = this.e();
@@ -758,8 +735,34 @@ export class AvaliadorSintaticoPitugues
         return expressao;
     }
 
+    protected seTernario(): Construto {
+        let expressaoEntao = this.ou();
+
+        if (this.simbolos[this.atual] && this.simbolos[this.atual].tipo === tiposDeSimbolos.SE && expressaoEntao.linha === this.simbolos[this.atual].linha) {
+            while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SE)) {
+                const operador = this.simbolos[this.atual - 1];
+                const expressaoOuCondicao = this.seTernario();
+                this.consumir(
+                    tiposDeSimbolos.SENAO,
+                    `Esperado 'senão' ou 'senao' após caminho positivo em se ternário. Atual:
+                    ${this.simbolos[this.atual].lexema}.`
+                );
+                const expressaoSenao = this.seTernario();
+                expressaoEntao = new SeTernario(
+                    this.hashArquivo,
+                    expressaoOuCondicao,
+                    expressaoEntao,
+                    operador,
+                    expressaoSenao
+                );
+            }
+        }
+
+        return expressaoEntao;
+    }
+
     atribuir(): Construto {
-        const expressao = this.ou();
+        const expressao = this.seTernario();
 
         if (
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL) ||
@@ -1318,7 +1321,8 @@ export class AvaliadorSintaticoPitugues
             );
         }
 
-        const retornoExpressao = this.expressao();
+        // TODO: Reavaliar a precedência do se ternário.
+        const retornoExpressao = this.ou();
 
         this.consumir(tiposDeSimbolos.PARA, "Esperado instrução 'para' após identificado.");
 
@@ -1345,7 +1349,8 @@ export class AvaliadorSintaticoPitugues
         }
 
         const localizacaoVetor = this.simboloAnterior();
-        const vetor = this.expressao();
+        // TODO: Reavaliar a precedência do se ternário.
+        const vetor = this.ou();
 
         this.consumir(tiposDeSimbolos.SE, "Esperado condição 'se' após vetor.");
 

@@ -523,15 +523,15 @@ describe('Interpretador (Pituguês)', () => {
                 it('Fibonacci', async () => {
                     const codigo = [
                         'função fibonacci(n):',
-                        '    se (n == 0):',
-                        '       retorna(0)',
-                        '    se (n == 1):',
-                        '       retorna(1)',
+                        '    se n == 0:',
+                        '       retorna 0',
+                        '    se n == 1:',
+                        '       retorna 1',
                         '    var n1 = n - 1',
                         '    var n2 = n - 2',
                         '    var f1 = fibonacci(n1)',
                         '    var f2 = fibonacci(n2)',
-                        '    retorna(f1 + f2)',
+                        '    retorna f1 + f2',
                         'var a = fibonacci(0)',
                         'escreva(a)',
                         'a = fibonacci(1)',
@@ -952,6 +952,7 @@ describe('Interpretador (Pituguês)', () => {
                         'var maior = a se a > b senão b',
                         'escreva(maior)',
                     ];
+
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
                         retornoLexador,
@@ -960,12 +961,11 @@ describe('Interpretador (Pituguês)', () => {
                     const retornoInterpretador = await interpretador.interpretar(
                         retornoAvaliadorSintatico.declaracoes
                     );
+
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(_saidas).toHaveLength(1);
                     expect(_saidas[0]).toBe('20');
-                
-                    
                 });
             });
         });
