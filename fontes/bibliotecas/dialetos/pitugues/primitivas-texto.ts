@@ -16,7 +16,7 @@ export default {
             '# `texto.aparar()` \n \n' +
             'Remove espaços em branco no início e no fim de um texto.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t = "   meu texto com espaços no início e no fim       "\n' +
+            '\n\n```pitugues\nvar t = "   meu texto com espaços no início e no fim       "\n' +
             'escreva("|" + t.aparar() + "|") // "|meu texto com espaços no início e no fim|"\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'texto.aparar()',
@@ -34,7 +34,7 @@ export default {
             '# `texto.aparar_fim()` \n \n' +
             'Remove espaços em branco no no fim de um texto.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t = "   meu texto com espaços no início e no fim       "\n' +
+            '\n\n```pitugues\nvar t = "   meu texto com espaços no início e no fim       "\n' +
             'escreva("|" + t.aparar_fim() + "|") // "|   meu texto com espaços no início e no fim|"\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'texto.aparar_fim()',
@@ -52,7 +52,7 @@ export default {
             '# `texto.aparar_inicio()` \n \n' +
             'Remover espaços em branco no início e no fim de um texto.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t = "   meu texto com espaços no início e no fim       "\n' +
+            '\n\n```pitugues\nvar t = "   meu texto com espaços no início e no fim       "\n' +
             'escreva("|" + t.aparar_inicio() + "|") // "|meu texto com espaços no início e no fim       |"\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'texto.aparar_inicio()',
@@ -78,7 +78,7 @@ export default {
             '# `texto.concatenar(outroTexto)` \n \n' +
             'Realiza a junção de palavras/textos.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t1 = "um"\n' +
+            '\n\n```pitugues\nvar t1 = "um"\n' +
             'var t2 = "dois três"\n' +
             'escreva(t1.concatenar(t2)) // "umdois três"\n```' +
             '\n\n ### Formas de uso \n',
@@ -120,7 +120,7 @@ export default {
             '# `texto.dividir(delimitador)` \n \n' +
             'Divide o texto pelo separador passado como parâmetro.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t = "um dois três"\n' +
+            '\n\n```pitugues\nvar t = "um dois três"\n' +
             "t.dividir(' ') // ['um','dois','três']\n```" +
             '\n\n ### Formas de uso  \n',
         exemploCodigo: "texto.dividir('<delimitador (, ; ' ')>')",
@@ -160,7 +160,7 @@ export default {
             '# `texto.encontrar(subtexto, indiceInicio)` \n \n' +
             'Retorna o índice inicial de um subtexto. Retorna -1 caso não encontre.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t = "um dois três"\n' +
+            '\n\n```pitugues\nvar t = "um dois três"\n' +
             't.encontrar("dois") // 3\n' +
             't.encontrar("quatro") // -1\n' +
             't.encontrar("dois", 4) // -1\n```' +
@@ -197,7 +197,7 @@ export default {
             '# `texto.fatiar(inicio)` \n \n' +
             'Extrai uma fatia do texto, dadas posições de início e fim.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t = "Um dois três quatro"\n' +
+            '\n\n```pitugues\nvar t = "Um dois três quatro"\n' +
             't.fatiar() // "um dois três quatro", ou seja, não faz coisa alguma.\n' +
             't.fatiar(2, 7) // "dois"\n' +
             't.fatiar(8, 12) // "três"\n' +
@@ -227,7 +227,7 @@ export default {
             '# `texto.inclui(elemento)` \n \n' +
             'Devolve verdadeiro se elemento passado por parâmetro está contido no texto, e falso em caso contrário.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t = "um dois três"\n' +
+            '\n\n```pitugues\nvar t = "um dois três"\n' +
             't.inclui("dois") // verdadeiro\n' +
             't.inclui("quatro") // falso\n```' +
             '\n\n ### Formas de uso \n',
@@ -249,7 +249,7 @@ export default {
             '# `texto.inverter()` \n \n' +
             'Inverte as letras de um texto.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t = "um dois três"\n' +
+            '\n\n```pitugues\nvar t = "um dois três"\n' +
             't.inverter() // "sêrt siod mu"```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'texto.inverter()',
@@ -267,7 +267,7 @@ export default {
             '# `texto.maiusculo()` \n \n' +
             'Converte todos os caracteres alfabéticos para suas respectivas formas em maiúsculo.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t = "tudo em minúsculo"\n' +
+            '\n\n```pitugues\nvar t = "tudo em minúsculo"\n' +
             'escreva(t.maiusculo()) // "TUDO EM MINÚSCULO"\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'texto.maiusculo()',
@@ -285,7 +285,7 @@ export default {
             '# `texto.minusculo()` \n \n' +
             'Converte todos os caracteres alfabéticos para suas respectivas formas em minúsculo.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t = "TUDO EM MAIÚSCULO"\n' +
+            '\n\n```pitugues\nvar t = "TUDO EM MAIÚSCULO"\n' +
             'escreva(t.minusculo()) // "tudo em maiúsculo"\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'texto.minusculo()',
@@ -314,7 +314,7 @@ export default {
             '# `texto.substituir(textoASerSubstituido, substituto)` \n \n' +
             'Substitui a primeira ocorrência no texto do primeiro parâmetro pelo segundo parâmetro.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t = "Eu gosto de caju"\n' +
+            '\n\n```pitugues\nvar t = "Eu gosto de caju"\n' +
             't.substituir("caju", "graviola") // Resultado será "Eu gosto de graviola"\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: "texto.substituir('palavra a ser substituída','nova palavra')",
@@ -349,7 +349,7 @@ export default {
             '# `texto.subtexto(inicio, fim)` \n\n' +
             'Extrai uma fatia do texto, dadas posições de início e fim.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t = "Eu gosto de caju e de graviola"\n' +
+            '\n\n```pitugues\nvar t = "Eu gosto de caju e de graviola"\n' +
             't.subtexto(3, 16) // Resultado será "gosto de caju"\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'texto.subtexto(posiçãoInicial, posiçãoFinal)',
@@ -367,7 +367,7 @@ export default {
             '# `texto.tamanho()` \n\n' +
             'Devolve um número inteiro com o número de caracteres do texto.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t = "Um dois três quatro"\n' +
+            '\n\n```pitugues\nvar t = "Um dois três quatro"\n' +
             't.tamanho() // 19\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'texto.tamanho()',
@@ -385,7 +385,7 @@ export default {
             '# `texto.tudo_maiusculo()` \n\n' +
             'Devolve verdadeiro se todos os caracteres alfabéticos do texto estão em maiúsculo, e falso em caso contrário.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t1 = "TUDO EM MAIÚSCULO"\n' +
+            '\n\n```pitugues\nvar t1 = "TUDO EM MAIÚSCULO"\n' +
             'var t2 = "Tudo em Maiúsculo"\n' +
             't1.tudo_maiusculo() // verdadeiro\n' +
             't2.tudo_maiusculo() // falso\n```' +
@@ -405,7 +405,7 @@ export default {
             '# `texto.tudo_minusculo()` \n\n' +
             'Devolve verdadeiro se todos os caracteres alfabéticos do texto estão em minúsculo, e falso em caso contrário.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t1 = "tudo em minúsculo"\n' +
+            '\n\n```pitugues\nvar t1 = "tudo em minúsculo"\n' +
             'var t2 = "Tudo em Minúsculo"\n' +
             't1.tudo_minusculo() // verdadeiro\n' +
             't2.tudo_minusculo() // falso\n```' +

@@ -24,7 +24,7 @@ const contem_comum = (nome: string) => {
             `# \`dicionário.${nome}(chave)\`\n\n` +
             'Retorna verdadeiro se o elemento passado como parâmetro existe como chave do dicionário. Devolve falso em caso contrário.\n' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\n' +
+            '\n\n```pitugues\n' +
             'var d = {"a": 1, "b": 2, "c": 3}\n' +
             `escreva(d.${nome}("a")) // verdadeiro\n` +
             `escreva(d.${nome}("f")) // falso\n\`\`\`` +
@@ -49,7 +49,7 @@ export default {
             '# `dicionário.chaves()`\n\n' +
             'Retorna um vetor de texto com todas as chaves de um dicionário.\n' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\n' +
+            '\n\n```pitugues\n' +
             'var d = {"a": 1, "b": 2, "c": 3}\n' +
             'escreva(d.chaves()) // ["a", "b", "c"]\n```' +
             '\n\n## Formas de uso\n',
