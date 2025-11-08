@@ -180,7 +180,7 @@ export class MicroLexadorPitugues {
                 this.atual++;
                 this.adicionarSimbolo(tiposDeSimbolos.DIVISAO_INTEIRA);
                 break;
-        
+
             case ' ':
             case '\0':
             case '\r':

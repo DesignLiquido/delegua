@@ -1,4 +1,4 @@
-import { Chamavel } from "./chamavel";
+import { Chamavel } from './chamavel';
 
 /**
  * Uma classe de módulo não é muito diferente de uma `ClassePadrao`, com o adicional
@@ -8,15 +8,15 @@ export class ClasseDeModulo extends Chamavel {
     nome: string;
     modulo: string;
     implementacao: any;
-    metodos: {[nome: string]: any};
-    propriedades: {[nome: string]: any};
+    metodos: { [nome: string]: any };
+    propriedades: { [nome: string]: any };
 
     constructor(
-        nome: string, 
+        nome: string,
         modulo: string,
         implementacao: any,
-        metodos: {[nome: string]: any}, 
-        propriedades: {[nome: string]: any}
+        metodos: { [nome: string]: any },
+        propriedades: { [nome: string]: any }
     ) {
         super();
         this.nome = nome;

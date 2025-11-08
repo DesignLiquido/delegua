@@ -17,6 +17,8 @@ export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExe
 
     pilhaEscoposExecucao.definirVariavel('algum', new FuncaoPadrao(2, bibliotecaGlobal.algum));
 
+    pilhaEscoposExecucao.definirVariavel('clonar', new FuncaoPadrao(1, bibliotecaGlobal.clonar));
+
     pilhaEscoposExecucao.definirVariavel(
         'encontrar',
         new FuncaoPadrao(2, bibliotecaGlobal.encontrar)

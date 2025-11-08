@@ -21,14 +21,14 @@ export default {
             elemento: any
         ): Promise<any> => {
             vetor.push(elemento);
-            // TODO: Será que apenas isso é suficiente aqui? 
+            // TODO: Será que apenas isso é suficiente aqui?
             if (nomePrimitiva !== '') {
                 interpretador.pilhaEscoposExecucao.atribuirVariavel(
                     { lexema: nomePrimitiva } as SimboloInterface,
                     vetor
                 );
             }
-            
+
             return Promise.resolve(vetor);
         },
         assinaturaFormato: 'vetor.adicionar(...elemento: qualquer)',
@@ -128,7 +128,9 @@ export default {
 
                 return Promise.resolve(elementos);
             } else {
-                elementos = !itens.length ? vetor.splice(posicaoInicial) : vetor.splice(posicaoInicial, ...itens);
+                elementos = !itens.length
+                    ? vetor.splice(posicaoInicial)
+                    : vetor.splice(posicaoInicial, ...itens);
 
                 if (nomePrimitiva !== '') {
                     interpretador.pilhaEscoposExecucao.atribuirVariavel(
@@ -140,7 +142,8 @@ export default {
                 return Promise.resolve(vetor);
             }
         },
-        assinaturaFormato: 'vetor.encaixar(posicaoInicial?: número, quantidadeExclusao?: número, itens?: qualquer[])',
+        assinaturaFormato:
+            'vetor.encaixar(posicaoInicial?: número, quantidadeExclusao?: número, itens?: qualquer[])',
         documentacao:
             '# `vetor.encaixar(posicaoInicial, quantidadeExclusao, itens)` \n \n' +
             'Encaixa um vetor em outro, dadas posições de início e quantidade de ítens a serem excluídos do vetor original. \n' +
@@ -206,13 +209,7 @@ export default {
     filtrarPor: {
         tipoRetorno: 'qualquer[]',
         argumentos: [
-            new InformacaoElementoSintatico(
-                'funcao',
-                'função',
-                true,
-                [],
-                'A função de filtragem.'
-            ),
+            new InformacaoElementoSintatico('funcao', 'função', true, [], 'A função de filtragem.'),
         ],
         implementacao: async (
             interpretador: InterpretadorInterface,
@@ -274,7 +271,7 @@ export default {
             'escreva(v.inclui(2)) // verdadeiro\n' +
             'escreva(v.inclui(4)) // falso\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'vetor.inclui(elemento)'
+        exemploCodigo: 'vetor.inclui(elemento)',
     },
     inverter: {
         tipoRetorno: 'qualquer[]',
@@ -319,8 +316,7 @@ export default {
             '\n\n```delegua\nvar v = [1, 2, 3]\n' +
             'escreva(v.juntar(":")) // "1:2:3"\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'vetor.juntar()\n' +
-            'vetor.juntar(<separador>)',
+        exemploCodigo: 'vetor.juntar()\n' + 'vetor.juntar(<separador>)',
     },
     mapear: {
         tipoRetorno: 'qualquer[]',

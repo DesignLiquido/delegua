@@ -193,11 +193,7 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
     protected elvis(): Construto {
         let expressao = this.unario();
 
-        if (
-            this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.ELVIS
-            )
-        ) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ELVIS)) {
             const direito = this.unario();
             return new Elvis(-1, expressao, direito);
         }

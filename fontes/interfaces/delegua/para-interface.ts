@@ -1,5 +1,5 @@
-import { Construto } from "../../construtos";
-import { Bloco, Declaracao } from "../../declaracoes";
+import { Construto } from '../../construtos';
+import { Bloco, Declaracao } from '../../declaracoes';
 
 export interface ParaInterface {
     hashArquivo: number;

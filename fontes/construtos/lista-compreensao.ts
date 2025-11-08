@@ -10,7 +10,7 @@ export class ListaCompreensao implements Construto {
 
     expressaoRetorno: Construto;
     referenciaVariavelIteracao: Construto;
-    paraCada: ParaCadaComoConstruto; 
+    paraCada: ParaCadaComoConstruto;
 
     constructor(
         hashArquivo: number,

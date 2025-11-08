@@ -405,12 +405,12 @@ export class InterpretadorComDepuracao
                 if (!this.executandoChamada) {
                     return this.executarUmPassoNoEscopo();
                 }
-                 
+
                 return this.executarUltimoEscopoComandoContinuar(
                     manterAmbiente,
                     naoVerificarPrimeiraExecucao
                 );
-                
+
             default:
                 return this.executarUltimoEscopoComandoContinuar(
                     manterAmbiente,

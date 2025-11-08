@@ -1099,8 +1099,9 @@ export class InterpretadorBase implements InterpretadorInterface {
         // para vetor de duplas.
         // TODO: Converter elementos para `Construto` se necessário.
         if (declaracao.vetorOuDicionario.tipo === 'dicionário') {
-            valorVetorResolvido = Object.entries(valorVetorResolvido)
-                .map(v => new Dupla(v[0] as any, v[1] as any));
+            valorVetorResolvido = Object.entries(valorVetorResolvido).map(
+                (v) => new Dupla(v[0] as any, v[1] as any)
+            );
         }
 
         if (!Array.isArray(valorVetorResolvido)) {
@@ -1120,7 +1121,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                         valorVetorResolvido[declaracao.posicaoAtual]
                     );
                 }
-                
+
                 if (declaracao.variavelIteracao instanceof Dupla) {
                     const valorComoDupla = valorVetorResolvido[declaracao.posicaoAtual] as Dupla;
                     this.pilhaEscoposExecucao.definirVariavel(
@@ -1680,7 +1681,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
 
         return Promise.resolve({
-            declaracao: funcao
+            declaracao: funcao,
         });
     }
 

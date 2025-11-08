@@ -654,7 +654,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     visitarExpressaoLiteral(expressao: Literal): void {
         if (typeof expressao.valor === 'string') {
             const valorStr = (expressao.valor as string)
-                .replace(/\\/g, '\\\\') 
+                .replace(/\\/g, '\\\\')
                 .replace(/\r/g, '\\r')
                 .replace(/\n/g, '\\n')
                 .replace(/\t/g, '\\t')
