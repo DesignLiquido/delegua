@@ -330,6 +330,60 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Concatenação de arrays com operador +', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var lista1 = [1, 2, 3]',
+                        'var lista2 = [4, 5, 6]',
+                        'var lista_concatenada = lista1 + lista2',
+                        'escreva(lista_concatenada)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toBe('[1, 2, 3, 4, 5, 6]');
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Concatenação de arrays com operador +=', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var lista1 = [1, 2, 3]',
+                        'var lista2 = [4, 5, 6]',
+                        'lista1 += lista2',
+                        'escreva(lista1)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toBe('[1, 2, 3, 4, 5, 6]');
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Concatenação de arrays vazios', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var lista1 = []',
+                        'var lista2 = []',
+                        'var lista_concatenada = lista1 + lista2',
+                        'escreva(lista_concatenada)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toBe('[]');
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Interpolação de texto usando \'isto\'', async () => {
                     const saidasMensagens = [
                         'Olá, meu nome é Fernando, como posso lhe ajudar?',

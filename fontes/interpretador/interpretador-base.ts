@@ -696,6 +696,11 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             case tiposDeSimbolos.ADICAO:
             case tiposDeSimbolos.MAIS_IGUAL:
+                // Se ambos os operandos são vetores, concatená-los
+                if (Array.isArray(valorEsquerdo) && Array.isArray(valorDireito)) {
+                    return valorEsquerdo.concat(valorDireito);
+                }
+
                 if (
                     this.tiposNumericos.includes(tipoEsquerdo) &&
                     this.tiposNumericos.includes(tipoDireito)
