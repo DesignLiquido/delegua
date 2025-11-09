@@ -431,7 +431,7 @@ export class AvaliadorSintatico
         const vetor = this.ou();
 
         let condicao: Construto | null = null;
-        if (this.verificarTipoProximoSimbolo(tiposDeSimbolos.SE)) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SE)) {
             condicao = this.expressao();
         } else {
             condicao = new Expressao(new Literal(this.hashArquivo, Number(localizacaoVetor.linha), true));
