@@ -430,9 +430,12 @@ export class AvaliadorSintatico
         const localizacaoVetor = this.simboloAnterior();
         const vetor = this.ou();
 
-        this.consumir(tiposDeSimbolos.SE, "Esperado condição 'se' após vetor.");
-
-        const condicao = this.expressao();
+        let condicao: Construto | null = null;
+        if (this.verificarTipoProximoSimbolo(tiposDeSimbolos.SE)) {
+            condicao = this.expressao();
+        } else {
+            condicao = new Expressao(new Literal(this.hashArquivo, Number(localizacaoVetor.linha), true));
+        }
 
         this.consumir(
             tiposDeSimbolos.COLCHETE_DIREITO,
