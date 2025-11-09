@@ -1,12 +1,12 @@
-import { AvaliadorSintaticoPitugues } from '../../fontes/avaliador-sintatico/dialetos';
-import { Interpretador } from '../../fontes/interpretador';
 import { LexadorPitugues } from '../../fontes/lexador/dialetos';
+import { AvaliadorSintaticoPitugues } from '../../fontes/avaliador-sintatico/dialetos';
+import { InterpretadorPitugues } from '../../fontes/interpretador/dialetos/pitugues';
 
 describe('Interpretador (Pituguês)', () => {
     describe('interpretar()', () => {
         let lexador: LexadorPitugues;
         let avaliadorSintatico: AvaliadorSintaticoPitugues;
-        let interpretador: Interpretador;
+        let interpretador: InterpretadorPitugues;
 
         let _saidas: string[] = [];
         const funcaoSaida = (texto: string) => {
@@ -17,7 +17,7 @@ describe('Interpretador (Pituguês)', () => {
             _saidas = [];
             lexador = new LexadorPitugues();
             avaliadorSintatico = new AvaliadorSintaticoPitugues();
-            interpretador = new Interpretador(process.cwd(), false, funcaoSaida, funcaoSaida);
+            interpretador = new InterpretadorPitugues(process.cwd(), false, funcaoSaida, funcaoSaida);
         });
 
         describe('Cenários de sucesso', () => {
@@ -639,7 +639,7 @@ describe('Interpretador (Pituguês)', () => {
 
             describe('Uso de primitivas de número', () => {
                 it('arredondarParaBaixo', async () => {
-                    const codigo = ['var n1 = 3.1415', 'escreva(n1.arredondarParaBaixo())'];
+                    const codigo = ['var n1 = 3.1415', 'escreva(n1.arredondar_para_baixo())'];
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
                         retornoLexador,
@@ -656,7 +656,7 @@ describe('Interpretador (Pituguês)', () => {
                 });
 
                 it('arredondarParaCima', async () => {
-                    const codigo = ['var n1 = 3.1415', 'escreva(n1.arredondarParaCima())'];
+                    const codigo = ['var n1 = 3.1415', 'escreva(n1.arredondar_para_cima())'];
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
                         retornoLexador,

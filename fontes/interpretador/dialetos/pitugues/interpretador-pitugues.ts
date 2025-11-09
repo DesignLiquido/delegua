@@ -6,10 +6,10 @@ import { RetornoQuebra } from "../../../quebras";
 import { ObjetoDeleguaClasse, MetodoPrimitiva, DeleguaModulo } from "../../estruturas";
 import { Interpretador } from "../../interpretador";
 
-import primitivasDicionario from "../../../bibliotecas/primitivas-dicionario";
-import primitivasNumero from "../../../bibliotecas/primitivas-numero";
-import primitivasTexto from "../../../bibliotecas/primitivas-texto";
-import primitivasVetor from "../../../bibliotecas/primitivas-vetor";
+import primitivasDicionario from "../../../bibliotecas/dialetos/pitugues/primitivas-dicionario";
+import primitivasNumero from "../../../bibliotecas/dialetos/pitugues/primitivas-numero";
+import primitivasTexto from "../../../bibliotecas/dialetos/pitugues/primitivas-texto";
+import primitivasVetor from "../../../bibliotecas/dialetos/pitugues/primitivas-vetor";
 
 import tipoDeDadosPrimitivos from '../../../tipos-de-dados/primitivos';
 import tipoDeDadosPitugues from '../../../tipos-de-dados/dialetos/pitugues';
