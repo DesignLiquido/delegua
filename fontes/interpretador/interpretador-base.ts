@@ -85,7 +85,6 @@ import { MicroAvaliadorSintatico } from '../avaliador-sintatico';
 import { MicroAvaliadorSintaticoBase } from '../avaliador-sintatico/micro-avaliador-sintatico-base';
 
 import { EspacoMemoria } from './espaco-memoria';
-import { carregarBibliotecasGlobais } from './comum';
 import { ErroEmTempoDeExecucao } from '../excecoes';
 import {
     InterpretadorInterface,
@@ -184,8 +183,6 @@ export class InterpretadorBase implements InterpretadorInterface {
             emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
-
-        carregarBibliotecasGlobais(this.pilhaEscoposExecucao);
     }
 
     visitarExpressaoSeparador(expressao: Separador): Promise<any> | void {

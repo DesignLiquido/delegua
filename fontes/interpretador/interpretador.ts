@@ -72,6 +72,8 @@ import {
     ParaInterface,
 } from '../interfaces/delegua';
 
+import { carregarBibliotecasGlobais } from './comum';
+
 import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
@@ -95,6 +97,15 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
     ) {
         super(diretorioBase, performance, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
         this.montao = new Montao();
+        this.pontoInicializacaoBibliotecasGlobais();
+    }
+
+    /**
+     * Cada dialeto que deriva deste interpretador conhece este ponto de inicialização.
+     * A partir daqui, cada dialeto pode carregar as bibliotecas globais específicas do seu dialeto.
+     */
+    protected pontoInicializacaoBibliotecasGlobais() {
+        carregarBibliotecasGlobais(this.pilhaEscoposExecucao);
     }
 
     protected resolverReferenciaMontao(referenciaMontao: ReferenciaMontao) {

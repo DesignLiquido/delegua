@@ -25,6 +25,7 @@ import {
     ImportarComoConstruto,
     Isto,
     Leia,
+    ListaCompreensao,
     Literal,
     Logico,
     ParaCadaComoConstruto,
@@ -92,6 +93,7 @@ import { InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
 import { buscarRetornos, registrarPrimitiva } from './comum';
 import { MontaoTipos } from './montao-tipos';
 import { ElementoMontaoTipos } from './elemento-montao-tipos';
+import { ClasseDeModulo } from '../interpretador/estruturas';
 
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
@@ -100,7 +102,6 @@ import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
-import { ClasseDeModulo } from '../interpretador/estruturas';
 
 // Será usado para forçar tipagem em construtos e em algumas funções internas.
 type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolos];
@@ -147,6 +148,7 @@ export class AvaliadorSintatico
     blocos: number;
     performance: boolean;
     superclasseAtual: string | undefined;
+    intuirTipoQualquerParaIdentificadores: boolean;
 
     constructor(performance = false) {
         super();
@@ -160,6 +162,7 @@ export class AvaliadorSintatico
         this.primitivasConhecidas = {};
         this.pilhaEscopos = new PilhaEscopos();
         this.montaoTipos = new MontaoTipos();
+        this.intuirTipoQualquerParaIdentificadores = false;
 
         registrarPrimitiva(this.primitivasConhecidas, 'dicionário', primitivasDicionario);
         registrarPrimitiva(this.primitivasConhecidas, 'número', primitivasNumero);
@@ -404,6 +407,73 @@ export class AvaliadorSintatico
         }
     }
 
+    /**
+     * Resolve uma lista de compreensão.
+     * @returns {ListaCompreensao} A lista de compreensão resolvida.
+     */
+    protected resolverCompreensaoDeLista(retornoExpressao: Construto): ListaCompreensao {
+        this.consumir(tiposDeSimbolos.PARA, "Esperado instrução 'para' após identificado.");
+        this.consumir(tiposDeSimbolos.CADA, "Esperado instrução 'cada' após 'para'.");
+
+        const simboloVariavelIteracao = this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            "Esperado identificador de variável após 'para cada'."
+        );
+
+        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DE, tiposDeSimbolos.EM)) {
+            throw this.erro(
+                this.simbolos[this.atual],
+                "Esperado palavras reservadas 'em' ou 'de' após variável de iteração em instrução em lista de compreensão."
+            );
+        }
+
+        const localizacaoVetor = this.simboloAnterior();
+        const vetor = this.ou();
+
+        this.consumir(tiposDeSimbolos.SE, "Esperado condição 'se' após vetor.");
+
+        const condicao = this.expressao();
+
+        this.consumir(
+            tiposDeSimbolos.COLCHETE_DIREITO,
+            'Espero fechamento de colchetes após condição.'
+        );
+
+        const tipoVetor = (vetor as any).tipo as string;
+        if (!tipoVetor.endsWith('[]') && !['qualquer', 'vetor'].includes(tipoVetor)) {
+            throw this.erro(
+                localizacaoVetor,
+                `Variável ou constante em 'para cada' não é iterável. Tipo resolvido: ${tipoVetor}.`
+            );
+        }
+
+        const variavelIteracao = new Variavel(this.hashArquivo, simboloVariavelIteracao);
+
+        return new ListaCompreensao(
+            Number(this.simbolos[this.atual]),
+            this.hashArquivo,
+            retornoExpressao,
+            vetor,
+            new ParaCadaComoConstruto(
+                retornoExpressao.hashArquivo,
+                retornoExpressao.linha,
+                variavelIteracao,
+                vetor,
+                new Bloco(retornoExpressao.hashArquivo, retornoExpressao.linha, [
+                    new Se(
+                        condicao,
+                        new Bloco(retornoExpressao.hashArquivo, retornoExpressao.linha, [
+                            new Retorna(simboloVariavelIteracao, retornoExpressao),
+                        ]),
+                        [],
+                        null
+                    ),
+                ])
+            ),
+            'qualquer[]' // TODO: Talvez um dia inferir o tipo aqui.
+        );
+    }
+
     override primario(): Construto {
         const simboloAtual = this.simbolos[this.atual];
         let valores = [];
@@ -429,6 +499,19 @@ export class AvaliadorSintatico
                     return this.construtoTupla();
                 }
 
+                // Ao resolver a expressão aqui, identificadores dentro da expressão de compreensão 
+                // de lista serão tratados como 'qualquer', para evitar erros de tipo.
+                this.intuirTipoQualquerParaIdentificadores = true;
+                const retornoExpressaoOuPrimeiroValor = this.seTernario();
+                this.intuirTipoQualquerParaIdentificadores = false;
+
+                if (this.simbolos[this.atual].tipo === tiposDeSimbolos.PARA) {
+                    return this.resolverCompreensaoDeLista(retornoExpressaoOuPrimeiroValor);
+                }
+
+                // Aqui já sabemos que não é uma compreensão de lista.
+                valores.push(retornoExpressaoOuPrimeiroValor);
+
                 while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
                     switch (this.simbolos[this.atual].tipo) {
                         case tiposDeSimbolos.VIRGULA:
@@ -440,7 +523,7 @@ export class AvaliadorSintatico
                             valores.push(new ComentarioComoConstruto(simboloComentario));
                             break;
                         default:
-                            const valor = this.atribuir();
+                            const valor = this.seTernario();
                             valores.push(valor);
                             break;
                     }
@@ -526,7 +609,16 @@ export class AvaliadorSintatico
             case tiposDeSimbolos.IDENTIFICADOR:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
                 let tipoOperando: string;
-                if (simboloIdentificador.lexema in this.tiposDefinidosEmCodigo) {
+
+                if (this.intuirTipoQualquerParaIdentificadores) {
+                    // Esta indicação é utilizada para compreensões de lista, onde o 
+                    // tipo do identificador de iteração é 'qualquer' por definição.
+                    tipoOperando = 'qualquer';
+                    this.pilhaEscopos.definirInformacoesVariavel(
+                        simboloIdentificador.lexema,
+                        new InformacaoElementoSintatico(simboloIdentificador.lexema, 'qualquer') // TODO: Talvez um dia inferir o tipo aqui.
+                    );
+                } else if (simboloIdentificador.lexema in this.tiposDefinidosEmCodigo) {
                     tipoOperando = simboloIdentificador.lexema;
                 } else {
                     try {

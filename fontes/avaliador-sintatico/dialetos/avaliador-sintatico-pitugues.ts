@@ -412,7 +412,7 @@ export class AvaliadorSintaticoPitugues
                     this.simbolos[this.atual].tipo == 'IDENTIFICADOR' &&
                     !this.verificarTipoProximoSimbolo(tiposDeSimbolos.VIRGULA)
                 ) {
-                    return this.resolverListaDeCompreensao();
+                    return this.resolverCompreensaoDeLista();
                 }
 
                 while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
@@ -1310,7 +1310,7 @@ export class AvaliadorSintaticoPitugues
      * Resolve uma lista de compreensão.
      * @returns {ListaCompreensao} A lista de compreensão resolvida.
      */
-    protected resolverListaDeCompreensao(): ListaCompreensao {
+    protected resolverCompreensaoDeLista(): ListaCompreensao {
         // TODO: Se expressão não começar com um identificador, por exemplo `3 * x`, como faríamos para
         // aceitar o `x` na avaliação da expressão?
         if (this.simbolos[this.atual].tipo === tiposDeSimbolos.IDENTIFICADOR) {
@@ -1326,7 +1326,6 @@ export class AvaliadorSintaticoPitugues
         const retornoExpressao = this.ou();
 
         this.consumir(tiposDeSimbolos.PARA, "Esperado instrução 'para' após identificado.");
-
         this.consumir(tiposDeSimbolos.CADA, "Esperado instrução 'cada' após 'para'.");
 
         const simboloVariavelIteracao = this.consumir(

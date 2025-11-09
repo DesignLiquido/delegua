@@ -23,7 +23,11 @@ describe('Interpretador (Pituguês)', () => {
         describe('Cenários de sucesso', () => {
             describe('Atribuições', () => {
                 it('Trivial', async () => {
-                    const retornoLexador = lexador.mapear(['var a = 1', 'var b, c = 1, 2'], -1);
+                    const retornoLexador = lexador.mapear([
+                        'var a = 1', 
+                        'var b, c = 1, 2'
+                    ], -1);
+
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
                         retornoLexador,
                         -1
@@ -50,12 +54,12 @@ describe('Interpretador (Pituguês)', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                describe('Lista de Compreensão', () => {
+                describe('Compreensão de listas', () => {
                     it('Trivial', async () => {
                         const retornoLexador = lexador.mapear(
                             [
                                 'var lista = [1, 2, 3, 4, 5]',
-                                'var minhaListaCompreensao = [x para cada x em lista se x % 2 == 0] # Lista de compreensão para números pares',
+                                'var minhaListaCompreensao = [x para cada x em lista se x % 2 == 0] # Compreensão de listas para números pares',
                                 'escreva(minhaListaCompreensao)',
                             ],
                             -1
@@ -78,7 +82,7 @@ describe('Interpretador (Pituguês)', () => {
                         const retornoLexador = lexador.mapear(
                             [
                                 'var lista = [1, 2, 3, 4, 5]',
-                                'var minhaListaCompreensao = [x * 2 para cada x em lista se x % 2 == 0] # Lista de compreensão para números pares',
+                                'var minhaListaCompreensao = [x * 2 para cada x em lista se x % 2 == 0] # Compreensão de listas para números pares',
                                 'escreva(minhaListaCompreensao)',
                             ],
                             -1
