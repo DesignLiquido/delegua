@@ -1094,6 +1094,7 @@ export class AvaliadorSintaticoPitugues
         return new Sustar(this.simboloAtual());
     }
 
+
     declaracaoContinua(): Continua {
         if (this.blocos < 1) {
             throw this.erro(
