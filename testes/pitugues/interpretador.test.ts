@@ -974,6 +974,114 @@ describe('Interpretador (Pituguês)', () => {
             });
         });
 
+        it('termina_com - sufixo encontrado no final', async () => {
+            const codigo = [
+                'var t = "Olá, bem-vindo ao meu mundo."',
+                'escreva(t.termina_com("."))',
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                retornoLexador,
+                -1
+            );
+            const retornoInterpretador = await interpretador.interpretar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saidas).toHaveLength(1);
+            expect(_saidas[0]).toBe('verdadeiro');
+        });
+
+        it('termina_com - sufixo encontrado (palavra completa)', async () => {
+            const codigo = [
+                'var t = "Olá, bem-vindo ao meu mundo."',
+                'escreva(t.termina_com("mundo."))',
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                retornoLexador,
+                -1
+            );
+            const retornoInterpretador = await interpretador.interpretar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saidas).toHaveLength(1);
+            expect(_saidas[0]).toBe('verdadeiro');
+        });
+
+        it('termina_com - sufixo não encontrado', async () => {
+            const codigo = [
+                'var t = "Olá, bem-vindo ao meu mundo."',
+                'escreva(t.termina_com("mundo"))',
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                retornoLexador,
+                -1
+            );
+            const retornoInterpretador = await interpretador.interpretar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saidas).toHaveLength(1);
+            expect(_saidas[0]).toBe('falso');
+        });
+
+        it('termina_com - sufixo no meio do texto', async () => {
+            const codigo = [
+                'var t = "Olá, bem-vindo ao meu mundo."',
+                'escreva(t.termina_com("bem-vindo"))',
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                retornoLexador,
+                -1
+            );
+            const retornoInterpretador = await interpretador.interpretar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saidas).toHaveLength(1);
+            expect(_saidas[0]).toBe('falso');
+        });
+
+        it('termina_com - texto vazio como sufixo', async () => {
+            const codigo = [
+                'var t = "Olá mundo"',
+                'escreva(t.termina_com(""))',
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                retornoLexador,
+                -1
+            );
+            const retornoInterpretador = await interpretador.interpretar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saidas).toHaveLength(1);
+            expect(_saidas[0]).toBe('verdadeiro');
+        });
+
+        it('termina_com - sufixo maior que o texto', async () => {
+            const codigo = [
+                'var t = "Olá"',
+                'escreva(t.termina_com("Olá mundo!"))',
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                retornoLexador,
+                -1
+            );
+            const retornoInterpretador = await interpretador.interpretar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saidas).toHaveLength(1);
+            expect(_saidas[0]).toBe('falso');
+        });
+
         describe('Cenários de falha', () => {
             describe('Acesso a variáveis e objetos', () => {
                 it('Acesso a elementos de vetor', async () => {
