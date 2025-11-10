@@ -167,7 +167,7 @@ export default {
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'texto.encontre(subtexto, indiceInicio?)',
     },
-    terminacom: {
+    termina_com: {
         tipoRetorno: 'lógico',
         argumentos: [
             new InformacaoElementoSintatico(
@@ -184,17 +184,17 @@ export default {
             texto: string,
             sufixo: string
         ): Promise<boolean> => Promise.resolve(texto.endsWith(sufixo)),
-        assinaturaFormato: 'texto.terminacom(sufixo: texto)',
+        assinaturaFormato: 'texto.termina_com(sufixo: texto)',
         documentacao:
-            '# `texto.terminacom(sufixo)` \n \n' +
+            '# `texto.termina_com(sufixo)` \n \n' +
             'Verifica se um texto termina com o sufixo especificado e retorna um valor lógico (verdadeiro ou falso).' +
             '\n\n ## Exemplo de Código\n' +
             '\n\n```delegua\nvar mensagem = "Olá, bem-vindo ao meu mundo."\n' +
-            'escreva(mensagem.terminacom(".")) // verdadeiro\n' +
-            'escreva(mensagem.terminacom("mundo")) // falso\n' +
-            'escreva(mensagem.terminacom("mundo.")) // verdadeiro\n```' +
+            'escreva(mensagem.termina_com(".")) // verdadeiro\n' +
+            'escreva(mensagem.termina_com("mundo")) // falso\n' +
+            'escreva(mensagem.termina_com("mundo.")) // verdadeiro\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'texto.terminacom(sufixo)',
+        exemploCodigo: 'texto.termina_com(sufixo)',
     },
     fatiar: {
         tipoRetorno: 'texto',

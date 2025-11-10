@@ -947,10 +947,10 @@ describe('Interpretador (Pituguês)', () => {
             });
         });
 
-        it('terminacom - sufixo encontrado no final', async () => {
+        it('termina_com - sufixo encontrado no final', async () => {
             const codigo = [
                 'var t = "Olá, bem-vindo ao meu mundo."',
-                'escreva(t.terminacom("."))',
+                'escreva(t.termina_com("."))',
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
@@ -965,10 +965,10 @@ describe('Interpretador (Pituguês)', () => {
             expect(_saidas[0]).toBe('verdadeiro');
         });
 
-        it('terminacom - sufixo encontrado (palavra completa)', async () => {
+        it('termina_com - sufixo encontrado (palavra completa)', async () => {
             const codigo = [
                 'var t = "Olá, bem-vindo ao meu mundo."',
-                'escreva(t.terminacom("mundo."))',
+                'escreva(t.termina_com("mundo."))',
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
@@ -983,10 +983,10 @@ describe('Interpretador (Pituguês)', () => {
             expect(_saidas[0]).toBe('verdadeiro');
         });
 
-        it('terminacom - sufixo não encontrado', async () => {
+        it('termina_com - sufixo não encontrado', async () => {
             const codigo = [
                 'var t = "Olá, bem-vindo ao meu mundo."',
-                'escreva(t.terminacom("mundo"))',
+                'escreva(t.termina_com("mundo"))',
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
@@ -1001,10 +1001,10 @@ describe('Interpretador (Pituguês)', () => {
             expect(_saidas[0]).toBe('falso');
         });
 
-        it('terminacom - sufixo no meio do texto', async () => {
+        it('termina_com - sufixo no meio do texto', async () => {
             const codigo = [
                 'var t = "Olá, bem-vindo ao meu mundo."',
-                'escreva(t.terminacom("bem-vindo"))',
+                'escreva(t.termina_com("bem-vindo"))',
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
@@ -1019,10 +1019,10 @@ describe('Interpretador (Pituguês)', () => {
             expect(_saidas[0]).toBe('falso');
         });
 
-        it('terminacom - texto vazio como sufixo', async () => {
+        it('termina_com - texto vazio como sufixo', async () => {
             const codigo = [
                 'var t = "Olá mundo"',
-                'escreva(t.terminacom(""))',
+                'escreva(t.termina_com(""))',
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
@@ -1037,10 +1037,10 @@ describe('Interpretador (Pituguês)', () => {
             expect(_saidas[0]).toBe('verdadeiro');
         });
 
-        it('terminacom - sufixo maior que o texto', async () => {
+        it('termina_com - sufixo maior que o texto', async () => {
             const codigo = [
                 'var t = "Olá"',
-                'escreva(t.terminacom("Olá mundo!"))',
+                'escreva(t.termina_com("Olá mundo!"))',
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
