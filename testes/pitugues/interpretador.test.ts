@@ -1081,7 +1081,26 @@ describe('Interpretador (Pituguês)', () => {
             expect(_saidas).toHaveLength(1);
             expect(_saidas[0]).toBe('falso');
         });
+        it('interpolação de variáveis em textos', async () => {
+            const codigo = [
+                'var nome = "Maria"',
+                'var idade = 30',
+                'escreva(f"Meu nome é ${nome} e eu tenho ${idade} anos.")',
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(  
+                retornoLexador,
+                -1
+            );
+            const retornoInterpretador = await interpretador.interpretar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saidas).toHaveLength(1);
+            expect(_saidas[0]).toBe('Meu nome é Maria e eu tenho 30 anos.');
+        });
 
+        
         describe('Cenários de falha', () => {
             describe('Acesso a variáveis e objetos', () => {
                 it('Acesso a elementos de vetor', async () => {
