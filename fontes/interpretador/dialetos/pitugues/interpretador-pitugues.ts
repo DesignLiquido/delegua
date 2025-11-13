@@ -15,6 +15,8 @@ import tipoDeDadosPrimitivos from '../../../tipos-de-dados/primitivos';
 import tipoDeDadosPitugues from '../../../tipos-de-dados/dialetos/pitugues';
 
 export class InterpretadorPitugues extends Interpretador {
+    
+    regexInterpolacao: RegExp = /\$\{[a-zA-Z_][a-zA-Z0-9_]*\}/g;
     override async visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> {
         const nomeObjeto = this.resolverNomeObjectoAcessado(expressao.objeto);
 
@@ -332,4 +334,29 @@ export class InterpretadorPitugues extends Interpretador {
             )
         );
     }
+
+    protected override async resolverInterpolacoes(textoOriginal: string, linha: number): Promise<any[]> {
+        const variaveis = textoOriginal.match(this.regexInterpolacao);
+
+        if (!variaveis) return [];
+
+        const resultadosAvaliacaoSintatica = variaveis.map((s) => {
+            // s tem a forma "${identificador}" — removemos apenas os dois primeiros e o último caractere
+            const expressaoInterpolacao: string = s.slice(2, -1);
+
+            let microLexador = this.microLexador.mapear(expressaoInterpolacao);
+            const resultadoMicroAvaliadorSintatico = this.microAvaliadorSintatico.analisar(
+                microLexador,
+                linha
+            );
+
+            return {
+                expressaoInterpolacao,
+                resultadoMicroAvaliadorSintatico,
+            };
+        });
+
+        return resultadosAvaliacaoSintatica;
+    }
+
 }
