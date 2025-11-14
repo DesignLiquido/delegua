@@ -1,9 +1,9 @@
 import { AcessoMetodo, AcessoMetodoOuPropriedade, AcessoPropriedade } from "../../../construtos";
-import { Interpretador } from "../../interpretador";
+import { InterpretadorComDepuracao } from "../../depuracao";
 
 import * as comum from './comum';
 
-export class InterpretadorPitugues extends Interpretador {
+export class InterpretadorPituguesComDepuracao extends InterpretadorComDepuracao {
     override async visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> {
         return comum.visitarExpressaoAcessoMetodo(this, expressao);
     }
