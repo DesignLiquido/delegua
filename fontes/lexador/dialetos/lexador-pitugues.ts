@@ -138,6 +138,51 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
         return this.codigo[this.linha].charAt(this.atual - 1);
     }
 
+    analisarTextoMultilinha(delimitador: string): void {
+        const inicioLinha = this.linha;
+
+        while (!this.eFinalDoCodigo()) {
+            // Detectar o final """
+            if (
+                this.simboloAtual() === delimitador &&
+                this.proximoSimbolo() === delimitador &&
+                this.codigo[this.linha].charAt(this.atual + 2) === delimitador
+            ) {
+                // avanço pelo delimitador final
+                this.avancar();
+                this.avancar();
+                this.avancar();
+
+                const linhas = this.codigo.slice(inicioLinha, this.linha + 1);
+                let conteudo = linhas.join('\n');
+
+                // Remove delimitadores inicial e final
+                const pad = delimitador.repeat(3);
+                conteudo = conteudo.substring(conteudo.indexOf(pad) + 3);
+                conteudo = conteudo.substring(0, conteudo.lastIndexOf(pad));
+
+                this.simbolos.push(
+                    new Simbolo(
+                        tiposDeSimbolos.TEXTO,
+                        conteudo,
+                        conteudo,
+                        inicioLinha + 1,
+                        this.hashArquivo
+                    )
+                );
+                return;
+            }
+
+            this.avancar();
+        }
+
+        this.erros.push({
+            linha: this.linha + 1,
+            caractere: this.simboloAnterior(),
+            mensagem: 'Texto multilinha não finalizado.',
+        } as ErroLexador);
+    }
+
     analisarTexto(delimitador = '"'): void {
         const linhaPrimeiroCaracter: number = this.linha;
         while (this.simboloAtual() !== delimitador && !this.eFinalDoCodigo()) {
@@ -436,16 +481,36 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
                 }
                 break;
 
-            case '"':
-                this.avancar();
-                this.analisarTexto('"');
-                this.avancar();
-                break;
 
+            case '"':
+                if (
+                    this.proximoSimbolo() === '"' &&
+                    this.codigo[this.linha].charAt(this.atual + 2) === '"'
+                ) {
+                    this.avancar();
+                    this.avancar();
+                    this.avancar();
+                    this.analisarTextoMultilinha('"');
+                } else {
+                    this.avancar();
+                    this.analisarTexto('"');
+                    this.avancar();
+                }
+                break;
             case "'":
-                this.avancar();
-                this.analisarTexto("'");
-                this.avancar();
+                if (
+                    this.proximoSimbolo() === "'" &&
+                    this.codigo[this.linha].charAt(this.atual + 2) === "'"
+                ) {
+                    this.avancar();
+                    this.avancar();
+                    this.avancar();
+                    this.analisarTextoMultilinha("'");
+                } else {
+                    this.avancar();
+                    this.analisarTexto("'");
+                    this.avancar();
+                }
                 break;
 
             default:
