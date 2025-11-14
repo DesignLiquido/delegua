@@ -1106,7 +1106,7 @@ describe('Interpretador (Pituguês)', () => {
             const codigo = [
                 'var nome = "Maria"',
                 'var idade = 30',
-                'escreva(f"Meu nome é ${nome} e eu tenho ${idade} anos.")',
+                'escreva("Meu nome é ${nome} e eu tenho ${idade} anos.")',
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(  
