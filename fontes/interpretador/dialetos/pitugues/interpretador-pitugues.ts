@@ -356,7 +356,16 @@ export class InterpretadorPitugues extends Interpretador {
             };
         });
 
-        return resultadosAvaliacaoSintatica;
+        const resolucoesPromises = await Promise.all(
+            resultadosAvaliacaoSintatica
+                .flatMap((r) => r.resultadoMicroAvaliadorSintatico.declaracoes)
+                .map((d) => this.avaliar(d))
+        );
+
+        return resolucoesPromises.map((item, indice) => ({
+            expressaoInterpolacao: resultadosAvaliacaoSintatica[indice].expressaoInterpolacao,
+            valor: item,
+        }));
     }
 
 }

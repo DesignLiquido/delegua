@@ -712,6 +712,26 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas[0]).toBe('um texto concatenado com outro');
                 });
 
+                it('encontrar_ultimo', async () => {
+                    const codigo = [
+                        'var txt = "Mi casa, su casa."',
+                        'escreva(txt.encontrar_ultimo(\'casa\'))',
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('12');
+                });
+
                 it('dividir', async () => {
                     const codigo = ['var t1 = "um dois três"', 'escreva(t1.dividir(" "))'];
                     const retornoLexador = lexador.mapear(codigo, -1);
@@ -1086,7 +1106,7 @@ describe('Interpretador (Pituguês)', () => {
             const codigo = [
                 'var nome = "Maria"',
                 'var idade = 30',
-                'escreva(f"Meu nome é ${nome} e eu tenho ${idade} anos.")',
+                'escreva("Meu nome é ${nome} e eu tenho ${idade} anos.")',
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(  
