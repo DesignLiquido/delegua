@@ -712,10 +712,10 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas[0]).toBe('um texto concatenado com outro');
                 });
 
-                it('encontre_ultimo', async () => {
+                it('encontrar_ultimo', async () => {
                     const codigo = [
                         'var txt = "Mi casa, su casa."',
-                        'escreva(txt.encontre_ultimo(\'casa\'))',
+                        'escreva(txt.encontrar_ultimo(\'casa\'))',
                     ];
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(

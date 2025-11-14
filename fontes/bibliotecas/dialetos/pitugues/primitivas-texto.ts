@@ -167,7 +167,7 @@ export default {
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'texto.encontre(subtexto, indiceInicio?)',
     },
-    encontre_ultimo: {
+    encontrar_ultimo: {
         tipoRetorno: 'inteiro',
         argumentos: [
             new InformacaoElementoSintatico(
