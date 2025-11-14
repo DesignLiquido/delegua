@@ -1101,6 +1101,54 @@ describe('Interpretador (Pituguês)', () => {
             expect(_saidas[0]).toBe('Meu nome é Maria e eu tenho 30 anos.');
         });
 
+        it('docstrings simples com aspas duplas', async () => {
+            const codigo = [
+                'classe Cachorro:',
+                '    """',
+                '    Esta é uma docstring de exemplo.',
+                '    """',
+                '    latir():',
+                "        escreva('Au Au!')",
+                'ex = Cachorro()',
+                'ex.latir()',
+                
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                retornoLexador,
+                -1
+            );
+            const retornoInterpretador = await interpretador.interpretar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saidas).toHaveLength(1);
+            expect(_saidas[0]).toBe('Au Au!');
+        });
+        it('docstrings simples com aspas simples', async () => {
+            const codigo = [
+                'classe Gato:',
+                "    '''",
+                '    Esta é uma docstring de exemplo.',
+                "    '''",
+                '    miar():',
+                "        escreva('Miau!')",
+                'ex = Gato()',
+                'ex.miar()',
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                retornoLexador,
+                -1
+            );
+            const retornoInterpretador = await interpretador.interpretar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saidas).toHaveLength(1);
+            expect(_saidas[0]).toBe('Miau!');
+        });
+
         describe('Cenários de falha', () => {
             describe('Acesso a variáveis e objetos', () => {
                 it('Acesso a elementos de vetor', async () => {

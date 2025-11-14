@@ -17,6 +17,7 @@ import tipoDeDadosPitugues from '../../../tipos-de-dados/dialetos/pitugues';
 export class InterpretadorPitugues extends Interpretador {
     
     regexInterpolacao: RegExp = /\$\{[a-zA-Z_][a-zA-Z0-9_]*\}/g;
+    regexDocstring: RegExp = /\"\"\"([\s\S]*?)\"\"\"|\'\'\'([\s\S]*?)\'\'\'/g;
     override async visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> {
         const nomeObjeto = this.resolverNomeObjectoAcessado(expressao.objeto);
 
@@ -358,5 +359,28 @@ export class InterpretadorPitugues extends Interpretador {
 
         return resultadosAvaliacaoSintatica;
     }
+async resolverDocstrings(textoOriginal: string, linha: number): Promise<any[]> {
+        const docstrings = textoOriginal.match(this.regexDocstring);
 
+        if (!docstrings) return [];         
+        const resultadosAvaliacaoSintatica = docstrings.map((s) => {
+            // s pode ter a forma '"""conteúdo"""' ou '''conteúdo''' 
+            let expressaoDocstring: string;
+            if (s.startsWith('"""') && s.endsWith('"""')) {
+                expressaoDocstring = s.slice(3, -3);
+            } else if (s.startsWith("'''") && s.endsWith("'''")) {
+                expressaoDocstring = s.slice(3, -3);
+            } else {
+                // fallback: remover possíveis aspas no início/fim
+                expressaoDocstring = s.replace(/^['"]+|['"]+$/g, '');
+            }
+            return {
+                expressaoDocstring
+            };
+        });
+
+        return resultadosAvaliacaoSintatica;
+    }
+
+    
 }
