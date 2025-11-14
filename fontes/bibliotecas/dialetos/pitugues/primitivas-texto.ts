@@ -167,6 +167,62 @@ export default {
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'texto.encontre(subtexto, indiceInicio?)',
     },
+    encontrar_ultimo: {
+        tipoRetorno: 'inteiro',
+        argumentos: [
+            new InformacaoElementoSintatico(
+                'subtexto',
+                'texto',
+                true,
+                [],
+                'O subtexto que deve ser buscado.'
+            ),
+            new InformacaoElementoSintatico(
+                'indiceInicio',
+                'número',
+                false,
+                [],
+                '(Opcional) Índice inicial para começar a busca.'
+            ),
+        ],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
+            texto: string,
+            subtexto: string,
+            indiceInicio?: number
+        ): Promise<number> => {
+            if (indiceInicio !== undefined) {
+                if (indiceInicio < 0) indiceInicio = 0;
+                if (indiceInicio > texto.length) indiceInicio = texto.length;
+
+                const posicao = texto.indexOf(subtexto, indiceInicio);
+                if (posicao === -1) return Promise.resolve(-1);
+
+                return Promise.resolve(texto.lastIndexOf(subtexto));
+            }
+
+            return Promise.resolve(texto.lastIndexOf(subtexto));
+        },
+        assinaturaFormato: 'texto.encontrar_ultimo(subtexto: texto, indiceInicio?: número)',
+        documentacao:
+            '# `texto.encontrar_ultimo(subtexto, indiceInicio)`\n\n' +
+            'Retorna o índice da **última ocorrência** de um subtexto dentro do texto. ' +
+            'Retorna **-1** caso o subtexto não seja encontrado.\n\n' +
+            '## Exemplo de Código\n\n' +
+            '```pitugues\n' +
+            'var t = "Mi casa, su casa."\n\n' +
+            't.encontrar_ultimo("casa")        // 12\n' +
+            't.encontrar_ultimo("Mi")          // 0\n' +
+            't.encontrar_ultimo("nada")        // -1\n' +
+            't.encontrar_ultimo("casa", 10)    // 3\n' +
+            't.encontrar_ultimo("casa", 2)     // -1\n' +
+            '```\n\n' +
+            '### Formas de uso\n' +
+            '- `texto.encontrar_ultimo(subtexto)`\n' +
+            '- `texto.encontrar_ultimo(subtexto, indiceInicio)`\n',
+        exemploCodigo: 'texto.encontrar_ultimo(subtexto, indiceInicio?)',
+    },
     fatiar: {
         tipoRetorno: 'texto',
         argumentos: [
