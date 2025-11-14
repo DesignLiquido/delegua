@@ -40,12 +40,12 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         this.pilhaEscopos = new PilhaEscopos();
     }
 
-    protected atribuir(): Construto {
-        const expressao = this.ou();
+    protected async atribuir(): Promise<Construto> {
+        const expressao = await this.ou();
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL_ATRIBUICAO)) {
             const setaAtribuicao = this.simbolos[this.atual - 1];
-            const valor = this.atribuir();
+            const valor = await this.atribuir();
 
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
 
@@ -68,21 +68,24 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    protected blocoEscopo(): Declaracao[] {
+    protected blocoEscopo(): Promise<Declaracao[]> {
         throw new Error('Método não implementado.');
     }
-    protected chamar(): Construto {
-        return this.primario();
+
+    protected async chamar(): Promise<Construto> {
+        return await this.primario();
     }
-    protected declaracaoEnquanto(): Enquanto {
+
+    protected declaracaoEnquanto(): Promise<Enquanto> {
         throw new Error('Método não implementado.');
     }
+
     protected declaracaoEscolha(): Escolha {
         throw new Error('Método não implementado.');
     }
 
     // Em Calango, método "escreval"
-    protected declaracaoEscreva(): Escreva {
+    protected async declaracaoEscreva(): Promise<Escreva> {
         const simboloAtual = this.avancarEDevolverAnterior();
 
         this.consumir(
@@ -190,7 +193,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         throw new Error('Método não implementado.');
     }
 
-    protected declaracaoPara(): Para | ParaCada {
+    protected declaracaoPara(): Promise<Para | ParaCada> {
         throw new Error('Método não implementado.');
     }
 
@@ -212,10 +215,10 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         );
     }
 
-    protected declaracaoSe(): Se {
+    protected async declaracaoSe(): Promise<Se> {
         this.avancarEDevolverAnterior();
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'se'");
-        const condicao = this.expressao();
+        const condicao = await this.expressao();
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após condição do 'se'");
         this.consumir(tiposDeSimbolos.ENTAO, "Esperado 'entao' após condição");
 
@@ -241,7 +244,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         return new Se(condicao, caminhoEntao, [], caminhoSenao);
     }
 
-    protected expressaoLeia(): Leia {
+    protected async expressaoLeia(): Promise<Leia> {
         const simboloAtual = this.avancarEDevolverAnterior();
 
         this.consumir(
@@ -265,7 +268,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         return new Leia(simboloAtual, argumentos);
     }
 
-    protected primario(): Construto {
+    protected async primario(): Promise<Construto> {
         switch (this.simbolos[this.atual].tipo) {
             case tiposDeSimbolos.IDENTIFICADOR:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
@@ -292,7 +295,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
                 );
             case tiposDeSimbolos.PARENTESE_ESQUERDO:
                 this.avancarEDevolverAnterior();
-                const expressao = this.expressao();
+                const expressao = await this.expressao();
                 this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
 
                 return new Agrupamento(
@@ -329,7 +332,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         }
     }
 
-    protected corpoDaFuncao(tipo: string): FuncaoConstruto {
+    protected corpoDaFuncao(tipo: string): Promise<FuncaoConstruto> {
         throw new Error('Método não implementado.');
     }
 
@@ -348,12 +351,13 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.PRINCIPAL, `Expressão 'principal' não declarada`);
     }
 
-    analisar(
+    async analisar(
         retornoLexador: RetornoLexador<SimboloInterface>,
         hashArquivo: number
-    ): RetornoAvaliadorSintatico<Declaracao> {
+    ): Promise<RetornoAvaliadorSintatico<Declaracao>> {
         this.erros = [];
-        ((this.atual = 0), (this.blocos = 0));
+        this.atual = 0;
+        this.blocos = 0;
         this.pilhaEscopos = new PilhaEscopos();
         this.pilhaEscopos.empilhar(new InformacaoEscopo());
 

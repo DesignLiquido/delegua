@@ -20,6 +20,8 @@ import {
     Fazer,
     EscrevaMesmaLinha,
     Var,
+    Expressao,
+    Bloco,
 } from '../../declaracoes';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
@@ -28,7 +30,7 @@ import tiposDeSimbolos from '../../tipos-de-simbolos/portugol-ipt';
 import { SimboloInterface } from '../../interfaces';
 
 export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
-    primario(): Construto {
+    async primario(): Promise<Construto> {
         switch (this.simbolos[this.atual].tipo) {
             case tiposDeSimbolos.IDENTIFICADOR:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
@@ -44,7 +46,7 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
                 );
             case tiposDeSimbolos.PARENTESE_ESQUERDO:
                 this.avancarEDevolverAnterior();
-                const expressao = this.expressao();
+                const expressao = await this.expressao();
                 this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
 
                 return new Agrupamento(
@@ -59,16 +61,16 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
      * Aparentemente, o Portugol IPT não suporta chamadas de função.
      * @returns O retorno da chamada de `primario()`.
      */
-    chamar(): Construto {
-        return this.primario();
+    async chamar(): Promise<Construto> {
+        return await this.primario();
     }
 
-    atribuir(): Construto {
+    async atribuir(): Promise<Construto> {
         const expressao = this.ou();
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SETA_ATRIBUICAO)) {
             const setaAtribuicao = this.simbolos[this.atual - 1];
-            const valor = this.atribuir();
+            const valor = await this.atribuir();
 
             if (expressao instanceof Variavel) {
                 return new Atribuir(this.hashArquivo, expressao, valor);
@@ -93,13 +95,13 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
     /**
      * A declaração escreva (ou escrever) do Portugol IPT é sempre na mesma linha.
      */
-    declaracaoEscreva(): Escreva {
+    async declaracaoEscreva(): Promise<Escreva> {
         const simboloAtual = this.avancarEDevolverAnterior();
 
         // const argumentos = this.logicaComumEscreva();
         const argumentos: FormatacaoEscrita[] = [];
         do {
-            const valor = this.resolverDeclaracaoForaDeBloco();
+            const valor = await this.expressao();
 
             argumentos.push(
                 new FormatacaoEscrita(this.hashArquivo, Number(simboloAtual.linha), valor)
@@ -109,20 +111,20 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
         return new EscrevaMesmaLinha(Number(simboloAtual.linha), this.hashArquivo, argumentos);
     }
 
-    blocoEscopo(): Declaracao[] {
+    blocoEscopo(): Promise<Declaracao[]> {
         throw new Error('Método não implementado.');
     }
 
-    declaracaoSe(): Se {
+    async declaracaoSe(): Promise<Se> {
         this.avancarEDevolverAnterior();
-        const condicao = this.expressao();
+        const condicao = await this.expressao();
         this.consumir(tiposDeSimbolos.ENTAO, "Esperado 'então' ou 'entao' após condição do se.");
         this.consumir(
             tiposDeSimbolos.QUEBRA_LINHA,
             "Esperado quebra de linha após palavra reservada 'então' ou 'entao' em condição se."
         );
 
-        const caminhoEntao = this.resolverDeclaracaoForaDeBloco();
+        const caminhoEntao = await this.resolverDeclaracaoForaDeBloco() as Bloco;
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA));
 
@@ -132,7 +134,7 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
                 tiposDeSimbolos.QUEBRA_LINHA,
                 "Esperado quebra de linha após palavra reservada 'senão' ou 'senao' em instrução se."
             );
-            caminhoSenao = this.resolverDeclaracaoForaDeBloco();
+            caminhoSenao = await this.resolverDeclaracaoForaDeBloco();
         }
 
         this.consumir(
@@ -147,11 +149,11 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
         return new Se(condicao, caminhoEntao, [], caminhoSenao);
     }
 
-    declaracaoEnquanto(): Enquanto {
+    declaracaoEnquanto(): Promise<Enquanto> {
         throw new Error('Método não implementado.');
     }
 
-    declaracaoPara(): Para {
+    declaracaoPara(): Promise<Para> {
         throw new Error('Método não implementado.');
     }
 
@@ -163,7 +165,7 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
         throw new Error('Método não implementado.');
     }
 
-    declaracaoInteiros(): Var[] {
+    async declaracaoInteiros(): Promise<Var[]> {
         const simboloInteiro = this.consumir(tiposDeSimbolos.INTEIRO, '');
 
         const inicializacoes = [];
@@ -196,44 +198,44 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
             );
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
-        return inicializacoes;
+        return Promise.resolve(inicializacoes);
     }
 
     /**
      * Análise de uma declaração `leia()`. No VisuAlg, `leia()` aceita 1..N argumentos.
      * @returns Uma declaração `Leia`.
      */
-    expressaoLeia(): Leia {
+    async expressaoLeia(): Promise<Leia> {
         const simboloAtual = this.avancarEDevolverAnterior();
 
         const argumentos = [];
         do {
-            argumentos.push(this.resolverDeclaracaoForaDeBloco());
+            argumentos.push(await this.resolverDeclaracaoForaDeBloco());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         return new Leia(simboloAtual, argumentos);
     }
 
-    corpoDaFuncao(tipo: string): FuncaoConstruto {
+    corpoDaFuncao(tipo: string): Promise<FuncaoConstruto> {
         throw new Error('Método não implementado.');
     }
 
-    resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] | Construto | Construto[] | any {
+    async resolverDeclaracaoForaDeBloco(): Promise<Declaracao | Declaracao[]> {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.ESCREVER:
-                return this.declaracaoEscreva();
+                return await this.declaracaoEscreva();
             case tiposDeSimbolos.INTEIRO:
-                return this.declaracaoInteiros();
+                return await this.declaracaoInteiros();
             case tiposDeSimbolos.LER:
-                return this.expressaoLeia();
+                return new Expressao(await this.expressaoLeia());
             case tiposDeSimbolos.QUEBRA_LINHA:
                 this.avancarEDevolverAnterior();
                 return null;
             case tiposDeSimbolos.SE:
-                return this.declaracaoSe();
+                return await this.declaracaoSe();
             default:
-                return this.expressao();
+                return new Expressao(await this.expressao());
         }
     }
 
@@ -244,10 +246,10 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
         );
     }
 
-    analisar(
+    async analisar(
         retornoLexador: RetornoLexador<SimboloInterface>,
         hashArquivo: number
-    ): RetornoAvaliadorSintatico<Declaracao> {
+    ): Promise<RetornoAvaliadorSintatico<Declaracao>> {
         this.erros = [];
         this.atual = 0;
         this.blocos = 0;
@@ -263,7 +265,7 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
         this.validarSegmentoInicio();
 
         while (!this.estaNoFinal() && this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIM) {
-            const resolucaoDeclaracao = this.resolverDeclaracaoForaDeBloco();
+            const resolucaoDeclaracao = await this.resolverDeclaracaoForaDeBloco();
             if (Array.isArray(resolucaoDeclaracao)) {
                 declaracoes = declaracoes.concat(resolucaoDeclaracao);
             } else {

@@ -958,10 +958,10 @@ export class AvaliadorSintaticoEguaClassico
         }
     }
 
-    analisar(
+    async analisar(
         retornoLexador: RetornoLexador<SimboloInterface>,
         hashArquivo: number
-    ): RetornoAvaliadorSintatico<Declaracao> {
+    ): Promise<RetornoAvaliadorSintatico<Declaracao>> {
         this.erros = [];
         this.atual = 0;
         this.blocos = 0;
@@ -974,9 +974,9 @@ export class AvaliadorSintaticoEguaClassico
             declaracoes.push(this.resolverDeclaracaoForaDeBloco());
         }
 
-        return {
+        return Promise.resolve({
             declaracoes: declaracoes,
             erros: this.erros,
-        } as RetornoAvaliadorSintatico<Declaracao>;
+        } as RetornoAvaliadorSintatico<Declaracao>);
     }
 }
