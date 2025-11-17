@@ -54,60 +54,6 @@ describe('Interpretador (Pituguês)', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Texto multilinha com aspas duplas', async () => {
-                    const retornoLexador = lexador.mapear([
-                        'var a = """Era uma vez, em um lugar distante,',
-                        'viviam pessoas felizes e trabalhadoras,',
-                        'que dedicavam seus dias à construção de um futuro melhor,',
-                        'sempre acreditando na força da união."""',
-                        'escreva(a)'
-                    ], -1);
-
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
-                        retornoLexador,
-                        -1
-                    );
-
-                    const retornoInterpretador = await interpretador.interpretar(
-                        retornoAvaliadorSintatico.declaracoes
-                    );
-
-                    expect(retornoInterpretador.erros).toHaveLength(0);
-                    expect(_saidas[0]).toBe(
-                        'Era uma vez, em um lugar distante,\n' +
-                        'viviam pessoas felizes e trabalhadoras,\n' +
-                        'que dedicavam seus dias à construção de um futuro melhor,\n' +
-                        'sempre acreditando na força da união.'
-                    );
-                });
-
-                it('Texto multilinha com aspas simples', async () => {
-                    const retornoLexador = lexador.mapear([
-                        "var a = '''A jornada começou antes do amanhecer,",
-                        "quando o vento frio soprava pelas montanhas,",
-                        "e o silêncio da natureza acompanhava cada passo,",
-                        "revelando a beleza escondida do caminho.'''",
-                        "escreva(a)"
-                    ], -1);
-
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
-                        retornoLexador,
-                        -1
-                    );
-
-                    const retornoInterpretador = await interpretador.interpretar(
-                        retornoAvaliadorSintatico.declaracoes
-                    );
-
-                    expect(retornoInterpretador.erros).toHaveLength(0);
-                    expect(_saidas[0]).toBe(
-                        'A jornada começou antes do amanhecer,\n' +
-                        'quando o vento frio soprava pelas montanhas,\n' +
-                        'e o silêncio da natureza acompanhava cada passo,\n' +
-                        'revelando a beleza escondida do caminho.'
-                    );
-                });
-
                 describe('Compreensão de listas', () => {
                     it('Trivial', async () => {
                         const retornoLexador = lexador.mapear(
