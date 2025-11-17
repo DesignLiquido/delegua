@@ -18,7 +18,9 @@ export class MicroLexadorPitugues {
     inicioSimbolo: number;
     atual: number;
     codigo: string;
-
+    
+    // Aceita apenas interpolações no formato ${identificador} (equivalente a "f-string")
+    regexInterpolacao: RegExp = /\$\{[a-zA-Z_][a-zA-Z0-9_]*\}/g;
     eDigito(caractere: string): boolean {
         return caractere >= '0' && caractere <= '9';
     }
@@ -158,7 +160,7 @@ export class MicroLexadorPitugues {
             case '*':
                 this.atual++;
                 switch (this.codigo[this.atual]) {
-                    case '*':
+                    case '**':
                         this.atual++;
                         this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
                         break;
@@ -180,7 +182,7 @@ export class MicroLexadorPitugues {
                 this.atual++;
                 this.adicionarSimbolo(tiposDeSimbolos.DIVISAO_INTEIRA);
                 break;
-        
+
             case ' ':
             case '\0':
             case '\r':

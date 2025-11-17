@@ -330,6 +330,60 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Concatenação de arrays com operador +', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var lista1 = [1, 2, 3]',
+                        'var lista2 = [4, 5, 6]',
+                        'var lista_concatenada = lista1 + lista2',
+                        'escreva(lista_concatenada)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toBe('[1, 2, 3, 4, 5, 6]');
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Concatenação de arrays com operador +=', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var lista1 = [1, 2, 3]',
+                        'var lista2 = [4, 5, 6]',
+                        'lista1 += lista2',
+                        'escreva(lista1)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toBe('[1, 2, 3, 4, 5, 6]');
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Concatenação de arrays vazios', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var lista1 = []',
+                        'var lista2 = []',
+                        'var lista_concatenada = lista1 + lista2',
+                        'escreva(lista_concatenada)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toBe('[]');
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Interpolação de texto usando \'isto\'', async () => {
                     const saidasMensagens = [
                         'Olá, meu nome é Fernando, como posso lhe ajudar?',
@@ -2347,7 +2401,7 @@ describe('Interpretador', () => {
                     });
                 });
 
-                describe('Vetores', () => {
+                describe('Vetores ou listas', () => {
                     it('ordenar() de vetor com parâmetro função', async () => {
                         const retornoLexador = lexador.mapear(
                             [
@@ -2394,6 +2448,77 @@ describe('Interpretador', () => {
                         );
 
                         expect(retornoInterpretador.erros).toHaveLength(0);
+                    });
+
+                    describe('Compreensão de listas', () => {
+                        it('Trivial', async () => {
+                            const retornoLexador = lexador.mapear(
+                                [
+                                    'var lista = [1, 2, 3, 4, 5]',
+                                    'var minhaListaCompreensao = [3 * x para cada x em lista] // Compreensão de listas para números pares',
+                                    'escreva(minhaListaCompreensao)',
+                                ],
+                                -1
+                            );
+                            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                                retornoLexador,
+                                -1
+                            );
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+                            expect(_saidas).toHaveLength(1);
+                            expect(_saidas[0]).toBe('[3, 6, 9, 12, 15]');
+                        });
+
+                        it('Com filtro', async () => {
+                            const retornoLexador = lexador.mapear(
+                                [
+                                    'var lista = [1, 2, 3, 4, 5]',
+                                    'var minhaListaCompreensao = [x para cada x em lista se x % 2 == 0] // Compreensão de listas para números pares',
+                                    'escreva(minhaListaCompreensao)',
+                                ],
+                                -1
+                            );
+                            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                                retornoLexador,
+                                -1
+                            );
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+                            expect(_saidas).toHaveLength(1);
+                            expect(_saidas[0]).toBe('[2, 4]');
+                        });
+
+                        it('Com filtro e expressão para resolução', async () => {
+                            const retornoLexador = lexador.mapear(
+                                [
+                                    'var lista = [1, 2, 3, 4, 5]',
+                                    'var minhaListaCompreensao = [x * 2 para cada x em lista se x % 2 == 0] // Compreensão de listas para números pares',
+                                    'escreva(minhaListaCompreensao)',
+                                ],
+                                -1
+                            );
+                            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                                retornoLexador,
+                                -1
+                            );
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+                            expect(_saidas).toHaveLength(1);
+                            expect(_saidas[0]).toBe('[4, 8]');
+                        });
                     });
                 });
 

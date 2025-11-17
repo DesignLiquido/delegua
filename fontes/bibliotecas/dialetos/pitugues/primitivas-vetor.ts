@@ -1,6 +1,6 @@
-import { DeleguaFuncao } from '../interpretador/estruturas';
-import { InterpretadorInterface, PrimitivaInterface, SimboloInterface } from '../interfaces';
-import { InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
+import { DeleguaFuncao } from '../../../interpretador/estruturas';
+import { InterpretadorInterface, PrimitivaInterface, SimboloInterface } from '../../../interfaces';
+import { InformacaoElementoSintatico } from '../../../informacao-elemento-sintatico';
 
 export default {
     adicionar: {
@@ -36,7 +36,7 @@ export default {
             '# `vetor.adicionar(elemento)` \n \n' +
             'Adiciona um ou mais elementos em um vetor.' +
             '\n\n ## Exemplo de Código\n' +
-            '```delegua\nv.adicionar(7)\n' +
+            '```pitugues\nv.adicionar(7)\n' +
             'v.adicionar(5)\n' +
             'v.adicionar(3)\n' +
             'escreva(v) // [7, 5, 3]\n```' +
@@ -67,7 +67,7 @@ export default {
             '# `vetor.concatenar(outroVetor)` \n \n' +
             'Adiciona ao conteúdo do vetor um ou mais elementos' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar v = [7, 5, 3]\n' +
+            '\n\n```pitugues\nvar v = [7, 5, 3]\n' +
             'escreva(v.concatenar([1, 2, 4])) // [7, 5, 3, 1, 2, 4]\n```' +
             '\n\n ### Formas de uso  \n',
         exemploCodigo: 'vetor.concatenar(...argumentos)',
@@ -89,7 +89,7 @@ export default {
             '# `vetor.empilhar(elemento)` \n \n' +
             'Adiciona um elemento ao final do vetor, como se o vetor fosse uma pilha na vertical.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar v = []\n' +
+            '\n\n```pitugues\nvar v = []\n' +
             'v.empilhar(7)\n' +
             'v.empilhar(5)\n' +
             'v.empilhar(3)\n' +
@@ -128,9 +128,7 @@ export default {
 
                 return Promise.resolve(elementos);
             } else {
-                elementos = !itens.length
-                    ? vetor.splice(posicaoInicial)
-                    : vetor.splice(posicaoInicial, ...itens);
+                elementos = !itens.length ? vetor.splice(posicaoInicial) : vetor.splice(posicaoInicial, ...itens);
 
                 if (nomePrimitiva !== '') {
                     interpretador.pilhaEscoposExecucao.atribuirVariavel(
@@ -142,13 +140,12 @@ export default {
                 return Promise.resolve(vetor);
             }
         },
-        assinaturaFormato:
-            'vetor.encaixar(posicaoInicial?: número, quantidadeExclusao?: número, itens?: qualquer[])',
+        assinaturaFormato: 'vetor.encaixar(posicaoInicial?: número, quantidadeExclusao?: número, itens?: qualquer[])',
         documentacao:
             '# `vetor.encaixar(posicaoInicial, quantidadeExclusao, itens)` \n \n' +
             'Encaixa um vetor em outro, dadas posições de início e quantidade de ítens a serem excluídos do vetor original. \n' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar v = [1, 2, 3, 4, 5]\n' +
+            '\n\n```pitugues\nvar v = [1, 2, 3, 4, 5]\n' +
             'escreva(v.encaixar()) // "[1, 2, 3, 4, 5]", ou seja, não faz coisa alguma.\n' +
             `var v1 = v.encaixar(2)\n` +
             'escreva(v) // "[3, 4, 5]", ou seja, a posição 2, onde fica o 3, passa a ser a nova posição inicial do vetor.\n' +
@@ -196,7 +193,7 @@ export default {
             '# `vetor.fatiar(inicio, fim)` \n \n' +
             'Extrai uma fatia do vetor, dadas posições de início e fim. \n' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar v = [1, 2, 3, 4, 5]\n' +
+            '\n\n```pitugues\nvar v = [1, 2, 3, 4, 5]\n' +
             'escreva(v.fatiar()) // "[1, 2, 3, 4, 5]", ou seja, não faz coisa alguma.\n' +
             'escreva(v.fatiar(2, 4)) // "[3, 4]"\n' +
             'escreva(v.fatiar(2)) // "[3, 4, 5]", ou seja, extrai trecho da 3ª posição até o final do vetor.\n```' +
@@ -206,10 +203,16 @@ export default {
             'vetor.fatiar(<a partir desta posição>)\n' +
             'vetor.fatiar(<a partir desta posição>, <até esta posição>)',
     },
-    filtrarPor: {
+    filtrar_por: {
         tipoRetorno: 'qualquer[]',
         argumentos: [
-            new InformacaoElementoSintatico('funcao', 'função', true, [], 'A função de filtragem.'),
+            new InformacaoElementoSintatico(
+                'funcao',
+                'função',
+                true,
+                [],
+                'A função de filtragem.'
+            ),
         ],
         implementacao: async (
             interpretador: InterpretadorInterface,
@@ -236,14 +239,14 @@ export default {
         },
         assinaturaFormato: 'vetor.filtrarPor(funcao: função)',
         documentacao:
-            '# `vetor.filtrarPor(funcao)` \n \n' +
+            '# `vetor.filtrar_por(funcao)` \n \n' +
             'Devolve todos os elementos de um vetor cujo resultado da execução de uma função, passada por parâmetro, seja verdadeiro.\n' +
             '\n\n ### Exemplo de Código\n' +
-            '\n\n```delegua\nvar v = [1, 2, 3, 4, 5]\n' +
+            '\n\n```pitugues\nvar v = [1, 2, 3, 4, 5]\n' +
             'var funcaoNumerosImpares = funcao (n) { retorna n % 2 > 0 }\n' +
-            'escreva(v.filtrarPor(funcaoNumerosImpares)) // "[1, 3, 5]"\n```' +
+            'escreva(v.filtrar_por(funcaoNumerosImpares)) // "[1, 3, 5]"\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'vetor.filtrarPor(funcao (argumento) { <corpo da função com retorna> })',
+        exemploCodigo: 'vetor.filtrar_por(funcao (argumento) { <corpo da função com retorna> })',
     },
     inclui: {
         tipoRetorno: 'lógico',
@@ -267,11 +270,11 @@ export default {
             '# `vetor.inclui(elemento)` \n \n' +
             'Verifica se o elemento existe no vetor. Devolve `verdadeiro` se existe, e `falso` em caso contrário.\n' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar v = [1, 2, 3]\n' +
+            '\n\n```pitugues\nvar v = [1, 2, 3]\n' +
             'escreva(v.inclui(2)) // verdadeiro\n' +
             'escreva(v.inclui(4)) // falso\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'vetor.inclui(elemento)',
+        exemploCodigo: 'vetor.inclui(elemento)'
     },
     inverter: {
         tipoRetorno: 'qualquer[]',
@@ -286,7 +289,7 @@ export default {
             '# `vetor.inverter()` \n \n' +
             'Inverte a ordem dos elementos de um vetor.\n' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar v = [1, 2, 3]\n' +
+            '\n\n```pitugues\nvar v = [1, 2, 3]\n' +
             'escreva(v.inverter()) // [3, 2, 1]\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'vetor.inverter()',
@@ -313,10 +316,11 @@ export default {
             '# `vetor.juntar(separador = ",")` \n \n' +
             'Junta todos os elementos de um vetor em um texto, separando cada elemento pelo separador passado como parâmetro.\n' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar v = [1, 2, 3]\n' +
+            '\n\n```pitugues\nvar v = [1, 2, 3]\n' +
             'escreva(v.juntar(":")) // "1:2:3"\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'vetor.juntar()\n' + 'vetor.juntar(<separador>)',
+        exemploCodigo: 'vetor.juntar()\n' +
+            'vetor.juntar(<separador>)',
     },
     mapear: {
         tipoRetorno: 'qualquer[]',
@@ -353,7 +357,7 @@ export default {
             'Dada uma função passada como parâmetro, executa essa função para cada elemento do vetor. \n' +
             'Cada elemento retornado por esta função é adicionado ao vetor resultante. \n' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar v = [1, 2, 3, 4, 5]\n' +
+            '\n\n```pitugues\nvar v = [1, 2, 3, 4, 5]\n' +
             'var funcaoPotenciasDeDois = funcao (n) { retorna n ** 2 }\n' +
             'escreva(v.mapear(funcaoPotenciasDeDois)) // [1, 4, 9, 16, 25]\n```' +
             '\n\n ### Formas de uso \n',
@@ -428,7 +432,7 @@ export default {
             '# `vetor.ordenar()` \n \n' +
             'Ordena valores de um vetor em ordem crescente.\n' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\n// A ordenação padrão é ascendente, ou seja, para o caso de números, a ordem fica do menor para o maior.\n' +
+            '\n\n```pitugues\n// A ordenação padrão é ascendente, ou seja, para o caso de números, a ordem fica do menor para o maior.\n' +
             'var v = [4, 2, 12, 5]\n' +
             'escreva(v.ordenar()) // [2, 4, 5, 12]\n' +
             '// Para o caso de textos, a ordenação é feita em ordem alfabética, caractere a caractere.\n' +
@@ -463,13 +467,13 @@ export default {
             '# `vetor.remover(elemento)` \n \n' +
             'Remove um elemento do vetor caso o elemento exista no vetor.\n' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar vetor = [1, 2, 3]\n' +
+            '\n\n```pitugues\nvar vetor = [1, 2, 3]\n' +
             'vetor.remover(2)\n' +
             'escreva(vetor) // [1, 3]\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'vetor.remover(elemento)',
     },
-    removerPrimeiro: {
+    remover_primeiro: {
         tipoRetorno: 'qualquer',
         argumentos: [],
         implementacao: (
@@ -480,19 +484,19 @@ export default {
             let elemento = vetor.shift();
             return Promise.resolve(elemento);
         },
-        assinaturaFormato: 'vetor.removerPrimeiro()',
+        assinaturaFormato: 'vetor.remover_primeiro()',
         documentacao:
-            '# `vetor.removerPrimeiro()` \n \n' +
+            '# `vetor.remover_primeiro()` \n \n' +
             'Remove o primeiro elemento do vetor caso o elemento exista no vetor.\n' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar vetor = [1, 2, 3]\n' +
-            'var primeiroElemento = vetor.removerPrimeiro()\n' +
+            '\n\n```pitugues\nvar vetor = [1, 2, 3]\n' +
+            'var primeiroElemento = vetor.remover_primeiro()\n' +
             'escreva(primeiroElemento) // 1\n' +
             'escreva(vetor) // [2, 3]\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'vetor.removerPrimeiro()',
+        exemploCodigo: 'vetor.remover_primeiro()',
     },
-    removerUltimo: {
+    remover_ultimo: {
         tipoRetorno: 'qualquer',
         argumentos: [],
         implementacao: (
@@ -503,17 +507,17 @@ export default {
             let elemento = vetor.pop();
             return Promise.resolve(elemento);
         },
-        assinaturaFormato: 'vetor.removerUltimo()',
+        assinaturaFormato: 'vetor.remover_ultimo()',
         documentacao:
-            '# `vetor.removerUltimo()` \n \n' +
+            '# `vetor.remover_ultimo()` \n \n' +
             'Remove o último elemento do vetor caso o elemento exista no vetor.\n' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar vetor = [1, 2, 3]\n' +
-            'var ultimoElemento = vetor.removerUltimo()\n' +
+            '\n\n```pitugues\nvar vetor = [1, 2, 3]\n' +
+            'var ultimoElemento = vetor.remover_ultimo()\n' +
             'escreva(ultimoElemento) // 3\n' +
             'escreva(vetor) // [1, 2]\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'vetor.removerUltimo()',
+        exemploCodigo: 'vetor.remover_ultimo()',
     },
     somar: {
         tipoRetorno: 'qualquer',
@@ -535,7 +539,7 @@ export default {
             '# `vetor.somar()` \n \n' +
             'Soma ou concatena todos os elementos do vetor (de acordo com o tipo de dados desses elementos) e retorna o resultado.\n' +
             '\n\n ### Exemplo de Código\n' +
-            '\n\n```delegua\nvar vetor = [1, 2, 3, 4, 5]\n' +
+            '\n\n```pitugues\nvar vetor = [1, 2, 3, 4, 5]\n' +
             'escreva(vetor.somar()) // 15\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'vetor.somar()',
@@ -553,7 +557,7 @@ export default {
             '# `vetor.tamanho()` \n \n' +
             'Retorna o número de elementos que compõem o vetor.\n' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar vetor = [0, 1, 2, 3, 4]\n' +
+            '\n\n```pitugues\nvar vetor = [0, 1, 2, 3, 4]\n' +
             'escreva(vetor.tamanho()) // 5\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'vetor.tamanho()',

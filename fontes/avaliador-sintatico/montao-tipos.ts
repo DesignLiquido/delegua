@@ -1,7 +1,7 @@
-import { uuidv4 } from "../geracao-identificadores";
-import { InformacaoElementoSintatico } from "../informacao-elemento-sintatico";
-import { SimboloInterface } from "../interfaces";
-import { ErroAvaliadorSintatico } from "./erro-avaliador-sintatico";
+import { uuidv4 } from '../geracao-identificadores';
+import { InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
+import { SimboloInterface } from '../interfaces';
+import { ErroAvaliadorSintatico } from './erro-avaliador-sintatico';
 
 /**
  * O montão de tipos é muito semelhante ao montão original do interpretador, mas
@@ -44,7 +44,11 @@ export class MontaoTipos {
      * @param {string} endereco O endereço da referência.
      * @returns {any} O objeto armazenado no endereço.
      */
-    obterReferencia(hashArquivo: number, linha: number, endereco: string): InformacaoElementoSintatico {
+    obterReferencia(
+        hashArquivo: number,
+        linha: number,
+        endereco: string
+    ): InformacaoElementoSintatico {
         if (!(endereco in this.referencias)) {
             throw new ErroAvaliadorSintatico(
                 { hashArquivo, linha } as SimboloInterface,

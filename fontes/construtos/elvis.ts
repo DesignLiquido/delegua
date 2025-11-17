@@ -1,5 +1,5 @@
-import { VisitanteDeleguaInterface } from "../interfaces";
-import { Construto } from "./construto";
+import { VisitanteDeleguaInterface } from '../interfaces';
+import { Construto } from './construto';
 
 export class Elvis implements Construto {
     linha: number;
@@ -8,11 +8,7 @@ export class Elvis implements Construto {
     esquerda: Construto;
     direita: Construto;
 
-    constructor(
-        hashArquivo: number,
-        esquerda: Construto,
-        direita: Construto
-    ) {
+    constructor(hashArquivo: number, esquerda: Construto, direita: Construto) {
         this.linha = esquerda.linha;
         this.hashArquivo = hashArquivo;
 

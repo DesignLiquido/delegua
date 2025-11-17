@@ -1,7 +1,7 @@
-import { Bloco, Declaracao } from "../declaracoes";
-import { VisitanteDeleguaInterface } from "../interfaces";
-import { ParaInterface } from "../interfaces/delegua";
-import { Construto } from "./construto";
+import { Bloco, Declaracao } from '../declaracoes';
+import { VisitanteDeleguaInterface } from '../interfaces';
+import { ParaInterface } from '../interfaces/delegua';
+import { Construto } from './construto';
 
 export class ParaComoConstruto implements Construto, ParaInterface {
     linha: number;
@@ -36,7 +36,7 @@ export class ParaComoConstruto implements Construto, ParaInterface {
     async aceitar(visitante: VisitanteDeleguaInterface): Promise<any> {
         return await visitante.visitarExpressaoPara(this);
     }
-    
+
     paraTexto(): string {
         return `<para-como-construto />`;
     }

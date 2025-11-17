@@ -6,7 +6,6 @@ export class Quebra {
     }
 }
 
-
 export class RetornoQuebra extends Quebra {
     valor: any;
     tipo: string;

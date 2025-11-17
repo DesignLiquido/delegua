@@ -65,7 +65,14 @@ import {
 } from '../declaracoes';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras';
 import { Montao } from './montao';
-import { EnquantoInterface, FazerInterface, ParaCadaInterface, ParaInterface } from '../interfaces/delegua';
+import {
+    EnquantoInterface,
+    FazerInterface,
+    ParaCadaInterface,
+    ParaInterface,
+} from '../interfaces/delegua';
+
+import { carregarBibliotecasGlobais } from './comum';
 
 import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
@@ -90,6 +97,15 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
     ) {
         super(diretorioBase, performance, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
         this.montao = new Montao();
+        this.pontoInicializacaoBibliotecasGlobais();
+    }
+
+    /**
+     * Cada dialeto que deriva deste interpretador conhece este ponto de inicialização.
+     * A partir daqui, cada dialeto pode carregar as bibliotecas globais específicas do seu dialeto.
+     */
+    protected pontoInicializacaoBibliotecasGlobais() {
+        carregarBibliotecasGlobais(this.pilhaEscoposExecucao);
     }
 
     protected resolverReferenciaMontao(referenciaMontao: ReferenciaMontao) {
@@ -157,10 +173,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         }
 
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
-        if (
-            objeto instanceof ObjetoDeleguaClasse ||
-            objeto instanceof DeleguaFuncao
-        )
+        if (objeto instanceof ObjetoDeleguaClasse || objeto instanceof DeleguaFuncao)
             return objeto.paraTexto();
 
         if (objeto instanceof RetornoQuebra) {
@@ -204,7 +217,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                     valor = valor ? 'verdadeiro' : 'falso';
                 }
 
-                if (valor instanceof ReferenciaMontao || (valor?.hasOwnProperty && valor?.hasOwnProperty('tipo'))) {
+                if (
+                    valor instanceof ReferenciaMontao ||
+                    (valor?.hasOwnProperty && valor?.hasOwnProperty('tipo'))
+                ) {
                     valor = this.resolverValor(valor);
                 }
 
@@ -224,7 +240,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                             return objeto.valor;
                     }
                 }
-        }       
+        }
 
         return objeto.toString();
     }
@@ -254,15 +270,19 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         return Promise.resolve({
             tipo: `função<${funcao.declaracao.tipo || 'qualquer'}>`,
             tipoExplicito: funcao.declaracao.tipoExplicito,
-            declaracao: funcao
+            declaracao: funcao,
         });
     }
 
-    protected async logicaComumExecucaoEnquanto(enquanto: EnquantoInterface, acumularRetornos: boolean) {
+    protected async logicaComumExecucaoEnquanto(
+        enquanto: EnquantoInterface,
+        acumularRetornos: boolean
+    ) {
         let retornoExecucao: ResultadoParcialInterpretadorInterface;
         const retornos = [];
         while (
-            (acumularRetornos || !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) &&
+            (acumularRetornos ||
+                !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) &&
             this.eVerdadeiro(await this.avaliar(enquanto.condicao))
         ) {
             try {
@@ -271,8 +291,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                     if (acumularRetornos) {
                         return {
                             valorRetornado: retornos,
-                            tipo: 'vetor'
-                        }
+                            tipo: 'vetor',
+                        };
                     }
 
                     return null;
@@ -298,8 +318,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         if (acumularRetornos) {
             return {
                 valorRetornado: retornos,
-                tipo: 'vetor'
-            }
+                tipo: 'vetor',
+            };
         }
 
         return retornoExecucao;
@@ -319,8 +339,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                     if (acumularRetornos) {
                         return {
                             valorRetornado: retornos,
-                            tipo: 'vetor'
-                        }
+                            tipo: 'vetor',
+                        };
                     }
 
                     return null;
@@ -342,15 +362,16 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 return Promise.reject(erro);
             }
         } while (
-            (acumularRetornos || !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) &&
+            (acumularRetornos ||
+                !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) &&
             this.eVerdadeiro(await this.avaliar(fazer.condicaoEnquanto))
         );
 
         if (acumularRetornos) {
             return {
                 valorRetornado: retornos,
-                tipo: 'vetor'
-            }
+                tipo: 'vetor',
+            };
         }
     }
 
@@ -358,7 +379,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         return this.logicaComumExecucaoFazer(declaracao, false);
     }
 
-    protected async logicaComumExecucaoPara(para: ParaInterface, acumularRetornos: boolean): Promise<any> {
+    protected async logicaComumExecucaoPara(
+        para: ParaInterface,
+        acumularRetornos: boolean
+    ): Promise<any> {
         const declaracaoInicializador = Array.isArray(para.inicializador)
             ? para.inicializador[0]
             : para.inicializador;
@@ -369,21 +393,21 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
         let retornoExecucao: ResultadoParcialInterpretadorInterface;
         const retornos = [];
-        while (acumularRetornos || !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) {
-            if (
-                para.condicao !== null &&
-                !this.eVerdadeiro(await this.avaliar(para.condicao))
-            ) {
+        while (
+            acumularRetornos ||
+            !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)
+        ) {
+            if (para.condicao !== null && !this.eVerdadeiro(await this.avaliar(para.condicao))) {
                 break;
             }
-            
+
             retornoExecucao = await this.executar(para.corpo);
             if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                 if (acumularRetornos) {
                     return {
                         valorRetornado: retornos,
-                        tipo: 'vetor'
-                    }
+                        tipo: 'vetor',
+                    };
                 }
 
                 return null;
@@ -405,8 +429,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         if (acumularRetornos) {
             return {
                 valorRetornado: retornos,
-                tipo: 'vetor'
-            }
+                tipo: 'vetor',
+            };
         }
 
         return retornoExecucao;
@@ -416,7 +440,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         return this.logicaComumExecucaoPara(declaracao, false);
     }
 
-    protected async logicaComumExecucaoParaCada(paraCada: ParaCadaInterface, acumularRetornos: boolean): Promise<any> {
+    protected async logicaComumExecucaoParaCada(
+        paraCada: ParaCadaInterface,
+        acumularRetornos: boolean
+    ): Promise<any> {
         let retornoExecucao: ResultadoParcialInterpretadorInterface;
         // Posição atual precisa ser reiniciada, pois pode estar dentro de outro
         // laço de repetição.
@@ -433,7 +460,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             );
         }
 
-        if (paraCada.vetorOuDicionario.tipo === 'texto' || typeof valorVetorOuDicionarioResolvido === 'string') {
+        if (
+            paraCada.vetorOuDicionario.tipo === 'texto' ||
+            typeof valorVetorOuDicionarioResolvido === 'string'
+        ) {
             valorVetorOuDicionarioResolvido = valorVetorOuDicionarioResolvido.split('');
         }
 
@@ -445,7 +475,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
         const retornos = [];
         while (
-            (acumularRetornos || !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) &&
+            (acumularRetornos ||
+                !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) &&
             paraCada.posicaoAtual < valorVetorOuDicionarioResolvido.length
         ) {
             try {
@@ -457,7 +488,9 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 }
 
                 if (paraCada.variavelIteracao instanceof Dupla) {
-                    const valorComoDupla = valorVetorOuDicionarioResolvido[paraCada.posicaoAtual] as Dupla;
+                    const valorComoDupla = valorVetorOuDicionarioResolvido[
+                        paraCada.posicaoAtual
+                    ] as Dupla;
                     this.pilhaEscoposExecucao.definirVariavel(
                         (paraCada.variavelIteracao.primeiro as Literal).valor,
                         valorComoDupla.primeiro
@@ -474,8 +507,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                     if (acumularRetornos) {
                         return {
                             valorRetornado: retornos,
-                            tipo: 'vetor'
-                        }
+                            tipo: 'vetor',
+                        };
                     }
 
                     return null;
@@ -503,8 +536,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         if (acumularRetornos) {
             return {
                 valorRetornado: retornos,
-                tipo: 'vetor'
-            }
+                tipo: 'vetor',
+            };
         }
 
         return retornoExecucao;
@@ -748,7 +781,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         if (objeto.constructor === Object) {
             if (expressao.simbolo.lexema in primitivasDicionario) {
                 if (!(expressao.simbolo.lexema in primitivasNumero)) {
-                    throw new ErroEmTempoDeExecucao(expressao.simbolo, `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo dicionário.`);
+                    throw new ErroEmTempoDeExecucao(
+                        expressao.simbolo,
+                        `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo dicionário.`
+                    );
                 }
 
                 const metodoDePrimitivaDicionario: Function =
@@ -762,7 +798,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         // String do JavaScript, ou seja, primitiva de texto.
         if (objeto.constructor === String) {
             if (!(expressao.simbolo.lexema in primitivasTexto)) {
-                throw new ErroEmTempoDeExecucao(expressao.simbolo, `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo texto.`);
+                throw new ErroEmTempoDeExecucao(
+                    expressao.simbolo,
+                    `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo texto.`
+                );
             }
 
             const metodoDePrimitivaTexto: Function =
@@ -789,7 +828,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             case tipoDeDadosDelegua.NUMERO:
             case tipoDeDadosDelegua.NÚMERO:
                 if (!(expressao.simbolo.lexema in primitivasNumero)) {
-                    throw new ErroEmTempoDeExecucao(expressao.simbolo, `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo ${tipoObjeto}.`);
+                    throw new ErroEmTempoDeExecucao(
+                        expressao.simbolo,
+                        `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo ${tipoObjeto}.`
+                    );
                 }
 
                 const metodoDePrimitivaNumero: Function =
@@ -800,7 +842,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 break;
             case tipoDeDadosDelegua.TEXTO:
                 if (!(expressao.simbolo.lexema in primitivasTexto)) {
-                    throw new ErroEmTempoDeExecucao(expressao.simbolo, `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo ${tipoObjeto}.`);
+                    throw new ErroEmTempoDeExecucao(
+                        expressao.simbolo,
+                        `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo ${tipoObjeto}.`
+                    );
                 }
 
                 const metodoDePrimitivaTexto: Function =
@@ -818,7 +863,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             case tipoDeDadosDelegua.VETOR_QUALQUER:
             case tipoDeDadosDelegua.VETOR_TEXTO:
                 if (!(expressao.simbolo.lexema in primitivasVetor)) {
-                    throw new ErroEmTempoDeExecucao(expressao.simbolo, `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo ${tipoObjeto}.`);
+                    throw new ErroEmTempoDeExecucao(
+                        expressao.simbolo,
+                        `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo ${tipoObjeto}.`
+                    );
                 }
 
                 const metodoDePrimitivaVetor: Function =
@@ -1154,7 +1202,9 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
     }
 
     async visitarExpressaoListaCompreensao(listaCompreensao: ListaCompreensao): Promise<any> {
-        const vetorVariavelIteracao = await this.avaliar(listaCompreensao.referenciaVariavelIteracao);
+        const vetorVariavelIteracao = await this.avaliar(
+            listaCompreensao.referenciaVariavelIteracao
+        );
         let valorVetorVariavelIteracao: any = this.resolverValor(vetorVariavelIteracao);
 
         if (!Array.isArray(valorVetorVariavelIteracao)) {
@@ -1164,7 +1214,9 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         }
 
         const resultadoCompreensao = await this.avaliar(listaCompreensao.paraCada);
-        const resultadoCompreensaoResolvido = resultadoCompreensao.valorRetornado.filter(r => r !== null).map(r => this.resolverValor(r));
+        const resultadoCompreensaoResolvido = resultadoCompreensao.valorRetornado
+            .filter((r) => r !== null)
+            .map((r) => this.resolverValor(r));
 
         return resultadoCompreensaoResolvido;
     }
@@ -1218,7 +1270,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         if (valorAvaliacaoCondicao) {
             return this.avaliar(expressao.expressaoSe);
         }
-        
+
         return this.avaliar(expressao.expressaoSenao);
     }
 
@@ -1244,7 +1296,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 return valorTipoDe.tipo || inferirTipoVariavel(valorTipoDe);
             case AcessoMetodo:
                 const acessoMetodo = valorTipoDe as AcessoMetodo;
-                const tipoRetornoMetodoResolvido = acessoMetodo.tipoRetornoMetodo.replace('<T>', acessoMetodo.objeto.tipo);
+                const tipoRetornoMetodoResolvido = acessoMetodo.tipoRetornoMetodo.replace(
+                    '<T>',
+                    acessoMetodo.objeto.tipo
+                );
                 return `método<${tipoRetornoMetodoResolvido}>`;
             case AcessoPropriedade:
                 const acessoPropriedade = valorTipoDe as AcessoPropriedade;
@@ -1318,7 +1373,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             }
         } finally {
             const escopoFinalizado = this.pilhaEscoposExecucao.removerUltimo();
-            const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();            
+            const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
 
             if (
                 manterAmbiente ||
@@ -1330,8 +1385,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 );
 
                 escopoAnterior.espacoMemoria.enderecosMontao = new Set([
-                    ...escopoAnterior.espacoMemoria.enderecosMontao, 
-                    ...ultimoEscopo.espacoMemoria.enderecosMontao
+                    ...escopoAnterior.espacoMemoria.enderecosMontao,
+                    ...ultimoEscopo.espacoMemoria.enderecosMontao,
                 ]);
             } else {
                 this.montao.excluirReferencias(...escopoFinalizado.espacoMemoria.enderecosMontao);
@@ -1354,8 +1409,12 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         const resultados = await super.interpretar(declaracoes, manterAmbiente);
         if (resultados.resultado.length > 0) {
             const ultimoResultado = resultados.resultado[resultados.resultado.length - 1];
-            
-            if (ultimoResultado && ultimoResultado.valorRetornado instanceof RetornoQuebra && ultimoResultado.valorRetornado.valor instanceof ReferenciaMontao) {
+
+            if (
+                ultimoResultado &&
+                ultimoResultado.valorRetornado instanceof RetornoQuebra &&
+                ultimoResultado.valorRetornado.valor instanceof ReferenciaMontao
+            ) {
                 const ultimaDeclaracao = declaracoes[declaracoes.length - 1];
                 ultimoResultado.valorRetornado.valor = this.montao.obterReferencia(
                     ultimaDeclaracao.hashArquivo,
@@ -1364,7 +1423,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 );
             }
         }
-        
+
         return resultados;
     }
 }

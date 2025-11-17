@@ -1,5 +1,5 @@
-import { Construto } from "../../construtos";
-import { Bloco } from "../../declaracoes";
+import { Construto } from '../../construtos';
+import { Bloco } from '../../declaracoes';
 
 export interface EnquantoInterface {
     linha: number;

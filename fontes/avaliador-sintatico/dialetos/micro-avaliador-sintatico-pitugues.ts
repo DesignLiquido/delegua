@@ -76,7 +76,6 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
                 this.avancarEDevolverAnterior();
                 return new Literal(-1, Number(this.linha), false);
 
-
             case tiposDeSimbolos.NULO:
                 this.avancarEDevolverAnterior();
                 return new Literal(-1, Number(this.linha), null);
@@ -163,8 +162,6 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
 
         return this.chamar();
     }
-
-
 
     override exponenciacao(): Construto {
         let expressao = this.unario();
