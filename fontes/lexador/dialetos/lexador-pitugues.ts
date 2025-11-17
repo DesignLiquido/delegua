@@ -138,6 +138,49 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
         return this.codigo[this.linha].charAt(this.atual - 1);
     }
 
+    analisarTextoMultilinha(delimitador: string): void {
+        const inicioLinha = this.linha;
+
+        let contagemDelimitadores = 0;
+        while (!this.eFinalDoCodigo() && contagemDelimitadores < 3) {
+            this.avancar();
+
+            if (this.simboloAtual() === delimitador) {
+                contagemDelimitadores++;
+            } else {
+                contagemDelimitadores = 0;
+            }
+        }
+
+        if (contagemDelimitadores === 3) {
+            const linhas = this.codigo.slice(inicioLinha, this.linha + 1);
+            let conteudo = linhas.join('\n');
+
+            // Remove delimitadores inicial e final
+            const larguraDelimitadoresFim = delimitador.repeat(3);
+            conteudo = conteudo.substring(conteudo.indexOf(larguraDelimitadoresFim) + 3);
+            conteudo = conteudo.substring(0, conteudo.lastIndexOf(larguraDelimitadoresFim));
+
+            this.simbolos.push(
+                new Simbolo(
+                    tiposDeSimbolos.TEXTO_MULTILINHAS,
+                    conteudo,
+                    conteudo,
+                    inicioLinha + 1,
+                    this.hashArquivo
+                )
+            );
+            return;
+        }
+
+        this.erros.push({
+            linha: this.linha + 1,
+            caractere: this.simboloAnterior(),
+            mensagem: 'Texto multilinha não finalizado.',
+        } as ErroLexador);
+    }
+
+
     analisarTexto(delimitador = '"'): void {
         const linhaPrimeiroCaracter: number = this.linha;
         while (this.simboloAtual() !== delimitador && !this.eFinalDoCodigo()) {
@@ -154,6 +197,11 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
         }
 
         const textoCompleto = this.codigo[this.linha].substring(this.inicioSimbolo + 1, this.atual);
+        if (textoCompleto.length === 0 && !this.eFinalDoCodigo() && this.codigo[this.linha].charAt(this.atual + 1) === delimitador) {
+            this.avancar(); // Avança para o próximo delimitador
+            this.analisarTextoMultilinha(delimitador);
+            return;
+        }
 
         this.simbolos.push(
             new Simbolo(
@@ -434,18 +482,21 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.MAIOR);
                 }
+
                 break;
 
             case '"':
                 this.avancar();
                 this.analisarTexto('"');
                 this.avancar();
+                
                 break;
 
             case "'":
                 this.avancar();
                 this.analisarTexto("'");
                 this.avancar();
+                
                 break;
 
             default:

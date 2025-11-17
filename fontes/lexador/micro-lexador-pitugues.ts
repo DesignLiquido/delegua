@@ -6,8 +6,6 @@ import { palavrasReservadasMicroGramatica as palavrasReservadas } from './palavr
 import { Simbolo } from './simbolo';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/pitugues';
-import { MicroLexador } from './micro-lexador';
-import { MicroAvaliadorSintaticoPitugues } from '../avaliador-sintatico/dialetos/micro-avaliador-sintatico-pitugues';
 
 /**
  * O MicroLexador funciona apenas dentro de interpolações de texto.
@@ -20,8 +18,7 @@ export class MicroLexadorPitugues {
     inicioSimbolo: number;
     atual: number;
     codigo: string;
-    microLexador: MicroLexador = new MicroLexadorPitugues();
-    microAvaliadorSintatico: MicroAvaliadorSintaticoPitugues = new MicroAvaliadorSintaticoPitugues();
+    
     // Aceita apenas interpolações no formato ${identificador} (equivalente a "f-string")
     regexInterpolacao: RegExp = /\$\{[a-zA-Z_][a-zA-Z0-9_]*\}/g;
     eDigito(caractere: string): boolean {
@@ -241,35 +238,5 @@ export class MicroLexadorPitugues {
             simbolos: this.simbolos,
             erros: this.erros,
         } as RetornoLexador<SimboloInterface>;
-    }
-
-    
-    /**
-     * Resolve todas as interpolações em um texto.
-     * @param {texto} textoOriginal O texto original com as variáveis interpoladas.
-     * @returns Uma lista de variáveis interpoladas.
-     */
-    protected async resolverInterpolacoes(textoOriginal: string, linha: number): Promise<any[]> {
-        const variaveis = textoOriginal.match(this.regexInterpolacao);
-
-        if (!variaveis) return [];
-
-        const resultadosAvaliacaoSintatica = variaveis.map((s) => {
-            // s tem a forma "${identificador}" — removemos apenas os dois primeiros e o último caractere
-            const expressaoInterpolacao: string = s.slice(2, -1);
-
-            let microLexador = this.microLexador.mapear(expressaoInterpolacao);
-            const resultadoMicroAvaliadorSintatico = this.microAvaliadorSintatico.analisar(
-                microLexador,
-                linha
-            );
-
-            return {
-                expressaoInterpolacao,
-                resultadoMicroAvaliadorSintatico,
-            };
-        });
-
-        return resultadosAvaliacaoSintatica;
     }
 }

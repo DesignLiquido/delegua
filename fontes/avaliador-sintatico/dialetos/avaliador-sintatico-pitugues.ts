@@ -48,6 +48,7 @@ import {
     Sustar,
     Falhar,
     ParaCada,
+    Comentario,
 } from '../../declaracoes';
 
 import {
@@ -85,6 +86,7 @@ import primitivasNumero from '../../bibliotecas/primitivas-numero';
 import primitivasTexto from '../../bibliotecas/primitivas-texto';
 import primitivasVetor from '../../bibliotecas/primitivas-vetor';
 
+
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
@@ -93,7 +95,7 @@ import primitivasVetor from '../../bibliotecas/primitivas-vetor';
  * A grande diferença entre este avaliador e os demais é a forma como são entendidos os blocos de escopo.
  * Este avaliador espera uma estrutura de pragmas, que explica quantos espaços há na frente de cada linha.
  */
-export class AvaliadorSintaticoPitugues
+export class AvaliadorSintaticoPitugues 
     implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao>
 {
     simbolos: SimboloInterface[];
@@ -883,7 +885,7 @@ export class AvaliadorSintaticoPitugues
                 espacosIndentacaoLinhaAtual = this.pragmas[simboloAtual.linha].espacosIndentacao;
             }
         }
-
+        this.analisarTextoDeDocumentacao()
         this.pilhaEscopos.removerUltimo();
         return declaracoes;
     }
@@ -1487,6 +1489,7 @@ export class AvaliadorSintaticoPitugues
             tiposDeSimbolos.IDENTIFICADOR,
             'Esperado nome da classe.'
         );
+        this.analisarTextoDeDocumentacao();
 
         let superClasse = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
@@ -1755,5 +1758,13 @@ export class AvaliadorSintaticoPitugues
             declaracoes: declaracoes,
             erros: this.erros,
         } as RetornoAvaliadorSintatico<Declaracao>;
+    }
+
+    analisarTextoDeDocumentacao(): Comentario | undefined {
+        
+        if (this.simboloAtual().tipo === tiposDeSimbolos.TEXTO_MULTILINHAS)
+            return new Comentario(this.hashArquivo, Number(this.simboloAtual().linha), 
+                this.simboloAtual().lexema, true, true);
+            
     }
 }

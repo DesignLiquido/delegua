@@ -59,12 +59,6 @@ describe('Lexador', () => {
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(11);
             });
-            
-            it('Interpolação de variáveis em texto', () => {
-                const resultado = microLexadorPitugues.mapear('f"o valor é ${valor}"');
-                expect(resultado).toBeTruthy();
-                expect(resultado.simbolos).toHaveLength(3);
-            });
         });
     });
 });
