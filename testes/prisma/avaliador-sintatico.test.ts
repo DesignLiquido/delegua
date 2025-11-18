@@ -1,6 +1,6 @@
 import { AvaliadorSintaticoPrisma } from '../../fontes/avaliador-sintatico/dialetos';
 import { Leia, Literal } from '../../fontes/construtos';
-import { Var } from '../../fontes/declaracoes';
+import { Para, Var } from '../../fontes/declaracoes';
 import { LexadorPrisma } from '../../fontes/lexador/dialetos';
 
 describe('Avaliador Sintático (Prisma)', () => {
@@ -72,9 +72,8 @@ describe('Avaliador Sintático (Prisma)', () => {
                     "  o texto será impresso exatamente como está aqui!",
                     "]];",
                     "imprima (texto);"
-                ],
-                -1
-                );
+                ], -1);
+
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
                 expect(retornoAvaliadorSintatico).toBeTruthy();
@@ -100,7 +99,7 @@ describe('Avaliador Sintático (Prisma)', () => {
             it('Estrutura condicional simples', () => {
                 const retornoLexador = lexador.mapear(
                     [
-                        'se (verdadeiro) entao',
+                        'se verdadeiro entao',
                         '    imprima("É verdade");',
                         'fim'
                     ],
@@ -117,7 +116,7 @@ describe('Avaliador Sintático (Prisma)', () => {
             it('Estrutura condicional com senão', () => {
                 const retornoLexador = lexador.mapear(
                     [
-                        'se (falso) entao',
+                        'se falso entao',
                         '    imprima("Verdadeiro");',
                         'senao',
                         '    imprima("Falso");',
@@ -133,7 +132,7 @@ describe('Avaliador Sintático (Prisma)', () => {
                 expect(retornoAvaliadorSintatico.declaracoes[0].constructor.name).toBe('Se');
             });
 
-            it('Loop enquanto', () => {
+            it('Enquanto', () => {
                 const retornoLexador = lexador.mapear(
                     [
                         'local i = 0;',
@@ -153,12 +152,12 @@ describe('Avaliador Sintático (Prisma)', () => {
                 expect(retornoAvaliadorSintatico.declaracoes[1].constructor.name).toBe('Enquanto');
             });
 
-            it.skip('Loop para tradicional', () => {
+            it('Laço para tradicional', () => {
                 const retornoLexador = lexador.mapear(
                     [
-                        'para (local i = 0; i < 5; i = i + 1) {',
-                        '    imprima(i);',
-                        '}'
+                        'para i = 0, 5 inicio',
+                        '    imprima(i)',
+                        'fim'
                     ],
                     -1
                 );
@@ -167,7 +166,7 @@ describe('Avaliador Sintático (Prisma)', () => {
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
-                expect(retornoAvaliadorSintatico.declaracoes[0].constructor.name).toBe('Para');
+                expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Para);
             });
 
             it.skip('Declaração de função', () => {

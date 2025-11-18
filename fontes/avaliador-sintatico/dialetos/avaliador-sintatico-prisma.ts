@@ -19,7 +19,8 @@ import {
     Unario,
     Variavel,
     Vetor,
-    Leia
+    Leia,
+    FimPara
 } from '../../construtos';
 import {
     Escreva,
@@ -64,6 +65,7 @@ import primitivasDicionario from '../../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../../bibliotecas/primitivas-numero';
 import primitivasTexto from '../../bibliotecas/primitivas-texto';
 import primitivasVetor from '../../bibliotecas/primitivas-vetor';
+import { Simbolo } from '../../lexador';
 
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -612,7 +614,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
 
         this.consumir(
             tiposDeSimbolos.PARENTESE_ESQUERDO,
-            "Esperado '(' antes dos valores em escreva."
+            "Esperado '(' antes dos valores em imprima."
         );
 
         const argumentos: Array<Construto> = [];
@@ -625,10 +627,10 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
 
         this.consumir(
             tiposDeSimbolos.PARENTESE_DIREITO,
-            "Esperado ')' após os valores em escreva."
+            "Esperado ')' após os valores em imprima."
         );
 
-        this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, "Esperado ';' após fechamento de parênteses em escreva.");
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
 
         return new Escreva(Number(simboloEscreva.linha), simboloEscreva.hashArquivo, argumentos);
     }
@@ -893,7 +895,6 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
                 this.avancarEDevolverAnterior();
                 return this.declaracaoEscreva();
             case tiposDeSimbolos.PARA:
-                this.avancarEDevolverAnterior();
                 return this.declaracaoPara();
             case tiposDeSimbolos.QUEBRE:
                 this.avancarEDevolverAnterior();
@@ -915,41 +916,113 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
     declaracaoPara(): Para {
         try {
             this.blocos += 1;
-
-            this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'para'.");
+            const simboloPara: SimboloInterface = this.avancarEDevolverAnterior();
             
-            let inicializador: Var | Expressao;
-            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA)) {
-                inicializador = null;
-            } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.LOCAL)) {
-                inicializador = this.declaracaoDeLocal();
-            } else {
-                inicializador = this.declaracaoExpressao();
-                this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, "Esperado ';' após inicializador do para.");
+            const variavelIteracao = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                "Esperado identificador de variável após 'para'."
+            );
+
+            this.consumir(tiposDeSimbolos.IGUAL, `'=' or 'em' esperado próximo a '${this.simbolos[this.atual].lexema}'.`);
+
+            const literalOuVariavelInicio = this.adicaoOuSubtracao();
+
+            this.consumir(
+                tiposDeSimbolos.VIRGULA,
+                `Espera-se '=' próximo a '${this.simbolos[this.atual].lexema}'.`
+            );
+
+            const literalOuVariavelFim = this.adicaoOuSubtracao();
+
+            let operadorCondicao = new Simbolo(
+                tiposDeSimbolos.MENOR_IGUAL,
+                '<=',
+                null,
+                Number(simboloPara.linha),
+                this.hashArquivo
+            );
+            let operadorCondicaoIncremento = new Simbolo(
+                tiposDeSimbolos.MENOR,
+                '<',
+                null,
+                Number(simboloPara.linha),
+                this.hashArquivo
+            );
+
+            let passo: Construto = new Literal(this.hashArquivo, Number(simboloPara.linha), 1);
+            const resolverIncrementoEmExecucao = false; // Mudar caso seja necessário.
+
+            this.consumir(
+                tiposDeSimbolos.INICIO,
+                `espera-se 'inicio' proximo a '${this.simbolos[this.atual].lexema}'.`
+            );
+
+            // Aqui já é seguro inicializar a variável.
+            this.pilhaEscopos.definirInformacoesVariavel(
+                variavelIteracao.lexema, 
+                new InformacaoElementoSintatico(variavelIteracao.lexema, 'inteiro')
+            );
+
+            const declaracoesBlocoPara = [];
+            let simboloAtualBlocoPara: SimboloInterface = this.simbolos[this.atual];
+            while (simboloAtualBlocoPara.tipo !== tiposDeSimbolos.FIM) {
+                declaracoesBlocoPara.push(this.resolverDeclaracaoForaDeBloco());
+                simboloAtualBlocoPara = this.simbolos[this.atual];
             }
 
-            let condicao = null;
-            if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PONTO_E_VIRGULA)) {
-                condicao = this.expressao();
-            }
-            this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, "Esperado ';' após condição do para.");
+            this.avancarEDevolverAnterior(); // fim
 
-            let incrementar = null;
-            if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
-                incrementar = this.expressao();
-            }
-            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após incremento do para.");
-
-            const corpo = this.resolverDeclaracao();
-
-            return new Para(
+            const corpo = new Bloco(
                 this.hashArquivo,
-                Number(this.simboloAnterior().linha),
-                inicializador,
-                condicao,
-                incrementar,
+                Number(simboloPara.linha) + 1,
+                declaracoesBlocoPara.filter((d) => d)
+            );
+
+            const para = new Para(
+                this.hashArquivo,
+                Number(simboloPara.linha),
+                // Inicialização.
+                new Expressao(new Atribuir(
+                    this.hashArquivo,
+                    new Variavel(this.hashArquivo, variavelIteracao, 'inteiro'),
+                    literalOuVariavelInicio
+                )),
+                // Condição.
+                new Binario(
+                    this.hashArquivo,
+                    new Variavel(this.hashArquivo, variavelIteracao, 'inteiro'),
+                    operadorCondicao,
+                    literalOuVariavelFim
+                ),
+                // Incremento, feito em construto especial `FimPara`.
+                new FimPara(
+                    this.hashArquivo,
+                    Number(simboloPara.linha),
+                    new Binario(
+                        this.hashArquivo,
+                        new Variavel(this.hashArquivo, variavelIteracao, 'inteiro'),
+                        operadorCondicaoIncremento,
+                        literalOuVariavelFim
+                    ),
+                    new Expressao(
+                        new Atribuir(
+                            this.hashArquivo,
+                            new Variavel(this.hashArquivo, variavelIteracao, 'inteiro'),
+                            new Binario(
+                                this.hashArquivo,
+                                new Variavel(this.hashArquivo, variavelIteracao, 'inteiro'),
+                                new Simbolo(tiposDeSimbolos.ADICAO, '+', null, Number(simboloPara.linha), this.hashArquivo),
+                                passo
+                            )
+                        )
+                    )
+                ),
                 corpo
             );
+            para.blocoPosExecucao = corpo;
+            para.resolverIncrementoEmExecucao = resolverIncrementoEmExecucao;
+            
+            return para;
         } finally {
             this.blocos -= 1;
         }

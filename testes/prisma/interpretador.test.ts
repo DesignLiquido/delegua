@@ -1,12 +1,12 @@
 import { LexadorPrisma } from '../../fontes/lexador/dialetos';
 import { AvaliadorSintaticoPrisma } from '../../fontes/avaliador-sintatico/dialetos';
-import { InterpretadorComDepuracao } from '../../fontes/interpretador/interpretador-com-depuracao';
+import { Interpretador } from '../../fontes/interpretador/interpretador';
 
 describe('Interpretador (Prisma)', () => {
     describe('interpretar()', () => {
         let lexador: LexadorPrisma;
         let avaliadorSintatico: AvaliadorSintaticoPrisma;
-        let interpretador: InterpretadorComDepuracao;
+        let interpretador: Interpretador;
 
         let _saidas: string[] = [];
         const funcaoSaida = (texto: string) => {
@@ -17,7 +17,7 @@ describe('Interpretador (Prisma)', () => {
             _saidas = [];
             lexador = new LexadorPrisma();
             avaliadorSintatico = new AvaliadorSintaticoPrisma();
-            interpretador = new InterpretadorComDepuracao(process.cwd(), funcaoSaida, funcaoSaida);
+            interpretador = new Interpretador(process.cwd(), false, funcaoSaida, funcaoSaida);
         });
 
         describe('Cenários de sucesso', () => {
