@@ -29,7 +29,7 @@ const contemComum = (nome: string) => {
             `escreva(d.${nome}("a")) // verdadeiro\n` +
             `escreva(d.${nome}("f")) // falso\n\`\`\`` +
             '\n\n## Formas de uso\n',
-        exemploCodigo: 'dicionário.contem("minhaChave")',
+        exemploCodigo: `dicionário.${nome}("minhaChave")`,
     };
 };
 
@@ -55,8 +55,10 @@ export default {
             '\n\n## Formas de uso\n',
         exemploCodigo: 'dicionário.chaves()',
     },
+
     contem: contemComum('contem'),
     contém: contemComum('contém'),
+
     remover: {
         tipoRetorno: 'lógico',
         argumentos: [new InformacaoElementoSintatico('chave', 'texto')],
@@ -68,6 +70,7 @@ export default {
         ): Promise<boolean> => Promise.resolve(delete valor[chave]),
         assinaturaFormato: `dicionário.remover(chave: qualquer)`,
     },
+
     valores: {
         tipoRetorno: '<T>[]',
         argumentos: [],
@@ -78,5 +81,32 @@ export default {
         ): Promise<any> => {
             return Promise.resolve(Object.values(valor));
         },
+    },
+    itens: {
+        tipoRetorno: '(texto|qualquer)[][]',
+        argumentos: [],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
+            valor: object
+        ): Promise<any> => {
+            const pares = Object.entries(valor).map(([chave, valor]) => {
+                return [chave, valor];
+            });
+            return Promise.resolve(pares);
+        },
+        assinaturaFormato: 'dicionário.itens()',
+        documentacao:
+            '# `dicionário.itens()`\n\n' +
+            'Retorna um vetor contendo pares `[chave, valor]` de um dicionário. ' +
+            'Funciona de maneira semelhante à função `items()` da linguagem Python.\n' +
+            '\n\n## Exemplo de Código\n' +
+            '\n```delegua\n' +
+            'var d = {"a": 1, "b": 2, "c": 3}\n' +
+            'escreva(d.itens())\n' +
+            '// [["a", 1], ["b", 2], ["c", 3]]\n' +
+            '```\n\n' +
+            '## Formas de uso\n',
+        exemploCodigo: 'dicionário.itens()',
     },
 } as { [nome: string]: PrimitivaInterface };

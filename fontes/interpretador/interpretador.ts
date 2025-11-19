@@ -150,6 +150,13 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         return objeto;
     }
 
+    private serializarSemEspacos(objeto: any): string {
+        return JSON
+            .stringify(objeto)
+            .replace(/,\s+/g, ',')
+            .replace(/:\s+/g, ':');
+    }
+
     override paraTexto(objeto: any): string {
         if (objeto === null || objeto === undefined) return tipoDeDadosDelegua.NULO;
         if (typeof objeto === tipoDeDadosPrimitivos.BOOLEANO) {
@@ -179,7 +186,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             let retornoVetor: string = '[';
             for (let elemento of objeto) {
                 if (typeof elemento === 'object') {
-                    retornoVetor += `${JSON.stringify(elemento)}, `;
+                    retornoVetor += `${this.serializarSemEspacos(elemento)}, `;
                     continue;
                 }
                 retornoVetor +=
@@ -224,7 +231,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                             return objeto.valor;
                     }
                 }
-        }       
+        }
 
         return objeto.toString();
     }
@@ -376,7 +383,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             ) {
                 break;
             }
-            
+
             retornoExecucao = await this.executar(para.corpo);
             if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                 if (acumularRetornos) {
@@ -1218,7 +1225,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         if (valorAvaliacaoCondicao) {
             return this.avaliar(expressao.expressaoSe);
         }
-        
+
         return this.avaliar(expressao.expressaoSenao);
     }
 
@@ -1318,7 +1325,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             }
         } finally {
             const escopoFinalizado = this.pilhaEscoposExecucao.removerUltimo();
-            const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();            
+            const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
 
             if (
                 manterAmbiente ||
@@ -1330,7 +1337,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 );
 
                 escopoAnterior.espacoMemoria.enderecosMontao = new Set([
-                    ...escopoAnterior.espacoMemoria.enderecosMontao, 
+                    ...escopoAnterior.espacoMemoria.enderecosMontao,
                     ...ultimoEscopo.espacoMemoria.enderecosMontao
                 ]);
             } else {
@@ -1354,7 +1361,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         const resultados = await super.interpretar(declaracoes, manterAmbiente);
         if (resultados.resultado.length > 0) {
             const ultimoResultado = resultados.resultado[resultados.resultado.length - 1];
-            
+
             if (ultimoResultado && ultimoResultado.valorRetornado instanceof RetornoQuebra && ultimoResultado.valorRetornado.valor instanceof ReferenciaMontao) {
                 const ultimaDeclaracao = declaracoes[declaracoes.length - 1];
                 ultimoResultado.valorRetornado.valor = this.montao.obterReferencia(
@@ -1364,7 +1371,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 );
             }
         }
-        
+
         return resultados;
     }
 }
