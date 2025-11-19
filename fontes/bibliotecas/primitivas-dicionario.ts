@@ -29,7 +29,7 @@ const contemComum = (nome: string) => {
             `escreva(d.${nome}("a")) // verdadeiro\n` +
             `escreva(d.${nome}("f")) // falso\n\`\`\`` +
             '\n\n## Formas de uso\n',
-        exemploCodigo: `dicionário.${nome}("minhaChave")`,
+        exemploCodigo: 'dicionário.contem("minhaChave")',
     };
 };
 
