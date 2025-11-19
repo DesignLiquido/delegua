@@ -166,6 +166,13 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         return objeto;
     }
 
+    private serializarSemEspacos(objeto: any): string {
+        return JSON
+            .stringify(objeto)
+            .replace(/,\s+/g, ',')
+            .replace(/:\s+/g, ':');
+    }
+
     override paraTexto(objeto: any): string {
         if (objeto === null || objeto === undefined) return tipoDeDadosDelegua.NULO;
         if (typeof objeto === tipoDeDadosPrimitivos.BOOLEANO) {
@@ -192,7 +199,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             let retornoVetor: string = '[';
             for (let elemento of objeto) {
                 if (typeof elemento === 'object') {
-                    retornoVetor += `${JSON.stringify(elemento)}, `;
+                    retornoVetor += `${this.serializarSemEspacos(elemento)}, `;
                     continue;
                 }
                 retornoVetor +=
