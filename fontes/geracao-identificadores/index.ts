@@ -19,7 +19,6 @@ export function cyrb53(nomeArquivo: string, semente: number = 0): number {
     return 4294967296 * (2097151 & h2) + (h1 >>> 0);
 }
 
-
 export function uuidv4(): string {
     // Public Domain/MIT
     let d = new Date().getTime(); // Timestamp

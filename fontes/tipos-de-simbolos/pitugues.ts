@@ -1,5 +1,3 @@
-
-
 export default {
     ADICAO: 'ADICAO',
     BIT_AND: 'BIT_AND',
@@ -75,6 +73,7 @@ export default {
     TENDO: 'TENDO',
     TENTE: 'TENTE',
     TEXTO: 'TEXTO',
+    TEXTO_MULTILINHAS: 'TEXTO_MULTILINHAS',
     TIPO: 'TIPO',
     VARIAVEL: 'VARIAVEL',
     VERDADEIRO: 'VERDADEIRO',

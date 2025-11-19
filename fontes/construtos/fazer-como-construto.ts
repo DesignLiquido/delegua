@@ -1,7 +1,7 @@
-import { Bloco } from "../declaracoes";
-import { VisitanteDeleguaInterface } from "../interfaces";
-import { FazerInterface } from "../interfaces/delegua";
-import { Construto } from "./construto";
+import { Bloco } from '../declaracoes';
+import { VisitanteDeleguaInterface } from '../interfaces';
+import { FazerInterface } from '../interfaces/delegua';
+import { Construto } from './construto';
 
 export class FazerComoConstruto implements Construto, FazerInterface {
     linha: number;

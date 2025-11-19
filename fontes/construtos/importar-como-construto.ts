@@ -1,7 +1,6 @@
-
-import { VisitanteDeleguaInterface } from "../interfaces";
-import { Construto } from "./construto";
-import { Literal } from "./literal";
+import { VisitanteDeleguaInterface } from '../interfaces';
+import { Construto } from './construto';
+import { Literal } from './literal';
 
 /**
  * Expressão usada para importação resolvida em tempo de execução.
@@ -11,13 +10,13 @@ export class ImportarComoConstruto implements Construto {
     linha: number;
     hashArquivo: number;
     caminho: Literal;
-    
+
     constructor(caminho: Literal) {
         this.hashArquivo = caminho.hashArquivo;
         this.linha = caminho.linha;
         this.caminho = caminho;
     }
-    
+
     valor?: any;
     tipo?: string;
 

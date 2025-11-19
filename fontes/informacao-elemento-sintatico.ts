@@ -1,4 +1,4 @@
-import { ElementoMontaoTipos } from "./avaliador-sintatico/elemento-montao-tipos";
+import { ElementoMontaoTipos } from './avaliador-sintatico/elemento-montao-tipos';
 
 export class InformacaoElementoSintatico {
     nome: string;

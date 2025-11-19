@@ -1,10 +1,10 @@
-import { ErroEmTempoDeExecucao } from '../excecoes';
-import { ObjetoDeleguaClasse } from '../interpretador/estruturas/objeto-delegua-classe';
-import { FuncaoPadrao } from '../interpretador/estruturas/funcao-padrao';
-import { DescritorTipoClasse } from '../interpretador/estruturas/descritor-tipo-classe';
-import { SimboloInterface, VariavelInterface } from '../interfaces';
-import { InterpretadorInterface } from '../interfaces';
-import { DeleguaFuncao } from '../interpretador/estruturas';
+import { ErroEmTempoDeExecucao } from '../../../excecoes';
+import { ObjetoDeleguaClasse } from '../../../interpretador/estruturas/objeto-delegua-classe';
+import { FuncaoPadrao } from '../../../interpretador/estruturas/funcao-padrao';
+import { DescritorTipoClasse } from '../../../interpretador/estruturas/descritor-tipo-classe';
+import { SimboloInterface, VariavelInterface } from '../../../interfaces';
+import { InterpretadorInterface } from '../../../interfaces';
+import { DeleguaFuncao } from '../../../interpretador/estruturas';
 import {
     Deceto,
     Dupla,
@@ -16,9 +16,9 @@ import {
     Sexteto,
     Trio,
     Tupla,
-} from '../construtos';
-import { Simbolo } from '../lexador';
-import { RetornoQuebra } from '../quebras';
+} from '../../../construtos';
+import { Simbolo } from '../../../lexador';
+import { RetornoQuebra } from '../../../quebras';
 
 /**
  * Retorna um número aleatório entre 0 e 1.
@@ -35,7 +35,7 @@ export async function aleatorio(interpretador: InterpretadorInterface): Promise<
  * @param {number} maximo O número máximo.
  * @returns {Promise<number>} Um número real entre os valores máximo e mínimo especificados.
  */
-export async function aleatorioEntre(
+export async function aleatorio_entre(
     interpretador: InterpretadorInterface,
     minimo: VariavelInterface | number,
     maximo: VariavelInterface | number
@@ -155,293 +155,6 @@ export async function algum(
 }
 
 /**
- * Clona profundamente uma variável ou constante em Delégua.
- * @param {InterpretadorInterface} interpretador A instância do interpretador.
- * @param {VariavelInterface | any} valor O valor a ser clonado.
- * @returns {Promise<any>} Uma cópia profunda do valor fornecido.
- */
-export async function clonar(
-    interpretador: InterpretadorInterface,
-    valor: VariavelInterface | any
-): Promise<any> {
-    // Resolver o valor caso seja uma VariavelInterface
-    // Verificar se é null/undefined antes de usar hasOwnProperty
-    let valorResolvido: any;
-    if (valor === null || valor === undefined) {
-        valorResolvido = valor;
-    } else if (typeof valor === 'object' && valor.hasOwnProperty('valor')) {
-        valorResolvido = valor.valor;
-    } else {
-        valorResolvido = valor;
-    }
-
-    // Map para evitar referências circulares
-    const visitados = new WeakMap<object, any>();
-
-    function clonarProfundo(valorAtual: any): any {
-        // Valores primitivos (null, undefined, number, string, boolean)
-        if (valorAtual === null || valorAtual === undefined) {
-            return valorAtual;
-        }
-
-        if (typeof valorAtual !== 'object') {
-            return valorAtual;
-        }
-
-        // Verificar se já visitamos este objeto (evitar referências circulares)
-        if (visitados.has(valorAtual)) {
-            return visitados.get(valorAtual);
-        }
-
-        // Arrays
-        if (Array.isArray(valorAtual)) {
-            const arrayClonado: any[] = [];
-            visitados.set(valorAtual, arrayClonado);
-
-            for (let i = 0; i < valorAtual.length; i++) {
-                arrayClonado[i] = clonarProfundo(valorAtual[i]);
-            }
-
-            return arrayClonado;
-        }
-
-        // Objetos de Delégua - ObjetoDeleguaClasse
-        if (valorAtual instanceof ObjetoDeleguaClasse) {
-            // Clonar propriedades do objeto
-            const propriedadesClonadas: { [nome: string]: any } = {};
-            visitados.set(valorAtual, propriedadesClonadas);
-
-            for (const chave in valorAtual.propriedades) {
-                if (valorAtual.propriedades.hasOwnProperty(chave)) {
-                    propriedadesClonadas[chave] = clonarProfundo(valorAtual.propriedades[chave]);
-                }
-            }
-
-            // Criar novo objeto com as propriedades clonadas
-            // Nota: A classe em si não é clonada, apenas suas propriedades
-            const objetoClonado = new ObjetoDeleguaClasse(valorAtual.classe);
-            objetoClonado.propriedades = propriedadesClonadas;
-
-            return objetoClonado;
-        }
-
-        // Tuplas
-        const nomeClasseTupla = valorAtual.constructor?.name;
-        if (
-            nomeClasseTupla &&
-            /^(Dupla|Trio|Quarteto|Quinteto|Sexteto|Septeto|Octeto|Noneto|Deceto)$/.test(
-                nomeClasseTupla
-            )
-        ) {
-            const valoresClonados: any[] = [];
-            visitados.set(valorAtual, valoresClonados);
-
-            // Extrair valores da tupla baseado no tipo
-            let valores: any[] = [];
-
-            switch (nomeClasseTupla) {
-                case 'Dupla':
-                    valores = [valorAtual.primeiro, valorAtual.segundo];
-                    break;
-                case 'Trio':
-                    valores = [valorAtual.primeiro, valorAtual.segundo, valorAtual.terceiro];
-                    break;
-                case 'Quarteto':
-                    valores = [
-                        valorAtual.primeiro,
-                        valorAtual.segundo,
-                        valorAtual.terceiro,
-                        valorAtual.quarto,
-                    ];
-                    break;
-                case 'Quinteto':
-                    valores = [
-                        valorAtual.primeiro,
-                        valorAtual.segundo,
-                        valorAtual.terceiro,
-                        valorAtual.quarto,
-                        valorAtual.quinto,
-                    ];
-                    break;
-                case 'Sexteto':
-                    valores = [
-                        valorAtual.primeiro,
-                        valorAtual.segundo,
-                        valorAtual.terceiro,
-                        valorAtual.quarto,
-                        valorAtual.quinto,
-                        valorAtual.sexto,
-                    ];
-                    break;
-                case 'Septeto':
-                    valores = [
-                        valorAtual.primeiro,
-                        valorAtual.segundo,
-                        valorAtual.terceiro,
-                        valorAtual.quarto,
-                        valorAtual.quinto,
-                        valorAtual.sexto,
-                        valorAtual.setimo,
-                    ];
-                    break;
-                case 'Octeto':
-                    valores = [
-                        valorAtual.primeiro,
-                        valorAtual.segundo,
-                        valorAtual.terceiro,
-                        valorAtual.quarto,
-                        valorAtual.quinto,
-                        valorAtual.sexto,
-                        valorAtual.setimo,
-                        valorAtual.oitavo,
-                    ];
-                    break;
-                case 'Noneto':
-                    valores = [
-                        valorAtual.primeiro,
-                        valorAtual.segundo,
-                        valorAtual.terceiro,
-                        valorAtual.quarto,
-                        valorAtual.quinto,
-                        valorAtual.sexto,
-                        valorAtual.setimo,
-                        valorAtual.oitavo,
-                        valorAtual.nono,
-                    ];
-                    break;
-                case 'Deceto':
-                    valores = [
-                        valorAtual.primeiro,
-                        valorAtual.segundo,
-                        valorAtual.terceiro,
-                        valorAtual.quarto,
-                        valorAtual.quinto,
-                        valorAtual.sexto,
-                        valorAtual.setimo,
-                        valorAtual.oitavo,
-                        valorAtual.nono,
-                        valorAtual.decimo,
-                    ];
-                    break;
-                default:
-                    // Se não conseguir identificar, tentar extrair valores diretamente
-                    if (valorAtual.valor) {
-                        valores = Array.isArray(valorAtual.valor)
-                            ? valorAtual.valor
-                            : [valorAtual.valor];
-                    }
-            }
-
-            // Clonar valores
-            for (let i = 0; i < valores.length; i++) {
-                valoresClonados.push(clonarProfundo(valores[i]));
-            }
-
-            // Recriar a tupla com valores clonados
-            switch (nomeClasseTupla) {
-                case 'Dupla':
-                    return new Dupla(valoresClonados[0], valoresClonados[1]);
-                case 'Trio':
-                    return new Trio(valoresClonados[0], valoresClonados[1], valoresClonados[2]);
-                case 'Quarteto':
-                    return new Quarteto(
-                        valoresClonados[0],
-                        valoresClonados[1],
-                        valoresClonados[2],
-                        valoresClonados[3]
-                    );
-                case 'Quinteto':
-                    return new Quinteto(
-                        valoresClonados[0],
-                        valoresClonados[1],
-                        valoresClonados[2],
-                        valoresClonados[3],
-                        valoresClonados[4]
-                    );
-                case 'Sexteto':
-                    return new Sexteto(
-                        valoresClonados[0],
-                        valoresClonados[1],
-                        valoresClonados[2],
-                        valoresClonados[3],
-                        valoresClonados[4],
-                        valoresClonados[5]
-                    );
-                case 'Septeto':
-                    return new Septeto(
-                        valoresClonados[0],
-                        valoresClonados[1],
-                        valoresClonados[2],
-                        valoresClonados[3],
-                        valoresClonados[4],
-                        valoresClonados[5],
-                        valoresClonados[6]
-                    );
-                case 'Octeto':
-                    return new Octeto(
-                        valoresClonados[0],
-                        valoresClonados[1],
-                        valoresClonados[2],
-                        valoresClonados[3],
-                        valoresClonados[4],
-                        valoresClonados[5],
-                        valoresClonados[6],
-                        valoresClonados[7]
-                    );
-                case 'Noneto':
-                    return new Noneto(
-                        valoresClonados[0],
-                        valoresClonados[1],
-                        valoresClonados[2],
-                        valoresClonados[3],
-                        valoresClonados[4],
-                        valoresClonados[5],
-                        valoresClonados[6],
-                        valoresClonados[7],
-                        valoresClonados[8]
-                    );
-                case 'Deceto':
-                    return new Deceto(
-                        valoresClonados[0],
-                        valoresClonados[1],
-                        valoresClonados[2],
-                        valoresClonados[3],
-                        valoresClonados[4],
-                        valoresClonados[5],
-                        valoresClonados[6],
-                        valoresClonados[7],
-                        valoresClonados[8],
-                        valoresClonados[9]
-                    );
-                default:
-                    // Se não conseguir recriar, retornar os valores clonados como array
-                    return valoresClonados;
-            }
-        }
-
-        // DeleguaFuncao e FuncaoPadrao - funções não são clonadas profundamente
-        // Elas mantêm referência à mesma definição, mas isso é comportamento esperado
-        if (valorAtual instanceof DeleguaFuncao || valorAtual instanceof FuncaoPadrao) {
-            return valorAtual;
-        }
-
-        // Objetos simples (plain objects)
-        const objetoClonado: { [chave: string]: any } = {};
-        visitados.set(valorAtual, objetoClonado);
-
-        for (const chave in valorAtual) {
-            if (valorAtual.hasOwnProperty(chave)) {
-                objetoClonado[chave] = clonarProfundo(valorAtual[chave]);
-            }
-        }
-
-        return objetoClonado;
-    }
-
-    return Promise.resolve(clonarProfundo(valorResolvido));
-}
-
-/**
  * Encontra o primeiro elemento de um vetor cuja função de pesquisa retorne
  * verdadeiro na avaliação de cada elemento.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
@@ -501,7 +214,7 @@ export async function encontrar(
  * @param {VariavelInterface | any} funcaoPesquisa A função que ensina o método de pesquisa.
  * @returns {Promise<number>} O número correspondente ao índice se o elemento for encontrado, ou nulo em caso contrário.
  */
-export async function encontrarIndice(
+export async function encontrar_indice(
     interpretador: InterpretadorInterface,
     vetor: VariavelInterface | any,
     funcaoPesquisa: VariavelInterface | any
@@ -553,7 +266,7 @@ export async function encontrarIndice(
  * @param {VariavelInterface | any} funcaoPesquisa A função que ensina o método de pesquisa.
  * @returns {Promise<any>} O número correspondente ao índice se o elemento for encontrado, ou nulo em caso contrário.
  */
-export async function encontrarUltimo(
+export async function encontrar_ultimo(
     interpretador: InterpretadorInterface,
     vetor: VariavelInterface | any,
     funcaoPesquisa: VariavelInterface | any
@@ -604,7 +317,7 @@ export async function encontrarUltimo(
  * @param {VariavelInterface | any} funcaoPesquisa A função que ensina o método de pesquisa.
  * @returns {Promise<number>} O número correspondente ao índice se o elemento for encontrado, ou nulo em caso contrário.
  */
-export async function encontrarUltimoIndice(
+export async function encontrar_ultimo_indice(
     interpretador: InterpretadorInterface,
     vetor: VariavelInterface | any,
     funcaoPesquisa: VariavelInterface | any
@@ -655,7 +368,7 @@ export async function encontrarUltimoIndice(
  * @param funcaoFiltragem
  * @returns
  */
-export async function filtrarPor(
+export async function filtrar_por(
     interpretador: InterpretadorInterface,
     vetor: VariavelInterface | any,
     funcaoFiltragem: VariavelInterface | any
@@ -755,7 +468,7 @@ export async function incluido(
     return false;
 }
 
-function validacaoComumNumeros(
+function validacao_comum_numeros(
     interpretador: InterpretadorInterface,
     valorParaConverter: any
 ): Promise<never> | null {
@@ -801,7 +514,7 @@ export async function inteiro(
     const valor = valorParaConverter.hasOwnProperty('valor')
         ? valorParaConverter.valor
         : valorParaConverter;
-    const resultadoValidacao = validacaoComumNumeros(interpretador, valor);
+    const resultadoValidacao = validacao_comum_numeros(interpretador, valor);
 
     return resultadoValidacao || Promise.resolve(parseInt(valor));
 }
@@ -903,7 +616,7 @@ export async function numero(
     const valor = valorParaConverter.hasOwnProperty('valor')
         ? valorParaConverter.valor
         : valorParaConverter;
-    const resultadoValidacao = validacaoComumNumeros(interpretador, valor);
+    const resultadoValidacao = validacao_comum_numeros(interpretador, valor);
 
     return resultadoValidacao || Promise.resolve(Number(valor));
 }
@@ -962,7 +675,7 @@ export async function ordenar(
  * @param funcaoFiltragem
  * @returns
  */
-export async function paraCada(
+export async function para_cada(
     interpretador: InterpretadorInterface,
     vetor: VariavelInterface | any,
     funcaoFiltragem: VariavelInterface | any
@@ -1021,7 +734,7 @@ export async function paraCada(
  * @param funcaoFiltragem
  * @returns
  */
-export async function primeiroEmCondicao(
+export async function primeiro_em_condicao(
     interpretador: InterpretadorInterface,
     vetor: VariavelInterface | any,
     funcaoFiltragem: VariavelInterface | any
@@ -1244,7 +957,7 @@ export async function texto(
  * @returns {Promise<boolean>} Verdadeiro, se todos os valores do vetor fazem a função passada
  *                             por parâmetro devolver verdadeiro, ou falso em caso contrário.
  */
-export async function todosEmCondicao(
+export async function todos_em_condicao(
     interpretador: InterpretadorInterface,
     vetor: VariavelInterface | any,
     funcaoCondicional: VariavelInterface | any

@@ -50,7 +50,9 @@ export class PilhaEscopos implements PilhaInterface<InformacaoEscopo> {
             if (informacaoEscopo.elementosSintaticos[nome] !== undefined) {
                 const elementoMontaoTipos = informacaoEscopo.elementosSintaticos[nome];
                 if (!(elementoMontaoTipos instanceof ElementoMontaoTipos)) {
-                    throw new Error(`Elemento não é um dicionário ou objeto por não pertencer ao montão de tipos: ${nome}`);
+                    throw new Error(
+                        `Elemento não é um dicionário ou objeto por não pertencer ao montão de tipos: ${nome}`
+                    );
                 }
 
                 return elementoMontaoTipos;
@@ -60,7 +62,10 @@ export class PilhaEscopos implements PilhaInterface<InformacaoEscopo> {
         throw new Error("Elemento não existente no montão de tipos: '" + nome + "'.");
     }
 
-    definirInformacoesVariavel(nomeVariavel: string, informacoes: InformacaoElementoSintatico | ElementoMontaoTipos) {
+    definirInformacoesVariavel(
+        nomeVariavel: string,
+        informacoes: InformacaoElementoSintatico | ElementoMontaoTipos
+    ) {
         const topoDaPilha = this.topoDaPilha();
         topoDaPilha.elementosSintaticos[nomeVariavel] = informacoes;
     }

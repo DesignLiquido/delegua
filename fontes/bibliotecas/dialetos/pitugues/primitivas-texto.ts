@@ -1,6 +1,6 @@
-import { InterpretadorInterface } from '../interfaces';
-import { PrimitivaInterface } from '../interfaces/primitiva-interface';
-import { InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
+import { InterpretadorInterface } from '../../../interfaces';
+import { PrimitivaInterface } from '../../../interfaces/primitiva-interface';
+import { InformacaoElementoSintatico } from '../../../informacao-elemento-sintatico';
 
 export default {
     aparar: {
@@ -16,12 +16,12 @@ export default {
             '# `texto.aparar()` \n \n' +
             'Remove espaços em branco no início e no fim de um texto.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t = "   meu texto com espaços no início e no fim       "\n' +
+            '\n\n```pitugues\nvar t = "   meu texto com espaços no início e no fim       "\n' +
             'escreva("|" + t.aparar() + "|") // "|meu texto com espaços no início e no fim|"\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'texto.aparar()',
     },
-    apararFim: {
+    aparar_fim: {
         tipoRetorno: 'texto',
         argumentos: [],
         implementacao: (
@@ -29,17 +29,17 @@ export default {
             nomePrimitiva: string,
             texto: string
         ): Promise<string> => Promise.resolve(texto.trimEnd()),
-        assinaturaFormato: 'texto.apararFim()',
+        assinaturaFormato: 'texto.aparar_fim()',
         documentacao:
-            '# `texto.apararFim()` \n \n' +
+            '# `texto.aparar_fim()` \n \n' +
             'Remove espaços em branco no no fim de um texto.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t = "   meu texto com espaços no início e no fim       "\n' +
-            'escreva("|" + t.apararFim() + "|") // "|   meu texto com espaços no início e no fim|"\n```' +
+            '\n\n```pitugues\nvar t = "   meu texto com espaços no início e no fim       "\n' +
+            'escreva("|" + t.aparar_fim() + "|") // "|   meu texto com espaços no início e no fim|"\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'texto.apararFim()',
+        exemploCodigo: 'texto.aparar_fim()',
     },
-    apararInicio: {
+    aparar_inicio: {
         tipoRetorno: 'texto',
         argumentos: [],
         implementacao: (
@@ -47,15 +47,15 @@ export default {
             nomePrimitiva: string,
             texto: string
         ): Promise<string> => Promise.resolve(texto.trimStart()),
-        assinaturaFormato: 'texto.apararInicio()',
+        assinaturaFormato: 'texto.aparar_inicio()',
         documentacao:
-            '# `texto.apararInicio()` \n \n' +
+            '# `texto.aparar_inicio()` \n \n' +
             'Remover espaços em branco no início e no fim de um texto.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t = "   meu texto com espaços no início e no fim       "\n' +
-            'escreva("|" + t.apararInicio() + "|") // "|meu texto com espaços no início e no fim       |"\n```' +
+            '\n\n```pitugues\nvar t = "   meu texto com espaços no início e no fim       "\n' +
+            'escreva("|" + t.aparar_inicio() + "|") // "|meu texto com espaços no início e no fim       |"\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'texto.apararInicio()',
+        exemploCodigo: 'texto.aparar_inicio()',
     },
     concatenar: {
         tipoRetorno: 'texto',
@@ -78,7 +78,7 @@ export default {
             '# `texto.concatenar(outroTexto)` \n \n' +
             'Realiza a junção de palavras/textos.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t1 = "um"\n' +
+            '\n\n```pitugues\nvar t1 = "um"\n' +
             'var t2 = "dois três"\n' +
             'escreva(t1.concatenar(t2)) // "umdois três"\n```' +
             '\n\n ### Formas de uso \n',
@@ -120,7 +120,7 @@ export default {
             '# `texto.dividir(delimitador)` \n \n' +
             'Divide o texto pelo separador passado como parâmetro.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t = "um dois três"\n' +
+            '\n\n```pitugues\nvar t = "um dois três"\n' +
             "t.dividir(' ') // ['um','dois','três']\n```" +
             '\n\n ### Formas de uso  \n',
         exemploCodigo: "texto.dividir('<delimitador (, ; ' ')>')",
@@ -160,12 +160,68 @@ export default {
             '# `texto.encontrar(subtexto, indiceInicio)` \n \n' +
             'Retorna o índice inicial de um subtexto. Retorna -1 caso não encontre.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t = "um dois três"\n' +
+            '\n\n```pitugues\nvar t = "um dois três"\n' +
             't.encontrar("dois") // 3\n' +
             't.encontrar("quatro") // -1\n' +
             't.encontrar("dois", 4) // -1\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'texto.encontre(subtexto, indiceInicio?)',
+    },
+    encontrar_ultimo: {
+        tipoRetorno: 'inteiro',
+        argumentos: [
+            new InformacaoElementoSintatico(
+                'subtexto',
+                'texto',
+                true,
+                [],
+                'O subtexto que deve ser buscado.'
+            ),
+            new InformacaoElementoSintatico(
+                'indiceInicio',
+                'número',
+                false,
+                [],
+                '(Opcional) Índice inicial para começar a busca.'
+            ),
+        ],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
+            texto: string,
+            subtexto: string,
+            indiceInicio?: number
+        ): Promise<number> => {
+            if (indiceInicio !== undefined) {
+                if (indiceInicio < 0) indiceInicio = 0;
+                if (indiceInicio > texto.length) indiceInicio = texto.length;
+
+                const posicao = texto.indexOf(subtexto, indiceInicio);
+                if (posicao === -1) return Promise.resolve(-1);
+
+                return Promise.resolve(texto.lastIndexOf(subtexto));
+            }
+
+            return Promise.resolve(texto.lastIndexOf(subtexto));
+        },
+        assinaturaFormato: 'texto.encontrar_ultimo(subtexto: texto, indiceInicio?: número)',
+        documentacao:
+            '# `texto.encontrar_ultimo(subtexto, indiceInicio)`\n\n' +
+            'Retorna o índice da **última ocorrência** de um subtexto dentro do texto. ' +
+            'Retorna **-1** caso o subtexto não seja encontrado.\n\n' +
+            '## Exemplo de Código\n\n' +
+            '```pitugues\n' +
+            'var t = "Mi casa, su casa."\n\n' +
+            't.encontrar_ultimo("casa")        // 12\n' +
+            't.encontrar_ultimo("Mi")          // 0\n' +
+            't.encontrar_ultimo("nada")        // -1\n' +
+            't.encontrar_ultimo("casa", 10)    // 3\n' +
+            't.encontrar_ultimo("casa", 2)     // -1\n' +
+            '```\n\n' +
+            '### Formas de uso\n' +
+            '- `texto.encontrar_ultimo(subtexto)`\n' +
+            '- `texto.encontrar_ultimo(subtexto, indiceInicio)`\n',
+        exemploCodigo: 'texto.encontrar_ultimo(subtexto, indiceInicio?)',
     },
     fatiar: {
         tipoRetorno: 'texto',
@@ -197,7 +253,7 @@ export default {
             '# `texto.fatiar(inicio)` \n \n' +
             'Extrai uma fatia do texto, dadas posições de início e fim.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t = "Um dois três quatro"\n' +
+            '\n\n```pitugues\nvar t = "Um dois três quatro"\n' +
             't.fatiar() // "um dois três quatro", ou seja, não faz coisa alguma.\n' +
             't.fatiar(2, 7) // "dois"\n' +
             't.fatiar(8, 12) // "três"\n' +
@@ -227,7 +283,7 @@ export default {
             '# `texto.inclui(elemento)` \n \n' +
             'Devolve verdadeiro se elemento passado por parâmetro está contido no texto, e falso em caso contrário.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t = "um dois três"\n' +
+            '\n\n```pitugues\nvar t = "um dois três"\n' +
             't.inclui("dois") // verdadeiro\n' +
             't.inclui("quatro") // falso\n```' +
             '\n\n ### Formas de uso \n',
@@ -249,7 +305,7 @@ export default {
             '# `texto.inverter()` \n \n' +
             'Inverte as letras de um texto.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t = "um dois três"\n' +
+            '\n\n```pitugues\nvar t = "um dois três"\n' +
             't.inverter() // "sêrt siod mu"```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'texto.inverter()',
@@ -267,7 +323,7 @@ export default {
             '# `texto.maiusculo()` \n \n' +
             'Converte todos os caracteres alfabéticos para suas respectivas formas em maiúsculo.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t = "tudo em minúsculo"\n' +
+            '\n\n```pitugues\nvar t = "tudo em minúsculo"\n' +
             'escreva(t.maiusculo()) // "TUDO EM MINÚSCULO"\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'texto.maiusculo()',
@@ -285,7 +341,7 @@ export default {
             '# `texto.minusculo()` \n \n' +
             'Converte todos os caracteres alfabéticos para suas respectivas formas em minúsculo.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t = "TUDO EM MAIÚSCULO"\n' +
+            '\n\n```pitugues\nvar t = "TUDO EM MAIÚSCULO"\n' +
             'escreva(t.minusculo()) // "tudo em maiúsculo"\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'texto.minusculo()',
@@ -314,7 +370,7 @@ export default {
             '# `texto.substituir(textoASerSubstituido, substituto)` \n \n' +
             'Substitui a primeira ocorrência no texto do primeiro parâmetro pelo segundo parâmetro.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t = "Eu gosto de caju"\n' +
+            '\n\n```pitugues\nvar t = "Eu gosto de caju"\n' +
             't.substituir("caju", "graviola") // Resultado será "Eu gosto de graviola"\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: "texto.substituir('palavra a ser substituída','nova palavra')",
@@ -349,7 +405,7 @@ export default {
             '# `texto.subtexto(inicio, fim)` \n\n' +
             'Extrai uma fatia do texto, dadas posições de início e fim.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t = "Eu gosto de caju e de graviola"\n' +
+            '\n\n```pitugues\nvar t = "Eu gosto de caju e de graviola"\n' +
             't.subtexto(3, 16) // Resultado será "gosto de caju"\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'texto.subtexto(posiçãoInicial, posiçãoFinal)',
@@ -367,12 +423,12 @@ export default {
             '# `texto.tamanho()` \n\n' +
             'Devolve um número inteiro com o número de caracteres do texto.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t = "Um dois três quatro"\n' +
+            '\n\n```pitugues\nvar t = "Um dois três quatro"\n' +
             't.tamanho() // 19\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'texto.tamanho()',
     },
-    terminaCom: {
+    termina_com: {
         tipoRetorno: 'lógico',
         argumentos: [
             new InformacaoElementoSintatico(
@@ -389,19 +445,19 @@ export default {
             texto: string,
             sufixo: string
         ): Promise<boolean> => Promise.resolve(texto.endsWith(sufixo)),
-        assinaturaFormato: 'texto.terminaCom(sufixo: texto)',
+        assinaturaFormato: 'texto.termina_com(sufixo: texto)',
         documentacao:
-            '# `texto.terminaCom(sufixo)` \n \n' +
+            '# `texto.termina_com(sufixo)` \n \n' +
             'Verifica se um texto termina com o sufixo especificado e retorna um valor lógico (verdadeiro ou falso).' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar mensagem = "Olá, bem-vindo ao meu mundo."\n' +
-            'escreva(mensagem.terminaCom(".")) // verdadeiro\n' +
-            'escreva(mensagem.terminaCom("mundo")) // falso\n' +
-            'escreva(mensagem.terminaCom("mundo.")) // verdadeiro\n```' +
+            '\n\n```pitugues\nvar mensagem = "Olá, bem-vindo ao meu mundo."\n' +
+            'escreva(mensagem.termina_com(".")) // verdadeiro\n' +
+            'escreva(mensagem.termina_com("mundo")) // falso\n' +
+            'escreva(mensagem.termina_com("mundo.")) // verdadeiro\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'texto.terminaCom(sufixo)',
+        exemploCodigo: 'texto.termina_com(sufixo)',
     },
-    tudoMaiusculo: {
+    tudo_maiusculo: {
         tipoRetorno: 'lógico',
         argumentos: [],
         implementacao: (
@@ -409,19 +465,19 @@ export default {
             nomePrimitiva: string,
             texto: string
         ): Promise<boolean> => Promise.resolve(texto === texto.toUpperCase()),
-        assinaturaFormato: 'texto.tudoMaiusculo()',
+        assinaturaFormato: 'texto.tudo_maiusculo()',
         documentacao:
-            '# `texto.tudoMaiusculo()` \n\n' +
+            '# `texto.tudo_maiusculo()` \n\n' +
             'Devolve verdadeiro se todos os caracteres alfabéticos do texto estão em maiúsculo, e falso em caso contrário.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t1 = "TUDO EM MAIÚSCULO"\n' +
+            '\n\n```pitugues\nvar t1 = "TUDO EM MAIÚSCULO"\n' +
             'var t2 = "Tudo em Maiúsculo"\n' +
-            't1.tudoMaiusculo() // verdadeiro\n' +
-            't2.tudoMaiusculo() // falso\n```' +
+            't1.tudo_maiusculo() // verdadeiro\n' +
+            't2.tudo_maiusculo() // falso\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'texto.tudoMaiusculo()',
+        exemploCodigo: 'texto.tudo_maiusculo()',
     },
-    tudoMinusculo: {
+    tudo_minusculo: {
         tipoRetorno: 'lógico',
         argumentos: [],
         implementacao: (
@@ -429,16 +485,16 @@ export default {
             nomePrimitiva: string,
             texto: string
         ): Promise<boolean> => Promise.resolve(texto === texto.toLowerCase()),
-        assinaturaFormato: 'texto.tudoMinusculo()',
+        assinaturaFormato: 'texto.tudo_minusculo()',
         documentacao:
-            '# `texto.tudoMinusculo()` \n\n' +
+            '# `texto.tudo_minusculo()` \n\n' +
             'Devolve verdadeiro se todos os caracteres alfabéticos do texto estão em minúsculo, e falso em caso contrário.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\nvar t1 = "tudo em minúsculo"\n' +
+            '\n\n```pitugues\nvar t1 = "tudo em minúsculo"\n' +
             'var t2 = "Tudo em Minúsculo"\n' +
-            't1.tudoMinusculo() // verdadeiro\n' +
-            't2.tudoMinusculo() // falso\n```' +
+            't1.tudo_minusculo() // verdadeiro\n' +
+            't2.tudo_minusculo() // falso\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'texto.tudoMinusculo()',
+        exemploCodigo: 'texto.tudo_minusculo()',
     },
 } as { [nome: string]: PrimitivaInterface };

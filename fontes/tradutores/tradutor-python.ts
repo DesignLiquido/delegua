@@ -463,10 +463,16 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         return `${separador.conteudo} `;
     }
 
-    traduzirConstrutoSeTernario(seTernario: SeTernario) : string {
-        const condicao = this.dicionarioConstrutos[seTernario.condicao.constructor.name](seTernario.condicao);
-        const expressaoSe = this.dicionarioConstrutos[seTernario.expressaoSe.constructor.name](seTernario.expressaoSe);
-        const expressaoSenao = this.dicionarioConstrutos[seTernario.expressaoSenao.constructor.name](seTernario.expressaoSenao);
+    traduzirConstrutoSeTernario(seTernario: SeTernario): string {
+        const condicao = this.dicionarioConstrutos[seTernario.condicao.constructor.name](
+            seTernario.condicao
+        );
+        const expressaoSe = this.dicionarioConstrutos[seTernario.expressaoSe.constructor.name](
+            seTernario.expressaoSe
+        );
+        const expressaoSenao = this.dicionarioConstrutos[
+            seTernario.expressaoSenao.constructor.name
+        ](seTernario.expressaoSenao);
         return `${expressaoSe} if ${condicao} else ${expressaoSenao}`;
     }
 

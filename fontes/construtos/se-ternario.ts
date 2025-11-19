@@ -1,10 +1,10 @@
-import { SimboloInterface, VisitanteDeleguaInterface } from "../interfaces";
-import { Construto } from "./construto";
+import { SimboloInterface, VisitanteDeleguaInterface } from '../interfaces';
+import { Construto } from './construto';
 
 export class SeTernario<TTipoSimbolo extends string = string> implements Construto {
     linha: number;
     hashArquivo: number;
-    
+
     condicao: Construto;
     expressaoSe: Construto;
     operador: SimboloInterface<TTipoSimbolo>;

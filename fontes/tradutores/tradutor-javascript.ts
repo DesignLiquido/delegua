@@ -688,10 +688,10 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         if (!declaracaoVar?.inicializador && adicionarPontoEVirgula) resultado += ';';
         else {
             resultado += ' = ';
-            
-            resultado += this.dicionarioConstrutos[
-                declaracaoVar.inicializador.constructor.name
-            ](declaracaoVar.inicializador);
+
+            resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](
+                declaracaoVar.inicializador
+            );
 
             if (adicionarPontoEVirgula) resultado += ';';
         }
@@ -921,7 +921,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         resultado += this.dicionarioConstrutos[seTernario.expressaoSenao.constructor.name](
             seTernario.expressaoSenao
         );
-        
+
         return resultado;
     }
 

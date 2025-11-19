@@ -85,7 +85,6 @@ import { MicroAvaliadorSintatico } from '../avaliador-sintatico';
 import { MicroAvaliadorSintaticoBase } from '../avaliador-sintatico/micro-avaliador-sintatico-base';
 
 import { EspacoMemoria } from './espaco-memoria';
-import { carregarBibliotecasGlobais } from './comum';
 import { ErroEmTempoDeExecucao } from '../excecoes';
 import {
     InterpretadorInterface,
@@ -184,8 +183,6 @@ export class InterpretadorBase implements InterpretadorInterface {
             emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
-
-        carregarBibliotecasGlobais(this.pilhaEscoposExecucao);
     }
 
     visitarExpressaoSeparador(expressao: Separador): Promise<any> | void {
@@ -699,6 +696,11 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             case tiposDeSimbolos.ADICAO:
             case tiposDeSimbolos.MAIS_IGUAL:
+                // Se ambos os operandos são vetores, concatená-los
+                if (Array.isArray(valorEsquerdo) && Array.isArray(valorDireito)) {
+                    return valorEsquerdo.concat(valorDireito);
+                }
+
                 if (
                     this.tiposNumericos.includes(tipoEsquerdo) &&
                     this.tiposNumericos.includes(tipoDireito)
@@ -1099,8 +1101,9 @@ export class InterpretadorBase implements InterpretadorInterface {
         // para vetor de duplas.
         // TODO: Converter elementos para `Construto` se necessário.
         if (declaracao.vetorOuDicionario.tipo === 'dicionário') {
-            valorVetorResolvido = Object.entries(valorVetorResolvido)
-                .map(v => new Dupla(v[0] as any, v[1] as any));
+            valorVetorResolvido = Object.entries(valorVetorResolvido).map(
+                (v) => new Dupla(v[0] as any, v[1] as any)
+            );
         }
 
         if (!Array.isArray(valorVetorResolvido)) {
@@ -1120,7 +1123,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                         valorVetorResolvido[declaracao.posicaoAtual]
                     );
                 }
-                
+
                 if (declaracao.variavelIteracao instanceof Dupla) {
                     const valorComoDupla = valorVetorResolvido[declaracao.posicaoAtual] as Dupla;
                     this.pilhaEscoposExecucao.definirVariavel(
@@ -1680,7 +1683,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
 
         return Promise.resolve({
-            declaracao: funcao
+            declaracao: funcao,
         });
     }
 

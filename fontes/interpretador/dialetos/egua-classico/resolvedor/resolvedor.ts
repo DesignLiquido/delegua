@@ -553,7 +553,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         if (declaracao.condicao !== null) {
             this.resolver(declaracao.condicao);
         }
-        
+
         if (declaracao.incrementar !== null) {
             this.resolver(declaracao.incrementar);
         }

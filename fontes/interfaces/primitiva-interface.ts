@@ -10,4 +10,5 @@ export interface PrimitivaInterface {
     assinaturaFormato?: string;
     documentacao?: string;
     exemploCodigo?: string;
+    subtiposSuportados?: string[];
 }

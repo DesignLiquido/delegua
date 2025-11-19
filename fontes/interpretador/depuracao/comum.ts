@@ -2,7 +2,10 @@ import _ from 'lodash';
 
 import { Chamada, Construto, Leia } from '../../construtos';
 import { Bloco, Declaracao, Enquanto, Escreva, Expressao, Para, Retorna } from '../../declaracoes';
-import { InterpretadorComDepuracaoInterface, ResultadoParcialInterpretadorInterface } from '../../interfaces';
+import {
+    InterpretadorComDepuracaoInterface,
+    ResultadoParcialInterpretadorInterface,
+} from '../../interfaces';
 import { Quebra, SustarQuebra, ContinuarQuebra, RetornoQuebra } from '../../quebras';
 import { PontoParada } from '../../depuracao';
 import { EscopoExecucao, TipoEscopoExecucao } from '../../interfaces/escopo-execucao';
@@ -157,7 +160,10 @@ export async function visitarDeclaracaoEnquanto(
                         return null;
                     }
 
-                    if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) {
+                    if (
+                        retornoExecucao &&
+                        retornoExecucao.valorRetornado instanceof ContinuarQuebra
+                    ) {
                         retornoExecucao = null;
                     }
                 } catch (erro: any) {
@@ -242,7 +248,10 @@ export async function visitarDeclaracaoPara(
             return null;
         default:
             let retornoExecucao: any;
-            while (!(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) && !interpretador.pontoDeParadaAtivo) {
+            while (
+                !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
+                !interpretador.pontoDeParadaAtivo
+            ) {
                 if (
                     cloneDeclaracao.condicao !== null &&
                     !interpretador.eVerdadeiro(
@@ -258,7 +267,10 @@ export async function visitarDeclaracaoPara(
                         return null;
                     }
 
-                    if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) {
+                    if (
+                        retornoExecucao &&
+                        retornoExecucao.valorRetornado instanceof ContinuarQuebra
+                    ) {
                         retornoExecucao = null;
                     }
                 } catch (erro: any) {
@@ -340,19 +352,14 @@ export async function executarBloco(
             const declaracaoAtual = proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual];
             interpretador.linhaDeclaracaoAtual = declaracaoAtual.linha;
             interpretador.hashArquivoDeclaracaoAtual = declaracaoAtual.hashArquivo;
-            interpretador.pontoDeParadaAtivo = verificarPontoParada(
-                interpretador,
-                declaracaoAtual
-            );
+            interpretador.pontoDeParadaAtivo = verificarPontoParada(interpretador, declaracaoAtual);
 
             if (interpretador.pontoDeParadaAtivo) {
                 interpretador.avisoPontoParadaAtivado();
                 break;
             }
 
-            retornoExecucao = await interpretador.executar(
-                declaracaoAtual
-            );
+            retornoExecucao = await interpretador.executar(declaracaoAtual);
 
             // Um ponto de parada ativo pode ter vindo de um escopo mais interno.
             // Por isso verificamos outra parada aqui para evitar que
@@ -505,7 +512,7 @@ export async function executarUltimoEscopoComandoContinuar(
                     break;
                 }
             }
-            
+
             retornoExecucao = await interpretador.executar(declaracaoAtual);
 
             // Um ponto de parada ativo pode ter vindo de um escopo mais interno.
@@ -648,14 +655,14 @@ export async function executarUltimoEscopo(
         case 'proximo':
             if (!interpretador.executandoChamada) {
                 return executarUmPassoNoEscopo(interpretador);
-            } 
+            }
 
             return executarUltimoEscopoComandoContinuar(
                 interpretador,
                 manterespacoMemoria,
                 naoVerificarPrimeiraExecucao
             );
-            
+
         default:
             return executarUltimoEscopoComandoContinuar(
                 interpretador,

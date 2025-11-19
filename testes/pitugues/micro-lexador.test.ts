@@ -59,7 +59,6 @@ describe('Lexador', () => {
                 expect(resultado).toBeTruthy();
                 expect(resultado.simbolos).toHaveLength(11);
             });
-
         });
     });
 });

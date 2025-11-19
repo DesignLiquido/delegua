@@ -1,7 +1,7 @@
-import { Bloco } from "../declaracoes";
-import { VisitanteDeleguaInterface } from "../interfaces";
-import { EnquantoInterface } from "../interfaces/delegua";
-import { Construto } from "./construto";
+import { Bloco } from '../declaracoes';
+import { VisitanteDeleguaInterface } from '../interfaces';
+import { EnquantoInterface } from '../interfaces/delegua';
+import { Construto } from './construto';
 
 export class EnquantoComoConstruto implements Construto, EnquantoInterface {
     linha: number;
@@ -15,7 +15,7 @@ export class EnquantoComoConstruto implements Construto, EnquantoInterface {
         this.condicao = condicao;
         this.corpo = corpo;
     }
-    
+
     async aceitar(visitante: VisitanteDeleguaInterface): Promise<any> {
         return await visitante.visitarExpressaoEnquanto(this);
     }
