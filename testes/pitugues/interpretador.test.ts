@@ -749,6 +749,36 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas[0]).toBe("['um', 'dois', 'três']");
                 });
 
+                it('inclui', async () => {
+                    // Aqui vamos simular a resposta para duas variáveis de `leia()`.
+                    const respostas = ['A galinha botou', 'a'];
+                    interpretador.interfaceEntradaSaida = {
+                        question: (mensagem: string, callback: Function) => {
+                            callback(respostas.shift());
+                        },
+                    };
+
+                    const codigo = [
+                        "var frase = leia('Informe uma frase: ')",
+                        "var letra = leia('Qual letra quer encontrar? ')",
+                        "var teste = frase.inclui(letra)",
+                        "imprima(teste)"
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe("verdadeiro");
+                });
+
                 it('maiusculo', async () => {
                     const codigo = ['var t1 = "um dois três"', 'escreva(t1.maiusculo())'];
                     const retornoLexador = lexador.mapear(codigo, -1);
