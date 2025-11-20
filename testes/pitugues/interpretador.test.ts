@@ -637,6 +637,30 @@ describe('Interpretador (Pituguês)', () => {
                 });
             });
 
+            describe('Uso de primitivas de dicionário', () => {
+                describe('itens', () => {
+                    it('Trivial', async () => {
+                        const codigo = [
+                            "var d = {'a': 1, 'b': 2, 'c': 3}",
+                            'escreva(d.itens())',
+                        ];
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe("[[\"a\",1], [\"b\",2], [\"c\",3]]");
+                    });
+                });
+            });
+
             describe('Uso de primitivas de número', () => {
                 it('arredondarParaBaixo', async () => {
                     const codigo = ['var n1 = 3.1415', 'escreva(n1.arredondar_para_baixo())'];

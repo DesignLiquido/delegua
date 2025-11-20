@@ -1432,9 +1432,9 @@ describe('Interpretador', () => {
 
                         expect(retornoInterpretador.erros).toHaveLength(0);
                         expect(_saidas).toHaveLength(3);
-                        expect(_saidas[0]).toContain('{\"primeiro\":\"a\",\"segundo\":1}');
-                        expect(_saidas[1]).toContain('{\"primeiro\":\"b\",\"segundo\":2}');
-                        expect(_saidas[2]).toContain('{\"primeiro\":\"c\",\"segundo\":3}');
+                        expect(_saidas[0]).toContain('[(\"a\", 1)]');
+                        expect(_saidas[1]).toContain('[(\"b\", 2)]');
+                        expect(_saidas[2]).toContain('[(\"c\", 3)]');
                     });
 
                     it('para cada - texto', async () => {
@@ -2343,6 +2343,7 @@ describe('Interpretador', () => {
                                 `var meuDicionario = {"a": 1, "b": 2, "c": 3}`,
                                 `escreva(meuDicionario.chaves())`,
                                 `escreva(meuDicionario.valores())`,
+                                `escreva(meuDicionario.itens())`,
                                 `escreva(meuDicionario.contém("f"))`,
                                 `escreva(meuDicionario.remover("c"))`,
                             ],
@@ -2361,11 +2362,12 @@ describe('Interpretador', () => {
                         );
 
                         expect(retornoInterpretador.erros).toHaveLength(0);
-                        expect(_saidas).toHaveLength(4);
+                        expect(_saidas).toHaveLength(5);
                         expect(_saidas[0]).toEqual('[\'a\', \'b\', \'c\']');
                         expect(_saidas[1]).toEqual('[1, 2, 3]');
-                        expect(_saidas[2]).toEqual('falso');
-                        expect(_saidas[3]).toEqual('verdadeiro');
+                        expect(_saidas[2]).toEqual('[[(\"a\", 1)], [(\"b\", 2)], [(\"c\", 3)]]');
+                        expect(_saidas[3]).toEqual('falso');
+                        expect(_saidas[4]).toEqual('verdadeiro');
                     });
 
                     it('Obter valores do dicionário dentro de outro dicionário', async () => {

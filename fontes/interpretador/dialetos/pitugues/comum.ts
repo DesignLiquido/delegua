@@ -149,13 +149,6 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
     // Objeto simples do JavaScript, ou dicionário de Delégua.
     if (objeto.constructor === Object) {
         if (expressao.simbolo.lexema in primitivasDicionario) {
-            if (!(expressao.simbolo.lexema in primitivasNumero)) {
-                throw new ErroEmTempoDeExecucao(
-                    expressao.simbolo,
-                    `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo dicionário.`
-                );
-            }
-
             const metodoDePrimitivaDicionario: Function =
                 primitivasDicionario[expressao.simbolo.lexema].implementacao;
             return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario);

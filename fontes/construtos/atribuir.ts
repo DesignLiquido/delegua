@@ -49,4 +49,8 @@ export class Atribuir<TTipoSimbolo extends string = string> implements Construto
 
         return `<atribuir alvo=${this.alvo.paraTexto()} ${indiceResolvido} valor=${this.valor.paraTexto()} />`;
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

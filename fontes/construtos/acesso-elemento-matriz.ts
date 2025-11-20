@@ -25,6 +25,8 @@ export class AcessoElementoMatriz<TTipoSimbolo extends string = string> implemen
         this.indiceSecundario = indiceSegundario;
         this.simboloFechamento = simboloFechamento;
     }
+    valor?: any;
+    tipo?: string;
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
         return await visitante.visitarExpressaoAcessoElementoMatriz(this);
@@ -37,5 +39,9 @@ export class AcessoElementoMatriz<TTipoSimbolo extends string = string> implemen
             `indiceSecundário=${this.indiceSecundario.paraTexto()} ` +
             `/>`
         );
+    }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
     }
 }

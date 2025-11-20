@@ -22,4 +22,8 @@ export class ExpressaoRegular<TTipoSimbolo extends string = string> implements C
     paraTexto(): string {
         return `<expressão-regular valor=${this.valor} />`;
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

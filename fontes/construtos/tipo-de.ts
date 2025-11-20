@@ -26,4 +26,8 @@ export class TipoDe<TTipoSimbolo extends string = string> implements Construto {
     paraTexto(): string {
         return `<tipo-de valor=${this.valor.paraTexto()} />`;
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

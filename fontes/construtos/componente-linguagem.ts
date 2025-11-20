@@ -24,4 +24,8 @@ export class ComponenteLinguagem implements Construto {
     paraTexto(): string {
         return `<componente-linguagem valor=${this.valor} />`;
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

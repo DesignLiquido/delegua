@@ -29,6 +29,8 @@ import {
     Leia,
     ComentarioComoConstruto,
     Separador,
+    Variavel,
+    Constante,
 } from '../construtos';
 import {
     Declaracao,
@@ -254,7 +256,7 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
         return Promise.resolve();
     }
 
-    visitarExpressaoDeVariavel(expressao: Var): Promise<any> {
+    visitarExpressaoDeVariavel(expressao: Variavel | Constante): Promise<any> {
         return Promise.resolve();
     }
 

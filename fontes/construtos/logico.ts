@@ -34,4 +34,8 @@ export class Logico<TTipoSimbolo extends string = string> implements Construto {
             `/>`
         );
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

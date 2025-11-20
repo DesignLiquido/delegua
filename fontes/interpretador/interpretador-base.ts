@@ -394,9 +394,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                 );
             } else {
                 valor = this.resolverValor(valor);
+                const valorResolvidoComoTexto = this.paraTexto(valor);
                 textoFinal = textoFinal.replace(
                     '${' + elemento.expressaoInterpolacao + '}',
-                    `${this.paraTexto(valor)}`
+                    valorResolvidoComoTexto.replace(/"/g, '')
                 );
             }
         }
@@ -1912,6 +1913,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
+        if (objeto instanceof Literal) return this.paraTexto(objeto.valor);
         if (objeto instanceof ObjetoDeleguaClasse || objeto instanceof DeleguaFuncao)
             return objeto.paraTexto();
 

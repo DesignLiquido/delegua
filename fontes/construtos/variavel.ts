@@ -27,4 +27,8 @@ export class Variavel<TTipoSimbolo extends string = string> implements Construto
     paraTexto(): string {
         return `<variável nome=${this.simbolo.lexema} tipo=${this.tipo} />`;
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

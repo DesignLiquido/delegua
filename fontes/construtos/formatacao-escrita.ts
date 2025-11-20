@@ -34,4 +34,8 @@ export class FormatacaoEscrita implements Construto {
     paraTexto(): string {
         return `<formatação-escrita expressão=${this.expressao.paraTexto()} espaços=${this.espacos} casasDecimais=${this.casasDecimais} />`;
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

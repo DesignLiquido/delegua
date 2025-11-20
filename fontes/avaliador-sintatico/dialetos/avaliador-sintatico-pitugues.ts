@@ -27,6 +27,7 @@ import {
     ParaCadaComoConstruto,
     SeTernario,
     ListaCompreensao,
+    ImportarComoConstruto,
 } from '../../construtos';
 import {
     Escreva,
@@ -59,7 +60,6 @@ import { Pragma } from '../../lexador/dialetos/pragma';
 import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
 import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
-import { RetornoPrimario } from '../retornos';
 
 import { Simbolo } from '../../lexador';
 import {
@@ -525,8 +525,8 @@ export class AvaliadorSintaticoPitugues
         return new Chamada(this.hashArquivo, entidadeChamada, argumentos);
     }
 
-    chamar(): Construto | RetornoPrimario {
-        let expressao: RetornoPrimario | Construto = this.primario();
+    chamar(): Construto {
+        let expressao: Construto = this.primario();
 
         while (true) {
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
@@ -1117,13 +1117,13 @@ export class AvaliadorSintaticoPitugues
         return new Retorna(palavraChave, valor);
     }
 
-    declaracaoImportar(): Importar {
+    declaracaoImportar(): ImportarComoConstruto {
         this.avancarEDevolverAnterior();
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após declaração.");
         const caminho = this.expressao();
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração.");
 
-        return new Importar(caminho as Literal);
+        return new ImportarComoConstruto(caminho as Literal);
     }
 
     declaracaoTente(): Tente {

@@ -12,4 +12,5 @@ export abstract class Tupla implements Construto {
     }
 
     abstract paraTexto(): string;
+    abstract paraTextoSaida(): string;
 }

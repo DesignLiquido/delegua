@@ -430,11 +430,11 @@ export class AvaliadorSintatico
         const localizacaoVetor = this.simboloAnterior();
         const vetor = this.ou();
 
-        let condicao: Construto | null = null;
+        let condicao: Construto | Declaracao | null = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SE)) {
             condicao = this.expressao();
         } else {
-            condicao = new Expressao(new Literal(this.hashArquivo, Number(localizacaoVetor.linha), true));
+            condicao = new Literal(this.hashArquivo, Number(localizacaoVetor.linha), true);
         }
 
         this.consumir(
@@ -2036,19 +2036,19 @@ export class AvaliadorSintatico
             );
         }
 
-        let vetor = this.expressao();
+        let vetorOuDicionario = this.expressao();
 
-        if (vetor.constructor === AcessoIndiceVariavel) {
-            const construtoAcessoIndiceVariavel = vetor as AcessoIndiceVariavel;
+        if (vetorOuDicionario.constructor === AcessoIndiceVariavel) {
+            const construtoAcessoIndiceVariavel = vetorOuDicionario as AcessoIndiceVariavel;
             if (construtoAcessoIndiceVariavel.entidadeChamada.tipo === 'dicionário') {
                 // A avaliação sintática não deve verificar valores de dicionários.
                 // Aqui se supõe que o programador sabe o que está fazendo.
                 // TODO: Talvez pensar numa forma melhor de fazer isso.
-                (vetor as any).tipo = 'vetor';
+                (vetorOuDicionario as any).tipo = 'vetor';
             }
         }
 
-        const tipoVetor = (vetor as any).tipo as string;
+        const tipoVetor = (vetorOuDicionario as any).tipo as string;
 
         if (
             !tipoVetor.endsWith('[]') &&
@@ -2074,7 +2074,7 @@ export class AvaliadorSintatico
 
         return {
             variavelIteracao,
-            vetor,
+            vetor: vetorOuDicionario,
             corpo,
         };
     }

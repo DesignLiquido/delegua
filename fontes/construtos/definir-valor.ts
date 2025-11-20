@@ -31,4 +31,8 @@ export class DefinirValor<TTipoSimbolo extends string = string> implements Const
     paraTexto(): string {
         return `<definir-valor objeto=${this.objeto.paraTexto()} nome=${this.nome.lexema} valor=${this.valor} />`;
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }
