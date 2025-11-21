@@ -1467,7 +1467,7 @@ export class AvaliadorSintatico
             let operador = this.simbolos[this.atual - 1];
             let negado = false;
             if (operador.tipo === tiposDeSimbolos.NAO) {
-                operador = this.consumir(tiposDeSimbolos.CONTEM, `Esperado palavra reservada 'contém' ou 'contém' após palavra reservada ${operador.lexema}.`);
+                operador = this.consumir(tiposDeSimbolos.CONTEM, `Esperado palavra reservada 'contém' ou 'contem' após palavra reservada ${operador.lexema}.`);
                 negado = true;
             }
 
