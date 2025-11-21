@@ -376,7 +376,7 @@ export class AvaliadorSintatico
     }
 
     protected paraTradicionalComoConstruto(simboloPara: SimboloInterface) {
-        const { inicializador, condicao, incrementar, corpo } = this.logicaComumPara(simboloPara);
+        const { inicializador, condicao, incrementar, corpo } = this.logicaComumPara();
 
         return new ParaComoConstruto(
             simboloPara.hashArquivo,
@@ -2106,7 +2106,7 @@ export class AvaliadorSintatico
         );
     }
 
-    protected logicaComumPara(simboloPara: SimboloInterface) {
+    protected logicaComumPara() {
         const comParenteses = this.verificarSeSimboloAtualEIgualA(
             tiposDeSimbolos.PARENTESE_ESQUERDO
         );
@@ -2158,7 +2158,7 @@ export class AvaliadorSintatico
     }
 
     protected declaracaoParaTradicional(simboloPara: SimboloInterface): Para {
-        const { inicializador, condicao, incrementar, corpo } = this.logicaComumPara(simboloPara);
+        const { inicializador, condicao, incrementar, corpo } = this.logicaComumPara();
 
         return new Para(
             this.hashArquivo,
