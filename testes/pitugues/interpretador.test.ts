@@ -319,6 +319,38 @@ describe('Interpretador (Pituguês)', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
+
+                it('Contém', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var a = [1, 2, 3, 4, 5]',
+                            'escreva(a contém 3)'
+                        ],
+                        -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('verdadeiro');
+                });
+
+                it('Não contém', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var a = [2, 4, 6, 8, 10]',
+                            'escreva(a não contém 3)'
+                        ],
+                        -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('verdadeiro');
+                });
             });
 
             describe('Condicionais', () => {

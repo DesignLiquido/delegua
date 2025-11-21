@@ -8,6 +8,7 @@ export class Logico<TTipoSimbolo extends string = string> implements Construto {
     esquerda: Construto;
     operador: SimboloInterface<TTipoSimbolo>;
     direita: Construto;
+    negado: boolean = false;
 
     constructor(
         hashArquivo: number,

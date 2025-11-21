@@ -701,10 +701,17 @@ export class AvaliadorSintaticoPitugues
     em(): Construto {
         let expressao = this.comparacaoIgualdade();
 
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EM)) {
-            const operador = this.simboloAnterior();
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EM, tiposDeSimbolos.CONTEM, tiposDeSimbolos.NAO)) {
+            let operador = this.simboloAnterior();
+            let negado = false;
+            if (operador.tipo === tiposDeSimbolos.NAO) {
+                operador = this.consumir(tiposDeSimbolos.CONTEM, `Esperado palavra reservada 'contém' ou 'contem' após palavra reservada ${operador.lexema}.`);
+                negado = true;
+            }
+
             const direito = this.comparacaoIgualdade();
             expressao = new Logico(this.hashArquivo, expressao, operador, direito);
+            (expressao as Logico).negado = negado;
         }
 
         return expressao;

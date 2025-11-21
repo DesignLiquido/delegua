@@ -2,7 +2,7 @@ import hrtime from 'browser-process-hrtime';
 
 import { LexadorInterface, SimboloInterface } from '../../interfaces';
 import { Simbolo } from '../simbolo';
-import { palavrasReservadas } from './palavras-reservadas/pitugues';
+import { palavrasReservadasPitugues } from './palavras-reservadas/pitugues';
 import { ErroLexador } from '../erro-lexador';
 import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
 import { Pragma } from './pragma';
@@ -267,8 +267,8 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
         }
 
         const tipo: string =
-            textoPalavraChave in palavrasReservadas
-                ? palavrasReservadas[textoPalavraChave]
+            textoPalavraChave in palavrasReservadasPitugues
+                ? palavrasReservadasPitugues[textoPalavraChave]
                 : tiposDeSimbolos.IDENTIFICADOR;
 
         this.simbolos.push(

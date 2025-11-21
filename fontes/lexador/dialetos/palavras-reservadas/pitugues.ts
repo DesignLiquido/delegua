@@ -1,11 +1,13 @@
 import tiposDeSimbolos from '../../../tipos-de-simbolos/pitugues';
 
-export const palavrasReservadas = {
+export const palavrasReservadasPitugues = {
     cada: tiposDeSimbolos.CADA,
     caso: tiposDeSimbolos.CASO,
     classe: tiposDeSimbolos.CLASSE,
     como: tiposDeSimbolos.COMO,
     construtor: tiposDeSimbolos.CONSTRUTOR,
+    contem: tiposDeSimbolos.CONTEM,
+    contém: tiposDeSimbolos.CONTEM,
     continua: tiposDeSimbolos.CONTINUA,
     de: tiposDeSimbolos.DE,
     e: tiposDeSimbolos.E,
@@ -23,6 +25,8 @@ export const palavrasReservadas = {
     imprima: tiposDeSimbolos.IMPRIMA,
     isto: tiposDeSimbolos.ISTO,
     leia: tiposDeSimbolos.LEIA,
+    nao: tiposDeSimbolos.NAO,
+    não: tiposDeSimbolos.NAO,
     nulo: tiposDeSimbolos.NULO,
     ou: tiposDeSimbolos.OU,
     padrao: tiposDeSimbolos.PADRAO,

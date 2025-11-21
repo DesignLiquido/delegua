@@ -877,10 +877,8 @@ export class AvaliadorSintatico
                 return this.resolverCadeiaChamadas(chamada);
             case tiposDeSimbolos.PONTO:
                 this.avancarEDevolverAnterior();
-                const nome = this.consumir(
-                    tiposDeSimbolos.IDENTIFICADOR,
-                    "Esperado nome de método ou propriedade após '.'."
-                );
+                this.verificarSeSimboloAtualEIgualA()
+                const nome = this.avancarEDevolverAnterior();
 
                 let tipoInferido = expressaoAnterior.tipo;
                 // Se não for um dicionário anônimo (ou seja, ser variável ou constante com nome)
@@ -1249,6 +1247,7 @@ export class AvaliadorSintatico
     override unario(): Construto {
         if (
             this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.NAO,
                 tiposDeSimbolos.NEGACAO,
                 tiposDeSimbolos.SUBTRACAO,
                 tiposDeSimbolos.BIT_NOT,
@@ -1464,10 +1463,17 @@ export class AvaliadorSintatico
     override em(): Construto {
         let expressao = this.comparacaoIgualdade();
 
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EM)) {
-            const operador = this.simbolos[this.atual - 1];
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EM, tiposDeSimbolos.CONTEM, tiposDeSimbolos.NAO)) {
+            let operador = this.simbolos[this.atual - 1];
+            let negado = false;
+            if (operador.tipo === tiposDeSimbolos.NAO) {
+                operador = this.consumir(tiposDeSimbolos.CONTEM, `Esperado palavra reservada 'contém' ou 'contem' após palavra reservada ${operador.lexema}.`);
+                negado = true;
+            }
+
             const direito = this.comparacaoIgualdade();
             expressao = new Logico(this.hashArquivo, expressao, operador, direito);
+            (expressao as Logico).negado = negado;
         }
 
         return expressao;
@@ -2183,6 +2189,7 @@ export class AvaliadorSintatico
                 tiposDeSimbolos.FUNÇÃO,
                 tiposDeSimbolos.IDENTIFICADOR,
                 tiposDeSimbolos.ISTO,
+                tiposDeSimbolos.NAO,
                 tiposDeSimbolos.NEGACAO,
                 tiposDeSimbolos.NUMERO,
                 tiposDeSimbolos.NULO,
