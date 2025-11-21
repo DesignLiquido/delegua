@@ -94,8 +94,7 @@ import primitivasVetor from '../../bibliotecas/primitivas-vetor';
  * Este avaliador espera uma estrutura de pragmas, que explica quantos espaços há na frente de cada linha.
  */
 export class AvaliadorSintaticoPitugues
-    implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao>
-{
+    implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao> {
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
     pragmas: { [linha: number]: Pragma };
@@ -859,8 +858,8 @@ export class AvaliadorSintaticoPitugues
                 throw this.erro(
                     simboloAtual,
                     `Indentação inconsistente na linha ${simboloAtual.linha}. ` +
-                        `Esperado: >= ${espacosIndentacaoLinhaAnterior}. ` +
-                        `Atual: ${espacosIndentacaoLinhaAtual}`
+                    `Esperado: >= ${espacosIndentacaoLinhaAnterior}. ` +
+                    `Atual: ${espacosIndentacaoLinhaAtual}`
                 );
             }
 
@@ -976,93 +975,58 @@ export class AvaliadorSintaticoPitugues
         }
     }
 
-    protected declaracaoParaCada(simboloPara: SimboloInterface): ParaCada {
-        const nomeVariavelIteracao = this.consumir(
-            tiposDeSimbolos.IDENTIFICADOR,
-            "Esperado identificador de variável de iteração para instrução 'para cada'."
-        );
-
-        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DE, tiposDeSimbolos.EM)) {
-            throw this.erro(
-                this.simbolos[this.atual],
-                "Esperado palavras reservadas 'em' ou 'de' após variável de iteração em instrução 'para cada'."
-            );
-        }
-
-        const vetor = this.expressao();
-        if (!vetor.hasOwnProperty('tipo')) {
-            throw this.erro(
-                simboloPara,
-                `Variável ou constante em 'para cada' não parece possuir um tipo iterável.`
-            );
-        }
-
-        const tipoVetor = (vetor as any).tipo as string;
-        if (!tipoVetor.endsWith('[]') && !['qualquer', 'vetor'].includes(tipoVetor)) {
-            throw this.erro(
-                simboloPara,
-                `Variável ou constante em 'para cada' não é iterável. Tipo resolvido: ${tipoVetor}.`
-            );
-        }
-
-        this.pilhaEscopos.definirInformacoesVariavel(
-            nomeVariavelIteracao.lexema,
-            new InformacaoElementoSintatico(nomeVariavelIteracao.lexema, tipoVetor.slice(0, -2))
-        );
-        // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
-        const corpo: Bloco = this.resolverDeclaracao() as Bloco;
-
-        return new ParaCada(
-            this.hashArquivo,
-            Number(simboloPara.linha),
-            new Variavel(this.hashArquivo, nomeVariavelIteracao),
-            vetor,
-            corpo
-        );
-    }
-
-    protected declaracaoParaTradicional(simboloPara: SimboloInterface): Para {
-        let inicializador: Var | Expressao;
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA)) {
-            inicializador = null;
-        } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL)) {
-            inicializador = this.declaracaoDeVariaveis();
-        } else {
-            inicializador = this.declaracaoExpressao();
-        }
-
-        let condicao = null;
-        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PONTO_E_VIRGULA)) {
-            condicao = this.expressao();
-        }
-
-        let incrementar = null;
-        if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.DOIS_PONTOS) {
-            incrementar = this.expressao();
-        }
-
-        const corpo = this.resolverDeclaracao();
-
-        return new Para(
-            this.hashArquivo,
-            Number(simboloPara.linha),
-            inicializador,
-            condicao,
-            incrementar,
-            corpo
-        );
-    }
-
-    declaracaoPara(): Para | ParaCada {
+    declaracaoPara(): ParaCada {
         try {
             const simboloPara: SimboloInterface = this.simboloAnterior();
             this.blocos += 1;
 
-            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CADA)) {
-                return this.declaracaoParaCada(simboloPara);
+            this.consumir(
+                tiposDeSimbolos.CADA,
+                `Esperado palavra reservada 'cada' após 'para'. Atual: ${this.simbolos[this.atual].lexema}.`
+            );
+
+            const nomeVariavelIteracao = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                "Esperado identificador de variável de iteração para instrução 'para cada'."
+            );
+
+            if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DE, tiposDeSimbolos.EM)) {
+                throw this.erro(
+                    this.simbolos[this.atual],
+                    "Esperado palavras reservadas 'em' ou 'de' após variável de iteração em instrução 'para cada'."
+                );
             }
 
-            return this.declaracaoParaTradicional(simboloPara);
+            const vetor = this.expressao();
+            if (!vetor.hasOwnProperty('tipo')) {
+                throw this.erro(
+                    simboloPara,
+                    `Variável ou constante em 'para cada' não parece possuir um tipo iterável.`
+                );
+            }
+
+            const tipoVetor = (vetor as any).tipo as string;
+            if (!tipoVetor.endsWith('[]') && !['qualquer', 'texto', 'vetor'].includes(tipoVetor)) {
+                throw this.erro(
+                    simboloPara,
+                    `Variável ou constante em 'para cada' não é iterável. Tipo resolvido: ${tipoVetor}.`
+                );
+            }
+
+            this.pilhaEscopos.definirInformacoesVariavel(
+                nomeVariavelIteracao.lexema,
+                new InformacaoElementoSintatico(nomeVariavelIteracao.lexema, tipoVetor.slice(0, -2))
+            );
+            // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
+            const corpo: Bloco = this.resolverDeclaracao() as Bloco;
+
+            return new ParaCada(
+                this.hashArquivo,
+                Number(simboloPara.linha),
+                new Variavel(this.hashArquivo, nomeVariavelIteracao),
+                vetor,
+                corpo
+            );
         } catch (erro) {
             throw erro;
         } finally {

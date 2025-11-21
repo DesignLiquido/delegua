@@ -66,21 +66,39 @@ describe('Avaliador sintático (Pituguês)', () => {
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
             });
 
-            it('Para cada', () => {
-                const retornoLexador = lexador.mapear(
-                    [
-                        'var vetor = [1, 2, 3]',
-                        'para cada elemento de vetor:',
-                        '    escreva(elemento)'
-                    ], -1
-                );
-                const retornoAvaliadorSintatico =
-                    avaliadorSintatico.analisar(retornoLexador, -1);
+            describe('Para cada', () => {
+                it('Trivial', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var vetor = [1, 2, 3]',
+                            'para cada elemento de vetor:',
+                            '    escreva(elemento)'
+                        ], -1
+                    );
+                    const retornoAvaliadorSintatico =
+                        avaliadorSintatico.analisar(retornoLexador, -1);
 
-                expect(retornoAvaliadorSintatico).toBeTruthy();
-                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                });
+
+                it('Iterando texto', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var texto1 = "Texto"',
+                            'para cada item em texto1:',
+                            '    imprima(item)'
+                        ], -1
+                    );
+                    const retornoAvaliadorSintatico =
+                        avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                });
             });
-
 
             it('Lista de Compreensão', () => {
                 const retornoLexador = lexador.mapear(
