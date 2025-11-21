@@ -1,14 +1,16 @@
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
-export const palavrasReservadas = {
+export const palavrasReservadasDelegua = {
     cada: tiposDeSimbolos.CADA,
     caso: tiposDeSimbolos.CASO,
     classe: tiposDeSimbolos.CLASSE,
     como: tiposDeSimbolos.COMO,
     construtor: tiposDeSimbolos.CONSTRUTOR,
-    continua: tiposDeSimbolos.CONTINUA,
     constante: tiposDeSimbolos.CONSTANTE,
     const: tiposDeSimbolos.CONSTANTE,
+    contem: tiposDeSimbolos.CONTEM,
+    contém: tiposDeSimbolos.CONTEM,
+    continua: tiposDeSimbolos.CONTINUA,
     de: tiposDeSimbolos.DE,
     e: tiposDeSimbolos.E,
     em: tiposDeSimbolos.EM,
@@ -26,6 +28,8 @@ export const palavrasReservadas = {
     importar: tiposDeSimbolos.IMPORTAR,
     isto: tiposDeSimbolos.ISTO,
     leia: tiposDeSimbolos.LEIA,
+    nao: tiposDeSimbolos.NAO,
+    não: tiposDeSimbolos.NAO,
     nulo: tiposDeSimbolos.NULO,
     ou: tiposDeSimbolos.OU,
     padrao: tiposDeSimbolos.PADRAO,
