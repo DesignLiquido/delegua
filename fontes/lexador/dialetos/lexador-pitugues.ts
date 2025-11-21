@@ -118,9 +118,9 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
         }
     }
 
-    adicionarSimbolo(tipo: any, literal: any = null): void {
+    adicionarSimbolo(tipo: any, literal: any = null, linha: number = null): void {
         const texto: string = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
-        this.simbolos.push(new Simbolo(tipo, texto, literal, this.linha + 1, this.hashArquivo));
+        this.simbolos.push(new Simbolo(tipo, texto, literal, linha || this.linha + 1, this.hashArquivo));
     }
 
     simboloAtual(): string {
@@ -298,8 +298,8 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
             this.avancar();
         }
 
-        const conteudo = this.codigo[linhaAtual].substring(this.inicioSimbolo + 2, ultimoAtual);
-        this.adicionarSimbolo(tiposDeSimbolos.COMENTARIO, conteudo.trim());
+        const conteudo = this.codigo[linhaAtual].substring(this.inicioSimbolo + 2, ultimoAtual + 1);
+        this.adicionarSimbolo(tiposDeSimbolos.COMENTARIO, conteudo.trim(), linhaAtual + 1);
     }
 
     avancarParaProximaLinha(): void {

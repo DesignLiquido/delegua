@@ -114,17 +114,36 @@ describe('Avaliador sintático (Pituguês)', () => {
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
             });
 
-            it('SE ternário', () => {
+            describe('Se ternário', () => {
+                it('Trivial', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var idade = 20',
+                            'var categoria = "Adulto" se idade >= 18 senão "Menor de idade"'
+                        ], -1
+                    );
+                    const retornoAvaliadorSintatico =
+                        avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                });
+            });
+
+            it('Comentário antes de se', () => {
                 const retornoLexador = lexador.mapear(
                     [
-                        'var idade = 20',
-                        'var categoria = "Adulto" se idade >= 18 senão "Menor de idade"'
+                        'var a = 1',
+                        '# Comentário',
+                        'se a > 0:',
+                        '    escreva("Teste")',
+                        '    a = 10',
+                        'escreva(a)'
                     ], -1
                 );
                 const retornoAvaliadorSintatico =
                     avaliadorSintatico.analisar(retornoLexador, -1);
                 expect(retornoAvaliadorSintatico).toBeTruthy();
-                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(4);
             });
         });
         
