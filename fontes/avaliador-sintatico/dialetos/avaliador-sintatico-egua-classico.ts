@@ -301,6 +301,11 @@ export class AvaliadorSintaticoEguaClassico
         return this.chamar();
     }
 
+    /**
+     * A exponenciacão de Égua [é implementada com resolução à esquerda](https://github.com/eguadev/egua/blob/main/src/parser.js#L230). 
+     * Por isso esse dialeto resolve `direito` chamando `unario()`, e não `exponenciacao()` como os demais.
+     * @returns {Binario} A expressão binária na forma do construto `Binario`. 
+     */
     exponenciacao(): Construto {
         let expressao = this.unario();
 

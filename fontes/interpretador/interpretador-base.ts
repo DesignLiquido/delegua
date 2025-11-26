@@ -660,7 +660,8 @@ export class InterpretadorBase implements InterpretadorInterface {
         switch (expressao.operador.tipo) {
             case tiposDeSimbolos.EXPONENCIACAO:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                return Math.pow(valorEsquerdo, valorDireito);
+                const resultadoExponenciacao = Math.pow(valorEsquerdo, valorDireito);
+                return resultadoExponenciacao;
 
             case tiposDeSimbolos.MAIOR:
                 if (
