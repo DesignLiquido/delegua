@@ -148,6 +148,11 @@ export abstract class AvaliadorSintaticoBase
         return this.chamar();
     }
 
+    /**
+     * A exponenciacão é uma exceção na ordem de avaliação (resolve primeiro à direita). 
+     * Por isso `direito` chama `exponenciacao()`, e não `unario()`.
+     * @returns {Binario} A expressão binária na forma do construto `Binario`. 
+     */
     protected exponenciacao(): Construto {
         let expressao = this.unario();
 

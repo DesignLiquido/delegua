@@ -302,8 +302,8 @@ export class AvaliadorSintaticoEguaClassico
     }
 
     /**
-     * A exponenciacão é uma exceção na ordem de avaliação (resolve primeiro à direita). 
-     * Por isso `direito` chama `exponenciacao()`, e não `unario()`.
+     * A exponenciacão de Égua [é implementada com resolução à esquerda](https://github.com/eguadev/egua/blob/main/src/parser.js#L230). 
+     * Por isso esse dialeto resolve `direito` chamando `unario()`, e não `exponenciacao()` como os demais.
      * @returns {Binario} A expressão binária na forma do construto `Binario`. 
      */
     exponenciacao(): Construto {
@@ -311,7 +311,7 @@ export class AvaliadorSintaticoEguaClassico
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EXPONENCIACAO)) {
             const operador = this.simboloAnterior();
-            const direito = this.exponenciacao();
+            const direito = this.unario();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
         }
 
