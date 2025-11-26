@@ -1263,23 +1263,12 @@ export class AvaliadorSintatico
         return this.chamar();
     }
 
-    protected elvis(): Construto {
-        let expressao = this.unario();
-
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ELVIS)) {
-            const direito = this.unario();
-            return new Elvis(this.hashArquivo, expressao, direito);
-        }
-
-        return expressao;
-    }
-
     override exponenciacao(): Construto {
-        let expressao = this.elvis();
+        let expressao = this.unario();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EXPONENCIACAO)) {
             const operador = this.simbolos[this.atual - 1];
-            const direito = this.unario();
+            const direito = this.exponenciacao();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
         }
 
@@ -1491,8 +1480,19 @@ export class AvaliadorSintatico
         return expressao;
     }
 
+    protected elvis(): Construto {
+        let expressao = this.ou();
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ELVIS)) {
+            const direito = this.ou();
+            return new Elvis(this.hashArquivo, expressao, direito);
+        }
+
+        return expressao;
+    }
+
     protected seTernario(): Construto {
-        let expressaoOuCondicao = this.ou();
+        let expressaoOuCondicao = this.elvis();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTERROGACAO)) {
             const operador = this.simbolos[this.atual - 1];

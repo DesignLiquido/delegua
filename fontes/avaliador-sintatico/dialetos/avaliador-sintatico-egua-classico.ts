@@ -301,12 +301,17 @@ export class AvaliadorSintaticoEguaClassico
         return this.chamar();
     }
 
+    /**
+     * A exponenciacão é uma exceção na ordem de avaliação (resolve primeiro à direita). 
+     * Por isso `direito` chama `exponenciacao()`, e não `unario()`.
+     * @returns {Binario} A expressão binária na forma do construto `Binario`. 
+     */
     exponenciacao(): Construto {
         let expressao = this.unario();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EXPONENCIACAO)) {
             const operador = this.simboloAnterior();
-            const direito = this.unario();
+            const direito = this.exponenciacao();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
         }
 
