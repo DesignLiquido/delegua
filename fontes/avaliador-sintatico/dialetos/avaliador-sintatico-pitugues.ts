@@ -86,7 +86,6 @@ import primitivasNumero from '../../bibliotecas/primitivas-numero';
 import primitivasTexto from '../../bibliotecas/primitivas-texto';
 import primitivasVetor from '../../bibliotecas/primitivas-vetor';
 
-
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
@@ -885,7 +884,7 @@ export class AvaliadorSintaticoPitugues
                 espacosIndentacaoLinhaAtual = this.pragmas[simboloAtual.linha].espacosIndentacao;
             }
         }
-        this.analisarTextoDeDocumentacao()
+        declaracoes.push(this.analisarTextoDeDocumentacao());
         this.pilhaEscopos.removerUltimo();
         return declaracoes;
     }
@@ -1464,8 +1463,9 @@ export class AvaliadorSintaticoPitugues
         }
 
         this.consumir(tiposDeSimbolos.DOIS_PONTOS, `Esperado ':' antes do escopo do ${tipo}.`);
-
+        const documentacao = this.analisarTextoDeDocumentacao();
         const corpo = this.blocoEscopo();
+        
         tipoRetorno = logicaValidacaoRetornoFuncao(
             this,
             corpo,
@@ -1480,7 +1480,8 @@ export class AvaliadorSintaticoPitugues
             parametros,
             corpo,
             tipoRetorno,
-            definicaoExplicitaDeTipo
+            definicaoExplicitaDeTipo,
+            documentacao
         );
     }
 
@@ -1489,7 +1490,6 @@ export class AvaliadorSintaticoPitugues
             tiposDeSimbolos.IDENTIFICADOR,
             'Esperado nome da classe.'
         );
-        this.analisarTextoDeDocumentacao();
 
         let superClasse = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
