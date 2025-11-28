@@ -99,13 +99,65 @@ describe('Lexador (Pituguês)', () => {
             it('Vetor (Lista de Compreensão)', () => {
                 const resultado = lexador.mapear(
                     [
-                    'var lista = [1, 2, 3, 4, 5]',
-                    'var minhaListaCompreensao = [x para cada x em lista se x % 2 == 0] # Lista de compreensão para números pares'
-                    ], 
+                        'var lista = [1, 2, 3, 4, 5]',
+                        'var minhaListaCompreensao = [x para cada x em lista se x % 2 == 0] # Lista de compreensão para números pares'
+                    ],
                     -1
                 );
 
                 expect(resultado).toBeTruthy();
+            });
+
+            it('docstrings simples com aspas duplas', async () => {
+                const codigo = [
+                    'classe Cachorro:',
+                    '    """',
+                    '    Esta é uma docstring de exemplo.',
+                    '    """',
+                    '    latir():',
+                    "        escreva('Au Au!')",
+                    'ex = Cachorro()',
+                    'ex.latir()',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                expect(retornoLexador.erros).toHaveLength(0);
+                expect(retornoLexador.simbolos).toHaveLength(22);
+            });
+
+            it('docstrings simples com aspas simples', async () => {
+                const codigo = [
+                    'classe Gato:',
+                    "    '''",
+                    '    Esta é uma docstring de exemplo.',
+                    "    '''",
+                    '    miar():',
+                    "        escreva('Miau!')",
+                    'ex = Gato()',
+                    'ex.miar()',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                expect(retornoLexador.erros).toHaveLength(0);
+                expect(retornoLexador.simbolos).toHaveLength(22);
+            });
+
+            it('Docstrings em métodos e classes', async () => {
+                const codigo = [
+                    'classe Pessoa:',
+                    '    """',
+                    '    Esta é a docstring da classe Pessoa.',
+                    '    """',
+                    '    saudacao():',
+                    '        """',
+                    '        Esta é a docstring do método saudacao.',
+                    '        """',
+                    '        escreva("Olá!")',
+                    '',
+                    'p = Pessoa()',
+                    'p.saudacao()',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                expect(retornoLexador.erros).toHaveLength(0);
+                expect(retornoLexador.simbolos).toHaveLength(23);
             });
         });
 

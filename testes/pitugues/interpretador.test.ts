@@ -1224,6 +1224,8 @@ describe('Interpretador (Pituguês)', () => {
             expect(_saidas[0]).toBe('Meu nome é Maria e eu tenho 30 anos.');
         });
 
+
+        
         describe('Cenários de falha', () => {
             describe('Acesso a variáveis e objetos', () => {
                 it('Acesso a elementos de vetor', async () => {

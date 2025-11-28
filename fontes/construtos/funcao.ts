@@ -1,4 +1,4 @@
-import { Declaracao } from '../declaracoes';
+import { Comentario, Declaracao } from '../declaracoes';
 import { VisitanteComumInterface, ParametroInterface } from '../interfaces';
 import { Construto } from './construto';
 
@@ -17,7 +17,8 @@ export class FuncaoConstruto implements Construto {
         parametros: ParametroInterface[],
         corpo: Declaracao[],
         tipoRetorno?: string,
-        tipoExplicito?: boolean
+        tipoExplicito?: boolean,
+        documentacao?: Comentario,
     ) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
@@ -26,6 +27,7 @@ export class FuncaoConstruto implements Construto {
         this.corpo = corpo;
         this.tipo = tipoRetorno;
         this.tipoExplicito = tipoExplicito || false;
+
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
