@@ -5,7 +5,7 @@ import { ErroLexador } from './erro-lexador';
 import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
 import { Simbolo } from './simbolo';
 
-import { palavrasReservadas } from './palavras-reservadas';
+import { palavrasReservadasDelegua } from './palavras-reservadas';
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
 /**
@@ -231,8 +231,8 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
         const codigo: string = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
 
         const tipo: string =
-            codigo in palavrasReservadas
-                ? palavrasReservadas[codigo]
+            codigo in palavrasReservadasDelegua
+                ? palavrasReservadasDelegua[codigo]
                 : tiposDeSimbolos.IDENTIFICADOR;
 
         this.adicionarSimbolo(tipo);

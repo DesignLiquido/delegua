@@ -27,4 +27,8 @@ export class ImportarComoConstruto implements Construto {
     paraTexto(): string {
         return `<importar-como-construto caminho=${this.caminho.valor} />`;
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

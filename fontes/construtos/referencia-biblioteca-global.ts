@@ -23,4 +23,8 @@ export class ReferenciaBibliotecaGlobal implements Construto {
     paraTexto(): string {
         return `<referência-biblioteca-global nome=${this.nome} />`;
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

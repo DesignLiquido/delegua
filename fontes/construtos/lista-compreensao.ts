@@ -35,4 +35,8 @@ export class ListaCompreensao implements Construto {
     paraTexto(): string {
         return `<lista-compreensão />`;
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

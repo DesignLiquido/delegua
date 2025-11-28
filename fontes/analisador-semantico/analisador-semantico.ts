@@ -664,6 +664,14 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         return Promise.resolve(null);
     }
 
+    visitarExpressaoDeVariavel(expressao: Variavel | Construto): Promise<any> {
+        if (expressao instanceof Variavel) {
+            return this.verificarVariavel(expressao);
+        }
+        
+        return Promise.resolve();
+    }
+
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> {
         if (declaracao.funcao.tipo === undefined) {
             this.erro(declaracao.simbolo, `Declaração de retorno da função é inválido.`);

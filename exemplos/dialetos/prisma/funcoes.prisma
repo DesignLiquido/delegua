@@ -1,0 +1,31 @@
+// Exemplo de funções em Prisma
+
+// Função simples
+funcao saudacao(nome)
+    retorne "Olá, " + nome + "!";
+fim
+
+// Função com parâmetros padrão
+funcao calcularArea(largura, altura)
+    retorne largura * altura;
+fim
+
+// Função recursiva - fibonacci
+funcao fibonacci(n)
+    se (n <= 1) entao
+        retorna n;
+    senao
+        retorna fibonacci(n - 1) + fibonacci(n - 2);
+    fim
+fim
+
+// Testando as funções
+local mensagem = saudacao("Maria");
+imprima(mensagem);
+
+local area1 = calcularArea(5, 3);
+local area2 = calcularArea(4); // usa altura padrão
+imprima("Área 1:", area1);
+imprima("Área 2:", area2);
+
+imprima("Fibonacci de 6:", fibonacci(6));

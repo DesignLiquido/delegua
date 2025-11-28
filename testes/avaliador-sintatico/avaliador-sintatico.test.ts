@@ -1,7 +1,7 @@
 import { Lexador } from '../../fontes/lexador';
 import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
 import { Bloco, Classe, Const, Escreva, Expressao, FuncaoDeclaracao, Importar, ParaCada, Retorna, TendoComo, Var } from '../../fontes/declaracoes';
-import { Binario, Chamada, Elvis, FuncaoConstruto, Leia, Literal, SeTernario, Variavel } from '../../fontes/construtos';
+import { Binario, Chamada, Elvis, FuncaoConstruto, Leia, Literal, Logico, SeTernario, Variavel } from '../../fontes/construtos';
 
 describe('Avaliador sintático', () => {
     describe('analisar()', () => {
@@ -105,8 +105,6 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 });
             });
-
-            
 
             describe('Classes, propriedades e métodos', () => {
                 it('Trivial', () => {
@@ -757,6 +755,44 @@ describe('Avaliador sintático', () => {
                     const escreva = retornoAvaliadorSintatico.declaracoes[1] as Escreva;
                     expect(escreva.argumentos).toHaveLength(1);
                     expect(escreva.argumentos[0].constructor).toBe(Elvis);
+                });
+
+                it('Contém', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var a = [1, 2, 3, 4, 5]',
+                            'escreva(a contém 3)'
+                        ], 
+                    -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                    expect(retornoAvaliadorSintatico.declaracoes[1].constructor).toBe(Escreva);
+                    const escreva = retornoAvaliadorSintatico.declaracoes[1] as Escreva;
+                    expect(escreva.argumentos).toHaveLength(1);
+                    expect(escreva.argumentos[0].constructor).toBe(Logico);
+                });
+
+                it('Não contém', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var a = [1, 2, 3, 4, 5]',
+                            'escreva(a não contém 3)'
+                        ], 
+                    -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                    expect(retornoAvaliadorSintatico.declaracoes[1].constructor).toBe(Escreva);
+                    const escreva = retornoAvaliadorSintatico.declaracoes[1] as Escreva;
+                    expect(escreva.argumentos).toHaveLength(1);
+                    expect(escreva.argumentos[0].constructor).toBe(Logico);
+                    const contem = escreva.argumentos[0] as Logico;
+                    expect(contem.negado).toBe(true);
                 });
             });
 

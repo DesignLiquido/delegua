@@ -29,6 +29,7 @@ import {
     ImportarComoConstruto,
     Elvis,
     SeTernario,
+    Tupla,
 } from '../construtos';
 import {
     DeleguaFuncao,
@@ -166,6 +167,13 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         return objeto;
     }
 
+    private serializarSemEspacos(objeto: any): string {
+        return JSON
+            .stringify(objeto)
+            .replace(/,\s+/g, ',')
+            .replace(/:\s+/g, ':');
+    }
+
     override paraTexto(objeto: any): string {
         if (objeto === null || objeto === undefined) return tipoDeDadosDelegua.NULO;
         if (typeof objeto === tipoDeDadosPrimitivos.BOOLEANO) {
@@ -173,6 +181,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         }
 
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
+        if (objeto instanceof Literal || objeto instanceof Tupla) return objeto.paraTextoSaida();
         if (objeto instanceof ObjetoDeleguaClasse || objeto instanceof DeleguaFuncao)
             return objeto.paraTexto();
 
@@ -191,8 +200,13 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         if (Array.isArray(objeto)) {
             let retornoVetor: string = '[';
             for (let elemento of objeto) {
+                if (elemento instanceof Tupla) {
+                    retornoVetor += elemento.paraTextoSaida() + ', ';
+                    continue;
+                }
+
                 if (typeof elemento === 'object') {
-                    retornoVetor += `${JSON.stringify(elemento)}, `;
+                    retornoVetor += `${this.serializarSemEspacos(elemento)}, `;
                     continue;
                 }
                 retornoVetor +=
@@ -453,10 +467,12 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
         // Se até aqui vetor resolvido é um dicionário, converte dicionário
         // para vetor de duplas.
-        // TODO: Converter elementos para `Construto` se necessário.
         if (paraCada.vetorOuDicionario.tipo === 'dicionário') {
             valorVetorOuDicionarioResolvido = Object.entries(valorVetorOuDicionarioResolvido).map(
-                (v) => new Dupla(v[0] as any, v[1] as any)
+                (v) => new Dupla(
+                    new Literal(paraCada.hashArquivo, paraCada.linha, v[0], 'texto'),
+                    new Literal(paraCada.hashArquivo, paraCada.linha, v[1], inferirTipoVariavel(v[1]) as any)
+                )
             );
         }
 
@@ -780,13 +796,6 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         // Objeto simples do JavaScript, ou dicionário de Delégua.
         if (objeto.constructor === Object) {
             if (expressao.simbolo.lexema in primitivasDicionario) {
-                if (!(expressao.simbolo.lexema in primitivasNumero)) {
-                    throw new ErroEmTempoDeExecucao(
-                        expressao.simbolo,
-                        `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo dicionário.`
-                    );
-                }
-
                 const metodoDePrimitivaDicionario: Function =
                     primitivasDicionario[expressao.simbolo.lexema].implementacao;
                 return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario);

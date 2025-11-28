@@ -8,6 +8,7 @@ import { DeleguaFuncao } from '../interpretador/estruturas';
 import {
     Deceto,
     Dupla,
+    Literal,
     Noneto,
     Octeto,
     Quarteto,
@@ -19,6 +20,7 @@ import {
 } from '../construtos';
 import { Simbolo } from '../lexador';
 import { RetornoQuebra } from '../quebras';
+import { inferirTipoVariavel } from '../inferenciador';
 
 /**
  * Retorna um número aleatório entre 0 e 1.
@@ -1326,86 +1328,100 @@ export async function tupla(
 
     switch (valorVetor.length) {
         case 2:
-            return Promise.resolve(new Dupla(valorVetor[0], valorVetor[1]));
+            return Promise.resolve(
+                new Dupla(
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[0], inferirTipoVariavel(valorVetor[0]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[1], inferirTipoVariavel(valorVetor[1]) as any),
+                )
+            );
         case 3:
-            return Promise.resolve(new Trio(valorVetor[0], valorVetor[1], valorVetor[2]));
+            return Promise.resolve(new Trio(
+                new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[0], inferirTipoVariavel(valorVetor[0]) as any),
+                new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[1], inferirTipoVariavel(valorVetor[1]) as any),
+                new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[2], inferirTipoVariavel(valorVetor[2]) as any),
+            ));
         case 4:
             return Promise.resolve(
-                new Quarteto(valorVetor[0], valorVetor[1], valorVetor[2], valorVetor[3])
+                new Quarteto(
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[0], inferirTipoVariavel(valorVetor[0]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[1], inferirTipoVariavel(valorVetor[1]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[2], inferirTipoVariavel(valorVetor[2]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[3], inferirTipoVariavel(valorVetor[3]) as any),
+                )
             );
         case 5:
             return Promise.resolve(
                 new Quinteto(
-                    valorVetor[0],
-                    valorVetor[1],
-                    valorVetor[2],
-                    valorVetor[3],
-                    valorVetor[4]
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[0], inferirTipoVariavel(valorVetor[0]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[1], inferirTipoVariavel(valorVetor[1]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[2], inferirTipoVariavel(valorVetor[2]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[3], inferirTipoVariavel(valorVetor[3]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[4], inferirTipoVariavel(valorVetor[4]) as any),
                 )
             );
         case 6:
             return Promise.resolve(
                 new Sexteto(
-                    valorVetor[0],
-                    valorVetor[1],
-                    valorVetor[2],
-                    valorVetor[3],
-                    valorVetor[4],
-                    valorVetor[5]
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[0], inferirTipoVariavel(valorVetor[0]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[1], inferirTipoVariavel(valorVetor[1]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[2], inferirTipoVariavel(valorVetor[2]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[3], inferirTipoVariavel(valorVetor[3]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[4], inferirTipoVariavel(valorVetor[4]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[5], inferirTipoVariavel(valorVetor[5]) as any),
                 )
             );
         case 7:
             return Promise.resolve(
                 new Septeto(
-                    valorVetor[0],
-                    valorVetor[1],
-                    valorVetor[2],
-                    valorVetor[3],
-                    valorVetor[4],
-                    valorVetor[5],
-                    valorVetor[6]
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[0], inferirTipoVariavel(valorVetor[0]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[1], inferirTipoVariavel(valorVetor[1]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[2], inferirTipoVariavel(valorVetor[2]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[3], inferirTipoVariavel(valorVetor[3]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[4], inferirTipoVariavel(valorVetor[4]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[5], inferirTipoVariavel(valorVetor[5]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[6], inferirTipoVariavel(valorVetor[6]) as any),
                 )
             );
         case 8:
             return Promise.resolve(
                 new Octeto(
-                    valorVetor[0],
-                    valorVetor[1],
-                    valorVetor[2],
-                    valorVetor[3],
-                    valorVetor[4],
-                    valorVetor[5],
-                    valorVetor[6],
-                    valorVetor[7]
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[0], inferirTipoVariavel(valorVetor[0]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[1], inferirTipoVariavel(valorVetor[1]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[2], inferirTipoVariavel(valorVetor[2]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[3], inferirTipoVariavel(valorVetor[3]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[4], inferirTipoVariavel(valorVetor[4]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[5], inferirTipoVariavel(valorVetor[5]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[6], inferirTipoVariavel(valorVetor[6]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[7], inferirTipoVariavel(valorVetor[7]) as any),
                 )
             );
         case 9:
             return Promise.resolve(
                 new Noneto(
-                    valorVetor[0],
-                    valorVetor[1],
-                    valorVetor[2],
-                    valorVetor[3],
-                    valorVetor[4],
-                    valorVetor[5],
-                    valorVetor[6],
-                    valorVetor[7],
-                    valorVetor[8]
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[0], inferirTipoVariavel(valorVetor[0]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[1], inferirTipoVariavel(valorVetor[1]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[2], inferirTipoVariavel(valorVetor[2]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[3], inferirTipoVariavel(valorVetor[3]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[4], inferirTipoVariavel(valorVetor[4]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[5], inferirTipoVariavel(valorVetor[5]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[6], inferirTipoVariavel(valorVetor[6]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[7], inferirTipoVariavel(valorVetor[7]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[8], inferirTipoVariavel(valorVetor[8]) as any),
                 )
             );
         case 10:
             return Promise.resolve(
                 new Deceto(
-                    valorVetor[0],
-                    valorVetor[1],
-                    valorVetor[2],
-                    valorVetor[3],
-                    valorVetor[4],
-                    valorVetor[5],
-                    valorVetor[6],
-                    valorVetor[7],
-                    valorVetor[8],
-                    valorVetor[9]
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[0], inferirTipoVariavel(valorVetor[0]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[1], inferirTipoVariavel(valorVetor[1]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[2], inferirTipoVariavel(valorVetor[2]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[3], inferirTipoVariavel(valorVetor[3]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[4], inferirTipoVariavel(valorVetor[4]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[5], inferirTipoVariavel(valorVetor[5]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[6], inferirTipoVariavel(valorVetor[6]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[7], inferirTipoVariavel(valorVetor[7]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[8], inferirTipoVariavel(valorVetor[8]) as any),
+                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[9], inferirTipoVariavel(valorVetor[9]) as any),
                 )
             );
         case 1:

@@ -27,4 +27,8 @@ export class Elvis implements Construto {
             `/>`
         );
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

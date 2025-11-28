@@ -21,4 +21,8 @@ export class Trio extends Tupla {
             ` />`
         );
     }
+
+    paraTextoSaida(): string {
+        return `[(${this.primeiro.paraTextoSaida()}, ${this.segundo.paraTextoSaida()}, ${this.terceiro.paraTextoSaida()})]`;
+    }
 }

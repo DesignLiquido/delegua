@@ -21,4 +21,8 @@ export class Isto implements Construto {
     paraTexto(): string {
         return `<isto />`;
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

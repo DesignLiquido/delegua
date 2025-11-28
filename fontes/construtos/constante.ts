@@ -25,4 +25,8 @@ export class Constante<TTipoSimbolo extends string = string> implements Construt
     paraTexto(): string {
         return `<constante nome=${this.simbolo.lexema} />`;
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

@@ -38,4 +38,8 @@ export class AcessoIndiceVariavel<TTipoSimbolo extends string = string> implemen
             `/>`
         );
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

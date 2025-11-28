@@ -28,4 +28,8 @@ export class Agrupamento implements Construto {
     paraTexto(): string {
         return `<agrupamento subExpressão=${this.expressao.paraTexto()} tipo=${this.tipo} />`;
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

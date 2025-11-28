@@ -94,6 +94,7 @@ describe('Lexador (Pituguês)', () => {
                     );
                 });
             });
+            
 
             it('Vetor (Lista de Compreensão)', () => {
                 const resultado = lexador.mapear(
