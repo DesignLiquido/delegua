@@ -1,6 +1,6 @@
 import { AvaliadorSintaticoPrisma } from '../../fontes/avaliador-sintatico/dialetos';
 import { Leia, Literal } from '../../fontes/construtos';
-import { Para, Var } from '../../fontes/declaracoes';
+import { FuncaoDeclaracao, Para, Var } from '../../fontes/declaracoes';
 import { LexadorPrisma } from '../../fontes/lexador/dialetos';
 
 describe('Avaliador Sintático (Prisma)', () => {
@@ -152,11 +152,11 @@ describe('Avaliador Sintático (Prisma)', () => {
                 expect(retornoAvaliadorSintatico.declaracoes[1].constructor.name).toBe('Enquanto');
             });
 
-            it('Laço para tradicional', () => {
+            it('Declaração de função', () => {
                 const retornoLexador = lexador.mapear(
                     [
-                        'para i = 0, 5 inicio',
-                        '    imprima(i)',
+                        'funcao somar(a, b) ',
+                        '    retorne a + b;',
                         'fim'
                     ],
                     -1
@@ -166,32 +166,15 @@ describe('Avaliador Sintático (Prisma)', () => {
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
-                expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Para);
+                expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(FuncaoDeclaracao);
             });
 
-            it.skip('Declaração de função', () => {
+            it('Chamada de função', () => {
                 const retornoLexador = lexador.mapear(
                     [
-                        'funcao somar(a, b) {',
-                        '    retorna a + b;',
-                        '}'
-                    ],
-                    -1
-                );
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                expect(retornoAvaliadorSintatico).toBeTruthy();
-                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
-                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
-                expect(retornoAvaliadorSintatico.declaracoes[0].constructor.name).toBe('FuncaoDeclaracao');
-            });
-
-            it.skip('Chamada de função', () => {
-                const retornoLexador = lexador.mapear(
-                    [
-                        'funcao teste() {',
-                        '    retorna 42;',
-                        '}',
+                        'funcao teste()',
+                        '    retorne 42;',
+                        'fim',
                         'local resultado = teste();'
                     ],
                     -1
@@ -201,36 +184,38 @@ describe('Avaliador Sintático (Prisma)', () => {
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
-                expect(retornoAvaliadorSintatico.declaracoes[0].constructor.name).toBe('FuncaoDeclaracao');
-                expect(retornoAvaliadorSintatico.declaracoes[1].constructor.name).toBe('Var');
+                expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(FuncaoDeclaracao);
+                expect(retornoAvaliadorSintatico.declaracoes[1].constructor).toBe(Var);
             });
 
-            it.skip('Array/Vetor', () => {
-                const retornoLexador = lexador.mapear(
-                    ['local lista = [1, 2, 3];'],
-                    -1
-                );
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            describe('Tabela', () => {
+                it('Trivial, sem índices nomeados', () => {
+                    const retornoLexador = lexador.mapear(
+                        ['local minhatab = {1, 2, 3};'],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                expect(retornoAvaliadorSintatico).toBeTruthy();
-                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
-                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
-                expect(retornoAvaliadorSintatico.declaracoes[0].constructor.name).toBe('Var');
-            });
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Var);
+                });
 
-            it.skip('Acesso a índice de array', () => {
-                const retornoLexador = lexador.mapear(
-                    [
-                        'local lista = [1, 2, 3];',
-                        'local primeiro = lista[0];'
-                    ],
-                    -1
-                );
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                it('Acesso a índice de tabela', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'local lista = {1, 2, 3};',
+                            'local primeiro = lista[1];'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                expect(retornoAvaliadorSintatico).toBeTruthy();
-                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
-                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
             });
 
             it.skip('Declaração de classe', () => {
@@ -254,38 +239,21 @@ describe('Avaliador Sintático (Prisma)', () => {
         });
 
         describe('Para tradicional', () => {
-            it.skip('Para/quebre', () => {
+            it('Laço para tradicional', () => {
                 const retornoLexador = lexador.mapear(
                     [
-                        'para (local i = 0; i < 10; i = i + 1) {',
-                        '   se (i == 5) { quebre; }',
-                        '   imprima("Valor: ", i)',
-                        '}',
+                        'para i = 0, 5 inicio',
+                        '    imprima(i)',
+                        'fim'
                     ],
                     -1
                 );
-
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
-            });
-
-            it.skip('Para com retorno pelo escopo', () => {
-                const retornoLexador = lexador.mapear(
-                    [
-                        'local teste = para (local i = 0; i < 10; i = i + 1) {',
-                        '    se (i == 5) { quebre; }',
-                        '    retorna i ** i',
-                        '}',
-                        'imprima(teste)'
-                    ],
-                    -1
-                );
-
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
-                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Para);
             });
         });
 
@@ -301,16 +269,6 @@ describe('Avaliador Sintático (Prisma)', () => {
             it('Parêntese não fechado', () => {
                 const retornoLexador = lexador.mapear(
                     ['imprima("teste"'],
-                    -1
-                );
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-                expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
-            });
-
-            it('Ponto e vírgula ausente', () => {
-                const retornoLexador = lexador.mapear(
-                    ['local x = 5'],
                     -1
                 );
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);

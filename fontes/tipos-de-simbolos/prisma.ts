@@ -61,7 +61,7 @@ export default {
     PONTO: 'PONTO',
     PONTO_E_VIRGULA: 'PONTO_E_VIRGULA',
     QUEBRA_LINHA: 'QUEBRA_LINHA',
-    RETORNA: 'RETORNA',
+    RETORNE: 'RETORNE',
     SE: 'SE',
     SENAO: 'SENAO',
     SENÃO: 'SENÃO',

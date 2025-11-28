@@ -18,9 +18,9 @@ import {
     Super,
     Unario,
     Variavel,
-    Vetor,
     Leia,
-    FimPara
+    FimPara,
+    ImportarComoConstruto
 } from '../../construtos';
 import {
     Escreva,
@@ -57,6 +57,7 @@ import {
     registrarPrimitiva,
 } from '../comum';
 import { InformacaoElementoSintatico } from '../../informacao-elemento-sintatico';
+import { Simbolo } from '../../lexador';
 
 import tiposDeDadosPrisma from '../../tipos-de-dados/dialetos/prisma';
 import tiposDeSimbolos from '../../tipos-de-simbolos/prisma';
@@ -65,7 +66,6 @@ import primitivasDicionario from '../../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../../bibliotecas/primitivas-numero';
 import primitivasTexto from '../../bibliotecas/primitivas-texto';
 import primitivasVetor from '../../bibliotecas/primitivas-vetor';
-import { Simbolo } from '../../lexador';
 
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -118,7 +118,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
                 case tiposDeSimbolos.SE:
                 case tiposDeSimbolos.ENQUANTO:
                 case tiposDeSimbolos.IMPRIMA:
-                case tiposDeSimbolos.RETORNA:
+                case tiposDeSimbolos.RETORNE:
                     return;
             }
 
@@ -204,6 +204,8 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
                         throw this.erro(simboloAtual, 'Terminar.');
                 }
             case tiposDeSimbolos.CHAVE_ESQUERDA:
+                // Prisma tem o conceito de tabela, que não é exatamente um dicionário, mas é próximo.
+                // Aqui, vamos tratar como dicionário para simplificar.
                 this.avancarEDevolverAnterior();
                 const chaves = [];
 
@@ -211,21 +213,22 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
                     return new Dicionario(this.hashArquivo, simboloAtual.linha, [], []);
                 }
 
-                while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA)) {
-                    const chave = this.atribuir();
-                    this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' entre chave e valor.");
-                    const valor = this.atribuir();
+                let indice = 1;
+                do {
+                    let chave: string = String(indice);
+                    if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
+                        // Lógica para índice nomeado
+                        // TODO: Terminar
+                    }
+
+                    const valor = this.ou();
 
                     chaves.push(chave);
                     valores.push(valor);
+                    indice++;
+                } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
-                    if (this.simboloAtual().tipo !== tiposDeSimbolos.CHAVE_DIREITA) {
-                        this.consumir(
-                            tiposDeSimbolos.VIRGULA,
-                            'Esperado vírgula antes da próxima expressão.'
-                        );
-                    }
-                }
+                this.consumir(tiposDeSimbolos.CHAVE_DIREITA, `Esperado fechamento de chave em tabela.`);
 
                 return new Dicionario(this.hashArquivo, simboloAtual.linha, chaves, valores);
             case tiposDeSimbolos.FALSO:
@@ -247,7 +250,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
                 );
                 return corpoDaFuncao;
             case tiposDeSimbolos.IMPORTAR:
-                return this.declaracaoImportar();
+                return this.expressaoImportar();
             case tiposDeSimbolos.NULO:
                 this.avancarEDevolverAnterior();
                 return new Literal(this.hashArquivo, simboloAtual.linha, null);
@@ -296,6 +299,10 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         }
 
         throw this.erro(this.simboloAtual(), 'Esperado expressão.');
+    }
+
+    expressaoImportar(): ImportarComoConstruto {
+        throw new Error('Método não implementado.');
     }
 
     /**
@@ -902,7 +909,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.SE:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoSe();
-            case tiposDeSimbolos.RETORNA:
+            case tiposDeSimbolos.RETORNE:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoRetorna();
             case tiposDeSimbolos.LOCAL:

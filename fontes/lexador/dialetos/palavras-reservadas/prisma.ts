@@ -30,7 +30,7 @@ export const palavrasReservadas = {
     para: tiposDeSimbolos.PARA,
     cada: tiposDeSimbolos.CADA,
     pegue: tiposDeSimbolos.PEGUE,
-    retorna: tiposDeSimbolos.RETORNA,
+    retorne: tiposDeSimbolos.RETORNE,
     se: tiposDeSimbolos.SE,
     senao: tiposDeSimbolos.SENAO,
     senão: tiposDeSimbolos.SENÃO,

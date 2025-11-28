@@ -75,7 +75,7 @@ describe('Lexador (Prisma)', () => {
 
             it('Declaração de função', () => {
                 const resultado = lexador.mapear(
-                    ['funcao teste() { retorna 42; }'],
+                    ['funcao teste() retorne 42; fim'],
                     -1
                 );
 
@@ -86,11 +86,10 @@ describe('Lexador (Prisma)', () => {
                         expect.objectContaining({ tipo: 'IDENTIFICADOR' }),
                         expect.objectContaining({ tipo: 'PARENTESE_ESQUERDO' }),
                         expect.objectContaining({ tipo: 'PARENTESE_DIREITO' }),
-                        expect.objectContaining({ tipo: 'CHAVE_ESQUERDA' }),
-                        expect.objectContaining({ tipo: 'RETORNA' }),
+                        expect.objectContaining({ tipo: 'RETORNE' }),
                         expect.objectContaining({ tipo: 'NUMERO' }),
                         expect.objectContaining({ tipo: 'PONTO_E_VIRGULA' }),
-                        expect.objectContaining({ tipo: 'CHAVE_DIREITA' }),
+                        expect.objectContaining({ tipo: 'FIM' }),
                     ])
                 );
             });
