@@ -40,4 +40,8 @@ export class AcessoMetodoOuPropriedade<TTipoSimbolo extends string = string> imp
             `/>`
         );
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

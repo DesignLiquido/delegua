@@ -29,4 +29,8 @@ export class ReferenciaFuncao implements Construto {
     paraTexto(): string {
         return `<referência-função nome=${this.simboloFuncao.lexema} tipo=${this.tipo} />`;
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

@@ -262,11 +262,11 @@ export default {
         exemploCodigo: 'texto.fatiar(início, final)\n' + 'texto.fatiar(aPartirDaPosicao)',
     },
     inclui: {
-        tipoRetorno: 'texto',
+        tipoRetorno: 'lógico',
         argumentos: [
             new InformacaoElementoSintatico(
                 'elemento',
-                'texto',
+                'lógico',
                 true,
                 [],
                 'O elemento a ser verificado se está contido no texto.'

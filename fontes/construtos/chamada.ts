@@ -31,4 +31,8 @@ export class Chamada implements Construto {
         // TODO: Argumentos
         return `<chamada entidadeChamada=${this.entidadeChamada.paraTexto()} />`;
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

@@ -25,4 +25,8 @@ export class Dicionario implements Construto {
     paraTexto(): string {
         return `<dicionário chaves=${this.chaves} valores=${this.valores} />`;
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

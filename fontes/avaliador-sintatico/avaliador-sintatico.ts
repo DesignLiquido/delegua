@@ -376,7 +376,7 @@ export class AvaliadorSintatico
     }
 
     protected paraTradicionalComoConstruto(simboloPara: SimboloInterface) {
-        const { inicializador, condicao, incrementar, corpo } = this.logicaComumPara(simboloPara);
+        const { inicializador, condicao, incrementar, corpo } = this.logicaComumPara();
 
         return new ParaComoConstruto(
             simboloPara.hashArquivo,
@@ -430,11 +430,11 @@ export class AvaliadorSintatico
         const localizacaoVetor = this.simboloAnterior();
         const vetor = this.ou();
 
-        let condicao: Construto | null = null;
+        let condicao: Construto | Declaracao | null = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SE)) {
             condicao = this.expressao();
         } else {
-            condicao = new Expressao(new Literal(this.hashArquivo, Number(localizacaoVetor.linha), true));
+            condicao = new Literal(this.hashArquivo, Number(localizacaoVetor.linha), true);
         }
 
         this.consumir(
@@ -877,10 +877,8 @@ export class AvaliadorSintatico
                 return this.resolverCadeiaChamadas(chamada);
             case tiposDeSimbolos.PONTO:
                 this.avancarEDevolverAnterior();
-                const nome = this.consumir(
-                    tiposDeSimbolos.IDENTIFICADOR,
-                    "Esperado nome de método ou propriedade após '.'."
-                );
+                this.verificarSeSimboloAtualEIgualA()
+                const nome = this.avancarEDevolverAnterior();
 
                 let tipoInferido = expressaoAnterior.tipo;
                 // Se não for um dicionário anônimo (ou seja, ser variável ou constante com nome)
@@ -1249,6 +1247,7 @@ export class AvaliadorSintatico
     override unario(): Construto {
         if (
             this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.NAO,
                 tiposDeSimbolos.NEGACAO,
                 tiposDeSimbolos.SUBTRACAO,
                 tiposDeSimbolos.BIT_NOT,
@@ -1264,23 +1263,17 @@ export class AvaliadorSintatico
         return this.chamar();
     }
 
-    protected elvis(): Construto {
-        let expressao = this.unario();
-
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ELVIS)) {
-            const direito = this.unario();
-            return new Elvis(this.hashArquivo, expressao, direito);
-        }
-
-        return expressao;
-    }
-
+    /**
+     * A exponenciacão é uma exceção na ordem de avaliação (resolve primeiro à direita). 
+     * Por isso `direito` chama `exponenciacao()`, e não `unario()`.
+     * @returns {Binario} A expressão binária na forma do construto `Binario`. 
+     */
     override exponenciacao(): Construto {
-        let expressao = this.elvis();
+        let expressao = this.unario();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EXPONENCIACAO)) {
             const operador = this.simbolos[this.atual - 1];
-            const direito = this.unario();
+            const direito = this.exponenciacao();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
         }
 
@@ -1464,10 +1457,17 @@ export class AvaliadorSintatico
     override em(): Construto {
         let expressao = this.comparacaoIgualdade();
 
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EM)) {
-            const operador = this.simbolos[this.atual - 1];
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EM, tiposDeSimbolos.CONTEM, tiposDeSimbolos.NAO)) {
+            let operador = this.simbolos[this.atual - 1];
+            let negado = false;
+            if (operador.tipo === tiposDeSimbolos.NAO) {
+                operador = this.consumir(tiposDeSimbolos.CONTEM, `Esperado palavra reservada 'contém' ou 'contem' após palavra reservada ${operador.lexema}.`);
+                negado = true;
+            }
+
             const direito = this.comparacaoIgualdade();
             expressao = new Logico(this.hashArquivo, expressao, operador, direito);
+            (expressao as Logico).negado = negado;
         }
 
         return expressao;
@@ -1485,8 +1485,19 @@ export class AvaliadorSintatico
         return expressao;
     }
 
+    protected elvis(): Construto {
+        let expressao = this.ou();
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ELVIS)) {
+            const direito = this.ou();
+            return new Elvis(this.hashArquivo, expressao, direito);
+        }
+
+        return expressao;
+    }
+
     protected seTernario(): Construto {
-        let expressaoOuCondicao = this.ou();
+        let expressaoOuCondicao = this.elvis();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTERROGACAO)) {
             const operador = this.simbolos[this.atual - 1];
@@ -2036,19 +2047,19 @@ export class AvaliadorSintatico
             );
         }
 
-        let vetor = this.expressao();
+        let vetorOuDicionario = this.expressao();
 
-        if (vetor.constructor === AcessoIndiceVariavel) {
-            const construtoAcessoIndiceVariavel = vetor as AcessoIndiceVariavel;
+        if (vetorOuDicionario.constructor === AcessoIndiceVariavel) {
+            const construtoAcessoIndiceVariavel = vetorOuDicionario as AcessoIndiceVariavel;
             if (construtoAcessoIndiceVariavel.entidadeChamada.tipo === 'dicionário') {
                 // A avaliação sintática não deve verificar valores de dicionários.
                 // Aqui se supõe que o programador sabe o que está fazendo.
                 // TODO: Talvez pensar numa forma melhor de fazer isso.
-                (vetor as any).tipo = 'vetor';
+                (vetorOuDicionario as any).tipo = 'vetor';
             }
         }
 
-        const tipoVetor = (vetor as any).tipo as string;
+        const tipoVetor = (vetorOuDicionario as any).tipo as string;
 
         if (
             !tipoVetor.endsWith('[]') &&
@@ -2074,7 +2085,7 @@ export class AvaliadorSintatico
 
         return {
             variavelIteracao,
-            vetor,
+            vetor: vetorOuDicionario,
             corpo,
         };
     }
@@ -2106,7 +2117,7 @@ export class AvaliadorSintatico
         );
     }
 
-    protected logicaComumPara(simboloPara: SimboloInterface) {
+    protected logicaComumPara() {
         const comParenteses = this.verificarSeSimboloAtualEIgualA(
             tiposDeSimbolos.PARENTESE_ESQUERDO
         );
@@ -2158,7 +2169,7 @@ export class AvaliadorSintatico
     }
 
     protected declaracaoParaTradicional(simboloPara: SimboloInterface): Para {
-        const { inicializador, condicao, incrementar, corpo } = this.logicaComumPara(simboloPara);
+        const { inicializador, condicao, incrementar, corpo } = this.logicaComumPara();
 
         return new Para(
             this.hashArquivo,
@@ -2183,6 +2194,7 @@ export class AvaliadorSintatico
                 tiposDeSimbolos.FUNÇÃO,
                 tiposDeSimbolos.IDENTIFICADOR,
                 tiposDeSimbolos.ISTO,
+                tiposDeSimbolos.NAO,
                 tiposDeSimbolos.NEGACAO,
                 tiposDeSimbolos.NUMERO,
                 tiposDeSimbolos.NULO,

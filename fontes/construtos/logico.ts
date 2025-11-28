@@ -8,6 +8,7 @@ export class Logico<TTipoSimbolo extends string = string> implements Construto {
     esquerda: Construto;
     operador: SimboloInterface<TTipoSimbolo>;
     direita: Construto;
+    negado: boolean = false;
 
     constructor(
         hashArquivo: number,
@@ -33,5 +34,9 @@ export class Logico<TTipoSimbolo extends string = string> implements Construto {
             `direita=${this.direita.paraTexto()} ` +
             `/>`
         );
+    }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
     }
 }

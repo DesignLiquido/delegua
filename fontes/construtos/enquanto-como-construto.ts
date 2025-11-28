@@ -23,4 +23,8 @@ export class EnquantoComoConstruto implements Construto, EnquantoInterface {
     paraTexto(): string {
         return `<enquanto-como-construto />`;
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

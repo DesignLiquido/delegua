@@ -33,4 +33,8 @@ export class SeTernario<TTipoSimbolo extends string = string> implements Constru
     paraTexto(): string {
         return `<se-ternário condicao=${this.condicao.paraTexto()} expressaoSe=${this.expressaoSe.paraTexto()} expressaoSenao=${this.expressaoSenao.paraTexto()} />`;
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

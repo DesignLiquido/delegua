@@ -1,5 +1,7 @@
 // TODO: Marcado para depreciação.
 export type TipoDadosElementar =
+    | 'caracter'
+    | 'caracter[]'
     | 'dicionário'
     | 'função'
     | 'inteiro'
@@ -19,6 +21,5 @@ export type TipoDadosElementar =
     | 'símbolo'
     | 'texto'
     | 'texto[]'
-    | 'caracter'
-    | 'caracter[]'
+    | 'vetor'
     | undefined;

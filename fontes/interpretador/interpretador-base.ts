@@ -394,9 +394,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                 );
             } else {
                 valor = this.resolverValor(valor);
+                const valorResolvidoComoTexto = this.paraTexto(valor);
                 textoFinal = textoFinal.replace(
                     '${' + elemento.expressaoInterpolacao + '}',
-                    `${this.paraTexto(valor)}`
+                    valorResolvidoComoTexto.replace(/"/g, '')
                 );
             }
         }
@@ -659,7 +660,8 @@ export class InterpretadorBase implements InterpretadorInterface {
         switch (expressao.operador.tipo) {
             case tiposDeSimbolos.EXPONENCIACAO:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                return Math.pow(valorEsquerdo, valorDireito);
+                const resultadoExponenciacao = Math.pow(valorEsquerdo, valorDireito);
+                return resultadoExponenciacao;
 
             case tiposDeSimbolos.MAIOR:
                 if (
@@ -1009,26 +1011,40 @@ export class InterpretadorBase implements InterpretadorInterface {
         return await this.avaliar(declaracao.expressao);
     }
 
+    protected logicaContemOuEm(esquerda: any, direita: any, expressao: Logico) {
+        const valorDireitoResolvido = this.resolverValor(direita);
+        if (Array.isArray(valorDireitoResolvido) || typeof valorDireitoResolvido === tipoDeDadosPrimitivos.TEXTO) {
+            const avaliacao = valorDireitoResolvido.includes(esquerda);
+            return expressao.negado ? !avaliacao : avaliacao;
+        } 
+        
+        if (valorDireitoResolvido !== null && typeof valorDireitoResolvido === 'object') {
+            const avaliacao = esquerda in valorDireitoResolvido;
+            return expressao.negado ? !avaliacao : avaliacao;
+        }
+
+        throw new ErroEmTempoDeExecucao(
+            esquerda,
+            `Tipo de chamada inválida com '${expressao.operador.tipo}'.`,
+            expressao.linha
+        );
+    }
+
     async visitarExpressaoLogica(expressao: Logico): Promise<any> {
         const esquerda = await this.avaliar(expressao.esquerda);
 
-        if (expressao.operador.tipo === tiposDeSimbolos.EM) {
+        if ([tiposDeSimbolos.EM, tiposDeSimbolos.CONTEM].includes(expressao.operador.tipo)) {
             const direita = await this.avaliar(expressao.direita);
 
-            if (Array.isArray(direita) || typeof direita === tipoDeDadosPrimitivos.TEXTO) {
-                return direita.includes(esquerda);
-            } else if (direita !== null && typeof direita === 'object') {
-                return (
-                    esquerda in direita ||
-                    (direita.valor !== undefined && esquerda in direita.valor)
-                );
+            // `3 em lista` é igual a `lista contém 3`.
+            // Portanto, precisamos inverter os operandos de acordo com a 
+            // palavra reservada usada.
+            switch (expressao.operador.tipo) {
+                case tiposDeSimbolos.EM:
+                    return this.logicaContemOuEm(esquerda, direita, expressao);
+                case tiposDeSimbolos.CONTEM:
+                    return this.logicaContemOuEm(direita, esquerda, expressao);
             }
-
-            throw new ErroEmTempoDeExecucao(
-                esquerda,
-                "Tipo de chamada inválida com 'em'.",
-                expressao.linha
-            );
         }
 
         // se um estado for verdadeiro, retorna verdadeiro
@@ -1912,6 +1928,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
+        if (objeto instanceof Literal) return this.paraTexto(objeto.valor);
         if (objeto instanceof ObjetoDeleguaClasse || objeto instanceof DeleguaFuncao)
             return objeto.paraTexto();
 

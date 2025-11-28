@@ -24,7 +24,7 @@ describe('Interpretador (Pituguês)', () => {
             describe('Atribuições', () => {
                 it('Trivial', async () => {
                     const retornoLexador = lexador.mapear([
-                        'var a = 1', 
+                        'var a = 1',
                         'var b, c = 1, 2'
                     ], -1);
 
@@ -275,6 +275,18 @@ describe('Interpretador (Pituguês)', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
+
+                it('Exponenciação encadeada', async () => {
+                    const codigo = ['escreva(5 ** 2 ** 3)'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe("390625");
+                });
             });
 
             describe('Operações lógicas', () => {
@@ -318,6 +330,38 @@ describe('Interpretador (Pituguês)', () => {
                     );
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Contém', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var a = [1, 2, 3, 4, 5]',
+                            'escreva(a contém 3)'
+                        ],
+                        -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('verdadeiro');
+                });
+
+                it('Não contém', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var a = [2, 4, 6, 8, 10]',
+                            'escreva(a não contém 3)'
+                        ],
+                        -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('verdadeiro');
                 });
             });
 
@@ -398,50 +442,55 @@ describe('Interpretador (Pituguês)', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Laços de repetição - para', async () => {
-                    const codigo = [
-                        'para var i = 0; i < 10; i = i + 1:',
-                        '    se i == 3:',
-                        '        continua',
-                        '    escreva(i)',
-                    ];
-                    const retornoLexador = lexador.mapear(codigo, -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
-                        retornoLexador,
-                        -1
-                    );
+                describe('Para cada', () => {
+                    it('Trivial', async () => {
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'var vetor = [1, 2, 3]',
+                                'para cada elemento de vetor:',
+                                '    escreva(elemento)',
+                            ],
+                            -1
+                        );
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
 
-                    const retornoInterpretador = await interpretador.interpretar(
-                        retornoAvaliadorSintatico.declaracoes
-                    );
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
 
-                    expect(retornoInterpretador.erros).toHaveLength(0);
-                    expect(_saidas).toHaveLength(9);
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(3);
+                        expect(_saidas[0]).toBe('1');
+                        expect(_saidas[1]).toBe('2');
+                        expect(_saidas[2]).toBe('3');
+                    });
                 });
 
-                it('Para cada', async () => {
+                it('Iterando texto', async () => {
                     const retornoLexador = lexador.mapear(
                         [
-                            'var vetor = [1, 2, 3]',
-                            'para cada elemento de vetor:',
-                            '    escreva(elemento)',
-                        ],
-                        -1
+                            'var texto1 = "Texto"',
+                            'para cada item em texto1:',
+                            '    imprima(item)'
+                        ], -1
                     );
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
-                        retornoLexador,
-                        -1
-                    );
+                    const retornoAvaliadorSintatico =
+                        avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const retornoInterpretador = await interpretador.interpretar(
                         retornoAvaliadorSintatico.declaracoes
                     );
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
-                    expect(_saidas).toHaveLength(3);
-                    expect(_saidas[0]).toBe('1');
-                    expect(_saidas[1]).toBe('2');
-                    expect(_saidas[2]).toBe('3');
+                    expect(_saidas).toHaveLength(5);
+                    expect(_saidas[0]).toBe('T');
+                    expect(_saidas[1]).toBe('e');
+                    expect(_saidas[2]).toBe('x');
+                    expect(_saidas[3]).toBe('t');
+                    expect(_saidas[4]).toBe('o');
                 });
             });
 
@@ -637,6 +686,30 @@ describe('Interpretador (Pituguês)', () => {
                 });
             });
 
+            describe('Uso de primitivas de dicionário', () => {
+                describe('itens', () => {
+                    it('Trivial', async () => {
+                        const codigo = [
+                            "var d = {'a': 1, 'b': 2, 'c': 3}",
+                            'escreva(d.itens())',
+                        ];
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe("[[\"a\",1], [\"b\",2], [\"c\",3]]");
+                    });
+                });
+            });
+
             describe('Uso de primitivas de número', () => {
                 it('arredondarParaBaixo', async () => {
                     const codigo = ['var n1 = 3.1415', 'escreva(n1.arredondar_para_baixo())'];
@@ -747,6 +820,36 @@ describe('Interpretador (Pituguês)', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(_saidas).toHaveLength(1);
                     expect(_saidas[0]).toBe("['um', 'dois', 'três']");
+                });
+
+                it('inclui', async () => {
+                    // Aqui vamos simular a resposta para duas variáveis de `leia()`.
+                    const respostas = ['A galinha botou', 'a'];
+                    interpretador.interfaceEntradaSaida = {
+                        question: (mensagem: string, callback: Function) => {
+                            callback(respostas.shift());
+                        },
+                    };
+
+                    const codigo = [
+                        "var frase = leia('Informe uma frase: ')",
+                        "var letra = leia('Qual letra quer encontrar? ')",
+                        "var teste = frase.inclui(letra)",
+                        "imprima(teste)"
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe("verdadeiro");
                 });
 
                 it('maiusculo', async () => {
@@ -968,8 +1071,8 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas).toHaveLength(1);
                     expect(_saidas[0]).toBe('0');
                 });
-                
-                it('SE ternário', async() => {
+
+                it('SE ternário', async () => {
                     const codigo = [
                         'var a = 10',
                         'var b = 20',
@@ -1109,7 +1212,7 @@ describe('Interpretador (Pituguês)', () => {
                 'escreva("Meu nome é ${nome} e eu tenho ${idade} anos.")',
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(  
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
                 retornoLexador,
                 -1
             );

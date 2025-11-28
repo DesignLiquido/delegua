@@ -589,7 +589,7 @@ describe('Biblioteca Global', () => {
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros).toHaveLength(0);
-            expect(_saidas).toBe('{"primeiro":1,"segundo":2,"terceiro":3}');
+            expect(_saidas).toBe('[(1, 2, 3)]');
         });
 
         it('Falha - Vetor com mais de 10 elementos', async () => {

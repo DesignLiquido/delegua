@@ -31,4 +31,8 @@ export class Decorador implements Construto {
         // TODO: Atributos
         return `<decorador nome=${this.nome} />`;
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

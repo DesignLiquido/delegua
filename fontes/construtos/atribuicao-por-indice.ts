@@ -36,4 +36,8 @@ export class AtribuicaoPorIndice implements Construto {
             `/>`
         );
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

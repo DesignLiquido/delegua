@@ -28,4 +28,8 @@ export class FazerComoConstruto implements Construto, FazerInterface {
     paraTexto(): string {
         return `<fazer-como-construto />`;
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

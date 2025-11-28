@@ -206,7 +206,7 @@ export default {
         exemploCodigo: 'texto.fatiar(início, final)\n' + 'texto.fatiar(aPartirDaPosicao)',
     },
     inclui: {
-        tipoRetorno: 'texto',
+        tipoRetorno: 'lógico',
         argumentos: [
             new InformacaoElementoSintatico(
                 'elemento',

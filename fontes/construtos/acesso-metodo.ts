@@ -30,4 +30,8 @@ export class AcessoMetodo implements Construto {
     paraTexto(): string {
         return `<acesso-método objeto=${this.objeto.paraTexto()} método=${this.nomeMetodo} />`;
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

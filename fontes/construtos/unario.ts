@@ -30,4 +30,8 @@ export class Unario<TTipoSimbolo extends string = string> implements Construto {
     paraTexto(): string {
         return `<unário operando=${this.operando.paraTexto()} operador=${this.operador.lexema} incidênciaOperador=${this.incidenciaOperador} />`;
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

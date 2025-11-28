@@ -18,4 +18,8 @@ export class Dupla extends Tupla {
             ` />`
         );
     }
+
+    paraTextoSaida(): string {
+        return `[(${this.primeiro.paraTextoSaida()}, ${this.segundo.paraTextoSaida()})]`;
+    }
 }
