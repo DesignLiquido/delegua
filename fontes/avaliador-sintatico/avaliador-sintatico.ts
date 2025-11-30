@@ -2699,12 +2699,12 @@ export class AvaliadorSintatico
             }
 
             retorno.subElementos = subElementos;
-            const endereco = this.montaoTipos.adicionarReferencia(retorno);
-            retorno.endereco = endereco;
         } else {
             retorno = new ElementoMontaoTipos(construto.tipo);
         }
 
+        const endereco = this.montaoTipos.adicionarReferencia(retorno);
+        retorno.endereco = endereco;
         return retorno;
     }
 

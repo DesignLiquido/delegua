@@ -10,6 +10,7 @@ export class Classe extends Declaracao {
     metodos: FuncaoDeclaracao[];
     propriedades: PropriedadeClasse[];
     decoradores: Decorador[];
+    documentacao?: Declaracao;
 
     constructor(
         simbolo: SimboloInterface,

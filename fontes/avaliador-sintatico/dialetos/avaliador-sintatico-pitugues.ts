@@ -890,7 +890,7 @@ export class AvaliadorSintaticoPitugues
                 espacosIndentacaoLinhaAtual = this.pragmas[simboloAtual.linha].espacosIndentacao;
             }
         }
-        declaracoes.push(this.analisarTextoDeDocumentacao());
+        
         this.pilhaEscopos.removerUltimo();
         return declaracoes;
     }
@@ -1410,6 +1410,19 @@ export class AvaliadorSintaticoPitugues
         return tipoElementarResolvido as TipoDadosElementar;
     }
 
+    analisarTextoDeDocumentacao(): Comentario | undefined {
+        if (this.simbolos[this.atual].tipo === tiposDeSimbolos.TEXTO_MULTILINHAS) {
+            const simboloComentario = this.avancarEDevolverAnterior();
+            return new Comentario(
+                this.hashArquivo, 
+                Number(simboloComentario.linha), 
+                simboloComentario.lexema, 
+                true, 
+                true
+            );
+        }    
+    }
+
     corpoDaFuncao(tipo: string): FuncaoConstruto {
         // O parêntese esquerdo é considerado o símbolo inicial para
         // fins de localização.
@@ -1468,6 +1481,7 @@ export class AvaliadorSintaticoPitugues
                 tiposDeSimbolos.IDENTIFICADOR,
                 'Esperado nome da Superclasse.'
             );
+
             this.superclasseAtual = simboloSuperclasse.lexema;
             superClasse = new Variavel(this.hashArquivo, this.simboloAnterior());
 
@@ -1475,6 +1489,7 @@ export class AvaliadorSintaticoPitugues
         }
 
         this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' antes do escopo da classe.");
+        const possivelDocumentacao = this.analisarTextoDeDocumentacao();
 
         const metodos = [];
         while (
@@ -1495,6 +1510,10 @@ export class AvaliadorSintaticoPitugues
 
         this.superclasseAtual = undefined;
         const definicaoClasse = new Classe(simbolo, superClasse, metodos);
+        if (possivelDocumentacao) {
+            definicaoClasse.documentacao = possivelDocumentacao;
+        }
+
         this.tiposDefinidosEmCodigo[definicaoClasse.simbolo.lexema] = definicaoClasse;
         return definicaoClasse;
     }
@@ -1729,13 +1748,5 @@ export class AvaliadorSintaticoPitugues
             declaracoes: declaracoes,
             erros: this.erros,
         } as RetornoAvaliadorSintatico<Declaracao>;
-    }
-
-    analisarTextoDeDocumentacao(): Comentario | undefined {
-        
-        if (this.simboloAtual().tipo === tiposDeSimbolos.TEXTO_MULTILINHAS)
-            return new Comentario(this.hashArquivo, Number(this.simboloAtual().linha), 
-                this.simboloAtual().lexema, true, true);
-            
     }
 }
