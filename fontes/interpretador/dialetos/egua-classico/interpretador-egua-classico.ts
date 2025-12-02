@@ -971,7 +971,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     async visitarExpressaoIsto(expressao: Isto): Promise<any> {
-        return Promise.resolve(this.procurarVariavel(expressao.palavraChave, expressao));
+        return Promise.resolve(this.procurarVariavel(expressao.simboloChave, expressao));
     }
 
     async visitarExpressaoDicionario(expressao: any) {

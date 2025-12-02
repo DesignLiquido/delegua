@@ -504,7 +504,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
     visitarExpressaoRetornar(declaracao: any): any {
         if (this.funcaoAtual === TipoFuncao.NENHUM) {
             const erro = new ErroResolvedor(
-                declaracao.palavraChave,
+                declaracao.simboloChave,
                 'Não é possível retornar do código do escopo superior.'
             );
             this.erros.push(erro);
@@ -513,7 +513,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         if (declaracao.valor !== null) {
             if (this.funcaoAtual === TipoFuncao.CONSTRUTOR) {
                 const erro = new ErroResolvedor(
-                    declaracao.palavraChave,
+                    declaracao.simboloChave,
                     'Não pode retornar o valor do construtor.'
                 );
                 this.erros.push(erro);
@@ -655,12 +655,12 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
     visitarExpressaoIsto(expressao?: any): any {
         if (this.classeAtual == TipoClasse.NENHUM) {
             const erro = new ErroResolvedor(
-                expressao.palavraChave,
+                expressao.simboloChave,
                 "Não pode usar 'isto' fora da classe."
             );
             this.erros.push(erro);
         }
-        this.resolverLocal(expressao, expressao.palavraChave);
+        this.resolverLocal(expressao, expressao.simboloChave);
         return null;
     }
 

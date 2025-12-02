@@ -3,6 +3,7 @@ import { inferirTipoVariavel } from "../../../inferenciador";
 import { InterpretadorInterface, SimboloInterface, VariavelInterface } from "../../../interfaces";
 import { RetornoQuebra } from "../../../quebras";
 import { DeleguaModulo, MetodoPrimitiva, ObjetoDeleguaClasse } from "../../estruturas";
+import { ErroEmTempoDeExecucao } from "../../../excecoes";
 
 import primitivasDicionario from "../../../bibliotecas/dialetos/pitugues/primitivas-dicionario";
 import primitivasNumero from "../../../bibliotecas/dialetos/pitugues/primitivas-numero";
@@ -11,7 +12,6 @@ import primitivasVetor from "../../../bibliotecas/dialetos/pitugues/primitivas-v
 
 import tipoDeDadosPrimitivos from '../../../tipos-de-dados/primitivos';
 import tipoDeDadosPitugues from '../../../tipos-de-dados/dialetos/pitugues';
-import { ErroEmTempoDeExecucao } from "../../../excecoes";
 
 export async function visitarExpressaoAcessoMetodo(
     interpretador: InterpretadorInterface,
@@ -40,7 +40,7 @@ export async function visitarExpressaoAcessoMetodo(
         if (expressao.nomeMetodo in primitivasDicionario) {
             const metodoDePrimitivaDicionario: Function =
                 primitivasDicionario[expressao.nomeMetodo].implementacao;
-            return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario);
+            return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario, expressao.nomeMetodo, 'dicionário');
         }
 
         return objeto[expressao.nomeMetodo] || null;
@@ -81,14 +81,14 @@ export async function visitarExpressaoAcessoMetodo(
             const metodoDePrimitivaNumero: Function =
                 primitivasNumero[expressao.nomeMetodo].implementacao;
             if (metodoDePrimitivaNumero) {
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaNumero);
+                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaNumero, expressao.nomeMetodo, tipoObjeto);
             }
             break;
         case tipoDeDadosPitugues.TEXTO:
             const metodoDePrimitivaTexto: Function =
                 primitivasTexto[expressao.nomeMetodo].implementacao;
             if (metodoDePrimitivaTexto) {
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto);
+                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto, expressao.nomeMetodo, 'texto');
             }
             break;
         case tipoDeDadosPitugues.VETOR:
@@ -98,7 +98,7 @@ export async function visitarExpressaoAcessoMetodo(
             const metodoDePrimitivaVetor: Function =
                 primitivasVetor[expressao.nomeMetodo].implementacao;
             if (metodoDePrimitivaVetor) {
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor);
+                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor, expressao.nomeMetodo, tipoObjeto);
             }
             break;
     }
@@ -151,7 +151,7 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
         if (expressao.simbolo.lexema in primitivasDicionario) {
             const metodoDePrimitivaDicionario: Function =
                 primitivasDicionario[expressao.simbolo.lexema].implementacao;
-            return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario);
+            return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario, expressao.simbolo.lexema, 'dicionário');
         }
 
         return objeto[expressao.simbolo.lexema];
@@ -168,7 +168,7 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
 
         const metodoDePrimitivaTexto: Function =
             primitivasTexto[expressao.simbolo.lexema].implementacao;
-        return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto);
+        return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto, expressao.simbolo.lexema, 'texto');
     }
 
     // A partir daqui, presume-se que o objeto é uma das estruturas
@@ -199,7 +199,7 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
             const metodoDePrimitivaNumero: Function =
                 primitivasNumero[expressao.simbolo.lexema].implementacao;
             if (metodoDePrimitivaNumero) {
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaNumero);
+                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaNumero, expressao.simbolo.lexema, tipoObjeto);
             }
             break;
         case tipoDeDadosPitugues.TEXTO:
@@ -213,7 +213,7 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
             const metodoDePrimitivaTexto: Function =
                 primitivasTexto[expressao.simbolo.lexema].implementacao;
             if (metodoDePrimitivaTexto) {
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto);
+                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto, expressao.simbolo.lexema, 'texto');
             }
             break;
         case tipoDeDadosPitugues.VETOR:
@@ -234,7 +234,7 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
             const metodoDePrimitivaVetor: Function =
                 primitivasVetor[expressao.simbolo.lexema].implementacao;
             if (metodoDePrimitivaVetor) {
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor);
+                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor, expressao.simbolo.lexema, tipoObjeto);
             }
             break;
     }
@@ -291,7 +291,7 @@ export async function visitarExpressaoAcessoPropriedade(
         if (expressao.nomePropriedade in primitivasDicionario) {
             const metodoDePrimitivaDicionario: Function =
                 primitivasDicionario[expressao.nomePropriedade].implementacao;
-            return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario);
+            return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario, expressao.nomePropriedade, 'dicionário');
         }
 
         return objeto[expressao.nomePropriedade] || null;

@@ -69,6 +69,7 @@ import {
     Variavel,
     Vetor,
     ListaCompreensao,
+    Isto,
 } from '../construtos';
 import { ErroInterpretador } from '../interfaces/erros/erro-interpretador';
 import { RetornoInterpretadorInterface } from '../interfaces/retornos/retorno-interpretador-interface';
@@ -98,6 +99,7 @@ import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 import tipoDeDadosPrimitivos from '../tipos-de-dados/primitivos';
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
+import primitivasVetor from '../bibliotecas/primitivas-vetor';
 
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (_parser_),
@@ -202,15 +204,29 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @see resolverValor
      */
     protected resolverNomeObjectoAcessado(objetoAcessado: Construto): string {
-        if (objetoAcessado instanceof Variavel) {
-            return objetoAcessado.simbolo.lexema;
+        switch (objetoAcessado.constructor) {
+            // TODO: Não habilitar isso até que vetores sejam repassados para o montão.
+            /* case AcessoMetodoOuPropriedade:
+                return (objetoAcessado as AcessoMetodoOuPropriedade).simbolo.lexema;
+            case AcessoIndiceVariavel:
+                return this.resolverNomeObjectoAcessado((objetoAcessado as AcessoIndiceVariavel).entidadeChamada); */
+            case Constante:
+                return (objetoAcessado as Constante).simbolo.lexema;
+            case AcessoMetodoOuPropriedade:
+            case AcessoIndiceVariavel:
+            case Dicionario:
+            case Literal:
+            case Vetor:
+                return '';
+            case Isto:
+                return (objetoAcessado as Isto).simboloChave.lexema;
+            case Super:
+                return (objetoAcessado as Super).simboloChave.lexema;
+            case Variavel:
+                return (objetoAcessado as Variavel).simbolo.lexema;
         }
-
-        if (objetoAcessado instanceof Constante) {
-            return objetoAcessado.simbolo.lexema;
-        }
-
-        return '';
+        
+        throw new ErroEmTempoDeExecucao((objetoAcessado as any).simbolo, `Construto ${objetoAcessado.constructor.name} não possui resolução de nome apropriada.`);
     }
 
     resolverValor(objeto: any) {
@@ -831,7 +847,7 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @param expressao A expressão chamada.
      * @returns O resultado da chamada.
      */
-    async visitarExpressaoDeChamada(expressao: Chamada | any): Promise<any> {
+    async visitarExpressaoDeChamada(expressao: Chamada): Promise<any> {
         try {
             let variavelEntidadeChamada: VariavelInterface | any = await this.avaliar(
                 expressao.entidadeChamada
@@ -840,7 +856,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             if (variavelEntidadeChamada === null) {
                 return Promise.reject(
                     new ErroEmTempoDeExecucao(
-                        expressao.parentese,
+                        (expressao as any).parentese,
                         'Chamada de função ou método inexistente: ' +
                             String(expressao.entidadeChamada),
                         expressao.linha
@@ -862,7 +878,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             if (entidadeChamada instanceof DeleguaModulo) {
                 return Promise.reject(
                     new ErroEmTempoDeExecucao(
-                        expressao.parentese,
+                        (expressao as any).parentese,
                         'Entidade chamada é um módulo de Delégua. Provavelmente você quer chamar um de seus componentes?',
                         expressao.linha
                     )
@@ -895,7 +911,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                     return entidadeChamada.chamar(
                         this,
                         argumentos.map((a) => a && this.resolverValor(a.valor)),
-                        expressao.entidadeChamada.simbolo
+                        (expressao.entidadeChamada as any).simbolo // TODO: O que exatamente pode ser aqui?
                     );
                 } catch (erro: any) {
                     this.erros.push({
@@ -932,15 +948,15 @@ export class InterpretadorBase implements InterpretadorInterface {
             // Casos que passam aqui: chamadas a métodos de bibliotecas de Delégua.
             if (typeof entidadeChamada === tipoDeDadosPrimitivos.FUNCAO) {
                 let objeto = null;
-                if (expressao.entidadeChamada.objeto) {
-                    objeto = await this.avaliar(expressao.entidadeChamada.objeto);
+                if ((expressao.entidadeChamada as any).objeto) { // TODO: Qual o tipo certo aqui? 
+                    objeto = await this.avaliar((expressao.entidadeChamada as any).objeto);
                 }
                 return entidadeChamada.apply(this.resolverValor(objeto), argumentos);
             }
 
             return Promise.reject(
                 new ErroEmTempoDeExecucao(
-                    expressao.parentese,
+                    (expressao as any).parentese,
                     'Só pode chamar função ou classe.',
                     expressao.linha
                 )
@@ -1352,7 +1368,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         for (const argumento of argumentos) {
             let resultadoAvaliacao = await this.avaliar(argumento);
-            if (resultadoAvaliacao && resultadoAvaliacao.hasOwnProperty('valorRetornado')) {
+            if (resultadoAvaliacao && resultadoAvaliacao.hasOwnProperty && resultadoAvaliacao.hasOwnProperty('valorRetornado')) {
                 resultadoAvaliacao = resultadoAvaliacao.valorRetornado;
             }
 
@@ -1770,6 +1786,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         expressao: AcessoMetodoOuPropriedade
     ): Promise<any> {
         let variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
+        const nomeObjeto = this.resolverNomeObjectoAcessado(expressao.objeto);
 
         // Este caso acontece quando há encadeamento de métodos.
         // Por exemplo, `objeto1.metodo1().metodo2()`.
@@ -1797,7 +1814,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             if (expressao.simbolo.lexema in primitivasDicionario) {
                 const metodoDePrimitivaDicionario: Function =
                     primitivasDicionario[expressao.simbolo.lexema].implementacao;
-                return new MetodoPrimitiva('', objeto, metodoDePrimitivaDicionario);
+                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario, expressao.simbolo.lexema, 'dicionário');
             }
 
             return objeto[expressao.simbolo.lexema];
@@ -1817,15 +1834,30 @@ export class InterpretadorBase implements InterpretadorInterface {
             return objeto[expressao.simbolo.lexema];
         }
 
+        let tipoObjeto = variavelObjeto.tipo;
+        if (tipoObjeto === null || tipoObjeto === undefined) {
+            tipoObjeto = inferirTipoVariavel(variavelObjeto as any);
+        }
+
+        // Caso 3: Vetor simples do JavaScript.
+        // TODO: Em teoria, isso deve estar no interpretador de Delégua, não aqui.
+        if (Array.isArray(objeto)) {
+            if (expressao.simbolo.lexema in primitivasVetor) {
+                const metodoDePrimitivaVetor: Function =
+                    primitivasVetor[expressao.simbolo.lexema].implementacao;
+                // TODO: Um problema a ser resolvido na questão de vetores é quando eles pertencem a outro objeto. 
+                // Por exemplo, um dicionário.
+                // Existe uma lógica nas bibliotecas padrão que, quando a primitiva tem um nome, ela deve ser definida na
+                // pilha de escopos, para registrar a mutação do vetor corretamente. 
+                // Não é uma boa solução. Algo melhor precisa ser feito.
+                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor, expressao.simbolo.lexema, tipoObjeto);
+            }
+        }
+
         // A partir daqui, presume-se que o objeto é uma das estruturas
         // de Delégua.
         if (objeto instanceof DeleguaModulo) {
             return objeto.componentes[expressao.simbolo.lexema] || null;
-        }
-
-        let tipoObjeto = variavelObjeto.tipo;
-        if (tipoObjeto === null || tipoObjeto === undefined) {
-            tipoObjeto = inferirTipoVariavel(variavelObjeto as any);
         }
 
         return Promise.reject(
@@ -1837,8 +1869,8 @@ export class InterpretadorBase implements InterpretadorInterface {
         );
     }
 
-    visitarExpressaoIsto(expressao: any): any {
-        return this.procurarVariavel(expressao.palavraChave);
+    visitarExpressaoIsto(expressao: Isto): any {
+        return this.procurarVariavel(expressao.simboloChave);
     }
 
     async visitarExpressaoDicionario(expressao: Dicionario): Promise<any> {

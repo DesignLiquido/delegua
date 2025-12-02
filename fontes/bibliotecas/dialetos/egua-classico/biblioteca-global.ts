@@ -169,7 +169,7 @@ export default function (interpreter, globals) {
                 );
             }
 
-            if (callbackResolvido.constructor.name !== 'DeleguaFuncao') {
+            if (callbackResolvido.constructor !== DeleguaFuncao) {
                 throw new ErroEmTempoDeExecucao(
                     this.simbolo,
                     'Parâmetro inválido. O segundo parâmetro da função, deve ser uma função.'
