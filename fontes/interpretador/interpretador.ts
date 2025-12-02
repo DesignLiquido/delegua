@@ -189,6 +189,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             if (typeof objeto.valor === 'boolean') return objeto.valor ? 'verdadeiro' : 'falso';
         }
 
+        if (objeto instanceof MetodoPrimitiva) {
+            return objeto.paraTexto();
+        }
+
         if (objeto instanceof Date) {
             const formato = Intl.DateTimeFormat('pt', {
                 dateStyle: 'full',
@@ -679,7 +683,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
         const objeto = this.resolverValor(variavelObjeto);
 
-        if (objeto.constructor && objeto.constructor.name === 'ObjetoDeleguaClasse') {
+        if (objeto.constructor && objeto.constructor === ObjetoDeleguaClasse) {
             return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomeMetodo) || null;
         }
 
@@ -688,7 +692,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             if (expressao.nomeMetodo in primitivasDicionario) {
                 const metodoDePrimitivaDicionario: Function =
                     primitivasDicionario[expressao.nomeMetodo].implementacao;
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario);
+                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario, expressao.nomeMetodo, 'dicionário');
             }
 
             return objeto[expressao.nomeMetodo] || null;
@@ -729,14 +733,14 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 const metodoDePrimitivaNumero: Function =
                     primitivasNumero[expressao.nomeMetodo].implementacao;
                 if (metodoDePrimitivaNumero) {
-                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaNumero);
+                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaNumero, expressao.nomeMetodo, tipoObjeto);
                 }
                 break;
             case tipoDeDadosDelegua.TEXTO:
                 const metodoDePrimitivaTexto: Function =
                     primitivasTexto[expressao.nomeMetodo].implementacao;
                 if (metodoDePrimitivaTexto) {
-                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto);
+                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto, expressao.nomeMetodo, 'texto');
                 }
                 break;
             case tipoDeDadosDelegua.VETOR:
@@ -746,7 +750,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 const metodoDePrimitivaVetor: Function =
                     primitivasVetor[expressao.nomeMetodo].implementacao;
                 if (metodoDePrimitivaVetor) {
-                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor);
+                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor, expressao.nomeMetodo, tipoObjeto);
                 }
                 break;
         }
@@ -798,7 +802,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             if (expressao.simbolo.lexema in primitivasDicionario) {
                 const metodoDePrimitivaDicionario: Function =
                     primitivasDicionario[expressao.simbolo.lexema].implementacao;
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario);
+                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario, expressao.simbolo.lexema, 'dicionário');
             }
 
             return objeto[expressao.simbolo.lexema];
@@ -815,7 +819,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
             const metodoDePrimitivaTexto: Function =
                 primitivasTexto[expressao.simbolo.lexema].implementacao;
-            return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto);
+            return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto, expressao.simbolo.lexema, 'texto');
         }
 
         // A partir daqui, presume-se que o objeto é uma das estruturas
@@ -846,7 +850,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 const metodoDePrimitivaNumero: Function =
                     primitivasNumero[expressao.simbolo.lexema].implementacao;
                 if (metodoDePrimitivaNumero) {
-                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaNumero);
+                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaNumero, expressao.simbolo.lexema, 'número');
                 }
                 break;
             case tipoDeDadosDelegua.TEXTO:
@@ -860,7 +864,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 const metodoDePrimitivaTexto: Function =
                     primitivasTexto[expressao.simbolo.lexema].implementacao;
                 if (metodoDePrimitivaTexto) {
-                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto);
+                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto, expressao.simbolo.lexema, 'texto');
                 }
                 break;
             case tipoDeDadosDelegua.VETOR:
@@ -881,7 +885,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 const metodoDePrimitivaVetor: Function =
                     primitivasVetor[expressao.simbolo.lexema].implementacao;
                 if (metodoDePrimitivaVetor) {
-                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor);
+                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor, expressao.simbolo.lexema, tipoObjeto);
                 }
                 break;
         }
@@ -935,7 +939,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             if (expressao.nomePropriedade in primitivasDicionario) {
                 const metodoDePrimitivaDicionario: Function =
                     primitivasDicionario[expressao.nomePropriedade].implementacao;
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario);
+                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario, expressao.nomePropriedade, 'dicionário');
             }
 
             return objeto[expressao.nomePropriedade] || null;

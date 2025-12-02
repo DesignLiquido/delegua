@@ -3346,7 +3346,7 @@ export class AvaliadorSintatico
             'ordenar',
             new InformacaoElementoSintatico('ordenar', 'qualquer[]', true, [
                 new InformacaoElementoSintatico('vetor', 'qualquer[]'),
-                new InformacaoElementoSintatico('funcaoOrdenacao', 'função'),
+                new InformacaoElementoSintatico('funcaoOrdenacao', 'função', false),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(

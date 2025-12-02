@@ -15,12 +15,16 @@ export class MetodoPrimitiva extends Chamavel {
     nome: string;
     primitiva: any;
     metodo: Function;
+    nomeMetodo: string;
+    tipo: string = 'qualquer';
 
-    constructor(nome: string, primitiva: any, metodo: Function) {
+    constructor(nome: string, primitiva: any, metodo: Function, nomeMetodo: string, tipo: string = 'qualquer') {
         super();
         this.nome = nome;
         this.primitiva = primitiva;
         this.metodo = metodo;
+        this.nomeMetodo = nomeMetodo;
+        this.tipo = tipo;
         this.valorAridade = metodo.length - 1;
     }
 
@@ -33,7 +37,7 @@ export class MetodoPrimitiva extends Chamavel {
      * @returns {string} A representação do método como texto.
      */
     paraTexto(): string {
-        return `<método nome=${this.metodo} primitiva=${this.primitiva} />`;
+        return `<método nome=${this.nomeMetodo} primitiva=${this.nome} tipo-da-primitiva=${this.tipo} />`;
     }
 
     /**

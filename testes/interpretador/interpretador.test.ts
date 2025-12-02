@@ -1971,7 +1971,27 @@ describe('Interpretador', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(_saidas).toBe('300');
-                })
+                });
+
+                it('Introspecção de método de primitiva em propriedade', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'classe Teste {',
+                            '    nome: texto;',
+                            '}',
+                            'var t = Teste()',
+                            't.nome = "Fernando"',
+                            'escreva(t.nome.tamanho)'
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                });
             });
 
             describe('Declaração e chamada de funções', () => {

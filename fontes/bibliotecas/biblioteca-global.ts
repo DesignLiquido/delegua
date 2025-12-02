@@ -18,7 +18,7 @@ import {
     Trio,
     Tupla,
 } from '../construtos';
-import { Simbolo } from '../lexador';
+
 import { RetornoQuebra } from '../quebras';
 import { inferirTipoVariavel } from '../inferenciador';
 

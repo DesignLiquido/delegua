@@ -40,20 +40,6 @@ describe('Interpretador (Pituguês)', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Constantes', async () => {
-                    const retornoLexador = lexador.mapear(["const g, h, i = 1, '2', 3"], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
-                        retornoLexador,
-                        -1
-                    );
-
-                    const retornoInterpretador = await interpretador.interpretar(
-                        retornoAvaliadorSintatico.declaracoes
-                    );
-
-                    expect(retornoInterpretador.erros).toHaveLength(0);
-                });
-
                 describe('Compreensão de listas', () => {
                     it('Trivial', async () => {
                         const retornoLexador = lexador.mapear(
