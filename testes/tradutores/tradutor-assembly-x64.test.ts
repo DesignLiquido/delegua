@@ -3,14 +3,111 @@ import { Lexador } from "../../fontes/lexador";
 import { TradutorAssemblyX64 } from '../../fontes/tradutores/tradutor-assembly-x64';
 
 describe('Tradutor Delégua -> Assembly x64', () => {
-    let tradutor: TradutorAssemblyX64;
+    let tradutorLinux: TradutorAssemblyX64;
+    let tradutorWindows: TradutorAssemblyX64;
     let lexador: Lexador;
     let avaliadorSintatico: AvaliadorSintatico;
 
     beforeEach(() => {
-        tradutor = new TradutorAssemblyX64();
+        tradutorLinux = new TradutorAssemblyX64();
+        tradutorWindows = new TradutorAssemblyX64('windows');
         lexador = new Lexador();
         avaliadorSintatico = new AvaliadorSintatico();
+    });
+
+    describe('Estrutura do Código por SO', () => {
+        it('Linux: entry _start', () => {
+            const retornoLexador = lexador.mapear(['escreva("teste")'], -1);
+            const ast = avaliadorSintatico.analisar(retornoLexador, 1);
+            const asm = tradutorLinux.traduzir(ast.declaracoes);
+
+            expect(asm).toContain('section .text');
+            expect(asm).toContain('global _start');
+            expect(asm).toContain('_start:');
+        });
+
+        it('Windows: entry main', () => {
+            const retornoLexador = lexador.mapear(['escreva("teste")'], -1);
+            const ast = avaliadorSintatico.analisar(retornoLexador, 1);
+            const asm = tradutorWindows.traduzir(ast.declaracoes);
+
+            expect(asm).toContain('section .text');
+            expect(asm).toContain('global main');
+            expect(asm).toContain('main:');
+            expect(asm).not.toContain('global _start');
+        });
+    });
+
+    describe('Saída do programa por SO', () => {
+        it('Linux: usa syscall exit', () => {
+            const ast = avaliadorSintatico.analisar(lexador.mapear([''], -1), 1);
+            const asm = tradutorLinux.traduzir(ast.declaracoes);
+
+            expect(asm).toContain('mov eax, 1');      // sys_exit
+            expect(asm).toMatch(/int 0x80\s*$/m);     // exit at end
+        });
+
+        it('Windows: retorna de main', () => {
+            const ast = avaliadorSintatico.analisar(lexador.mapear([''], -1), 1);
+            const asm = tradutorWindows.traduzir(ast.declaracoes);
+
+            expect(asm).not.toContain('int 0x80');
+            expect(asm).toMatch(/xor eax, eax[\s\r\n]+ret/); // or similar pattern
+        });
+    });
+
+    describe('Escreva por SO', () => {
+        it('Linux: usa sys_write (int 0x80)', () => {
+            const ast = avaliadorSintatico.analisar(
+                lexador.mapear(['escreva("Oi")'], -1),
+                1
+            );
+            const asm = tradutorLinux.traduzir(ast.declaracoes);
+
+            expect(asm).toContain('mov eax, 4');   // sys_write
+            expect(asm).toContain('int 0x80');
+            expect(asm).toContain('Oi');
+        });
+
+        it('Windows: usa chamada de biblioteca (printf)', () => {
+            const ast = avaliadorSintatico.analisar(
+                lexador.mapear(['escreva("Oi")'], -1),
+                1
+            );
+            const asm = tradutorWindows.traduzir(ast.declaracoes);
+
+            expect(asm).not.toContain('int 0x80');
+            expect(asm).toContain('extern printf');
+            expect(asm).toMatch(/call\s+printf/);
+            expect(asm).toContain('Oi');
+        });
+    });
+
+    describe('Convenção de chamada por SO', () => {
+        it('Linux: argumentos em rdi, rsi,...', () => {
+            const codigo = [
+                'funcao f(a, b) { retorna a }',
+                'f(1, 2)'
+            ];
+            const ast = avaliadorSintatico.analisar(lexador.mapear(codigo, -1), 1);
+            const asm = tradutorLinux.traduzir(ast.declaracoes);
+
+            expect(asm).toContain('mov rdi, 1');
+            expect(asm).toContain('mov rsi, 2');
+        });
+
+        it('Windows: argumentos em rcx, rdx,...', () => {
+            const codigo = [
+                'funcao f(a, b) { retorna a }',
+                'f(1, 2)'
+            ];
+            const ast = avaliadorSintatico.analisar(lexador.mapear(codigo, -1), 1);
+            const asm = tradutorWindows.traduzir(ast.declaracoes);
+
+            expect(asm).toContain('mov rcx, 1');
+            expect(asm).toContain('mov rdx, 2');
+            expect(asm).not.toContain('mov rdi, 1');
+        });
     });
 
     describe('Declarações Básicas', () => {
@@ -20,7 +117,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toBeTruthy();
             expect(resultado).toContain('section .data');
@@ -37,7 +134,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('Linha 1');
             expect(resultado).toContain('Linha 2');
@@ -53,7 +150,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('section .bss');
             expect(resultado).toContain('var_x');
@@ -67,7 +164,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('section .data');
             expect(resultado).toContain('const_PI');
@@ -81,7 +178,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('var_x');
             expect(resultado).toContain('mov rax, 10');
@@ -97,7 +194,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('add rax,');
         });
@@ -108,7 +205,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('sub rax,');
         });
@@ -119,7 +216,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('imul rax,');
         });
@@ -130,7 +227,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('idiv');
         });
@@ -141,7 +238,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('idiv');
             expect(resultado).toContain('mov rax, rdx');
@@ -155,7 +252,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('neg rax');
         });
@@ -166,7 +263,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('sete al');
         });
@@ -181,7 +278,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('cmp');
             expect(resultado).toContain('je L');
@@ -198,7 +295,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('sim');
             expect(resultado).toContain('não');
@@ -215,7 +312,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('L');
             expect(resultado).toContain('cmp');
@@ -231,7 +328,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('var_i');
             expect(resultado).toContain('L');
@@ -246,7 +343,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('L');
             expect(resultado).toContain('cmp');
@@ -261,7 +358,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('cmp rax, 0');
             expect(resultado).toContain('je L');
@@ -273,7 +370,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('cmp rax, 0');
             expect(resultado).toContain('jne L');
@@ -289,7 +386,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('somar:');
             expect(resultado).toContain('push rbp');
@@ -306,7 +403,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('mov rax, 42');
             expect(resultado).toContain('ret');
@@ -320,7 +417,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('vetor_');
             expect(resultado).toContain('resq');
@@ -334,7 +431,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('section .bss');
             expect(resultado).toContain('section .data');
@@ -349,7 +446,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('mov eax, 1');
             expect(resultado).toMatch(/int 0x80\s*$/m); // syscall exit no final
@@ -366,7 +463,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('var_x');
             expect(resultado).toContain('var_y');
@@ -386,7 +483,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('var_idade');
             expect(resultado).toContain('cmp');
@@ -404,7 +501,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('var_contador');
             expect(resultado).toContain('Contando');
@@ -418,7 +515,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
         it('programa vazio não deve quebrar', () => {
             const retornoLexador = lexador.mapear([], -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('section .text');
             expect(resultado).toContain('_start:');
@@ -432,7 +529,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('var_x');
             const movMatches = resultado.match(/mov \[var_x\], rax/g);
@@ -445,7 +542,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toContain('Delegua_');
             expect(resultado).toContain("db '', 0");
@@ -460,7 +557,7 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             ], -1);
 
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             const labelMatches = resultado.match(/L\d+:/g);
             const uniqueLabels = new Set(labelMatches);

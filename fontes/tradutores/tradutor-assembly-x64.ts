@@ -14,18 +14,20 @@ export class TradutorAssemblyX64 {
 
     bss = 'section .bss\n';
     data = 'section .data\n';
-    text = this.alvo === 'linux' ? `
-section .text
-    global _start
-
-_start:` : `
-section .text
-    global main
-
-main:`;
+    text: string;
 
     constructor(public alvo: PlataformaAlvo = 'linux') {
         this.indentacao = 0;
+        this.text = `
+section .text
+    ${this.alvo === 'linux' ? 'global _start' : 'global main'}
+${this.alvo === 'linux' ? '_start:' : 'main:'}`;
+
+        if (this.alvo === 'windows') {
+            this.text = `
+extern printf
+` + this.text;
+        }
     }
 
     gerarDigitoAleatorio(): string {
