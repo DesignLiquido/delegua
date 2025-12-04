@@ -2,6 +2,8 @@ import { AcessoIndiceVariavel, AcessoMetodo, Agrupamento, AtribuicaoPorIndice, A
 import { Bloco, Classe, Const, Declaracao, Enquanto, Escolha, Escreva, Expressao, Falhar, Fazer, FuncaoDeclaracao, Importar, Para, ParaCada, Retorna, Se, Tente, Var } from '../declaracoes';
 import { CaminhoEscolha } from '../interfaces/construtos';
 
+export type PlataformaAlvo = 'linux' | 'windows';
+
 export class TradutorAssemblyX64 {
     indentacao: number = 0;
     declaracoesDeClasses: Classe[];
@@ -12,11 +14,19 @@ export class TradutorAssemblyX64 {
 
     bss = 'section .bss\n';
     data = 'section .data\n';
-    text = `
+    text = this.alvo === 'linux' ? `
 section .text
     global _start
 
-_start:`;
+_start:` : `
+section .text
+    global main
+
+main:`;
+
+    constructor(public alvo: PlataformaAlvo = 'linux') {
+        this.indentacao = 0;
+    }
 
     gerarDigitoAleatorio(): string {
         let result = '';
@@ -206,12 +216,16 @@ _start:`;
         }
         
         // Preparar argumentos (convenção de chamada System V AMD64)
-        const registrosArgs = ['rdi', 'rsi', 'rdx', 'rcx', 'r8', 'r9'];
+        const registrosArgs = this.alvo === 'linux'
+            ? ['rdi', 'rsi', 'rdx', 'rcx', 'r8', 'r9']  // System V AMD64 [web:8]
+            : ['rcx', 'rdx', 'r8', 'r9'];               // Windows x64 [web:2]
         construto.argumentos.forEach((arg: Construto, index: number) => {
             if (index < registrosArgs.length) {
                 const valorArg = this.dicionarioConstrutos[arg.constructor.name](arg);
                 this.text += `
     mov ${registrosArgs[index]}, ${valorArg}`;
+            } else {
+                // TODO: push extra args on stack according to target ABI
             }
         });
         
@@ -454,11 +468,18 @@ ${labelInicio}:`;
             }
         }
         
-        this.text += `
-    ; Falhar com mensagem: ${mensagem}
-    mov eax, 1
-    mov ebx, 1
-    int 0x80`;
+        if (this.alvo === 'linux') {
+            this.text += `
+        ; Falhar com mensagem: ${mensagem}
+        mov eax, 1
+        mov ebx, 1
+        int 0x80`;
+        } else {
+            this.text += `
+        ; Falhar com mensagem: ${mensagem}
+        mov eax, 1
+        ret`;
+        }
     }
 
     traduzirDeclaracaoFuncao(declaracao: FuncaoDeclaracao): void {
@@ -697,18 +718,34 @@ ${labelFim}:`;
             tam_string_literal = this.criaTamanhoNaMemoriaReferenteAVar(nome_string_literal);
         }
 
+        if (this.alvo === 'linux') {
         this.text += `
     mov edx, ${tam_string_literal}
     mov ecx, ${nome_string_literal}
-    mov ebx, 1
-    mov eax, 4
+    mov ebx, 1        ; fd stdout
+    mov eax, 4        ; sys_write
     int 0x80`;
+    } else {
+        // Windows: prototype `extern printf` and follow Win64 calling convention
+        // RCX = format pointer; here we use the literal directly as a C string
+        this.text += `
+    lea rcx, [rel ${nome_string_literal}]
+    call printf`;
+    }
     }
 
     saida_sistema(): void {
-        this.text += `
-    mov eax, 1
-    int 0x80`;
+        if (this.alvo === 'linux') {
+            this.text += `
+        mov eax, 1        ; sys_exit
+        xor ebx, ebx      ; status 0
+        int 0x80`;
+        } else {
+            // Windows: return from main with 0 in EAX
+            this.text += `
+        xor eax, eax
+        ret`;
+        }
     }
 
     traduzir(declaracoes: Declaracao[]): string {
@@ -725,8 +762,6 @@ ${labelFim}:`;
         this.saida_sistema();
 
         resultado += this.bss + '\n' + this.data + '\n' + this.text;
-
-        console.log(resultado);
 
         return resultado;
     }

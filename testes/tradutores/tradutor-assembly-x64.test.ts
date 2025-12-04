@@ -2,7 +2,7 @@ import { AvaliadorSintatico } from "../../fontes/avaliador-sintatico";
 import { Lexador } from "../../fontes/lexador";
 import { TradutorAssemblyX64 } from '../../fontes/tradutores/tradutor-assembly-x64';
 
-describe('Tradutor Delégua -> AssemblyX64', () => {
+describe('Tradutor Delégua -> Assembly x64', () => {
     let tradutor: TradutorAssemblyX64;
     let lexador: Lexador;
     let avaliadorSintatico: AvaliadorSintatico;
