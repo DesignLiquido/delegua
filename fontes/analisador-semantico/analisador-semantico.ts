@@ -10,6 +10,7 @@ import {
     Literal,
     Logico,
     ReferenciaFuncao,
+    Separador,
     TipoDe,
     Variavel,
     Vetor,
@@ -86,7 +87,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 if (declaracao.inicializador instanceof Vetor) {
                     const vetor = declaracao.inicializador as Vetor;
                     const vetorSemSeparadores = vetor.valores.filter(
-                        (v) => v.constructor.name !== 'Separador'
+                        (v) => v.constructor !== Separador
                     );
 
                     if (declaracao.tipo === 'inteiro[]') {
@@ -153,16 +154,16 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     }
 
     private verificarTipoDe(valor: Construto): Promise<any> {
-        switch (valor.constructor.name) {
-            case 'Agrupamento':
+        switch (valor.constructor) {
+            case Agrupamento:
                 const valorAgrupamento = valor as Agrupamento;
                 return this.verificarTipoDe(valorAgrupamento.expressao);
-            case 'Binario':
+            case Binario:
                 const valorBinario = valor as Binario;
                 this.verificarTipoDe(valorBinario.direita);
                 this.verificarTipoDe(valorBinario.esquerda);
                 break;
-            case 'Variavel':
+            case Variavel:
                 const valorVariavel = valor as Variavel;
                 return this.verificarVariavel(valorVariavel);
         }
@@ -276,8 +277,8 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     }
 
     visitarExpressaoDeChamada(expressao: Chamada) {
-        switch (expressao.entidadeChamada.constructor.name) {
-            case 'ArgumentoReferenciaFuncao':
+        switch (expressao.entidadeChamada.constructor) {
+            case ArgumentoReferenciaFuncao:
                 const entidadeChamadaArgumentoReferenciaFuncao =
                     expressao.entidadeChamada as ArgumentoReferenciaFuncao;
                 this.visitarChamadaPorArgumentoReferenciaFuncao(
@@ -285,7 +286,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                     expressao.argumentos
                 );
                 break;
-            case 'ReferenciaFuncao':
+            case ReferenciaFuncao:
                 const entidadeChamadaReferenciaFuncao =
                     expressao.entidadeChamada as ReferenciaFuncao;
                 this.visitarChamadaPorReferenciaFuncao(
@@ -293,7 +294,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                     expressao.argumentos
                 );
                 break;
-            case 'Variavel':
+            case Variavel:
                 const entidadeChamadaVariavel = expressao.entidadeChamada as Variavel;
                 this.visitarChamadaPorVariavel(entidadeChamadaVariavel, expressao.argumentos);
                 break;
@@ -305,13 +306,13 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     visitarExpressaoDeAtribuicao(expressao: Atribuir) {
         // TODO: Readaptar para trabalhar com `expressao.alvo` sendo um construto.
         let simboloAlvo: SimboloInterface;
-        switch (expressao.alvo.constructor.name) {
-            case 'Variavel':
+        switch (expressao.alvo.constructor) {
+            case Variavel:
                 const alvoVariavel = expressao.alvo as Variavel;
                 simboloAlvo = alvoVariavel.simbolo;
                 break;
             default:
-                // throw new Error(`Implementar atribuição para ${expressao.alvo.constructor.name}.`);
+                // throw new Error(`Implementar atribuição para ${expressao.alvo.constructor}.`);
                 return Promise.resolve();
         }
 
@@ -359,7 +360,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             }
             if (expressao.valor instanceof Vetor) {
                 let valoresSemSeparador = (expressao.valor as Vetor).valores.filter(
-                    (v) => v.constructor.name !== 'Separador'
+                    (v) => v.constructor !== Separador
                 );
                 if (!['qualquer[]'].includes(valor.tipo)) {
                     if (valor.tipo === 'texto[]') {
@@ -398,8 +399,8 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
 
         for (let caminho of declaracao.caminhos) {
             for (let condicao of caminho.condicoes) {
-                switch (condicao.constructor.name) {
-                    case 'Literal':
+                switch (condicao.constructor) {
+                    case Literal:
                         const condicaoLiteral = condicao as Literal;
 
                         if (condicaoLiteral.tipo !== tipo) {
@@ -414,7 +415,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                             );
                         }
                         break;
-                    case 'Variavel':
+                    case Variavel:
                         const condicaoVariavel = condicao as Variavel;
                         this.verificarVariavel(condicaoVariavel);
                         const variavelHipotetica = this.variaveis[condicaoVariavel.simbolo.lexema];
@@ -499,8 +500,8 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         }
 
         if (binario.operador.tipo === 'DIVISAO') {
-            switch (binario.direita.constructor.name) {
-                case 'Variavel':
+            switch (binario.direita.constructor) {
+                case Variavel:
                     const operadorDireitoLiteral = binario.direita as Variavel;
                     if (this.variaveis[operadorDireitoLiteral.simbolo.lexema]?.valor === 0) {
                         this.erro(binario.operador, `Divisão por zero.`);
@@ -531,8 +532,8 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     }
 
     private verificarChamada(chamada: Chamada): Promise<void> {
-        switch (chamada.entidadeChamada.constructor.name) {
-            case 'Variavel':
+        switch (chamada.entidadeChamada.constructor) {
+            case Variavel:
                 let entidadeChamadaVariavel = chamada.entidadeChamada as Variavel;
                 if (!this.funcoes[entidadeChamadaVariavel.simbolo.lexema]) {
                     this.erro(
@@ -633,8 +634,8 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         this.verificarTipoAtribuido(declaracao);
 
         if (declaracao.inicializador) {
-            switch (declaracao.inicializador.constructor.name) {
-                case 'FuncaoConstruto':
+            switch (declaracao.inicializador.constructor) {
+                case FuncaoConstruto:
                     const funcaoConstruto = declaracao.inicializador as FuncaoConstruto;
                     if (funcaoConstruto.parametros.length >= 255) {
                         this.erro(
@@ -731,8 +732,6 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     }
 
     analisar(declaracoes: Declaracao[]): RetornoAnalisadorSemantico {
-        // this.pilhaVariaveis = new PilhaVariaveis();
-        // this.pilhaVariaveis.empilhar()
         this.variaveis = {};
         this.atual = 0;
         this.diagnosticos = [];

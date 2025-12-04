@@ -558,7 +558,7 @@ export class AvaliadorSintatico
                 }
 
                 const valoresSemSeparadores = valoresSemComentarios.filter(
-                    (v) => v.constructor.name !== 'Separador'
+                    (v) => v.constructor !== Separador
                 );
                 const tipoVetor = inferirTipoVariavel(valoresSemSeparadores);
                 return new Vetor(
@@ -744,7 +744,7 @@ export class AvaliadorSintatico
                     construto = this.expressao();
                 }
 
-                if (construto.constructor.name === 'AcessoMetodoOuPropriedade') {
+                if (construto.constructor === AcessoMetodoOuPropriedade) {
                     const construtoTipado = construto as AcessoMetodoOuPropriedade;
                     switch (construtoTipado.tipo) {
                         case tipoDeDadosDelegua.DICIONARIO:
@@ -2444,11 +2444,11 @@ export class AvaliadorSintatico
         );
 
         let tipoInicializacao: string = 'qualquer';
-        switch (expressaoInicializacao.constructor.name) {
-            case 'Chamada':
+        switch (expressaoInicializacao.constructor) {
+            case Chamada:
                 const construtoChamada = expressaoInicializacao as Chamada;
-                switch (construtoChamada.entidadeChamada.constructor.name) {
-                    case 'Variavel':
+                switch (construtoChamada.entidadeChamada.constructor) {
+                    case Variavel:
                         const entidadeChamadaVariavel =
                             construtoChamada.entidadeChamada as Variavel;
                         tipoInicializacao = entidadeChamadaVariavel.tipo;
@@ -2680,7 +2680,7 @@ export class AvaliadorSintatico
 
         throw this.erro(
             { hashArquivo: construto.hashArquivo, linha: construto.linha } as SimboloInterface,
-            `Construto do tipo ${construto.constructor.name} não possui um mapeamento de valor.`
+            `Construto do tipo ${construto.constructor} não possui um mapeamento de valor.`
         );
     }
 

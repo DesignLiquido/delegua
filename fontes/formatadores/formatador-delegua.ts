@@ -705,7 +705,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}retorna`;
         if (declaracao.valor) {
             this.codigoFormatado += ` `;
-            if (declaracao.valor.constructor.name === 'FuncaoConstruto') {
+            if (declaracao.valor.constructor === FuncaoConstruto) {
                 this.codigoFormatado += `função`;
             }
 

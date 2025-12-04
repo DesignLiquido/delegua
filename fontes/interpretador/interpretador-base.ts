@@ -989,8 +989,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             indice = await this.avaliar(expressao.indice);
         }
 
-        switch (expressao.alvo.constructor.name) {
-            case 'Variavel':
+        switch (expressao.alvo.constructor) {
+            case Variavel:
                 const alvoVariavel = expressao.alvo as Variavel;
                 this.pilhaEscoposExecucao.atribuirVariavel(
                     alvoVariavel.simbolo,
@@ -998,14 +998,14 @@ export class InterpretadorBase implements InterpretadorInterface {
                     indice
                 );
                 break;
-            case 'AcessoMetodoOuPropriedade':
+            case AcessoMetodoOuPropriedade:
                 // Nunca será método aqui: apenas propriedade.
                 const alvoPropriedade = expressao.alvo as AcessoMetodoOuPropriedade;
                 const variavelObjeto = await this.avaliar(alvoPropriedade.objeto);
                 const objeto = this.resolverValor(variavelObjeto);
 
                 const valor = await this.avaliar(expressao.valor);
-                if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
+                if (objeto.constructor === ObjetoDeleguaClasse) {
                     const objetoDeleguaClasse = objeto as ObjetoDeleguaClasse;
                     objetoDeleguaClasse.definir(alvoPropriedade.simbolo, valor);
                 }
@@ -1013,7 +1013,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             default:
                 throw new ErroEmTempoDeExecucao(
                     null,
-                    `Atribuição com caso faltante: ${expressao.alvo.constructor.name}.`
+                    `Atribuição com caso faltante: ${JSON.stringify(expressao)}.`
                 );
         }
 
@@ -1694,7 +1694,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         const variavelObjeto = await this.avaliar(expressao.objeto);
         const objeto = this.resolverValor(variavelObjeto);
 
-        if (objeto.constructor.name !== 'ObjetoDeleguaClasse' && objeto.constructor !== Object) {
+        if (objeto.constructor !== ObjetoDeleguaClasse && objeto.constructor !== Object) {
             return Promise.reject(
                 new ErroEmTempoDeExecucao(
                     expressao.nome,
@@ -1705,7 +1705,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         const valor = await this.avaliar(expressao.valor);
-        if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
+        if (objeto.constructor === ObjetoDeleguaClasse) {
             objeto.definir(expressao.nome, valor);
             return valor;
         }
@@ -1797,8 +1797,8 @@ export class InterpretadorBase implements InterpretadorInterface {
         // Por exemplo, `objeto1.metodo1().metodo2()`.
         // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
         // valor dele primeiro.
-        if (variavelObjeto.constructor.name === 'RetornoQuebra') {
-            variavelObjeto = variavelObjeto.valor;
+        if (variavelObjeto.constructor === RetornoQuebra) {
+            variavelObjeto = (variavelObjeto as RetornoQuebra).valor;
         }
 
         const objeto = this.resolverValor(variavelObjeto);
@@ -2002,8 +2002,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             return retornoVetor;
         }
 
-        switch (objeto.constructor.name) {
-            case 'Object':
+        switch (objeto.constructor) {
+            case Object:
                 if ('tipo' in objeto) {
                     switch (objeto.tipo) {
                         case 'dicionário':

@@ -10,7 +10,7 @@ import {
 
 function* buscarRetornosEmBloco(construtoBloco: Bloco): Generator<Retorna> {
     for (const declaracao of construtoBloco.declaracoes) {
-        if (declaracao.constructor.name === 'Retorna') {
+        if (declaracao.constructor === Retorna) {
             yield declaracao as Retorna;
         }
     }
@@ -19,26 +19,26 @@ function* buscarRetornosEmBloco(construtoBloco: Bloco): Generator<Retorna> {
 function* buscarRetornosEmSe(construtoSe: Se): Generator<Retorna> {
     const blocoEntao: Bloco = construtoSe.caminhoEntao as Bloco;
     for (const declaracao of buscarRetornosEmBloco(blocoEntao)) {
-        if (declaracao.constructor.name === 'Retorna') {
+        if (declaracao.constructor === Retorna) {
             yield declaracao;
         }
     }
 
     if (!construtoSe.caminhoSenao) return;
-    switch (construtoSe.caminhoSenao.constructor.name) {
-        case 'Bloco':
+    switch (construtoSe.caminhoSenao.constructor) {
+        case Bloco:
             const blocoSenao: Bloco = construtoSe.caminhoSenao as Bloco;
 
             for (const declaracao of blocoSenao.declaracoes) {
-                if (declaracao.constructor.name === 'Retorna') {
+                if (declaracao.constructor === Retorna) {
                     yield declaracao as Retorna;
                 }
             }
             break;
-        case 'Se':
+        case Se:
             const senaoSe: Se = construtoSe.caminhoSenao as Se;
             for (const declaracao of buscarRetornosEmSe(senaoSe)) {
-                if (declaracao.constructor.name === 'Retorna') {
+                if (declaracao.constructor === Retorna) {
                     yield declaracao as Retorna;
                 }
             }
@@ -48,11 +48,11 @@ function* buscarRetornosEmSe(construtoSe: Se): Generator<Retorna> {
 
 export function buscarRetornos(declaracao: Declaracao): Retorna[] {
     let retornasEncontrados: Retorna[] = [];
-    switch (declaracao.constructor.name) {
-        case 'Retorna':
+    switch (declaracao.constructor) {
+        case Retorna:
             retornasEncontrados.push(declaracao as Retorna);
             break;
-        case 'Se':
+        case Se:
             for (const retorna of buscarRetornosEmSe(declaracao as Se)) {
                 retornasEncontrados.push(retorna);
             }

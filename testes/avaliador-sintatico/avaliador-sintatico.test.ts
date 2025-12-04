@@ -1,6 +1,6 @@
 import { Lexador } from '../../fontes/lexador';
 import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
-import { Bloco, Classe, Const, Escreva, Expressao, FuncaoDeclaracao, Importar, ParaCada, Retorna, TendoComo, Var } from '../../fontes/declaracoes';
+import { Bloco, Classe, Const, Escreva, Expressao, FuncaoDeclaracao, Importar, ParaCada, Retorna, TendoComo, Tente, Var } from '../../fontes/declaracoes';
 import { Binario, Chamada, Elvis, FuncaoConstruto, Leia, Literal, Logico, SeTernario, Variavel } from '../../fontes/construtos';
 
 describe('Avaliador sintático', () => {
@@ -488,10 +488,10 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     const declaracao = retornoAvaliadorSintatico.declaracoes[0];
-                    expect(declaracao.constructor.name).toBe('FuncaoDeclaracao');
+                    expect(declaracao.constructor).toBe(FuncaoDeclaracao);
                     const declaracaoTipada = declaracao as FuncaoDeclaracao;
                     const construtoFuncao = declaracaoTipada.funcao;
-                    expect(construtoFuncao.constructor.name).toBe('FuncaoConstruto');
+                    expect(construtoFuncao.constructor).toBe(FuncaoConstruto);
                     const construtoFuncaoTipado = construtoFuncao as FuncaoConstruto;
                     expect(construtoFuncaoTipado.tipo).toBe('inteiro');
                     expect(construtoFuncaoTipado.parametros).toHaveLength(2);
@@ -499,13 +499,13 @@ describe('Avaliador sintático', () => {
                     expect(construtoFuncaoTipado.parametros[1].tipoDado).toBe('inteiro');
                     const corpo = construtoFuncaoTipado.corpo;
                     expect(corpo).toHaveLength(1);
-                    expect(corpo[0].constructor.name).toBe('Retorna');
+                    expect(corpo[0].constructor).toBe(Retorna);
                     const corpoRetorna = corpo[0] as Retorna;
                     expect(corpoRetorna.valor).toBeTruthy();
-                    expect((corpoRetorna.valor as any).constructor.name).toBe('Binario');
+                    expect((corpoRetorna.valor as any).constructor).toBe(Binario);
                     const corpoRetornaBinario = corpoRetorna.valor as Binario;
-                    expect(corpoRetornaBinario.esquerda.constructor.name).toBe('Variavel');
-                    expect(corpoRetornaBinario.direita.constructor.name).toBe('Variavel');
+                    expect(corpoRetornaBinario.esquerda.constructor).toBe(Variavel);
+                    expect(corpoRetornaBinario.direita.constructor).toBe(Variavel);
                     const corpoRetornaBinarioEsquerda = corpoRetornaBinario.esquerda as Variavel;
                     const corpoRetornaBinarioDireita = corpoRetornaBinario.direita as Variavel;
                     expect(corpoRetornaBinarioEsquerda.tipo).toBe('inteiro');
@@ -684,7 +684,7 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 const declaracao = retornoAvaliadorSintatico.declaracoes[1];
-                expect(declaracao.constructor.name).toBe('Tente');
+                expect(declaracao.constructor).toBe(Tente);
             });
 
             describe('Declarações com construto binário', () => {
@@ -696,13 +696,13 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                     const declaracao = retornoAvaliadorSintatico.declaracoes[0];
-                    expect(declaracao.constructor.name).toBe('Expressao');
+                    expect(declaracao.constructor).toBe(Expressao);
                     const declaracaoTipada = declaracao as Expressao;
-                    expect(declaracaoTipada.expressao.constructor.name).toBe('Binario');
+                    expect(declaracaoTipada.expressao.constructor).toBe(Binario);
                     const binario = declaracaoTipada.expressao as Binario;
                     expect(binario.tipo).toBe('número');
-                    expect(binario.esquerda.constructor.name).toBe('Literal');
-                    expect(binario.direita.constructor.name).toBe('Literal');
+                    expect(binario.esquerda.constructor).toBe(Literal);
+                    expect(binario.direita.constructor).toBe(Literal);
                     const literalEsquerdo = binario.esquerda as Literal;
                     const literalDireito = binario.direita as Literal;
                     expect(literalEsquerdo.tipo).toBe('número');
@@ -723,15 +723,15 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
                     const declaracao = retornoAvaliadorSintatico.declaracoes[1];
-                    expect(declaracao.constructor.name).toBe('Escreva');
+                    expect(declaracao.constructor).toBe(Escreva);
                     const declaracaoTipada = declaracao as Escreva;
                     expect(declaracaoTipada.argumentos).toHaveLength(1);
                     const argumento = declaracaoTipada.argumentos[0];
-                    expect(argumento.constructor.name).toBe('Binario');
+                    expect(argumento.constructor).toBe(Binario);
                     const binario = argumento as Binario;
                     expect(binario.tipo).toBe('número');
-                    expect(binario.esquerda.constructor.name).toBe('Variavel');
-                    expect(binario.direita.constructor.name).toBe('Literal');
+                    expect(binario.esquerda.constructor).toBe(Variavel);
+                    expect(binario.direita.constructor).toBe(Literal);
                     const literalEsquerdo = binario.esquerda as Variavel;
                     const literalDireito = binario.direita as Literal;
                     expect(literalEsquerdo.tipo).toBe('número');
@@ -805,9 +805,9 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                     const declaracao = retornoAvaliadorSintatico.declaracoes[0];
-                    expect(declaracao.constructor.name).toBe('Var');
+                    expect(declaracao.constructor).toBe(Var);
                     const declaracaoTipada = declaracao as Var;
-                    expect(declaracaoTipada.inicializador.constructor.name).toBe('Leia');
+                    expect(declaracaoTipada.inicializador.constructor).toBe(Leia);
                     const declaracaoLeia = declaracaoTipada.inicializador as Leia;
                     expect(declaracaoLeia.argumentos).toHaveLength(0);
                 });
@@ -820,9 +820,9 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                     const declaracao = retornoAvaliadorSintatico.declaracoes[0];
-                    expect(declaracao.constructor.name).toBe('Var');
+                    expect(declaracao.constructor).toBe(Var);
                     const declaracaoTipada = declaracao as Var;
-                    expect(declaracaoTipada.inicializador.constructor.name).toBe('Leia');
+                    expect(declaracaoTipada.inicializador.constructor).toBe(Leia);
                     const declaracaoLeia = declaracaoTipada.inicializador as Leia;
                     expect(declaracaoLeia.argumentos.length).toBeGreaterThan(0);
                 });

@@ -248,8 +248,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             return JSON.stringify(objetoEscrita);
         }
 
-        switch (objeto.constructor.name) {
-            case 'Object':
+        switch (objeto.constructor) {
+            case Object:
                 if ('tipo' in objeto) {
                     switch (objeto.tipo) {
                         case 'dicionário':
@@ -677,8 +677,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         // Por exemplo, `objeto1.metodo1().metodo2()`.
         // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
         // valor dele primeiro.
-        if (variavelObjeto.constructor && variavelObjeto.constructor.name === 'RetornoQuebra') {
-            variavelObjeto = variavelObjeto.valor;
+        if (variavelObjeto.constructor === RetornoQuebra) {
+            variavelObjeto = (variavelObjeto as any).valor;
         }
 
         const objeto = this.resolverValor(variavelObjeto);
@@ -919,18 +919,15 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         // Por exemplo, `objeto1.metodo1().metodo2()`.
         // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
         // valor dele primeiro.
-        if (variavelObjeto.constructor && variavelObjeto.constructor.name === 'RetornoQuebra') {
-            variavelObjeto = variavelObjeto.valor;
+        if (variavelObjeto.constructor === RetornoQuebra) {
+            variavelObjeto = (variavelObjeto as RetornoQuebra).valor;
         }
 
         const objeto = this.resolverValor(variavelObjeto);
 
         // Outro caso que `instanceof` simplesmente não funciona para casos em Liquido,
         // então testamos também o nome do construtor.
-        if (
-            objeto instanceof ObjetoDeleguaClasse ||
-            (objeto.constructor && objeto.constructor.name === 'ObjetoDeleguaClasse')
-        ) {
+        if (objeto.constructor === ObjetoDeleguaClasse) {
             return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomePropriedade) || null;
         }
 
@@ -1118,7 +1115,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 const objeto = this.resolverValor(variavelObjeto);
 
                 const valor = await this.avaliar(expressao.valor);
-                if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
+                if (objeto.constructor === ObjetoDeleguaClasse) {
                     const objetoDeleguaClasse = objeto as ObjetoDeleguaClasse;
                     objetoDeleguaClasse.definir(alvoPropriedade.simbolo, valor);
                 } else {
@@ -1130,7 +1127,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             default:
                 throw new ErroEmTempoDeExecucao(
                     null,
-                    `Atribuição com caso faltante: ${expressao.alvo.constructor.name}.`
+                    `Atribuição com caso faltante: ${JSON.stringify(expressao)}.`
                 );
         }
 

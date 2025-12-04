@@ -132,7 +132,7 @@ export async function algum(
         );
     }
 
-    if (valorFuncaoPesquisa.constructor.name !== 'DeleguaFuncao') {
+    if (valorFuncaoPesquisa.constructor !== DeleguaFuncao) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 {
@@ -184,7 +184,7 @@ export async function encontrar(
         );
     }
 
-    if (valorFuncaoPesquisa.constructor.name !== 'DeleguaFuncao') {
+    if (valorFuncaoPesquisa.constructor !== DeleguaFuncao) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 {
@@ -236,7 +236,7 @@ export async function encontrar_indice(
         );
     }
 
-    if (valorFuncaoPesquisa.constructor.name !== 'DeleguaFuncao') {
+    if (valorFuncaoPesquisa.constructor !== DeleguaFuncao) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 {
@@ -288,7 +288,7 @@ export async function encontrar_ultimo(
         );
     }
 
-    if (valorFuncaoPesquisa.constructor.name !== 'DeleguaFuncao') {
+    if (valorFuncaoPesquisa.constructor !== DeleguaFuncao) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 {
@@ -339,7 +339,7 @@ export async function encontrar_ultimo_indice(
         );
     }
 
-    if (valorFuncaoPesquisa.constructor.name !== 'DeleguaFuncao') {
+    if (valorFuncaoPesquisa.constructor !== DeleguaFuncao) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 {
@@ -399,8 +399,7 @@ export async function filtrar_por(
         );
     }
 
-    const construtorResolvido = valorFuncaoFiltragem.constructor.name.replaceAll('_', '');
-    if (construtorResolvido !== 'DeleguaFuncao') {
+    if (valorFuncaoFiltragem.constructor !== DeleguaFuncao) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 {
@@ -595,11 +594,7 @@ export async function mapear(
         );
     }
 
-    const nomeConstrutorFuncaoMapeamento = valorFuncaoMapeamento.constructor.name.replaceAll(
-        '_',
-        ''
-    );
-    if (nomeConstrutorFuncaoMapeamento !== 'DeleguaFuncao') {
+    if (valorFuncaoMapeamento.constructor !== DeleguaFuncao) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 {
@@ -745,7 +740,7 @@ export async function para_cada(
         );
     }
 
-    if (valorFuncaoFiltragem.constructor.name !== 'DeleguaFuncao') {
+    if (valorFuncaoFiltragem.constructor !== DeleguaFuncao) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 {
@@ -802,7 +797,7 @@ export async function primeiro_em_condicao(
         );
     }
 
-    if (valorFuncaoFiltragem.constructor.name !== 'DeleguaFuncao') {
+    if (valorFuncaoFiltragem.constructor !== DeleguaFuncao) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 {

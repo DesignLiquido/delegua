@@ -31,7 +31,7 @@ export async function visitarExpressaoAcessoMetodo(
 
     const objeto = interpretador.resolverValor(variavelObjeto);
 
-    if (objeto.constructor && objeto.constructor.name === 'ObjetoDeleguaClasse') {
+    if (objeto.constructor === ObjetoDeleguaClasse) {
         return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomeMetodo) || null;
     }
 
@@ -281,7 +281,7 @@ export async function visitarExpressaoAcessoPropriedade(
     // então testamos também o nome do construtor.
     if (
         objeto instanceof ObjetoDeleguaClasse ||
-        (objeto.constructor && objeto.constructor.name === 'ObjetoDeleguaClasse')
+        (objeto.constructor === ObjetoDeleguaClasse)
     ) {
         return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomePropriedade) || null;
     }

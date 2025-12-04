@@ -31,7 +31,7 @@ import { ParametroInterface, SimboloInterface } from '../../interfaces';
 
 import { ErroAvaliadorSintatico } from './../erro-avaliador-sintatico';
 
-import { SeletorTuplas } from '../../construtos/tuplas';
+import { Deceto, Dupla, Noneto, Octeto, Quarteto, Quinteto, SeletorTuplas, Septeto, Sexteto, Trio } from '../../construtos/tuplas';
 import {
     Bloco,
     Comentario,
@@ -647,7 +647,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         argumentos: Construto[],
         tipoPrimitiva: string | undefined = undefined
     ): Construto {
-        if (entidadeChamada.constructor.name === 'Variavel') {
+        if (entidadeChamada.constructor === Variavel) {
             const entidadeChamadaResolvidaVariavel = entidadeChamada as Variavel;
 
             if (tipoPrimitiva === undefined) {
@@ -704,8 +704,8 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
 
             if (possivelReferencia !== null) {
                 return new ReferenciaFuncao(
-                    entidadeChamada.hashArquivo,
-                    entidadeChamada.linha,
+                    (entidadeChamada as Construto).hashArquivo,
+                    (entidadeChamada as Construto).linha,
                     entidadeChamadaResolvidaVariavel.simbolo,
                     entidadeChamadaResolvidaVariavel.tipo,
                     possivelReferencia.id
@@ -713,13 +713,13 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
             }
 
             return new ArgumentoReferenciaFuncao(
-                entidadeChamada.hashArquivo,
-                entidadeChamada.linha,
+                (entidadeChamada as Construto).hashArquivo,
+                (entidadeChamada as Construto).linha,
                 entidadeChamadaResolvidaVariavel.simbolo
             );
         }
 
-        if (entidadeChamada.constructor.name === 'AcessoMetodoOuPropriedade') {
+        if (entidadeChamada.constructor === AcessoMetodoOuPropriedade) {
             return this.resolverEntidadeChamadaAcessoMetodoOuPropriedade(
                 entidadeChamada as AcessoMetodoOuPropriedade
             );
@@ -996,10 +996,10 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
             const igual = this.simbolos[this.atual - 1];
             const valor = this.expressao();
 
-            switch (expressao.constructor.name) {
-                case 'Variavel':
+            switch (expressao.constructor) {
+                case Variavel:
                     return new Atribuir(this.hashArquivo, expressao, valor);
-                case 'AcessoMetodoOuPropriedade':
+                case AcessoMetodoOuPropriedade:
                     const expressaoAcessoMetodoOuPropriedade =
                         expressao as AcessoMetodoOuPropriedade;
                     return new DefinirValor(
@@ -1009,7 +1009,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
                         expressaoAcessoMetodoOuPropriedade.simbolo,
                         valor
                     );
-                case 'AcessoIndiceVariavel':
+                case AcessoIndiceVariavel:
                     const expressaoAcessoIndiceVariavel = expressao as AcessoIndiceVariavel;
                     return new AtribuicaoPorIndice(
                         this.hashArquivo,
@@ -1177,16 +1177,14 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         // tradicional de Delégua, com variável de controle e passo positivo, incrementado em 1.
         const literalOuVariavelInicio = this.adicaoOuSubtracao();
         this.blocos -= 1;
-        switch (literalOuVariavelInicio.constructor.name) {
-            case 'Literal':
+        switch (literalOuVariavelInicio.constructor) {
+            case Literal:
                 return this.declaracaoParaTradicional(
                     simboloPara,
                     nomeVariavelIteracao,
                     literalOuVariavelInicio
                 );
             // TODO: Terminar
-            case 'Variavel':
-            case 'Vetor':
             default:
                 return this.declaracaoParaCada(
                     simboloPara,
@@ -1455,18 +1453,18 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
     }
 
     protected logicaComumInferenciaTiposVariaveis(inicializador: Construto): string {
-        switch (inicializador.constructor.name) {
-            case 'AcessoIndiceVariavel':
+        switch (inicializador.constructor) {
+            case AcessoIndiceVariavel:
                 const entidadeChamadaAcessoIndiceVariavel = (inicializador as AcessoIndiceVariavel)
                     .entidadeChamada;
                 return entidadeChamadaAcessoIndiceVariavel.tipo.slice(0, -2);
-            case 'Chamada':
+            case Chamada:
                 const entidadeChamadaChamada = (inicializador as Chamada).entidadeChamada;
-                switch (entidadeChamadaChamada.constructor.name) {
-                    case 'AcessoMetodo':
+                switch (entidadeChamadaChamada.constructor) {
+                    case AcessoMetodo:
                         const entidadeChamadaAcessoMetodo = entidadeChamadaChamada as AcessoMetodo;
                         return entidadeChamadaAcessoMetodo.tipoRetornoMetodo;
-                    case 'AcessoMetodoOuPropriedade':
+                    case AcessoMetodoOuPropriedade:
                         // Este caso ocorre quando a variável/constante é do tipo 'qualquer',
                         // e a chamada normalmente é feita para uma primitiva.
                         // A inferência, portanto, ocorre pelo uso da primitiva.
@@ -1486,41 +1484,41 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
                             entidadeChamadaAcessoMetodoOuPropriedade.simbolo,
                             `Primitiva '${entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema}' não existe.`
                         );
-                    case 'AcessoPropriedade':
+                    case AcessoPropriedade:
                         const entidadeChamadaAcessoPropriedade =
                             entidadeChamadaChamada as AcessoPropriedade;
                         return entidadeChamadaAcessoPropriedade.tipoRetornoPropriedade;
-                    case 'ArgumentoReferenciaFuncao':
+                    case ArgumentoReferenciaFuncao:
                         // TODO: Voltar aqui se necessário.
                         return 'qualquer';
-                    case 'ReferenciaFuncao':
+                    case ReferenciaFuncao:
                         const entidadeChamadaReferenciaFuncao =
                             entidadeChamadaChamada as ReferenciaFuncao;
                         return entidadeChamadaReferenciaFuncao.tipo;
-                    case 'Variavel':
+                    case Variavel:
                         const entidadeChamadaVariavel = entidadeChamadaChamada as Variavel;
                         return entidadeChamadaVariavel.tipo;
                 }
 
                 break;
-            case 'FuncaoConstruto':
+            case FuncaoConstruto:
                 const funcaoConstruto = inicializador as FuncaoConstruto;
                 return `função<${funcaoConstruto.tipo}>`;
-            case 'Leia':
+            case Leia:
                 return 'texto';
-            case 'Dupla':
-            case 'Trio':
-            case 'Quarteto':
-            case 'Quinteto':
-            case 'Sexteto':
-            case 'Septeto':
-            case 'Octeto':
-            case 'Noneto':
-            case 'Deceto':
+            case Dupla:
+            case Trio:
+            case Quarteto:
+            case Quinteto:
+            case Sexteto:
+            case Septeto:
+            case Octeto:
+            case Noneto:
+            case Deceto:
                 return tipoDeDadosDelegua.TUPLA;
-            case 'ImportarBiblioteca':
+            /* case 'ImportarBiblioteca':
             case 'ModuloDeclaracoes':
-                return 'módulo';
+                return 'módulo'; */
             default:
                 return inicializador.tipo;
         }
@@ -1626,7 +1624,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         // Se o corpo for uma `Expressao`, corpo é convertido para `Retorna`.
         // Tenda trabalha com retornos implícitos.
         let corpoResolvido = [];
-        if (corpo.constructor.name === 'Expressao') {
+        if (corpo.constructor === Expressao) {
             const expressaoComoRetorna = new Retorna(
                 new Simbolo(
                     tiposDeSimbolos.RETORNA,

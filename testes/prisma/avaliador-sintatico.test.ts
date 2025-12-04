@@ -1,6 +1,6 @@
 import { AvaliadorSintaticoPrisma } from '../../fontes/avaliador-sintatico/dialetos';
 import { Leia, Literal } from '../../fontes/construtos';
-import { FuncaoDeclaracao, Para, Var } from '../../fontes/declaracoes';
+import { Classe, Enquanto, Expressao, FuncaoDeclaracao, Para, Se, Var } from '../../fontes/declaracoes';
 import { LexadorPrisma } from '../../fontes/lexador/dialetos';
 
 describe('Avaliador Sintático (Prisma)', () => {
@@ -33,7 +33,6 @@ describe('Avaliador Sintático (Prisma)', () => {
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
-                // expect(retornoAvaliadorSintatico.declaracoes[0].constructor.name).toBe('imprima');
             });
 
             it('leia', () => {
@@ -46,7 +45,7 @@ describe('Avaliador Sintático (Prisma)', () => {
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
-                expect(retornoAvaliadorSintatico.declaracoes[0].constructor.name).toBe('Var');
+                expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Var);
                 const declaracao = retornoAvaliadorSintatico.declaracoes[0] as Var;
                 expect(declaracao.inicializador.constructor).toBe(Leia);
             });
@@ -61,7 +60,7 @@ describe('Avaliador Sintático (Prisma)', () => {
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
-                expect(retornoAvaliadorSintatico.declaracoes[0].constructor.name).toBe('Var');
+                expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Var);
             });
 
             it('Declaração de variável texto com colchetes duplos', () => {
@@ -93,7 +92,7 @@ describe('Avaliador Sintático (Prisma)', () => {
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
-                expect(retornoAvaliadorSintatico.declaracoes[0].constructor.name).toBe('Expressao');
+                expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Expressao);
             });
 
             it('Estrutura condicional simples', () => {
@@ -110,7 +109,7 @@ describe('Avaliador Sintático (Prisma)', () => {
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
-                expect(retornoAvaliadorSintatico.declaracoes[0].constructor.name).toBe('Se');
+                expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Se);
             });
 
             it('Estrutura condicional com senão', () => {
@@ -129,7 +128,7 @@ describe('Avaliador Sintático (Prisma)', () => {
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
-                expect(retornoAvaliadorSintatico.declaracoes[0].constructor.name).toBe('Se');
+                expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Se);
             });
 
             it('Enquanto', () => {
@@ -148,8 +147,8 @@ describe('Avaliador Sintático (Prisma)', () => {
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
-                expect(retornoAvaliadorSintatico.declaracoes[0].constructor.name).toBe('Var');
-                expect(retornoAvaliadorSintatico.declaracoes[1].constructor.name).toBe('Enquanto');
+                expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Var);
+                expect(retornoAvaliadorSintatico.declaracoes[1].constructor).toBe(Enquanto);
             });
 
             it('Declaração de função', () => {
@@ -234,7 +233,7 @@ describe('Avaliador Sintático (Prisma)', () => {
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
-                expect(retornoAvaliadorSintatico.declaracoes[0].constructor.name).toBe('Classe');
+                expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Classe);
             });
         });
 

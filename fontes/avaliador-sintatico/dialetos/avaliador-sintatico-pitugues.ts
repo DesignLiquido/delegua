@@ -153,7 +153,7 @@ export class AvaliadorSintaticoPitugues
 
                 // Este condicional ocorre com chamadas aninhadas. Por exemplo, `vetor[1][2]`.
                 if (
-                    entidadeChamadaAcessoIndiceVariavel.constructor.name === 'AcessoIndiceVariavel'
+                    entidadeChamadaAcessoIndiceVariavel.constructor === AcessoIndiceVariavel
                 ) {
                     return this.logicaComumInferenciaTiposVariaveisEConstantes(
                         entidadeChamadaAcessoIndiceVariavel,
