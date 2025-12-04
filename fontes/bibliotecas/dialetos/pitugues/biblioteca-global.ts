@@ -17,7 +17,6 @@ import {
     Trio,
     Tupla,
 } from '../../../construtos';
-import { Simbolo } from '../../../lexador';
 import { RetornoQuebra } from '../../../quebras';
 
 /**
@@ -517,6 +516,42 @@ export async function inteiro(
     const resultadoValidacao = validacao_comum_numeros(interpretador, valor);
 
     return resultadoValidacao || Promise.resolve(parseInt(valor));
+}
+
+/**
+ * Cria um vetor com números inteiros no intervalo especificado.
+ * O valor inicial é inclusivo e o valor final é exclusivo.
+ * @param {InterpretadorInterface} interpretador A instância do interpretador.
+ * @param {VariavelInterface | number} valorInicial O valor inicial (inclusivo).
+ * @param {VariavelInterface | number} valorFinal O valor final (exclusivo).
+ * @returns {Promise<number[]>} Um vetor com os números no intervalo.
+ */
+export async function intervalo(
+    interpretador: InterpretadorInterface,
+    valorInicial: VariavelInterface | number,
+    valorFinal: VariavelInterface | number
+): Promise<number[]> {
+    const inicio = interpretador.resolverValor(valorInicial);
+    const fim = interpretador.resolverValor(valorFinal);
+
+    if (typeof inicio !== 'number' || typeof fim !== 'number') {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                {
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual,
+                } as SimboloInterface,
+                'Os dois parâmetros devem ser do tipo número.'
+            )
+        );
+    }
+
+    const resultado = [];
+    for (let i = inicio; i < fim; i++) {
+        resultado.push(i);
+    }
+
+    return Promise.resolve(resultado);
 }
 
 /**

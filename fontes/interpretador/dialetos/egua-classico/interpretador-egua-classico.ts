@@ -48,6 +48,7 @@ import {
     Se,
     TendoComo,
     Tente,
+    TextoDocumentacao,
     Var,
     VarMultiplo,
 } from '../../../declaracoes';
@@ -114,6 +115,10 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
 
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
+    }
+
+    visitarDeclaracaoTextoDocumentacao(declaracao: TextoDocumentacao): Promise<any> | void {
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoSeparador(expressao: Separador): Promise<any> | void {

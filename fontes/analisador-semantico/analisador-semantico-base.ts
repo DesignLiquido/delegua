@@ -60,6 +60,7 @@ import {
     Retorna,
     Sustar,
     Comentario,
+    TextoDocumentacao,
 } from '../declaracoes';
 import {
     DiagnosticoAnalisadorSemantico,
@@ -76,6 +77,10 @@ import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
  * simplesmente passa por ele (`return Promise.resolve()`).
  */
 export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInterface {
+    visitarDeclaracaoTextoDocumentacao(declaracao: TextoDocumentacao): Promise<any> | void {
+        return Promise.resolve();
+    }
+
     visitarExpressaoComentario(expressao: ComentarioComoConstruto): Promise<any> | void {
         // Comentários não afetam a análise semântica, então não faz nada.
         return Promise.resolve();

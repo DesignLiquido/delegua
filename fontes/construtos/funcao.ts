@@ -1,4 +1,4 @@
-import { Comentario, Declaracao } from '../declaracoes';
+import { Declaracao } from '../declaracoes';
 import { VisitanteComumInterface, ParametroInterface } from '../interfaces';
 import { Construto } from './construto';
 
@@ -10,6 +10,7 @@ export class FuncaoConstruto implements Construto {
     corpo: Declaracao[];
     tipo?: string;
     tipoExplicito: boolean;
+    documentacao: Declaracao;
 
     constructor(
         hashArquivo: number,
@@ -18,7 +19,7 @@ export class FuncaoConstruto implements Construto {
         corpo: Declaracao[],
         tipoRetorno?: string,
         tipoExplicito?: boolean,
-        documentacao?: Comentario,
+        documentacao?: Declaracao,
     ) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
@@ -27,7 +28,7 @@ export class FuncaoConstruto implements Construto {
         this.corpo = corpo;
         this.tipo = tipoRetorno;
         this.tipoExplicito = tipoExplicito || false;
-
+        this.documentacao = documentacao;
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {

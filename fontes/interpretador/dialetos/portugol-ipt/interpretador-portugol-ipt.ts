@@ -42,6 +42,7 @@ import {
     Sustar,
     TendoComo,
     Tente,
+    TextoDocumentacao,
     Var,
     VarMultiplo,
 } from '../../../declaracoes';
@@ -106,6 +107,9 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
             emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+    }
+    visitarDeclaracaoTextoDocumentacao(declaracao: TextoDocumentacao): Promise<any> | void {
+        throw new Error('Method not implemented.');
     }
 
     /* istanbul ignore next */

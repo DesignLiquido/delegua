@@ -25,6 +25,7 @@ import {
     Se,
     TendoComo,
     Tente,
+    TextoDocumentacao,
     Var,
     VarMultiplo,
 } from '../declaracoes';
@@ -185,6 +186,10 @@ export class InterpretadorBase implements InterpretadorInterface {
             emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+    }
+
+    visitarDeclaracaoTextoDocumentacao(declaracao: TextoDocumentacao): Promise<any> | void {
+        throw new Error('Método não implementado.');
     }
 
     visitarExpressaoSeparador(expressao: Separador): Promise<any> | void {

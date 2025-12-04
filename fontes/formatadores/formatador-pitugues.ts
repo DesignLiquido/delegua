@@ -1,357 +1,496 @@
 import {
-    Atribuir,
     AcessoIndiceVariavel,
-    AcessoElementoMatriz,
-    AcessoMetodo,
     AcessoMetodoOuPropriedade,
-    AcessoPropriedade,
     Agrupamento,
     AtribuicaoPorIndice,
-    AtribuicaoPorIndicesMatriz,
+    Atribuir,
     Binario,
     Chamada,
     DefinirValor,
-    FuncaoConstruto,
-    Variavel,
-    Constante,
     Dicionario,
-    ExpressaoRegular,
-    FimPara,
-    FormatacaoEscrita,
-    Isto,
+    FuncaoConstruto,
     Literal,
     Logico,
-    Super,
-    Tupla,
     TipoDe,
     Unario,
+    Variavel,
     Vetor,
-    ArgumentoReferenciaFuncao,
-    ReferenciaFuncao,
-    Leia,
-    ComentarioComoConstruto,
-    Separador,
+    Leia
 } from '../construtos';
+
 import {
-    CabecalhoPrograma,
+    Bloco,
     Classe,
+    Comentario,
     Const,
-    ConstMultiplo,
-    Expressao,
-    FuncaoDeclaracao,
-    Enquanto,
     Escolha,
     Escreva,
-    EscrevaMesmaLinha,
+    Enquanto,
     Fazer,
+    FuncaoDeclaracao,
     Importar,
-    InicioAlgoritmo,
     Para,
-    ParaCada,
     Se,
-    TendoComo,
     Tente,
     Var,
-    VarMultiplo,
-    Bloco,
-    Continua,
-    Falhar,
     Retorna,
+    Continua,
     Sustar,
-    Comentario,
+    Falhar,
+    Declaracao,
+    Expressao,
+    ParaCada,
+    TextoDocumentacao,
 } from '../declaracoes';
+
 import { VisitanteComumInterface } from '../interfaces';
-import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
+import tiposDeSimbolos from '../tipos-de-simbolos/pitugues';
 
 export class FormatadorPitugues implements VisitanteComumInterface {
-    /* istanbul ignore next */
-    visitarExpressaoSeparador(expressao: Separador): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    private nívelIndentação = 0;
+    private tamanhoIndentação = 4;
+    private códigoFormatado = '';
+    private quebraLinha = '\n';
+
+    private indentar(): string {
+        return ' '.repeat(this.nívelIndentação);
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoComentario(expressao: ComentarioComoConstruto): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    private adicionarLinha(texto: string = ''): void {
+        this.códigoFormatado += this.indentar() + texto + this.quebraLinha;
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoArgumentoReferenciaFuncao(
-        expressao: ArgumentoReferenciaFuncao
-    ): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    private aumentarIndentação(): void {
+        this.nívelIndentação += this.tamanhoIndentação;
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    private diminuirIndentação(): void {
+        this.nívelIndentação -= this.tamanhoIndentação;
     }
 
-    /* istanbul ignore next */
-    visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    // Métodos obrigatórios da interface, não usados no Pituguês.
+    visitarDeclaracaoCabecalhoPrograma(): Promise<any> { return Promise.resolve(); }
+    visitarDeclaracaoConstMultiplo(): Promise<any> { return Promise.resolve(); }
+    visitarDeclaracaoEscrevaMesmaLinha(): Promise<any> { return Promise.resolve(); }
+    visitarDeclaracaoInicioAlgoritmo(): Promise<any> { return Promise.resolve(); }
+    visitarDeclaracaoTendoComo(): Promise<any> { return Promise.resolve(); }
+    visitarDeclaracaoVarMultiplo(): Promise<any> { return Promise.resolve(); }
+
+    visitarExpressaoAcessoElementoMatriz(): Promise<any> { return Promise.resolve(); }
+    visitarExpressaoAcessoMetodo(): Promise<any> { return Promise.resolve(); }
+    visitarExpressaoAcessoPropriedade(): Promise<any> { return Promise.resolve(); }
+    visitarExpressaoArgumentoReferenciaFuncao(): Promise<any> { return Promise.resolve(); }
+    visitarExpressaoAtribuicaoPorIndicesMatriz(): Promise<any> { return Promise.resolve(); }
+    visitarExpressaoComentario(): Promise<any> { return Promise.resolve(); }
+    visitarExpressaoExpressaoRegular(): Promise<any> { return Promise.resolve(); }
+    visitarExpressaoFimPara(): Promise<any> { return Promise.resolve(); }
+    visitarExpressaoFormatacaoEscrita(): Promise<any> { return Promise.resolve(); }
+    visitarExpressaoReferenciaFuncao(): Promise<any> { return Promise.resolve(); }
+    visitarExpressaoSeparador(): Promise<any> { return Promise.resolve(); }
+    visitarExpressaoTupla(): Promise<any> { return Promise.resolve(); }
+
+    async visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<any> { 
+        this.códigoFormatado += this.indentar();
+        this.códigoFormatado += await declaracao.expressao.aceitar(this) + `\n`;
     }
 
-    /* istanbul ignore next */
-    visitarDeclaracaoClasse(declaracao: Classe): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarDeclaracaoClasse(declaração: Classe): Promise<any> {
+        this.adicionarLinha(`classe ${declaração.simbolo.lexema}:`);
+        this.aumentarIndentação();
+
+        // Atributos
+        for (const atributo of declaração.propriedades || []) {
+            const tipo = atributo.tipo ? `: ${atributo.tipo}` : '';
+            this.adicionarLinha(`${atributo.nome.lexema}${tipo}`);
+        }
+
+        // Métodos
+        for (const método of declaração.metodos || []) {
+            const nome = método.simbolo.lexema;
+            const éConstrutor = nome === 'construtor';
+            const parâmetros = método.funcao.parametros;
+
+            this.códigoFormatado += this.indentar();
+            this.códigoFormatado += `${éConstrutor ? 'construtor' : `função ${nome}`}(`;
+
+            if (parâmetros.length > 0) {
+                for (let i = 0; i < parâmetros.length; i++) {
+                    const p = parâmetros[i];
+                    const tipo = p.tipoDado ? `: ${p.tipoDado}` : '';
+                    this.códigoFormatado += `${p.nome.lexema}${tipo}`;
+                    this.códigoFormatado += ', ';
+                }
+
+                if (parâmetros.length > 1) {
+                    this.códigoFormatado = this.códigoFormatado.slice(0, -2);
+                }
+            }
+
+            this.códigoFormatado += '):\n';
+
+            this.aumentarIndentação();
+            for (const instrução of método.funcao.corpo) {
+                await instrução.aceitar(this);
+            }
+
+            this.diminuirIndentação();
+        }
+
+        this.diminuirIndentação();
     }
 
-    /* istanbul ignore next */
-    visitarDeclaracaoComentario(declaracao: Comentario): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarDeclaracaoDefinicaoFuncao(declaração: FuncaoDeclaracao): Promise<any> {
+        const parâmetros = declaração.funcao.parametros;
+
+        this.códigoFormatado += this.indentar() + `função ${declaração.simbolo.lexema}(`;
+
+        for (let i = 0; i < parâmetros.length; i++) {
+            const p = parâmetros[i];
+            const tipo = p.tipoDado ? `: ${p.tipoDado}` : '';
+            this.códigoFormatado += `${p.nome.lexema}${tipo}`;
+            if (i < parâmetros.length - 1) this.códigoFormatado += ', ';
+        }
+        this.códigoFormatado += '):\n';
+
+        this.aumentarIndentação();
+        for (const instrução of declaração.funcao.corpo) {
+            await instrução.aceitar(this);
+        }
+        this.diminuirIndentação();
     }
 
-    /* istanbul ignore next */
-    visitarDeclaracaoConst(declaracao: Const): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    visitarDeclaracaoTextoDocumentacao(declaracao: TextoDocumentacao): Promise<any> | void {
+        this.códigoFormatado += `'''${declaracao.conteudo}'''`;
     }
 
-    /* istanbul ignore next */
-    visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarDeclaracaoVar(declaração: Var): Promise<any> {
+        this.códigoFormatado += this.indentar() + `var ${declaração.simbolo.lexema} = `;
+        if (declaração.inicializador) {
+            this.códigoFormatado += await declaração.inicializador.aceitar(this);
+        } else {
+            this.códigoFormatado += 'nulo';
+        }
+
+        this.códigoFormatado += `\n`;
     }
 
-    /* istanbul ignore next */
-    visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarDeclaracaoConst(declaração: Const): Promise<any> {
+        return Promise.resolve();
     }
 
-    /* istanbul ignore next */
-    visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): void {
-        throw new Error('Método não implementado.');
+    async visitarDeclaracaoSe(declaração: Se): Promise<any> {
+        this.adicionarLinha(`se ${await declaração.condicao.aceitar(this)}:`);
+        this.aumentarIndentação();
+        for (const instrução of (declaração.caminhoEntao as Bloco).declaracoes) {
+            await instrução.aceitar(this);
+        }
+        this.diminuirIndentação();
+
+        if (declaração.caminhoSenao) {
+            this.adicionarLinha('senão:');
+            this.aumentarIndentação();
+            if (declaração.caminhoSenao instanceof Bloco) {
+                for (const instrução of declaração.caminhoSenao.declaracoes) {
+                    await instrução.aceitar(this);
+                }
+            } else {
+                await (declaração.caminhoSenao as Se).aceitar(this);
+            }
+            this.diminuirIndentação();
+        }
     }
 
-    /* istanbul ignore next */
-    visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarDeclaracaoEnquanto(declaração: Enquanto): Promise<any> {
+        this.adicionarLinha(`enquanto ${await declaração.condicao.aceitar(this)}:`);
+        this.aumentarIndentação();
+        for (const instrução of (declaração.corpo as Bloco).declaracoes) {
+            await instrução.aceitar(this);
+        }
+        this.diminuirIndentação();
     }
 
-    /* istanbul ignore next */
-    visitarDeclaracaoEscolha(declaracao: Escolha): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarDeclaracaoEscolha(declaração: Escolha): Promise<any> {
+        const valor = await declaração.identificadorOuLiteral.aceitar(this);
+        this.adicionarLinha(`escolha ${valor}:`);
+        this.aumentarIndentação();
+
+        for (const caminho of declaração.caminhos) {
+            for (const condição of caminho.condicoes) {
+                this.adicionarLinha(`caso ${await condição.aceitar(this)}:`);
+                this.aumentarIndentação();
+                for (const instrução of caminho.declaracoes) {
+                    await instrução.aceitar(this);
+                }
+                this.diminuirIndentação();
+            }
+        }
+
+        if (declaração.caminhoPadrao?.declaracoes?.length) {
+            this.adicionarLinha('padrão:');
+            this.aumentarIndentação();
+            for (const instrução of declaração.caminhoPadrao.declaracoes) {
+                await instrução.aceitar(this);
+            }
+            this.diminuirIndentação();
+        }
+
+        this.diminuirIndentação();
     }
 
-    /* istanbul ignore next */
-    visitarDeclaracaoEscreva(declaracao: Escreva): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarDeclaracaoFazer(declaração: Fazer): Promise<any> {
+        this.adicionarLinha('fazer:');
+        this.aumentarIndentação();
+        for (const instrução of (declaração.caminhoFazer as Bloco).declaracoes) {
+            await instrução.aceitar(this);
+        }
+        this.diminuirIndentação();
+        this.adicionarLinha(`enquanto ${await declaração.condicaoEnquanto.aceitar(this)}`);
     }
 
-    /* istanbul ignore next */
-    visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarDeclaracaoParaCada(declaração: ParaCada): Promise<any> { 
+        const variavelIteracao = await declaração.variavelIteracao.aceitar(this);
+        const vetorOuDicionario = await declaração.vetorOuDicionario.aceitar(this);
+        this.adicionarLinha(`para cada ${variavelIteracao} de ${vetorOuDicionario}:`);
+        this.aumentarIndentação();
+        for (const instrução of (declaração.corpo as Bloco).declaracoes) {
+            await instrução.aceitar(this);
+        }
+        this.diminuirIndentação();
     }
 
-    /* istanbul ignore next */
-    visitarDeclaracaoFazer(declaracao: Fazer): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarDeclaracaoPara(declaração: Para): Promise<any> {
+        return Promise.resolve();
     }
 
-    /* istanbul ignore next */
-    visitarDeclaracaoImportar(declaracao: Importar): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarDeclaracaoTente(declaração: Tente): Promise<any> {
+        this.adicionarLinha('tente:');
+        this.aumentarIndentação();
+        for (const instrução of declaração.caminhoTente) await instrução.aceitar(this);
+        this.diminuirIndentação();
+
+        if (declaração.caminhoPegue) {
+            this.adicionarLinha('pegue como erro:');
+            this.aumentarIndentação();
+            const declaracoes = declaração.caminhoPegue instanceof FuncaoConstruto ? declaração.caminhoPegue.corpo : declaração.caminhoPegue as Declaracao[];
+            for (const instrução of declaracoes) {
+                await instrução.aceitar(this);
+            }
+            this.diminuirIndentação();
+        }
+
+        if (declaração.caminhoFinalmente) {
+            this.adicionarLinha('finalmente:');
+            this.aumentarIndentação();
+            for (const instrução of declaração.caminhoFinalmente) await instrução.aceitar(this);
+            this.diminuirIndentação();
+        }
     }
 
-    /* istanbul ignore next */
-    visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarDeclaracaoEscreva(declaração: Escreva): Promise<any> {
+        this.códigoFormatado += this.indentar() + `${declaração.simboloEscreva ? declaração.simboloEscreva.lexema : 'imprima'}(`;
+        for (let i = 0; i < declaração.argumentos.length; i++) {
+            this.códigoFormatado += await declaração.argumentos[i].aceitar(this);
+            if (i < declaração.argumentos.length - 1) this.códigoFormatado += ', ';
+        }
+        this.códigoFormatado += `)${this.quebraLinha}`;
     }
 
-    /* istanbul ignore next */
-    visitarDeclaracaoPara(declaracao: Para): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarDeclaracaoImportar(declaração: Importar): Promise<any> {
+        const caminho = await declaração.caminho.aceitar(this);
+        this.adicionarLinha(`importar "${caminho.replace(/'/g, '')}"`);
     }
 
-    /* istanbul ignore next */
-    visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarDeclaracaoComentario(declaração: Comentario): Promise<any> {
+        this.adicionarLinha(`# ${declaração.conteudo}`);
     }
 
-    /* istanbul ignore next */
-    visitarDeclaracaoSe(declaracao: Se): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    // ================================================================
+    // Expressões
+    // ================================================================
+
+    async visitarExpressaoBloco(declaração: Bloco): Promise<any> {
+        for (const instrução of declaração.declaracoes) {
+            await instrução.aceitar(this);
+        }
     }
 
-    /* istanbul ignore next */
-    visitarDeclaracaoTendoComo(declaracao: TendoComo): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarExpressaoRetornar(declaração: Retorna): Promise<any> {
+        if (declaração.valor) {
+            return `retorna ${await declaração.valor.aceitar(this)}`;
+        } else {
+            return 'retorna';
+        }
     }
 
-    /* istanbul ignore next */
-    visitarDeclaracaoTente(declaracao: Tente): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    visitarExpressaoContinua(): any {
+        this.adicionarLinha('continue');
     }
 
-    /* istanbul ignore next */
-    visitarDeclaracaoVar(declaracao: Var): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    visitarExpressaoSustar(): any {
+        this.adicionarLinha('sustar');
     }
 
-    /* istanbul ignore next */
-    visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarExpressaoFalhar(expressão: Falhar): Promise<any> {
+        const mensagem = expressão.explicacao ? await expressão.explicacao.aceitar(this) : '"Erro"';
+        this.adicionarLinha(`levante Erro(${mensagem})`);
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarExpressaoDeAtribuicao(expressão: Atribuir): Promise<any> {
+        return `${await expressão.alvo.aceitar(this)} = ${await expressão.valor.aceitar(this)}`;
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarExpressaoBinaria(expressão: Binario): Promise<any> {
+        const esquerda = await expressão.esquerda.aceitar(this);
+        const direita = await expressão.direita.aceitar(this);
+        const operador = this.mapearOperador(expressão.operador.tipo);
+        return `${esquerda} ${operador} ${direita}`;
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoAcessoElementoMatriz(expressao: AcessoElementoMatriz): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarExpressaoLogica(expressão: Logico): Promise<any> {
+        const esquerda = await expressão.esquerda.aceitar(this);
+        const direita = await expressão.direita.aceitar(this);
+        const operador = expressão.operador.tipo === tiposDeSimbolos.E ? 'e' : 'ou';
+        return `${esquerda} ${operador} ${direita}`;
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarExpressaoLiteral(expressão: Literal): Promise<any> {
+        if (expressão.valor === null) return 'nulo';
+        if (expressão.valor === true) return 'verdadeiro';
+        if (expressão.valor === false) return 'falso';
+        if (typeof expressão.valor === 'string') {
+            return `'${expressão.valor.replace(/'/g, "\\'")}'`;
+        }
+        return String(expressão.valor);
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoAcessoMetodoOuPropriedade(
-        expressao: AcessoMetodoOuPropriedade
-    ): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarExpressaoDeVariavel(expressão: Variavel): Promise<any> {
+        return expressão.simbolo.lexema;
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarExpressaoAgrupamento(expressão: Agrupamento): Promise<any> {
+        return `(${await expressão.expressao.aceitar(this)})`;
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoAgrupamento(expressao: Agrupamento): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarExpressaoUnaria(expressão: Unario): Promise<any> {
+        const operador = expressão.operador.tipo === tiposDeSimbolos.SUBTRACAO ? '-'
+                       : expressão.operador.tipo === tiposDeSimbolos.NEGACAO ? 'não '
+                       : '';
+        const operando = await expressão.operando.aceitar(this);
+        return expressão.incidenciaOperador === 'ANTES'
+            ? `${operador}${operando}`
+            : `${operando}${operador}`;
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoAtribuicaoPorIndice(expressao: AtribuicaoPorIndice): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarExpressaoDeChamada(expressão: Chamada): Promise<any> {
+        const função = await expressão.entidadeChamada.aceitar(this);
+        const argumentos = await Promise.all(expressão.argumentos.map(a => a.aceitar(this)));
+        return `${função}(${argumentos.join(', ')})`;
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoAtribuicaoPorIndicesMatriz(
-        expressao: AtribuicaoPorIndicesMatriz
-    ): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    visitarExpressaoIsto(): Promise<any> {
+        return Promise.resolve('isto');
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoBinaria(expressao: Binario): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarExpressaoSuper(): Promise<any> {
+        return 'super()';
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoBloco(declaracao: Bloco): Promise<any> {
-        throw new Error('Método não implementado.');
+    async visitarExpressaoVetor(expressão: Vetor): Promise<any> {
+        const valores = await Promise.all(expressão.valores.map(v => v.aceitar(this)));
+        return `[${valores.join(', ')}]`;
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra {
-        throw new Error('Método não implementado.');
+    async visitarExpressaoDicionario(expressão: Dicionario): Promise<any> {
+        const pares = await Promise.all(
+            expressão.chaves.map(async (chave, i) => {
+                const k = await chave.aceitar(this);
+                const v = await expressão.valores[i].aceitar(this);
+                return `${k}: ${v}`;
+            })
+        );
+        return `{${pares.join(', ')}}`;
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoDeChamada(expressao: Chamada): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarExpressaoAcessoIndiceVariavel(expressão: AcessoIndiceVariavel): Promise<any> {
+        const entidade = await expressão.entidadeChamada.aceitar(this);
+        const índice = await expressão.indice.aceitar(this);
+        return `${entidade}[${índice}]`;
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoDefinirValor(expressao: DefinirValor): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarExpressaoAtribuicaoPorIndice(expressão: AtribuicaoPorIndice): Promise<any> {
+        const objeto = await expressão.objeto.aceitar(this);
+        const índice = await expressão.indice.aceitar(this);
+        const valor = await expressão.valor.aceitar(this);
+        return `${objeto}[${índice}] = ${valor}`;
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoFuncaoConstruto(expressao: FuncaoConstruto): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarExpressaoAcessoMetodoOuPropriedade(expressão: AcessoMetodoOuPropriedade): Promise<any> {
+        const objeto = await expressão.objeto.aceitar(this);
+        return `${objeto}.${expressão.simbolo.lexema}`;
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoDeVariavel(expressao: Variavel | Constante): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarExpressaoDefinirValor(expressão: DefinirValor): Promise<any> {
+        const objeto = await expressão.objeto.aceitar(this);
+        const valor = await expressão.valor.aceitar(this);
+        return `${objeto}.${expressão.nome.lexema} = ${valor}`;
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoDicionario(expressao: Dicionario): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarExpressaoFuncaoConstruto(expressão: FuncaoConstruto): Promise<any> {
+        const parâmetros = expressão.parametros.map(p => {
+            const tipo = p.tipoDado ? `: ${p.tipoDado}` : '';
+            return p.nome.lexema + tipo;
+        }).join(', ');
+
+        let funçãoStr = `função(${parâmetros || ''}):\n`;
+
+        this.aumentarIndentação();
+        for (const instrução of expressão.corpo) {
+            const linha = await instrução.aceitar(this);
+            if (linha) {  // Only add if it returns something
+                funçãoStr += this.indentar() + linha;
+                if (!linha.endsWith('\n')) funçãoStr += '\n';
+            }
+        }
+        this.diminuirIndentação();
+        
+        return funçãoStr.trimEnd();
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<RegExp> | void {
-        throw new Error('Método não implementado.');
+    async visitarExpressaoLeia(expressão: Leia): Promise<any> {
+        const argumentos = await Promise.all(expressão.argumentos.map(a => a.aceitar(this)));
+        return argumentos.length > 0 ? `input(${argumentos.join(', ')})` : 'input()';
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoFalhar(expressao: Falhar): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarExpressaoTipoDe(expressão: TipoDe): Promise<any> {
+        const valor = await expressão.valor.aceitar(this);
+        return `type(${valor})`;
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoFimPara(declaracao: FimPara): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    private mapearOperador(tipo: any): string {
+        const mapa: Record<string, string> = {
+            [tiposDeSimbolos.ADICAO]: '+',
+            [tiposDeSimbolos.SUBTRACAO]: '-',
+            [tiposDeSimbolos.MULTIPLICACAO]: '*',
+            [tiposDeSimbolos.DIVISAO]: '/',
+            [tiposDeSimbolos.MODULO]: '%',
+            [tiposDeSimbolos.MAIOR]: '>',
+            [tiposDeSimbolos.MAIOR_IGUAL]: '>=',
+            [tiposDeSimbolos.MENOR]: '<',
+            [tiposDeSimbolos.MENOR_IGUAL]: '<=',
+            [tiposDeSimbolos.IGUAL_IGUAL]: '==',
+            [tiposDeSimbolos.DIFERENTE]: '!=',
+        };
+        return mapa[tipo] || String(tipo);
     }
 
-    /* istanbul ignore next */
-    visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita): Promise<any> | void {
-        throw new Error('Método não implementado.');
-    }
+    async formatar(declarações: any[]): Promise<string> {
+        this.códigoFormatado = '';
+        this.nívelIndentação = 0;
 
-    /* istanbul ignore next */
-    visitarExpressaoIsto(expressao: Isto): Promise<any> | void {
-        throw new Error('Método não implementado.');
-    }
+        for (const declaração of declarações) {
+            await declaração.aceitar(this);
+        }
 
-    /* istanbul ignore next */
-    visitarExpressaoLeia(expressao: Leia): Promise<any> | void {
-        throw new Error('Método não implementado.');
-    }
-
-    /* istanbul ignore next */
-    visitarExpressaoLiteral(expressao: Literal): Promise<any> | void {
-        throw new Error('Método não implementado.');
-    }
-
-    /* istanbul ignore next */
-    visitarExpressaoLogica(expressao: Logico): Promise<any> | void {
-        throw new Error('Método não implementado.');
-    }
-
-    /* istanbul ignore next */
-    visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> | void {
-        throw new Error('Método não implementado.');
-    }
-
-    /* istanbul ignore next */
-    visitarExpressaoSuper(expressao: Super): Promise<any> | void {
-        throw new Error('Método não implementado.');
-    }
-
-    /* istanbul ignore next */
-    visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra | void {
-        throw new Error('Método não implementado.');
-    }
-
-    /* istanbul ignore next */
-    visitarExpressaoTupla(expressao: Tupla): Promise<any> | void {
-        throw new Error('Método não implementado.');
-    }
-
-    /* istanbul ignore next */
-    visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> | void {
-        throw new Error('Método não implementado.');
-    }
-
-    /* istanbul ignore next */
-    visitarExpressaoUnaria(expressao: Unario): Promise<any> | void {
-        throw new Error('Método não implementado.');
-    }
-
-    /* istanbul ignore next */
-    visitarExpressaoVetor(expressao: Vetor): Promise<any> | void {
-        throw new Error('Método não implementado.');
+        return this.códigoFormatado.trimEnd() + '\n';
     }
 }

@@ -2979,15 +2979,15 @@ export class AvaliadorSintatico
                 'Esperado nome do parâmetro.'
             );
 
-            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-                const valorPadrao = this.primario();
-                parametro.valorPadrao = valorPadrao;
-            }
-
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
                 let tipoDadoParametro = this.verificarDefinicaoTipoAtual();
                 parametro.tipoDado = tipoDadoParametro;
                 this.avancarEDevolverAnterior();
+            }
+
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+                const valorPadrao = this.primario();
+                parametro.valorPadrao = valorPadrao;
             }
 
             this.pilhaEscopos.definirInformacoesVariavel(
@@ -3321,6 +3321,13 @@ export class AvaliadorSintatico
             'inteiro',
             new InformacaoElementoSintatico('inteiro', 'inteiro', true, [
                 new InformacaoElementoSintatico('valor', 'qualquer'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'intervalo',
+            new InformacaoElementoSintatico('intervalo', 'inteiro[]', true, [
+                new InformacaoElementoSintatico('valorInicial', 'inteiro'),
+                new InformacaoElementoSintatico('valorFinal', 'inteiro'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(

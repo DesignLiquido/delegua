@@ -49,7 +49,6 @@ import {
     Falhar,
     Fazer,
     FuncaoDeclaracao,
-    Importar,
     InicioAlgoritmo,
     Para,
     Retorna,
@@ -57,6 +56,7 @@ import {
     Sustar,
     TendoComo,
     Tente,
+    TextoDocumentacao,
     Var,
     VarMultiplo,
 } from '../declaracoes';
@@ -80,6 +80,7 @@ export interface VisitanteComumInterface {
     visitarDeclaracaoSe(declaracao: Se): Promise<any> | void;
     visitarDeclaracaoTendoComo(declaracao: TendoComo): Promise<any> | void;
     visitarDeclaracaoTente(declaracao: Tente): Promise<any> | void;
+    visitarDeclaracaoTextoDocumentacao(declaracao: TextoDocumentacao): Promise<any> | void;
     visitarDeclaracaoVar(declaracao: Var): Promise<any> | void;
     visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any> | void;
     visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> | void;
@@ -120,7 +121,6 @@ export interface VisitanteComumInterface {
     visitarExpressaoSeparador(expressao: Separador): Promise<any> | void;
     visitarExpressaoSuper(expressao: Super): Promise<any> | void;
     visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra | void;
-
     visitarExpressaoTupla(expressao: Tupla): Promise<any> | void;
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> | void;
     visitarExpressaoUnaria(expressao: Unario): Promise<any> | void;

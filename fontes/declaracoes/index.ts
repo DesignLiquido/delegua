@@ -25,5 +25,6 @@ export * from './se';
 export * from './sustar';
 export * from './tendo-como';
 export * from './tente';
+export * from './texto-documentacao';
 export * from './var';
 export * from './var-multiplo';

@@ -28,6 +28,7 @@ import {
     ParaCada,
     Se,
     TendoComo,
+    TextoDocumentacao,
     Var,
     VarMultiplo,
 } from '../../../../declaracoes';
@@ -95,6 +96,10 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.funcaoAtual = TipoFuncao.NENHUM;
         this.classeAtual = TipoClasse.NENHUM;
         this.cicloAtual = TipoClasse.NENHUM;
+    }
+
+    visitarDeclaracaoTextoDocumentacao(declaracao: TextoDocumentacao): Promise<any> | void {
+        throw new Error('Método não implementado.');
     }
 
     /* istanbul ignore next */

@@ -58,6 +58,7 @@ import {
     CabecalhoPrograma,
     TendoComo,
     Comentario,
+    TextoDocumentacao,
 } from '../declaracoes';
 import { InicioAlgoritmo } from '../declaracoes/inicio-algoritmo';
 import { VisitanteComumInterface } from '../interfaces';
@@ -85,6 +86,11 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.devePularLinha = true;
         this.deveIndentar = true;
     }
+
+    visitarDeclaracaoTextoDocumentacao(declaracao: TextoDocumentacao): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
     visitarExpressaoSeparador(expressao: Separador): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
