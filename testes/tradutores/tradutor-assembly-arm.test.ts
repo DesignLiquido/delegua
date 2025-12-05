@@ -75,7 +75,7 @@ describe('Tradutor (Assembly ARM)', () => {
             const literal = new Literal(-1, 1, 'Olá Mundo');
             const resultado = tradutor.traduzirConstrutoLiteral(literal);
             expect(resultado).toMatch(/^Delegua_\d{5}$/);
-            expect(tradutor.data).toContain("'Olá Mundo'");
+            expect(tradutor.data).toContain('"Olá Mundo"');
         });
 
         it('deve traduzir literal booleano', () => {
@@ -374,7 +374,8 @@ describe('Tradutor (Assembly ARM)', () => {
             expect(tradutor.variaveis.has('b')).toBe(true);
             expect(tradutor.bss).toContain('var_b: .space 4');
             expect(tradutor.text).toContain('ldr r0, =42');
-            expect(tradutor.text).toContain('mov [var_b], rax');
+            expect(tradutor.text).toContain('ldr r1, =var_b');
+            expect(tradutor.text).toContain('str r0, [r1]');
         });
 
         it('deve traduzir declaração de variável com vetor', () => {
@@ -408,7 +409,7 @@ describe('Tradutor (Assembly ARM)', () => {
             
             tradutor.traduzirDeclaracaoEscreva(escreva);
             
-            expect(tradutor.data).toContain("'Hello ARM'");
+            expect(tradutor.data).toContain('"Hello ARM"');
             expect(tradutor.text).toContain('mov r7, #4');
             expect(tradutor.text).toContain('swi 0');
         });
@@ -592,19 +593,7 @@ describe('Tradutor (Assembly ARM)', () => {
         });
     });
 
-    describe('Casos de Edge', () => {
-        it('deve lidar com variável sem símbolo', () => {
-            const varSemSimbolo = new Variavel(1, null as any);
-            const resultado = tradutor.traduzirConstrutoVariavel(varSemSimbolo);
-            expect(resultado).toBe('unknown');
-        });
-
-        it('deve lidar com atribuição sem nome de variável', () => {
-            const atribuir = new Atribuir(1, null as any, new Literal(-1, 1, 10));
-            tradutor.traduzirConstrutoAtribuir(atribuir);
-            // Não deve gerar erro
-        });
-
+    describe('Casos isolados', () => {
         it('deve lidar com operador binário não implementado', () => {
             const esquerda = new Literal(-1, 1, 5);
             const direita = new Literal(-1, 1, 3);

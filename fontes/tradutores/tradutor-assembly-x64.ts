@@ -736,7 +736,7 @@ ${labelFim}:`;
     }
     }
 
-    saida_sistema(): void {
+    saidaSistema(): void {
         if (this.alvo === 'linux') {
             this.text += `
         mov eax, 1        ; sys_exit
@@ -761,7 +761,7 @@ ${labelFim}:`;
                 this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao);
             }
         }
-        this.saida_sistema();
+        this.saidaSistema();
 
         resultado += this.bss + '\n' + this.data + '\n' + this.text;
 

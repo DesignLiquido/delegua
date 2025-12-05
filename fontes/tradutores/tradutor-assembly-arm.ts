@@ -18,11 +18,18 @@ export class TradutorAssemblyARM {
 
     constructor(public alvo: PlataformaAlvoARM = 'linux-arm') {
         this.indentacao = 0;
+
+        // Seleciona o símbolo de entrada conforme a plataforma alvo.
+        // Para linux-arm: programa standalone com _start.
+        // Para android: ainda é um binário standalone, mas com rótulo Delegua_main
+        // para deixar claro que não é o _start do CRT padrão.
+        const entryLabel = this.alvo === 'android' ? 'Delegua_main' : '_start';
+
         this.text = `
 .text
-.global _start
+.global ${entryLabel}
 
-_start:`;
+${entryLabel}:`;
     }
 
     gerarDigitoAleatorio(): string {
@@ -82,6 +89,7 @@ _start:`;
         Enquanto: this.traduzirDeclaracaoEnquanto.bind(this),
         Continua: () => 'b .continue_label',
         Escolha: this.traduzirDeclaracaoEscolha.bind(this),
+        Escreva: this.traduzirDeclaracaoEscreva.bind(this),
         Expressao: this.traduzirDeclaracaoExpressao.bind(this),
         Fazer: this.traduzirDeclaracaoFazer.bind(this),
         Falhar: this.traduzirDeclaracaoFalhar.bind(this),
@@ -94,10 +102,9 @@ _start:`;
         Se: this.traduzirDeclaracaoSe.bind(this),
         Sustar: () => 'b .break_label',
         Classe: this.traduzirDeclaracaoClasse.bind(this),
-        // Tente: this.traduzirDeclaracaoTente.bind(this),
-        // Const: this.traduzirDeclaracaoConst.bind(this),
-        // Var: this.traduzirDeclaracaoVar.bind(this),
-        // Escreva: this.traduzirDeclaracaoEscreva.bind(this),
+        Tente: this.traduzirDeclaracaoTente.bind(this),
+        Const: this.traduzirDeclaracaoConst.bind(this),
+        Var: this.traduzirDeclaracaoVar.bind(this),
     };
 
     // Implementação dos Construtos
@@ -737,7 +744,7 @@ ${labelFim}:`;
         this.bss += `    ${varLabel}: .space 4\n`;
         this.variaveis.set(nomeVar, varLabel);
         
-        if (declaracao.inicializador) {
+        if (declaracao.inicializador && declaracao.inicializador.valor !== null) {
             const tipoInicializador = declaracao.inicializador.constructor.name;
             
             // Verificar se é um vetor
@@ -775,16 +782,13 @@ ${labelFim}:`;
 
         if (declaracaoEscreva.argumentos[0] instanceof Literal) {
             nome_string_literal = this.criaStringLiteral(declaracaoEscreva.argumentos[0]);
-            // Para ARM, precisamos calcular o tamanho da string
             const stringValue = (declaracaoEscreva.argumentos[0] as Literal).valor as string;
             tam_string_literal = String(stringValue.length);
         }
 
-        // ARM Linux syscall: write(fd, buffer, count)
-        // r0 = fd (1 = stdout)
-        // r1 = buffer address
-        // r2 = count (length)
-        // r7 = syscall number (4 = sys_write)
+        // Para ambos linux-arm e android, continuamos usando a convenção
+        // de syscall Linux ARM (write). Em Android típico, esse binário
+        // seria executado via adb/Termux, onde essa convenção ainda é válida.
         this.text += `
     ldr r1, =${nome_string_literal}
     mov r2, #${tam_string_literal}
@@ -793,10 +797,10 @@ ${labelFim}:`;
     swi 0`;
     }
 
-    saida_sistema(): void {
-        // ARM Linux syscall: exit(status)
-        // r0 = status (0)
-        // r7 = syscall number (1 = sys_exit)
+    saidaSistema(): void {
+        // Mesmo comentário da função Escreva: usamos sys_exit Linux.
+        // Em um futuro modo Android "NDK/JNI", esta função deveria
+        // apenas retornar ao chamador em vez de fazer syscall direta.
         this.text += `
     mov r0, #1              @ exit status
     mov r7, #1              @ sys_exit
@@ -814,7 +818,7 @@ ${labelFim}:`;
                 this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao);
             }
         }
-        this.saida_sistema();
+        this.saidaSistema();
 
         resultado += this.bss + '\n' + this.data + '\n' + this.text;
 
