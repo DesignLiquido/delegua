@@ -187,6 +187,44 @@ describe('Avaliador sintático (Pituguês)', () => {
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(4);
             });
+
+            describe('Ponto e vírgula - Usos permitidos', () => {
+                it('Múltiplos comandos na mesma linha - escreva', () => {
+                    const retornoLexador = lexador.mapear(
+                        ["escreva('a'); escreva('b')"],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                });
+
+                it('Múltiplos comandos na mesma linha - variáveis', () => {
+                    const retornoLexador = lexador.mapear(
+                        ["var x = 1; var y = 2"],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                });
+
+                it('Múltiplos tipos de comandos na mesma linha', () => {
+                    const retornoLexador = lexador.mapear(
+                        ["var a = 1; escreva(a); var b = a + 1"],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+                });
+            })
         });
 
         describe('Casos de falha', () => {
@@ -198,6 +236,28 @@ describe('Avaliador sintático (Pituguês)', () => {
 
                 expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
             });
+
+            it('Falha - Ponto e Vírgula', () => {
+                const codigo = [
+                    "escreva('teste');",
+                    "var a = 1;",
+                    "var b;",
+                    "var x = 1; #comentário"
+                ];
+
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(4);
+
+                expect(retornoAvaliadorSintatico.erros[0].simbolo.linha).toBe(1);
+                expect(retornoAvaliadorSintatico.erros[1].simbolo.linha).toBe(2);
+                expect(retornoAvaliadorSintatico.erros[2].simbolo.linha).toBe(3);
+                expect(retornoAvaliadorSintatico.erros[3].simbolo.linha).toBe(4);
+
+                const mensagemEsperada = 'Ponto e vírgula (;) não é permitido no final da sentença de código.';
+                expect(retornoAvaliadorSintatico.erros[0].message).toContain(mensagemEsperada);
+            })
         });
     });
 });
