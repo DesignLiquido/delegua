@@ -321,6 +321,7 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
             case '\n':
             case '\0':
             case ';':
+                this.adicionarSimbolo(tiposDeSimbolos.PONTO_E_VIRGULA);
                 this.avancar();
                 break;
 
@@ -488,14 +489,14 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
                 this.avancar();
                 this.analisarTexto('"');
                 this.avancar();
-                
+
                 break;
 
             case "'":
                 this.avancar();
                 this.analisarTexto("'");
                 this.avancar();
-                
+
                 break;
 
             default:

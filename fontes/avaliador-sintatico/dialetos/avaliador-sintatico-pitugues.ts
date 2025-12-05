@@ -903,7 +903,7 @@ export class AvaliadorSintaticoPitugues
                 espacosIndentacaoLinhaAtual = this.localizacoes[simboloAtual.linha].espacosIndentacao;
             }
         }
-        
+
         this.pilhaEscopos.removerUltimo();
         return declaracoes;
     }
@@ -1084,7 +1084,7 @@ export class AvaliadorSintaticoPitugues
         return new Comentario(
             simboloComentario.hashArquivo,
             simboloComentario.linha,
-            simboloComentario.literal, 
+            simboloComentario.literal,
             false
         );
     }
@@ -1139,7 +1139,7 @@ export class AvaliadorSintaticoPitugues
                     variavelExcecao.lexema,
                     new InformacaoElementoSintatico(variavelExcecao.lexema, 'qualquer')
                 );
-                
+
                 const corpo = this.blocoEscopo();
 
                 blocoPegue = new FuncaoConstruto(
@@ -1422,11 +1422,11 @@ export class AvaliadorSintaticoPitugues
         if (this.simbolos[this.atual].tipo === tiposDeSimbolos.TEXTO_MULTILINHAS) {
             const simboloTexto = this.avancarEDevolverAnterior();
             return new TextoDocumentacao(
-                this.hashArquivo, 
-                Number(simboloTexto.linha), 
+                this.hashArquivo,
+                Number(simboloTexto.linha),
                 simboloTexto.lexema
             );
-        }    
+        }
     }
 
     corpoDaFuncao(tipo: string): FuncaoConstruto {
@@ -1455,7 +1455,7 @@ export class AvaliadorSintaticoPitugues
         this.consumir(tiposDeSimbolos.DOIS_PONTOS, `Esperado ':' antes do escopo do ${tipo}.`);
         const documentacao = this.declaracaoTextoDeDocumentacao();
         const corpo = this.blocoEscopo();
-        
+
         tipoRetorno = logicaValidacaoRetornoFuncao(
             this,
             corpo,
@@ -1546,6 +1546,43 @@ export class AvaliadorSintaticoPitugues
             'Esperado texto para explicar falha.'
         );
         return new Falhar(simboloFalha, textoFalha.literal);
+    }
+
+    /**
+     * Verifica se há pontos e vírgula no final de sentenças.
+     * Em Pituguês, ; só é permitido para separar múltiplos comandos na mesma linha,
+     * mas não no final de uma sentença/linha.
+     */
+    private verificarPontosEVirgulasInvalidos(): void {
+        for (let i = 0; i < this.simbolos.length; i++) {
+            const simboloAtual = this.simbolos[i];
+
+            if (simboloAtual.tipo === tiposDeSimbolos.PONTO_E_VIRGULA) {
+                const proximoSimbolo = this.encontrarProximoSimboloNaoComentario(i + 1);
+
+                if (!proximoSimbolo || proximoSimbolo.linha > simboloAtual.linha) {
+                    this.erros.push(
+                        new ErroAvaliadorSintatico(
+                            simboloAtual,
+                            'Ponto e vírgula (;) não é permitido no final da sentença de código.'
+                        )
+                    );
+                }
+            }
+        }
+    }
+
+    /**
+     * Encontra o próximo símbolo que não seja comentário.
+     * Isso é importante porque comentários não afetam a validade do ponto e vírgula.
+     */
+    private encontrarProximoSimboloNaoComentario(inicio: number): SimboloInterface | null {
+        for (let i = inicio; i < this.simbolos.length; i++) {
+            if (this.simbolos[i].tipo !== tiposDeSimbolos.COMENTARIO) {
+                return this.simbolos[i];
+            }
+        }
+        return null;
     }
 
     /**
@@ -1811,13 +1848,31 @@ export class AvaliadorSintaticoPitugues
         this.simbolos = retornoLexador?.simbolos || [];
         this.localizacoes = retornoLexador?.pragmas || {};
 
+        this.verificarPontosEVirgulasInvalidos();
+
         let declaracoes: Declaracao[] = [];
         while (!this.estaNoFinal()) {
             const retornoDeclaracao = this.resolverDeclaracaoForaDeBloco();
+            if (retornoDeclaracao === null) {
+                continue;
+            }
+
             if (Array.isArray(retornoDeclaracao)) {
                 declaracoes = declaracoes.concat(retornoDeclaracao);
             } else {
                 declaracoes.push(retornoDeclaracao as Declaracao);
+            }
+
+            if (!this.estaNoFinal() && this.verificarTipoSimboloAtual(tiposDeSimbolos.PONTO_E_VIRGULA)) {
+                // Verificar se este ; está na mesma linha da declaração anterior
+                const declaracaoAnterior = declaracoes[declaracoes.length - 1];
+                const linhaDeclaraoAnterior = declaracaoAnterior.linha || 0;
+                const linhaPontoVirgula = this.simboloAtual().linha;
+
+                if (linhaPontoVirgula === linhaDeclaraoAnterior) {
+                    // Está na mesma linha, então é um separador válido
+                    this.avancarEDevolverAnterior();
+                }
             }
         }
 
