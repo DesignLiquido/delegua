@@ -116,22 +116,30 @@ Delégua, a linguagem de programação totalmente em português, possui uma sér
 
 Delégua executa em qualquer dispositivo que interprete JavaScript, ou seja, computadores, celulares e tablets. Você não precisa instalar nada se não quiser. Utilize uma das seguintes opções:
 
-- [Dentro do Visual Studio Code, instale a extensão da Design Líquido](https://marketplace.visualstudio.com/items?itemName=designliquido.designliquido-vscode). [Aprenda como executar e depurar seu programa aqui](https://www.youtube.com/watch?v=TQxLekzvBv8);
-- [Utilize nosso editor online](https://designliquido.github.io/delegua-web/).
+- [Utilize nosso editor online](https://designliquido.github.io/delegua-web/);
+- [Dentro do Visual Studio Code, instale a extensão da Design Líquido](https://marketplace.visualstudio.com/items?itemName=designliquido.designliquido-vscode). [Aprenda como executar e depurar seu programa aqui](https://www.youtube.com/watch?v=TQxLekzvBv8).
 
-Para instalar no seu computador ou na sua aplicação, veja o projeto [@designliquido/delegua-node](https://github.com/DesignLiquido/delegua-node).
-
-## Compiladores
-
-Delégua possui alguns compiladores implementados. Compiladores passam código Delégua para binário, gerando executáveis, cuja execução ocorre com a máxima performance possível. São eles:
-
-- [`delegua-llvm`](https://github.com/DesignLiquido/delegua-llvm), o compilador oficial da Design Líquido;
-- [`cgd` (Compilador Geral Delégua)](https://github.com/FernandoTheDev/cgd). Documentação: https://fernandothedev.github.io/cgd/
+Para instalar no seu computador ou na sua aplicação, veja o projeto [`delegua-node`](https://github.com/DesignLiquido/delegua-node).
 
 ## Documentação
 
 - [Delégua é documentada na Wiki deste GitHub](https://github.com/DesignLiquido/delegua/wiki).
 - [A documentação técnica (gerada por TypeDoc) pode ser encontrada aqui](https://designliquido.github.io/delegua/).
+
+## Compiladores
+
+Delégua possui alguns compiladores implementados. Compiladores passam código Delégua para binário, gerando executáveis, cuja execução ocorre com a máxima performance possível. 
+
+Para este núcleo, alguns compiladores são tradutores de Delégua para certos _assemblies_ (ou representações intermediárias), e que precisam de [`delegua-node`](https://github.com/DesignLiquido/delegua) ou alguma outra interface para funcionarem, como por exemplo, nossa [extensão para VSCode e derivados](https://github.com/DesignLiquido/vscode). Os detalhes da utilização podem ser vistos nos respectivos projetos. Aqui são implementados tradutores para as seguintes arquiteturas de processador:
+
+- x64: NASM, YASM e FASM. Pode funcionar com MASM e GAS, mas requer algumas modificações pontuais na sintaxe de macros;
+- ARM: Linux e Android.
+
+Já outros compiladores demandam uma infraestrutura de código mais robusta e são projetos separados, que ou usam este núcleo diretamente, ou usam a sintaxe implementada no núcleo de forma independente. 
+São eles:
+
+- [`delegua-llvm`](https://github.com/DesignLiquido/delegua-llvm), o compilador oficial da Design Líquido, independente de arquitetura de processador;
+- [`cgd` (Compilador Geral Delégua)](https://github.com/FernandoTheDev/cgd). Documentação: https://fernandothedev.github.io/cgd/
 
 ## Contribuições e Comunidade
 
