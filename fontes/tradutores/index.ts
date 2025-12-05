@@ -1,3 +1,5 @@
+export * from './tradutor-assembly-arm';
+export * from './tradutor-assembly-x64';
 export * from './tradutor-assemblyscript';
 export * from './tradutor-calango';
 export * from './tradutor-javascript';
