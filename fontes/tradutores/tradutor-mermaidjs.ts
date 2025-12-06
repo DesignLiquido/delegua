@@ -7,7 +7,6 @@ import {
     Atribuir,
     Binario,
     Chamada,
-    ComentarioComoConstruto,
     DefinirValor,
     Dicionario,
     FuncaoConstruto,
@@ -20,6 +19,7 @@ import {
 } from '../construtos';
 import {
     Bloco,
+    Classe,
     Const,
     Declaracao,
     Enquanto,
@@ -27,6 +27,7 @@ import {
     Escreva,
     Expressao,
     Fazer,
+    FuncaoDeclaracao,
     Para,
     ParaCada,
     Se,
@@ -35,33 +36,7 @@ import {
 import { CaminhoEscolha, TradutorInterface } from '../interfaces';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
-
-class ArestaFluxograma {
-    declaracao: Declaracao;
-    texto: string;
-
-    constructor(declaracao: Declaracao, texto: string) {
-        this.declaracao = declaracao;
-        this.texto = texto;
-    }
-}
-
-class VerticeFluxograma {
-    origem: ArestaFluxograma;
-    destino: ArestaFluxograma;
-    texto?: string;
-
-    constructor(origem: ArestaFluxograma, destino: ArestaFluxograma, texto?: string) {
-        this.origem = origem;
-        this.destino = destino;
-        this.texto = texto;
-    }
-
-    paraTexto(): string {
-        const seta = this.texto ? `-->|${this.texto}|` : '-->';
-        return `    ${this.origem.texto}${seta}${this.destino.texto};\n`;
-    }
-}
+import { ArestaFluxograma, DiagramaClasse, SubgrafoClasse, VerticeFluxograma } from './mermaid';
 
 /**
  * [MermaidJs](https://mermaid.js.org/) é uma especificação que nos permite
@@ -79,6 +54,8 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
     anteriores: ArestaFluxograma[];
     vertices: VerticeFluxograma[];
     ultimaDicaVertice: string | undefined;
+    diagramasClasses: DiagramaClasse[];
+    subgrafosFuncoes: string[];
 
     traduzirConstrutoAcessoIndiceVariavel(acessoIndiceVariavel: AcessoIndiceVariavel): string {
         const textoIndice = this.dicionarioConstrutos[acessoIndiceVariavel.indice.constructor.name](
@@ -178,8 +155,25 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         return texto;
     }
 
-    traduzirFuncaoConstruto(funcaoConstruto: FuncaoConstruto): string {
-        return `função`;
+    traduzirFuncaoConstruto(funcaoConstruto: FuncaoConstruto): VerticeFluxograma[] {
+        let vertices: VerticeFluxograma[] = [];
+
+        if (funcaoConstruto.corpo && funcaoConstruto.corpo.length > 0) {
+            for (const declaracaoCorpo of funcaoConstruto.corpo) {
+                // Usa o mesmo caminho de outras declarações,
+                // então todas as arestas passam por logicaComumConexaoArestas.
+                const verticesCorpo = this.dicionarioDeclaracoes[
+                    declaracaoCorpo.constructor.name
+                ](declaracaoCorpo);
+                vertices = vertices.concat(verticesCorpo);
+            }
+        }
+
+        /* if (this.anteriores.length > 0) {
+            vertices = vertices.concat(this.anteriores)
+        } */
+
+        return vertices;
     }
 
     traduzirConstrutoLeia(leia: Leia): string {
@@ -269,6 +263,50 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
             vertices = vertices.concat(verticesDeclaracao);
         }
 
+        return vertices;
+    }
+
+    traduzirDeclaracaoClasse(declaracaoClasse: Classe): VerticeFluxograma[] {
+        const nomeClasse = declaracaoClasse.simbolo.lexema;
+        const superClasse = declaracaoClasse.superClasse 
+            ? declaracaoClasse.superClasse.nome.lexema 
+            : undefined;
+
+        // Cria o diagrama de classe
+        const diagramaClasse = new DiagramaClasse(nomeClasse, superClasse);
+
+        // Adiciona métodos ao diagrama
+        if (declaracaoClasse.metodos && declaracaoClasse.metodos.length > 0) {
+            for (const metodo of declaracaoClasse.metodos) {
+                const parametros: string[] = [];
+                
+                if (metodo.funcao.parametros && metodo.funcao.parametros.length > 0) {
+                    for (const param of metodo.funcao.parametros) {
+                        const nomeParam = param.nome.lexema;
+                        const tipoParam = param.tipoDado || 'qualquer';
+                        parametros.push(`${nomeParam}: ${tipoParam}`);
+                    }
+                }
+
+                const tipoRetorno = metodo.funcao.tipo;
+
+                diagramaClasse.metodos.push({
+                    nome: metodo.simbolo.lexema,
+                    parametros,
+                    tipoRetorno
+                });
+            }
+        }
+
+        // Adiciona o diagrama à lista
+        this.diagramasClasses.push(diagramaClasse);
+
+        // No fluxograma principal, apenas mostra a definição da classe
+        const texto = `Linha${declaracaoClasse.linha}[Classe ${nomeClasse}${superClasse ? ` herda ${superClasse}` : ''}]`;
+        const aresta = new ArestaFluxograma(declaracaoClasse, texto);
+        const vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
+
+        this.anteriores.push(aresta);
         return vertices;
     }
 
@@ -466,6 +504,34 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         return vertices;
     }
 
+    traduzirDeclaracaoFuncao(declaracaoFuncao: FuncaoDeclaracao): VerticeFluxograma[] {
+        // Gera o corpo como vértices, mas não conecta nada ao fluxo principal
+        const verticesCorpo = this.traduzirFuncaoConstruto(declaracaoFuncao.funcao);
+
+        if (verticesCorpo.length === 0) {
+            return [];
+        }
+
+        // Descobre o texto dos nós do corpo
+        let textoSubgraph = `subgraph função ${declaracaoFuncao.simbolo.lexema}\n`;
+        for (const vertice of verticesCorpo) {
+            textoSubgraph += vertice.paraTexto();
+        }
+        textoSubgraph += `end;\n`;
+
+        // Armazena o subgraph para imprimir depois de graph TD;
+        this.subgrafosFuncoes.push(textoSubgraph);
+
+        // IMPORTANTE: não altera this.anteriores aqui, para a função
+        // não entrar no fluxo principal. O fluxo principal continua
+        // sendo só as declarações "top-level" (como a chamada em Linha4).
+
+        // Também não precisa devolver vértices, porque eles já
+        // foram adicionados em this.vertices pelos próprios tradutores
+        // das declarações do corpo (via dicionarioDeclaracoes).
+        return [];
+    }
+
     traduzirDeclaracaoPara(declaracaoPara: Para): VerticeFluxograma[] {
         let texto = `Linha${declaracaoPara.linha}(para `;
         if (declaracaoPara.inicializador) {
@@ -628,7 +694,8 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         ComentarioComoConstruto: () => '',
         DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
         Dicionario: this.traduzirConstrutoDicionario.bind(this),
-        FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
+        // FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
+        FuncaoConstruto: () => { throw new Error("Fluxogramas de funções ainda não é suportado.") },
         Isto: () => 'this',
         Leia: this.traduzirConstrutoLeia.bind(this),
         Literal: this.traduzirConstrutoLiteral.bind(this),
@@ -640,6 +707,8 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
 
     dicionarioDeclaracoes = {
         Bloco: this.traduzirDeclaracaoBloco.bind(this),
+        // Classe: this.traduzirDeclaracaoClasse.bind(this),
+        Classe: () => { throw new Error("Fluxogramas de classes ainda não é suportado.") },
         Comentario: () => '',
         Const: this.traduzirDeclaracaoConst.bind(this),
         Enquanto: this.traduzirDeclaracaoEnquanto.bind(this),
@@ -647,6 +716,8 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         Expressao: this.traduzirDeclaracaoExpressao.bind(this),
         Escreva: this.traduzirDeclaracaoEscreva.bind(this),
         Fazer: this.traduzirDeclaracaoFazerEnquanto.bind(this),
+        // FuncaoDeclaracao: this.traduzirDeclaracaoFuncao.bind(this),
+        FuncaoDeclaracao: () => { throw new Error("Fluxogramas de funções ainda não é suportado.") },
         Para: this.traduzirDeclaracaoPara.bind(this),
         ParaCada: this.traduzirDeclaracaoParaCada.bind(this),
         Se: this.traduzirDeclaracaoSe.bind(this),
@@ -657,11 +728,18 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         this.anteriores = [];
         this.vertices = [];
         let resultado = 'graph TD;\n';
+        this.subgrafosFuncoes = [];
 
         for (const declaracao of declaracoes) {
             this.vertices = this.vertices.concat(
                 this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao)
             );
+        }
+
+        if (this.subgrafosFuncoes.length > 0) {
+            for (const sub of this.subgrafosFuncoes) {
+                resultado += sub;
+            }
         }
 
         if (this.vertices.length === 0 && this.anteriores.length === 0) {

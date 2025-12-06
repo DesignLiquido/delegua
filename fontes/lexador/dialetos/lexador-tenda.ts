@@ -5,7 +5,7 @@ import { Simbolo } from '../simbolo';
 import { palavrasReservadas } from './palavras-reservadas/tenda';
 import { ErroLexador } from '../erro-lexador';
 import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
-import { Pragma } from './pragma';
+import { Localizacao } from './localizacao';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/tenda';
 
@@ -24,7 +24,7 @@ export class LexadorTenda implements LexadorInterface<SimboloInterface> {
     hashArquivo: number;
     simbolos: SimboloInterface[];
     erros: ErroLexador[];
-    pragmas: { [linha: number]: Pragma };
+    pragmas: { [linha: number]: Localizacao };
 
     inicioSimbolo: number;
     atual: number;

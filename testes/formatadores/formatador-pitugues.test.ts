@@ -45,12 +45,12 @@ describe('Formatador (Pituguês)', () => {
     it('classe com propriedades, construtor e método', async () => {
         const resultado = await executar([
             'classe Pessoa:',
-            '    nome: texto',
-            '    idade: inteiro',
+            '    nome :texto',
+            '    idade:inteiro',
             '',
-            '    construtor(nome: texto, idade: inteiro):',
-            '        isto.nome = nome',
-            '        isto.idade = idade',
+            '    construtor ( nome:texto  , idade: inteiro)  :',
+            '        isto.nome =nome',
+            '        isto.idade= idade',
             '',
             '    função falar():',
             '        imprima("Oi, eu sou", isto.nome, "e tenho", isto.idade, "anos")'

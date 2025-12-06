@@ -67,7 +67,7 @@ import {
     ParametroInterface,
     SimboloInterface,
 } from '../../interfaces';
-import { Pragma } from '../../lexador/dialetos/pragma';
+import { Localizacao } from '../../lexador/dialetos/localizacao';
 import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
 import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
@@ -108,7 +108,7 @@ export class AvaliadorSintaticoPitugues
     implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao> {
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
-    localizacoes: { [linha: number]: Pragma };
+    localizacoes: { [linha: number]: Localizacao };
 
     tiposDefinidosEmCodigo: { [nomeTipo: string]: Declaracao };
     pilhaEscopos: PilhaEscopos;

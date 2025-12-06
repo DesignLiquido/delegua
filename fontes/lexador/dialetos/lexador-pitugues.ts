@@ -5,7 +5,7 @@ import { Simbolo } from '../simbolo';
 import { palavrasReservadasPitugues } from './palavras-reservadas/pitugues';
 import { ErroLexador } from '../erro-lexador';
 import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
-import { Pragma } from './pragma';
+import { Localizacao } from './localizacao';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/pitugues';
 
@@ -24,7 +24,7 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
     hashArquivo: number;
     simbolos: SimboloInterface[];
     erros: ErroLexador[];
-    pragmas: { [linha: number]: Pragma };
+    localizacoes: { [linha: number]: Localizacao };
 
     inicioSimbolo: number;
     atual: number;
@@ -36,7 +36,7 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
 
         this.simbolos = [];
         this.erros = [];
-        this.pragmas = {};
+        this.localizacoes = {};
 
         this.inicioSimbolo = 0;
         this.atual = 0;
@@ -283,7 +283,7 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
             this.avancar();
         }
 
-        this.pragmas[this.linha + 1] = {
+        this.localizacoes[this.linha + 1] = {
             linha: this.linha + 1,
             espacosIndentacao: espacos,
         };
@@ -314,12 +314,12 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
         switch (caractere) {
             case ' ':
             case '\t':
-                this.avancar();
-
-                break;
             case '\r':
             case '\n':
             case '\0':
+                this.avancar();
+
+                break;
             case ';':
                 this.adicionarSimbolo(tiposDeSimbolos.PONTO_E_VIRGULA);
                 this.avancar();
@@ -517,7 +517,7 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
         const inicioMapeamento: [number, number] = hrtime();
         this.simbolos = [];
         this.erros = [];
-        this.pragmas = {};
+        this.localizacoes = {};
 
         this.inicioSimbolo = 0;
         this.atual = 0;
@@ -544,7 +544,7 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
         return {
             simbolos: this.simbolos,
             erros: this.erros,
-            pragmas: this.pragmas,
+            pragmas: this.localizacoes,
         } as RetornoLexador<SimboloInterface>;
     }
 }
