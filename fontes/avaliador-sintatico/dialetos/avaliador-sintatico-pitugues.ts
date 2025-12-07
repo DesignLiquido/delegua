@@ -260,6 +260,102 @@ export class AvaliadorSintaticoPitugues
         throw new Error('Método não implementado.');
     }
 
+    private variavelJaDeclarada(nome: string): boolean {
+        try {
+            this.pilhaEscopos.obterTipoVariavelPorNome(nome);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    private declaracaoImplicita(): Var {
+        const identificador = this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            'Esperado nome de variável.'
+        );
+
+        this.consumir(tiposDeSimbolos.IGUAL, "Esperado '=' após identificador.");
+
+        if (this.estaNoFinal()) {
+            throw this.erro(
+                this.simboloAnterior(),
+                'Esperado valor após o símbolo de igual.'
+            )
+        }
+
+        const valor = this.expressao();
+        const tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(valor, 'qualquer');
+
+        this.pilhaEscopos.definirInformacoesVariavel(
+            identificador.lexema,
+            new InformacaoElementoSintatico(identificador.lexema, tipo)
+        );
+
+        return new Var(identificador, valor, tipo);
+    }
+
+    private temPadraoMultiplaAtribuicao(): boolean {
+        // Verifica padrão: IDENTIFICADOR, VIRGULA, IDENTIFICADOR, ..., IGUAL
+        let pos = this.atual;
+        let contadorIdentificadores = 0;
+
+        while (pos < this.simbolos.length) {
+            if (this.simbolos[pos].tipo === tiposDeSimbolos.IDENTIFICADOR) {
+                contadorIdentificadores++;
+                pos++;
+
+                if (pos >= this.simbolos.length) return false;
+
+                // Se encontrou =, verifica se tinha mais de 1 identificador
+                if (this.simbolos[pos].tipo === tiposDeSimbolos.IGUAL) {
+                    return contadorIdentificadores > 1;
+                }
+
+                // Se não é vírgula, não é padrão múltiplo
+                if (this.simbolos[pos].tipo !== tiposDeSimbolos.VIRGULA) {
+                    return false;
+                }
+
+                pos++;
+                continue;
+            }
+            break;
+        }
+        return false;
+    }
+
+    private temPadraoVarComoPalavraChave(): boolean {
+        // Verifica padrão: var identificador = ...
+
+        if (this.simbolos[this.atual].lexema !== 'var') {
+            return false;
+        }
+
+        // Exemplos permitidos: var = 10 | var, a = 10, 20
+        if (this.simbolos[this.atual + 1]?.tipo !== tiposDeSimbolos.IDENTIFICADOR) {
+            return false;
+        }
+
+        let pos = this.atual + 1;
+
+        while (pos < this.simbolos.length) {
+            if (this.simbolos[pos].tipo === tiposDeSimbolos.IGUAL) {
+                return true; // Encontrou padrão var identificador = ...
+            }
+
+            // Se encontrou algo que não seja IDENTIFICADOR ou VIRGULA, não é o padrão
+            if (this.simbolos[pos].tipo !== tiposDeSimbolos.IDENTIFICADOR &&
+                this.simbolos[pos].tipo !== tiposDeSimbolos.VIRGULA) {
+                return false;
+            }
+
+            pos++;
+        }
+
+        return false;
+    }
+
     declaracaoDeVariaveis(): any {
         const identificadores: SimboloInterface[] = [];
         let retorno: Declaracao[] = [];
@@ -271,14 +367,7 @@ export class AvaliadorSintaticoPitugues
             );
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
-        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-            // Inicialização de variáveis sem valor.
-            for (let [indice, identificador] of identificadores.entries()) {
-                retorno.push(new Var(identificador, null));
-            }
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-            return retorno;
-        }
+        this.consumir(tiposDeSimbolos.IGUAL, 'Esperado o símbolo igual(=) após identificador.');
 
         const inicializadores = [];
         do {
@@ -1612,6 +1701,30 @@ export class AvaliadorSintaticoPitugues
     }
 
     resolverDeclaracao(): any {
+        // Detecção de declaração implícita
+        if (this.simbolos[this.atual].tipo === tiposDeSimbolos.IDENTIFICADOR) {
+            // Detecta e bloqueia "var x = 10"
+            if (this.temPadraoVarComoPalavraChave()) {
+                throw this.erro(
+                    this.simbolos[this.atual],
+                    'Palavra "var" não pode ser usada como palavra-chave para declaração. Use declarações implícitas: "x = 10" em vez de "var x = 10".'
+                )
+            }
+
+            // Verifica se é múltipla atribuição (a, b, c = 1, 2, 3)
+            if (this.temPadraoMultiplaAtribuicao()) {
+                return this.declaracaoDeVariaveis();
+            }
+
+            // Verifica se é atribuição simples (a = 1)
+            if (this.simbolos[this.atual + 1]?.tipo === tiposDeSimbolos.IGUAL) {
+                const nomeVariavel = this.simbolos[this.atual].lexema;
+                if (!this.variavelJaDeclarada(nomeVariavel)) {
+                    return this.declaracaoImplicita();
+                }
+            }
+        }
+
         switch (this.simbolos[this.atual].tipo) {
             case tiposDeSimbolos.COMENTARIO:
                 return this.declaracaoComentario();
@@ -1660,9 +1773,6 @@ export class AvaliadorSintaticoPitugues
                 return this.declaracaoTente();
             case tiposDeSimbolos.TEXTO_MULTILINHAS:
                 return this.declaracaoTextoDeDocumentacao();
-            case tiposDeSimbolos.VARIAVEL:
-                this.avancarEDevolverAnterior();
-                return this.declaracaoDeVariaveis();
         }
 
         return this.declaracaoExpressao();
