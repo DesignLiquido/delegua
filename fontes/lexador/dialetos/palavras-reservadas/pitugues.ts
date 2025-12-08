@@ -43,9 +43,6 @@ export const palavrasReservadasPitugues = {
     tendo: tiposDeSimbolos.TENDO,
     tente: tiposDeSimbolos.TENTE,
     tipo: tiposDeSimbolos.TIPO,
-    var: tiposDeSimbolos.VARIAVEL,
-    variavel: tiposDeSimbolos.VARIAVEL,
-    variável: tiposDeSimbolos.VARIAVEL,
     verdadeiro: tiposDeSimbolos.VERDADEIRO,
 };
 

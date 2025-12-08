@@ -42,7 +42,7 @@ describe('Avaliador sintático (Pituguês)', () => {
                 const retornoLexador = lexador.mapear(
                     [
                         'imprima(2 + 2)',
-                        'var a = 2',
+                        'a = 2',
                         'imprima(a += 2)',
                         'imprima(a)'
                     ], -1
@@ -72,7 +72,7 @@ describe('Avaliador sintático (Pituguês)', () => {
                 it('Contém', () => {
                     const retornoLexador = lexador.mapear(
                         [
-                            'var a = [1, 2, 3, 4, 5]',
+                            'a = [1, 2, 3, 4, 5]',
                             'escreva(a contém 3)'
                         ],
                         -1);
@@ -90,7 +90,7 @@ describe('Avaliador sintático (Pituguês)', () => {
                 it('Não contém', () => {
                     const retornoLexador = lexador.mapear(
                         [
-                            'var a = [1, 2, 3, 4, 5]',
+                            'a = [1, 2, 3, 4, 5]',
                             'escreva(a não contém 3)'
                         ],
                         -1);
@@ -112,7 +112,7 @@ describe('Avaliador sintático (Pituguês)', () => {
                 it('Trivial', () => {
                     const retornoLexador = lexador.mapear(
                         [
-                            'var vetor = [1, 2, 3]',
+                            'vetor = [1, 2, 3]',
                             'para cada elemento de vetor:',
                             '    escreva(elemento)'
                         ], -1
@@ -128,7 +128,7 @@ describe('Avaliador sintático (Pituguês)', () => {
                 it('Iterando texto', () => {
                     const retornoLexador = lexador.mapear(
                         [
-                            'var texto1 = "Texto"',
+                            'texto1 = "Texto"',
                             'para cada item em texto1:',
                             '    imprima(item)'
                         ], -1
@@ -145,8 +145,8 @@ describe('Avaliador sintático (Pituguês)', () => {
             it('Lista de Compreensão', () => {
                 const retornoLexador = lexador.mapear(
                     [
-                        'var lista = [1, 2, 3, 4, 5]',
-                        'var minhaListaCompreensao = [x para cada x em lista se x % 2 == 0] # Lista de compreensão para números pares'
+                        'lista = [1, 2, 3, 4, 5]',
+                        'minhaListaCompreensao = [x para cada x em lista se x % 2 == 0] # Lista de compreensão para números pares'
                     ], -1
                 );
                 const retornoAvaliadorSintatico =
@@ -160,8 +160,8 @@ describe('Avaliador sintático (Pituguês)', () => {
                 it('Trivial', () => {
                     const retornoLexador = lexador.mapear(
                         [
-                            'var idade = 20',
-                            'var categoria = "Adulto" se idade >= 18 senão "Menor de idade"'
+                            'idade = 20',
+                            'categoria = "Adulto" se idade >= 18 senão "Menor de idade"'
                         ], -1
                     );
                     const retornoAvaliadorSintatico =
@@ -174,7 +174,7 @@ describe('Avaliador sintático (Pituguês)', () => {
             it('Comentário antes de se', () => {
                 const retornoLexador = lexador.mapear(
                     [
-                        'var a = 1',
+                        'a = 1',
                         '# Comentário',
                         'se a > 0:',
                         '    escreva("Teste")',
@@ -203,7 +203,7 @@ describe('Avaliador sintático (Pituguês)', () => {
 
                 it('Múltiplos comandos na mesma linha - variáveis', () => {
                     const retornoLexador = lexador.mapear(
-                        ["var x = 1; var y = 2"],
+                        ["x = 1; y = 2"],
                         -1
                     );
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -215,7 +215,7 @@ describe('Avaliador sintático (Pituguês)', () => {
 
                 it('Múltiplos tipos de comandos na mesma linha', () => {
                     const retornoLexador = lexador.mapear(
-                        ["var a = 1; escreva(a); var b = a + 1"],
+                        ["a = 1; escreva(a); b = a + 1"],
                         -1
                     );
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -224,7 +224,70 @@ describe('Avaliador sintático (Pituguês)', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
                 });
-            })
+            });
+
+            describe('Declarações implícitas', () => {
+                it('Declarações implícitas seguidas', () => {
+                    const retornoLexador = lexador.mapear(['a, b, c = 1, 2, 3'], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+                })
+
+                it('Reatribuição de variável declarada implicitamente', () => {
+                    const retornoLexador = lexador.mapear(['a = 10', 'a = 20'], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                });
+
+                it('Escopo aninhado com declaração implícita', () => {
+                    const retornoLexador = lexador.mapear([
+                        'a = 1',
+                        'se verdadeiro:',
+                        '    b = 2',
+                        '    escreva(a + b)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                });
+
+                it('Declaração implícita com diferentes tipos', () => {
+                    const retornoLexador = lexador.mapear([
+                        'a = 1',
+                        'b = "texto"',
+                        'c = [1, 2, 3]',
+                        'd = verdadeiro',
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(4);
+                });
+
+                it('Variável sombreando variável externa', () => {
+                    const retornoLexador = lexador.mapear([
+                        'a = "global"',
+                        'se verdadeiro:',
+                        '    a = "local"',
+                        '    escreva(a)',
+                        'escreva(a)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+                });
+            });
         });
 
         describe('Casos de falha', () => {
@@ -240,23 +303,39 @@ describe('Avaliador sintático (Pituguês)', () => {
             it('Falha - Ponto e Vírgula', () => {
                 const codigo = [
                     "escreva('teste');",
-                    "var a = 1;",
-                    "var b;",
-                    "var x = 1; #comentário"
+                    "a = 1;",
+                    "x = 1; #comentário"
                 ];
 
                 const retornoLexador = lexador.mapear(codigo, -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                expect(retornoAvaliadorSintatico.erros).toHaveLength(4);
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(3);
 
                 expect(retornoAvaliadorSintatico.erros[0].simbolo.linha).toBe(1);
                 expect(retornoAvaliadorSintatico.erros[1].simbolo.linha).toBe(2);
                 expect(retornoAvaliadorSintatico.erros[2].simbolo.linha).toBe(3);
-                expect(retornoAvaliadorSintatico.erros[3].simbolo.linha).toBe(4);
 
                 const mensagemEsperada = 'Ponto e vírgula (;) não é permitido no final da sentença de código.';
                 expect(retornoAvaliadorSintatico.erros[0].message).toContain(mensagemEsperada);
+            });
+
+            it('Falha - Uso de "var" como palavra-chave', () => {
+                const retornoLexador = lexador.mapear(['var a = 10'], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(0);
+            });
+
+            it('Falha - criação de variável sem valor de forma implícita', () => {
+                const codigo = ['a = '];
+
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(0);
             })
         });
     });

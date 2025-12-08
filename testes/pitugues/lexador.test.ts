@@ -50,7 +50,7 @@ describe('Lexador (Pituguês)', () => {
 
             it('Atribução de variável e Operação Matemática (diferença, multiplicação e módulo)', () => {
                 const resultado = lexador.mapear(
-                    ['var numero = 1 * 2 - 3 % 4'],
+                    ['numero = 1 * 2 - 3 % 4'],
                     -1
                 );
 
@@ -94,13 +94,13 @@ describe('Lexador (Pituguês)', () => {
                     );
                 });
             });
-            
+
 
             it('Vetor (Lista de Compreensão)', () => {
                 const resultado = lexador.mapear(
                     [
-                        'var lista = [1, 2, 3, 4, 5]',
-                        'var minhaListaCompreensao = [x para cada x em lista se x % 2 == 0] # Lista de compreensão para números pares'
+                        'lista = [1, 2, 3, 4, 5]',
+                        'minhaListaCompreensao = [x para cada x em lista se x % 2 == 0] # Lista de compreensão para números pares'
                     ],
                     -1
                 );
@@ -158,6 +158,14 @@ describe('Lexador (Pituguês)', () => {
                 const retornoLexador = lexador.mapear(codigo, -1);
                 expect(retornoLexador.erros).toHaveLength(0);
                 expect(retornoLexador.simbolos).toHaveLength(23);
+            });
+
+            it('"var" deve ser tratado como identificador, não como palavra reservada', () => {
+                const retornoLexador = lexador.mapear(['var = 10'], -1);
+
+                expect(retornoLexador.simbolos[0].tipo).toBe('IDENTIFICADOR');
+                expect(retornoLexador.simbolos[0].lexema).toBe('var');
+                expect(retornoLexador.erros).toHaveLength(0);
             });
         });
 
