@@ -13,7 +13,7 @@ export class Leia implements Construto {
     simbolo: SimboloInterface;
     id: string;
     argumentos: Construto[];
-    tipo?: string;
+    tipo: string = 'texto';
     numeroArgumentosEsperados?: number;
     eParaInterromper?: boolean;
 

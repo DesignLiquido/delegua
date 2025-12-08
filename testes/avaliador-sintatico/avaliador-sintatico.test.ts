@@ -794,6 +794,52 @@ describe('Avaliador sintático', () => {
                     const contem = escreva.argumentos[0] as Logico;
                     expect(contem.negado).toBe(true);
                 });
+
+                it('Dicionário + dicionário', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var a = { "chave1": 1 }',
+                            'var b = { "chave2": 2 }',
+                            'escreva(a + b)'
+                        ],
+                    -1);
+                        
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+                    expect(retornoAvaliadorSintatico.declaracoes[2].constructor).toBe(Escreva);
+                    const escreva = retornoAvaliadorSintatico.declaracoes[2] as Escreva;
+                    expect(escreva.argumentos).toHaveLength(1);
+                    expect(escreva.argumentos[0].constructor).toBe(Binario);
+                    const binario = escreva.argumentos[0] as Binario;
+                    expect(binario.tipo).toBe('dicionário');
+                    expect(binario.esquerda.constructor).toBe(Variavel);
+                    expect(binario.direita.constructor).toBe(Variavel);
+                });
+
+                it('Vetor + vetor', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var a = [1, 2]',
+                            'var b = [3, 4]',
+                            'escreva(a + b)'
+                        ],
+                    -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+                    expect(retornoAvaliadorSintatico.declaracoes[2].constructor).toBe(Escreva);
+                    const escreva = retornoAvaliadorSintatico.declaracoes[2] as Escreva;
+                    expect(escreva.argumentos).toHaveLength(1);
+                    expect(escreva.argumentos[0].constructor).toBe(Binario);
+                    const binario = escreva.argumentos[0] as Binario;
+                    expect(binario.tipo).toBe('número[]');
+                    expect(binario.esquerda.constructor).toBe(Variavel);
+                    expect(binario.direita.constructor).toBe(Variavel);
+                });
             });
 
             describe('Leia', () => {
@@ -1322,28 +1368,130 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
             });
 
-            it('filtrarPor - Função de mapeamento inválida', async () => {
-                const codigo = [
-                    "var f = 'Sou uma função'",
-                    "escreva(filtrarPor([1, 2, 3, 4, 5, 6], f))"
-                ];
-                const retornoLexador = lexador.mapear(codigo, -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-    
-                expect(retornoAvaliadorSintatico).toBeTruthy();
-                expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+            describe('Funções nativas', () => {
+                it('filtrarPor - Função de mapeamento inválida', async () => {
+                    const codigo = [
+                        "var f = 'Sou uma função'",
+                        "escreva(filtrarPor([1, 2, 3, 4, 5, 6], f))"
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                });
+
+                it('todosEmCondicao - Função de mapeamento inválida', async () => {
+                    const codigo = [
+                        "var f = 'Sou uma função'",
+                        "escreva(todosEmCondicao([1, 2, 3, 4, 5, 6], f))"
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                });
             });
 
-            it('todosEmCondicao - Função de mapeamento inválida', async () => {
-                const codigo = [
-                    "var f = 'Sou uma função'",
-                    "escreva(todosEmCondicao([1, 2, 3, 4, 5, 6], f))"
-                ];
-                const retornoLexador = lexador.mapear(codigo, -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-    
-                expect(retornoAvaliadorSintatico).toBeTruthy();
-                expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+            describe('Operações binárias inválidas', () => {
+                it('Multiplicação de lista com dicionário', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var lista = [1, 2, 3]',
+                            'var dicionario = {"chave": "valor"}',
+                            'var resultado = lista * dicionario'
+                        ],
+                    -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                    expect(retornoAvaliadorSintatico.erros[0].message).toBe(
+                        "Operação inválida: não é possível realizar operação * entre vetor e dicionário."
+                    );
+                });
+
+                it('Soma de lista com dicionário', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var lista = [1, 2, 3]',
+                            'var dicionario = {"chave": "valor"}',
+                            'var resultado = lista + dicionario'
+                        ],
+                    -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                    expect(retornoAvaliadorSintatico.erros[0].message).toBe(
+                        "Operação inválida: não é possível realizar operação + entre vetor e dicionário."
+                    );
+                });
+
+                it('Multiplicação de nulo com dicionário', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var dicionario = {"chave": "valor"}',
+                            'var resultado = nulo * dicionario'
+                        ],
+                    -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                    expect(retornoAvaliadorSintatico.erros[0].message).toBe(
+                        "Operação inválida: não é possível realizar operação * entre dicionário e nulo."
+                    );
+                });
+
+                it('Multiplicação de nulo com vetor', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var lista = [1, 2, 3]',
+                            'var resultado = nulo * lista'
+                        ],
+                    -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                    expect(retornoAvaliadorSintatico.erros[0].message).toBe(
+                        "Operação inválida: não é possível realizar operação * entre vetor e nulo."
+                    );
+                });
+
+                it('Soma de nulo com dicionário', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var dicionario = {"chave": "valor"}',
+                            'var resultado = nulo + dicionario'
+                        ],
+                    -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                    expect(retornoAvaliadorSintatico.erros[0].message).toBe(
+                        "Operação inválida: não é possível realizar operação + entre dicionário e nulo."
+                    );
+                });
+
+                it('Soma de nulo com vetor', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var lista = [1, 2, 3]',
+                            'var resultado = nulo + lista'
+                        ],
+                    -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                    expect(retornoAvaliadorSintatico.erros[0].message).toBe(
+                        "Operação inválida: não é possível realizar operação + entre vetor e nulo."
+                    );
+                });
             });
         });
     });
