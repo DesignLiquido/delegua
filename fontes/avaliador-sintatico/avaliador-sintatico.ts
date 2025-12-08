@@ -862,6 +862,38 @@ export class AvaliadorSintatico
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
     }
 
+    protected resolverTipoAcessoIndiceVariavel(expressaoAnterior: Construto): string {
+        let identificadorAcessado: string = '';
+        switch (expressaoAnterior.constructor) {
+            case Variavel:
+                identificadorAcessado = (expressaoAnterior as Variavel).simbolo.lexema;
+                break;
+            default:
+                return 'qualquer';
+        }
+
+        // Primeiro verificar se é acesso a índice de vetor.
+        const tipoIdentificadorCorrespondente = this.pilhaEscopos.obterTipoVariavelPorNome(
+            (expressaoAnterior as Variavel).simbolo.lexema
+        );
+
+        if (!tipoIdentificadorCorrespondente.endsWith('[]') && !['dicionário', 'qualquer', 'texto', 'tupla', 'vetor'].includes(tipoIdentificadorCorrespondente)) {
+            throw this.erro(
+                this.simbolos[this.atual],
+                `Tipo ${tipoIdentificadorCorrespondente} não suporta acesso por índice.`
+            );
+        }
+
+        let tipoAcesso: string = 'qualquer';
+        if (tipoIdentificadorCorrespondente.endsWith('[]')) {
+            tipoAcesso = tipoIdentificadorCorrespondente.replace('[]', '');
+        } else {
+            tipoAcesso = 'qualquer';
+        }
+
+        return tipoAcesso;
+    }
+
     protected resolverCadeiaChamadas(
         expressaoAnterior: Construto,
         tipoAnterior: string = 'qualquer'
@@ -909,18 +941,25 @@ export class AvaliadorSintatico
                 );
                 return this.resolverCadeiaChamadas(acesso, tipoInferido);
             case tiposDeSimbolos.COLCHETE_ESQUERDO:
+                const tipoAcesso = this.resolverTipoAcessoIndiceVariavel(
+                    expressaoAnterior
+                );
+
                 this.avancarEDevolverAnterior();
                 const indice = this.expressao();
                 const simboloFechamento = this.consumir(
                     tiposDeSimbolos.COLCHETE_DIREITO,
                     "Esperado ']' após escrita do indice."
                 );
+
                 const acessoVariavel = new AcessoIndiceVariavel(
                     this.hashArquivo,
                     expressaoAnterior,
                     indice,
-                    simboloFechamento
+                    simboloFechamento,
+                    tipoAcesso
                 );
+
                 return this.resolverCadeiaChamadas(acessoVariavel);
             default:
                 return expressaoAnterior;
@@ -1280,6 +1319,44 @@ export class AvaliadorSintatico
         return expressao;
     }
 
+    protected verificacaoOperacoesBinariasIlegais(esquerdo: Construto, direito: Construto, operador: SimboloInterface) {
+        if (esquerdo.tipo === 'vetor' || esquerdo.tipo.endsWith('[]')) {
+            if (['dicionario', 'dicionário', 'nulo'].includes(direito.tipo)) {
+                throw this.erro(
+                    operador,
+                    `Operação inválida: não é possível realizar operação ${operador.lexema} entre vetor e ${direito.tipo}.`
+                );
+            }
+        }
+
+        if (direito.tipo === 'vetor' || direito.tipo.endsWith('[]')) {
+            if (['dicionario', 'dicionário', 'nulo'].includes(esquerdo.tipo)) {
+                throw this.erro(
+                    operador,
+                    `Operação inválida: não é possível realizar operação ${operador.lexema} entre vetor e ${esquerdo.tipo}.`
+                );
+            }
+        }
+
+        if (esquerdo.tipo === 'dicionario' || esquerdo.tipo === 'dicionário') {
+            if (['vetor', 'nulo'].includes(direito.tipo)) {
+                throw this.erro(
+                    operador,
+                    `Operação inválida: não é possível realizar operação ${operador.lexema} entre dicionário e ${direito.tipo}.`
+                );
+            }
+        }
+
+        if (direito.tipo === 'dicionario' || direito.tipo === 'dicionário') {
+            if (['vetor', 'nulo'].includes(esquerdo.tipo)) {
+                throw this.erro(
+                    operador,
+                    `Operação inválida: não é possível realizar operação ${operador.lexema} entre dicionário e ${esquerdo.tipo}.`
+                );
+            }
+        }
+    }
+
     override multiplicar(): Construto {
         let expressao = this.exponenciacao();
 
@@ -1297,6 +1374,7 @@ export class AvaliadorSintatico
         ) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.exponenciacao();
+            this.verificacaoOperacoesBinariasIlegais(expressao, direito, operador);
             expressao = new Binario<TipoDeSimboloDelegua>(
                 this.hashArquivo,
                 expressao,
@@ -1324,9 +1402,9 @@ export class AvaliadorSintatico
             )
         ) {
             const operador = this.simbolos[this.atual - 1];
-
             const direito = this.multiplicar();
-            // const tipoInferido = inferirTipoParaBinario(expressao, operador, direito);
+            this.verificacaoOperacoesBinariasIlegais(expressao, direito, operador);
+
             expressao = new Binario<TipoDeSimboloDelegua>(
                 this.hashArquivo,
                 expressao,

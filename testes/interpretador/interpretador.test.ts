@@ -330,7 +330,7 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Concatenação de arrays com operador +', async () => {
+                it('Concatenação de vetores com operador +', async () => {
                     const retornoLexador = lexador.mapear([
                         'var lista1 = [1, 2, 3]',
                         'var lista2 = [4, 5, 6]',
@@ -348,7 +348,7 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Concatenação de arrays com operador +=', async () => {
+                it('Concatenação de vetores com operador +=', async () => {
                     const retornoLexador = lexador.mapear([
                         'var lista1 = [1, 2, 3]',
                         'var lista2 = [4, 5, 6]',
@@ -366,7 +366,7 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
-                it('Concatenação de arrays vazios', async () => {
+                it('Concatenação de vetores vazios', async () => {
                     const retornoLexador = lexador.mapear([
                         'var lista1 = []',
                         'var lista2 = []',
@@ -506,7 +506,6 @@ describe('Interpretador', () => {
                 });
 
                 it('Desestruturação de variáveis', async () => {
-                    let _saida: string = '';
                     const retornoLexador = lexador.mapear(
                         [
                             'var a = { "prop1": "b" }',
@@ -516,18 +515,14 @@ describe('Interpretador', () => {
                         -1
                     );
 
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        _saida = saida;
-                    };
-
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                     await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    expect(_saida).toBe('b');
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('b');
                 });
 
                 it('Desestruturação de constantes', async () => {
-                    let _saida: string = '';
                     const retornoLexador = lexador.mapear(
                         [
                             'const a = { "prop1": "c" }',
@@ -537,18 +532,14 @@ describe('Interpretador', () => {
                         -1
                     );
 
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        _saida = saida;
-                    };
-
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                     await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    expect(_saida).toBe('c');
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('c');
                 });
 
                 it('Desestruturação de constantes 2', async () => {
-                    let _saidas: string[] = [];
                     const retornoLexador = lexador.mapear(
                         [
                             'var panda = {',
@@ -563,10 +554,6 @@ describe('Interpretador', () => {
                         ],
                         -1
                     );
-
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        _saidas.push(saida);
-                    };
 
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                     await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
@@ -1178,6 +1165,24 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(_saidas).toHaveLength(1);
                     expect(_saidas[0]).toBe("390625");
+                });
+
+                it('Dicionário + dicionário', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var a = { "chave1": 1 }',
+                            'var b = { "chave2": 2 }',
+                            'escreva(a + b)'
+                        ],
+                    -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('{\"chave1\":1}{\"chave2\":2}');
                 });
             });
 
@@ -2274,7 +2279,6 @@ describe('Interpretador', () => {
 
             describe('Entrada e saída', () => {
                 it('escreva e leia na mesma linha', async () => {
-                    let _saida: string = '';
                     // Aqui vamos simular a resposta para uma variável de `leia()`.
                     const respostas = ['5'];
                     interpretador.interfaceEntradaSaida = {
@@ -2291,14 +2295,10 @@ describe('Interpretador', () => {
                     );
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        _saida = saida;
-                    };
-
                     await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    expect(_saida).toBeTruthy();
-                    expect(_saida).toBe("Você digitou 5");
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe("Você digitou 5");
                 });
 
                 it('Enquanto (verdadeiro) e Sustar', async () => {
