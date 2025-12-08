@@ -164,7 +164,7 @@ export class FormatadorPitugues implements VisitanteComumInterface {
     }
 
     async visitarDeclaracaoVar(declaração: Var): Promise<any> {
-        this.códigoFormatado += this.indentar() + `var ${declaração.simbolo.lexema} = `;
+        this.códigoFormatado += this.indentar() + `${declaração.simbolo.lexema} = `;
         if (declaração.inicializador) {
             this.códigoFormatado += await declaração.inicializador.aceitar(this);
         } else {

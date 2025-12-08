@@ -1588,8 +1588,10 @@ export class AvaliadorSintaticoPitugues
 
         const metodos = [];
         const propriedades = [];
+        const indentacaoLinha = this.localizacoes[this.simboloAtual().linha].espacosIndentacao;
         while (
             !this.estaNoFinal() &&
+            this.localizacoes[this.simboloAtual().linha].espacosIndentacao === indentacaoLinha &&
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.CONSTRUTOR,
                 tiposDeSimbolos.FUNCAO,

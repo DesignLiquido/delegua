@@ -24,8 +24,8 @@ describe('Interpretador (Pituguês)', () => {
             describe('Atribuições', () => {
                 it('Trivial', async () => {
                     const retornoLexador = lexador.mapear([
-                        'var a = 1',
-                        'var b, c = 1, 2'
+                        'a = 1',
+                        'b, c = 1, 2'
                     ], -1);
 
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
@@ -44,8 +44,8 @@ describe('Interpretador (Pituguês)', () => {
                     it('Trivial', async () => {
                         const retornoLexador = lexador.mapear(
                             [
-                                'var lista = [1, 2, 3, 4, 5]',
-                                'var minhaListaCompreensao = [x para cada x em lista se x % 2 == 0] # Compreensão de listas para números pares',
+                                'lista = [1, 2, 3, 4, 5]',
+                                'minhaListaCompreensao = [x para cada x em lista se x % 2 == 0] # Compreensão de listas para números pares',
                                 'escreva(minhaListaCompreensao)',
                             ],
                             -1
@@ -67,8 +67,8 @@ describe('Interpretador (Pituguês)', () => {
                     it('Com expressão para resolução', async () => {
                         const retornoLexador = lexador.mapear(
                             [
-                                'var lista = [1, 2, 3, 4, 5]',
-                                'var minhaListaCompreensao = [x * 2 para cada x em lista se x % 2 == 0] # Compreensão de listas para números pares',
+                                'lista = [1, 2, 3, 4, 5]',
+                                'minhaListaCompreensao = [x * 2 para cada x em lista se x % 2 == 0] # Compreensão de listas para números pares',
                                 'escreva(minhaListaCompreensao)',
                             ],
                             -1
@@ -89,7 +89,7 @@ describe('Interpretador (Pituguês)', () => {
                 });
 
                 it('Vetor', async () => {
-                    const retornoLexador = lexador.mapear(['var a = [1, 2, 3]'], -1);
+                    const retornoLexador = lexador.mapear(['a = [1, 2, 3]'], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
                         retornoLexador,
                         -1
@@ -103,7 +103,7 @@ describe('Interpretador (Pituguês)', () => {
                 });
 
                 it('Dicionário', async () => {
-                    const retornoLexador = lexador.mapear(["var a = {'a': 1, 'b': 2}"], -1);
+                    const retornoLexador = lexador.mapear(["a = {'a': 1, 'b': 2}"], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
                         retornoLexador,
                         -1
@@ -120,7 +120,7 @@ describe('Interpretador (Pituguês)', () => {
             describe('Acesso a variáveis e objetos', () => {
                 it('Acesso a elementos de vetor', async () => {
                     const retornoLexador = lexador.mapear(
-                        ['var a = [1, 2, 3];\nescreva(a[1])'],
+                        ['a = [1, 2, 3];\nescreva(a[1])'],
                         -1
                     );
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
@@ -137,7 +137,7 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('Acesso a elementos de dicionário', async () => {
                     const retornoLexador = lexador.mapear(
-                        ["var a = {'a': 1, 'b': 2};\nescreva(a['b'])"],
+                        ["a = {'a': 1, 'b': 2};\nescreva(a['b'])"],
                         -1
                     );
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
@@ -223,7 +223,7 @@ describe('Interpretador (Pituguês)', () => {
                     };
 
                     const retornoLexador = lexador.mapear(
-                        ['var teste = leia("Insira algo:")', 'imprima(teste)'],
+                        ['teste = leia("Insira algo:")', 'imprima(teste)'],
                         -1
                     );
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
@@ -321,7 +321,7 @@ describe('Interpretador (Pituguês)', () => {
                 it('Contém', async () => {
                     const retornoLexador = lexador.mapear(
                         [
-                            'var a = [1, 2, 3, 4, 5]',
+                            'a = [1, 2, 3, 4, 5]',
                             'escreva(a contém 3)'
                         ],
                         -1);
@@ -337,7 +337,7 @@ describe('Interpretador (Pituguês)', () => {
                 it('Não contém', async () => {
                     const retornoLexador = lexador.mapear(
                         [
-                            'var a = [2, 4, 6, 8, 10]',
+                            'a = [2, 4, 6, 8, 10]',
                             'escreva(a não contém 3)'
                         ],
                         -1);
@@ -396,7 +396,7 @@ describe('Interpretador (Pituguês)', () => {
             describe('Laços de repetição', () => {
                 it('Laços de repetição - enquanto', async () => {
                     const retornoLexador = lexador.mapear(
-                        ['var a = 0\nenquanto a < 10:\n    a = a + 1'],
+                        ['a = 0\nenquanto a < 10:\n    a = a + 1'],
                         -1
                     );
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
@@ -413,7 +413,7 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('Laços de repetição - fazer ... enquanto', async () => {
                     const retornoLexador = lexador.mapear(
-                        ['var a = 0\nfazer:\n    a = a + 1\nenquanto a < 10'],
+                        ['a = 0\nfazer:\n    a = a + 1\nenquanto a < 10'],
                         -1
                     );
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
@@ -432,7 +432,7 @@ describe('Interpretador (Pituguês)', () => {
                     it('Trivial', async () => {
                         const retornoLexador = lexador.mapear(
                             [
-                                'var vetor = [1, 2, 3]',
+                                'vetor = [1, 2, 3]',
                                 'para cada elemento de vetor:',
                                 '    escreva(elemento)',
                             ],
@@ -458,7 +458,7 @@ describe('Interpretador (Pituguês)', () => {
                 it('Iterando texto', async () => {
                     const retornoLexador = lexador.mapear(
                         [
-                            'var texto1 = "Texto"',
+                            'texto1 = "Texto"',
                             'para cada item em texto1:',
                             '    imprima(item)'
                         ], -1
@@ -489,7 +489,7 @@ describe('Interpretador (Pituguês)', () => {
                         'classe Cachorro(Animal):',
                         '    função latir():',
                         "        escreva('Au Au Au Au')",
-                        'var nomeDoCachorro = Cachorro()',
+                        'nomeDoCachorro = Cachorro()',
                         'nomeDoCachorro.correr()',
                         'nomeDoCachorro.latir()',
                         "escreva('Classe: OK!')",
@@ -521,7 +521,7 @@ describe('Interpretador (Pituguês)', () => {
                         '    construtor():',
                         '        super()',
                         "        imprima('Amigo, estou aqui!')",
-                        'var amigo = Amigo()',
+                        'amigo = Amigo()',
                     ];
 
                     const retornoLexador = lexador.mapear(codigo, -1);
@@ -566,12 +566,12 @@ describe('Interpretador (Pituguês)', () => {
                         '       retorna 0',
                         '    se n == 1:',
                         '       retorna 1',
-                        '    var n1 = n - 1',
-                        '    var n2 = n - 2',
-                        '    var f1 = fibonacci(n1)',
-                        '    var f2 = fibonacci(n2)',
+                        '    n1 = n - 1',
+                        '    n2 = n - 2',
+                        '    f1 = fibonacci(n1)',
+                        '    f2 = fibonacci(n2)',
                         '    retorna f1 + f2',
-                        'var a = fibonacci(0)',
+                        'a = fibonacci(0)',
                         'escreva(a)',
                         'a = fibonacci(1)',
                         'escreva(a)',
@@ -606,8 +606,8 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('Uso de funções de ordem superior', async () => {
                     const codigo = [
-                        'var vetor = [1, 2, 3]',
-                        'var fn = funcao(valor):',
+                        'vetor = [1, 2, 3]',
+                        'fn = funcao(valor):',
                         '    retorna valor * 2',
                         'escreva(mapear(vetor, fn))',
                     ];
@@ -630,8 +630,8 @@ describe('Interpretador (Pituguês)', () => {
             describe('Uso de bibliotecas', () => {
                 it('dividir', async () => {
                     const codigo = [
-                        'var tex = "Eu sou um abacaxi"',
-                        'var div = tex.dividir(" ")',
+                        'tex = "Eu sou um abacaxi"',
+                        'div = tex.dividir(" ")',
                         'escreva(div)',
                     ];
                     const retornoLexador = lexador.mapear(codigo, -1);
@@ -651,8 +651,8 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('mapear', async () => {
                     const codigo = [
-                        'var vetor = [1, 2, 3]',
-                        'var fn = funcao(valor):',
+                        'vetor = [1, 2, 3]',
+                        'fn = funcao(valor):',
                         '    retorna valor * 2',
                         'escreva(mapear(vetor, fn))',
                     ];
@@ -676,7 +676,7 @@ describe('Interpretador (Pituguês)', () => {
                 describe('itens', () => {
                     it('Trivial', async () => {
                         const codigo = [
-                            "var d = {'a': 1, 'b': 2, 'c': 3}",
+                            "d = {'a': 1, 'b': 2, 'c': 3}",
                             'escreva(d.itens())',
                         ];
                         const retornoLexador = lexador.mapear(codigo, -1);
@@ -698,7 +698,7 @@ describe('Interpretador (Pituguês)', () => {
 
             describe('Uso de primitivas de número', () => {
                 it('arredondarParaBaixo', async () => {
-                    const codigo = ['var n1 = 3.1415', 'escreva(n1.arredondar_para_baixo())'];
+                    const codigo = ['n1 = 3.1415', 'escreva(n1.arredondar_para_baixo())'];
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
                         retornoLexador,
@@ -715,7 +715,7 @@ describe('Interpretador (Pituguês)', () => {
                 });
 
                 it('arredondarParaCima', async () => {
-                    const codigo = ['var n1 = 3.1415', 'escreva(n1.arredondar_para_cima())'];
+                    const codigo = ['n1 = 3.1415', 'escreva(n1.arredondar_para_cima())'];
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
                         retornoLexador,
@@ -752,8 +752,8 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('concatenar', async () => {
                     const codigo = [
-                        'var t1 = "um texto"',
-                        'var t2 = " concatenado com outro"',
+                        't1 = "um texto"',
+                        't2 = " concatenado com outro"',
                         'escreva(t1.concatenar(t2))',
                     ];
                     const retornoLexador = lexador.mapear(codigo, -1);
@@ -773,7 +773,7 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('encontrar_ultimo', async () => {
                     const codigo = [
-                        'var txt = "Mi casa, su casa."',
+                        'txt = "Mi casa, su casa."',
                         'escreva(txt.encontrar_ultimo(\'casa\'))',
                     ];
                     const retornoLexador = lexador.mapear(codigo, -1);
@@ -792,7 +792,7 @@ describe('Interpretador (Pituguês)', () => {
                 });
 
                 it('dividir', async () => {
-                    const codigo = ['var t1 = "um dois três"', 'escreva(t1.dividir(" "))'];
+                    const codigo = ['t1 = "um dois três"', 'escreva(t1.dividir(" "))'];
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
                         retornoLexador,
@@ -818,9 +818,9 @@ describe('Interpretador (Pituguês)', () => {
                     };
 
                     const codigo = [
-                        "var frase = leia('Informe uma frase: ')",
-                        "var letra = leia('Qual letra quer encontrar? ')",
-                        "var teste = frase.inclui(letra)",
+                        "frase = leia('Informe uma frase: ')",
+                        "letra = leia('Qual letra quer encontrar? ')",
+                        "teste = frase.inclui(letra)",
                         "imprima(teste)"
                     ];
                     const retornoLexador = lexador.mapear(codigo, -1);
@@ -839,7 +839,7 @@ describe('Interpretador (Pituguês)', () => {
                 });
 
                 it('maiusculo', async () => {
-                    const codigo = ['var t1 = "um dois três"', 'escreva(t1.maiusculo())'];
+                    const codigo = ['t1 = "um dois três"', 'escreva(t1.maiusculo())'];
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
                         retornoLexador,
@@ -856,7 +856,7 @@ describe('Interpretador (Pituguês)', () => {
                 });
 
                 it('minusculo', async () => {
-                    const codigo = ['var t1 = "UM DOIS TRÊS"', 'escreva(t1.minusculo())'];
+                    const codigo = ['t1 = "UM DOIS TRÊS"', 'escreva(t1.minusculo())'];
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
                         retornoLexador,
@@ -876,7 +876,7 @@ describe('Interpretador (Pituguês)', () => {
             describe('Uso de primitivas de vetor', () => {
                 it('fatiar', async () => {
                     const codigo = [
-                        'var lista = ["Ser", "ou", "não", "ser"]',
+                        'lista = ["Ser", "ou", "não", "ser"]',
                         'escreva(lista.fatiar(2))',
                         'escreva(lista.fatiar(1, 2))',
                     ];
@@ -898,8 +898,8 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('inclui', async () => {
                     const codigo = [
-                        'var lista = [1, 2, 3, 4, 5, 6]',
-                        'var lista2 = ["Ser", "ou", "não", "ser"]',
+                        'lista = [1, 2, 3, 4, 5, 6]',
+                        'lista2 = ["Ser", "ou", "não", "ser"]',
                         'escreva(lista.inclui(5))',
                         'escreva(lista2.inclui("ser"))',
                         'escreva(lista2.inclui("abc"))',
@@ -923,7 +923,7 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('substituir', async () => {
                     const codigo = [
-                        'var t = "Ser ou não ser, eis a questão"',
+                        't = "Ser ou não ser, eis a questão"',
                         'escreva(t.substituir("Ser", "Salmão"));',
                     ];
                     const retornoLexador = lexador.mapear(codigo, -1);
@@ -943,7 +943,7 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('subtexto', async () => {
                     const codigo = [
-                        'var t = "Ser ou não ser, eis a questão"',
+                        't = "Ser ou não ser, eis a questão"',
                         'escreva(t.subtexto(4, 10))',
                     ];
                     const retornoLexador = lexador.mapear(codigo, -1);
@@ -963,7 +963,7 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('encontre - índice inicial encontrado', async () => {
                     const codigo = [
-                        'var t = "Ser ou não ser, eis a questão"',
+                        't = "Ser ou não ser, eis a questão"',
                         'escreva(t.encontrar("ser"))',
                     ];
                     const retornoLexador = lexador.mapear(codigo, -1);
@@ -983,7 +983,7 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('encontre - subtexto não encontrado', async () => {
                     const codigo = [
-                        'var t = "Ser ou não ser, eis a questão"',
+                        't = "Ser ou não ser, eis a questão"',
                         'escreva(t.encontrar("abacaxi"))',
                     ];
                     const retornoLexador = lexador.mapear(codigo, -1);
@@ -1003,7 +1003,7 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('encontre - com índice inicial', async () => {
                     const codigo = [
-                        'var t = "Ser ou não ser, eis a questão"',
+                        't = "Ser ou não ser, eis a questão"',
                         'escreva(t.encontrar("ou", 4))',
                     ];
                     const retornoLexador = lexador.mapear(codigo, -1);
@@ -1023,7 +1023,7 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('encontre - índice inicial após última ocorrência', async () => {
                     const codigo = [
-                        'var t = "Ser ou não ser, eis a questão"',
+                        't = "Ser ou não ser, eis a questão"',
                         'escreva(t.encontrar("Ser", 5))',
                     ];
                     const retornoLexador = lexador.mapear(codigo, -1);
@@ -1042,7 +1042,7 @@ describe('Interpretador (Pituguês)', () => {
                 });
 
                 it('encontre - primeira ocorrência no início', async () => {
-                    const codigo = ['var t = "abcabc"', 'escreva(t.encontrar("abc"))'];
+                    const codigo = ['t = "abcabc"', 'escreva(t.encontrar("abc"))'];
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
                         retornoLexador,
@@ -1060,9 +1060,9 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('SE ternário', async () => {
                     const codigo = [
-                        'var a = 10',
-                        'var b = 20',
-                        'var maior = a se a > b senão b',
+                        'a = 10',
+                        'b = 20',
+                        'maior = a se a > b senão b',
                         'escreva(maior)',
                     ];
 
@@ -1085,7 +1085,7 @@ describe('Interpretador (Pituguês)', () => {
 
         it('termina_com - sufixo encontrado no final', async () => {
             const codigo = [
-                'var t = "Olá, bem-vindo ao meu mundo."',
+                't = "Olá, bem-vindo ao meu mundo."',
                 'escreva(t.termina_com("."))',
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
@@ -1103,7 +1103,7 @@ describe('Interpretador (Pituguês)', () => {
 
         it('termina_com - sufixo encontrado (palavra completa)', async () => {
             const codigo = [
-                'var t = "Olá, bem-vindo ao meu mundo."',
+                't = "Olá, bem-vindo ao meu mundo."',
                 'escreva(t.termina_com("mundo."))',
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
@@ -1121,7 +1121,7 @@ describe('Interpretador (Pituguês)', () => {
 
         it('termina_com - sufixo não encontrado', async () => {
             const codigo = [
-                'var t = "Olá, bem-vindo ao meu mundo."',
+                't = "Olá, bem-vindo ao meu mundo."',
                 'escreva(t.termina_com("mundo"))',
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
@@ -1139,7 +1139,7 @@ describe('Interpretador (Pituguês)', () => {
 
         it('termina_com - sufixo no meio do texto', async () => {
             const codigo = [
-                'var t = "Olá, bem-vindo ao meu mundo."',
+                't = "Olá, bem-vindo ao meu mundo."',
                 'escreva(t.termina_com("bem-vindo"))',
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
@@ -1157,7 +1157,7 @@ describe('Interpretador (Pituguês)', () => {
 
         it('termina_com - texto vazio como sufixo', async () => {
             const codigo = [
-                'var t = "Olá mundo"',
+                't = "Olá mundo"',
                 'escreva(t.termina_com(""))',
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
@@ -1175,7 +1175,7 @@ describe('Interpretador (Pituguês)', () => {
 
         it('termina_com - sufixo maior que o texto', async () => {
             const codigo = [
-                'var t = "Olá"',
+                't = "Olá"',
                 'escreva(t.termina_com("Olá mundo!"))',
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
@@ -1193,8 +1193,8 @@ describe('Interpretador (Pituguês)', () => {
 
         it('interpolação de variáveis em textos', async () => {
             const codigo = [
-                'var nome = "Maria"',
-                'var idade = 30',
+                'nome = "Maria"',
+                'idade = 30',
                 'escreva("Meu nome é ${nome} e eu tenho ${idade} anos.")',
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
@@ -1209,13 +1209,11 @@ describe('Interpretador (Pituguês)', () => {
             expect(_saidas).toHaveLength(1);
             expect(_saidas[0]).toBe('Meu nome é Maria e eu tenho 30 anos.');
         });
-
-
         
         describe('Cenários de falha', () => {
             describe('Acesso a variáveis e objetos', () => {
                 it('Acesso a elementos de vetor', async () => {
-                    const retornoLexador = lexador.mapear(['var a = [1, 2, 3]\nescreva(a[4])'], -1);
+                    const retornoLexador = lexador.mapear(['a = [1, 2, 3]\nescreva(a[4])'], -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
                         retornoLexador,
                         -1
@@ -1230,7 +1228,7 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('Acesso a elementos de dicionário', async () => {
                     const retornoLexador = lexador.mapear(
-                        ["var a = {'a': 1, 'b': 2}\nescreva(a['c'])"],
+                        ["a = {'a': 1, 'b': 2}\nescreva(a['c'])"],
                         -1
                     );
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(

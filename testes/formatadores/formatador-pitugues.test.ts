@@ -21,14 +21,14 @@ describe('Formatador (Pituguês)', () => {
 
     it('variáveis', async () => {
         const resultado = await executar([
-            'var nome="Ana" var idade = 30',
-            'var PI = 3.14 var LIMITE=100'
+            'nome="Ana" idade = 30',
+            'PI = 3.14 LIMITE=100'
         ]);
 
-        expect(resultado).toContain('var nome = \'Ana\'');
-        expect(resultado).toContain('var idade = 30');
-        expect(resultado).toContain('var PI = 3.14');
-        expect(resultado).toContain('var LIMITE = 100');
+        expect(resultado).toContain('nome = \'Ana\'');
+        expect(resultado).toContain('idade = 30');
+        expect(resultado).toContain('PI = 3.14');
+        expect(resultado).toContain('LIMITE = 100');
     });
 
     it('função simples', async () => {
@@ -68,7 +68,7 @@ describe('Formatador (Pituguês)', () => {
 
     it('se / senão', async () => {
         const resultado = await executar([
-            'var idade= 17',
+            'idade= 17',
             'se idade>=18:',
             '    imprima(  \'Maior de idade\'   )',
             'senão:',
@@ -76,7 +76,7 @@ describe('Formatador (Pituguês)', () => {
         ]);
 
         const linhas = resultado.split('\n');
-        expect(linhas[0]).toBe(`var idade = 17`);
+        expect(linhas[0]).toBe(`idade = 17`);
         expect(linhas[1]).toBe(`se idade >= 18:`);
         expect(linhas[2]).toBe(`    imprima(\'Maior de idade\')`);
         expect(linhas[3]).toBe(`senão:`);
@@ -85,7 +85,7 @@ describe('Formatador (Pituguês)', () => {
 
     it('enquanto', async () => {
         const resultado = await executar([
-            'var i = 0',
+            'i = 0',
             'enquanto i < 5:',
             '    imprima(i)',
             '    i = i + 1'
@@ -97,7 +97,7 @@ describe('Formatador (Pituguês)', () => {
 
     it('fazer ... enquanto', async () => {
         const resultado = await executar([
-            'var i=0',
+            'i=0',
             'fazer:',
             '    imprima(i)',
             '    i=i+1',
@@ -105,7 +105,7 @@ describe('Formatador (Pituguês)', () => {
         ]);
 
         expect(resultado.trim()).toBe(
-`var i = 0
+`i = 0
 fazer:
     imprima(i)
     i = i + 1
@@ -124,7 +124,7 @@ enquanto i >= 5`.trim()
 
     it('escolha com múltiplos casos', async () => {
         const resultado = await executar([
-            'var nota = 8',
+            'nota = 8',
             'escolha nota:',
             '    caso 10:',
             '        imprima("Perfeito!")',
@@ -147,7 +147,7 @@ enquanto i >= 5`.trim()
     it('tente / pegue / finalmente', async () => {
         const resultado = await executar([
             'tente:',
-            '    var   resultado= 10/ 0',
+            '      resultado= 10/ 0',
             'pegue como  erro:',
             '    imprima ("Ocorreu um erro:",erro  )',
             'finalmente :',
@@ -156,7 +156,7 @@ enquanto i >= 5`.trim()
 
         expect(resultado.trim()).toBe(
 `tente:
-    var resultado = 10 / 0
+    resultado = 10 / 0
 pegue como erro:
     imprima('Ocorreu um erro:', erro)
 finalmente:
@@ -166,25 +166,25 @@ finalmente:
 
     it('vetores e dicionários', async () => {
         const resultado = await executar([
-            'var frutas = ["maçã", "banana", "laranja"]',
-            'var pessoa = {"nome": "Carlos", "idade": 35}',
+            'frutas = ["maçã", "banana", "laranja"]',
+            'pessoa = {"nome": "Carlos", "idade": 35}',
             'imprima(frutas[1])',
             'imprima(pessoa.idade)'
         ]);
 
-        expect(resultado).toContain('var frutas = [\'maçã\', \'banana\', \'laranja\']');
-        expect(resultado).toContain('var pessoa = {\'nome\': \'Carlos\', \'idade\': 35}');
+        expect(resultado).toContain('frutas = [\'maçã\', \'banana\', \'laranja\']');
+        expect(resultado).toContain('pessoa = {\'nome\': \'Carlos\', \'idade\': 35}');
         expect(resultado).toContain('imprima(pessoa.idade)');
     });
 
     it('função anônima', async () => {
         const resultado = await executar([
-            'var dobro = função(x): retorna x * 2',
+            'dobro = função(x): retorna x * 2',
             'imprima (  dobro ( 7 )  )'
         ]);
 
         expect(resultado.trim()).toBe(
-            'var dobro = função(x):\n    retorna x * 2\nimprima(dobro(7))'
+            'dobro = função(x):\n    retorna x * 2\nimprima(dobro(7))'
         );
     });
 
