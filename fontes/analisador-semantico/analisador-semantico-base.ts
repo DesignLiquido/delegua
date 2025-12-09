@@ -197,18 +197,23 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
         return false;
     }
 
-    private verificarSeRetorna(declaracaoSe: any): boolean {
-        // Verifica o bloco 'entao'
-        const entaoRetorna = this.verificarBlocoRetorna(declaracaoSe.caminhoEntao);
+    protected verificarSeRetorna(declaracaoSe: Se): boolean {
+        const caminhoEntaoResolvido = declaracaoSe.caminhoEntao as Bloco;
+        const entaoRetorna = this.verificarBlocoRetorna(caminhoEntaoResolvido.declaracoes);
         
-        // Se não há 'senao', não podemos garantir que todos os caminhos retornam
-        if (!declaracaoSe.caminhoSenao || declaracaoSe.caminhoSenao.length === 0) {
+        const caminhoSenaoResolvido = declaracaoSe.caminhoSenao as Bloco | Se | null;
+        if (!caminhoSenaoResolvido || (caminhoSenaoResolvido as Bloco).declaracoes?.length === 0) {
             return false;
         }
         
-        // Verifica o bloco 'senao'
-        const senaoRetorna = this.verificarBlocoRetorna(declaracaoSe.caminhoSenao);
+        if (caminhoSenaoResolvido instanceof Se && (caminhoSenaoResolvido.caminhoEntao as Bloco).declaracoes?.length === 1) {
+            const senaoSeRetorna = this.verificarSeRetorna(
+                caminhoSenaoResolvido as Se
+            );
+            return entaoRetorna && senaoSeRetorna;
+        }
         
+        const senaoRetorna = this.verificarBlocoRetorna((declaracaoSe.caminhoSenao as Bloco).declaracoes);
         return entaoRetorna && senaoRetorna;
     }
 

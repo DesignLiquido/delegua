@@ -121,7 +121,7 @@ describe('Analisador semântico', () => {
             });
 
             describe('Declaração se ... senão se ... senão', () => {
-                it.skip('Caso com os três blocos', () => {
+                it('Caso com os três blocos', () => {
                     const retornoLexador = lexador.mapear(
                         [
                             'funcao achePlaneta(coordenadas) {',
