@@ -77,6 +77,111 @@ import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
  * simplesmente passa por ele (`return Promise.resolve()`).
  */
 export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInterface {
+    protected diagnosticoJaExiste(simbolo: SimboloInterface, mensagem: string): boolean {
+        return this.diagnosticos.some(
+            d => d.linha === simbolo.linha && 
+                d.mensagem === mensagem &&
+                d.simbolo.lexema === simbolo.lexema
+        );
+    }
+
+    erro(simbolo: SimboloInterface, mensagem: string): void {
+        if (this.diagnosticoJaExiste(simbolo, mensagem)) {
+            return;
+        }
+
+        this.diagnosticos.push({
+            simbolo: simbolo,
+            mensagem: mensagem,
+            hashArquivo: simbolo.hashArquivo,
+            linha: simbolo.linha,
+            severidade: DiagnosticoSeveridade.ERRO,
+        });
+    }
+
+    aviso(simbolo: SimboloInterface, mensagem: string): void {
+        if (this.diagnosticoJaExiste(simbolo, mensagem)) {
+            return;
+        }
+
+        this.diagnosticos.push({
+            simbolo: simbolo,
+            mensagem: mensagem,
+            hashArquivo: simbolo.hashArquivo,
+            linha: simbolo.linha,
+            severidade: DiagnosticoSeveridade.AVISO,
+        });
+    }
+
+    /**
+     * Analisa se todos os caminhos retornam
+     * @returns true se todos os caminhos retornam, false caso contrário
+     */
+    protected todosOsCaminhosRetornam(declaracoes: Declaracao[]): boolean {
+        return this.verificarBlocoRetorna(declaracoes);
+    }
+
+    private verificarBlocoRetorna(declaracoes: Declaracao[]): boolean {
+        for (let i = 0; i < declaracoes.length; i++) {
+            const declaracao = declaracoes[i];
+            
+            if (declaracao instanceof Retorna) {
+                return true;
+            }
+            
+            if (declaracao instanceof Se) {
+                const todosOsCaminhosSe = this.verificarSeRetorna(declaracao);
+                if (todosOsCaminhosSe) {
+                    return true;
+                }
+            }
+            
+            if (declaracao instanceof Escolha) {
+                const todosOsCaminhosEscolha = this.verificarEscolhaRetorna(declaracao);
+                if (todosOsCaminhosEscolha) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+
+    private verificarSeRetorna(declaracaoSe: any): boolean {
+        // Verifica o bloco 'entao'
+        const entaoRetorna = this.verificarBlocoRetorna(declaracaoSe.caminhoEntao);
+        
+        // Se não há 'senao', não podemos garantir que todos os caminhos retornam
+        if (!declaracaoSe.caminhoSenao || declaracaoSe.caminhoSenao.length === 0) {
+            return false;
+        }
+        
+        // Verifica o bloco 'senao'
+        const senaoRetorna = this.verificarBlocoRetorna(declaracaoSe.caminhoSenao);
+        
+        return entaoRetorna && senaoRetorna;
+    }
+
+    private verificarEscolhaRetorna(declaracaoEscolha: Escolha): boolean {
+        let temPadrao = false;
+        
+        // Verifica se todos os caminhos retornam
+        for (let caminho of declaracaoEscolha.caminhos) {
+            const caminhoRetorna = this.verificarBlocoRetorna(caminho.declaracoes);
+            if (!caminhoRetorna) {
+                return false;
+            }
+            
+            // Verifica se há um caso padrão
+            if (caminho.condicoes.length === 0) {
+                temPadrao = true;
+            }
+        }
+        
+        // Se não há caso padrão, não podemos garantir que todos os caminhos retornam
+        return temPadrao;
+    }
+
     visitarDeclaracaoTextoDocumentacao(declaracao: TextoDocumentacao): Promise<any> | void {
         return Promise.resolve();
     }
