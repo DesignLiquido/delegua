@@ -5,6 +5,7 @@ import {
     Binario,
     Chamada,
     Construto,
+    FormatacaoEscrita,
     FuncaoConstruto,
     Leia,
     Literal,
@@ -42,7 +43,6 @@ import { PilhaVariaveis } from './pilha-variaveis';
  */
 export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     pilhaVariaveis: PilhaVariaveis;
-    gerenciadorEscopos: GerenciadorEscopos;
     funcoes: { [nomeFuncao: string]: FuncaoHipoteticaInterface };
     atual: number;
     diagnosticos: DiagnosticoAnalisadorSemantico[];
@@ -254,6 +254,12 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     }
 
     visitarExpressaoDeChamada(expressao: Chamada) {
+        for (const argumento of expressao.argumentos) {
+            if (argumento instanceof Variavel) {
+                this.gerenciadorEscopos.marcarComoUsada(argumento.simbolo.lexema);
+            }
+        }
+
         switch (expressao.entidadeChamada.constructor) {
             case ArgumentoReferenciaFuncao:
                 const entidadeChamadaArgumentoReferenciaFuncao =
@@ -401,7 +407,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         return await declaracao.expressao.aceitar(this);
     }
 
-    visitarDeclaracaoEscolha(declaracao: Escolha) {
+    override visitarDeclaracaoEscolha(declaracao: Escolha) {
         const identificadorOuLiteral = declaracao.identificadorOuLiteral as Construto;
         const tipo = identificadorOuLiteral.tipo;
 
@@ -441,7 +447,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    visitarDeclaracaoEnquanto(declaracao: Enquanto) {
+    override visitarDeclaracaoEnquanto(declaracao: Enquanto) {
         return this.verificarCondicao(declaracao.condicao);
     }
 
@@ -483,14 +489,6 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     }
 
     private verificarVariavel(variavel: Variavel): Promise<void> {
-        /* const variavelHipotetica = this.variaveis[variavel.simbolo.lexema];
-        if (!variavelHipotetica) {
-            this.erro(
-                variavel.simbolo,
-                `Variável ${variavel.simbolo.lexema} ainda não foi declarada até este ponto.`
-            );
-        }
-        return Promise.resolve(); */
         const variavelEscopo = this.gerenciadorEscopos.buscar(variavel.simbolo.lexema);
         
         if (!variavelEscopo) {
@@ -766,7 +764,54 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         }
     }
 
-    visitarDeclaracaoEscreva(declaracao: Escreva) {
+    /**
+     * Verifica interpolações de texto e marca variáveis como usadas
+     */
+    protected verificarInterpolacaoTexto(texto: string, literal: Literal): void {
+        // Regex para encontrar ${identificador}
+        const regexInterpolacao = /\$\{([a-zA-Z_][a-zA-Z0-9_]*)\}/g;
+        let match;
+        
+        while ((match = regexInterpolacao.exec(texto)) !== null) {
+            const nomeVariavel = match[1];
+            
+            // Verifica se a variável existe
+            const variavel = this.gerenciadorEscopos.buscar(nomeVariavel);
+            const funcao = this.funcoes[nomeVariavel];
+            
+            if (!variavel && !funcao) {
+                this.erro(
+                    {
+                        lexema: nomeVariavel,
+                        tipo: 'IDENTIFICADOR',
+                        linha: literal.linha,
+                        hashArquivo: literal.hashArquivo,
+                        literal: null
+                    } as SimboloInterface,
+                    `Variável ou função '${nomeVariavel}' usada em interpolação não existe.`
+                );
+            } else if (variavel) {
+                // Marca como usada
+                this.gerenciadorEscopos.marcarComoUsada(nomeVariavel);
+                
+                // Verifica se foi inicializada
+                if (!variavel.inicializada) {
+                    this.aviso(
+                        {
+                            lexema: nomeVariavel,
+                            tipo: 'IDENTIFICADOR',
+                            linha: literal.linha,
+                            hashArquivo: literal.hashArquivo,
+                            literal: null
+                        } as SimboloInterface,
+                        `Variável '${nomeVariavel}' usada em interpolação pode não ter sido inicializada.`
+                    );
+                }
+            }
+        }
+    }
+
+    override visitarDeclaracaoEscreva(declaracao: Escreva) {
         if (declaracao.argumentos.length === 0) {
             const { linha, hashArquivo } = declaracao;
             const simbolo: SimboloInterface<''> = {
@@ -780,41 +825,48 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             return Promise.resolve();
         }
 
-        const variaveis = declaracao.argumentos.filter((arg) => arg instanceof Variavel);
+        for (const argumento of declaracao.argumentos) {
+            this.marcarVariaveisUsadasEmExpressao(argumento);
 
-        for (let variavel of variaveis as Variavel[]) {
-            const possivelVariavel = this.gerenciadorEscopos.buscar(variavel.simbolo.lexema);
-            const possivelFuncao = this.funcoes[variavel.simbolo.lexema];
-
-            if (!possivelVariavel && !possivelFuncao) {
-                this.erro(
-                    variavel.simbolo,
-                    `Variável ou função '${variavel.simbolo.lexema}' não existe.`
-                );
-                continue;
+            if (argumento instanceof Literal && argumento.tipo === 'texto') {
+                this.verificarInterpolacaoTexto(argumento.valor, argumento);
             }
+            
+            if (argumento instanceof Variavel) {
+                const possivelVariavel = this.gerenciadorEscopos.buscar(argumento.simbolo.lexema);
+                const possivelFuncao = this.funcoes[argumento.simbolo.lexema];
 
-            if (possivelVariavel) {
-                if (possivelVariavel.valor === undefined) {
-                    this.aviso(
-                        variavel.simbolo,
-                        `Variável '${variavel.simbolo.lexema}' não foi inicializada.`
+                if (!possivelVariavel && !possivelFuncao) {
+                    this.erro(
+                        argumento.simbolo,
+                        `Variável ou função '${argumento.simbolo.lexema}' não existe.`
                     );
-                } 
+                    continue;
+                }
 
-                this.gerenciadorEscopos.marcarComoUsada(variavel.simbolo.lexema);
+                if (possivelVariavel && possivelVariavel.valor === undefined) {
+                    this.aviso(
+                        argumento.simbolo,
+                        `Variável '${argumento.simbolo.lexema}' não foi inicializada.`
+                    );
+                }
             }
         }
 
         return Promise.resolve();
     }
 
-    visitarDeclaracaoConst(declaracao: Const): Promise<any> {
+    override visitarDeclaracaoConst(declaracao: Const): Promise<any> {
         this.verificarTipoAtribuido(declaracao);
+
+        if (declaracao.inicializador) {
+            this.marcarVariaveisUsadasEmExpressao(declaracao.inicializador);
+        }
 
         const constanteCorrespondente = this.gerenciadorEscopos.buscarNoEscopoAtual(
             declaracao.simbolo.lexema
         );
+
         if (constanteCorrespondente) {
             this.erro(declaracao.simbolo, 'Declaração de constante já feita.');
             return Promise.resolve();
@@ -839,65 +891,12 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    visitarDeclaracaoVar(declaracao: Var): Promise<any> {
-        /* this.verificarTipoAtribuido(declaracao);
-
-        const variavel: EscopoVariavel = {
-            nome: declaracao.simbolo.lexema,
-            tipo: declaracao.tipo || 'qualquer',
-            imutavel: false,
-            valor: declaracao.inicializador?.valor,
-            inicializada: declaracao.inicializador !== null && declaracao.inicializador !== undefined,
-            usada: false,
-            hashArquivo: declaracao.simbolo.hashArquivo,
-            linha: declaracao.simbolo.linha
-        };
-
-        const declaradaComSucesso = this.gerenciadorEscopos.declarar(
-            declaracao.simbolo.lexema,
-            variavel
-        );
-
-        if (!declaradaComSucesso) {
-            const variavelExistente = this.gerenciadorEscopos.buscarNoEscopoAtual(
-                declaracao.simbolo.lexema
-            );
-            
-            this.aviso(
-                declaracao.simbolo,
-                `Variável '${declaracao.simbolo.lexema}' já foi declarada na linha ${variavelExistente?.linha}.`
-            );
-        }
-
-        if (declaracao.inicializador) {
-            switch (declaracao.inicializador.constructor) {
-                case FuncaoConstruto:
-                    const funcaoConstruto = declaracao.inicializador as FuncaoConstruto;
-                    if (funcaoConstruto.parametros.length >= 255) {
-                        this.erro(
-                            declaracao.simbolo,
-                            'Função não pode ter mais de 255 parâmetros.'
-                        );
-                    } else {
-                        this.funcoes[declaracao.simbolo.lexema] = {
-                            valor: funcaoConstruto
-                        };
-                    }
-                    break;
-            }
-        }
-
-        const valorInicializador =
-            declaracao.inicializador && declaracao.inicializador.valor !== null && declaracao.inicializador.valor !== undefined
-                ? declaracao.inicializador.valor
-                : declaracao.inicializador;
-
-        variavel.valor = valorInicializador || variavel.valor;
-
-        return Promise.resolve(); */
+    override visitarDeclaracaoVar(declaracao: Var): Promise<any> {
         this.verificarTipoAtribuido(declaracao);
 
         if (declaracao.inicializador) {
+            this.marcarVariaveisUsadasEmExpressao(declaracao.inicializador);
+
             switch (declaracao.inicializador.constructor) {
                 case FuncaoConstruto:
                     const funcaoConstruto = declaracao.inicializador as FuncaoConstruto;
@@ -911,15 +910,11 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             }
         }
 
-        // FIXED: Properly extract value, handling 0, false, empty string, etc.
         let valorInicializador: any = undefined;
         if (declaracao.inicializador) {
             if (declaracao.inicializador.hasOwnProperty('valor')) {
-                // For Literal, Binario, etc. that have a 'valor' property
-                // This correctly gets 0, false, "", etc.
                 valorInicializador = (declaracao.inicializador as any).valor;
             } else {
-                // For FuncaoConstruto and other complex types
                 valorInicializador = declaracao.inicializador;
             }
         }
@@ -954,11 +949,25 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
+    override visitarExpressaoFormatacaoEscrita(expressao: FormatacaoEscrita): Promise<any> {
+        if (expressao.expressao) {
+            /* for (const expressao of expressao.expressoes) {
+                if (expressao instanceof Variavel) {
+                    this.gerenciadorEscopos.marcarComoUsada(expressao.simbolo.lexema);
+                }
+                // Recursively check for variables in more complex expressions
+                this.marcarVariaveisUsadasEmExpressao(expressao);
+            } */
+        }
+        
+        return Promise.resolve();
+    }
+
+    override visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
         return Promise.resolve(null);
     }
 
-    visitarExpressaoDeVariavel(expressao: Variavel | Construto): Promise<any> {
+    override visitarExpressaoDeVariavel(expressao: Variavel | Construto): Promise<any> {
         if (expressao instanceof Variavel) {
             return this.verificarVariavel(expressao);
         }

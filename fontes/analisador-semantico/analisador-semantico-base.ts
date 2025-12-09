@@ -31,6 +31,7 @@ import {
     Separador,
     Variavel,
     Constante,
+    Construto,
 } from '../construtos';
 import {
     Declaracao,
@@ -70,6 +71,7 @@ import {
 import { AnalisadorSemanticoInterface } from '../interfaces/analisador-semantico-interface';
 import { RetornoAnalisadorSemantico } from '../interfaces/retornos/retorno-analisador-semantico';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
+import { GerenciadorEscopos } from './gerenciador-escopos';
 
 /**
  * Essa classe só existe para eliminar redundância entre todos os analisadores
@@ -77,6 +79,8 @@ import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
  * simplesmente passa por ele (`return Promise.resolve()`).
  */
 export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInterface {
+    gerenciadorEscopos: GerenciadorEscopos;
+    
     protected diagnosticoJaExiste(simbolo: SimboloInterface, mensagem: string): boolean {
         return this.diagnosticos.some(
             d => d.linha === simbolo.linha && 
@@ -111,6 +115,52 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
             linha: simbolo.linha,
             severidade: DiagnosticoSeveridade.AVISO,
         });
+    }
+
+     /**
+     * Marca as variáveis usadas em uma expressão.
+     */
+    protected marcarVariaveisUsadasEmExpressao(expressao: Construto): void {
+        if (expressao instanceof Variavel) {
+            this.gerenciadorEscopos.marcarComoUsada(expressao.simbolo.lexema);
+            return;
+        }
+        
+        if (expressao instanceof Binario) {
+            this.marcarVariaveisUsadasEmExpressao(expressao.esquerda);
+            this.marcarVariaveisUsadasEmExpressao(expressao.direita);
+            return;
+        }
+        
+        if (expressao instanceof Agrupamento) {
+            this.marcarVariaveisUsadasEmExpressao(expressao.expressao);
+            return;
+        }
+        
+        if (expressao instanceof Chamada) {
+            // Mark function name if it's a variable
+            if (expressao.entidadeChamada instanceof Variavel) {
+                this.gerenciadorEscopos.marcarComoUsada(expressao.entidadeChamada.simbolo.lexema);
+            }
+            // Mark all arguments
+            for (const arg of expressao.argumentos) {
+                this.marcarVariaveisUsadasEmExpressao(arg);
+            }
+            return;
+        }
+        
+        if (expressao instanceof Logico) {
+            this.marcarVariaveisUsadasEmExpressao(expressao.esquerda);
+            this.marcarVariaveisUsadasEmExpressao(expressao.direita);
+            return;
+        }
+        
+        if (expressao instanceof Unario) {
+            this.marcarVariaveisUsadasEmExpressao(expressao.operando);
+            return;
+        }
+        
+        // TODO: Adicionar outros tipos de expressões conforme necessário.
     }
 
     /**
