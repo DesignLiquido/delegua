@@ -297,30 +297,39 @@ export class AvaliadorSintaticoPitugues
 
     private temPadraoMultiplaAtribuicao(): boolean {
         // Verifica padrão: IDENTIFICADOR, VIRGULA, IDENTIFICADOR, ..., IGUAL
+        // Também aceita * antes de identificador
         let pos = this.atual;
-        let contadorIdentificadores = 0;
+        let identificadores = 0;
 
         while (pos < this.simbolos.length) {
-            if (this.simbolos[pos].tipo === tiposDeSimbolos.IDENTIFICADOR) {
-                contadorIdentificadores++;
+            // Consome opcionalmente o operador de resto (*)
+            if (this.simbolos[pos].tipo === tiposDeSimbolos.MULTIPLICACAO) {
                 pos++;
+            }
 
-                if (pos >= this.simbolos.length) return false;
+            // Verifica se há um identificador obrigatório
+            if (pos >= this.simbolos.length || this.simbolos[pos].tipo !== tiposDeSimbolos.IDENTIFICADOR) {
+                return false;
+            }
+            pos++;
+            identificadores++;
 
-                // Se encontrou =, verifica se tinha mais de 1 identificador
-                if (this.simbolos[pos].tipo === tiposDeSimbolos.IGUAL) {
-                    return contadorIdentificadores > 1;
-                }
+            // Verifica o próximo símbolo (deve ser ',' ou '=')
+            if (pos >= this.simbolos.length) return false;
 
-                // Se não é vírgula, não é padrão múltiplo
-                if (this.simbolos[pos].tipo !== tiposDeSimbolos.VIRGULA) {
-                    return false;
-                }
+            const proximoTipo = this.simbolos[pos].tipo;
 
+            if (proximoTipo === tiposDeSimbolos.IGUAL) {
+                return identificadores >= 2;
+            }
+
+            if (proximoTipo === tiposDeSimbolos.VIRGULA) {
                 pos++;
                 continue;
             }
-            break;
+
+            // Se chegou aqui, não é vírgula nem igual, então o padrão quebrou
+            return false;
         }
         return false;
     }
@@ -328,27 +337,27 @@ export class AvaliadorSintaticoPitugues
     private temPadraoVarComoPalavraChave(): boolean {
         // Verifica padrão: var identificador = ...
 
-        if (this.simbolos[this.atual].lexema !== 'var') {
+        if (this.simbolos[this.atual].lexema !== "var") {
             return false;
         }
 
-        // Exemplos permitidos: var = 10 | var, a = 10, 20
-        if (this.simbolos[this.atual + 1]?.tipo !== tiposDeSimbolos.IDENTIFICADOR) {
+        const proximo = this.simbolos[this.atual + 1];
+        if (!proximo) return false;
+
+        if (proximo.tipo === tiposDeSimbolos.MULTIPLICACAO) {
             return false;
         }
 
+        // Busca pelo sinal de igualdade, permitido apenas IDENTIFICADORES e VÍRGULAS no caminho
         let pos = this.atual + 1;
-
         while (pos < this.simbolos.length) {
-            if (this.simbolos[pos].tipo === tiposDeSimbolos.IGUAL) {
-                return true; // Encontrou padrão var identificador = ...
-            }
+            const tipo = this.simbolos[pos].tipo;
 
-            // Se encontrou algo que não seja IDENTIFICADOR ou VIRGULA, não é o padrão
-            if (this.simbolos[pos].tipo !== tiposDeSimbolos.IDENTIFICADOR &&
-                this.simbolos[pos].tipo !== tiposDeSimbolos.VIRGULA) {
-                return false;
-            }
+            // Encontrou padrão var a, b = ...
+            if (tipo === tiposDeSimbolos.IGUAL) return true;
+
+            // Encontrou algo como 'var a + b'
+            if (tipo !== tiposDeSimbolos.IDENTIFICADOR && tipo !== tiposDeSimbolos.VIRGULA) return false;
 
             pos++;
         }
@@ -358,35 +367,102 @@ export class AvaliadorSintaticoPitugues
 
     declaracaoDeVariaveis(): any {
         const identificadores: SimboloInterface[] = [];
-        let retorno: Declaracao[] = [];
-        let tipo: string = 'qualquer';
+        let indexResto = -1;
 
         do {
-            identificadores.push(
-                this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de variável.')
-            );
+            let ehRestoAtual = false;
+
+            // Verifica se o * veio como token separado
+            if (this.verificarTipoSimboloAtual(tiposDeSimbolos.MULTIPLICACAO)) {
+                this.consumir(tiposDeSimbolos.MULTIPLICACAO, '');
+                ehRestoAtual = true;
+            }
+
+            const identificador = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                ehRestoAtual ? 'Esperado nome de variável após operador *.' : 'Esperado nome de variável.'
+            )
+
+            // Verifica se o * veio como parte do nome da variável
+            if (identificador.lexema.startsWith('*')) {
+                ehRestoAtual = true;
+                identificador.lexema = identificador.lexema.slice(1);
+            }
+
+            if (ehRestoAtual) {
+                if (indexResto > -1) {
+                    throw this.erro(
+                        this.simboloAtual(),
+                        'Sintaxe inválida: apenas um operador de resto é permitido.'
+                    );
+                }
+                indexResto = identificadores.length;
+            }
+
+            identificadores.push(identificador);
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         this.consumir(tiposDeSimbolos.IGUAL, 'Esperado o símbolo igual(=) após identificador.');
 
-        const inicializadores = [];
+        const inicializadores: Construto[] = [];
         do {
+            if (this.estaNoFinal()) {
+                throw this.erro(this.simboloAtual(),'Esperado inicializador após vírgula.');
+            }
             inicializadores.push(this.expressao());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
-        if (identificadores.length !== inicializadores.length) {
-            throw this.erro(
-                this.simboloAtual(),
-                'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.'
-            );
+        const qtdIdentificadores = identificadores.length;
+        const qtdValores = inicializadores.length;
+
+        if (indexResto > -1) {
+            // Com resto: precisa de valores suficientes para cobrir as variáveis obrigatórias.
+            if (qtdValores < qtdIdentificadores - 1) {
+                throw this.erro(this.simboloAnterior(), 'Quantidade insuficiente de valores para desempacotamento com operador de resto.');
+            }
+        } else {
+            // Sem resto: a quantidade deve ser exata.
+            if (qtdIdentificadores !== qtdValores) {
+                throw this.erro(this.simboloAnterior(), 'Quantidade de inicializadores à esquerda do igual é diferente da quantidade de identificadores à direita.');
+            }
         }
 
-        for (let [indice, identificador] of identificadores.entries()) {
-            const inicializador = inicializadores[indice];
-            tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(
-                inicializadores[indice],
-                tipo
-            );
+        const retorno: Declaracao[] = [];
+        let cursorValores = 0;
+        const qtdParaResto = qtdValores - (qtdIdentificadores - 1);
+
+        for (let i = 0; i < identificadores.length; i++) {
+            const identificador = identificadores[i];
+            let inicializador: Construto;
+            let tipo = "qualquer";
+
+            if (i === indexResto) {
+                // Caso Resto (*): absorve N valores em um Vetor e força tipagem de array.
+                const valoresResto = inicializadores.slice(cursorValores, cursorValores + qtdParaResto);
+
+                let tipoInferido = inferirTipoVariavel(valoresResto) as string;
+                if (!tipoInferido.endsWith('[]')) {
+                    tipoInferido = `${tipoInferido}[]`;
+                }
+
+                inicializador = new Vetor(
+                    identificador.hashArquivo,
+                    identificador.linha,
+                    valoresResto,
+                    valoresResto.length,
+                    tipoInferido
+                );
+
+                tipo = tipoInferido;
+                cursorValores += qtdParaResto;
+            } else {
+                // Caso comum: consome 1 valor
+                inicializador = inicializadores[cursorValores];
+                cursorValores++;
+
+                tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(inicializador, tipo);
+            }
+
             this.pilhaEscopos.definirInformacoesVariavel(
                 identificador.lexema,
                 new InformacaoElementoSintatico(identificador.lexema, tipo)
@@ -1703,27 +1779,31 @@ export class AvaliadorSintaticoPitugues
     }
 
     resolverDeclaracao(): any {
-        // Detecção de declaração implícita
-        if (this.simbolos[this.atual].tipo === tiposDeSimbolos.IDENTIFICADOR) {
-            // Detecta e bloqueia "var x = 10"
-            if (this.temPadraoVarComoPalavraChave()) {
-                throw this.erro(
-                    this.simbolos[this.atual],
-                    'Palavra "var" não pode ser usada como palavra-chave para declaração. Use declarações implícitas: "x = 10" em vez de "var x = 10".'
-                )
-            }
+        // Detecção de declaração implícita ou múltipla atribuição (pode começar com * ou identificador)
+        const simboloAtual = this.simbolos[this.atual];
 
-            // Verifica se é múltipla atribuição (a, b, c = 1, 2, 3)
-            if (this.temPadraoMultiplaAtribuicao()) {
-                return this.declaracaoDeVariaveis();
-            }
+        // Bloqueio explícito do uso de "var"
+        if (this.temPadraoVarComoPalavraChave()) {
+            throw this.erro(
+                simboloAtual,
+                'Palavra "var" não pode ser usada como palavra-chave para declaração. Use declarações implícitas: "x = 10" em vez de "var x = 10".'
+            )
+        }
 
-            // Verifica se é atribuição simples (a = 1)
-            if (this.simbolos[this.atual + 1]?.tipo === tiposDeSimbolos.IGUAL) {
-                const nomeVariavel = this.simbolos[this.atual].lexema;
-                if (!this.variavelJaDeclarada(nomeVariavel)) {
-                    return this.declaracaoImplicita();
-                }
+        // Se caso começar com o operador resto (*), ex: *a, b = ...
+        if (simboloAtual.tipo === tiposDeSimbolos.MULTIPLICACAO) {
+            return this.declaracaoDeVariaveis();
+        }
+
+        // Se caso começar com um identificador
+        if (simboloAtual.tipo === tiposDeSimbolos.IDENTIFICADOR) {
+            if (simboloAtual.lexema.startsWith('*')) return this.declaracaoDeVariaveis();
+
+            if (this.temPadraoMultiplaAtribuicao()) return this.declaracaoDeVariaveis();
+
+            const proximoSimbolo = this.simbolos[this.atual + 1];
+            if (proximoSimbolo && proximoSimbolo.tipo === tiposDeSimbolos.IGUAL) {
+                if (!this.variavelJaDeclarada(simboloAtual.lexema)) return this.declaracaoImplicita();
             }
         }
 

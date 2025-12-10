@@ -2,6 +2,8 @@ import { AvaliadorSintaticoPitugues } from "../../fontes/avaliador-sintatico/dia
 import { Logico } from "../../fontes/construtos";
 import { Escreva } from "../../fontes/declaracoes";
 import { LexadorPitugues } from "../../fontes/lexador/dialetos";
+import { Vetor } from '../../fontes/construtos';
+import { Var } from '../../fontes/declaracoes';
 
 describe('Avaliador sintático (Pituguês)', () => {
     describe('analisar()', () => {
@@ -288,6 +290,78 @@ describe('Avaliador sintático (Pituguês)', () => {
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
                 });
             });
+
+            it('Desempacotamento com expressões matemáticas', () => {
+                const retornoLexador = lexador.mapear([
+                    'a, b = 10 + 10, 5 * 5'
+                ], -1)
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+            })
+
+            describe('Desempacotamento de valores usando o operador * (resto)', () => {
+                it('Operador * (resto) como única variável', () => {
+                    const retornoLexador = lexador.mapear([
+                        '*tudo = 1, 2, 3'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+
+                    const declaracao = retornoAvaliadorSintatico.declaracoes[0] as Var;
+                    expect(declaracao.inicializador).toBeInstanceOf(Vetor);
+
+                    expect((declaracao.inicializador as Vetor).valores).toHaveLength(3);
+                });
+
+                it('Desempacotamento de valores usando o operador * (resto) no início da declaração', () => {
+                    const retornoLexador = lexador.mapear([
+                        '*a, b, c = 1, 2, 3, 4, 5',
+                        'escreva(a, b, c)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(4);
+                });
+
+                it('Desempacotamento de valores usando o operador * (resto) no meio da declaração', () => {
+                    const retornoLexador = lexador.mapear([
+                        'a, *b, c = 1, 2, 3, 4, 5',
+                        'escreva(a, b, c)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(4);
+                });
+
+                it('Desempacotamento de valores usando o operador * (resto) no fim da declaração', () => {
+                    const retornoLexador = lexador.mapear([
+                        'a, b, *c = 1, 2, 3, 4, 5',
+                        'escreva(a, b, c)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(4);
+                });
+
+                it('Desempacotamento válido com valores insuficientes (operador * pode receber lista vazia)', () => {
+                    const retornoLexador = lexador.mapear([
+                        'a, *b, c = 1, 2'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+                });
+            });
         });
 
         describe('Casos de falha', () => {
@@ -336,7 +410,47 @@ describe('Avaliador sintático (Pituguês)', () => {
 
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(0);
-            })
+            });
+
+            describe('Falha - Desempacotamento de valores sem e com * (resto)', () => {
+                it('Desempacotamento de valores sem usar * (resto)', () => {
+                    const codigo = ['a, b, c = 1, 2, 3, 4, 5'];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(0);
+                });
+
+                it('Quantidade insuficiente de valores (sem resto)', () => {
+                    const codigo = ['a, b, c = 1, 2'];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
+                    expect(retornoAvaliadorSintatico.erros[0].message).toContain('diferente da quantidade');
+                })
+
+                it('Desempacotamento de valores com múltiplos operadores *', () => {
+                    const codigo = ['*a, *b, *resto = 1, 2, 3, 4, 5'];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                });
+
+                it('Quantidade insuficiente de valores para preencher as variáveis obrigatórias (com resto)', () => {
+                    const codigo = ['a, *b, c = 1'];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                });
+            });
         });
     });
 });
