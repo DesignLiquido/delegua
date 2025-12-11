@@ -84,7 +84,6 @@ export class AvaliadorExpressaoDepuracao {
         permitirEfeitosColaterais = false
     ): Promise<ResultadoAvaliacao> {
         try {
-            // 1. Tokenizar a expressão
             const retornoLexador = this.interpretador.microLexador.mapear(expressaoTexto);
 
             if (retornoLexador.simbolos.length === 0) {
@@ -94,11 +93,9 @@ export class AvaliadorExpressaoDepuracao {
                 };
             }
 
-            // 2. Analisar sintaticamente (gerar AST)
-            // Nota: O segundo argumento é o número da linha, usamos 0 para expressões de depuração
             const retornoAvaliadorSintatico = this.interpretador.microAvaliadorSintatico.analisar(
                 retornoLexador,
-                0
+                -1
             );
 
             if (retornoAvaliadorSintatico.declaracoes.length === 0) {
@@ -117,7 +114,7 @@ export class AvaliadorExpressaoDepuracao {
 
             const expressao = retornoAvaliadorSintatico.declaracoes[0];
 
-            // 3. Validar se não tem efeitos colaterais (opcional)
+            // Validar se não tem efeitos colaterais (opcional)
             if (!permitirEfeitosColaterais && temEfeitosColaterais(expressao)) {
                 return {
                     sucesso: false,
@@ -125,13 +122,8 @@ export class AvaliadorExpressaoDepuracao {
                 };
             }
 
-            // 4. Avaliar usando o interpretador
             const resultadoBruto = await this.interpretador.avaliar(expressao);
-
-            // 5. Resolver valor (desempacotar estruturas internas)
             const valorResolvido = this.interpretador.resolverValor(resultadoBruto);
-
-            // 6. Inferir tipo
             const tipo = inferirTipoVariavel(valorResolvido);
 
             return {
