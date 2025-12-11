@@ -215,6 +215,8 @@ export class InterpretadorBase implements InterpretadorInterface {
                 return (objetoAcessado as AcessoMetodoOuPropriedade).simbolo.lexema;
             case AcessoIndiceVariavel:
                 return this.resolverNomeObjectoAcessado((objetoAcessado as AcessoIndiceVariavel).entidadeChamada); */
+            case Chamada:
+                return this.resolverNomeObjectoAcessado((objetoAcessado as Chamada).entidadeChamada);
             case Constante:
                 return (objetoAcessado as Constante).simbolo.lexema;
             case AcessoMetodoOuPropriedade:
