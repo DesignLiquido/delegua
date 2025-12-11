@@ -115,6 +115,31 @@ describe('Interpretador (Pituguês)', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
+
+                describe('Desempacotamento de Coleção', () => {
+                    it('Desempacota vetor numeros (que possui [1, 2, 3]) em a, b, c', async () => {
+                        const retornoLexador = lexador.mapear([
+                            'numeros = [1, 2, 3]',
+                            'a, b, c = numeros'
+                        ], -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes,
+                            true
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+
+                        const a = interpretador.pilhaEscoposExecucao.obterVariavelPorNome('a');
+                        const b = interpretador.pilhaEscoposExecucao.obterVariavelPorNome('b');
+                        const c = interpretador.pilhaEscoposExecucao.obterVariavelPorNome('c');
+
+                        expect(a.valor).toBe(1);
+                        expect(b.valor).toBe(2);
+                        expect(c.valor).toBe(3);
+                    });
+                });
             });
 
             describe('Acesso a variáveis e objetos', () => {
@@ -1209,7 +1234,7 @@ describe('Interpretador (Pituguês)', () => {
             expect(_saidas).toHaveLength(1);
             expect(_saidas[0]).toBe('Meu nome é Maria e eu tenho 30 anos.');
         });
-        
+
         describe('Cenários de falha', () => {
             describe('Acesso a variáveis e objetos', () => {
                 it('Acesso a elementos de vetor', async () => {
@@ -1241,6 +1266,45 @@ describe('Interpretador (Pituguês)', () => {
                     );
 
                     expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);
+                });
+            });
+
+            describe('Desempacotamento de Coleção', () => {
+                it('Vetor maior que variáveis', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'numeros = [1, 2, 3, 4]',
+                            'a, b, c = numeros',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+
+                    const erro = retornoInterpretador.erros[0];
+                    const mensagem = erro.erroInterno['message'] || String(erro.erroInterno);
+
+                    expect(mensagem).toContain('tamanho diferente');
+                });
+
+                it('Falha: Vetor menor que variáveis (Runtime)', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'numeros = [1, 2]',
+                        'a, b, c = numeros'
+                    ], -1);
+                    const retornoAvaliador = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliador.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
                 });
             });
         });
