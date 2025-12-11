@@ -306,15 +306,6 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
             );
             return Promise.resolve();
         }
-
-        // if (variavel.imutavel) {
-        //     this.erro(
-        //         simboloAlvo,
-        //         `Constante '${simboloAlvo.lexema}' não pode ser modificada.`
-        //     );
-        //     return Promise.resolve();
-        // }
-
         // Marca como inicializada após atribuição
         this.gerenciadorEscopos.marcarComoInicializada(simboloAlvo.lexema, expressao.valor);
 
@@ -392,14 +383,6 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
             }
         }
 
-        /* if (valor.imutavel) {
-            this.erro(simboloAlvo, `Constante ${simboloAlvo.lexema} não pode ser modificada.`);
-            return Promise.resolve();
-        } else {
-            if (this.variaveis[simboloAlvo.lexema]) {
-                this.variaveis[simboloAlvo.lexema].valor = expressao.valor;
-            }
-        } */
     }
 
     async visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<any> {
