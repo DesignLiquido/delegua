@@ -15,7 +15,7 @@ import {
     TipoDe,
     Variavel,
     Vetor,
-} from '../construtos';
+} from '../../construtos';
 import {
     Const,
     Declaracao,
@@ -26,19 +26,19 @@ import {
     Falhar,
     FuncaoDeclaracao,
     Retorna,
-} from '../declaracoes';
-import { ParametroInterface, SimboloInterface } from '../interfaces';
-import { DiagnosticoAnalisadorSemantico, DiagnosticoSeveridade } from '../interfaces/erros';
-import { RetornoAnalisadorSemantico } from '../interfaces/retornos/retorno-analisador-semantico';
-import { RetornoQuebra } from '../quebras';
-import { AnalisadorSemanticoBase } from './analisador-semantico-base';
-import { EscopoVariavel } from './escopo-variavel';
-import { FuncaoHipoteticaInterface } from './funcao-hipotetica-interface';
-import { GerenciadorEscopos } from './gerenciador-escopos';
-import { PilhaVariaveis } from './pilha-variaveis';
+} from '../../declaracoes';
+import { ParametroInterface, SimboloInterface } from '../../interfaces';
+import { DiagnosticoAnalisadorSemantico, DiagnosticoSeveridade } from '../../interfaces/erros';
+import { RetornoAnalisadorSemantico } from '../../interfaces/retornos/retorno-analisador-semantico';
+import { RetornoQuebra } from '../../quebras';
+import { AnalisadorSemanticoBase } from '../analisador-semantico-base';
+import { EscopoVariavel } from '../escopo-variavel';
+import { FuncaoHipoteticaInterface } from '../funcao-hipotetica-interface';
+import { GerenciadorEscopos } from '../gerenciador-escopos';
+import { PilhaVariaveis } from '../pilha-variaveis';
 
 /**
- * O Analisador Semântico de Pitugues.
+ * O Analisador Semântico de Pituguês.
  */
 export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
     pilhaVariaveis: PilhaVariaveis;
