@@ -362,6 +362,41 @@ describe('Avaliador sintático (Pituguês)', () => {
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
                 });
             });
+
+            describe('Desempacotamento de coleção (com vetor literal)', () => {
+                it('Desempacotamento válido com valores suficientes', () => {
+                    const retornoLexador = lexador.mapear([
+                        'a, b, c = ["maçã", "banana", "laranja"]'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+                });
+            });
+
+            it('Gera estrutura de validação para desempacotamento de variáveis', () => {
+                const retornoLexador = lexador.mapear([
+                    'lista = [1, 2]',
+                    'a, b = lista'
+                ], -1);
+
+                const retornoAvaliador = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliador).toBeTruthy();
+
+                // Esperamos MAIS que 2 declarações.
+                // Deve ter:
+                // 1. Var temporária (__temp...)
+                // 2. Se (tamanho != 2) ...
+                // 3. Var a
+                // 4. Var b
+                expect(retornoAvaliador.declaracoes.length).toBeGreaterThan(2);
+
+                // Verificar se existe a injeção do 'Se'
+                const temValidacaoSe = retornoAvaliador.declaracoes.some(d => d.constructor.name === 'Se');
+                expect(temValidacaoSe).toBe(true);
+            });
         });
 
         describe('Casos de falha', () => {
@@ -444,6 +479,27 @@ describe('Avaliador sintático (Pituguês)', () => {
 
                 it('Quantidade insuficiente de valores para preencher as variáveis obrigatórias (com resto)', () => {
                     const codigo = ['a, *b, c = 1'];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                });
+            });
+
+            describe('Desempacotamento de coleção', () => {
+                it('Desempacotamento inválido com itens do vetor maiores que a quantidade de variáveis', () => {
+                    const codigo = ['a, b, c = ["maçã", "banana", "laranja", "uva"]'];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                    expect(retornoAvaliadorSintatico.erros[0].message).toContain('O vetor possui 4 elementos');
+                });
+
+                it('Desempacotamento inválido com itens do vetor menores que a quantidade de variáveis', () => {
+                    const codigo = ['a, b, c = ["maçã", "banana"]'];
 
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);

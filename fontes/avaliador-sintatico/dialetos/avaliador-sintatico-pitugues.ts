@@ -365,14 +365,14 @@ export class AvaliadorSintaticoPitugues
         return false;
     }
 
-    declaracaoDeVariaveis(): any {
+    private consumirIdentificadores(): { simbolos: SimboloInterface[], indexResto: number } {
         const identificadores: SimboloInterface[] = [];
         let indexResto = -1;
 
         do {
             let ehRestoAtual = false;
 
-            // Verifica se o * veio como token separado
+            // Verifica * como token separado
             if (this.verificarTipoSimboloAtual(tiposDeSimbolos.MULTIPLICACAO)) {
                 this.consumir(tiposDeSimbolos.MULTIPLICACAO, '');
                 ehRestoAtual = true;
@@ -381,9 +381,9 @@ export class AvaliadorSintaticoPitugues
             const identificador = this.consumir(
                 tiposDeSimbolos.IDENTIFICADOR,
                 ehRestoAtual ? 'Esperado nome de variável após operador *.' : 'Esperado nome de variável.'
-            )
+            );
 
-            // Verifica se o * veio como parte do nome da variável
+            // Verifica * no nome da variável
             if (identificador.lexema.startsWith('*')) {
                 ehRestoAtual = true;
                 identificador.lexema = identificador.lexema.slice(1);
@@ -398,36 +398,117 @@ export class AvaliadorSintaticoPitugues
                 }
                 indexResto = identificadores.length;
             }
-
             identificadores.push(identificador);
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
-        this.consumir(tiposDeSimbolos.IGUAL, 'Esperado o símbolo igual(=) após identificador.');
+        return { simbolos: identificadores, indexResto };
+    }
 
+    private consumirInicializadores(): Construto[] {
         const inicializadores: Construto[] = [];
         do {
             if (this.estaNoFinal()) {
-                throw this.erro(this.simboloAtual(),'Esperado inicializador após vírgula.');
+                throw this.erro(this.simboloAtual(), 'Esperado inicializador após vírgula.');
             }
             inicializadores.push(this.expressao());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
+        return inicializadores;
+    }
+
+    private construirValidacaoDesempacotamento(
+        identificador: SimboloInterface,
+        origem: Construto,
+        qtdEsperada: number
+    ): Declaracao {
+        const linha = identificador.linha;
+
+        const chamadaTamanho = new Chamada(
+            this.hashArquivo,
+            new Variavel(this.hashArquivo,
+                new Simbolo(tiposDeSimbolos.IDENTIFICADOR, "tamanho", null, linha, -1)
+            ),
+            [origem]
+        );
+
+        const condicaoErro = new Binario(
+            this.hashArquivo,
+            chamadaTamanho,
+            new Simbolo(tiposDeSimbolos.DIFERENTE, "!=", null, linha, -1),
+            new Literal(this.hashArquivo, linha, qtdEsperada, 'número')
+        );
+
+        const mensagem = `Erro de execução: Você tentou desempacotar em ${qtdEsperada} variáveis, mas o vetor possui tamanho diferente.`;
+        const falha = new Falhar(
+            new Simbolo(tiposDeSimbolos.FALHAR, "falhar", null, linha, -1),
+            new Literal(this.hashArquivo, linha, mensagem, 'texto')
+        );
+
+        return new Se(condicaoErro, new Bloco(this.hashArquivo, linha, [falha]), [], null);
+    }
+
+    declaracaoDeVariaveis(): any {
+        const { simbolos: identificadores, indexResto } = this.consumirIdentificadores();
+
+        this.consumir(tiposDeSimbolos.IGUAL, 'Esperado o símbolo igual(=) após identificador.');
+
+        const inicializadores = this.consumirInicializadores();
+
         const qtdIdentificadores = identificadores.length;
         const qtdValores = inicializadores.length;
+        const ehDesempacotamento = qtdIdentificadores > 1 && qtdValores === 1;
 
         if (indexResto > -1) {
-            // Com resto: precisa de valores suficientes para cobrir as variáveis obrigatórias.
             if (qtdValores < qtdIdentificadores - 1) {
-                throw this.erro(this.simboloAnterior(), 'Quantidade insuficiente de valores para desempacotamento com operador de resto.');
+                if (!ehDesempacotamento || (ehDesempacotamento && inicializadores[0] instanceof Literal)) {
+                    throw this.erro(
+                        this.simboloAnterior(),
+                        'Quantidade insuficiente de valores para desempacotamento com operador de resto.'
+                    );
+                }
             }
         } else {
-            // Sem resto: a quantidade deve ser exata.
-            if (qtdIdentificadores !== qtdValores) {
-                throw this.erro(this.simboloAnterior(), 'Quantidade de inicializadores à esquerda do igual é diferente da quantidade de identificadores à direita.');
+            if (!ehDesempacotamento && qtdIdentificadores !== qtdValores) {
+                throw this.erro(
+                    this.simboloAnterior(),
+                    'Quantidade de inicializadores à esquerda do igual é diferente da quantidade de identificadores à direita.'
+                );
+            }
+            if (ehDesempacotamento && inicializadores[0] instanceof Vetor) {
+                const vetor = inicializadores[0] as Vetor;
+                if (vetor.tamanho !== qtdIdentificadores) {
+                    throw this.erro(
+                        this.simboloAnterior(),
+                        `O vetor possui ${vetor.tamanho} elementos, mas você tentou desempacotar em ${qtdIdentificadores} variáveis.`
+                    );
+                }
             }
         }
 
         const retorno: Declaracao[] = [];
+        let origemParaAtribuicao = inicializadores[0];
+
+        // Injeção de Código (Runtime Check)
+        if (ehDesempacotamento && !(inicializadores[0] instanceof Vetor)) {
+            const linha = identificadores[0].linha;
+
+            // Cria variável temporária para evitar reavaliar a expressão original múltiplas vezes
+            const nomeVarTemp = `__temp_desempacotamento_${new Date().getTime()}_${Math.floor(Math.random() * 1000)}`;
+            const simboloVarTemp = new Simbolo(tiposDeSimbolos.IDENTIFICADOR, nomeVarTemp, null, linha, -1);
+
+            retorno.push(new Var(simboloVarTemp, inicializadores[0], 'qualquer[]'));
+            origemParaAtribuicao = new Variavel(this.hashArquivo, simboloVarTemp);
+
+            // Injeta validação de tamanho se não houver operador de resto
+            if (indexResto === -1) {
+                retorno.push(
+                    this.construirValidacaoDesempacotamento(
+                        identificadores[0], origemParaAtribuicao, qtdIdentificadores
+                    )
+                );
+            }
+        }
+
         let cursorValores = 0;
         const qtdParaResto = qtdValores - (qtdIdentificadores - 1);
 
@@ -437,13 +518,9 @@ export class AvaliadorSintaticoPitugues
             let tipo = "qualquer";
 
             if (i === indexResto) {
-                // Caso Resto (*): absorve N valores em um Vetor e força tipagem de array.
                 const valoresResto = inicializadores.slice(cursorValores, cursorValores + qtdParaResto);
-
                 let tipoInferido = inferirTipoVariavel(valoresResto) as string;
-                if (!tipoInferido.endsWith('[]')) {
-                    tipoInferido = `${tipoInferido}[]`;
-                }
+                if (!tipoInferido.endsWith('[]')) tipoInferido = `${tipoInferido}[]`;
 
                 inicializador = new Vetor(
                     identificador.hashArquivo,
@@ -452,14 +529,22 @@ export class AvaliadorSintaticoPitugues
                     valoresResto.length,
                     tipoInferido
                 );
-
                 tipo = tipoInferido;
                 cursorValores += qtdParaResto;
+            } else if (ehDesempacotamento) {
+                if (inicializadores[0] instanceof Vetor) {
+                    inicializador = inicializadores[0].valores[i];
+                } else {
+                    inicializador = new AcessoIndiceVariavel(
+                        this.hashArquivo,
+                        origemParaAtribuicao,
+                        new Literal(this.hashArquivo, identificador.linha, i, 'número'),
+                        new Simbolo(tiposDeSimbolos.COLCHETE_DIREITO, ']', null, identificador.linha, -1)
+                    );
+                }
             } else {
-                // Caso comum: consome 1 valor
                 inicializador = inicializadores[cursorValores];
                 cursorValores++;
-
                 tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(inicializador, tipo);
             }
 
