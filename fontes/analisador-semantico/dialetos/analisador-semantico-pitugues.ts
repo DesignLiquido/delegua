@@ -1,4 +1,7 @@
 import {
+    AcessoMetodo,
+    AcessoMetodoOuPropriedade,
+    AcessoPropriedade,
     Agrupamento,
     ArgumentoReferenciaFuncao,
     Atribuir,
@@ -55,6 +58,63 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         this.diagnosticos = [];
     }
 
+    /**
+     * Override do método da classe base para adicionar suporte a AcessoMetodo e AcessoPropriedade.
+     * Quando temos algo como `tex.dividir(" ")`, o objeto `tex` precisa ser marcado como usado.
+     */
+    protected marcarVariaveisUsadasEmExpressao(expressao: Construto): void {
+        if (expressao instanceof Variavel) {
+            this.gerenciadorEscopos.marcarComoUsada(expressao.simbolo.lexema);
+            return;
+        }
+
+        if (expressao instanceof Binario) {
+            this.marcarVariaveisUsadasEmExpressao(expressao.esquerda);
+            this.marcarVariaveisUsadasEmExpressao(expressao.direita);
+            return;
+        }
+
+        if (expressao instanceof Agrupamento) {
+            this.marcarVariaveisUsadasEmExpressao(expressao.expressao);
+            return;
+        }
+
+        if (expressao instanceof Chamada) {
+            // Marca o objeto/variável da chamada
+            this.marcarVariaveisUsadasEmExpressao(expressao.entidadeChamada);
+
+            // Marca todos os argumentos
+            for (const arg of expressao.argumentos) {
+                this.marcarVariaveisUsadasEmExpressao(arg);
+            }
+            return;
+        }
+
+        if (expressao instanceof AcessoMetodo) {
+            // Marca o objeto do acesso ao método (ex: em `tex.dividir()`, marca `tex`)
+            this.marcarVariaveisUsadasEmExpressao(expressao.objeto);
+            return;
+        }
+
+        if (expressao instanceof AcessoMetodoOuPropriedade) {
+            // Marca o objeto do acesso (ex: em `tex.dividir()` ou `obj.prop`, marca `tex` ou `obj`)
+            this.marcarVariaveisUsadasEmExpressao(expressao.objeto);
+            return;
+        }
+
+        if (expressao instanceof AcessoPropriedade) {
+            // Marca o objeto do acesso à propriedade (ex: em `obj.prop`, marca `obj`)
+            this.marcarVariaveisUsadasEmExpressao(expressao.objeto);
+            return;
+        }
+
+        if (expressao instanceof Logico) {
+            this.marcarVariaveisUsadasEmExpressao(expressao.esquerda);
+            this.marcarVariaveisUsadasEmExpressao(expressao.direita);
+            return;
+        }
+    }
+
     verificarTipoAtribuido(declaracao) {
         if (declaracao.tipo) {
             if (['vetor', 'qualquer[]', 'inteiro[]', 'texto[]'].includes(declaracao.tipo)) {
@@ -86,6 +146,9 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                             );
                         }
                     }
+                } else if (declaracao.inicializador instanceof Chamada) {
+                    // Chamadas de método/função podem retornar vetores, então não geramos erro
+                    // A verificação de tipo será feita em tempo de execução
                 } else {
                     this.erro(
                         declaracao.simbolo,
@@ -287,7 +350,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
 
     visitarExpressaoDeAtribuicao(expressao: Atribuir) {
         let simboloAlvo: SimboloInterface;
-        
+
         switch (expressao.alvo.constructor) {
             case Variavel:
                 const alvoVariavel = expressao.alvo as Variavel;
@@ -297,15 +360,36 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                 return Promise.resolve();
         }
 
-        const variavel = this.gerenciadorEscopos.buscar(simboloAlvo.lexema);
-        
+        // Marca variáveis usadas no valor da atribuição
+        this.marcarVariaveisUsadasEmExpressao(expressao.valor);
+
+        let variavel = this.gerenciadorEscopos.buscar(simboloAlvo.lexema);
+
         if (!variavel) {
-            this.erro(
-                simboloAlvo,
-                `Variável '${simboloAlvo.lexema}' ainda não foi declarada até este ponto.`
+            // Em Pituguês (como Python), atribuições criam variáveis se não existirem
+            let valorInicializador: any = undefined;
+            if (expressao.valor.hasOwnProperty('valor')) {
+                valorInicializador = (expressao.valor as any).valor;
+            } else {
+                valorInicializador = expressao.valor;
+            }
+
+            this.gerenciadorEscopos.declarar(
+                simboloAlvo.lexema,
+                {
+                    nome: simboloAlvo.lexema,
+                    tipo: 'qualquer',
+                    imutavel: false,
+                    valor: valorInicializador,
+                    inicializada: true,
+                    usada: false,
+                    hashArquivo: simboloAlvo.hashArquivo,
+                    linha: simboloAlvo.linha
+                }
             );
             return Promise.resolve();
         }
+
         // Marca como inicializada após atribuição
         this.gerenciadorEscopos.marcarComoInicializada(simboloAlvo.lexema, expressao.valor);
 

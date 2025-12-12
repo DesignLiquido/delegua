@@ -51,7 +51,9 @@ describe('Analisador semântico', () => {
                 const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(3);
+                // Antes das correções: 3 diagnósticos (1 sobre tipo de retorno + 2 sobre variáveis não usadas)
+                // Após as correções: 1 diagnóstico (apenas sobre tipo de retorno, pois x, y, z agora são corretamente marcadas como usadas)
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
             });
 
             describe('Declaração se ... senão se ... senão', () => {
@@ -577,6 +579,38 @@ describe('Analisador semântico', () => {
                     expect(retornoAnalisadorSemantico).toBeTruthy();
                     expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
                 });
+            });
+        });
+
+        describe('Cenários de chamadas de método em variáveis', () => {
+            it('Sucesso - variável usada em chamada de método e resultado atribuído a outra variável', () => {
+                const retornoLexador = lexador.mapear([
+                    `tex = "Eu sou um abacaxi"`,
+                    `div = tex.dividir(" ")`,
+                    `escreva(div)`,
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                // Não deve haver diagnósticos porque:
+                // 1. 'tex' é usada na chamada de método .dividir()
+                // 2. 'div' é usada na chamada escreva()
+                // 3. O inicializador de 'div' é uma Chamada (método que retorna array), não um Vetor literal
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+
+            it('Sucesso - múltiplas variáveis com chamadas de método encadeadas', () => {
+                const retornoLexador = lexador.mapear([
+                    `texto = "olá-mundo-teste"`,
+                    `partes = texto.dividir("-")`,
+                    `escreva(partes)`,
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
             });
         });
     });
