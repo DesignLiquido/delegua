@@ -135,6 +135,48 @@ Para que isso seja possível de ser implementado, o interpretador precisa design
 
 Por que precisamos manter isso? Porque, tecnicamente, cada execução em passo (comando "próximo", comando "adentrar-escopo") faz com que o interpretador perca boa parte do contexto de execução ao interromper a execução por algum motivo. Se, por exemplo, temos um escopo com 10 instruções e paramos a execução na terceira instrução para esperar o próximo comando do desenvolvedor, os valores que não foram definidos em variáveis simplesmente evaporam. Por isso, foi criado na estrutura de espaço de variáveis um dicionário chamado `resolucoesChamadas`, em que a chave de cada entrada é o identificador único da chamada, mais os valores resolvidos de cada argumento, e o valor é o retorno já resolvido da chamada. Isso garante ao interpretador recuperar valores de chamadas feitas anteriormente, não importando quantas vezes o código parou e reiniciou. A chave de entrada contém os argumentos para evitar problemas em chamadas recursivas (o que poderia acontecer em neste algoritmo de Fibonacci).
 
+### Gerenciamento de Escopos e a Propriedade `comando`
+
+A pilha de escopos de execução (`pilhaEscoposExecucao`) é fundamental para o funcionamento correto da depuração. Em ambientes de depuração, essa pilha sempre contém pelo menos um escopo base (posição 0), que armazena funções nativas, bibliotecas e outros elementos que o código pode usar durante a execução. Este escopo base não contém declarações (`Declaracao`) do programa do usuário, servindo apenas como repositório de funcionalidades sempre disponíveis.
+
+Após a chamada de `prepararParaDepuracao`, um segundo escopo (posição 1) é criado para conter as declarações do programa principal. À medida que a execução avança e blocos de código são executados (como os corpos de instruções `se`, `enquanto`, `para`, ou funções), novos escopos são empilhados temporariamente e depois descartados ao final de sua execução.
+
+A propriedade `comando` do interpretador com depuração controla como escopos aninhados devem ser executados. Seus valores possíveis são:
+
+- `'proximo'`: Executa uma instrução por vez, mesmo dentro de escopos aninhados. Quando um escopo aninhado é criado (como o corpo de um `se`), apenas uma instrução desse escopo é executada antes de pausar novamente.
+- `'adentrarEscopo'`: Similar ao `'proximo'`, mas permite ao desenvolvedor "entrar" explicitamente em chamadas de função para depurá-las passo a passo.
+- `undefined` (ou não definido): Executa escopos aninhados completamente sem pausas, até encontrar um ponto de parada ou finalizar o escopo.
+
+O método `instrucaoPasso` é responsável por definir `comando = 'proximo'` quando não há um comando já definido. Isso garante que, ao executar um passo, qualquer escopo aninhado criado durante a execução (como o corpo de uma instrução condicional) também seja executado passo a passo, ao invés de ser executado completamente de uma só vez.
+
+### Incremento de Contadores em Escopos Pai
+
+Outro desafio da depuração passo a passo é garantir que, após executar completamente um escopo aninhado, o interpretador avance corretamente para a próxima instrução no escopo pai. Cada escopo mantém um contador `declaracaoAtual` que indica qual declaração está sendo executada.
+
+Considere o exemplo:
+
+```js
+var a = 2;
+se (a == 1) {
+  escreva('correspondente 1');
+} senao se (a == 2) {
+  escreva('correspondente 2');
+} senao {
+  escreva('sem valor correspondente');
+}
+escreva('Fim');
+```
+
+Ao executar a instrução `se` em modo passo a passo:
+
+1. O escopo principal está na instrução `se` (índice 1 em suas declarações)
+2. A avaliação das condições determina que o bloco `senao se (a == 2)` deve ser executado
+3. Um novo escopo é criado contendo apenas `escreva('correspondente 2')`
+4. Após executar essa instrução, o novo escopo é descartado
+5. **Importante**: O contador `declaracaoAtual` do escopo principal deve ser incrementado de 1 para 2, para apontar para `escreva('Fim')`, a próxima instrução após todo o bloco `se`
+
+Sem esse incremento, o interpretador voltaria a executar a instrução `se` novamente, criando um loop infinito. A lógica que gerencia isso verifica quando escopos são descartados e incrementa o contador do escopo pai adequadamente, exceto em casos especiais como laços de repetição, onde o contador deve permanecer no mesmo lugar para permitir a próxima iteração.
+
 ### Particularidades da depuração remota
 
 A forma de manter a aplicação executando indefinidamente, esperando pelos comandos do usuário, é feita através de um _stream_ (fluxo de entrada e saída) aberto na forma de um [_Socket_](https://nodejs.org/api/net.html#class-netsocket), um canal de comunicação por TCP/IP na porta 7777. [Mais informações podem ser encontradas no README.md correspondente](https://github.com/DesignLiquido/delegua/blob/principal/fontes/depuracao/README.md).

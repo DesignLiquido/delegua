@@ -190,7 +190,7 @@ describe('Interpretador Base com Depuração', () => {
             expect(interpretador.pontoDeParadaAtivo).toBe(true);
             expect(interpretador.linhaDeclaracaoAtual).toBe(2);
 
-            // Pressiona F10 (Step Over)
+            // Pressiona F10 (comando de passo)
             pontoParadaAtivado = false;
             await interpretador.instrucaoPasso();
 
@@ -203,7 +203,7 @@ describe('Interpretador Base com Depuração', () => {
             expect(escopoAtual.declaracaoAtual).toBe(2); // índice 2 = linha 3
         });
 
-        it('Deve parar no próximo breakpoint após Step Over', async () => {
+        it('Deve parar no próximo breakpoint após comando de passo', async () => {
             const retornoLexador = lexador.mapear([
                 "var a = 1",
                 "var b = 2",
@@ -225,7 +225,7 @@ describe('Interpretador Base com Depuração', () => {
             expect(interpretador.pontoDeParadaAtivo).toBe(true);
             expect(interpretador.linhaDeclaracaoAtual).toBe(2);
 
-            // Pressiona F10 (Step Over)
+            // Pressiona F10 (comando de passo)
             pontoParadaAtivado = false;
             await interpretador.instrucaoPasso();
 
@@ -264,7 +264,7 @@ describe('Interpretador Base com Depuração', () => {
             await interpretador.instrucaoContinuarInterpretacao();
             expect(interpretador.pontoDeParadaAtivo).toBe(true);
 
-            // Pressiona F10 (Step Over)
+            // Pressiona F10 (comando de passo)
             pontoParadaAtivado = false;
             await interpretador.instrucaoPasso();
 

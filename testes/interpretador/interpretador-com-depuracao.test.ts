@@ -159,7 +159,7 @@ describe('Interpretador com Depuração', () => {
                 };
             });
 
-            it('Deve executar linha com breakpoint ao pressionar F10', async () => {
+            it('Deve executar linha com ponto de parada ao pressionar F10', async () => {
                 const retornoLexador = lexador.mapear([
                     "var a = 1",
                     "var b = 2",
@@ -183,7 +183,7 @@ describe('Interpretador com Depuração', () => {
                 expect(interpretador.pontoDeParadaAtivo).toBe(true);
                 expect(interpretador.linhaDeclaracaoAtual).toBe(2);
 
-                // Pressiona F10 (Step Over)
+                // Pressiona F10 (comando de passo)
                 pontoParadaAtivado = false;
                 await interpretador.instrucaoPasso();
 
@@ -196,7 +196,7 @@ describe('Interpretador com Depuração', () => {
                 expect(escopoAtual.declaracaoAtual).toBe(2); // índice 2 = linha 3
             });
 
-            it('Deve parar no próximo breakpoint após Step Over', async () => {
+            it('Deve parar no próximo ponto de parada após comando de passo', async () => {
                 const retornoLexador = lexador.mapear([
                     "var a = 1",
                     "var b = 2",
@@ -218,7 +218,7 @@ describe('Interpretador com Depuração', () => {
                 expect(interpretador.pontoDeParadaAtivo).toBe(true);
                 expect(interpretador.linhaDeclaracaoAtual).toBe(2);
 
-                // Pressiona F10 (Step Over)
+                // Pressiona F10 (comando de passo)
                 pontoParadaAtivado = false;
                 await interpretador.instrucaoPasso();
 
@@ -227,7 +227,7 @@ describe('Interpretador com Depuração', () => {
                 const valorB = escopoAtual.espacoMemoria.valores['b'];
                 expect(valorB.valor).toBe(2);
 
-                // Deve ter parado no próximo breakpoint (linha 3)
+                // Deve ter parado no próximo ponto de parada (linha 3)
                 expect(interpretador.pontoDeParadaAtivo).toBe(true);
                 expect(pontoParadaAtivado).toBe(true);
                 expect(interpretador.linhaDeclaracaoAtual).toBe(3);
@@ -236,7 +236,7 @@ describe('Interpretador com Depuração', () => {
                 expect(escopoAtual.espacoMemoria.valores['c']).toBeUndefined();
             });
 
-            it('Deve continuar normalmente se não houver breakpoint na próxima linha', async () => {
+            it('Deve continuar normalmente se não houver ponto de parada na próxima linha', async () => {
                 const retornoLexador = lexador.mapear([
                     "var a = 1",
                     "var b = 2",
@@ -257,7 +257,7 @@ describe('Interpretador com Depuração', () => {
                 await interpretador.instrucaoContinuarInterpretacao();
                 expect(interpretador.pontoDeParadaAtivo).toBe(true);
 
-                // Pressiona F10 (Step Over)
+                // Pressiona F10 (comando de passo)
                 pontoParadaAtivado = false;
                 await interpretador.instrucaoPasso();
 
@@ -266,9 +266,44 @@ describe('Interpretador com Depuração', () => {
                 expect(escopoAtual.espacoMemoria.valores['b'].valor).toBe(2);
                 expect(escopoAtual.declaracaoAtual).toBe(2);
 
-                // NÃO deve ter ativado ponto de parada (linha 3 não tem breakpoint)
+                // NÃO deve ter ativado ponto de parada (linha 3 não tem ponto de parada)
                 expect(interpretador.pontoDeParadaAtivo).toBe(false);
                 expect(pontoParadaAtivado).toBe(false);
+            });
+
+            it('Deve avançar para próxima linha após comando de passo em bloco condicional', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var a = 2",
+                    "se (a == 1) {",
+                    "  escreva('correspondente 1')",
+                    "} senao se (a == 2) {",
+                    "  escreva('correspondente 2')",
+                    "} senao {",
+                    "  escreva('sem valor correspondente')",
+                    "}",
+                    "escreva('Fim')"
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+
+                // Primeiro passo: executa var a = 2
+                await interpretador.instrucaoPasso();
+
+                // Segundo passo: executa se (a == 1) e entra no bloco correspondente (senao se)
+                await interpretador.instrucaoPasso();
+
+                // Terceiro passo: executa escreva('correspondente 2')
+                await interpretador.instrucaoPasso();
+
+                // Quarto passo: deve sair do bloco se e avançar para escreva('Fim')
+                // NÃO deve voltar ao início do bloco se
+                await interpretador.instrucaoPasso();
+                expect(_saidas).toContain('Fim');
+
+                // Verifica que não executou 'correspondente 1' ou 'sem valor correspondente'
+                expect(_saidas).not.toContain('correspondente 1');
+                expect(_saidas).not.toContain('sem valor correspondente');
             });
         });
 

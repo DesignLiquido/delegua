@@ -194,7 +194,7 @@ export class InterpretadorComDepuracao
     /**
      * Empilha um escopo se for possível (comando "Step Into" do depurador).
      * Se a instrução corrente contém uma chamada de função, entra na função e pausa na primeira linha.
-     * Se não houver chamada de função, comporta-se como "próximo" (step over).
+     * Se não houver chamada de função, comporta-se como "próximo" (comando de passo).
      *
      * Fluxo de execução:
      * 1. Define o comando como 'adentrarEscopo'

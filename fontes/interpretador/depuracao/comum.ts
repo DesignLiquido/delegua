@@ -762,6 +762,20 @@ async function executarUmPassoNoEscopo(interpretador: InterpretadorComDepuracaoI
                 descartarEscopoPorRetornoFuncao(interpretador);
             } else {
                 descartarTodosEscoposFinalizados(interpretador);
+
+                // Se escopos foram descartados, precisamos incrementar o contador do escopo pai
+                // para avançar além da declaração que criou o escopo aninhado
+                const escoposAposLimpeza = interpretador.pilhaEscoposExecucao.elementos();
+                if (escoposAposLimpeza < escoposAntes && escoposAposLimpeza > 0) {
+                    // Escopos foram removidos, avançar o contador do escopo pai
+                    const escopoAtual = interpretador.pilhaEscoposExecucao.topoDaPilha();
+                    // Só incrementa se ainda há declarações para executar neste escopo
+                    // e não estamos em um laço de repetição
+                    if (!escopoAtual.emLacoRepeticao &&
+                        escopoAtual.declaracaoAtual < escopoAtual.declaracoes.length) {
+                        escopoAtual.declaracaoAtual++;
+                    }
+                }
             }
         }
 
@@ -892,6 +906,11 @@ export async function instrucaoPasso(
     // Limpa o ponto de parada para permitir a execução
     interpretador.pontoDeParadaAtivo = false;
 
+    // Define comando como 'proximo' se não estiver definido (ex: chamado diretamente por instrucaoPasso)
+    // Preserva se já estiver definido (ex: 'adentrarEscopo' definido por adentrarEscopo())
+    if (!interpretador.comando) {
+        interpretador.comando = 'proximo';
+    }
     interpretador.passos = 1;
     const escopoVisitado = interpretador.pilhaEscoposExecucao.naPosicao(escopo);
 
