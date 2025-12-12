@@ -1,4 +1,5 @@
 export * from './avaliador-sintatico-interface';
+export * from './estilizador-comum-interface';
 export * from './formatador-comum-interface';
 export * from './interpretador-com-depuracao-interface';
 export * from './interpretador-interface';
