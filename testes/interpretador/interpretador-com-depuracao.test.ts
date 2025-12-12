@@ -135,6 +135,143 @@ describe('Interpretador com Depuração', () => {
             });
         });
 
+        describe('Passo com pontos de parada', () => {
+            let execucaoFinalizada: boolean = false;
+            let pontoParadaAtivado: boolean = false;
+
+            beforeEach(() => {
+                _saidas = [];
+                interpretador = new InterpretadorComDepuracao(
+                    process.cwd(),
+                    funcaoSaida,
+                    funcaoSaida
+                );
+
+                execucaoFinalizada = false;
+                pontoParadaAtivado = false;
+
+                interpretador.finalizacaoDaExecucao = () => {
+                    execucaoFinalizada = true;
+                };
+
+                interpretador.avisoPontoParadaAtivado = () => {
+                    pontoParadaAtivado = true;
+                };
+            });
+
+            it('Deve executar linha com breakpoint ao pressionar F10', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var a = 1",
+                    "var b = 2",
+                    "var c = 3",
+                    "escreva(a, b, c)"
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                // Ponto de parada na linha 2
+                interpretador.pontosParada = [{
+                    hashArquivo: -1,
+                    linha: 2,
+                }];
+
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+
+                // Executa até o ponto de parada
+                await interpretador.instrucaoContinuarInterpretacao();
+
+                // Deve estar parado na linha 2
+                expect(interpretador.pontoDeParadaAtivo).toBe(true);
+                expect(interpretador.linhaDeclaracaoAtual).toBe(2);
+
+                // Pressiona F10 (Step Over)
+                pontoParadaAtivado = false;
+                await interpretador.instrucaoPasso();
+
+                // A linha 2 deve ter sido executada (var b = 2)
+                const escopoAtual = interpretador.pilhaEscoposExecucao.topoDaPilha();
+                const valorB = escopoAtual.espacoMemoria.valores['b'];
+                expect(valorB.valor).toBe(2);
+
+                // Deve ter avançado para a linha 3
+                expect(escopoAtual.declaracaoAtual).toBe(2); // índice 2 = linha 3
+            });
+
+            it('Deve parar no próximo breakpoint após Step Over', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var a = 1",
+                    "var b = 2",
+                    "var c = 3",
+                    "escreva(a, b, c)"
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                // Pontos de parada nas linhas 2 e 3
+                interpretador.pontosParada = [
+                    { hashArquivo: -1, linha: 2 },
+                    { hashArquivo: -1, linha: 3 }
+                ];
+
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+
+                // Executa até o primeiro ponto de parada (linha 2)
+                await interpretador.instrucaoContinuarInterpretacao();
+                expect(interpretador.pontoDeParadaAtivo).toBe(true);
+                expect(interpretador.linhaDeclaracaoAtual).toBe(2);
+
+                // Pressiona F10 (Step Over)
+                pontoParadaAtivado = false;
+                await interpretador.instrucaoPasso();
+
+                // A linha 2 deve ter sido executada
+                const escopoAtual = interpretador.pilhaEscoposExecucao.topoDaPilha();
+                const valorB = escopoAtual.espacoMemoria.valores['b'];
+                expect(valorB.valor).toBe(2);
+
+                // Deve ter parado no próximo breakpoint (linha 3)
+                expect(interpretador.pontoDeParadaAtivo).toBe(true);
+                expect(pontoParadaAtivado).toBe(true);
+                expect(interpretador.linhaDeclaracaoAtual).toBe(3);
+
+                // A linha 3 ainda NÃO deve ter sido executada
+                expect(escopoAtual.espacoMemoria.valores['c']).toBeUndefined();
+            });
+
+            it('Deve continuar normalmente se não houver breakpoint na próxima linha', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var a = 1",
+                    "var b = 2",
+                    "var c = 3",
+                    "escreva(a, b, c)"
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                // Ponto de parada apenas na linha 2
+                interpretador.pontosParada = [{
+                    hashArquivo: -1,
+                    linha: 2,
+                }];
+
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+
+                // Executa até o ponto de parada
+                await interpretador.instrucaoContinuarInterpretacao();
+                expect(interpretador.pontoDeParadaAtivo).toBe(true);
+
+                // Pressiona F10 (Step Over)
+                pontoParadaAtivado = false;
+                await interpretador.instrucaoPasso();
+
+                // Deve ter executado a linha 2 e avançado para linha 3
+                const escopoAtual = interpretador.pilhaEscoposExecucao.topoDaPilha();
+                expect(escopoAtual.espacoMemoria.valores['b'].valor).toBe(2);
+                expect(escopoAtual.declaracaoAtual).toBe(2);
+
+                // NÃO deve ter ativado ponto de parada (linha 3 não tem breakpoint)
+                expect(interpretador.pontoDeParadaAtivo).toBe(false);
+                expect(pontoParadaAtivado).toBe(false);
+            });
+        });
+
         describe('adentrarEscopo()', () => {
             let execucaoFinalizada: boolean = false;
             let pontoParadaAtivado: boolean = false;
@@ -191,7 +328,7 @@ describe('Interpretador com Depuração', () => {
                 expect(escopoFuncao.declaracaoAtual).toBe(0); // Primeira linha da função
             });
 
-            it('Deve comportar-se como step over quando não há chamada de função', async () => {
+            it('Deve comportar-se como Passo quando não há chamada de função', async () => {
                 const retornoLexador = lexador.mapear([
                     "var a = 1",
                     "var b = 2",
@@ -252,16 +389,17 @@ describe('Interpretador com Depuração', () => {
                 const retornoLexador = lexador.mapear([
                     "funcao calcular(x) {",
                     "    var resultado = x * 2",
+                    "    escreva('Alguma coisa')",
                     "    retorna resultado",
                     "}",
                     "var valor = calcular(10)"
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                // Ponto de parada na linha 2 (dentro da função)
+                // Ponto de parada na linha 3 (dentro da função)
                 interpretador.pontosParada = [{
                     hashArquivo: -1,
-                    linha: 2,
+                    linha: 3,
                 }];
 
                 interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
@@ -279,8 +417,8 @@ describe('Interpretador com Depuração', () => {
                 const escoposAposAdentrar = interpretador.pilhaEscoposExecucao.elementos();
                 expect(escoposAposAdentrar).toBe(escoposInicial + 1);
 
-                // Executa a primeira linha da função
-                await interpretador.instrucaoPasso();
+                // Continua a execução até encontrar o ponto de parada
+                await interpretador.instrucaoContinuarInterpretacao();
 
                 // Deve ter parado no ponto de parada
                 expect(interpretador.pontoDeParadaAtivo).toBe(true);

@@ -725,17 +725,8 @@ async function executarUmPassoNoEscopo(interpretador: InterpretadorComDepuracaoI
     if (interpretador.passos > 0) {
         interpretador.passos--;
 
-        // Verifica se há ponto de parada antes de executar
+        // Executa a declaração atual
         const declaracaoAtual = ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual];
-        interpretador.linhaDeclaracaoAtual = declaracaoAtual.linha;
-        interpretador.hashArquivoDeclaracaoAtual = declaracaoAtual.hashArquivo;
-        interpretador.pontoDeParadaAtivo = verificarPontoParada(interpretador, declaracaoAtual);
-
-        if (interpretador.pontoDeParadaAtivo) {
-            interpretador.avisoPontoParadaAtivado();
-            return retornoExecucao;
-        }
-
         retornoExecucao = await interpretador.executar(declaracaoAtual);
 
         // Verifica se entramos em um novo escopo durante a execução
@@ -743,11 +734,24 @@ async function executarUmPassoNoEscopo(interpretador: InterpretadorComDepuracaoI
         const entroEmNovoEscopo = escoposDepois > escoposAntes;
 
         // Não incrementa se:
-        // - Há um ponto de parada ativo
+        // - Há um ponto de parada ativo (de escopo interno)
         // - Estamos em um laço de repetição (o laço gerencia a iteração)
         // - Entramos em um novo escopo (precisamos executar o novo escopo antes de avançar)
         if (!interpretador.pontoDeParadaAtivo && !ultimoEscopo.emLacoRepeticao && !entroEmNovoEscopo) {
             ultimoEscopo.declaracaoAtual++;
+        }
+
+        // Após executar e avançar, verifica se há ponto de parada na PRÓXIMA declaração
+        if (!interpretador.pontoDeParadaAtivo &&
+            ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length) {
+            const proximaDeclaracao = ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual];
+            interpretador.linhaDeclaracaoAtual = proximaDeclaracao.linha;
+            interpretador.hashArquivoDeclaracaoAtual = proximaDeclaracao.hashArquivo;
+            interpretador.pontoDeParadaAtivo = verificarPontoParada(interpretador, proximaDeclaracao);
+
+            if (interpretador.pontoDeParadaAtivo) {
+                interpretador.avisoPontoParadaAtivado();
+            }
         }
 
         if (

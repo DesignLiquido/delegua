@@ -1,7 +1,6 @@
 import { LexadorPitugues } from '../../fontes/lexador/dialetos/lexador-pitugues';
 import { AvaliadorSintaticoPitugues } from '../../fontes/avaliador-sintatico/dialetos/avaliador-sintatico-pitugues';
-import { AnalisadorSemanticoPitugues } from '../../fontes/analisador-semantico/analisador-semantico-Pitugues';
-import { DiagnosticoSeveridade } from '../../fontes/interfaces/erros';
+import { AnalisadorSemanticoPitugues } from '../../fontes/analisador-semantico/dialetos';
 
 describe('Analisador semântico', () => {
     let lexador: LexadorPitugues;
