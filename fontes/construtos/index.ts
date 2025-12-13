@@ -1,5 +1,6 @@
 export * from './acesso-elemento-matriz';
 export * from './acesso-indice-variavel';
+export * from './acesso-intervalo-variavel';
 export * from './acesso-metodo';
 export * from './acesso-metodo-ou-propriedade';
 export * from './acesso-propriedade';

@@ -1,4 +1,4 @@
-import { AcessoMetodo, AcessoMetodoOuPropriedade, AcessoPropriedade } from "../../../construtos";
+import { AcessoMetodo, AcessoMetodoOuPropriedade, AcessoPropriedade, AcessoIntervaloVariavel } from "../../../construtos";
 import { InterpretadorComDepuracao } from "../../depuracao";
 
 import * as comum from './comum';
@@ -14,5 +14,9 @@ export class InterpretadorPituguesComDepuracao extends InterpretadorComDepuracao
 
     override async visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> {
         return comum.visitarExpressaoAcessoPropriedade(this, expressao);
+    }
+
+    override async visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> {
+        return comum.visitarExpressaoAcessoIntervaloVariavel(this, expressao);
     }
 }

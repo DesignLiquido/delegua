@@ -40,6 +40,7 @@ import {
 } from './estruturas';
 import {
     AcessoIndiceVariavel,
+    AcessoIntervaloVariavel,
     AcessoMetodo,
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
@@ -232,7 +233,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             case Variavel:
                 return (objetoAcessado as Variavel).simbolo.lexema;
         }
-        
+
         throw new ErroEmTempoDeExecucao((objetoAcessado as any).simbolo, `Construto ${objetoAcessado.constructor.name} não possui resolução de nome apropriada.`);
     }
 
@@ -955,7 +956,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             // Casos que passam aqui: chamadas a métodos de bibliotecas de Delégua.
             if (typeof entidadeChamada === tipoDeDadosPrimitivos.FUNCAO) {
                 let objeto = null;
-                if ((expressao.entidadeChamada as any).objeto) { // TODO: Qual o tipo certo aqui? 
+                if ((expressao.entidadeChamada as any).objeto) { // TODO: Qual o tipo certo aqui?
                     objeto = await this.avaliar((expressao.entidadeChamada as any).objeto);
                 }
                 return entidadeChamada.apply(this.resolverValor(objeto), argumentos);
@@ -1039,8 +1040,8 @@ export class InterpretadorBase implements InterpretadorInterface {
         if (Array.isArray(valorDireitoResolvido) || typeof valorDireitoResolvido === tipoDeDadosPrimitivos.TEXTO) {
             const avaliacao = valorDireitoResolvido.includes(esquerda);
             return expressao.negado ? !avaliacao : avaliacao;
-        } 
-        
+        }
+
         if (valorDireitoResolvido !== null && typeof valorDireitoResolvido === 'object') {
             const avaliacao = esquerda in valorDireitoResolvido;
             return expressao.negado ? !avaliacao : avaliacao;
@@ -1060,7 +1061,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             const direita = await this.avaliar(expressao.direita);
 
             // `3 em lista` é igual a `lista contém 3`.
-            // Portanto, precisamos inverter os operandos de acordo com a 
+            // Portanto, precisamos inverter os operandos de acordo com a
             // palavra reservada usada.
             switch (expressao.operador.tipo) {
                 case tiposDeSimbolos.EM:
@@ -1692,6 +1693,21 @@ export class InterpretadorBase implements InterpretadorInterface {
         );
     }
 
+    /**
+        * Método base para acesso a intervalo.
+        * Por padrão lança erro, pois a maioria dos dialetos (como Delégua padrão)
+        * ainda não suporta isso nativamente, apenas Pituguês.
+    */
+    visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                expressao.simboloFechamento,
+                "Acesso por intervalo não implementado para este dialeto.",
+                expressao.linha
+            )
+        );
+    }
+
     async visitarExpressaoDefinirValor(expressao: DefinirValor): Promise<any> {
         const variavelObjeto = await this.avaliar(expressao.objeto);
         const objeto = this.resolverValor(variavelObjeto);
@@ -1852,10 +1868,10 @@ export class InterpretadorBase implements InterpretadorInterface {
             if (expressao.simbolo.lexema in primitivasVetor) {
                 const metodoDePrimitivaVetor: Function =
                     primitivasVetor[expressao.simbolo.lexema].implementacao;
-                // TODO: Um problema a ser resolvido na questão de vetores é quando eles pertencem a outro objeto. 
+                // TODO: Um problema a ser resolvido na questão de vetores é quando eles pertencem a outro objeto.
                 // Por exemplo, um dicionário.
                 // Existe uma lógica nas bibliotecas padrão que, quando a primitiva tem um nome, ela deve ser definida na
-                // pilha de escopos, para registrar a mutação do vetor corretamente. 
+                // pilha de escopos, para registrar a mutação do vetor corretamente.
                 // Não é uma boa solução. Algo melhor precisa ser feito.
                 return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor, expressao.simbolo.lexema, tipoObjeto);
             }

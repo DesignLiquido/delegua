@@ -1,4 +1,4 @@
-import { AcessoMetodo, AcessoMetodoOuPropriedade, AcessoPropriedade } from "../../../construtos";
+import { AcessoMetodo, AcessoMetodoOuPropriedade, AcessoPropriedade, AcessoIntervaloVariavel } from "../../../construtos";
 import { inferirTipoVariavel } from "../../../inferenciador";
 import { InterpretadorInterface, SimboloInterface, VariavelInterface } from "../../../interfaces";
 import { RetornoQuebra } from "../../../quebras";
@@ -333,7 +333,7 @@ export async function visitarExpressaoAcessoPropriedade(
 
 export async function resolverInterpolacoes(
     interpretador: InterpretadorInterface,
-    textoOriginal: string, 
+    textoOriginal: string,
     linha: number
 ): Promise<any[]> {
     const regexInterpolacao: RegExp = /\$\{[a-zA-Z_][a-zA-Z0-9_]*\}/g;
@@ -367,4 +367,34 @@ export async function resolverInterpolacoes(
         expressaoInterpolacao: resultadosAvaliacaoSintatica[indice].expressaoInterpolacao,
         valor: item,
     }));
+}
+
+export async function visitarExpressaoAcessoIntervaloVariavel(
+    interpretador: InterpretadorInterface,
+    expressao: AcessoIntervaloVariavel
+): Promise<any> {
+    const variavelObjeto: VariavelInterface = await interpretador.avaliar(expressao.entidadeChamada);
+    let objeto = interpretador.resolverValor(variavelObjeto);
+
+    if (!Array.isArray(objeto) && typeof objeto !== 'string') {
+        throw new ErroEmTempoDeExecucao(
+            expressao.simboloFechamento,
+            'Acesso por intervalo só é suportado em vetores e textos.',
+            expressao.linha
+        );
+    }
+
+    let inicio = 0;
+    if (expressao.indiceInicio) {
+        inicio = await interpretador.avaliar(expressao.indiceInicio);
+        inicio = interpretador.resolverValor(inicio);
+    }
+
+    let fim = objeto.length;
+    if (expressao.indiceFim) {
+        fim = await interpretador.avaliar(expressao.indiceFim);
+        fim = interpretador.resolverValor(fim);
+    }
+
+    return objeto.slice(inicio, fim);
 }
