@@ -641,5 +641,88 @@ describe('Interpretador com Depuração', () => {
                 expect(_saidas[1]).toBe("sempre executa");
             });
         });
+
+        describe('Classes e Construtores', () => {
+            let execucaoFinalizada: boolean = false;
+
+            beforeEach(() => {
+                _saidas = [];
+                interpretador = new InterpretadorComDepuracao(
+                    process.cwd(),
+                    funcaoSaida,
+                    funcaoSaida
+                );
+
+                execucaoFinalizada = false;
+                interpretador.finalizacaoDaExecucao = () => {
+                    execucaoFinalizada = true;
+                };
+            });
+
+            it('Deve executar construtor de classe vazio', async () => {
+                const retornoLexador = lexador.mapear([
+                    "classe Teste {",
+                    "  construtor() {",
+                    "    var x = 1",
+                    "  }",
+                    "}",
+                    "var teste = Teste()"
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+
+                await interpretador.instrucaoContinuarInterpretacao();
+
+                expect(execucaoFinalizada).toBe(true);
+            });
+
+            it('Deve executar construtor de classe com isto', async () => {
+                const retornoLexador = lexador.mapear([
+                    "classe Teste {",
+                    "  construtor() {",
+                    "    escreva(isto)",
+                    "  }",
+                    "}",
+                    "var teste = Teste()"
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+
+                await interpretador.instrucaoContinuarInterpretacao();
+
+                expect(execucaoFinalizada).toBe(true);
+                expect(_saidas.length).toBeGreaterThan(0);
+            });
+
+            it('Deve executar herança de classe com métodos', async () => {
+                const retornoLexador = lexador.mapear([
+                    "classe Animal {",
+                    "  corre() {",
+                    "    escreva(\"correndo\")",
+                    "  }",
+                    "}",
+                    "classe Cachorro herda Animal {",
+                    "  latir() {",
+                    "    escreva(\"Au Au Au Au\")",
+                    "  }",
+                    "}",
+                    "var thor = Cachorro()",
+                    "thor.corre()",
+                    "thor.latir()"
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+
+                await interpretador.instrucaoContinuarInterpretacao();
+
+                expect(execucaoFinalizada).toBe(true);
+                expect(_saidas.length).toBe(2);
+                expect(_saidas[0]).toBe("correndo");
+                expect(_saidas[1]).toBe("Au Au Au Au");
+            });
+        });
     });
 });

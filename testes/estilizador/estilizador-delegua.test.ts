@@ -171,7 +171,7 @@ describe('Estilizador Delégua', () => {
                 })
             ]);
 
-            const retornoLexador = lexador.mapear(['var MeuNumero = 42'], -1);
+            const retornoLexador = lexador.mapear(['var meu_numero = 42'], -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
