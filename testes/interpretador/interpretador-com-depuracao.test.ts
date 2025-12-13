@@ -558,5 +558,88 @@ describe('Interpretador com Depuração', () => {
                 expect(execucaoFinalizada).toBe(true);
             });
         });
+
+        describe('Tente-Pegue-Finalmente', () => {
+            let execucaoFinalizada: boolean = false;
+
+            beforeEach(() => {
+                _saidas = [];
+                interpretador = new InterpretadorComDepuracao(
+                    process.cwd(),
+                    funcaoSaida,
+                    funcaoSaida
+                );
+
+                execucaoFinalizada = false;
+                interpretador.finalizacaoDaExecucao = () => {
+                    execucaoFinalizada = true;
+                };
+            });
+
+            it('Deve executar blocos na ordem correta: tente, finalmente', async () => {
+                const retornoLexador = lexador.mapear([
+                    "tente {",
+                    "    escreva(\"sucesso\")",
+                    "} pegue {",
+                    "    escreva(\"pegue\")",
+                    "} finalmente {",
+                    "    escreva(\"pronto\")",
+                    "}"
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+
+                expect(execucaoFinalizada).toBe(true);
+                expect(_saidas.length).toBe(2);
+                expect(_saidas[0]).toBe("sucesso");
+                expect(_saidas[1]).toBe("pronto");
+            });
+
+            it('Deve executar blocos na ordem correta com erro: tente, pegue, finalmente', async () => {
+                const retornoLexador = lexador.mapear([
+                    "tente {",
+                    "    escreva(\"tentando\")",
+                    "    falhar \"falhando de propósito\"",
+                    "} pegue (erro) {",
+                    "    escreva(\"peguei um erro: \", erro)",
+                    "} finalmente {",
+                    "    escreva(\"pronto\")",
+                    "}"
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+
+                expect(execucaoFinalizada).toBe(true);
+                expect(_saidas.length).toBe(3);
+                expect(_saidas[0]).toBe("tentando");
+                expect(_saidas[1]).toBe("peguei um erro:  falhando de propósito");
+                expect(_saidas[2]).toBe("pronto");
+            });
+
+            it('Deve executar apenas tente e finalmente quando não há erro', async () => {
+                const retornoLexador = lexador.mapear([
+                    "tente {",
+                    "    escreva(\"sem erro\")",
+                    "} pegue (erro) {",
+                    "    escreva(\"não deveria executar\")",
+                    "} finalmente {",
+                    "    escreva(\"sempre executa\")",
+                    "}"
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+
+                expect(execucaoFinalizada).toBe(true);
+                expect(_saidas.length).toBe(2);
+                expect(_saidas[0]).toBe("sem erro");
+                expect(_saidas[1]).toBe("sempre executa");
+            });
+        });
     });
 });

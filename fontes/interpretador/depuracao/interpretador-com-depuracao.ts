@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import { Declaracao, Enquanto, Escreva, Para, Retorna } from '../../declaracoes';
+import { Declaracao, Enquanto, Escreva, Para, Retorna, Tente } from '../../declaracoes';
 import { PontoParada } from '../../depuracao';
 import { ComandoDepurador, InterpretadorComDepuracaoInterface } from '../../interfaces';
 import { TipoEscopoExecucao } from '../../interfaces/escopo-execucao';
@@ -238,6 +238,18 @@ export class InterpretadorComDepuracao
      */
     async instrucaoProximoESair() {
         comum.executarUltimoEscopoComandoContinuar(this, false, true);
+    }
+
+    /**
+     * Override para corrigir a ordem de execução de try-catch-finally em modo de depuração.
+     * Em modo normal, executarBloco() executa o bloco imediatamente.
+     * Em modo de depuração, executarBloco() apenas empilha o bloco para execução posterior.
+     * Isso causa um problema onde o bloco finalmente é empilhado antes do bloco tente ser executado.
+     * @param declaracao A declaração tente-pegue-finalmente.
+     * @returns O valor retornado pela execução.
+     */
+    override async visitarDeclaracaoTente(declaracao: Tente): Promise<any> {
+        return await comum.visitarDeclaracaoTente(this, declaracao);
     }
 
     /**

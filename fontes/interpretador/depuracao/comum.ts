@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
-import { Binario, Chamada, Construto, Leia } from '../../construtos';
-import { Bloco, Declaracao, Enquanto, Escreva, Expressao, Para, Retorna } from '../../declaracoes';
+import { Binario, Chamada, Construto, Leia, Literal } from '../../construtos';
+import { Bloco, Declaracao, Enquanto, Escreva, Expressao, Para, Retorna, Tente } from '../../declaracoes';
 import {
     InterpretadorComDepuracaoInterface,
     ResultadoParcialInterpretadorInterface,
@@ -282,6 +282,66 @@ export async function visitarDeclaracaoPara(
             // escopoAtual.emLacoRepeticao = false;
             return retornoExecucao;
     }
+}
+
+/**
+ * Implementação de try-catch-finally para modo de depuração.
+ * Garante que o bloco finally só é executado após o bloco try ser completado.
+ * Em modo de passo, detecta quando um novo escopo foi criado e está incompleto,
+ * evitando que o finally seja empilhado prematuramente.
+ * @param interpretador O interpretador com depuração.
+ * @param declaracao A declaração tente-pegue-finalmente.
+ * @returns O valor retornado pela execução.
+ */
+export async function visitarDeclaracaoTente(
+    interpretador: InterpretadorComDepuracaoInterface,
+    declaracao: Tente
+): Promise<any> {
+    let valorRetorno: any;
+    (interpretador as any).emDeclaracaoTente = true;
+
+    // Captura o número de escopos antes de executar o bloco try
+    const escoposAntes = interpretador.pilhaEscoposExecucao.elementos();
+
+    try {
+        try {
+            valorRetorno = await interpretador.executarBloco(declaracao.caminhoTente);
+        } catch (erro: any) {
+            if (declaracao.caminhoPegue !== null) {
+                if (Array.isArray(declaracao.caminhoPegue)) {
+                    valorRetorno = await interpretador.executarBloco(declaracao.caminhoPegue);
+                } else {
+                    const literalErro = new Literal(
+                        declaracao.hashArquivo,
+                        Number(declaracao.linha),
+                        erro.mensagem
+                    );
+                    const chamadaPegue = new Chamada(
+                        declaracao.caminhoPegue.hashArquivo,
+                        declaracao.caminhoPegue,
+                        [literalErro]
+                    );
+                    valorRetorno = await chamadaPegue.aceitar(interpretador);
+                }
+            }
+        }
+    } finally {
+        // Verifica se um novo escopo foi criado e ainda está ativo
+        // Se sim, NÃO executa o finally ainda (o escopo try não foi completado)
+        const escoposDepois = interpretador.pilhaEscoposExecucao.elementos();
+        const novoEscopoCriado = escoposDepois > escoposAntes;
+
+        // Só executa finally se:
+        // 1. Existe um bloco finally
+        // 2. Não há um novo escopo criado OU não estamos em modo de passo/adentrar
+        if (declaracao.caminhoFinalmente !== null &&
+            (!novoEscopoCriado || (interpretador.comando !== 'proximo' && interpretador.comando !== 'adentrarEscopo'))) {
+            valorRetorno = await interpretador.executarBloco(declaracao.caminhoFinalmente);
+        }
+        (interpretador as any).emDeclaracaoTente = false;
+    }
+
+    return valorRetorno;
 }
 
 /**
@@ -844,6 +904,11 @@ export async function executarUltimoEscopoComandoContinuar(
 
         return retornoExecucao;
     } catch (erro: any) {
+        // Se estamos dentro de uma declaração tente, re-lança o erro
+        // para que o bloco pegue possa capturá-lo
+        if ((interpretador as any).emDeclaracaoTente) {
+            throw erro;
+        }
         interpretador.erros.push(erro);
     } finally {
         if (!interpretador.pontoDeParadaAtivo && interpretador.comando !== 'adentrarEscopo') {
