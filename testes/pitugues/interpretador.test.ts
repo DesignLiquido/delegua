@@ -140,6 +140,300 @@ describe('Interpretador (Pituguês)', () => {
                         expect(c.valor).toBe(3);
                     });
                 });
+
+                describe('Fatiamento (Slicing)', () => {
+                    describe('Vetores', () => {
+                        it('Fatiamento com início e fim definidos [início:fim]', async () => {
+                            const retornoLexador = lexador.mapear([`
+                                numeros = [0, 1, 2, 3, 4, 5]
+                                fatia = numeros[1:4]
+                            `], -1);
+                            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+
+                            const variavelFatia = interpretador.pilhaEscoposExecucao.obterVariavelPorNome('fatia');
+
+                            expect(variavelFatia.valor).toEqual([1, 2, 3]);
+                        });
+
+                        it('Fatiamento sem fim definido [início:]', async () => {
+                            const retornoLexador = lexador.mapear([`
+                                numeros = [0, 1, 2, 3]
+                                fatia = numeros[2:]
+                            `], -1);
+                            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+
+                            const variavelFatia = interpretador.pilhaEscoposExecucao.obterVariavelPorNome('fatia');
+
+                            expect(variavelFatia.valor).toEqual([2, 3]);
+                        });
+
+                        it('Fatiamento sem início definido [:fim]', async () => {
+                            const retornoLexador = lexador.mapear([`
+                                numeros = [10, 20, 30, 40]
+                                fatia = numeros[:2]
+                            `], -1);
+                            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+
+                            const variavelFatia = interpretador.pilhaEscoposExecucao.obterVariavelPorNome('fatia');
+
+                            expect(variavelFatia.valor).toEqual([10, 20]);
+                        });
+
+                        it('Fatiamento sem início e fim definido [:]', async () => {
+                            const retornoLexador = lexador.mapear([`
+                                ciencias = ['física', 'química', 'matemática']
+                                fatia = ciencias[:]
+                            `], -1);
+                            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+
+                            const variavelFatia = interpretador.pilhaEscoposExecucao.obterVariavelPorNome('fatia');
+
+                            expect(variavelFatia.valor).toEqual(['física', 'química', 'matemática']);
+                        });
+
+                        it('Fatiamento com início negativo [-n:] (pega os últimos n itens)', async () => {
+                            const retornoLexador = lexador.mapear([`
+                                numeros = [0, 1, 2, 3, 4, 5]
+                                fatia = numeros[-2:]
+                            `], -1);
+                            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+                            const variavelFatia = interpretador.pilhaEscoposExecucao.obterVariavelPorNome('fatia');
+                            expect(variavelFatia.valor).toEqual([4, 5]);
+                        });
+
+                        it('Fatiamento com fim negativo [:-n] (exclui os últimos n itens)', async () => {
+                            const retornoLexador = lexador.mapear([`
+                                numeros = [0, 1, 2, 3, 4, 5]
+                                fatia = numeros[:-2]
+                            `], -1);
+                            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+                            const variavelFatia = interpretador.pilhaEscoposExecucao.obterVariavelPorNome('fatia');
+                            expect(variavelFatia.valor).toEqual([0, 1, 2, 3]);
+                        });
+
+                        it('Fatiamento com início e fim negativos [-x:-y]', async () => {
+                            const retornoLexador = lexador.mapear([`
+                                numeros = [0, 1, 2, 3, 4, 5]
+                                fatia = numeros[-4:-1]
+                            `], -1);
+                            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+                            const variavelFatia = interpretador.pilhaEscoposExecucao.obterVariavelPorNome('fatia');
+                            expect(variavelFatia.valor).toEqual([2, 3, 4]);
+                        });
+
+                        it('Fatiamento misto (positivo e negativo) [1:-1]', async () => {
+                            const retornoLexador = lexador.mapear([`
+                                numeros = [0, 1, 2, 3, 4, 5]
+                                fatia = numeros[1:-1]
+                            `], -1);
+                            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+                            const variavelFatia = interpretador.pilhaEscoposExecucao.obterVariavelPorNome('fatia');
+                            expect(variavelFatia.valor).toEqual([1, 2, 3, 4]);
+                        });
+                    });
+
+                    describe('Textos', () => {
+                        it('Fatiamento [início:fim]', async () => {
+                            const retornoLexador = lexador.mapear([`
+                                texto = 'Pituguês'
+                                fatia = texto[1:4]
+                            `], -1);
+                            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+
+                            const variavelFatia = interpretador.pilhaEscoposExecucao.obterVariavelPorNome('fatia');
+
+                            expect(variavelFatia.valor).toEqual('itu');
+                        });
+
+                        it('Fatiamento sem fim definido [início:]', async () => {
+                            const retornoLexador = lexador.mapear([`
+                                texto = 'Pituguês'
+                                fatia = texto[2:]
+                            `], -1);
+                            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+
+                            const variavelFatia = interpretador.pilhaEscoposExecucao.obterVariavelPorNome('fatia');
+
+                            expect(variavelFatia.valor).toEqual('tuguês');
+                        });
+
+                        it('Fatiamento sem início definido [:fim]', async () => {
+                            const retornoLexador = lexador.mapear([`
+                                texto = 'Pituguês'
+                                fatia = texto[:2]
+                            `], -1);
+                            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+
+                            const variavelFatia = interpretador.pilhaEscoposExecucao.obterVariavelPorNome('fatia');
+
+                            expect(variavelFatia.valor).toEqual('Pi');
+                        });
+
+                        it('Fatiamento sem início e fim definido [:]', async () => {
+                            const retornoLexador = lexador.mapear([`
+                                texto = 'Pituguês'
+                                fatia = texto[:]
+                            `], -1);
+                            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+
+                            const variavelFatia = interpretador.pilhaEscoposExecucao.obterVariavelPorNome('fatia');
+
+                            expect(variavelFatia.valor).toEqual('Pituguês');
+                        });
+
+                        it('Deve suportar início negativo [-n:] (pega os últimos n itens)', async () => {
+                            const retornoLexador = lexador.mapear([`
+                                texto = 'Pituguês'
+                                fatia = texto[-2:]
+                            `], -1);
+                            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+                            const variavelFatia = interpretador.pilhaEscoposExecucao.obterVariavelPorNome('fatia');
+                            expect(variavelFatia.valor).toEqual('ês');
+                        });
+
+                        it('Deve suportar fim negativo [:-n] (exclui os últimos n itens)', async () => {
+                            const retornoLexador = lexador.mapear([`
+                                texto = 'Pituguês'
+                                fatia = texto[:-2]
+                            `], -1);
+                            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+                            const variavelFatia = interpretador.pilhaEscoposExecucao.obterVariavelPorNome('fatia');
+                            expect(variavelFatia.valor).toEqual('Pitugu');
+                        });
+
+                        it('Deve suportar início e fim negativos [-x:-y]', async () => {
+                            const retornoLexador = lexador.mapear([`
+                                texto = 'Pituguês'
+                                fatia = texto[-4:-1]
+                            `], -1);
+                            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+                            const variavelFatia = interpretador.pilhaEscoposExecucao.obterVariavelPorNome('fatia');
+                            expect(variavelFatia.valor).toEqual('guê');
+                        });
+
+                        it('Deve suportar misto (positivo e negativo) [1:-1]', async () => {
+                            const retornoLexador = lexador.mapear([`
+                                texto = 'Pituguês'
+                                fatia = texto[1:-1]
+                            `], -1);
+                            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+                            const variavelFatia = interpretador.pilhaEscoposExecucao.obterVariavelPorNome('fatia');
+                            expect(variavelFatia.valor).toEqual('ituguê');
+                        });
+                    })
+                });
             });
 
             describe('Acesso a variáveis e objetos', () => {
@@ -1303,6 +1597,56 @@ describe('Interpretador (Pituguês)', () => {
                     const retornoAvaliador = avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliador.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                });
+            });
+
+            describe('Fatiamento (Slicing)', () => {
+                it('Tentar fatiar número', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        numero = 123
+                        fatia = numero[0:1]
+                    `], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes,
+                        true
+                    );
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+
+                    const erro = retornoInterpretador.erros[0];
+                    expect(erro.erroInterno.message).toContain('só é suportado em vetores e textos.');
+                });
+
+                it('Tentar fatiar booleano', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        logico = verdadeiro
+                        fatia = logico[0:1]
+                    `], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes,
+                        true
+                    );
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                });
+
+                it('Tentar fatiar dicionário (não suportado como intervalo)', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        dic = {'a': 1, 'b': 2}
+                        fatia = dic[0:1]
+                    `], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes,
+                        true
+                    );
 
                     expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
                 });

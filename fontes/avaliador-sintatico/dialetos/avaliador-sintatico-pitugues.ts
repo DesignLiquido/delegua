@@ -2,6 +2,7 @@ import hrtime from 'browser-process-hrtime';
 
 import {
     AcessoIndiceVariavel,
+    AcessoIntervaloVariavel,
     AcessoMetodoOuPropriedade,
     Agrupamento,
     AtribuicaoPorIndice,
@@ -802,18 +803,54 @@ export class AvaliadorSintaticoPitugues
 
                 expressao = new AcessoMetodoOuPropriedade(this.hashArquivo, expressao, nome);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
-                const indice = this.expressao();
+                let ehFatiamento = false;
+                let indiceInicio: Construto | null = null;
+                let indiceFim: Construto | null = null;
+
+                if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+                    // Acesso de itens por intervalo sem ponto de partida definido (ex: [:5] ou [:])
+                    ehFatiamento = true;
+
+                    if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.COLCHETE_DIREITO)) {
+                        // Fatiamento com ponto de parada definido (ex: [:5])
+                        indiceFim = this.expressao();
+                    }
+                } else {
+                    // Tem ponto de início definido (ex: [1:5], [1:] ou [1])
+                    indiceInicio = this.expressao();
+
+                    if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+                        // É fatiamento (ex: [1:5] ou [1:])
+                        ehFatiamento = true;
+
+                        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.COLCHETE_DIREITO)) {
+                            // fatiamento com ponto de parada definido (ex: [1:5])
+                            indiceFim = this.expressao();
+                        }
+                    }
+                }
+
                 const simboloFechamento = this.consumir(
                     tiposDeSimbolos.COLCHETE_DIREITO,
                     "Esperado ']' após escrita do indice."
                 );
 
-                expressao = new AcessoIndiceVariavel(
-                    this.hashArquivo,
-                    expressao,
-                    indice,
-                    simboloFechamento
-                );
+                if (ehFatiamento) {
+                    expressao = new AcessoIntervaloVariavel(
+                        this.hashArquivo,
+                        expressao,
+                        indiceInicio,
+                        indiceFim,
+                        simboloFechamento
+                    )
+                } else {
+                    expressao = new AcessoIndiceVariavel(
+                        this.hashArquivo,
+                        expressao,
+                        indiceInicio,
+                        simboloFechamento
+                    );
+                }
             } else {
                 break;
             }
