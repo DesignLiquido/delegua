@@ -50,36 +50,51 @@ describe('Avaliador Sintático (Prisma)', () => {
                 expect(declaracao.inicializador.constructor).toBe(Leia);
             });
 
-            it('Declaração de variável numérica', () => {
-                const retornoLexador = lexador.mapear(
-                    ['local numero = 42;'],
-                    -1
-                );
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            describe('Declarações de variáveis', () => {
+                it('Declaração de variável local numérica', () => {
+                    const retornoLexador = lexador.mapear(
+                        ['local numero = 42;'],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                expect(retornoAvaliadorSintatico).toBeTruthy();
-                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
-                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
-                expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Var);
-            });
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Var);
+                });
 
-            it('Declaração de variável texto com colchetes duplos', () => {
-                const retornoLexador = lexador.mapear([
-                    "local texto = [[",
-                    "  isto é uma string",
-                    "  de várias linhas", 
-                    "  o texto será impresso exatamente como está aqui!",
-                    "]];",
-                    "imprima (texto);"
-                ], -1);
+                it('Declaração de variável local texto com colchetes duplos', () => {
+                    const retornoLexador = lexador.mapear([
+                        "local texto = [[",
+                        "  isto é uma string",
+                        "  de várias linhas", 
+                        "  o texto será impresso exatamente como está aqui!",
+                        "]];",
+                        "imprima (texto);"
+                    ], -1);
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                expect(retornoAvaliadorSintatico).toBeTruthy();
-                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
-                expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Var);
-                const declaracao = retornoAvaliadorSintatico.declaracoes[0] as Var;
-                expect(declaracao.inicializador.constructor).toBe(Literal);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                    expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Var);
+                    const declaracao = retornoAvaliadorSintatico.declaracoes[0] as Var;
+                    expect(declaracao.inicializador.constructor).toBe(Literal);
+                });
+
+                it('Declaração de variável global numérica', () => {
+                    const retornoLexador = lexador.mapear(
+                        ['a = 42'],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Var);
+                });
             });
 
             it('Expressão matemática', () => {

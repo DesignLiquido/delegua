@@ -109,7 +109,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         this.avancarEDevolverAnterior();
 
         while (!this.estaNoFinal()) {
-            switch (this.simboloAtual().tipo) {
+            switch (this.simbolos[this.atual].tipo) {
                 case tiposDeSimbolos.CLASSE:
                 case tiposDeSimbolos.FUNCAO:
                 case tiposDeSimbolos.FUNÇÃO:
@@ -147,30 +147,8 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         throw this.erro(simboloErro, mensagemDeErro);
     }
 
-    verificarTipoSimboloAtual(tipo: string): boolean {
-        if (this.estaNoFinal()) return false;
-        return this.simboloAtual().tipo === tipo;
-    }
-
-    verificarTipoProximoSimbolo(tipo: string): boolean {
-        if (this.estaNoFinal()) return false;
-        return this.simbolos[this.atual + 1].tipo === tipo;
-    }
-
-    simboloAtual(): SimboloInterface {
-        return this.simbolos[this.atual];
-    }
-
-    simboloAnterior(): SimboloInterface {
-        return this.simbolos[this.atual - 1];
-    }
-
     simboloNaPosicao(posicao: number): SimboloInterface {
         return this.simbolos[this.atual + posicao];
-    }
-
-    estaNoFinal(): boolean {
-        return this.atual >= this.simbolos.length;
     }
 
     avancarEDevolverAnterior() {
@@ -197,7 +175,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.COLCHETE_ESQUERDO:
                 this.avancarEDevolverAnterior();
-                switch (this.simboloAtual().tipo) {
+                switch (this.simbolos[this.atual].tipo) {
                     case tiposDeSimbolos.COLCHETE_ESQUERDO: // Texto multilinhas
                         return this.construtoTextoMultilinhas();
                     default:
@@ -298,7 +276,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
                 return new Super(this.hashArquivo, simboloSuper, this.superclasseAtual);
         }
 
-        throw this.erro(this.simboloAtual(), 'Esperado expressão.');
+        throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
     }
 
     expressaoImportar(): ImportarComoConstruto {
@@ -352,7 +330,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             do {
                 if (argumentos.length >= 255) {
-                    throw this.erro(this.simboloAtual(), 'Não pode haver mais de 255 argumentos.');
+                    throw this.erro(this.simbolos[this.atual], 'Não pode haver mais de 255 argumentos.');
                 }
                 argumentos.push(this.expressao());
             } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
@@ -692,8 +670,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             this.blocos += 1;
 
             const condicao = this.expressao();
-
-            const bloco = this.resolverDeclaracao();
+            const bloco = this.resolverDeclaracao() as Bloco;
 
             return new Enquanto(condicao, bloco);
         } finally {
@@ -759,7 +736,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         }
 
         this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, "Esperado ';' após 'quebre'.");
-        return new Sustar(this.simboloAtual());
+        return new Sustar(this.simbolos[this.atual]);
     }
 
     declaracaoContinua(): Continua {
@@ -771,7 +748,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         }
 
         this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, "Esperado ';' após 'continua'.");
-        return new Continua(this.simboloAtual());
+        return new Continua(this.simbolos[this.atual]);
     }
 
     declaracaoRetorna(): Retorna {
@@ -830,7 +807,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
 
         do {
             if (parametros.length >= 255) {
-                throw this.erro(this.simboloAtual(), 'Função não pode ter mais de 255 parâmetros.');
+                throw this.erro(this.simbolos[this.atual], 'Função não pode ter mais de 255 parâmetros.');
             }
 
             const parametro: Partial<ParametroInterface> = {};
@@ -878,8 +855,10 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         return funcaoDeclaracao;
     }
 
-    resolverDeclaracao(): any {
-        switch (this.simbolos[this.atual].tipo) {
+    resolverDeclaracao(): Declaracao {
+        const simboloAtual = this.simbolos[this.atual];
+
+        switch (simboloAtual.tipo) {
             case tiposDeSimbolos.CONTINUA:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoContinua();
@@ -898,6 +877,14 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.ENQUANTO:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoEnquanto();
+            case tiposDeSimbolos.IDENTIFICADOR:
+                const proximoSimbolo = this.simbolos[this.atual + 1];
+                if (proximoSimbolo && proximoSimbolo.tipo === tiposDeSimbolos.IGUAL) {
+                    return this.declaracaoOuAtribuicaoVariaveis();
+                }
+
+                // Avaliar como expressão normal, sair do `switch`.
+                break;
             case tiposDeSimbolos.IMPRIMA:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoEscreva();
@@ -918,6 +905,59 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         }
 
         return this.declaracaoExpressao();
+    }
+
+    declaracaoOuAtribuicaoVariaveis(): Var | Expressao {
+        const identificador = this.avancarEDevolverAnterior();
+
+        this.consumir(tiposDeSimbolos.IGUAL, "Esperado '=' após identificador.");
+
+        if (this.estaNoFinal()) {
+            throw this.erro(
+                this.simboloAnterior(),
+                'Esperado valor após o símbolo de igual.'
+            )
+        }
+
+        const valor = this.expressao();
+        const tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(valor, 'qualquer');
+
+        if (this.pilhaEscopos.variavelJaDefinida(identificador.lexema)) {
+            return new Expressao(
+                new Atribuir(
+                    identificador.hashArquivo, 
+                    new Variavel(identificador.hashArquivo, identificador),
+                    valor
+                )
+            )
+        }
+
+        const retornoVar = new Var(identificador, valor, tipo);
+        // Pelo manual de Prisma, variáveis implícitas estão sempre no escopo global.
+        retornoVar.escopo = 'global';
+        return retornoVar;
+    }
+
+    /**
+     * Segundo o manual de Prisma, os tipos válidos para a linguagem são:
+     *  número, string , tabela, funcao , userdata, boolean, nulo.
+     * @param inicializador O construto do inicializador.
+     * @param tipoPrevio Se há um tipo prévio definido. `qualquer` não é válido em Prisma:
+     *                   O tipo sempre resolve para algum outro.
+     * @returns O tipo inferido.
+     */
+    protected logicaComumInferenciaTiposVariaveisEConstantes(inicializador: Construto, tipoPrevio: string) {
+        if (tipoPrevio !== 'qualquer') {
+            return tipoPrevio;
+        }
+
+        switch (inicializador.constructor) {
+            case Literal:
+                return (inicializador as Literal).tipo;
+            // TODO: Terminar
+            default:
+                console.log(inicializador.constructor.name);
+        }
     }
 
     declaracaoPara(): Para {
@@ -1099,8 +1139,8 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         this.pilhaEscopos = new PilhaEscopos();
         this.pilhaEscopos.empilhar(new InformacaoEscopo());
 
-        // Funções nativas básicas
-        this.pilhaEscopos.definirInformacoesVariavel(
+        // TODO: verificar quais são as funções nativas básicas de Prisma
+        /* this.pilhaEscopos.definirInformacoesVariavel(
             'aleatorio',
             new InformacaoElementoSintatico('aleatorio', 'número')
         );
@@ -1127,7 +1167,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             new InformacaoElementoSintatico('tamanho', 'inteiro', true, [
                 new InformacaoElementoSintatico('objeto', 'qualquer'),
             ])
-        );
+        ); */
     }
 
     analisar(

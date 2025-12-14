@@ -12,6 +12,7 @@ export class Var extends Declaracao {
     tipoExplicito: boolean;
     referencia: boolean;
     desestruturacao: boolean;
+    escopo: 'local' | 'global' = 'local';
 
     constructor(
         simbolo: SimboloInterface,

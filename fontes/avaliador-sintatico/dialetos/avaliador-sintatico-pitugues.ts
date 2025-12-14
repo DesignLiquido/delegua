@@ -141,10 +141,10 @@ export class AvaliadorSintaticoPitugues
 
     protected logicaComumInferenciaTiposVariaveisEConstantes(
         inicializador: Construto,
-        tipo: string
+        tipoPrevio: string
     ): string {
-        if (tipo !== 'qualquer') {
-            return tipo;
+        if (tipoPrevio !== 'qualquer') {
+            return tipoPrevio;
         }
 
         switch (inicializador.constructor) {
@@ -158,7 +158,7 @@ export class AvaliadorSintaticoPitugues
                 ) {
                     return this.logicaComumInferenciaTiposVariaveisEConstantes(
                         entidadeChamadaAcessoIndiceVariavel,
-                        tipo
+                        tipoPrevio
                     );
                 }
 
@@ -270,7 +270,7 @@ export class AvaliadorSintaticoPitugues
         }
     }
 
-    private declaracaoImplicita(): Var {
+    private declaracaoImplicitaVariaveis(): Var {
         const identificador = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
             'Esperado nome de variável.'
@@ -1925,11 +1925,11 @@ export class AvaliadorSintaticoPitugues
 
             const proximoSimbolo = this.simbolos[this.atual + 1];
             if (proximoSimbolo && proximoSimbolo.tipo === tiposDeSimbolos.IGUAL) {
-                if (!this.variavelJaDeclarada(simboloAtual.lexema)) return this.declaracaoImplicita();
+                if (!this.variavelJaDeclarada(simboloAtual.lexema)) return this.declaracaoImplicitaVariaveis();
             }
         }
 
-        switch (this.simbolos[this.atual].tipo) {
+        switch (simboloAtual.tipo) {
             case tiposDeSimbolos.COMENTARIO:
                 return this.declaracaoComentario();
             case tiposDeSimbolos.CONTINUA:
