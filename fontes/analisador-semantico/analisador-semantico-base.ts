@@ -32,6 +32,7 @@ import {
     Variavel,
     Constante,
     Construto,
+    AcessoIntervaloVariavel,
 } from '../construtos';
 import {
     Declaracao,
@@ -238,6 +239,10 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     }
 
     visitarDeclaracaoTextoDocumentacao(declaracao: TextoDocumentacao): Promise<any> | void {
+        return Promise.resolve();
+    }
+
+    visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> | void {
         return Promise.resolve();
     }
 
