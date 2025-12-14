@@ -8,12 +8,15 @@ import {
     Literal,
     Logico,
     Unario,
+    Variavel,
     Vetor,
 } from '../../construtos';
-import { Declaracao } from '../../declaracoes';
+import { Declaracao, Expressao } from '../../declaracoes';
 import { SimboloInterface } from '../../interfaces';
 import { RetornoAvaliadorSintatico, RetornoLexador } from '../../interfaces/retornos';
 import { MicroAvaliadorSintaticoBase } from '../micro-avaliador-sintatico-base';
+
+import { inferirTipoVariavel, TipoInferencia, tipoInferenciaParaTipoDadosElementar } from '../../inferenciador';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/pitugues';
 
@@ -23,7 +26,7 @@ import tiposDeSimbolos from '../../tipos-de-simbolos/pitugues';
 export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase {
     primario(): Construto {
         const simboloAtual = this.simbolos[this.atual];
-        let valores = [];
+
         switch (simboloAtual.tipo) {
             // TODO: Verificar se vamos usar isso.
             /* case tiposDeSimbolos.CHAVE_ESQUERDA:
@@ -53,7 +56,7 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
             // TODO: Verificar se vamos usar isso.
             case tiposDeSimbolos.COLCHETE_ESQUERDO:
                 this.avancarEDevolverAnterior();
-                valores = [];
+                const valores = [];
 
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
                     return new Vetor(-1, Number(this.linha), []);
@@ -70,7 +73,8 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
                     }
                 }
 
-                return new Vetor(-1, Number(this.linha), valores);
+                const tipoVetor = inferirTipoVariavel(valores);
+                return new Vetor(-1, Number(this.linha), valores, valores.length, tipoVetor);
 
             case tiposDeSimbolos.FALSO:
                 this.avancarEDevolverAnterior();
@@ -83,7 +87,13 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
             case tiposDeSimbolos.NUMERO:
             case tiposDeSimbolos.TEXTO:
                 const simboloNumeroTexto: SimboloInterface = this.avancarEDevolverAnterior();
-                return new Literal(-1, Number(this.linha), simboloNumeroTexto.literal);
+                const tipoInferido = inferirTipoVariavel(simboloNumeroTexto.literal);
+                const tiposDadosElementar = tipoInferenciaParaTipoDadosElementar(tipoInferido as TipoInferencia);
+                return new Literal(-1, Number(this.linha), simboloNumeroTexto.literal, tiposDadosElementar);
+
+            case tiposDeSimbolos.IDENTIFICADOR:
+                const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
+                return new Variavel(-1, simboloIdentificador);
 
             case tiposDeSimbolos.PARENTESE_ESQUERDO:
                 this.avancarEDevolverAnterior();
@@ -147,6 +157,25 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
         return expressao;
     }
 
+    multiplicar(): Construto {
+        let expressao = this.exponenciacao();
+
+        while (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.MULTIPLICACAO,
+                tiposDeSimbolos.DIVISAO,
+                tiposDeSimbolos.MODULO,
+                tiposDeSimbolos.DIVISAO_INTEIRA
+            )
+        ) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.exponenciacao();
+            expressao = new Binario(-1, expressao, operador, direito);
+        }
+
+        return expressao;
+    }
+
     override unario(): Construto {
         if (
             this.verificarSeSimboloAtualEIgualA(
@@ -169,6 +198,23 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EXPONENCIACAO)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.exponenciacao();
+            expressao = new Binario(-1, expressao, operador, direito);
+        }
+
+        return expressao;
+    }
+
+    adicaoOuSubtracao(): Construto {
+        let expressao = this.multiplicar();
+
+        while (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.ADICAO,
+                tiposDeSimbolos.SUBTRACAO
+            )
+        ) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.multiplicar();
             expressao = new Binario(-1, expressao, operador, direito);
         }
 
@@ -261,6 +307,26 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
         return expressao;
     }
 
+    ou(): Construto {
+        let expressao = this.e();
+
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.OU)) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.e();
+            expressao = new Logico(-1, expressao, operador, direito);
+        }
+
+        return expressao;
+    }
+
+    atribuir(): Construto {
+        return this.ou();
+    }
+
+    expressao(): Construto {
+        return this.atribuir();
+    }
+
     analisar(
         retornoLexador: RetornoLexador<SimboloInterface>,
         linha: number
@@ -273,7 +339,8 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
 
         const declaracoes: Declaracao[] = [];
         while (this.atual < this.simbolos.length) {
-            declaracoes.push(this.declaracao() as Declaracao);
+            const expressao = this.expressao();
+            declaracoes.push(new Expressao(expressao));
         }
 
         return {

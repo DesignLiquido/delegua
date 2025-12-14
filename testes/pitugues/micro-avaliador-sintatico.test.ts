@@ -1,6 +1,6 @@
-
-import  {MicroAvaliadorSintaticoPitugues}  from '../../fontes/avaliador-sintatico/dialetos/micro-avaliador-sintatico-pitugues';
+import {MicroAvaliadorSintaticoPitugues} from '../../fontes/avaliador-sintatico/dialetos/micro-avaliador-sintatico-pitugues';
 import { Binario } from '../../fontes/construtos';
+import { Expressao } from '../../fontes/declaracoes';
 import { LexadorPitugues } from "../../fontes/lexador/dialetos";
 
 describe('MicroAvaliadorSintatico (Pituguês)', () => {
@@ -13,6 +13,7 @@ describe('MicroAvaliadorSintatico (Pituguês)', () => {
             lexador = new LexadorPitugues();
             microAvaliadorSintatico = new MicroAvaliadorSintaticoPitugues();
         });
+
         describe('Casos de sucesso', () => {
             it('Operações matemáticas básicas', () => {
                 const retornoLexador = lexador.mapear(
@@ -23,11 +24,15 @@ describe('MicroAvaliadorSintatico (Pituguês)', () => {
                 );
                 const retornoMicroAvaliadorSintatico =
                     microAvaliadorSintatico.analisar(retornoLexador, HASH_ARQUIVO_EXEMPLO);
+
                 expect(retornoMicroAvaliadorSintatico).toBeTruthy();
                 expect(retornoMicroAvaliadorSintatico.declaracoes).toHaveLength(1);
-                expect(retornoMicroAvaliadorSintatico.declaracoes[0].constructor).toBe(Binario);
+
+                expect(retornoMicroAvaliadorSintatico.declaracoes[0].constructor).toBe(Expressao);
+
+                const construtoPrincipal = (retornoMicroAvaliadorSintatico.declaracoes[0] as any).expressao;
+                expect(construtoPrincipal.constructor).toBe(Binario);
             });
-            
         });
     });
 });

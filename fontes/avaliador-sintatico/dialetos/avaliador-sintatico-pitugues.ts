@@ -96,6 +96,8 @@ import primitivasDicionario from '../../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../../bibliotecas/primitivas-numero';
 import primitivasTexto from '../../bibliotecas/primitivas-texto';
 import primitivasVetor from '../../bibliotecas/primitivas-vetor';
+import { MicroLexadorPitugues } from '../../lexador/micro-lexador-pitugues';
+import { MicroAvaliadorSintaticoPitugues } from './micro-avaliador-sintatico-pitugues';
 
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -636,11 +638,12 @@ export class AvaliadorSintaticoPitugues
 
     primario(): Construto {
         const simboloAtual = this.simbolos[this.atual];
-        let valores = [];
+
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.CHAVE_ESQUERDA:
                 this.avancarEDevolverAnterior();
                 const chaves = [];
+                const valoresDicionario = [];
 
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA)) {
                     return new Dicionario(this.hashArquivo, simboloAtual.linha, [], []);
@@ -652,7 +655,7 @@ export class AvaliadorSintaticoPitugues
                     const valor = this.atribuir();
 
                     chaves.push(chave);
-                    valores.push(valor);
+                    valoresDicionario.push(valor);
 
                     if (this.simboloAtual().tipo !== tiposDeSimbolos.CHAVE_DIREITA) {
                         this.consumir(
@@ -662,7 +665,7 @@ export class AvaliadorSintaticoPitugues
                     }
                 }
 
-                return new Dicionario(this.hashArquivo, simboloAtual.linha, chaves, valores);
+                return new Dicionario(this.hashArquivo, simboloAtual.linha, chaves, valoresDicionario);
 
             case tiposDeSimbolos.COLCHETE_ESQUERDO:
                 this.avancarEDevolverAnterior();
@@ -677,9 +680,10 @@ export class AvaliadorSintaticoPitugues
                     return this.resolverCompreensaoDeLista();
                 }
 
+                const valoresVetor = [];
                 while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
                     const valor = this.atribuir();
-                    valores.push(valor);
+                    valoresVetor.push(valor);
                     if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
                         this.consumir(
                             tiposDeSimbolos.VIRGULA,
@@ -688,12 +692,12 @@ export class AvaliadorSintaticoPitugues
                     }
                 }
 
-                const tipoVetor = inferirTipoVariavel(valores);
+                const tipoVetor = inferirTipoVariavel(valoresVetor);
                 return new Vetor(
                     this.hashArquivo,
                     simboloAtual.linha,
-                    valores,
-                    valores.length,
+                    valoresVetor,
+                    valoresVetor.length,
                     tipoVetor
                 );
 
@@ -756,6 +760,40 @@ export class AvaliadorSintaticoPitugues
                     }
                 }
                 return new Variavel(this.hashArquivo, simboloIdentificador, tipoOperando);
+            case tiposDeSimbolos.INTERPOLACAO:
+                const simboloInterpolacao = this.avancarEDevolverAnterior();
+                const conteudoOriginal = simboloInterpolacao.literal as string;
+
+                // Transforma "Olá {nome}" em '"Olá " + (nome) + ""'
+                // Adicionado parênteses em volta das variáveis para garantir precedência na soma
+                const codigoTransformado = '"' +
+                    conteudoOriginal
+                        .replace(/\{/g, '" + (')
+                        .replace(/\}/g, ') + "') +
+                    '"';
+
+                const microLexador = new MicroLexadorPitugues();
+                const retornoMicroLexador = microLexador.mapear(codigoTransformado);
+
+                const microAvaliadorSintatico = new MicroAvaliadorSintaticoPitugues();
+                let retornoMicroAvaliador: RetornoAvaliadorSintatico<Declaracao>;
+
+                try {
+                    retornoMicroAvaliador = microAvaliadorSintatico.analisar(
+                        retornoMicroLexador,
+                        this.hashArquivo
+                    );
+
+                    if (retornoMicroAvaliador.erros.length > 0) {
+                        this.erros.push(...retornoMicroAvaliador.erros);
+                    }
+                } catch (erro: any) {
+                    this.erros.push(erro);
+                    return new Literal(this.hashArquivo, simboloInterpolacao.linha, "");
+                }
+
+                const declaracao = retornoMicroAvaliador.declaracoes[0] as Expressao;
+                return declaracao.expressao;
             case tiposDeSimbolos.PARENTESE_ESQUERDO:
                 this.avancarEDevolverAnterior();
                 const expressao = this.expressao();

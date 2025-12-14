@@ -1,4 +1,5 @@
 import { LexadorPitugues } from '../../fontes/lexador/dialetos';
+import tiposDeSimbolos from '../../fontes/tipos-de-simbolos/pitugues';
 
 describe('Lexador (Pituguês)', () => {
     describe('mapear()', () => {
@@ -167,6 +168,33 @@ describe('Lexador (Pituguês)', () => {
                 expect(retornoLexador.simbolos[0].lexema).toBe('var');
                 expect(retornoLexador.erros).toHaveLength(0);
             });
+
+            describe('Interpolação (f-string)', () => {
+                it('Deve reconhecer f-string com aspas duplas', () => {
+                    const codigo = ['f"Olá {nome}"'];
+                    const resultado = lexador.mapear(codigo, -1);
+
+                    expect(resultado.simbolos).toHaveLength(1);
+                    expect(resultado.simbolos[0].tipo).toBe(tiposDeSimbolos.INTERPOLACAO);
+                    expect(resultado.simbolos[0].lexema).toBe('Olá {nome}');
+                });
+
+                it('Deve reconhecer f-string com aspas simples', () => {
+                    const codigo = ["f'Teste {1}'"];
+                    const resultado = lexador.mapear(codigo, -1);
+
+                    expect(resultado.simbolos).toHaveLength(1);
+                    expect(resultado.simbolos[0].tipo).toBe(tiposDeSimbolos.INTERPOLACAO);
+                });
+
+                it('Não deve confundir variável f com f-string', () => {
+                    const codigo = ['f = 10'];
+                    const resultado = lexador.mapear(codigo, -1);
+
+                    expect(resultado.simbolos[0].tipo).toBe(tiposDeSimbolos.IDENTIFICADOR);
+                    expect(resultado.simbolos[0].lexema).toBe('f');
+                });
+            });
         });
 
         describe('Cenários de falha', () => {
@@ -193,6 +221,35 @@ describe('Lexador (Pituguês)', () => {
 
                 expect(retornoLexador.erros).toHaveLength(1);
                 expect(retornoLexador.simbolos).toHaveLength(0);
+            });
+
+            describe('Interpolação (f-string)', () => {
+                it('String de interpolação não fechada', () => {
+                    const codigo = ['f"Olá {nome}'];
+                    const resultado = lexador.mapear(codigo, -1);
+
+                    expect(resultado.erros).toHaveLength(1);
+                    expect(resultado.erros[0].mensagem).toBe('Texto não finalizado.');
+                });
+
+                it('Tentativa de interpolação sem o prefixo "f" (deve ser string normal)', () => {
+                    const codigo = ['"Olá {nome}"'];
+                    const resultado = lexador.mapear(codigo, -1);
+
+                    expect(resultado.simbolos).toHaveLength(1);
+                    expect(resultado.simbolos[0].tipo).toBe(tiposDeSimbolos.TEXTO);
+                    expect(resultado.simbolos[0].lexema).toBe('Olá {nome}');
+                });
+
+                it('Tentativa de interpolação com prefixo minúsculo (f"...") seguido de símbolo inválido', () => {
+                    const codigo = ['fa"Olá"'];
+                    const resultado = lexador.mapear(codigo, -1);
+
+                    expect(resultado.simbolos).toHaveLength(2);
+                    expect(resultado.simbolos[0].tipo).toBe(tiposDeSimbolos.IDENTIFICADOR);
+                    expect(resultado.simbolos[0].lexema).toBe('fa');
+                    expect(resultado.simbolos[1].tipo).toBe(tiposDeSimbolos.TEXTO);
+                });
             });
         });
     });
