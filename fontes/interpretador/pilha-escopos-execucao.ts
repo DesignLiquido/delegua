@@ -166,7 +166,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
                     variavel && variavel.hasOwnProperty('tipo') && variavel.tipo
                         ? variavel.tipo
                         : inferirTipoVariavel(valor);
-                const tipo = tipoInferido.toLowerCase() as TipoInferencia;
+                const tipo = (tipoInferido || 'objeto').toLowerCase() as TipoInferencia;
 
                 const valorResolvido = this.converterValor(tipo, valor);
 

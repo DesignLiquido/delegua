@@ -1,7 +1,6 @@
 import {
     Atribuir,
     AcessoIndiceVariavel,
-    AcessoIntervaloVariavel,
     AcessoElementoMatriz,
     AcessoMetodo,
     AcessoMetodoOuPropriedade,
@@ -33,6 +32,7 @@ import {
     Variavel,
     Constante,
     Construto,
+    AcessoIntervaloVariavel,
 } from '../construtos';
 import {
     Declaracao,
@@ -242,6 +242,10 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
         return Promise.resolve();
     }
 
+    visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> | void {
+        return Promise.resolve();
+    }
+
     visitarExpressaoComentario(expressao: ComentarioComoConstruto): Promise<any> | void {
         // Comentários não afetam a análise semântica, então não faz nada.
         return Promise.resolve();
@@ -373,10 +377,6 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     }
 
     visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel): Promise<any> {
-        return Promise.resolve();
-    }
-
-    visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> {
         return Promise.resolve();
     }
 

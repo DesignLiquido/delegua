@@ -1,4 +1,5 @@
 import {
+    AcessoIntervaloVariavel,
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
     ArgumentoReferenciaFuncao,
@@ -98,6 +99,12 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.cicloAtual = TipoClasse.NENHUM;
     }
 
+    /* istanbul ignore next */
+    visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    /* istanbul ignore next */
     visitarDeclaracaoTextoDocumentacao(declaracao: TextoDocumentacao): Promise<any> | void {
         throw new Error('Método não implementado.');
     }

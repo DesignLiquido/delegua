@@ -102,6 +102,8 @@ export function inferirTipoVariavel(variavel: any): TipoInferencia | TipoNativoS
         case 'DeleguaModulo':
             return 'módulo';
         case 'Classe':
+        case 'DescritorTipoClasse':
+        case 'ObjetoDeleguaClasse':
             return 'objeto';
         case 'Simbolo': // TODO: Repensar.
             const simbolo = variavel as Simbolo;

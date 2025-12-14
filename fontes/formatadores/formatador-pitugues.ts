@@ -15,7 +15,8 @@ import {
     Unario,
     Variavel,
     Vetor,
-    Leia
+    Leia,
+    AcessoIntervaloVariavel
 } from '../construtos';
 
 import {
@@ -422,6 +423,13 @@ export class FormatadorPitugues implements VisitanteComumInterface {
         const índice = await expressão.indice.aceitar(this);
         const valor = await expressão.valor.aceitar(this);
         return `${objeto}[${índice}] = ${valor}`;
+    }
+
+    async visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> {
+        const inicio = await expressao.indiceInicio.aceitar(this);
+        const fim = await expressao.indiceFim.aceitar(this);
+        const entidade = await expressao.entidadeChamada.aceitar(this);
+        return `${entidade}[${inicio}:${fim}]`;
     }
 
     async visitarExpressaoAcessoMetodoOuPropriedade(expressão: AcessoMetodoOuPropriedade): Promise<any> {
