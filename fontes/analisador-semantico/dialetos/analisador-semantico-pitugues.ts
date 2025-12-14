@@ -1,5 +1,6 @@
 import {
     AcessoMetodo,
+    AcessoIntervaloVariavel,
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
     Agrupamento,
@@ -556,7 +557,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
 
     private verificarVariavel(variavel: Variavel): Promise<void> {
         const variavelEscopo = this.gerenciadorEscopos.buscar(variavel.simbolo.lexema);
-        
+
         if (!variavelEscopo) {
             this.erro(
                 variavel.simbolo,
@@ -596,7 +597,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         }
 
         const operadoresMatematicos = ['ADICAO', 'SUBTRACAO', 'MULTIPLICACAO', 'DIVISAO', 'MODULO'];
-        
+
         if (operadoresMatematicos.includes(binario.operador.tipo)) {
             this.verificarTiposOperandos(binario);
         }
@@ -616,7 +617,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         if (tipoEsquerda && tipoDireita && tipoEsquerda !== tipoDireita) {
             // Verificar se são tipos numéricos compatíveis
             const tiposNumericos = ['inteiro', 'número', 'real'];
-            const ambosNumericos = tiposNumericos.includes(tipoEsquerda) && 
+            const ambosNumericos = tiposNumericos.includes(tipoEsquerda) &&
                                 tiposNumericos.includes(tipoDireita);
 
             if (!ambosNumericos) {
@@ -633,7 +634,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
      */
     private verificarDivisaoPorZero(binario: Binario): void {
         const valorDireita = this.avaliarExpressaoConstante(binario.direita);
-        
+
         if (valorDireita === 0) {
             this.erro(binario.operador, `Divisão por zero.`);
         }
@@ -647,38 +648,38 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         if (expressao instanceof Literal) {
             return expressao.valor;
         }
-        
+
         if (expressao instanceof Variavel) {
             const variavel = this.gerenciadorEscopos.buscar(expressao.simbolo.lexema);
-            
+
             if (!variavel) {
                 return null;
             }
-            
+
             if (variavel.imutavel && variavel.inicializada) {
                 return variavel.valor;
             }
-            
+
             if (variavel.inicializada && variavel.valor !== undefined) {
                 return variavel.valor;
             }
-            
+
             return null;
         }
-        
+
         if (expressao instanceof Binario) {
             const esquerda = this.avaliarExpressaoConstante(expressao.esquerda);
             const direita = this.avaliarExpressaoConstante(expressao.direita);
-            
+
             if (esquerda !== null && direita !== null) {
                 return this.calcularOperacaoBinaria(expressao.operador.tipo, esquerda, direita);
             }
         }
-        
+
         if (expressao instanceof Agrupamento) {
             return this.avaliarExpressaoConstante(expressao.expressao);
         }
-        
+
         return null;
     }
 
@@ -726,21 +727,21 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         if (expressao instanceof Literal) {
             return expressao.tipo;
         }
-        
+
         if (expressao instanceof Variavel) {
             const variavel = this.gerenciadorEscopos.buscar(expressao.simbolo.lexema);
             return variavel?.tipo || null;
         }
-        
+
         if (expressao instanceof Binario) {
             // Para binários, tentamos inferir o tipo baseado nos operandos
             return this.inferirTipoBinario(expressao);
         }
-        
+
         if (expressao instanceof Agrupamento) {
             return this.obterTipoExpressao(expressao.expressao);
         }
-        
+
         return null;
     }
 
@@ -750,18 +751,18 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
     private inferirTipoBinario(binario: Binario): string | null {
         const tipoEsquerda = this.obterTipoExpressao(binario.esquerda);
         const tipoDireita = this.obterTipoExpressao(binario.direita);
-        
+
         if (!tipoEsquerda || !tipoDireita) {
             return null;
         }
-        
+
         const operadoresMatematicos = ['ADICAO', 'SUBTRACAO', 'MULTIPLICACAO', 'DIVISAO', 'MODULO'];
         const operadoresComparacao = ['MAIOR', 'MAIOR_IGUAL', 'MENOR', 'MENOR_IGUAL', 'IGUAL', 'DIFERENTE'];
-        
+
         if (operadoresComparacao.includes(binario.operador.tipo)) {
             return 'lógico';
         }
-        
+
         if (operadoresMatematicos.includes(binario.operador.tipo)) {
             const tiposNumericos = ['inteiro', 'número', 'real'];
             if (tiposNumericos.includes(tipoEsquerda) && tiposNumericos.includes(tipoDireita)) {
@@ -772,13 +773,13 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
 
                 return 'número';
             }
-            
+
             // Concatenação de textos
             if (tipoEsquerda === 'texto' || tipoDireita === 'texto') {
                 return 'texto';
             }
         }
-        
+
         return 'qualquer';
     }
 
@@ -837,14 +838,14 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         // Regex para encontrar ${identificador}
         const regexInterpolacao = /\$\{([a-zA-Z_][a-zA-Z0-9_]*)\}/g;
         let match;
-        
+
         while ((match = regexInterpolacao.exec(texto)) !== null) {
             const nomeVariavel = match[1];
-            
+
             // Verifica se a variável existe
             const variavel = this.gerenciadorEscopos.buscar(nomeVariavel);
             const funcao = this.funcoes[nomeVariavel];
-            
+
             if (!variavel && !funcao) {
                 this.erro(
                     {
@@ -859,7 +860,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
             } else if (variavel) {
                 // Marca como usada
                 this.gerenciadorEscopos.marcarComoUsada(nomeVariavel);
-                
+
                 // Verifica se foi inicializada
                 if (!variavel.inicializada) {
                     this.aviso(
@@ -897,7 +898,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
             if (argumento instanceof Literal && argumento.tipo === 'texto') {
                 this.verificarInterpolacaoTexto(argumento.valor, argumento);
             }
-            
+
             if (argumento instanceof Variavel) {
                 const possivelVariavel = this.gerenciadorEscopos.buscar(argumento.simbolo.lexema);
                 const possivelFuncao = this.funcoes[argumento.simbolo.lexema];
@@ -936,7 +937,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         if (constanteCorrespondente) {
             this.erro(declaracao.simbolo, 'Declaração de constante já feita.');
             return Promise.resolve();
-        } 
+        }
 
         this.gerenciadorEscopos.declarar(
             declaracao.simbolo.lexema,
@@ -1005,7 +1006,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
             const variavelExistente = this.gerenciadorEscopos.buscarNoEscopoAtual(
                 declaracao.simbolo.lexema
             );
-            
+
             this.aviso(
                 declaracao.simbolo,
                 `Variável '${declaracao.simbolo.lexema}' já foi declarada na linha ${variavelExistente?.linha}.`
@@ -1025,7 +1026,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                 this.marcarVariaveisUsadasEmExpressao(expressao);
             } */
         }
-        
+
         return Promise.resolve();
     }
 
@@ -1037,7 +1038,23 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         if (expressao instanceof Variavel) {
             return this.verificarVariavel(expressao);
         }
-        
+
+        return Promise.resolve();
+    }
+
+    override async visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> {
+        const expressaoIntervalo = expressao as any;
+
+        this.analisar(expressaoIntervalo.objeto);
+
+        if (expressaoIntervalo.inicio) {
+            this.analisar(expressaoIntervalo.inicio);
+        }
+
+        if (expressaoIntervalo.fim) {
+            this.analisar(expressaoIntervalo.fim);
+        }
+
         return Promise.resolve();
     }
 
@@ -1056,7 +1073,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                 const todosOsCaminhosRetornam = this.todosOsCaminhosRetornam(
                     declaracao.funcao.corpo
                 );
-                
+
                 if (!todosOsCaminhosRetornam) {
                     this.erro(
                         declaracao.simbolo,
@@ -1064,11 +1081,11 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                     );
                 }
             }
-            
+
             let funcaoContemRetorno = declaracao.funcao.corpo.find(
                 (c) => c instanceof Retorna
             ) as Retorna;
-            
+
             if (funcaoContemRetorno && funcaoContemRetorno.valor) {
                 if (tipoRetornoFuncao === 'vazio') {
                     this.erro(declaracao.simbolo, `A função não pode ter nenhum tipo de retorno.`);
@@ -1101,19 +1118,19 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
 
     verificarVariaveisNaoUsadas(): void {
         const naoUsadas = this.gerenciadorEscopos.obterVariaveisNaoUsadas();
-        
+
         for (let variavel of naoUsadas) {
             // Verifica se já existe um erro associado à variável.
             const temErro = this.diagnosticos.some(
-                d => d.severidade === DiagnosticoSeveridade.ERRO && 
+                d => d.severidade === DiagnosticoSeveridade.ERRO &&
                     d.simbolo.lexema === variavel.nome
             );
-            
+
             // Se a variável já tem um erro associado, não emitir aviso de não usada.
             if (temErro) {
                 continue;
             }
-            
+
             this.aviso(
                 {
                     lexema: variavel.nome,

@@ -1017,7 +1017,7 @@ describe('Interpretador', () => {
 
                         expect(retornoInterpretador.erros).toHaveLength(0);
                     });
-                    
+
                     it('Contém', async () => {
                         const retornoLexador = lexador.mapear(
                             [
