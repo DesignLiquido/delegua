@@ -1,4 +1,4 @@
-import { VisitanteComumInterface } from "../interfaces";
+import { VisitanteDeleguaInterface } from "../interfaces";
 import { Construto } from "./construto";
 
 /**
@@ -19,12 +19,18 @@ export class AjudaComoConstruto implements Construto {
         this.funcao = funcao;
     }
 
-    aceitar(visitante: VisitanteComumInterface): Promise<any> {
-        throw new Error("Method not implemented.");
+    async aceitar(visitante: VisitanteDeleguaInterface): Promise<any> {
+        return await visitante.visitarExpressaoAjuda(this);
     }
 
     paraTexto(): string {
-        throw new Error("Method not implemented.");
+        let retorno = `<ajuda `;
+        if (this.valor) {
+            retorno += `elemento=${this.valor.paraTexto()} `;
+        }
+
+        retorno += `funcao=${this.funcao ? 'Sim' : 'Não'} />`;
+        return retorno;
     }
 
     paraTextoSaida(): string {

@@ -566,7 +566,7 @@ describe('Interpretador', () => {
             });
 
             describe('Chamada de funções da biblioteca global', () => {
-                it('ajuda, trivial, sem argumentos', async () => {
+                it('ajuda como argumento de escreva, trivial, sem argumentos', async () => {
                     const retornoLexador = lexador.mapear(
                         [
                             'escreva(ajuda)'
@@ -577,8 +577,38 @@ describe('Interpretador', () => {
 
                     await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    // expect(_saidas).toHaveLength(1);
-                    // expect(_saidas[0]).toContain('0.');
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('Para usar a ajuda, use como uma função: ajuda(objeto).');
+                });
+
+                it('ajuda() como argumento de escreva e como função, sem argumentos', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'escreva(ajuda())'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toContain('Te damos as boas-vindas ao utilitário de ajuda de Delégua!');
+                });
+
+                it('ajuda() como argumento de escreva e como função, com argumentos', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'escreva(ajuda(leia))'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toContain('permite capturar a entrada do usuário durante a execução do programa.');
                 });
 
                 it('Chamada a função nativa aleatorio', async () => {

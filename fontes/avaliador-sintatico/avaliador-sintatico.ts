@@ -1711,6 +1711,10 @@ export class AvaliadorSintatico
     override expressaoLeia(): Leia {
         const simboloLeia = this.avancarEDevolverAnterior();
 
+        if (this.emAjuda && this.simbolos[this.atual].tipo !== tiposDeSimbolos.PARENTESE_ESQUERDO) {
+            return new Leia(simboloLeia, []);
+        }
+
         this.consumir(
             tiposDeSimbolos.PARENTESE_ESQUERDO,
             "Esperado '(' antes dos argumentos em instrução `leia`."

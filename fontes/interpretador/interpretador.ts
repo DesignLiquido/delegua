@@ -75,7 +75,7 @@ import {
     ParaInterface,
 } from '../interfaces/delegua';
 
-import { carregarBibliotecasGlobais } from './comum';
+import { carregarBibliotecasGlobais, obterTopicoAjuda } from './comum';
 
 import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
@@ -995,7 +995,17 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
     }
 
     async visitarExpressaoAjuda(expressao: AjudaComoConstruto): Promise<any> {
-        throw new Error('Method not implemented.');
+        if (!expressao.funcao) {
+            return "Para usar a ajuda, use como uma função: ajuda(objeto).";
+        }
+        
+        if (!expressao.valor) {
+            return "Te damos as boas-vindas ao utilitário de ajuda de Delégua!\n\n" +
+                "Use ajuda(objeto) para obter informações sobre um objeto, função, classe ou módulo.\n" +
+                "Use ajuda('tópico') para obter informações sobre um tópico específico.\n\n";
+        }
+
+        return obterTopicoAjuda(expressao.valor);
     }
 
     override async visitarExpressaoArgumentoReferenciaFuncao(

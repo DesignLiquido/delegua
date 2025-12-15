@@ -3,6 +3,7 @@ import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execu
 import { FuncaoPadrao } from './estruturas/funcao-padrao';
 
 import * as bibliotecaGlobal from '../bibliotecas/biblioteca-global';
+import { Leia } from '../construtos';
 
 export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExecucaoInterface) {
     pilhaEscoposExecucao.definirVariavel(
@@ -87,4 +88,18 @@ export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExe
     );
 
     pilhaEscoposExecucao.definirVariavel('tupla', new FuncaoPadrao(1, bibliotecaGlobal.tupla));
+}
+
+export function obterTopicoAjuda(topico: any): string {
+    switch (topico.constructor) {
+        case Leia:
+            return `A instrução 'leia' permite capturar a entrada do usuário durante a execução do programa. ` +
+                `Você pode usar 'leia()' para ler uma linha de entrada do usuário e armazená-la em uma variável. ` +
+                `Exemplo de uso:\n\n` +
+                `\tvar minhaVariavel = leia()\n\n` +
+                `Isto irá ler a entrada do usuário e atribuí-la à variável 'minhaVariavel'.`;
+        default:
+            console.log(topico);
+            return `Desculpe, não há documentação disponível para o tópico solicitado no momento.`;
+    }
 }
