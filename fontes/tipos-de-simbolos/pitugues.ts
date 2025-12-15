@@ -39,6 +39,7 @@ export default {
     FUNÇÃO: 'FUNÇÃO',
     IDENTIFICADOR: 'IDENTIFICADOR',
     IMPORTAR: 'IMPORTAR',
+    INTERPOLACAO: 'INTERPOLACAO',
     ISTO: 'ISTO',
     LEIA: 'LEIA',
     MAIOR: 'MAIOR',

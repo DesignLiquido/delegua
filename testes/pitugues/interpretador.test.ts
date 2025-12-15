@@ -1400,6 +1400,67 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas[0]).toBe('20');
                 });
             });
+
+            describe('Interpolação (f-strings)', () => {
+                it('Interpolação simples de variável', async () => {
+                    const codigo = [
+                        'nome = "Maria"',
+                        'escreva(f"Olá, {nome}!")'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('Olá, Maria!');
+                });
+
+                it('Interpolação com operação matemática', async () => {
+                    const codigo = [
+                        'escreva(f"O resultado é {2 * 8}")'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('O resultado é 16');
+                });
+
+                it('Aspas simples', async () => {
+                    const codigo = [
+                        "x = 10",
+                        "escreva(f'Valor: {x}')"
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('Valor: 10');
+                });
+            });
         });
 
         it('termina_com - sufixo encontrado no final', async () => {
@@ -1649,6 +1710,49 @@ describe('Interpretador (Pituguês)', () => {
                     );
 
                     expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                });
+            });
+
+            describe('Interpolação (f-string)', () => {
+                it('Variável não declarada na interpolação', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'escreva(f"Olá, {naoExiste}!")'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(1);
+                    expect(retornoInterpretador.erros[0].erroInterno.name).toBe('Error');
+                    expect(retornoInterpretador.erros[0].linha).toBe(1);
+                });
+
+                it('Erro de sintaxe complexa dentro da interpolação', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'escreva(f"O resultado é {2 + }")'
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
+                    expect(retornoAvaliadorSintatico.erros[0].message).toContain("Esperado expressão.");
+                });
+
+                it('Aspas aninhadas inválidas', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "escreva(f'Valor: {x}' é um problema')"
+                    ], -1);
+
+                    expect(retornoLexador.erros).toHaveLength(1);
+                    expect(retornoLexador.erros[0].mensagem).toContain('Texto não finalizado');
                 });
             });
         });

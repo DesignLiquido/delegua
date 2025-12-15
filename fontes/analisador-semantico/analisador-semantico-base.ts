@@ -32,6 +32,7 @@ import {
     Variavel,
     Constante,
     Construto,
+    AcessoIntervaloVariavel,
 } from '../construtos';
 import {
     Declaracao,
@@ -80,10 +81,10 @@ import { GerenciadorEscopos } from './gerenciador-escopos';
  */
 export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInterface {
     gerenciadorEscopos: GerenciadorEscopos;
-    
+
     protected diagnosticoJaExiste(simbolo: SimboloInterface, mensagem: string): boolean {
         return this.diagnosticos.some(
-            d => d.linha === simbolo.linha && 
+            d => d.linha === simbolo.linha &&
                 d.mensagem === mensagem &&
                 d.simbolo.lexema === simbolo.lexema
         );
@@ -125,18 +126,18 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
             this.gerenciadorEscopos.marcarComoUsada(expressao.simbolo.lexema);
             return;
         }
-        
+
         if (expressao instanceof Binario) {
             this.marcarVariaveisUsadasEmExpressao(expressao.esquerda);
             this.marcarVariaveisUsadasEmExpressao(expressao.direita);
             return;
         }
-        
+
         if (expressao instanceof Agrupamento) {
             this.marcarVariaveisUsadasEmExpressao(expressao.expressao);
             return;
         }
-        
+
         if (expressao instanceof Chamada) {
             // Mark function name if it's a variable
             if (expressao.entidadeChamada instanceof Variavel) {
@@ -148,18 +149,18 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
             }
             return;
         }
-        
+
         if (expressao instanceof Logico) {
             this.marcarVariaveisUsadasEmExpressao(expressao.esquerda);
             this.marcarVariaveisUsadasEmExpressao(expressao.direita);
             return;
         }
-        
+
         if (expressao instanceof Unario) {
             this.marcarVariaveisUsadasEmExpressao(expressao.operando);
             return;
         }
-        
+
         // TODO: Adicionar outros tipos de expressões conforme necessário.
     }
 
@@ -174,18 +175,18 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     private verificarBlocoRetorna(declaracoes: Declaracao[]): boolean {
         for (let i = 0; i < declaracoes.length; i++) {
             const declaracao = declaracoes[i];
-            
+
             if (declaracao instanceof Retorna) {
                 return true;
             }
-            
+
             if (declaracao instanceof Se) {
                 const todosOsCaminhosSe = this.verificarSeRetorna(declaracao);
                 if (todosOsCaminhosSe) {
                     return true;
                 }
             }
-            
+
             if (declaracao instanceof Escolha) {
                 const todosOsCaminhosEscolha = this.verificarEscolhaRetorna(declaracao);
                 if (todosOsCaminhosEscolha) {
@@ -193,51 +194,55 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
                 }
             }
         }
-        
+
         return false;
     }
 
     protected verificarSeRetorna(declaracaoSe: Se): boolean {
         const caminhoEntaoResolvido = declaracaoSe.caminhoEntao as Bloco;
         const entaoRetorna = this.verificarBlocoRetorna(caminhoEntaoResolvido.declaracoes);
-        
+
         const caminhoSenaoResolvido = declaracaoSe.caminhoSenao as Bloco | Se | null;
         if (!caminhoSenaoResolvido || (caminhoSenaoResolvido as Bloco).declaracoes?.length === 0) {
             return false;
         }
-        
+
         if (caminhoSenaoResolvido instanceof Se && (caminhoSenaoResolvido.caminhoEntao as Bloco).declaracoes?.length === 1) {
             const senaoSeRetorna = this.verificarSeRetorna(
                 caminhoSenaoResolvido as Se
             );
             return entaoRetorna && senaoSeRetorna;
         }
-        
+
         const senaoRetorna = this.verificarBlocoRetorna((declaracaoSe.caminhoSenao as Bloco).declaracoes);
         return entaoRetorna && senaoRetorna;
     }
 
     private verificarEscolhaRetorna(declaracaoEscolha: Escolha): boolean {
         let temPadrao = false;
-        
+
         // Verifica se todos os caminhos retornam
         for (let caminho of declaracaoEscolha.caminhos) {
             const caminhoRetorna = this.verificarBlocoRetorna(caminho.declaracoes);
             if (!caminhoRetorna) {
                 return false;
             }
-            
+
             // Verifica se há um caso padrão
             if (caminho.condicoes.length === 0) {
                 temPadrao = true;
             }
         }
-        
+
         // Se não há caso padrão, não podemos garantir que todos os caminhos retornam
         return temPadrao;
     }
 
     visitarDeclaracaoTextoDocumentacao(declaracao: TextoDocumentacao): Promise<any> | void {
+        return Promise.resolve();
+    }
+
+    visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> | void {
         return Promise.resolve();
     }
 

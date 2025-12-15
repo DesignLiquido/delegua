@@ -180,8 +180,9 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
         } as ErroLexador);
     }
 
-    analisarTexto(delimitador = '"'): void {
+    analisarTexto(delimitador = '"', ehFString: boolean = false): void {
         const linhaPrimeiroCaracter: number = this.linha;
+
         while (this.simboloAtual() !== delimitador && !this.eFinalDoCodigo()) {
             this.avancar();
         }
@@ -195,16 +196,23 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
             return;
         }
 
-        const textoCompleto = this.codigo[this.linha].substring(this.inicioSimbolo + 1, this.atual);
+        const deslocamento = ehFString ? 2 : 1;
+        const textoCompleto = this.codigo[this.linha].substring(
+            this.inicioSimbolo + deslocamento,
+            this.atual
+        );
+
         if (textoCompleto.length === 0 && !this.eFinalDoCodigo() && this.codigo[this.linha].charAt(this.atual + 1) === delimitador) {
             this.avancar(); // Avança para o próximo delimitador
             this.analisarTextoMultilinha(delimitador);
             return;
         }
 
+        const tipoSimbolo = ehFString ? tiposDeSimbolos.INTERPOLACAO : tiposDeSimbolos.TEXTO;
+
         this.simbolos.push(
             new Simbolo(
-                tiposDeSimbolos.TEXTO,
+                tipoSimbolo,
                 textoCompleto,
                 textoCompleto,
                 linhaPrimeiroCaracter + 1,
@@ -485,6 +493,25 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
 
                 break;
 
+            case 'f':
+            case 'F':
+                const proximoChar = this.proximoSimbolo();
+
+                if (proximoChar == '"' || proximoChar == "'") {
+                    this.avancar(); // consome o 'f'
+                    const delimitador = this.simboloAtual();
+                    this.avancar(); // consome a aspa inicial
+
+                    // avisa que é F-STRING
+                    this.analisarTexto(delimitador, true);
+
+                    this.avancar(); // Consome a aspa final
+                    break;
+                }
+
+                // Se não tiver aspa depois, é uma palavra comum (ex: "faca", "f")
+                this.identificarPalavraChave();
+                break;
             case '"':
                 this.avancar();
                 this.analisarTexto('"');

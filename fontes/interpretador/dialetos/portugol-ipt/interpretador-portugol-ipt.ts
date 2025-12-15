@@ -1,4 +1,5 @@
 import {
+    AcessoIntervaloVariavel,
     AcessoMetodo,
     AcessoPropriedade,
     Agrupamento,
@@ -108,8 +109,15 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
     }
+
+    /* istanbul ignore next */
+    visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    /* istanbul ignore next */
     visitarDeclaracaoTextoDocumentacao(declaracao: TextoDocumentacao): Promise<any> | void {
-        throw new Error('Method not implemented.');
+        throw new Error('Método não implementado.');
     }
 
     /* istanbul ignore next */
