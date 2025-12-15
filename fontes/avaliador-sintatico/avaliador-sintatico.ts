@@ -6,6 +6,7 @@ import {
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
     Agrupamento,
+    AjudaComoConstruto,
     ArgumentoReferenciaFuncao,
     AtribuicaoPorIndice,
     Atribuir,
@@ -57,6 +58,7 @@ import {
     Trio,
 } from '../construtos/tuplas';
 import {
+    Ajuda,
     Bloco,
     Classe,
     Comentario,
@@ -149,6 +151,7 @@ export class AvaliadorSintatico
     performance: boolean;
     superclasseAtual: string | undefined;
     intuirTipoQualquerParaIdentificadores: boolean;
+    emAjuda: boolean;
 
     constructor(performance = false) {
         super();
@@ -163,6 +166,7 @@ export class AvaliadorSintatico
         this.pilhaEscopos = new PilhaEscopos();
         this.montaoTipos = new MontaoTipos();
         this.intuirTipoQualquerParaIdentificadores = false;
+        this.emAjuda = false;
 
         registrarPrimitiva(this.primitivasConhecidas, 'dicionário', primitivasDicionario);
         registrarPrimitiva(this.primitivasConhecidas, 'número', primitivasNumero);
@@ -210,6 +214,32 @@ export class AvaliadorSintatico
         }
 
         return tipoElementarResolvido as TipoDadosElementar;
+    }
+
+    protected construtoAjuda(): AjudaComoConstruto {
+        const simboloAjuda = this.avancarEDevolverAnterior();
+
+        if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.PARENTESE_ESQUERDO) {
+            return new AjudaComoConstruto(simboloAjuda.hashArquivo, simboloAjuda.linha, undefined, false);
+        }
+
+        this.avancarEDevolverAnterior(); // parêntese esquerdo
+
+        if (this.simbolos[this.atual].tipo === tiposDeSimbolos.PARENTESE_DIREITO) {
+            this.avancarEDevolverAnterior();
+            return new AjudaComoConstruto(simboloAjuda.hashArquivo, simboloAjuda.linha, undefined, true);
+        }
+
+        this.emAjuda = true;
+        const expressaoAjuda = this.expressao();
+        this.emAjuda = false;
+
+        this.consumir(
+            tiposDeSimbolos.PARENTESE_DIREITO, 
+            `Esperado parêntese direito após expressão usada como argumento em ajuda(). Atual: ${this.simbolos[this.atual].lexema}.`
+        );
+
+        return new AjudaComoConstruto(simboloAjuda.hashArquivo, simboloAjuda.linha, expressaoAjuda);
     }
 
     protected obterChaveDicionario(): Construto {
@@ -481,6 +511,9 @@ export class AvaliadorSintatico
         const simboloAtual = this.simbolos[this.atual];
         let valores = [];
         switch (simboloAtual.tipo) {
+            case tiposDeSimbolos.AJUDA:
+                return this.construtoAjuda();
+                
             case tiposDeSimbolos.CHAVE_ESQUERDA:
                 return this.construtoDicionario(simboloAtual);
 
@@ -857,6 +890,10 @@ export class AvaliadorSintatico
                 }
 
                 return new TipoDe(this.hashArquivo, simboloAtual, construto);
+        }
+
+        if (this.emAjuda) {
+            console.log(this.simbolos[this.atual]);
         }
 
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
@@ -2414,97 +2451,6 @@ export class AvaliadorSintatico
         }
     }
 
-    /**
-     * Todas as resoluções triviais da linguagem, ou seja, todas as
-     * resoluções que podem ocorrer dentro ou fora de um bloco.
-     * @returns Normalmente uma `Declaracao`, mas há casos em que
-     * outros objetos podem ser retornados.
-     * @see resolverDeclaracaoForaDeBloco para as declarações que não podem
-     * ocorrer em blocos de escopo elementares.
-     */
-    protected resolverDeclaracao(): Declaracao | Declaracao[] {
-        switch (this.simbolos[this.atual].tipo) {
-            case tiposDeSimbolos.CHAVE_ESQUERDA:
-                const simboloInicioBloco: SimboloInterface = this.avancarEDevolverAnterior();
-                return new Bloco(
-                    simboloInicioBloco.hashArquivo,
-                    Number(simboloInicioBloco.linha),
-                    this.blocoEscopo()
-                );
-            case tiposDeSimbolos.COMENTARIO:
-                return this.declaracaoComentarioUmaLinha();
-            case tiposDeSimbolos.CONSTANTE:
-                this.avancarEDevolverAnterior();
-                return this.declaracaoDeConstantes();
-            case tiposDeSimbolos.CONTINUA:
-                this.avancarEDevolverAnterior();
-                return this.declaracaoContinua();
-            case tiposDeSimbolos.ENQUANTO:
-                this.avancarEDevolverAnterior();
-                return this.declaracaoEnquanto();
-            case tiposDeSimbolos.ESCOLHA:
-                this.avancarEDevolverAnterior();
-                return this.declaracaoEscolha();
-            case tiposDeSimbolos.ESCREVA:
-                this.avancarEDevolverAnterior();
-                return this.declaracaoEscreva();
-            case tiposDeSimbolos.FALHAR:
-                this.avancarEDevolverAnterior();
-                return this.declaracaoFalhar();
-            case tiposDeSimbolos.FAZER:
-                const simboloFazer = this.avancarEDevolverAnterior();
-                return this.declaracaoFazer(simboloFazer);
-            case tiposDeSimbolos.IMPORTAR:
-                this.avancarEDevolverAnterior();
-                return this.declaracaoImportar();
-            case tiposDeSimbolos.LINHA_COMENTARIO:
-                return this.declaracaoComentarioMultilinha();
-            case tiposDeSimbolos.PARA:
-                this.avancarEDevolverAnterior();
-                return this.declaracaoPara();
-            case tiposDeSimbolos.PAUSA:
-            case tiposDeSimbolos.SUSTAR:
-                this.avancarEDevolverAnterior();
-                return this.declaracaoSustar();
-            case tiposDeSimbolos.SE:
-                this.avancarEDevolverAnterior();
-                return this.declaracaoSe();
-            case tiposDeSimbolos.RETORNA:
-                this.avancarEDevolverAnterior();
-                return this.declaracaoRetorna();
-            case tiposDeSimbolos.TENDO:
-                this.avancarEDevolverAnterior();
-                return this.declaracaoTendoComo();
-            case tiposDeSimbolos.TENTE:
-                this.avancarEDevolverAnterior();
-                return this.declaracaoTente();
-            case tiposDeSimbolos.VARIAVEL:
-                this.avancarEDevolverAnterior();
-                return this.declaracaoDeVariaveis();
-        }
-
-        const simboloAtual = this.simbolos[this.atual];
-        if (simboloAtual.tipo === tiposDeSimbolos.IDENTIFICADOR) {
-            // Pela gramática, a seguinte situação não pode ocorrer:
-            // 1. O símbolo anterior ser um identificador; e
-            // 2. O símbolo anterior estar na mesma linha do identificador atual.
-
-            const simboloAnterior = this.simbolos[this.atual - 1];
-            if (
-                !!simboloAnterior &&
-                simboloAnterior.tipo === tiposDeSimbolos.IDENTIFICADOR &&
-                simboloAnterior.linha === simboloAtual.linha
-            ) {
-                throw this.erro(
-                    this.simbolos[this.atual],
-                    'Não é permitido ter dois identificadores seguidos na mesma linha.'
-                );
-            }
-        }
-
-        return this.declaracaoExpressao();
-    }
-
     protected declaracaoTendoComo(): TendoComo {
         const simboloTendo = this.simbolos[this.atual - 1];
         const expressaoInicializacao = this.expressao();
@@ -3293,7 +3239,7 @@ export class AvaliadorSintatico
 
     /**
      * Usado quando há erros na avaliação sintática.
-     * Garante que o código não entre em loop infinito.
+     * Garante que o código não entre em _loop_ infinito.
      * @returns Sempre retorna `void`.
      */
     protected sincronizar(): void {
@@ -3317,6 +3263,122 @@ export class AvaliadorSintatico
 
             this.avancarEDevolverAnterior();
         }
+    }
+
+    /**
+     * Todas as resoluções triviais da linguagem, ou seja, todas as
+     * resoluções que podem ocorrer dentro ou fora de um bloco.
+     * @returns Normalmente uma `Declaracao`, mas há casos em que
+     * outros objetos podem ser retornados.
+     * @see resolverDeclaracaoForaDeBloco para as declarações que não podem
+     * ocorrer em blocos de escopo elementares.
+     */
+    protected resolverDeclaracao(): Declaracao | Declaracao[] {
+        switch (this.simbolos[this.atual].tipo) {
+            case tiposDeSimbolos.AJUDA:
+                return this.declaracaoAjuda();
+            case tiposDeSimbolos.CHAVE_ESQUERDA:
+                const simboloInicioBloco: SimboloInterface = this.avancarEDevolverAnterior();
+                return new Bloco(
+                    simboloInicioBloco.hashArquivo,
+                    Number(simboloInicioBloco.linha),
+                    this.blocoEscopo()
+                );
+            case tiposDeSimbolos.COMENTARIO:
+                return this.declaracaoComentarioUmaLinha();
+            case tiposDeSimbolos.CONSTANTE:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoDeConstantes();
+            case tiposDeSimbolos.CONTINUA:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoContinua();
+            case tiposDeSimbolos.ENQUANTO:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoEnquanto();
+            case tiposDeSimbolos.ESCOLHA:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoEscolha();
+            case tiposDeSimbolos.ESCREVA:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoEscreva();
+            case tiposDeSimbolos.FALHAR:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoFalhar();
+            case tiposDeSimbolos.FAZER:
+                const simboloFazer = this.avancarEDevolverAnterior();
+                return this.declaracaoFazer(simboloFazer);
+            case tiposDeSimbolos.IMPORTAR:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoImportar();
+            case tiposDeSimbolos.LINHA_COMENTARIO:
+                return this.declaracaoComentarioMultilinha();
+            case tiposDeSimbolos.PARA:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoPara();
+            case tiposDeSimbolos.PAUSA:
+            case tiposDeSimbolos.SUSTAR:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoSustar();
+            case tiposDeSimbolos.SE:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoSe();
+            case tiposDeSimbolos.RETORNA:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoRetorna();
+            case tiposDeSimbolos.TENDO:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoTendoComo();
+            case tiposDeSimbolos.TENTE:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoTente();
+            case tiposDeSimbolos.VARIAVEL:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoDeVariaveis();
+        }
+
+        const simboloAtual = this.simbolos[this.atual];
+        if (simboloAtual.tipo === tiposDeSimbolos.IDENTIFICADOR) {
+            // Pela gramática, a seguinte situação não pode ocorrer:
+            // 1. O símbolo anterior ser um identificador; e
+            // 2. O símbolo anterior estar na mesma linha do identificador atual.
+
+            const simboloAnterior = this.simbolos[this.atual - 1];
+            if (
+                !!simboloAnterior &&
+                simboloAnterior.tipo === tiposDeSimbolos.IDENTIFICADOR &&
+                simboloAnterior.linha === simboloAtual.linha
+            ) {
+                throw this.erro(
+                    this.simbolos[this.atual],
+                    'Não é permitido ter dois identificadores seguidos na mesma linha.'
+                );
+            }
+        }
+
+        return this.declaracaoExpressao();
+    }
+    
+    declaracaoAjuda(): Ajuda {
+        const simboloAjuda = this.avancarEDevolverAnterior();
+
+        if (this.estaNoFinal() || this.simbolos[this.atual].tipo !== tiposDeSimbolos.PARENTESE_ESQUERDO) {
+            return new Ajuda(simboloAjuda.hashArquivo, simboloAjuda.linha, undefined, false);
+        }
+
+        this.avancarEDevolverAnterior(); // parêntese esquerdo
+
+        if (this.simbolos[this.atual].tipo === tiposDeSimbolos.PARENTESE_DIREITO) {
+            this.avancarEDevolverAnterior();
+            return new Ajuda(simboloAjuda.hashArquivo, simboloAjuda.linha, undefined, true);
+        }
+
+        const expressaoAjuda = this.expressao();
+        this.consumir(
+            tiposDeSimbolos.PARENTESE_DIREITO, 
+            `Esperado parêntese direito após expressão usada como argumento em ajuda(). Atual: ${this.simbolos[this.atual].lexema}.`
+        );
+
+        return new Ajuda(simboloAjuda.hashArquivo, simboloAjuda.linha, expressaoAjuda);
     }
 
     /**

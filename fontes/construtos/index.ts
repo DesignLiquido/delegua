@@ -5,6 +5,7 @@ export * from './acesso-metodo';
 export * from './acesso-metodo-ou-propriedade';
 export * from './acesso-propriedade';
 export * from './agrupamento';
+export * from './ajuda-como-construto';
 export * from './argumento-referencia-funcao';
 export * from './atribuicao-por-indice';
 export * from './atribuicao-por-indices-matriz';

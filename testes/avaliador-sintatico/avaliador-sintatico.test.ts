@@ -1,6 +1,6 @@
 import { Lexador } from '../../fontes/lexador';
 import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
-import { Bloco, Classe, Const, Escreva, Expressao, FuncaoDeclaracao, Importar, ParaCada, Retorna, TendoComo, Tente, Var } from '../../fontes/declaracoes';
+import { Ajuda, Bloco, Classe, Const, Escreva, Expressao, FuncaoDeclaracao, Importar, ParaCada, Retorna, TendoComo, Tente, Var } from '../../fontes/declaracoes';
 import { Binario, Chamada, Elvis, FuncaoConstruto, Leia, Literal, Logico, SeTernario, Variavel } from '../../fontes/construtos';
 
 describe('Avaliador sintático', () => {
@@ -598,7 +598,45 @@ describe('Avaliador sintático', () => {
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 });
-            })
+            });
+
+            describe('Funções nativas', () => {
+                it('ajuda, sem parênteses', () => {
+                    const retornoLexador = lexador.mapear(['ajuda'], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                    expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Ajuda);
+                    const declaracaoAjuda = retornoAvaliadorSintatico.declaracoes[0] as Ajuda;
+                    expect(declaracaoAjuda.funcao).toBe(false);
+                    expect(declaracaoAjuda.elemento).toBeUndefined();
+                });
+
+                it('ajuda, com parênteses, sem argumento', () => {
+                    const retornoLexador = lexador.mapear(['ajuda()'], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                    expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Ajuda);
+                    const declaracaoAjuda = retornoAvaliadorSintatico.declaracoes[0] as Ajuda;
+                    expect(declaracaoAjuda.funcao).toBe(true);
+                    expect(declaracaoAjuda.elemento).toBeUndefined();
+                });
+
+                it('ajuda, com parênteses, com argumento', () => {
+                    const retornoLexador = lexador.mapear(['ajuda(1)'], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                    expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Ajuda);
+                    const declaracaoAjuda = retornoAvaliadorSintatico.declaracoes[0] as Ajuda;
+                    expect(declaracaoAjuda.funcao).toBe(true);
+                    expect(declaracaoAjuda.elemento).not.toBeUndefined();
+                });
+            });
 
             describe('Declarações de tuplas', () => {
                 it('Dupla', () => {

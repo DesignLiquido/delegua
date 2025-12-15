@@ -1,3 +1,4 @@
+export * from './ajuda';
 export * from './bloco';
 export * from './cabecalho-programa';
 export * from './classe';

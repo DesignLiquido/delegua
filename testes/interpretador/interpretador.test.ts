@@ -566,9 +566,22 @@ describe('Interpretador', () => {
             });
 
             describe('Chamada de funções da biblioteca global', () => {
-                it('Chamada a função nativa aleatorio', async () => {
-                    let _saida: string = '';
+                it('ajuda, trivial, sem argumentos', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'escreva(ajuda)'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    // expect(_saidas).toHaveLength(1);
+                    // expect(_saidas[0]).toContain('0.');
+                });
+
+                it('Chamada a função nativa aleatorio', async () => {
                     const retornoLexador = lexador.mapear(
                         [
                             'var numeroAleatorio = aleatorio()',
@@ -578,14 +591,10 @@ describe('Interpretador', () => {
                     );
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        _saida = saida;
-                    };
-
                     await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    expect(_saida).toBeTruthy();
-                    expect(_saida).toContain('0.');
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toContain('0.');
                 });
 
                 it('Chamada a função nativa filtrarPor com função nomeada', async () => {

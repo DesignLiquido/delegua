@@ -1,6 +1,7 @@
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
 export const palavrasReservadasDelegua = {
+    ajuda: tiposDeSimbolos.AJUDA,
     cada: tiposDeSimbolos.CADA,
     caso: tiposDeSimbolos.CASO,
     classe: tiposDeSimbolos.CLASSE,

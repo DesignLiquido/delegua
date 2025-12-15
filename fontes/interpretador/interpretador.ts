@@ -30,6 +30,7 @@ import {
     Elvis,
     SeTernario,
     Tupla,
+    AjudaComoConstruto,
 } from '../construtos';
 import {
     DeleguaFuncao,
@@ -51,6 +52,7 @@ import { InterpretadorBase } from './interpretador-base';
 import { inferirTipoVariavel } from '../inferenciador';
 import { ErroEmTempoDeExecucao } from '../excecoes';
 import {
+    Ajuda,
     Const,
     ConstMultiplo,
     Declaracao,
@@ -277,6 +279,22 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         }
 
         return valorFinal;
+    }
+
+    /**
+     * Declaração de ajuda. 
+     * Neste interpretador básico, a ajuda apenas retorna texto sobre um determinado
+     * tópico, ou ainda sobre a ajuda em si. 
+     * Outros ambientes implementam mecanismos mais sofisticados, como o modo de ajuda. 
+     * @param declaracao A declaração de ajuda.
+     */
+    async visitarDeclaracaoAjuda(declaracao: Ajuda): Promise<any> {
+        if (!declaracao.elemento) {
+            // TODO: Terminar
+        }
+
+        const elementoResolvido = await declaracao.elemento.aceitar(this);
+        console.log(elementoResolvido);
     }
 
     override visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> {
@@ -974,6 +992,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 expressao.linha
             )
         );
+    }
+
+    async visitarExpressaoAjuda(expressao: AjudaComoConstruto): Promise<any> {
+        throw new Error('Method not implemented.');
     }
 
     override async visitarExpressaoArgumentoReferenciaFuncao(
