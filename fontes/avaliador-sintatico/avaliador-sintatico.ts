@@ -255,14 +255,9 @@ export class AvaliadorSintatico
                 if (simboloIdentificador.lexema in this.tiposDefinidosEmCodigo) {
                     tipoOperando = simboloIdentificador.lexema;
                 } else {
-                    try {
-                        tipoOperando = this.pilhaEscopos.obterTipoVariavelPorNome(
-                            simboloIdentificador.lexema
-                        );
-                    } catch (erro: any) {
-                        // Variável pode ainda não ter sido declarada; adiaremos a checagem para o analisador semântico.
-                        tipoOperando = 'qualquer';
-                    }
+                    tipoOperando = this.pilhaEscopos.obterTipoVariavelPorNome(
+                        simboloIdentificador.lexema
+                    );
                 }
 
                 if (!['numero', 'número', 'texto', 'lógico'].includes(tipoOperando)) {
@@ -667,9 +662,7 @@ export class AvaliadorSintatico
                             simboloIdentificador.lexema
                         );
                     } catch (erro: any) {
-                        // Se a variável ainda não foi declarada, continuamos gerando AST
-                        // e deixamos o analisador semântico emitir o diagnóstico.
-                        tipoOperando = 'qualquer';
+                        throw this.erro(simboloIdentificador, erro.message);
                     }
                 }
 

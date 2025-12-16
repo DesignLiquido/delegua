@@ -23,9 +23,12 @@ import {
     Escolha,
     Escreva,
     Expressao,
+    Fazer,
     Falhar,
     FuncaoDeclaracao,
+    ParaCada,
     Retorna,
+    Se,
     Var,
 } from '../declaracoes';
 import { ParametroInterface, SimboloInterface } from '../interfaces';
@@ -451,6 +454,26 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         return this.verificarCondicao(declaracao.condicao);
     }
 
+    override visitarDeclaracaoFazer(declaracao: Fazer) {
+        // Marca variáveis usadas na condição
+        this.marcarVariaveisUsadasEmExpressao(declaracao.condicaoEnquanto);
+        // Verifica a condição
+        return this.verificarCondicao(declaracao.condicaoEnquanto);
+    }
+
+    override visitarDeclaracaoParaCada(declaracao: ParaCada) {
+        // Marca o vetor/dicionário como usado
+        this.marcarVariaveisUsadasEmExpressao(declaracao.vetorOuDicionario);
+        return Promise.resolve();
+    }
+
+    override visitarDeclaracaoSe(declaracao: Se) {
+        // Marca variáveis usadas na condição
+        this.marcarVariaveisUsadasEmExpressao(declaracao.condicao);
+        // Verifica a condição (incluindo validação de tipos para operadores lógicos)
+        return this.verificarCondicao(declaracao.condicao);
+    }
+
     private verificarCondicao(condicao: Construto): Promise<void> {
         if (condicao instanceof Agrupamento) {
             return this.verificarCondicao(condicao.expressao);
@@ -660,21 +683,26 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         if (expressao instanceof Literal) {
             return expressao.tipo;
         }
-        
+
         if (expressao instanceof Variavel) {
             const variavel = this.gerenciadorEscopos.buscar(expressao.simbolo.lexema);
             return variavel?.tipo || null;
         }
-        
+
         if (expressao instanceof Binario) {
             // Para binários, tentamos inferir o tipo baseado nos operandos
             return this.inferirTipoBinario(expressao);
         }
-        
+
+        if (expressao instanceof Logico) {
+            // Operadores lógicos sempre retornam tipo lógico
+            return 'lógico';
+        }
+
         if (expressao instanceof Agrupamento) {
             return this.obterTipoExpressao(expressao.expressao);
         }
-        
+
         return null;
     }
 
@@ -682,18 +710,19 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
      * Infere o tipo de resultado de uma operação binária
      */
     private inferirTipoBinario(binario: Binario): string | null {
-        const tipoEsquerda = this.obterTipoExpressao(binario.esquerda);
-        const tipoDireita = this.obterTipoExpressao(binario.direita);
-        
-        if (!tipoEsquerda || !tipoDireita) {
-            return null;
-        }
-        
         const operadoresMatematicos = ['ADICAO', 'SUBTRACAO', 'MULTIPLICACAO', 'DIVISAO', 'MODULO'];
         const operadoresComparacao = ['MAIOR', 'MAIOR_IGUAL', 'MENOR', 'MENOR_IGUAL', 'IGUAL', 'DIFERENTE'];
-        
+
+        // Operadores de comparação sempre retornam lógico
         if (operadoresComparacao.includes(binario.operador.tipo)) {
             return 'lógico';
+        }
+
+        const tipoEsquerda = this.obterTipoExpressao(binario.esquerda);
+        const tipoDireita = this.obterTipoExpressao(binario.direita);
+
+        if (!tipoEsquerda || !tipoDireita) {
+            return null;
         }
         
         if (operadoresMatematicos.includes(binario.operador.tipo)) {
@@ -759,8 +788,35 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
 
     private verificarLadoLogico(lado: Construto): void {
         if (lado instanceof Variavel) {
-            let variavel = lado as Variavel;
-            this.verificarVariavelBinaria(variavel);
+            const variavel = lado as Variavel;
+            const variavelEscopo = this.gerenciadorEscopos.buscar(variavel.simbolo.lexema);
+
+            if (variavelEscopo) {
+                // Verifica se a variável tem um tipo definido
+                if (
+                    variavelEscopo.tipo &&
+                    variavelEscopo.tipo !== 'lógico' &&
+                    variavelEscopo.tipo !== 'qualquer'
+                ) {
+                    // Se a variável foi inicializada com um binário que resulta em 'lógico',
+                    // consideramos que o lado é válido (caso como: var x = 5 > 2; enquanto (x) {...}).
+                    if (
+                        variavelEscopo.valor instanceof Binario &&
+                        this.inferirTipoBinario(variavelEscopo.valor) === 'lógico'
+                    ) {
+                        return;
+                    }
+
+                    this.erro(
+                        variavel.simbolo,
+                        `Operador lógico requer operandos do tipo 'lógico', mas recebeu '${variavelEscopo.tipo}'.`
+                    );
+                }
+            }
+        }
+
+        if (lado instanceof Logico) {
+            this.verificarLogico(lado);
         }
     }
 
@@ -906,6 +962,44 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                             'Função não pode ter mais de 255 parâmetros.'
                         );
                     }
+                    // Valida tipo de retorno para funções anônimas atribuídas a variáveis
+                    if (funcaoConstruto.tipo) {
+                        const tipoRetornoFuncao = funcaoConstruto.tipo;
+                        if (!['vazio', 'qualquer'].includes(tipoRetornoFuncao)) {
+                            const todosOsCaminhosRetornam = this.todosOsCaminhosRetornam(
+                                funcaoConstruto.corpo
+                            );
+
+                            if (!todosOsCaminhosRetornam) {
+                                this.erro(
+                                    declaracao.simbolo,
+                                    `Função '${declaracao.simbolo.lexema}' deve retornar '${tipoRetornoFuncao}' em todos os caminhos de execução.`
+                                );
+                            }
+
+                            const funcaoContemRetorno = funcaoConstruto.corpo.find(
+                                (c) => c instanceof Retorna
+                            ) as Retorna;
+
+                            if (funcaoContemRetorno && funcaoContemRetorno.valor) {
+                                const tipoValor = typeof funcaoContemRetorno.valor.valor;
+                                if (!['qualquer'].includes(tipoRetornoFuncao)) {
+                                    if (tipoValor === 'string' && tipoRetornoFuncao !== 'texto') {
+                                        this.erro(
+                                            declaracao.simbolo,
+                                            `Esperado retorno do tipo '${tipoRetornoFuncao}' dentro da função.`
+                                        );
+                                    }
+                                    if (tipoValor === 'number' && !['inteiro', 'real', 'número'].includes(tipoRetornoFuncao)) {
+                                        this.erro(
+                                            declaracao.simbolo,
+                                            `Esperado retorno do tipo '${tipoRetornoFuncao}' dentro da função.`
+                                        );
+                                    }
+                                }
+                            }
+                        }
+                    }
                     break;
             }
         }
@@ -919,9 +1013,15 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             }
         }
 
+        // Inferir tipo do inicializador se não foi especificado explicitamente
+        let tipoInferido = declaracao.tipo;
+        if (!tipoInferido && declaracao.inicializador) {
+            tipoInferido = this.obterTipoExpressao(declaracao.inicializador);
+        }
+
         const variavel: EscopoVariavel = {
             nome: declaracao.simbolo.lexema,
-            tipo: declaracao.tipo || 'qualquer',
+            tipo: tipoInferido || 'qualquer',
             imutavel: false,
             valor: valorInicializador,
             inicializada: declaracao.inicializador !== null && declaracao.inicializador !== undefined,
@@ -1065,9 +1165,13 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         this.atual = 0;
         this.diagnosticos = [];
 
-        while (this.atual < declaracoes.length) {
-            declaracoes[this.atual].aceitar(this);
-            this.atual++;
+        try {
+            while (this.atual < declaracoes.length) {
+                declaracoes[this.atual].aceitar(this);
+                this.atual++;
+            }
+        } catch (erro) {
+            console.error('Erro durante análise semântica:', erro);
         }
 
         // Verifica variáveis não usadas ao final

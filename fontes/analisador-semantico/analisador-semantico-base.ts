@@ -161,6 +161,12 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
             return;
         }
 
+        if (expressao instanceof AcessoIndiceVariavel) {
+            this.marcarVariaveisUsadasEmExpressao(expressao.entidadeChamada);
+            this.marcarVariaveisUsadasEmExpressao(expressao.indice);
+            return;
+        }
+
         // TODO: Adicionar outros tipos de expressões conforme necessário.
     }
 

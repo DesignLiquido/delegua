@@ -1,6 +1,8 @@
 export default {
     DICIONARIO: 'dicionario',
     DICIONÁRIO: 'dicionário',
+    FUNCAO: 'funcao',
+    FUNÇÃO: 'função',
     INTEIRO: 'inteiro',
     LOGICO: 'logico',
     LÓGICO: 'lógico',
