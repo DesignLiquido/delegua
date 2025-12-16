@@ -67,6 +67,7 @@ import {
     Super,
     TipoDe,
     Tupla,
+    TuplaPitugues,
     Unario,
     Variavel,
     Vetor,
@@ -315,6 +316,10 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         return valores;
+    }
+
+    async visitarExpressaoTuplaPitugues(expressao: TuplaPitugues): Promise<any> {
+        throw new Error('Método não implementado.');
     }
 
     async visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {

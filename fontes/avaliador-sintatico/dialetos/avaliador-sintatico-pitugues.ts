@@ -39,6 +39,7 @@ import {
     Septeto,
     Sexteto,
     Trio,
+    TuplaPitugues,
 } from '../../construtos';
 import {
     Escreva,
@@ -796,9 +797,21 @@ export class AvaliadorSintaticoPitugues
                 return declaracao.expressao;
             case tiposDeSimbolos.PARENTESE_ESQUERDO:
                 this.avancarEDevolverAnterior();
-                const expressao = this.expressao();
-                this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
 
+                // Verifica se é tupla vazia
+                if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_DIREITO)) {
+                    return new TuplaPitugues(this.hashArquivo, simboloAtual.linha, []);
+                }
+
+                const expressao = this.tupla();
+
+                // Se a expressão já é uma tupla (com vírgulas), retorna ela
+                if (expressao instanceof TuplaPitugues) {
+                    this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após itens da tupla.");
+                    return expressao;
+                }
+
+                this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
                 return new Agrupamento(this.hashArquivo, simboloAtual.linha, expressao);
             case tiposDeSimbolos.SUPER:
                 const simboloSuper = this.avancarEDevolverAnterior();
@@ -845,26 +858,17 @@ export class AvaliadorSintaticoPitugues
                 let indiceInicio: Construto | null = null;
                 let indiceFim: Construto | null = null;
 
+                if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.DOIS_PONTOS)) {
+                    indiceInicio = this.expressao();
+                }
+
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
-                    // Acesso de itens por intervalo sem ponto de partida definido (ex: [:5] ou [:])
                     ehFatiamento = true;
 
-                    if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                        // Fatiamento com ponto de parada definido (ex: [:5])
+                    // Se o próximo não é ':', nem ']', então é o índice fim
+                    if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.DOIS_PONTOS) &&
+                        !this.verificarTipoSimboloAtual(tiposDeSimbolos.COLCHETE_DIREITO)) {
                         indiceFim = this.expressao();
-                    }
-                } else {
-                    // Tem ponto de início definido (ex: [1:5], [1:] ou [1])
-                    indiceInicio = this.expressao();
-
-                    if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
-                        // É fatiamento (ex: [1:5] ou [1:])
-                        ehFatiamento = true;
-
-                        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                            // fatiamento com ponto de parada definido (ex: [1:5])
-                            indiceFim = this.expressao();
-                        }
                     }
                 }
 
@@ -1104,6 +1108,27 @@ export class AvaliadorSintaticoPitugues
         }
 
         return expressaoEntao;
+    }
+
+    tupla(): Construto {
+        let expressao = this.seTernario();
+
+        // Se não há vírgula, retorna a expressão simples
+        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)) {
+            return expressao;
+        }
+
+        // Se há vírgula, então é uma tupla
+        const elementos = [expressao];
+
+        do {
+            if (this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+                break;
+            }
+            elementos.push(this.seTernario());
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        return new TuplaPitugues(this.hashArquivo, expressao.linha, elementos);
     }
 
     atribuir(): Construto {

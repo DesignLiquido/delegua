@@ -1,4 +1,4 @@
-import { AcessoMetodo, AcessoMetodoOuPropriedade, AcessoPropriedade, AcessoIntervaloVariavel } from "../../../construtos";
+import { AcessoMetodo, AcessoMetodoOuPropriedade, AcessoPropriedade, AcessoIntervaloVariavel, TuplaPitugues, Literal } from "../../../construtos";
 import { inferirTipoVariavel } from "../../../inferenciador";
 import { InterpretadorInterface, SimboloInterface, VariavelInterface } from "../../../interfaces";
 import { RetornoQuebra } from "../../../quebras";
@@ -373,28 +373,58 @@ export async function visitarExpressaoAcessoIntervaloVariavel(
     interpretador: InterpretadorInterface,
     expressao: AcessoIntervaloVariavel
 ): Promise<any> {
-    const variavelObjeto: VariavelInterface = await interpretador.avaliar(expressao.entidadeChamada);
-    let objeto = interpretador.resolverValor(variavelObjeto);
+    const resultadoEntidade = await interpretador.avaliar(expressao.entidadeChamada);
+    const objeto = interpretador.resolverValor(resultadoEntidade);
 
-    if (!Array.isArray(objeto) && typeof objeto !== 'string') {
+    let tamanho = 0;
+    if (objeto instanceof TuplaPitugues) {
+        tamanho = objeto.elementos.length;
+    } else if (Array.isArray(objeto) || typeof objeto === 'string') {
+        tamanho = objeto.length;
+    } else {
         throw new ErroEmTempoDeExecucao(
             expressao.simboloFechamento,
-            'Acesso por intervalo só é suportado em vetores e textos.',
+            'Acesso por intervalo só é suportado em vetores, textos e tuplas.',
             expressao.linha
         );
     }
 
     let inicio = 0;
     if (expressao.indiceInicio) {
-        inicio = await interpretador.avaliar(expressao.indiceInicio);
-        inicio = interpretador.resolverValor(inicio);
+        const resInicio = await interpretador.avaliar(expressao.indiceInicio);
+        inicio = interpretador.resolverValor(resInicio);
+        if (inicio < 0) inicio = tamanho + inicio;
     }
 
-    let fim = objeto.length;
+    let fim = tamanho;
     if (expressao.indiceFim) {
-        fim = await interpretador.avaliar(expressao.indiceFim);
-        fim = interpretador.resolverValor(fim);
+        const resFim = await interpretador.avaliar(expressao.indiceFim);
+        fim = interpretador.resolverValor(resFim);
+        if (fim < 0) fim = tamanho + fim;
+    }
+
+    if (objeto instanceof TuplaPitugues) {
+        const novosElementos = objeto.elementos.slice(inicio, fim);
+        return new TuplaPitugues(objeto.hashArquivo, objeto.linha, novosElementos);
     }
 
     return objeto.slice(inicio, fim);
+}
+
+export async function visitarExpressaoTuplaPitugues(
+    interpretador: InterpretadorInterface,
+    expressao: TuplaPitugues
+): Promise<any> {
+    const elementos = [];
+
+    for (let i = 0; i < expressao.elementos.length; i++) {
+        const res = await interpretador.avaliar(expressao.elementos[i]);
+        elementos.push(interpretador.resolverValor(res));
+    }
+
+    const elementosComoConstrutos = elementos.map(valor =>
+        new Literal(expressao.hashArquivo, expressao.linha, valor)
+    );
+
+    return new TuplaPitugues(expressao.hashArquivo, expressao.linha, elementosComoConstrutos);
 }

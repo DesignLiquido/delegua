@@ -30,6 +30,7 @@ import {
     Elvis,
     SeTernario,
     Tupla,
+    TuplaPitugues,
     AjudaComoConstruto,
 } from '../construtos';
 import {
@@ -282,10 +283,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
     }
 
     /**
-     * Declaração de ajuda. 
+     * Declaração de ajuda.
      * Neste interpretador básico, a ajuda apenas retorna texto sobre um determinado
-     * tópico, ou ainda sobre a ajuda em si. 
-     * Outros ambientes implementam mecanismos mais sofisticados, como o modo de ajuda. 
+     * tópico, ou ainda sobre a ajuda em si.
+     * Outros ambientes implementam mecanismos mais sofisticados, como o modo de ajuda.
      * @param declaracao A declaração de ajuda.
      */
     async visitarDeclaracaoAjuda(declaracao: Ajuda): Promise<any> {
@@ -998,7 +999,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         if (!expressao.funcao) {
             return "Para usar a ajuda, use como uma função: ajuda(objeto).";
         }
-        
+
         if (!expressao.valor) {
             return "Te damos as boas-vindas ao utilitário de ajuda de Delégua!\n\n" +
                 "Use ajuda(objeto) para obter informações sobre um objeto, função, classe ou módulo.\n" +
@@ -1434,6 +1435,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 this.montao.excluirReferencias(...escopoFinalizado.espacoMemoria.enderecosMontao);
             }
         }
+    }
+
+    async visitarExpressaoTuplaPitugues(expressao: TuplaPitugues): Promise<any> {
+        return super.visitarExpressaoTuplaPitugues(expressao);
     }
 
     /**
