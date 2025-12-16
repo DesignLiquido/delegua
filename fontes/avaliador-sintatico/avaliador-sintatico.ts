@@ -255,9 +255,14 @@ export class AvaliadorSintatico
                 if (simboloIdentificador.lexema in this.tiposDefinidosEmCodigo) {
                     tipoOperando = simboloIdentificador.lexema;
                 } else {
-                    tipoOperando = this.pilhaEscopos.obterTipoVariavelPorNome(
-                        simboloIdentificador.lexema
-                    );
+                    try {
+                        tipoOperando = this.pilhaEscopos.obterTipoVariavelPorNome(
+                            simboloIdentificador.lexema
+                        );
+                    } catch (erro: any) {
+                        // Variável pode ainda não ter sido declarada; adiaremos a checagem para o analisador semântico.
+                        tipoOperando = 'qualquer';
+                    }
                 }
 
                 if (!['numero', 'número', 'texto', 'lógico'].includes(tipoOperando)) {
@@ -662,7 +667,9 @@ export class AvaliadorSintatico
                             simboloIdentificador.lexema
                         );
                     } catch (erro: any) {
-                        throw this.erro(simboloIdentificador, erro.message);
+                        // Se a variável ainda não foi declarada, continuamos gerando AST
+                        // e deixamos o analisador semântico emitir o diagnóstico.
+                        tipoOperando = 'qualquer';
                     }
                 }
 
@@ -910,9 +917,16 @@ export class AvaliadorSintatico
         }
 
         // Primeiro verificar se é acesso a índice de vetor.
-        const tipoIdentificadorCorrespondente = this.pilhaEscopos.obterTipoVariavelPorNome(
-            (expressaoAnterior as Variavel).simbolo.lexema
-        );
+        let tipoIdentificadorCorrespondente: string;
+        try {
+            tipoIdentificadorCorrespondente = this.pilhaEscopos.obterTipoVariavelPorNome(
+                (expressaoAnterior as Variavel).simbolo.lexema
+            );
+        } catch (erro: any) {
+            // Referência a identificador ainda não declarado; assumimos 'qualquer' e deixamos
+            // o analisador semântico emitir o diagnóstico quando apropriado.
+            tipoIdentificadorCorrespondente = 'qualquer';
+        }
 
         if (!tipoIdentificadorCorrespondente.endsWith('[]') && !['dicionário', 'qualquer', 'texto', 'tupla', 'vetor'].includes(tipoIdentificadorCorrespondente)) {
             throw this.erro(
@@ -3319,7 +3333,6 @@ export class AvaliadorSintatico
             case tiposDeSimbolos.PARA:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoPara();
-            case tiposDeSimbolos.PAUSA:
             case tiposDeSimbolos.SUSTAR:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoSustar();
