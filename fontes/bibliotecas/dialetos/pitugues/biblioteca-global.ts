@@ -797,7 +797,7 @@ export async function primeiro_em_condicao(
         );
     }
 
-    if (valorFuncaoFiltragem.constructor !== DeleguaFuncao) {
+    if (valorFuncaoFiltragem.constructor.name !== 'DeleguaFuncao') {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 {
@@ -867,7 +867,10 @@ export async function reduzir(
     const valorFuncaoReducao = funcaoReducao.hasOwnProperty('valor')
         ? funcaoReducao.valor
         : funcaoReducao;
-    const valorPadrao = valorInicial.hasOwnProperty('valor') ? valorInicial.valor : valorInicial;
+    const valorPadrao =
+        valorInicial && valorInicial.hasOwnProperty && valorInicial.hasOwnProperty('valor')
+            ? valorInicial.valor
+            : valorInicial;
 
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
@@ -893,16 +896,29 @@ export async function reduzir(
         );
     }
 
+    // Se não houver valor inicial e vetor vazio, não é possível reduzir
+    if ((valorPadrao === null || valorPadrao === undefined) && (!Array.isArray(valorVetor) || valorVetor.length === 0)) {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                {
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual,
+                } as SimboloInterface,
+                'Não é possível reduzir um vetor vazio sem valor inicial.'
+            )
+        );
+    }
+
     let resultado = valorPadrao;
     let inicio = 0;
 
-    if (!resultado) {
-        resultado = vetor[0];
+    if (resultado === null || resultado === undefined) {
+        resultado = valorVetor[0];
         inicio = 1;
     }
 
-    for (let index = inicio; index < vetor.length; ++index) {
-        resultado = await valorFuncaoReducao.chamar(interpretador, [resultado, vetor[index]]);
+    for (let index = inicio; index < valorVetor.length; ++index) {
+        resultado = await valorFuncaoReducao.chamar(interpretador, [resultado, valorVetor[index]]);
     }
 
     return resultado;

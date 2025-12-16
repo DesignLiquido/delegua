@@ -1,6 +1,6 @@
-import { AvaliadorSintatico } from "../fontes/avaliador-sintatico";
-import { Interpretador, InterpretadorBase } from "../fontes/interpretador";
-import { Lexador } from "../fontes/lexador";
+import { AvaliadorSintatico } from "../../fontes/avaliador-sintatico";
+import { Interpretador, InterpretadorBase } from "../../fontes/interpretador";
+import { Lexador } from "../../fontes/lexador";
 
 describe('Biblioteca Global', () => {
     let lexador: Lexador;
