@@ -383,5 +383,90 @@ describe('biblioteca-global (pituguês)', () => {
             const resultado = await ordenar(interpretador, arr as any);
             expect(resultado).toEqual([1,2,3]);
         });
+
+        it('ordena vetor vazio', async () => {
+            const interpretador = criarInterpretadorMock();
+            const resultado = await ordenar(interpretador, [] as any);
+            expect(resultado).toEqual([]);
+        });
+
+        it('ordena vetor com um elemento', async () => {
+            const interpretador = criarInterpretadorMock();
+            const resultado = await ordenar(interpretador, [5] as any);
+            expect(resultado).toEqual([5]);
+        });
+
+        it('ordena vetor com elementos duplicados', async () => {
+            const interpretador = criarInterpretadorMock();
+            const arr = [3, 1, 2, 1, 3];
+            const resultado = await ordenar(interpretador, arr as any);
+            expect(resultado).toEqual([1, 1, 2, 3, 3]);
+        });
+
+        it('ordena vetor de textos', async () => {
+            const interpretador = criarInterpretadorMock();
+            const arr = ['zebra', 'apple', 'banana'];
+            const resultado = await ordenar(interpretador, arr as any);
+            expect(resultado).toEqual(['apple', 'banana', 'zebra']);
+        });
+    });
+
+    describe('tamanho', () => {
+        it('retorna tamanho de vetor', async () => {
+            const interpretador = criarInterpretadorMock();
+            const resultado = await tamanho(interpretador, [1, 2, 3]);
+            expect(resultado).toBe(3);
+        });
+
+        it('retorna tamanho de texto', async () => {
+            const interpretador = criarInterpretadorMock();
+            const resultado = await tamanho(interpretador, 'teste');
+            expect(resultado).toBe(5);
+        });
+
+        it('retorna tamanho de vetor vazio', async () => {
+            const interpretador = criarInterpretadorMock();
+            const resultado = await tamanho(interpretador, []);
+            expect(resultado).toBe(0);
+        });
+
+        it('retorna tamanho de texto vazio', async () => {
+            const interpretador = criarInterpretadorMock();
+            const resultado = await tamanho(interpretador, '');
+            expect(resultado).toBe(0);
+        });
+
+        it('rejeita quando argumento não é vetor nem texto', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(tamanho(interpretador, 123)).rejects.toMatchObject({
+                mensagem: 'Argumento deve ser um vetor ou texto.',
+            });
+        });
+    });
+
+    describe('tupla', () => {
+        it('cria tupla com valores fornecidos', async () => {
+            const interpretador = criarInterpretadorMock();
+            const resultado = await tupla(interpretador, [1, 2, 3]);
+            expect(resultado).toEqual([1, 2, 3]);
+        });
+
+        it('cria tupla vazia quando nenhum argumento', async () => {
+            const interpretador = criarInterpretadorMock();
+            const resultado = await tupla(interpretador, []);
+            expect(resultado).toEqual([]);
+        });
+
+        it('cria tupla com um único elemento', async () => {
+            const interpretador = criarInterpretadorMock();
+            const resultado = await tupla(interpretador, ['único']);
+            expect(resultado).toEqual(['único']);
+        });
+
+        it('cria tupla com tipos misturados', async () => {
+            const interpretador = criarInterpretadorMock();
+            const resultado = await tupla(interpretador, [1, 'texto', true, null]);
+            expect(resultado).toEqual([1, 'texto', true, null]);
+        });
     });
 });

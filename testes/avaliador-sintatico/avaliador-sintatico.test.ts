@@ -1532,5 +1532,303 @@ describe('Avaliador sintático', () => {
                 });
             });
         });
+
+        describe('Casos extremos e validações adicionais', () => {
+            describe('Expressões aninhadas profundas', () => {
+                it('Analisa expressão com múltiplos níveis de parênteses', () => {
+                    const retornoLexador = lexador.mapear(
+                        ['var resultado = ((((1 + 2) * 3) - 4) / 5)'],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+
+                it('Analisa acesso encadeado a propriedades', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var objeto = { "nivel1": { "nivel2": { "nivel3": 42 } } }',
+                            'var valor = objeto["nivel1"]["nivel2"]["nivel3"]'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+            });
+
+            describe('Declarações vazias e casos especiais', () => {
+                it('Analisa bloco vazio', () => {
+                    const retornoLexador = lexador.mapear(['{', '}'], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+
+                it('Analisa if sem else', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'se (verdadeiro) {',
+                            '    escreva("sim")',
+                            '}'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+
+                it('Analisa múltiplas declarações vazias', () => {
+                    const retornoLexador = lexador.mapear([';;;'], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                });
+            });
+
+            describe('Operadores especiais', () => {
+                it('Analisa operador ternário (quando implementado)', () => {
+                    const retornoLexador = lexador.mapear(
+                        ['var resultado = verdadeiro ? "sim" : "não"'],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                });
+
+                it('Analisa operadores de incremento/decremento', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var x = 5',
+                            'x++',
+                            'x--',
+                            '++x',
+                            '--x'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                });
+
+                it('Analisa atribuições compostas', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var x = 10',
+                            'x += 5',
+                            'x -= 3',
+                            'x *= 2',
+                            'x /= 4'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                });
+            });
+
+            describe('Vetores e matrizes - casos extremos', () => {
+                it('Analisa vetor com elementos heterogêneos', () => {
+                    const retornoLexador = lexador.mapear(
+                        ['var misto = [1, "texto", verdadeiro, nulo, [1, 2], {"chave": "valor"}]'],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+
+                it('Analisa vetor multidimensional', () => {
+                    const retornoLexador = lexador.mapear(
+                        ['var matriz = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]'],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+
+                it('Analisa acesso a índice negativo', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var numeros = [1, 2, 3]',
+                            'var ultimo = numeros[-1]'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                });
+            });
+
+            describe('Funções - casos extremos', () => {
+                it('Analisa função com múltiplos retornos', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao testeRetorno(x) {',
+                            '    se (x > 0) {',
+                            '        retorna "positivo"',
+                            '    } senao se (x < 0) {',
+                            '        retorna "negativo"',
+                            '    } senao {',
+                            '        retorna "zero"',
+                            '    }',
+                            '}'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+
+                it('Analisa função retornando outra função', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao criarMultiplicador(fator) {',
+                            '    retorna funcao(x) {',
+                            '        retorna x * fator',
+                            '    }',
+                            '}'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+
+                it('Analisa função recursiva', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao fatorial(n) {',
+                            '    se (n <= 1) {',
+                            '        retorna 1',
+                            '    }',
+                            '    retorna n * fatorial(n - 1)',
+                            '}'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+            });
+
+            describe('Strings e formatação', () => {
+                it('Analisa template string com interpolação', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var nome = "João"',
+                            'var idade = 30',
+                            'var mensagem = "${nome} tem ${idade} anos"'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+
+            });
+
+            describe('Erros - validações adicionais', () => {
+                it('Erro - parêntese não fechado', () => {
+                    const retornoLexador = lexador.mapear(['var x = (1 + 2'], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                });
+
+                it('Erro - colchete não fechado em vetor', () => {
+                    const retornoLexador = lexador.mapear(['var arr = [1, 2, 3'], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                });
+
+                it('Erro - chave não fechada em dicionário', () => {
+                    const retornoLexador = lexador.mapear(['var obj = {"chave": "valor"'], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                });
+
+                it('Erro - dois operadores seguidos', () => {
+                    const retornoLexador = lexador.mapear(['var x = 5 + * 3'], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                });
+
+                it('Erro - expressão incompleta no final', () => {
+                    const retornoLexador = lexador.mapear(['var x = 5 +'], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                });
+            });
+
+            describe('Classes - casos extremos', () => {
+                it('Analisa classe com múltiplas propriedades e métodos', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'classe Veiculo {',
+                            '    marca: texto',
+                            '    modelo: texto',
+                            '    ano: inteiro',
+                            '    ',
+                            '    construtor(m, mod, a) {',
+                            '        isto.marca = m',
+                            '        isto.modelo = mod',
+                            '        isto.ano = a',
+                            '    }',
+                            '    ',
+                            '    descrever() {',
+                            '        retorna "${isto.marca} ${isto.modelo} (${isto.ano})"',
+                            '    }',
+                            '    ',
+                            '    idade(anoAtual) {',
+                            '        retorna anoAtual - isto.ano',
+                            '    }',
+                            '}'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+
+                it('Analisa herança com sobrescrita de métodos', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'classe Animal {',
+                            '    falar() {',
+                            '        retorna "Som"',
+                            '    }',
+                            '}',
+                            '',
+                            'classe Gato herda Animal {',
+                            '    falar() {',
+                            '        retorna "Miau"',
+                            '    }',
+                            '    ',
+                            '    ronronar() {',
+                            '        retorna "Ronrom"',
+                            '    }',
+                            '}'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+            });
+        });
     });
 });

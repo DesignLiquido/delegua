@@ -912,6 +912,479 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
             });
         });   
-        }); 
+        });
+    });
+
+    describe('Declaração Para (for loops)', () => {
+        describe('Cenários de diagnósticos zerados', () => {
+            it('Sucesso - loop for simples', () => {
+                const retornoLexador = lexador.mapear([
+                    'para (var i = 0; i < 10; i++) {',
+                    '    escreva(i)',
+                    '}'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+
+            it('Sucesso - loop for com múltiplas variáveis', () => {
+                const retornoLexador = lexador.mapear([
+                    'para (var i = 0; i < 5; i++) {',
+                    '    para (var j = 0; j < 5; j++) {',
+                    '        escreva(i * j)',
+                    '    }',
+                    '}'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+        });
+
+        describe('Cenários de diagnósticos detectados', () => {
+            it('Erro - variável de loop não declarada', () => {
+                const retornoLexador = lexador.mapear([
+                    'para (i = 0; i < 10; i++) {',
+                    '    escreva(i)',
+                    '}'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos.length).toBeGreaterThanOrEqual(1);
+            });
+        });
+    });
+
+    describe('Declaração ParaCada (for-each loops)', () => {
+        describe('Cenários de diagnósticos zerados', () => {
+            it('Sucesso - para cada elemento em vetor', () => {
+                const retornoLexador = lexador.mapear([
+                    'var numeros = [1, 2, 3, 4, 5]',
+                    'para cada numero em numeros {',
+                    '    escreva(numero)',
+                    '}'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+        });
+    });
+
+    describe('Declaração Fazer (do-while)', () => {
+        describe('Cenários de diagnósticos zerados', () => {
+            it('Sucesso - fazer com condição verdadeira', () => {
+                const retornoLexador = lexador.mapear([
+                    'var contador = 0',
+                    'fazer {',
+                    '    escreva(contador)',
+                    '    contador++',
+                    '} enquanto (contador < 5)'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+        });
+
+        describe('Cenários de diagnósticos detectados', () => {
+            it('Erro - condição não booleana', () => {
+                const retornoLexador = lexador.mapear([
+                    'var contador = 5',
+                    'fazer {',
+                    '    escreva(contador)',
+                    '} enquanto (contador)'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos.length).toBeGreaterThanOrEqual(1);
+            });
+        });
+    });
+
+    describe('Declaração Tente (try-catch)', () => {
+        describe('Cenários de diagnósticos zerados', () => {
+            it('Sucesso - tente com captura', () => {
+                const retornoLexador = lexador.mapear([
+                    'tente {',
+                    '    var resultado = 10 / 0',
+                    '} pegue (erro) {',
+                    '    escreva("Erro: ", erro)',
+                    '}'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+
+            it('Sucesso - tente com finalmente', () => {
+                const retornoLexador = lexador.mapear([
+                    'tente {',
+                    '    escreva("Tentando")',
+                    '} pegue (erro) {',
+                    '    escreva("Erro")',
+                    '} finalmente {',
+                    '    escreva("Sempre executado")',
+                    '}'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+        });
+    });
+
+    describe('Expressões Binárias - Cobertura de Branches', () => {
+        describe('Operadores aritméticos', () => {
+            it('Sucesso - módulo (resto da divisão)', () => {
+                const retornoLexador = lexador.mapear([
+                    'var resultado: inteiro = 10 % 3',
+                    'escreva(resultado)'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+
+            it('Sucesso - exponenciação', () => {
+                const retornoLexador = lexador.mapear([
+                    'var resultado: inteiro = 2 ** 3',
+                    'escreva(resultado)'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+
+            it('Erro - operação aritmética com tipos incompatíveis', () => {
+                const retornoLexador = lexador.mapear([
+                    'var texto = "abc"',
+                    'var numero = 5',
+                    'var resultado = texto * numero'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos.length).toBeGreaterThanOrEqual(1);
+            });
+        });
+
+        describe('Operadores de comparação', () => {
+            it('Sucesso - maior ou igual e menor ou igual', () => {
+                const retornoLexador = lexador.mapear([
+                    'var a = 5',
+                    'var b = 10',
+                    'se (a <= b e b >= a) {',
+                    '    escreva("Verdadeiro")',
+                    '}'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+
+            it('Sucesso - operador diferente', () => {
+                const retornoLexador = lexador.mapear([
+                    'var x = 5',
+                    'var y = 10',
+                    'se (x != y) {',
+                    '    escreva("Diferentes")',
+                    '}'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+        });
+
+        describe('Operadores lógicos', () => {
+            it('Sucesso - operador OU', () => {
+                const retornoLexador = lexador.mapear([
+                    'var a = verdadeiro',
+                    'var b = falso',
+                    'se (a ou b) {',
+                    '    escreva("Pelo menos um é verdadeiro")',
+                    '}'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+
+            it('Erro - operador lógico com não-booleanos', () => {
+                const retornoLexador = lexador.mapear([
+                    'var x: inteiro = 5',
+                    'var y: inteiro = 10',
+                    'se (x ou y) {',
+                    '    escreva("teste")',
+                    '}'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos.length).toBeGreaterThanOrEqual(1);
+            });
+        });
+    });
+
+    describe('Expressões Unárias', () => {
+        it('Sucesso - negação lógica', () => {
+            const retornoLexador = lexador.mapear([
+                'var valor = verdadeiro',
+                'var negado = nao valor',
+                'escreva(negado)'
+            ], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+
+        it('Sucesso - negação numérica', () => {
+            const retornoLexador = lexador.mapear([
+                'var numero = 5',
+                'var negativo = -numero',
+                'escreva(negativo)'
+            ], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+    });
+
+    describe('Vetores e Matrizes', () => {
+        describe('Acesso a elementos', () => {
+            it('Sucesso - acesso a elemento de vetor', () => {
+                const retornoLexador = lexador.mapear([
+                    'var numeros: inteiro[] = [1, 2, 3, 4, 5]',
+                    'var primeiro = numeros[0]',
+                    'escreva(primeiro)'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+
+            it('Sucesso - atribuição por índice', () => {
+                const retornoLexador = lexador.mapear([
+                    'var numeros: inteiro[] = [1, 2, 3]',
+                    'numeros[0] = 10',
+                    'escreva(numeros[0])'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+        });
+
+        describe('Vetores vazios e múltiplos tipos', () => {
+            it('Sucesso - vetor vazio com tipo especificado', () => {
+                const retornoLexador = lexador.mapear([
+                    'var vazio: inteiro[] = []',
+                    'escreva(vazio)'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+        });
+    });
+
+    describe('Classes e Objetos', () => {
+        describe('Herança', () => {
+            it('Sucesso - classe com herança e métodos', () => {
+                const retornoLexador = lexador.mapear([
+                    'classe Animal {',
+                    '    funcao falar() {',
+                    '        retorna "Som genérico"',
+                    '    }',
+                    '}',
+                    'classe Cachorro herda Animal {',
+                    '    funcao falar() {',
+                    '        retorna "Au au"',
+                    '    }',
+                    '}',
+                    'var cachorro = Cachorro()',
+                    'escreva(cachorro.falar())'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+        });
+
+        describe('Propriedades e métodos', () => {
+            it('Sucesso - acesso a propriedade', () => {
+                const retornoLexador = lexador.mapear([
+                    'classe Pessoa {',
+                    '    var nome: texto',
+                    '    construtor(n: texto) {',
+                    '        isto.nome = n',
+                    '    }',
+                    '}',
+                    'var pessoa = Pessoa("João")',
+                    'escreva(pessoa.nome)'
+                ], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+        });
+    });
+
+    describe('Dicionários', () => {
+        it('Sucesso - criação e acesso a dicionário', () => {
+            const retornoLexador = lexador.mapear([
+                'var dicionario = { "chave": "valor", "numero": 42 }',
+                'escreva(dicionario["chave"])'
+            ], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+    });
+
+    describe('Casos extremos e validações', () => {
+        it('Aviso - variável declarada mas nunca usada', () => {
+            const retornoLexador = lexador.mapear([
+                'var nuncaUsada = 10',
+                'escreva("teste")'
+            ], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
+            expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toContain('nunca usada');
+        });
+
+        it('Erro - uso de variável antes da declaração', () => {
+            const retornoLexador = lexador.mapear([
+                'escreva(antesDeDeclarar)',
+                'var antesDeDeclarar = 10'
+            ], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos.length).toBeGreaterThanOrEqual(1);
+        });
+
+        it('Erro - redeclaração de variável no mesmo escopo', () => {
+            const retornoLexador = lexador.mapear([
+                'var duplicada = 1',
+                'var duplicada = 2'
+            ], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos.length).toBeGreaterThanOrEqual(1);
+        });
+
+        it('Sucesso - variável em escopo interno não conflita com escopo externo', () => {
+            const retornoLexador = lexador.mapear([
+                'var x = 10',
+                'se (verdadeiro) {',
+                '    var x = 20',
+                '    escreva(x)',
+                '}',
+                'escreva(x)'
+            ], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+    });
+
+    describe('Funções anônimas e closures', () => {
+        it('Sucesso - função anônima atribuída a variável', () => {
+            const retornoLexador = lexador.mapear([
+                'var somar = funcao(a: inteiro, b: inteiro): inteiro {',
+                '    retorna a + b',
+                '}',
+                'escreva(somar(5, 3))'
+            ], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+
+        it('Erro - função anônima com tipo de retorno incompatível', () => {
+            const retornoLexador = lexador.mapear([
+                'var funcao: funcao = funcao(): inteiro {',
+                '    retorna "texto"',
+                '}'
+            ], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos.length).toBeGreaterThanOrEqual(1);
+        });
+    });
+
+    describe('Operações com texto', () => {
+        it('Sucesso - concatenação de textos', () => {
+            const retornoLexador = lexador.mapear([
+                'var nome = "João"',
+                'var sobrenome = "Silva"',
+                'var nomeCompleto = nome + " " + sobrenome',
+                'escreva(nomeCompleto)'
+            ], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
     });
 });
