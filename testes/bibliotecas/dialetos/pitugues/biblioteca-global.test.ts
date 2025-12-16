@@ -439,7 +439,7 @@ describe('biblioteca-global (pituguês)', () => {
         it('rejeita quando argumento não é vetor nem texto', async () => {
             const interpretador = criarInterpretadorMock();
             await expect(tamanho(interpretador, 123)).rejects.toMatchObject({
-                mensagem: 'Argumento deve ser um vetor ou texto.',
+                mensagem: 'Função global tamanho() não funciona com números.',
             });
         });
     });
@@ -448,25 +448,36 @@ describe('biblioteca-global (pituguês)', () => {
         it('cria tupla com valores fornecidos', async () => {
             const interpretador = criarInterpretadorMock();
             const resultado = await tupla(interpretador, [1, 2, 3]);
-            expect(resultado).toEqual([1, 2, 3]);
+            expect(resultado).toMatchObject({
+                primeiro: 1,
+                segundo: 2,
+                terceiro: 3
+            });
         });
 
-        it('cria tupla vazia quando nenhum argumento', async () => {
+        it('rejeita tupla vazia', async () => {
             const interpretador = criarInterpretadorMock();
-            const resultado = await tupla(interpretador, []);
-            expect(resultado).toEqual([]);
+            await expect(tupla(interpretador, [])).rejects.toMatchObject({
+                mensagem: 'Para ser transformado em uma tupla, vetor precisa ter de 2 a 10 elementos.',
+            });
         });
 
-        it('cria tupla com um único elemento', async () => {
+        it('rejeita tupla com um único elemento', async () => {
             const interpretador = criarInterpretadorMock();
-            const resultado = await tupla(interpretador, ['único']);
-            expect(resultado).toEqual(['único']);
+            await expect(tupla(interpretador, ['único'])).rejects.toMatchObject({
+                mensagem: 'Para ser transformado em uma tupla, vetor precisa ter de 2 a 10 elementos.',
+            });
         });
 
         it('cria tupla com tipos misturados', async () => {
             const interpretador = criarInterpretadorMock();
             const resultado = await tupla(interpretador, [1, 'texto', true, null]);
-            expect(resultado).toEqual([1, 'texto', true, null]);
+            expect(resultado).toMatchObject({
+                primeiro: 1,
+                segundo: 'texto',
+                terceiro: true,
+                quarto: null
+            });
         });
     });
 });
