@@ -4,8 +4,14 @@ import {
     primeiro_em_condicao,
     tupla,
     tamanho,
+    mapear,
+    ordenar,
 } from '../../../../fontes/bibliotecas/dialetos/pitugues/biblioteca-global';
 import { FuncaoPadrao } from '../../../../fontes/interpretador/estruturas/funcao-padrao';
+import { RetornoQuebra } from '../../../../fontes/quebras';
+import { DeleguaFuncao } from '../../../../fontes/interpretador/estruturas/delegua-funcao';
+import { DescritorTipoClasse } from '../../../../fontes/interpretador/estruturas/descritor-tipo-classe';
+import { ObjetoDeleguaClasse } from '../../../../fontes/interpretador/estruturas/objeto-delegua-classe';
 import { criarInterpretadorMock } from '../../../_mocks/interpretador.mock';
 
 describe('biblioteca-global (pituguês)', () => {
@@ -248,6 +254,24 @@ describe('biblioteca-global (pituguês)', () => {
             const resultado = await tupla(interpretador, [1, 2, 3]);
             expect(resultado.constructor.name).toBe('Trio');
         });
+
+            it('retorna Quarteto..Deceto para vetores maiores (4..10)', async () => {
+                const interpretador = criarInterpretadorMock();
+
+                const nomes = ['Quarteto','Quinteto','Sexteto','Septeto','Octeto','Noneto','Deceto'];
+                for (let tamanho = 4; tamanho <= 10; ++tamanho) {
+                    const vetor = Array.from({ length: tamanho }, (_, i) => i + 1);
+                    const resultado = await tupla(interpretador, vetor);
+                    expect(resultado.constructor.name).toBe(nomes[tamanho - 4]);
+                }
+            });
+
+            it('rejeita quando vetor tem tamanho 1 (mensagem apropriada)', async () => {
+                const interpretador = criarInterpretadorMock();
+                await expect(tupla(interpretador, [1])).rejects.toMatchObject({
+                    mensagem: 'Para ser transformado em uma tupla, vetor precisa ter de 2 a 10 elementos.',
+                });
+            });
     });
 
     describe('tamanho', () => {
@@ -267,6 +291,97 @@ describe('biblioteca-global (pituguês)', () => {
             const interpretador = criarInterpretadorMock();
             const fp = new FuncaoPadrao(4, function () {});
             await expect(tamanho(interpretador, fp as any)).resolves.toBe(4);
+        });
+
+        it('retorna quantidade de parâmetros de DeleguaFuncao', async () => {
+            const interpretador = criarInterpretadorMock();
+            const deleguaFuncao = new DeleguaFuncao('fn', { parametros: [1,2,3] } as any);
+            await expect(tamanho(interpretador, deleguaFuncao as any)).resolves.toBe(3);
+        });
+
+        it('retorna tamanho do inicializador em DescritorTipoClasse quando presente', async () => {
+            const interpretador = criarInterpretadorMock();
+            const descritor = new DescritorTipoClasse(undefined, undefined, {
+                inicializacao: { eInicializador: true, declaracao: { parametros: [1,2] } as any } as any,
+            } as any);
+
+            await expect(tamanho(interpretador, descritor as any)).resolves.toBe(2);
+        });
+
+        it('retorna 0 para DescritorTipoClasse sem inicializador', async () => {
+            const interpretador = criarInterpretadorMock();
+            const descritor = new DescritorTipoClasse();
+            await expect(tamanho(interpretador, descritor as any)).resolves.toBe(0);
+        });
+
+        it('rejeita quando argumento é ObjetoDeleguaClasse', async () => {
+            const interpretador = criarInterpretadorMock();
+            const descritor = new DescritorTipoClasse();
+            const objeto = new ObjetoDeleguaClasse(descritor);
+
+            await expect(tamanho(interpretador, objeto as any)).rejects.toMatchObject({
+                mensagem: 'Função global tamanho não funciona com objetos complexos.',
+            });
+        });
+    });
+
+    describe('mapear', () => {
+        it('rejeita quando primeiro parâmetro for nulo', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(mapear(interpretador, null as any, {} as any)).rejects.toMatchObject({
+                mensagem: 'Parâmetro inválido. O primeiro parâmetro da função mapear() não pode ser nulo.',
+            });
+        });
+
+        it('ignora retornos sem valorRetornado e sem RetornoQuebra', async () => {
+            const interpretador = criarInterpretadorMock();
+
+            // cria um objeto cujo construtor é o real DeleguaFuncao (via prototype)
+            const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
+            fakeFunc.chamar = jest.fn().mockResolvedValue({});
+
+            const resultado = await mapear(interpretador, [1,2], fakeFunc);
+            expect(resultado).toEqual([]);
+            expect(fakeFunc.chamar).toHaveBeenCalledTimes(2);
+        });
+
+        it('ignora quando valorRetornado não é RetornoQuebra', async () => {
+            const interpretador = criarInterpretadorMock();
+
+            const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
+            fakeFunc.chamar = jest.fn().mockResolvedValue({ valorRetornado: {} });
+
+            const resultado = await mapear(interpretador, [1], fakeFunc);
+            expect(resultado).toEqual([]);
+        });
+
+        it('retorna valores quando valorRetornado é RetornoQuebra', async () => {
+            const interpretador = criarInterpretadorMock();
+
+            const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
+            fakeFunc.chamar = jest
+                .fn()
+                .mockResolvedValueOnce({ valorRetornado: new RetornoQuebra('a') })
+                .mockResolvedValueOnce({ valorRetornado: new RetornoQuebra('b') });
+
+            const resultado = await mapear(interpretador, [1,2], fakeFunc);
+            expect(resultado).toEqual(['a','b']);
+        });
+    });
+
+    describe('ordenar', () => {
+        it('rejeita quando argumento não é vetor', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(ordenar(interpretador, 123 as any)).rejects.toMatchObject({
+                mensagem: 'Valor inválido. Objeto inserido não é um vetor.',
+            });
+        });
+
+        it('ordena corretamente um vetor', async () => {
+            const interpretador = criarInterpretadorMock();
+            const arr = [3,1,2];
+            const resultado = await ordenar(interpretador, arr as any);
+            expect(resultado).toEqual([1,2,3]);
         });
     });
 });
