@@ -1,7 +1,17 @@
-import { Lexador } from '../fontes/lexador';
-import { AvaliadorSintatico } from '../fontes/avaliador-sintatico';
-import { AnalisadorSemantico } from '../fontes/analisador-semantico';
-import { DiagnosticoSeveridade } from '../fontes/interfaces/erros';
+import { Lexador } from '../../fontes/lexador';
+import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
+import { AnalisadorSemantico } from '../../fontes/analisador-semantico';
+import { DiagnosticoSeveridade } from '../../fontes/interfaces/erros';
+import { Variavel } from '../../fontes/construtos/variavel';
+import { Literal } from '../../fontes/construtos/literal';
+import { Atribuir } from '../../fontes/construtos/atribuir';
+import { Binario } from '../../fontes/construtos/binario';
+import { Chamada } from '../../fontes/construtos/chamada';
+import { SimboloInterface } from '../../fontes/interfaces';
+import { Se } from '../../fontes/declaracoes/se';
+import { Bloco } from '../../fontes/declaracoes/bloco';
+import { Escolha } from '../../fontes/declaracoes/escolha';
+import { Retorna } from '../../fontes/declaracoes/retorna';
 
 describe('Analisador semântico', () => {
     let lexador: Lexador;
@@ -720,7 +730,148 @@ describe('Analisador semântico', () => {
                 });
             });
         });
-    });
+
+        // Testes adicionados: casos de alta prioridade movidos de 'novos-casos.test.ts'
+        describe('Casos adicionados - testes automáticos', () => {
+            it('marcarVariaveisUsadasEmExpressao marca variáveis em Variavel/Binario/Chamada', () => {
+                const analisador = new AnalisadorSemantico();
+
+                const spy = jest.spyOn(analisador.gerenciadorEscopos, 'marcarComoUsada');
+
+                const simbA: SimboloInterface = { lexema: 'a', tipo: 'inteiro', literal: 'a', linha: 1, hashArquivo: 1 };
+                const simbB: SimboloInterface = { lexema: 'b', tipo: 'inteiro', literal: 'b', linha: 2, hashArquivo: 1 };
+
+                const varA = new Variavel(1, simbA, 'inteiro');
+                const varB = new Variavel(1, simbB, 'inteiro');
+
+                // Variavel simples
+                (analisador as any).marcarVariaveisUsadasEmExpressao(varA);
+                expect(spy).toHaveBeenCalledWith('a');
+
+                // Binario com variavel à esquerda e literal à direita
+                const bin = new Binario(1, varA, { lexema: '+', tipo: '', literal: '+', linha: 1, hashArquivo: 1 }, new Literal(1, 3, 1, 'inteiro'));
+                (analisador as any).marcarVariaveisUsadasEmExpressao(bin);
+                expect(spy).toHaveBeenCalledWith('a');
+
+                // Chamada com entidadeChamada sendo uma variavel e argumentos contendo outra variavel
+                const cham = new Chamada(1, varA, [varB]);
+                (analisador as any).marcarVariaveisUsadasEmExpressao(cham);
+                expect(spy).toHaveBeenCalledWith('a');
+                expect(spy).toHaveBeenCalledWith('b');
+
+                spy.mockRestore();
+            });
+
+            it('visitarExpressaoDeAtribuicao: variável não declarada e variável imutável e tipo inválido', async () => {
+                const analisador = new AnalisadorSemantico();
+
+                const simbX: SimboloInterface = { lexema: 'x', tipo: 'inteiro', literal: 'x', linha: 10, hashArquivo: 1 };
+                const varX = new Variavel(1, simbX, 'inteiro');
+                const atribX = new Atribuir(1, varX, new Literal(1, 10, 1, 'inteiro'));
+
+                // Caso: variável ainda não foi declarada
+                await analisador.visitarExpressaoDeAtribuicao(atribX);
+                expect(analisador.diagnosticos.some(d => d.mensagem?.includes("Variável 'x' ainda não foi declarada até este ponto."))).toBeTruthy();
+
+                // Caso: variável imutável
+                // Declarar uma variável imutável no escopo
+                analisador.gerenciadorEscopos.declarar('y', {
+                    nome: 'y',
+                    tipo: 'inteiro',
+                    imutavel: true,
+                    inicializada: true,
+                    usada: false,
+                    hashArquivo: 1,
+                    linha: 20
+                });
+
+                const simbY: SimboloInterface = { lexema: 'y', tipo: 'inteiro', literal: 'y', linha: 20, hashArquivo: 1 };
+                const varY = new Variavel(1, simbY, 'inteiro');
+                const atribY = new Atribuir(1, varY, new Literal(1, 20, 2, 'inteiro'));
+
+                await analisador.visitarExpressaoDeAtribuicao(atribY);
+                expect(analisador.diagnosticos.some(d => d.mensagem?.includes("Constante 'y' não pode ser modificada."))).toBeTruthy();
+
+                // Caso: tipo inválido (atribuição de número para texto)
+                analisador.gerenciadorEscopos.declarar('z', {
+                    nome: 'z',
+                    tipo: 'texto',
+                    imutavel: false,
+                    inicializada: true,
+                    usada: false,
+                    hashArquivo: 1,
+                    linha: 30
+                });
+
+                const simbZ: SimboloInterface = { lexema: 'z', tipo: 'texto', literal: 'z', linha: 30, hashArquivo: 1 };
+                const varZ = new Variavel(1, simbZ, 'texto');
+                const atribZ = new Atribuir(1, varZ, new Literal(1, 30, 123, 'inteiro'));
+
+                await analisador.visitarExpressaoDeAtribuicao(atribZ);
+                expect(analisador.diagnosticos.some(d => d.mensagem?.includes("Esperado tipo 'texto' na atribuição."))).toBeTruthy();
+            });
+
+            it('todosOsCaminhosRetornam: função com if que retorna apenas em um ramo deve gerar diagnóstico', () => {
+                const lexador = new Lexador();
+                const avaliador = new AvaliadorSintatico();
+                const analisador = new AnalisadorSemantico();
+
+                const retornoLexador = lexador.mapear([
+                    'funcao apenasSe(): inteiro {',
+                    '    se (verdadeiro) {',
+                    '        retorna 1',
+                    '    }',
+                    '}',
+                ], -1);
+
+                const retornoAvaliador = avaliador.analisar(retornoLexador, -1);
+                const retornoAnalisador = analisador.analisar(retornoAvaliador.declaracoes);
+
+                expect(retornoAnalisador.diagnosticos.some(d => d.mensagem?.includes("Função 'apenasSe' deve retornar 'inteiro' em todos os caminhos de execução."))).toBeTruthy();
+            });
+
+            it('erro e aviso não duplicam diagnósticos', () => {
+                const analisador = new AnalisadorSemantico();
+                const simb: SimboloInterface = { lexema: 's', tipo: '', literal: 's', linha: 1, hashArquivo: 1 };
+
+                analisador.erro(simb, 'mensagem x');
+                analisador.erro(simb, 'mensagem x');
+                expect(analisador.diagnosticos).toHaveLength(1);
+                expect(analisador.diagnosticos[0].severidade).toBe(DiagnosticoSeveridade.ERRO);
+
+                analisador.aviso(simb, 'mensagem y');
+                analisador.aviso(simb, 'mensagem y');
+                const avisos = analisador.diagnosticos.filter(d => d.severidade === DiagnosticoSeveridade.AVISO);
+                expect(avisos).toHaveLength(1);
+            });
+
+            it('verificarSeRetorna e verificarEscolhaRetorna retornam corretamente', () => {
+                const analisador = new AnalisadorSemantico();
+
+                const simbR: SimboloInterface = { lexema: 'r', tipo: 'inteiro', literal: 'r', linha: 1, hashArquivo: 1 };
+                const ret = new Retorna(simbR, new Literal(1, 1, 1, 'inteiro'));
+                const blocoComRet = new Bloco(1, 1, [ret]);
+
+                // Se sem 'senao' deve retornar false
+                const se1 = new Se(new Literal(1, 1, true, 'lógico'), blocoComRet, null, null);
+                expect((analisador as any).verificarSeRetorna(se1)).toBe(false);
+
+                // Se com 'senao' que retorna -> true
+                const se2 = new Se(new Literal(1, 1, true, 'lógico'), blocoComRet, null, blocoComRet);
+                expect((analisador as any).verificarSeRetorna(se2)).toBe(true);
+
+                // Escolha sem caso padrão -> false mesmo que todos os caminhos retornem
+                const caminho1 = { condicoes: [new Literal(1, 1, 1, 'inteiro')], declaracoes: [ret] };
+                const escolha1 = new Escolha(new Literal(1, 1, 'x', 'texto'), [caminho1], caminho1 as any);
+                expect((analisador as any).verificarEscolhaRetorna(escolha1)).toBe(false);
+
+                // Escolha com caso padrão (condicoes vazias) -> true
+                const caminhoPadrao = { condicoes: [], declaracoes: [ret] };
+                const escolha2 = new Escolha(new Literal(1, 1, 'x', 'texto'), [caminho1, caminhoPadrao], caminhoPadrao as any);
+                expect((analisador as any).verificarEscolhaRetorna(escolha2)).toBe(true);
+            });
+        });
+
     describe('Comando quebrar', () => {
         describe('Cenários com laço for', () => {
             it('Sucesso - dentro do laço for', () => {
@@ -761,6 +912,6 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
             });
         });   
+        }); 
     });
-}
-)
+});
