@@ -33,7 +33,7 @@ import {
     Constante,
     Construto,
     AcessoIntervaloVariavel,
-    TuplaPitugues
+    TuplaN
 } from '../construtos';
 import {
     Declaracao,
@@ -247,7 +247,7 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
         return Promise.resolve();
     }
 
-    visitarExpressaoTuplaPitugues(expressao: TuplaPitugues): Promise<any> | void {
+    visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> | void {
         return Promise.resolve();
     }
 
