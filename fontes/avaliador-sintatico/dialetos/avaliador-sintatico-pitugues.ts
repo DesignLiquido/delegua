@@ -39,7 +39,7 @@ import {
     Septeto,
     Sexteto,
     Trio,
-    TuplaPitugues,
+    TuplaN,
 } from '../../construtos';
 import {
     Escreva,
@@ -800,13 +800,13 @@ export class AvaliadorSintaticoPitugues
 
                 // Verifica se é tupla vazia
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_DIREITO)) {
-                    return new TuplaPitugues(this.hashArquivo, simboloAtual.linha, []);
+                    return new TuplaN(this.hashArquivo, simboloAtual.linha, []);
                 }
 
                 const expressao = this.tupla();
 
                 // Se a expressão já é uma tupla (com vírgulas), retorna ela
-                if (expressao instanceof TuplaPitugues) {
+                if (expressao instanceof TuplaN) {
                     this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após itens da tupla.");
                     return expressao;
                 }
@@ -1128,7 +1128,7 @@ export class AvaliadorSintaticoPitugues
             elementos.push(this.seTernario());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
-        return new TuplaPitugues(this.hashArquivo, expressao.linha, elementos);
+        return new TuplaN(this.hashArquivo, expressao.linha, elementos);
     }
 
     atribuir(): Construto {
