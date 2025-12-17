@@ -2,7 +2,7 @@ import { AcessoMetodo,
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
     AcessoIntervaloVariavel,
-    TuplaPitugues,
+    TuplaN,
     Atribuir,
     Literal,
     AtribuicaoPorIndice,
@@ -30,8 +30,8 @@ export class InterpretadorPitugues extends Interpretador {
         return comum.visitarExpressaoAcessoIntervaloVariavel(this, expressao);
     }
 
-    async visitarExpressaoTuplaPitugues(expressao: TuplaPitugues): Promise<any> {
-        return comum.visitarExpressaoTuplaPitugues(this, expressao);
+    async visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> {
+        return comum.visitarExpressaoTuplaN(this, expressao);
     }
 
     async visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> {
@@ -42,7 +42,7 @@ export class InterpretadorPitugues extends Interpretador {
         const objeto = await this.avaliar(expressao.objeto);
         const objetoResolvido = this.resolverValor(objeto);
 
-        if (objetoResolvido instanceof TuplaPitugues || (objetoResolvido.tipo === 'tupla')) {
+        if (objetoResolvido instanceof TuplaN || (objetoResolvido.tipo === 'tupla')) {
             throw new ErroEmTempoDeExecucao(
                 (expressao.objeto as any).simbolo,
                 'Não é possível modificar uma tupla. As tuplas são estruturas de dados imutáveis.',
@@ -59,7 +59,7 @@ export class InterpretadorPitugues extends Interpretador {
         const valorIndice = this.resolverValor(indice);
         const objetoResolvido = this.resolverValor(objeto);
 
-        if (objetoResolvido instanceof TuplaPitugues) {
+        if (objetoResolvido instanceof TuplaN) {
             if (!Number.isInteger(valorIndice)) {
                 throw new ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Índice deve ser inteiro.', expressao.linha);
             }
