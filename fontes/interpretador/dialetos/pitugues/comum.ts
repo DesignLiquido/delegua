@@ -1,4 +1,4 @@
-import { AcessoMetodo, AcessoMetodoOuPropriedade, AcessoPropriedade, AcessoIntervaloVariavel, TuplaPitugues, Literal } from "../../../construtos";
+import { AcessoMetodo, AcessoMetodoOuPropriedade, AcessoPropriedade, AcessoIntervaloVariavel, TuplaN, Literal } from "../../../construtos";
 import { inferirTipoVariavel } from "../../../inferenciador";
 import { InterpretadorInterface, SimboloInterface, VariavelInterface } from "../../../interfaces";
 import { RetornoQuebra } from "../../../quebras";
@@ -377,7 +377,7 @@ export async function visitarExpressaoAcessoIntervaloVariavel(
     const objeto = interpretador.resolverValor(resultadoEntidade);
 
     let tamanho = 0;
-    if (objeto instanceof TuplaPitugues) {
+    if (objeto instanceof TuplaN) {
         tamanho = objeto.elementos.length;
     } else if (Array.isArray(objeto) || typeof objeto === 'string') {
         tamanho = objeto.length;
@@ -403,17 +403,17 @@ export async function visitarExpressaoAcessoIntervaloVariavel(
         if (fim < 0) fim = tamanho + fim;
     }
 
-    if (objeto instanceof TuplaPitugues) {
+    if (objeto instanceof TuplaN) {
         const novosElementos = objeto.elementos.slice(inicio, fim);
-        return new TuplaPitugues(objeto.hashArquivo, objeto.linha, novosElementos);
+        return new TuplaN(objeto.hashArquivo, objeto.linha, novosElementos);
     }
 
     return objeto.slice(inicio, fim);
 }
 
-export async function visitarExpressaoTuplaPitugues(
+export async function visitarExpressaoTuplaN(
     interpretador: InterpretadorInterface,
-    expressao: TuplaPitugues
+    expressao: TuplaN
 ): Promise<any> {
     const elementos = [];
 
@@ -426,5 +426,5 @@ export async function visitarExpressaoTuplaPitugues(
         new Literal(expressao.hashArquivo, expressao.linha, valor)
     );
 
-    return new TuplaPitugues(expressao.hashArquivo, expressao.linha, elementosComoConstrutos);
+    return new TuplaN(expressao.hashArquivo, expressao.linha, elementosComoConstrutos);
 }
