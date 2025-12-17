@@ -1,9 +1,7 @@
 import { AvaliadorSintaticoPitugues } from "../../fontes/avaliador-sintatico/dialetos";
-import { Logico } from "../../fontes/construtos";
-import { Escreva } from "../../fontes/declaracoes";
+import { Logico, Vetor } from "../../fontes/construtos";
+import { Escreva, Var } from "../../fontes/declaracoes";
 import { LexadorPitugues } from "../../fontes/lexador/dialetos";
-import { Vetor } from '../../fontes/construtos';
-import { Var } from '../../fontes/declaracoes';
 
 describe('Avaliador sintático (Pituguês)', () => {
     describe('analisar()', () => {

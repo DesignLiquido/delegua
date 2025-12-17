@@ -432,7 +432,97 @@ describe('Interpretador (Pituguês)', () => {
                             const variavelFatia = interpretador.pilhaEscoposExecucao.obterVariavelPorNome('fatia');
                             expect(variavelFatia.valor).toEqual('ituguê');
                         });
-                    })
+                    });
+
+                    describe('Tuplas', () => {
+                        it('Deve fatiar tupla (slice simples) e retornar nova tupla', async () => {
+                            const retornoLexador = lexador.mapear([`
+                                original = (1, 2, 3, 4, 5)
+                                fatia = original[1:4]
+                                escreva(fatia)
+                            `], -1);
+                            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+                            expect(_saidas[0].toString()).toBe('(2, 3, 4)');
+                        });
+
+                        it('Deve fatiar tupla com início e fim definidos', async () => {
+                            const retornoLexador = lexador.mapear([`
+                                t = (0, 10, 20, 30, 40, 50, 60)
+                                resultado = t[1:6]
+                                escreva(resultado)
+                            `], -1);
+                            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+                            expect(_saidas[0].toString()).toBe('(10, 20, 30, 40, 50)');
+                        });
+
+                        it('Deve fatiar com início negativo [-n:] (pega os últimos n itens)', async () => {
+                            const codigo = [`
+                                t = (10, 20, 30, 40, 50)
+                                fatia = t[-2:]
+                                escreva(fatia)
+                            `];
+                            const retornoLexador = lexador.mapear(codigo, -1);
+                            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+                            expect(_saidas[0].toString()).toBe('(40, 50)');
+                        });
+
+                        it('Deve fatiar com fim negativo [:-n] (exclui os últimos n itens)', async () => {
+                            const codigo = [`
+                                t = (10, 20, 30, 40, 50)
+                                fatia = t[:-1]
+                                escreva(fatia)
+                            `];
+                            const retornoLexador = lexador.mapear(codigo, -1);
+                            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+                            expect(_saidas[0].toString()).toBe('(10, 20, 30, 40)');
+                        });
+
+                        it('Deve fatiar com início e fim negativos [-x:-y]', async () => {
+                            const codigo = [`
+                                t = (10, 20, 30, 40, 50)
+                                fatia = t[-3:-1]
+                                escreva(fatia)
+                            `];
+                            const retornoLexador = lexador.mapear(codigo, -1);
+                            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+                            expect(_saidas[0].toString()).toBe('(30, 40)');
+                        });
+                    });
                 });
             });
 
@@ -1461,6 +1551,104 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas[0]).toBe('Valor: 10');
                 });
             });
+
+            describe('Tuplas', () => {
+                it('Verifica se a exibição da tupla no terminal é entre parênteses ao invés de chaves', async () => {
+                    const codigo = [
+                        't = (10, 20, 30)',
+                        'escreva(t)'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0].toString()).toBe('(10, 20, 30)');
+                })
+
+                it('Deve criar uma tupla e acessar índice individual', async () => {
+                    const codigo = [
+                        't = (10, 20, 30)',
+                        'escreva(t[1])'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('20');
+                });
+
+                it('Deve suportar tupla com diferentes tipos de dados (Inteiro, Texto, Booleano, Real)', async () => {
+                    const retornoLexador = lexador.mapear([
+                        't = (1, "pituguês", verdadeiro, 2.5)',
+                        'escreva(t)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes,
+                        true
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('(1, pituguês, true, 2.5)');
+                });
+
+                it('Deve iniciar uma tupla vazia', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'vazia = ()',
+                        'escreva(vazia)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes,
+                        true
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('()');
+                });
+
+                it('Deve permitir tuplas aninhadas (tupla dentro de tupla)', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        t = ((1, 2), (3, 4))
+                        item = t[0]
+                        escreva(item)
+                    `], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes,
+                        true
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('(1, 2)');
+                });
+            });
         });
 
         it('termina_com - sufixo encontrado no final', async () => {
@@ -1679,7 +1867,7 @@ describe('Interpretador (Pituguês)', () => {
                     expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
 
                     const erro = retornoInterpretador.erros[0];
-                    expect(erro.erroInterno.message).toContain('só é suportado em vetores e textos.');
+                    expect(erro.erroInterno.message).toContain('só é suportado em vetores, textos e tuplas.');
                 });
 
                 it('Tentar fatiar booleano', async () => {
@@ -1754,6 +1942,22 @@ describe('Interpretador (Pituguês)', () => {
                     expect(retornoLexador.erros).toHaveLength(1);
                     expect(retornoLexador.erros[0].mensagem).toContain('Texto não finalizado');
                 });
+            });
+
+            it('Deve dar erro ao tentar alterar valor de uma tupla (Imutabilidade)', async () => {
+                const retornoLexador = lexador.mapear([`
+                    t = (1, 2, 3)
+                    t[0] = 999
+                `], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes,
+                    true
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(1);
+                expect(retornoInterpretador.erros[0].erroInterno.message).toContain('imutáveis');
             });
         });
     });

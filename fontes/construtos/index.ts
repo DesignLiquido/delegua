@@ -42,6 +42,7 @@ export * from './super';
 export * from './tipo-de';
 export * from './tupla';
 export * from './tuplas';
+export * from './tupla-n';
 export * from './unario';
 export * from './variavel';
 export * from './vetor';

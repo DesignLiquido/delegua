@@ -30,6 +30,7 @@ import {
     TipoDe,
     Tupla,
     Unario,
+    TuplaN,
     Variavel,
     Vetor,
 } from '../construtos';
@@ -124,6 +125,7 @@ export interface VisitanteComumInterface {
     visitarExpressaoSuper(expressao: Super): Promise<any> | void;
     visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra | void;
     visitarExpressaoTupla(expressao: Tupla): Promise<any> | void;
+    visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> | void;
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> | void;
     visitarExpressaoUnaria(expressao: Unario): Promise<any> | void;
     visitarExpressaoVetor(expressao: Vetor): Promise<any> | void;

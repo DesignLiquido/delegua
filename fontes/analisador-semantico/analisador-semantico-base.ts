@@ -33,6 +33,7 @@ import {
     Constante,
     Construto,
     AcessoIntervaloVariavel,
+    TuplaN
 } from '../construtos';
 import {
     Declaracao,
@@ -249,6 +250,10 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     }
 
     visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> | void {
+        return Promise.resolve();
+    }
+
+    visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> | void {
         return Promise.resolve();
     }
 
