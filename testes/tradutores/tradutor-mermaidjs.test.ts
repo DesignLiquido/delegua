@@ -195,8 +195,8 @@ describe('Tradutor Delégua -> MermaidJs', () => {
         expect(resultado).toContain("Linha2(escreva: \\'Verdadeiro!\\')-->Fim;");
     });
 
-    describe.skip('Funções', () => {
-        it('Função simples sem parâmetros', () => {
+    describe('Funções', () => {
+        it.skip('Função simples sem parâmetros', () => {
             const retornoLexador = lexador.mapear(
                 [
                     'funcao saudar() {',
@@ -217,7 +217,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             expect(resultado).toContain("Linha4(chamada a saudar, sem argumentos)");
         });
 
-        it('Função com parâmetros', () => {
+        it.skip('Função com parâmetros', () => {
             const retornoLexador = lexador.mapear(
                 [
                     'funcao somar(a: inteiro, b: inteiro) {',
@@ -237,7 +237,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             expect(resultado).toContain("chamada a somar, com argumentos: 5, 3");
         });
 
-        it('Função com parâmetros sem tipo', () => {
+        it.skip('Função com parâmetros sem tipo', () => {
             const retornoLexador = lexador.mapear(
                 [
                     'funcao multiplicar(x, y) {',
@@ -257,7 +257,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             expect(resultado).toContain("chamada a multiplicar, com argumentos: 4, 7");
         });
 
-        it('Função com lógica condicional', () => {
+        it.skip('Função com lógica condicional', () => {
             const retornoLexador = lexador.mapear(
                 [
                     'funcao verificarParidade(numero: inteiro) {',
@@ -281,7 +281,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             expect(resultado).toContain("chamada a verificarParidade, com argumentos: 10");
         });
 
-        it('Múltiplas funções', () => {
+        it.skip('Múltiplas funções', () => {
             const retornoLexador = lexador.mapear(
                 [
                     'funcao funcao1() {',
