@@ -30,7 +30,7 @@ import {
     Elvis,
     SeTernario,
     Tupla,
-    TuplaPitugues,
+    TuplaN,
     AjudaComoConstruto,
 } from '../construtos';
 import {
@@ -1437,8 +1437,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         }
     }
 
-    async visitarExpressaoTuplaPitugues(expressao: TuplaPitugues): Promise<any> {
-        return super.visitarExpressaoTuplaPitugues(expressao);
+    async visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> {
+        return super.visitarExpressaoTuplaN(expressao);
     }
 
     /**
