@@ -2,7 +2,7 @@ import { Tupla } from "./tupla";
 import { Construto } from "./construto";
 import { VisitanteComumInterface } from "../interfaces";
 
-export class TuplaPitugues extends Tupla {
+export class TuplaN extends Tupla {
     elementos: Construto[];
 
     constructor(hashArquivo: number, linha: number, elementos: Construto[]) {
@@ -14,7 +14,7 @@ export class TuplaPitugues extends Tupla {
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
-        return await visitante.visitarExpressaoTuplaPitugues(this);
+        return await visitante.visitarExpressaoTuplaN(this);
     }
 
     paraTexto(): string {
