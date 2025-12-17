@@ -19,7 +19,7 @@ import {
     TipoDe,
     Variavel,
     Vetor,
-    TuplaPitugues
+    TuplaN
 } from '../../construtos';
 import {
     Const,
@@ -1059,7 +1059,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    async visitarExpressaoTuplaPitugues(expressao: TuplaPitugues): Promise<any> {
+    async visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> {
         for (let i = 0; i < expressao.elementos.length; i++) {
             await expressao.elementos[i].aceitar(this);
         }
