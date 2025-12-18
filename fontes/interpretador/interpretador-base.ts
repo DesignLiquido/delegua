@@ -770,16 +770,9 @@ export class InterpretadorBase implements InterpretadorInterface {
                         tipoEsquerdo === tipoDeDadosDelegua.TEXTO &&
                         tipoDireito === tipoDeDadosDelegua.TEXTO
                     ) {
-                        const numeroEsquerda = Number(valorEsquerdo);
-                        const numeroDireita = Number(valorDireito);
-
-                        if (!isNaN(numeroEsquerda) && !isNaN(numeroDireita)) {
-                            return numeroEsquerda * numeroDireita;
-                        }
-
                         throw new ErroEmTempoDeExecucao(
                             expressao.operador,
-                            'Não é possível multiplicar dois textos, a menos que ambos sejam números.',
+                            'Não é possível multiplicar dois textos.',
                             expressao.linha
                         );
                     }
@@ -795,6 +788,11 @@ export class InterpretadorBase implements InterpretadorInterface {
                         );
                     }
 
+                    const textoParaNumero = Number(valorTexto);
+                    if (!isNaN(textoParaNumero)) {
+                        return textoParaNumero * valorQuantidade;
+                    }
+                    
                     if (!Number.isInteger(valorQuantidade)) {
                         throw new ErroEmTempoDeExecucao(
                             expressao.operador,
