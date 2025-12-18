@@ -651,6 +651,71 @@ describe('Interpretador', () => {
                     expect(_saida).toBeTruthy();
                     expect(_saida).toBe('[91, 32, 44, 18, 101]');
                 });
+
+                it('Chamada a função nativa intervalo com inteiros', async () => {
+                    let _saida: string = '';
+
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'escreva(intervalo(1, 5))'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saida = saida;
+                    };
+
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(_saida).toBeTruthy();
+                    expect(_saida).toBe('[1, 2, 3, 4]');
+                });
+
+                it('Chamada a função nativa intervalo com números decimais', async () => {
+                    let _saida: string = '';
+
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'escreva(intervalo(1.7, 5.9))'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saida = saida;
+                    };
+
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(_saida).toBeTruthy();
+                    expect(_saida).toBe('[1, 2, 3, 4]');
+                });
+
+                it('Chamada a função nativa intervalo com variáveis', async () => {
+                    let _saida: string = '';
+
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var inicio = 0',
+                            'var fim = 3',
+                            'escreva(intervalo(inicio, fim))'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saida = saida;
+                    };
+
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(_saida).toBeTruthy();
+                    expect(_saida).toBe('[0, 1, 2]');
+                });
             });
 
             describe('Conversões entre tipos', () => {

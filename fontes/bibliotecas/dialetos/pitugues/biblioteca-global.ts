@@ -540,13 +540,29 @@ export async function intervalo(
                     hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
                     linha: interpretador.linhaDeclaracaoAtual,
                 } as SimboloInterface,
-                'Os dois parâmetros devem ser do tipo número.'
+                'Os dois parâmetros devem ser do tipo número ou inteiro.'
             )
         );
     }
 
+    if (isNaN(inicio) || isNaN(fim)) {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                {
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual,
+                } as SimboloInterface,
+                'Os dois parâmetros devem ser do tipo número ou inteiro.'
+            )
+        );
+    }
+
+    // Remove a parte decimal se houver
+    const inicioInteiro = Math.floor(inicio);
+    const fimInteiro = Math.floor(fim);
+
     const resultado = [];
-    for (let i = inicio; i < fim; i++) {
+    for (let i = inicioInteiro; i < fimInteiro; i++) {
         resultado.push(i);
     }
 

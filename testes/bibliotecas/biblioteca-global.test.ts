@@ -398,6 +398,67 @@ describe('Biblioteca Global', () => {
         });
     });
 
+    describe('intervalo()', () => {
+        it('Sucesso - Intervalo simples', async () => {
+            const retornoLexador = lexador.mapear(["escreva(intervalo(1, 5))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+
+        it('Sucesso - Intervalo com números negativos', async () => {
+            const retornoLexador = lexador.mapear(["escreva(intervalo(-3, 3))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+
+        it('Sucesso - Intervalo zero', async () => {
+            const retornoLexador = lexador.mapear(["escreva(intervalo(0, 0))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+
+        it('Sucesso - Intervalo com variáveis', async () => {
+            const codigo = [
+                "var inicio = 1",
+                "var fim = 10",
+                "escreva(intervalo(inicio, fim))"
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+
+        it('Falha - Primeiro parâmetro não é número', async () => {
+            const retornoLexador = lexador.mapear(["escreva(intervalo('texto', 5))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+        });
+
+        it('Falha - Segundo parâmetro não é número', async () => {
+            const retornoLexador = lexador.mapear(["escreva(intervalo(1, 'texto'))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+        });
+    });
+
     describe('mapear()', () => {
         it('Sucesso', async () => {
             const codigo = [
