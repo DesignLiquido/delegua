@@ -60,6 +60,13 @@ export class Binario<TTipoSimbolo extends string = string> implements Construto 
         }
 
         if (
+            this.esquerda.tipo === 'texto' ||
+            this.direita.tipo === 'texto'
+        ) {
+            return 'texto';
+        }
+
+        if (
             ['numero', 'número'].includes(this.esquerda.tipo) ||
             ['numero', 'número'].includes(this.direita.tipo)
         ) {

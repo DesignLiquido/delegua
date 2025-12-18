@@ -1649,6 +1649,82 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas[0]).toBe('(1, 2)');
                 });
             });
+
+            it('Deve repetir string quando lado ESQUERDO é texto ("Olá" * 5)', async () => {
+                const retornoLexador = lexador.mapear([`
+                    resultado = "Olá" * 5
+                    escreva(resultado)
+                `], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                    retornoLexador,
+                    -1
+                );
+
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes,
+                    true
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toBe('OláOláOláOláOlá');
+            });
+
+            it('Deve repetir string quando lado DIREITO é texto (3 * "Pituguês")', async () => {
+                const retornoLexador = lexador.mapear([`
+                    resultado = 3 * "Pituguês"
+                    escreva(resultado)
+                `], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                    retornoLexador,
+                    -1
+                );
+
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes,
+                    true
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toBe('PituguêsPituguêsPituguês');
+            });
+
+            it('Deve retornar texto vazio quando multiplicado por 0 ("Olá" * 0)', async () => {
+                const retornoLexador = lexador.mapear([`
+                    resultado = "Olá" * 0
+                    escreva(resultado)
+                `], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                    retornoLexador,
+                    -1
+                );
+
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes,
+                    true
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toBe('');
+            });
+
+            it('Deve retornar a própria string quando multiplicado por 1 ("Olá" * 1)', async () => {
+                const retornoLexador = lexador.mapear([`
+                    resultado = "Olá" * 1
+                    escreva(resultado)
+                `], -1);
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                    retornoLexador,
+                    -1
+                );
+
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes,
+                    true
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toBe('Olá');
+            });
         });
 
         it('termina_com - sufixo encontrado no final', async () => {
@@ -1958,6 +2034,58 @@ describe('Interpretador (Pituguês)', () => {
 
                 expect(retornoInterpretador.erros).toHaveLength(1);
                 expect(retornoInterpretador.erros[0].erroInterno.message).toContain('imutáveis');
+            });
+
+            describe('Repetição de Strings', () => {
+                it('Deve dar erro ao tentar multiplicar texto por texto ("Olá" * "Mundo")', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'escreva("Olá" * "Mundo")'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes,
+                        true
+                    );
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                });
+
+                it('Deve dar erro ao tentar multiplicar texto por número real/decimal ("Olá" * 2.5)', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'escreva("Olá" * 2.5)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes,
+                        true
+                    );
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                });
+
+                it('Deve dar erro ao tentar multiplicar texto por um booleano ("Olá" * verdadeiro)', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'escreva("Olá" * verdadeiro)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes,
+                        true
+                    );
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                });
             });
         });
     });
