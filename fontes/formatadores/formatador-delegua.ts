@@ -28,6 +28,7 @@ import {
     Super,
     TipoDe,
     Tupla,
+    TuplaN,
     Unario,
     Variavel,
     Vetor,
@@ -88,18 +89,27 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.deveIndentar = true;
     }
 
+    /* istanbul ignore next */
+    visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    /* istanbul ignore next */
     visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoTextoDocumentacao(declaracao: TextoDocumentacao): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoSeparador(expressao: Separador): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoComentario(expressao: ComentarioComoConstruto): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
@@ -149,10 +159,12 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.formatarDeclaracaoOuConstruto(declaracao.corpo);
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {
         throw new Error('Método não implementado.');
     }

@@ -17,6 +17,7 @@ import {
     Super,
     TipoDe,
     Tupla,
+    TuplaN,
     Variavel,
 } from '../../../construtos';
 import {
@@ -108,6 +109,11 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
             emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+    }
+    
+    /* istanbul ignore next */
+    visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> | void {
+        throw new Error('Método não implementado.');
     }
 
     /* istanbul ignore next */

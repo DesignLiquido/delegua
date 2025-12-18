@@ -16,7 +16,8 @@ import {
     Variavel,
     Vetor,
     Leia,
-    AcessoIntervaloVariavel
+    AcessoIntervaloVariavel,
+    TuplaN
 } from '../construtos';
 
 import {
@@ -89,6 +90,19 @@ export class FormatadorPitugues implements VisitanteComumInterface {
     visitarExpressaoReferenciaFuncao(): Promise<any> { return Promise.resolve(); }
     visitarExpressaoSeparador(): Promise<any> { return Promise.resolve(); }
     visitarExpressaoTupla(): Promise<any> { return Promise.resolve(); }
+
+    async visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> {
+        this.códigoFormatado += '(';
+        for (let i = 0; i < expressao.elementos.length; i++) {
+            const elemento = expressao.elementos[i];
+            this.códigoFormatado += await elemento.aceitar(this);
+            if (i < expressao.elementos.length - 1) {
+                this.códigoFormatado += ', ';
+            }
+        }
+
+        this.códigoFormatado += ')';
+    }
 
     async visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<any> { 
         this.códigoFormatado += this.indentar();

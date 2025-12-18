@@ -27,6 +27,7 @@ import {
     Super,
     TipoDe,
     Tupla,
+    TuplaN,
     Variavel,
 } from '../../../construtos';
 import {
@@ -118,18 +119,27 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         carregarBibliotecaGlobal(this, this.pilhaEscoposExecucao);
     }
 
+    /* istanbul ignore next */
+    visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    /* istanbul ignore next */
     visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoTextoDocumentacao(declaracao: TextoDocumentacao): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoSeparador(expressao: Separador): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoComentario(expressao: ComentarioComoConstruto): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
@@ -146,20 +156,24 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return objeto;
     }
 
+    /* istanbul ignore next */
     visitarExpressaoArgumentoReferenciaFuncao(
         expressao: ArgumentoReferenciaFuncao
     ): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
@@ -168,66 +182,82 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return Promise.resolve();
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoTendoComo(declaracao: TendoComo): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoTupla(expressao: Tupla): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoAcessoElementoMatriz(expressao: any): never {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoFalhar(expressao: any): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoConst(declaracao: Const): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any> {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoFimPara(declaracao: FimPara): never {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita): never {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha): never {
         throw new Error('Método não implementado.');
     }
 
+    /* istanbul ignore next */
     visitarExpressaoLeia(expressao: Leia): Promise<any> {
         throw new Error('Método não implementado.');
     }

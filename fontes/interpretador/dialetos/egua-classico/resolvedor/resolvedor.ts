@@ -15,6 +15,7 @@ import {
     Super,
     TipoDe,
     Tupla,
+    TuplaN,
     Variavel,
 } from '../../../../construtos';
 import {
@@ -97,6 +98,10 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.funcaoAtual = TipoFuncao.NENHUM;
         this.classeAtual = TipoClasse.NENHUM;
         this.cicloAtual = TipoClasse.NENHUM;
+    }
+
+    visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> | void {
+        throw new Error('Método não implementado.');
     }
 
     /* istanbul ignore next */
