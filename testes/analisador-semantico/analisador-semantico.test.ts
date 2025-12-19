@@ -1607,6 +1607,34 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
             });
+
+            it('Sucesso - objeto usado apenas em chamadas de método', () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'classe Animal {',
+                        '    corre() {',
+                        '        escreva("correndo")',
+                        '    }',
+                        '}',
+                        'classe Cachorro herda Animal {',
+                        '    latir() {',
+                        '        escreva("Au Au Au Au")',
+                        '    }',
+                        '}',
+                        'var thor = Cachorro()',
+                        'thor.corre()',
+                        'thor.latir()',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = analisadorSemantico.analisar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
         });
 
         describe('Propriedades e métodos', () => {
