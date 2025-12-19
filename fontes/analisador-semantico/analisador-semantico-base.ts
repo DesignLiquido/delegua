@@ -276,7 +276,7 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
 
     diagnosticos: DiagnosticoAnalisadorSemantico[];
 
-    abstract analisar(declaracoes: Declaracao[]): RetornoAnalisadorSemantico;
+    abstract analisar(declaracoes: Declaracao[]): Promise<RetornoAnalisadorSemantico>;
 
     adicionarDiagnostico(
         simbolo: SimboloInterface,

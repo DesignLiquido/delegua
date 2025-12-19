@@ -31,6 +31,7 @@ import {
     Falhar,
     FuncaoDeclaracao,
     Retorna,
+    Var,
 } from '../../declaracoes';
 import { ParametroInterface, SimboloInterface } from '../../interfaces';
 import { DiagnosticoAnalisadorSemantico, DiagnosticoSeveridade } from '../../interfaces/erros';
@@ -61,60 +62,47 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
     }
 
     /**
-     * Override do método da classe base para adicionar suporte a AcessoMetodo e AcessoPropriedade.
-     * Quando temos algo como `tex.dividir(" ")`, o objeto `tex` precisa ser marcado como usado.
+     * Marca as variáveis usadas em uma expressão.
+     * Versão estendida da classe base com tratamento adicional de construtos Pituguês.
      */
-    protected marcarVariaveisUsadasEmExpressao(expressao: Construto): void {
-        if (expressao instanceof Variavel) {
-            this.gerenciadorEscopos.marcarComoUsada(expressao.simbolo.lexema);
-            return;
+    protected override marcarVariaveisUsadasEmExpressao(expressao: Construto): void {
+        switch (expressao.constructor) {
+            case AcessoMetodo:
+            case AcessoMetodoOuPropriedade:
+            case AcessoPropriedade:
+                this.marcarVariaveisUsadasEmExpressao((expressao as any).objeto);
+                return;
+            case Agrupamento:
+                this.marcarVariaveisUsadasEmExpressao((expressao as Agrupamento).expressao);
+                return;
+            case Binario:
+                const expressaoBinaria = expressao as Binario;
+                this.marcarVariaveisUsadasEmExpressao(expressaoBinaria.esquerda);
+                this.marcarVariaveisUsadasEmExpressao(expressaoBinaria.direita);
+                return;
+            case Chamada:
+                // Marca a entidade sendo chamada (pode ser Variavel, AcessoMetodo, etc.)
+                const expressaoChamada = expressao as Chamada;
+                this.marcarVariaveisUsadasEmExpressao(expressaoChamada.entidadeChamada);
+
+                // Marca todos os argumentos
+                for (const argumento of expressaoChamada.argumentos) {
+                    this.marcarVariaveisUsadasEmExpressao(argumento);
+                }
+
+                return;
+            case Logico:
+                const expressaoLogica = expressao as Logico;
+                this.marcarVariaveisUsadasEmExpressao(expressaoLogica.esquerda);
+                this.marcarVariaveisUsadasEmExpressao(expressaoLogica.direita);
+                return;
+            case Variavel:
+                this.gerenciadorEscopos.marcarComoUsada((expressao as Variavel).simbolo.lexema);
+                return;
         }
 
-        if (expressao instanceof Binario) {
-            this.marcarVariaveisUsadasEmExpressao(expressao.esquerda);
-            this.marcarVariaveisUsadasEmExpressao(expressao.direita);
-            return;
-        }
-
-        if (expressao instanceof Agrupamento) {
-            this.marcarVariaveisUsadasEmExpressao(expressao.expressao);
-            return;
-        }
-
-        if (expressao instanceof Chamada) {
-            // Marca o objeto/variável da chamada
-            this.marcarVariaveisUsadasEmExpressao(expressao.entidadeChamada);
-
-            // Marca todos os argumentos
-            for (const arg of expressao.argumentos) {
-                this.marcarVariaveisUsadasEmExpressao(arg);
-            }
-            return;
-        }
-
-        if (expressao instanceof AcessoMetodo) {
-            // Marca o objeto do acesso ao método (ex: em `tex.dividir()`, marca `tex`)
-            this.marcarVariaveisUsadasEmExpressao(expressao.objeto);
-            return;
-        }
-
-        if (expressao instanceof AcessoMetodoOuPropriedade) {
-            // Marca o objeto do acesso (ex: em `tex.dividir()` ou `obj.prop`, marca `tex` ou `obj`)
-            this.marcarVariaveisUsadasEmExpressao(expressao.objeto);
-            return;
-        }
-
-        if (expressao instanceof AcessoPropriedade) {
-            // Marca o objeto do acesso à propriedade (ex: em `obj.prop`, marca `obj`)
-            this.marcarVariaveisUsadasEmExpressao(expressao.objeto);
-            return;
-        }
-
-        if (expressao instanceof Logico) {
-            this.marcarVariaveisUsadasEmExpressao(expressao.esquerda);
-            this.marcarVariaveisUsadasEmExpressao(expressao.direita);
-            return;
-        }
+        // Chama a classe base para outros tipos (Unario, AcessoIndiceVariavel, etc.)
+        super.marcarVariaveisUsadasEmExpressao(expressao);
     }
 
     verificarTipoAtribuido(declaracao) {
@@ -959,27 +947,13 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    override visitarDeclaracaoVar(declaracao): Promise<any> {
+    override visitarDeclaracaoVar(declaracao: Var): Promise<any> {
         this.verificarTipoAtribuido(declaracao);
+        let valorInicializador: any = undefined;
 
         if (declaracao.inicializador) {
             this.marcarVariaveisUsadasEmExpressao(declaracao.inicializador);
 
-            switch (declaracao.inicializador.constructor) {
-                case FuncaoConstruto:
-                    const funcaoConstruto = declaracao.inicializador as FuncaoConstruto;
-                    if (funcaoConstruto.parametros.length >= 255) {
-                        this.erro(
-                            declaracao.simbolo,
-                            'Função não pode ter mais de 255 parâmetros.'
-                        );
-                    }
-                    break;
-            }
-        }
-
-        let valorInicializador: any = undefined;
-        if (declaracao.inicializador) {
             if (declaracao.inicializador.hasOwnProperty('valor')) {
                 valorInicializador = (declaracao.inicializador as any).valor;
             } else {
@@ -1151,13 +1125,13 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         }
     }
 
-    analisar(declaracoes: Declaracao[]): RetornoAnalisadorSemantico {
+    async analisar(declaracoes: Declaracao[]): Promise<RetornoAnalisadorSemantico> {
         this.gerenciadorEscopos = new GerenciadorEscopos();
         this.atual = 0;
         this.diagnosticos = [];
 
         while (this.atual < declaracoes.length) {
-            declaracoes[this.atual].aceitar(this);
+            await declaracoes[this.atual].aceitar(this);
             this.atual++;
         }
 

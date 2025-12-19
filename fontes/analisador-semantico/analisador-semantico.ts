@@ -1172,14 +1172,14 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         }
     }
 
-    analisar(declaracoes: Declaracao[]): RetornoAnalisadorSemantico {
+    async analisar(declaracoes: Declaracao[]): Promise<RetornoAnalisadorSemantico> {
         this.gerenciadorEscopos = new GerenciadorEscopos();
         this.atual = 0;
         this.diagnosticos = [];
 
         try {
             while (this.atual < declaracoes.length) {
-                declaracoes[this.atual].aceitar(this);
+                await declaracoes[this.atual].aceitar(this);
                 this.atual++;
             }
         } catch (erro) {
