@@ -157,7 +157,7 @@ describe('Analisador semântico', () => {
             expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
         });
 
-        describe('Declaração se ... senão se ... senão', async () => {
+        describe('Declaração se ... senão se ... senão', () => {
             it('Caso com os três blocos', async () => {
                 const retornoLexador = lexador.mapear(
                     [
@@ -185,7 +185,7 @@ describe('Analisador semântico', () => {
         });
     });
 
-    describe('Cenários de diagnósticos detectados', async () => {
+    describe('Cenários de diagnósticos detectados', () => {
         it('Atribuição de constante + reatribuição de constante', async () => {
             const retornoLexador = lexador.mapear(['const a = 1', 'a = 2'], -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -468,8 +468,8 @@ describe('Analisador semântico', () => {
         });
     });
 
-    describe('Cenários enquanto', async () => {
-        describe('Cenários de diagnósiticos zerados', async () => {
+    describe('Cenários enquanto', () => {
+        describe('Cenários de diagnósiticos zerados', () => {
             it('com condicional verdadeiro', async () => {
                 const retornoLexador = lexador.mapear(
                     [
@@ -635,7 +635,7 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
             });
         });
-        describe('Cenários de diagnósticos detectados', async () => {
+        describe('Cenários de diagnósticos detectados', () => {
             it('com variavel definida com valor inválido', async () => {
                 const retornoLexador = lexador.mapear(
                     [
@@ -736,8 +736,8 @@ describe('Analisador semântico', () => {
         });
     });
 
-    describe('Cenários tipo de', async () => {
-        describe('Cenários de diagnósticos zerados', async () => {
+    describe('Cenários tipo de', () => {
+        describe('Cenários de diagnósticos zerados', () => {
             it('com variável definida com valor válido', async () => {
                 const retornoLexador = lexador.mapear(
                     ['const condicional = verdadeiro     ', 'tipo de condicional                '],
@@ -766,8 +766,8 @@ describe('Analisador semântico', () => {
         });
     });
 
-    describe('Cenários falhar', async () => {
-        describe('Cenários de diagnósticos zerados', async () => {
+    describe('Cenários falhar', () => {
+        describe('Cenários de diagnósticos zerados', () => {
             it('Sucesso - falhar com variável definida com valor válido', async () => {
                 const retornoLexador = lexador.mapear(
                     ["const valor = 'teste'      ", "falhar 'falhar ' + valor   "],
@@ -796,8 +796,8 @@ describe('Analisador semântico', () => {
         });
     });
 
-    describe('Cenários conversão implicita', async () => {
-        describe('Cenários de diagnósticos zerados', async () => {
+    describe('Cenários conversão implicita', () => {
+        describe('Cenários de diagnósticos zerados', () => {
             it('Sucesso - conversão implicita com variável definida com valor válido', async () => {
                 const retornoLexador = lexador.mapear(
                     ['const valor = 2 + 2', 'escreva(valor)'],
@@ -813,7 +813,7 @@ describe('Analisador semântico', () => {
             });
         });
 
-        describe('Cenários de aviso', async () => {
+        describe('Cenários de aviso', () => {
             it('Aviso - conversão implicita com variável definida com valor válido', async () => {
                 const retornoLexador = lexador.mapear(["const valor = 2 + '2'"], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -830,8 +830,8 @@ describe('Analisador semântico', () => {
         });
     });
 
-    describe('Cenários variáveis não inicializada', async () => {
-        describe('Cenários de diagnósticos zerados', async () => {
+    describe('Cenários variáveis não inicializada', () => {
+        describe('Cenários de diagnósticos zerados', () => {
             it('Sucesso - variável de classe inicializada na declaração', async () => {
                 const retornoLexador = lexador.mapear(
                     ['classe Teste {}', 'var teste: Teste = Teste();', 'escreva(teste); '],
@@ -890,7 +890,7 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
             });
         });
-        describe('Cenários de diagnósticos detectados', async () => {
+        describe('Cenários de diagnósticos detectados', () => {
             it('Aviso - variável tipo texto não inicializada', async () => {
                 const retornoLexador = lexador.mapear(
                     ['classe Teste {}', 'var teste: Texto;', 'escreva(teste); '],
@@ -929,7 +929,7 @@ describe('Analisador semântico', () => {
     });
 
     // Testes adicionados: casos de alta prioridade movidos de 'novos-casos.test.ts'
-    describe('Casos adicionados - testes automáticos', async () => {
+    describe('Casos adicionados - testes automáticos', () => {
         it('marcarVariaveisUsadasEmExpressao marca variáveis em Variavel/Binario/Chamada', async () => {
             const analisador = new AnalisadorSemantico();
 
@@ -1147,8 +1147,8 @@ describe('Analisador semântico', () => {
         });
     });
 
-    describe('Comando quebrar', async () => {
-        describe('Cenários com laço for', async () => {
+    describe('Comando quebrar', () => {
+        describe('Cenários com laço for', () => {
             it('Sucesso - dentro do laço for', async () => {
                 const retornoLexador = lexador.mapear(
                     [
@@ -1201,8 +1201,8 @@ describe('Analisador semântico', () => {
         });
     });
 
-    describe('Declaração Para (for loops)', async () => {
-        describe('Cenários de diagnósticos zerados', async () => {
+    describe('Declaração Para (for loops)', () => {
+        describe('Cenários de diagnósticos zerados', () => {
             it('Sucesso - loop for simples', async () => {
                 const retornoLexador = lexador.mapear(
                     ['para (var i = 0; i < 10; i++) {', '    escreva(i)', '}'],
@@ -1238,7 +1238,7 @@ describe('Analisador semântico', () => {
             });
         });
 
-        describe('Cenários de diagnósticos detectados', async () => {
+        describe('Cenários de diagnósticos detectados', () => {
             it('Erro - variável de loop não declarada', async () => {
                 const retornoLexador = lexador.mapear(
                     ['para (i = 0; i < 10; i++) {', '    escreva(i)', '}'],
@@ -1255,8 +1255,8 @@ describe('Analisador semântico', () => {
         });
     });
 
-    describe('Declaração ParaCada (for-each loops)', async () => {
-        describe('Cenários de diagnósticos zerados', async () => {
+    describe('Declaração ParaCada (for-each loops)', () => {
+        describe('Cenários de diagnósticos zerados', () => {
             it('Sucesso - para cada elemento em vetor', async () => {
                 const retornoLexador = lexador.mapear(
                     [
@@ -1278,8 +1278,8 @@ describe('Analisador semântico', () => {
         });
     });
 
-    describe('Declaração Fazer (do-while)', async () => {
-        describe('Cenários de diagnósticos zerados', async () => {
+    describe('Declaração Fazer (do-while)', () => {
+        describe('Cenários de diagnósticos zerados', () => {
             it('Sucesso - fazer com condição verdadeira', async () => {
                 const retornoLexador = lexador.mapear(
                     [
@@ -1301,7 +1301,7 @@ describe('Analisador semântico', () => {
             });
         });
 
-        describe('Cenários de diagnósticos detectados', async () => {
+        describe('Cenários de diagnósticos detectados', () => {
             it('Erro - condição não booleana', async () => {
                 const retornoLexador = lexador.mapear(
                     [
@@ -1323,8 +1323,8 @@ describe('Analisador semântico', () => {
         });
     });
 
-    describe('Declaração Tente (try-catch)', async () => {
-        describe('Cenários de diagnósticos zerados', async () => {
+    describe('Declaração Tente (try-catch)', () => {
+        describe('Cenários de diagnósticos zerados', () => {
             it('Sucesso - tente com captura', async () => {
                 const retornoLexador = lexador.mapear(
                     [
@@ -1369,8 +1369,8 @@ describe('Analisador semântico', () => {
         });
     });
 
-    describe('Expressões Binárias - Cobertura de Branches', async () => {
-        describe('Operadores aritméticos', async () => {
+    describe('Expressões Binárias - Cobertura de Branches', () => {
+        describe('Operadores aritméticos', () => {
             it('Sucesso - módulo (resto da divisão)', async () => {
                 const retornoLexador = lexador.mapear(
                     ['var resultado: inteiro = 10 % 3', 'escreva(resultado)'],
@@ -1414,7 +1414,7 @@ describe('Analisador semântico', () => {
             });
         });
 
-        describe('Operadores de comparação', async () => {
+        describe('Operadores de comparação', () => {
             it('Sucesso - maior ou igual e menor ou igual', async () => {
                 const retornoLexador = lexador.mapear(
                     [
@@ -1450,7 +1450,7 @@ describe('Analisador semântico', () => {
             });
         });
 
-        describe('Operadores lógicos', async () => {
+        describe('Operadores lógicos', () => {
             it('Sucesso - operador OU', async () => {
                 const retornoLexador = lexador.mapear(
                     [
@@ -1493,7 +1493,7 @@ describe('Analisador semântico', () => {
         });
     });
 
-    describe('Expressões Unárias', async () => {
+    describe('Expressões Unárias', () => {
         it('Sucesso - negação lógica', async () => {
             const retornoLexador = lexador.mapear(
                 ['var valor = verdadeiro', 'var negado = nao valor', 'escreva(negado)'],
@@ -1523,8 +1523,8 @@ describe('Analisador semântico', () => {
         });
     });
 
-    describe('Vetores e Matrizes', async () => {
-        describe('Acesso a elementos', async () => {
+    describe('Vetores e Matrizes', () => {
+        describe('Acesso a elementos', () => {
             it('Sucesso - acesso a elemento de vetor', async () => {
                 const retornoLexador = lexador.mapear(
                     [
@@ -1562,7 +1562,7 @@ describe('Analisador semântico', () => {
             });
         });
 
-        describe('Vetores vazios e múltiplos tipos', async () => {
+        describe('Vetores vazios e múltiplos tipos', () => {
             it('Sucesso - vetor vazio com tipo especificado', async () => {
                 const retornoLexador = lexador.mapear(
                     ['var vazio: inteiro[] = []', 'escreva(vazio)'],
@@ -1579,8 +1579,8 @@ describe('Analisador semântico', () => {
         });
     });
 
-    describe('Classes e Objetos', async () => {
-        describe('Herança', async () => {
+    describe('Classes e Objetos', () => {
+        describe('Herança', () => {
             it('Sucesso - classe com herança e métodos', async () => {
                 const retornoLexador = lexador.mapear(
                     [
@@ -1637,7 +1637,7 @@ describe('Analisador semântico', () => {
             });
         });
 
-        describe('Propriedades e métodos', async () => {
+        describe('Propriedades e métodos', () => {
             it('Sucesso - acesso a propriedade', async () => {
                 const retornoLexador = lexador.mapear(
                     [
@@ -1663,7 +1663,7 @@ describe('Analisador semântico', () => {
         });
     });
 
-    describe('Dicionários', async () => {
+    describe('Dicionários', () => {
         it('Sucesso - criação e acesso a dicionário', async () => {
             const retornoLexador = lexador.mapear(
                 [
@@ -1682,7 +1682,7 @@ describe('Analisador semântico', () => {
         });
     });
 
-    describe('Casos extremos e validações', async () => {
+    describe('Casos extremos e validações', () => {
         it('Aviso - variável declarada mas nunca usada', async () => {
             const retornoLexador = lexador.mapear(['var nuncaUsada = 10', 'escreva("teste")'], -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -1728,7 +1728,7 @@ describe('Analisador semântico', () => {
         });
     });
 
-    describe('Funções anônimas e closures', async () => {
+    describe('Funções anônimas e closures', () => {
         it('Sucesso - função anônima atribuída a variável', async () => {
             const retornoLexador = lexador.mapear(
                 [
@@ -1763,7 +1763,7 @@ describe('Analisador semântico', () => {
         });
     });
 
-    describe('Operações com texto', async () => {
+    describe('Operações com texto', () => {
         it('Sucesso - concatenação de textos', async () => {
             const retornoLexador = lexador.mapear(
                 [

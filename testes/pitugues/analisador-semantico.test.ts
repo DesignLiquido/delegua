@@ -658,7 +658,7 @@ describe('Analisador semântico', () => {
             it('Sucesso - variável usada em chamada de método SEM argumento', async () => {
                 const retornoLexador = lexador.mapear([
                     `abc = "teste"`,
-                    `xyz = abc.maiuscula()`,
+                    `xyz = abc.maiusculo()`,
                     `escreva(xyz)`,
                 ], -1);
                 const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
@@ -668,7 +668,8 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
             });
 
-            it('Sucesso - variável de importação usada em método matemático', async () => {
+            // TODO: Levar este teste para `delegua-node`.
+            it.skip('Sucesso - variável de importação usada em método matemático', async () => {
                 const retornoLexador = lexador.mapear([
                     `mate = importar("matematica")`,
                     `x1 = inteiro(leia("Digite a coordenada x do ponto 1: "))`,

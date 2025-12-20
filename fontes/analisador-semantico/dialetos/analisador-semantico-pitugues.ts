@@ -66,39 +66,44 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
      * Versão estendida da classe base com tratamento adicional de construtos Pituguês.
      */
     protected override marcarVariaveisUsadasEmExpressao(expressao: Construto): void {
-        switch (expressao.constructor) {
-            case AcessoMetodo:
-            case AcessoMetodoOuPropriedade:
-            case AcessoPropriedade:
-                this.marcarVariaveisUsadasEmExpressao((expressao as any).objeto);
-                return;
-            case Agrupamento:
-                this.marcarVariaveisUsadasEmExpressao((expressao as Agrupamento).expressao);
-                return;
-            case Binario:
-                const expressaoBinaria = expressao as Binario;
-                this.marcarVariaveisUsadasEmExpressao(expressaoBinaria.esquerda);
-                this.marcarVariaveisUsadasEmExpressao(expressaoBinaria.direita);
-                return;
-            case Chamada:
-                // Marca a entidade sendo chamada (pode ser Variavel, AcessoMetodo, etc.)
-                const expressaoChamada = expressao as Chamada;
-                this.marcarVariaveisUsadasEmExpressao(expressaoChamada.entidadeChamada);
+        if (expressao instanceof Variavel) {
+            this.gerenciadorEscopos.marcarComoUsada(expressao.simbolo.lexema);
+            return;
+        }
 
-                // Marca todos os argumentos
-                for (const argumento of expressaoChamada.argumentos) {
-                    this.marcarVariaveisUsadasEmExpressao(argumento);
-                }
+        if (expressao instanceof Binario) {
+            this.marcarVariaveisUsadasEmExpressao(expressao.esquerda);
+            this.marcarVariaveisUsadasEmExpressao(expressao.direita);
+            return;
+        }
 
-                return;
-            case Logico:
-                const expressaoLogica = expressao as Logico;
-                this.marcarVariaveisUsadasEmExpressao(expressaoLogica.esquerda);
-                this.marcarVariaveisUsadasEmExpressao(expressaoLogica.direita);
-                return;
-            case Variavel:
-                this.gerenciadorEscopos.marcarComoUsada((expressao as Variavel).simbolo.lexema);
-                return;
+        if (expressao instanceof Agrupamento) {
+            this.marcarVariaveisUsadasEmExpressao(expressao.expressao);
+            return;
+        }
+
+        if (expressao instanceof Logico) {
+            this.marcarVariaveisUsadasEmExpressao(expressao.esquerda);
+            this.marcarVariaveisUsadasEmExpressao(expressao.direita);
+            return;
+        }
+
+        if (expressao instanceof Chamada) {
+            // Marca a entidade sendo chamada (pode ser Variavel, AcessoMetodo, etc.)
+            this.marcarVariaveisUsadasEmExpressao(expressao.entidadeChamada);
+
+            // Marca todos os argumentos
+            for (const argumento of expressao.argumentos) {
+                this.marcarVariaveisUsadasEmExpressao(argumento);
+            }
+            return;
+        }
+
+        if (expressao instanceof AcessoMetodo ||
+            expressao instanceof AcessoMetodoOuPropriedade ||
+            expressao instanceof AcessoPropriedade) {
+            this.marcarVariaveisUsadasEmExpressao((expressao as any).objeto);
+            return;
         }
 
         // Chama a classe base para outros tipos (Unario, AcessoIndiceVariavel, etc.)
