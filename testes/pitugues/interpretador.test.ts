@@ -1280,6 +1280,134 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas).toHaveLength(1);
                     expect(_saidas[0]).toBe('um dois três');
                 });
+
+                describe('particao / partição', () => {
+                    it('Deve particionar texto com separador existente (particao)', async () => {
+                        const codigo = [
+                            'txt = "I could eat bananas all day".particao("bananas")\n',
+                            'escreva(txt)'
+                        ];
+
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes,
+                            true
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas[0]).toBe('("I could eat ", "bananas", " all day")');
+                    });
+
+                    it('Deve particionar texto com separador existente (particao)', async () => {
+                        const codigo = [
+                            'txt = "python-pitugues"',
+                            'resultado = txt.particao("-")',
+                            'escreva(resultado)'
+                        ];
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('("python", "-", "pitugues")');
+                    });
+
+                    it('Deve retornar tupla com campos vazios quando separador não existe', async () => {
+                        const codigo = [
+                            'txt = "fruta"',
+                            'resultado = txt.particao("carro")',
+                            'escreva(resultado)'
+                        ];
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('("fruta", "", "")');
+                    });
+
+                    it('eDve lidar com separador no início do texto (partição)', async () => {
+                        const codigo = [
+                            'txt = ".texto"',
+                            'resultado = txt.partição(".")',
+                            'escreva(resultado)'
+                        ];
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('("", ".", "texto")');
+                    });
+
+                    it('Deve lidar com separador no final do texto (partição)', async () => {
+                        const codigo = [
+                            'txt = "texto."',
+                            'resultado = txt.partição(".")',
+                            'escreva(resultado)'
+                        ];
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('("texto", ".", "")');
+                    });
+
+                    it('Deve particionar com separador de múltiplos caracteres (partição)', async () => {
+                        const codigo = [
+                            'txt = "isso--separador--texto"',
+                            'resultado = txt.partição("--")',
+                            'escreva(resultado)'
+                        ];
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('("isso", "--", "separador--texto")');
+                    });
+                });
             });
 
             describe('Uso de primitivas de vetor', () => {
@@ -1958,6 +2086,107 @@ describe('Interpretador (Pituguês)', () => {
 
                 expect(retornoInterpretador.erros).toHaveLength(1);
                 expect(retornoInterpretador.erros[0].erroInterno.message).toContain('imutáveis');
+            });
+
+            describe('Uso de primitivas de texto', () => {
+                describe('particao / partição', () => {
+                    it('Chamar particao sem argumentos', async () => {
+                        const codigo = [
+                            'txt = "texto de teste"',
+                            'resultado = txt.particao()',
+                            'escreva(resultado)'
+                        ];
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes,
+                            true
+                        );
+
+                        expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                    });
+
+                    it('Chamar particao com tipo errado (número)', async () => {
+                        const codigo = [
+                            'txt = "texto de teste"',
+                            'resultado = txt.partição(123)',
+                            'escreva(resultado)'
+                        ];
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                    });
+
+                    it('Chamar particao em um número (não é texto)', async () => {
+                        const codigo = [
+                            'num = 123',
+                            'resultado = num.particao("2")',
+                            'escreva(resultado)'
+                        ];
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                    });
+
+                    it('Chamar particao com mais argumentos do que o suportado', async () => {
+                        const codigo = [
+                            'txt = "texto de teste"',
+                            'resultado = txt.partição("de", "extra")',
+                            'escreva(resultado)'
+                        ];
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes,
+                            true
+                        );
+
+                        expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                    });
+
+                    it('Chamar particao com separador vazio', async () => {
+                        const codigo = [
+                            'txt = "texto de teste"',
+                            'resultado = txt.particao("")',
+                            'escreva(resultado)'
+                        ];
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                    });
+                });
             });
         });
     });
