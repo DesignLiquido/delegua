@@ -770,14 +770,46 @@ export class InterpretadorBase implements InterpretadorInterface {
                         tipoEsquerdo === tipoDeDadosDelegua.TEXTO &&
                         tipoDireito === tipoDeDadosDelegua.TEXTO
                     ) {
-                        return Number(valorEsquerdo) * Number(valorDireito);
+                        throw new ErroEmTempoDeExecucao(
+                            expressao.operador,
+                            'Não é possível multiplicar dois textos.',
+                            expressao.linha
+                        );
                     }
 
-                    if (tipoEsquerdo === tipoDeDadosDelegua.TEXTO) {
-                        return valorEsquerdo.repeat(Number(valorDireito));
+                    const valorTexto = tipoEsquerdo === tipoDeDadosDelegua.TEXTO ? valorEsquerdo : valorDireito;
+                    const valorQuantidade = tipoEsquerdo === tipoDeDadosDelegua.TEXTO ? valorDireito : valorEsquerdo;
+
+                    if (typeof valorQuantidade !== 'number') {
+                        throw new ErroEmTempoDeExecucao(
+                            expressao.operador,
+                            'Para multiplicar um texto, o outro operando deve ser um número.',
+                            expressao.linha
+                        );
                     }
 
-                    return valorDireito.repeat(Number(valorEsquerdo));
+                    const textoParaNumero = Number(valorTexto);
+                    if (!isNaN(textoParaNumero)) {
+                        return textoParaNumero * valorQuantidade;
+                    }
+                    
+                    if (!Number.isInteger(valorQuantidade)) {
+                        throw new ErroEmTempoDeExecucao(
+                            expressao.operador,
+                            'A multiplicação de texto exige um número inteiro.',
+                            expressao.linha
+                        );
+                    }
+
+                    if (valorQuantidade < 0) {
+                        throw new ErroEmTempoDeExecucao(
+                            expressao.operador,
+                            'Não é possível multiplicar texto por número negativo.',
+                            expressao.linha
+                        );
+                    }
+
+                    return valorTexto.repeat(valorQuantidade);
                 }
 
                 return Number(valorEsquerdo) * Number(valorDireito);

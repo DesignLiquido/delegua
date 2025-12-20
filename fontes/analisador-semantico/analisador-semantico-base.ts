@@ -77,7 +77,7 @@ import { GerenciadorEscopos } from './gerenciador-escopos';
 
 /**
  * Essa classe só existe para eliminar redundância entre todos os analisadores
- * sintáticos. Por padrão, quando um método não é implementado, ao invés de dar erro,
+ * semânticos. Por padrão, quando um método não é implementado, ao invés de dar erro,
  * simplesmente passa por ele (`return Promise.resolve()`).
  */
 export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInterface {
@@ -140,11 +140,18 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
         }
 
         if (expressao instanceof Chamada) {
-            // Mark function name if it's a variable
             if (expressao.entidadeChamada instanceof Variavel) {
                 this.gerenciadorEscopos.marcarComoUsada(expressao.entidadeChamada.simbolo.lexema);
             }
-            // Mark all arguments
+
+            if (expressao.entidadeChamada instanceof AcessoMetodo) {
+                this.marcarVariaveisUsadasEmExpressao(expressao.entidadeChamada.objeto);
+            }
+
+            if (expressao.entidadeChamada instanceof AcessoMetodoOuPropriedade) {
+                this.marcarVariaveisUsadasEmExpressao(expressao.entidadeChamada.objeto);
+            }
+
             for (const arg of expressao.argumentos) {
                 this.marcarVariaveisUsadasEmExpressao(arg);
             }
@@ -269,7 +276,7 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
 
     diagnosticos: DiagnosticoAnalisadorSemantico[];
 
-    abstract analisar(declaracoes: Declaracao[]): RetornoAnalisadorSemantico;
+    abstract analisar(declaracoes: Declaracao[]): Promise<RetornoAnalisadorSemantico>;
 
     adicionarDiagnostico(
         simbolo: SimboloInterface,

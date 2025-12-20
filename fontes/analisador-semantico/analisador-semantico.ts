@@ -1,4 +1,6 @@
 import {
+    AcessoMetodo,
+    AcessoMetodoOuPropriedade,
     Agrupamento,
     ArgumentoReferenciaFuncao,
     Atribuir,
@@ -264,6 +266,16 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         }
 
         switch (expressao.entidadeChamada.constructor) {
+            case AcessoMetodo:
+                // Marca o objeto como usado quando seus métodos são chamados (ex: thor.corre())
+                const entidadeChamadaAcessoMetodo = expressao.entidadeChamada as AcessoMetodo;
+                this.marcarVariaveisUsadasEmExpressao(entidadeChamadaAcessoMetodo.objeto);
+                break;
+            case AcessoMetodoOuPropriedade:
+                // Marca o objeto como usado quando seus métodos/propriedades são acessados (ex: thor.corre())
+                const entidadeChamadaAcessoMetodoOuPropriedade = expressao.entidadeChamada as AcessoMetodoOuPropriedade;
+                this.marcarVariaveisUsadasEmExpressao(entidadeChamadaAcessoMetodoOuPropriedade.objeto);
+                break;
             case ArgumentoReferenciaFuncao:
                 const entidadeChamadaArgumentoReferenciaFuncao =
                     expressao.entidadeChamada as ArgumentoReferenciaFuncao;
@@ -1160,14 +1172,14 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         }
     }
 
-    analisar(declaracoes: Declaracao[]): RetornoAnalisadorSemantico {
+    async analisar(declaracoes: Declaracao[]): Promise<RetornoAnalisadorSemantico> {
         this.gerenciadorEscopos = new GerenciadorEscopos();
         this.atual = 0;
         this.diagnosticos = [];
 
         try {
             while (this.atual < declaracoes.length) {
-                declaracoes[this.atual].aceitar(this);
+                await declaracoes[this.atual].aceitar(this);
                 this.atual++;
             }
         } catch (erro) {
