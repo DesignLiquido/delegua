@@ -1,3 +1,4 @@
+export * from './analisador-semantico';
 export * from './avaliador-sintatico';
 export * from './construtos';
 export * from './declaracoes';
