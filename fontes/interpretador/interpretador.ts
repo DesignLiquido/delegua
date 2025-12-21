@@ -612,12 +612,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             }
 
             if (valorIndice < 0 && objeto.length !== 0) {
-                while (valorIndice < 0) {
-                    valorIndice += objeto.length;
-                }
+                valorIndice += objeto.length;
             }
 
-            if (valorIndice >= objeto.length) {
+            if (valorIndice >= objeto.length || valorIndice < 0) {
                 return Promise.reject(
                     new ErroEmTempoDeExecucao(
                         expressao.simboloFechamento,
@@ -657,12 +655,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             }
 
             if (valorIndice < 0 && objeto.length !== 0) {
-                while (valorIndice < 0) {
-                    valorIndice += objeto.length;
-                }
+                valorIndice += objeto.length;
             }
 
-            if (valorIndice >= objeto.length) {
+            if (valorIndice >= objeto.length || valorIndice < 0) {
                 return Promise.reject(
                     new ErroEmTempoDeExecucao(
                         expressao.simboloFechamento,

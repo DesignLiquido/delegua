@@ -1719,6 +1719,24 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas[0]).toBe('20');
                 });
 
+                it('Deve permitir acesso de elemento da tupla através de índice negativo', async () => {
+                    const retornoLexador = lexador.mapear([`
+                       t = (1, 2, 3)
+                       escreva(t[-1])
+                    `], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('3');
+                });
+
                 it('Deve suportar tupla com diferentes tipos de dados (Inteiro, Texto, Booleano, Real)', async () => {
                     const retornoLexador = lexador.mapear([
                         't = (1, "pituguês", verdadeiro, 2.5)',
@@ -1993,6 +2011,40 @@ describe('Interpretador (Pituguês)', () => {
 
                     const retornoInterpretador = await interpretador.interpretar(
                         retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                });
+
+                it('Acesso a elementos negativos fora do tamanho do vetor', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        a = [1, 2, 3]
+                        escreva(a[-4])
+                    `], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes,
+                    );
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                });
+
+                it('Acesso a elementos negativos fora do tamanho da tupla', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        a = (1, 2, 3)
+                        escreva(a[-4])
+                    `], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes,
                     );
 
                     expect(retornoInterpretador.erros.length).toBeGreaterThan(0);

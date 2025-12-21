@@ -56,12 +56,16 @@ export class InterpretadorPitugues extends Interpretador {
     override async visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel): Promise<any> {
         const objeto = await this.avaliar(expressao.entidadeChamada);
         const indice = await this.avaliar(expressao.indice);
-        const valorIndice = this.resolverValor(indice);
+        let valorIndice = this.resolverValor(indice);
         const objetoResolvido = this.resolverValor(objeto);
 
         if (objetoResolvido instanceof TuplaN) {
             if (!Number.isInteger(valorIndice)) {
                 throw new ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Índice deve ser inteiro.', expressao.linha);
+            }
+
+            if (valorIndice < 0 && objetoResolvido.elementos.length !== 0) {
+                valorIndice += objetoResolvido.elementos.length;
             }
 
             if (valorIndice < 0 || valorIndice >= objetoResolvido.elementos.length) {
