@@ -1530,6 +1530,62 @@ describe('Avaliador sintático', () => {
                         "Operação inválida: não é possível realizar operação + entre vetor e nulo."
                     );
                 });
+
+                it('Bloqueia operações unárias em vetores - padrão de ofuscação !![] * 1', () => {
+                    const retornoLexador = lexador.mapear(
+                        ['var resultado = !![] * 1'],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                    expect(retornoAvaliadorSintatico.erros[0].message).toBe(
+                        "Operação inválida: não é possível realizar operação * com expressão unária aplicada a vetor."
+                    );
+                });
+
+                it('Bloqueia operações unárias em vetores - padrão de ofuscação ![] * 1', () => {
+                    const retornoLexador = lexador.mapear(
+                        ['var resultado = ![] * 1'],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                    expect(retornoAvaliadorSintatico.erros[0].message).toBe(
+                        "Operação inválida: não é possível realizar operação * com expressão unária aplicada a vetor."
+                    );
+                });
+
+                it('Bloqueia código de ofuscação completo - acesso a índice com !![]', () => {
+                    const retornoLexador = lexador.mapear(
+                        ['escreva(("verdadeiro")[!![] * 1 + !![] * 1])'],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                    expect(retornoAvaliadorSintatico.erros[0].message).toBe(
+                        "Operação inválida: não é possível realizar operação * com expressão unária aplicada a vetor."
+                    );
+                });
+
+                it('Bloqueia operações unárias em vetores - adição !![] + 1', () => {
+                    const retornoLexador = lexador.mapear(
+                        ['var resultado = !![] + 1'],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                    expect(retornoAvaliadorSintatico.erros[0].message).toBe(
+                        "Operação inválida: não é possível realizar operação + com expressão unária aplicada a vetor."
+                    );
+                });
             });
         });
 
