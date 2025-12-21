@@ -1,9 +1,10 @@
 import { InterpretadorPituguesComDepuracao } from '../../../../fontes/interpretador/dialetos/pitugues/interpretador-pitugues-com-depuracao';
-import * as comum from '../../../../fontes/interpretador/dialetos/pitugues/comum';
 import { AcessoMetodo, AcessoMetodoOuPropriedade, AcessoPropriedade } from '../../../../fontes/construtos';
 import { AcessoIntervaloVariavel } from '../../../../fontes/construtos/acesso-intervalo-variavel';
 
-describe('InterpretadorPituguesComDepuracao', () => {
+import * as comum from '../../../../fontes/interpretador/dialetos/pitugues/comum';
+
+describe('Interpretador Pituguês com Depuração', () => {
     let interpretador: InterpretadorPituguesComDepuracao;
 
     beforeEach(() => {
@@ -14,7 +15,7 @@ describe('InterpretadorPituguesComDepuracao', () => {
         jest.restoreAllMocks();
     });
 
-    it('delegates visitarExpressaoAcessoMetodo to comum.visitarExpressaoAcessoMetodo and returns value', async () => {
+    it('Execução de comum.visitarExpressaoAcessoMetodo', async () => {
         const spy = jest
             .spyOn(comum, 'visitarExpressaoAcessoMetodo')
             .mockResolvedValue('ok-metodo');
@@ -26,7 +27,7 @@ describe('InterpretadorPituguesComDepuracao', () => {
         expect(spy).toHaveBeenCalledWith(interpretador, expressao);
     });
 
-    it('delegates visitarExpressaoAcessoMetodoOuPropriedade to comum.visitarExpressaoAcessoMetodoOuPropriedade and returns value', async () => {
+    it('Execução de comum.visitarExpressaoAcessoMetodoOuPropriedade', async () => {
         const spy = jest
             .spyOn(comum, 'visitarExpressaoAcessoMetodoOuPropriedade')
             .mockResolvedValue('ok-meth-prop');
@@ -41,7 +42,7 @@ describe('InterpretadorPituguesComDepuracao', () => {
         expect(spy).toHaveBeenCalledWith(interpretador, expressao);
     });
 
-    it('delegates visitarExpressaoAcessoPropriedade to comum.visitarExpressaoAcessoPropriedade and returns value', async () => {
+    it('Execução de comum.visitarExpressaoAcessoPropriedade', async () => {
         const spy = jest
             .spyOn(comum, 'visitarExpressaoAcessoPropriedade')
             .mockResolvedValue('ok-prop');
@@ -53,7 +54,7 @@ describe('InterpretadorPituguesComDepuracao', () => {
         expect(spy).toHaveBeenCalledWith(interpretador, expressao);
     });
 
-    it('delegates visitarExpressaoAcessoIntervaloVariavel to comum.visitarExpressaoAcessoIntervaloVariavel and returns value', async () => {
+    it('Execução de comum.visitarExpressaoAcessoIntervaloVariavel', async () => {
         const spy = jest
             .spyOn(comum, 'visitarExpressaoAcessoIntervaloVariavel')
             .mockResolvedValue('ok-intervalo');
@@ -68,7 +69,7 @@ describe('InterpretadorPituguesComDepuracao', () => {
         expect(spy).toHaveBeenCalledWith(interpretador, expressao);
     });
 
-    it('propagates rejection from comum functions', async () => {
+    it('Propagação de Promise.reject entre funções de comum', async () => {
         const spy = jest
             .spyOn(comum, 'visitarExpressaoAcessoMetodo')
             .mockRejectedValue(new Error('boom'));
