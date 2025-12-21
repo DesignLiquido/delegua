@@ -140,21 +140,18 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
         }
 
         if (expressao instanceof Chamada) {
-            if (expressao.entidadeChamada instanceof Variavel) {
-                this.gerenciadorEscopos.marcarComoUsada(expressao.entidadeChamada.simbolo.lexema);
-            }
-
-            if (expressao.entidadeChamada instanceof AcessoMetodo) {
-                this.marcarVariaveisUsadasEmExpressao(expressao.entidadeChamada.objeto);
-            }
-
-            if (expressao.entidadeChamada instanceof AcessoMetodoOuPropriedade) {
-                this.marcarVariaveisUsadasEmExpressao(expressao.entidadeChamada.objeto);
-            }
+            this.marcarVariaveisUsadasEmExpressao(expressao.entidadeChamada);
 
             for (const arg of expressao.argumentos) {
                 this.marcarVariaveisUsadasEmExpressao(arg);
             }
+            return;
+        }
+
+        if (expressao instanceof AcessoMetodo ||
+            expressao instanceof AcessoMetodoOuPropriedade ||
+            expressao instanceof AcessoPropriedade) {
+            this.marcarVariaveisUsadasEmExpressao((expressao as any).objeto);
             return;
         }
 

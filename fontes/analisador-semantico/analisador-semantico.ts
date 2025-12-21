@@ -849,7 +849,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 const nomeFuncao = entidadeChamadaVariavel.simbolo.lexema;
 
                 // Lista de funções built-in que não precisam ser declaradas
-                const funcoesBuiltIn = ['inteiro', 'real', 'texto', 'leia', 'escreva', 'tipo'];
+                const funcoesBuiltIn = ['inteiro', 'real', 'número', 'texto', 'leia', 'escreva', 'tipo'];
 
                 // Classes/construtores geralmente começam com letra maiúscula
                 const pareceSerClasse = nomeFuncao[0] === nomeFuncao[0].toUpperCase();

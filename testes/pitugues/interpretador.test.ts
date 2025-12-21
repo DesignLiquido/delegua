@@ -2262,55 +2262,58 @@ describe('Interpretador (Pituguês)', () => {
 
                         expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
                     });
-            describe('Repetição de Strings', () => {
-                it('Deve dar erro ao tentar multiplicar texto por texto ("Olá" * "Mundo")', async () => {
-                    const retornoLexador = lexador.mapear([
-                        'escreva("Olá" * "Mundo")'
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
-                        retornoLexador,
-                        -1
-                    );
-                    const retornoInterpretador = await interpretador.interpretar(
-                        retornoAvaliadorSintatico.declaracoes,
-                        true
-                    );
-
-                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
                 });
 
-                it('Deve dar erro ao tentar multiplicar texto por número real/decimal ("Olá" * 2.5)', async () => {
-                    const retornoLexador = lexador.mapear([
-                        'escreva("Olá" * 2.5)'
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
-                        retornoLexador,
-                        -1
-                    );
+                describe('Repetição de Strings', () => {
+                    it('Deve dar erro ao tentar multiplicar texto por texto ("Olá" * "Mundo")', async () => {
+                        const retornoLexador = lexador.mapear([
+                            'escreva("Olá" * "Mundo")'
+                        ], -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes,
+                            true
+                        );
 
-                    const retornoInterpretador = await interpretador.interpretar(
-                        retornoAvaliadorSintatico.declaracoes,
-                        true
-                    );
+                        expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                    });
 
-                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
-                });
+                    it('Deve dar erro ao tentar multiplicar texto por número real/decimal ("Olá" * 2.5)', async () => {
+                        const retornoLexador = lexador.mapear([
+                            'escreva("Olá" * 2.5)'
+                        ], -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
 
-                it('Deve dar erro ao tentar multiplicar texto por um booleano ("Olá" * verdadeiro)', async () => {
-                    const retornoLexador = lexador.mapear([
-                        'escreva("Olá" * verdadeiro)'
-                    ], -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
-                        retornoLexador,
-                        -1
-                    );
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes,
+                            true
+                        );
 
-                    const retornoInterpretador = await interpretador.interpretar(
-                        retornoAvaliadorSintatico.declaracoes,
-                        true
-                    );
+                        expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                    });
 
-                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                    it('Deve dar erro ao tentar multiplicar texto por um booleano ("Olá" * verdadeiro)', async () => {
+                        const retornoLexador = lexador.mapear([
+                            'escreva("Olá" * verdadeiro)'
+                        ], -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes,
+                            true
+                        );
+
+                        expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                    });
                 });
             });
         });
