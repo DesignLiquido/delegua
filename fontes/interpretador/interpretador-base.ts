@@ -528,6 +528,9 @@ export class InterpretadorBase implements InterpretadorInterface {
         let valor: any = this.resolverValor(operando);
 
         switch (expressao.operador.tipo) {
+            case tiposDeSimbolos.ADICAO:
+                this.verificarOperandoNumero(expressao.operador, valor);
+                return +valor;
             case tiposDeSimbolos.SUBTRACAO:
                 this.verificarOperandoNumero(expressao.operador, valor);
                 return -valor;

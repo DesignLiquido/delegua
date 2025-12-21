@@ -1332,6 +1332,7 @@ export class AvaliadorSintatico
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.NAO,
                 tiposDeSimbolos.NEGACAO,
+                tiposDeSimbolos.ADICAO,
                 tiposDeSimbolos.SUBTRACAO,
                 tiposDeSimbolos.BIT_NOT,
                 tiposDeSimbolos.INCREMENTAR,
