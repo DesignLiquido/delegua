@@ -6,6 +6,7 @@ O Estilizador é uma ferramenta de transformação de código que aplica regras 
 
 - ✅ **Fortalecimento de Tipos**: Converte tipos genéricos (`qualquer`) para tipos inferidos
 - ✅ **Convenções de Nomenclatura**: Enforça padrões de nomes para variáveis, constantes e funções
+- ✅ **Paradigma Consistente**: Enforça uso consistente de imperativo ou infinitivo em palavras reservadas
 - ✅ **Regras Plugáveis**: Adicione suas próprias regras de transformação
 - ✅ **Modo de Validação**: Detecta violações sem modificar o código
 - ✅ **Modo de Transformação**: Aplica transformações automaticamente
@@ -101,6 +102,41 @@ const regra = new RegraConvencaoNomenclatura({
 estilizador.adicionarRegra(regra);
 ```
 
+### 3. Paradigma Consistente (`RegraParadigmaConsistente`)
+
+Enforça consistência de paradigma (imperativo vs infinitivo) em palavras reservadas.
+
+Em português, instruções podem ser expressas no imperativo (escreva, leia) ou no infinitivo (escrever, ler). Esta regra permite escolher um paradigma único para manter a consistência do código.
+
+**Exemplos:**
+
+```typescript
+// Modo imperativo
+escreva("Olá")    // ✅ Aceito
+escrever("Olá")   // ❌ Transformado para: escreva("Olá")
+
+// Modo infinitivo
+escrever("Olá")   // ✅ Aceito
+escreva("Olá")    // ❌ Transformado para: escrever("Olá")
+```
+
+**Uso:**
+
+```typescript
+import { RegraParadigmaConsistente } from '@designliquido/delegua/estilizador';
+
+const regra = new RegraParadigmaConsistente({
+    paradigma: 'imperativo'  // ou 'infinitivo', 'ambos'
+});
+
+estilizador.adicionarRegra(regra);
+```
+
+**📖 Documentação completa:** Veja [PARADIGMAS.md](./PARADIGMAS.md) para detalhes sobre:
+- Palavras suportadas (escreva/escrever, leia/ler, tente/tentar, etc.)
+- Filtro de paradigma para o lexador
+- Exemplos de uso e limitações
+
 ## Modo de Validação
 
 O modo de validação detecta violações sem modificar o código:
@@ -135,18 +171,23 @@ const estilizador = new EstilizadorDelegua([
     new RegraConvencaoNomenclatura({
         variavel: 'caixaCamelo',
         constante: 'CAIXA_ALTA'
+    }),
+    new RegraParadigmaConsistente({
+        paradigma: 'imperativo'
     })
 ]);
 
 // Código original
 const codigo = [
     'var MeuNumero = 42',
-    'constante piValor = 3.14'
+    'constante piValor = 3.14',
+    'escrever("Olá")'
 ];
 
 // Resultado após estilização
 // var meuNumero: número = 42
 // constante PI_VALOR: número = 3.14
+// escreva("Olá")
 ```
 
 ## Gerenciando Regras Dinamicamente
@@ -219,7 +260,8 @@ const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1
 // Estilizar
 const estilizador = new EstilizadorDelegua([
     new RegraFortalecerTipos(),
-    new RegraConvencaoNomenclatura({ variavel: 'caixaCamelo', constante: 'CAIXA_ALTA' })
+    new RegraConvencaoNomenclatura({ variavel: 'caixaCamelo', constante: 'CAIXA_ALTA' }),
+    new RegraParadigmaConsistente({ paradigma: 'imperativo' })
 ]);
 const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
