@@ -1332,6 +1332,7 @@ export class AvaliadorSintatico
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.NAO,
                 tiposDeSimbolos.NEGACAO,
+                tiposDeSimbolos.ADICAO,
                 tiposDeSimbolos.SUBTRACAO,
                 tiposDeSimbolos.BIT_NOT,
                 tiposDeSimbolos.INCREMENTAR,
@@ -1363,7 +1364,41 @@ export class AvaliadorSintatico
         return expressao;
     }
 
+    /**
+     * Verifica recursivamente se um construto é ou contém uma operação unária em um vetor.
+     * Isso bloqueia padrões de ofuscação como !![] usado em operações aritméticas.
+     */
+    private verificarOperacaoUnariaEmVetor(construto: Construto): boolean {
+        if (construto instanceof Unario) {
+            const operando = construto.operando;
+            // Verifica se o operando é um vetor
+            if (operando instanceof Vetor || operando.tipo === 'vetor' || operando.tipo.endsWith('[]')) {
+                return true;
+            }
+            // Verifica recursivamente para casos como !![]
+            if (operando instanceof Unario) {
+                return this.verificarOperacaoUnariaEmVetor(operando);
+            }
+        }
+        return false;
+    }
+
     protected verificacaoOperacoesBinariasIlegais(esquerdo: Construto, direito: Construto, operador: SimboloInterface) {
+        // Bloquear operações aritméticas com operações unárias em vetores (padrão de ofuscação tipo !![] * 1)
+        if (this.verificarOperacaoUnariaEmVetor(esquerdo)) {
+            throw this.erro(
+                operador,
+                `Operação inválida: não é possível realizar operação ${operador.lexema} com expressão unária aplicada a vetor.`
+            );
+        }
+
+        if (this.verificarOperacaoUnariaEmVetor(direito)) {
+            throw this.erro(
+                operador,
+                `Operação inválida: não é possível realizar operação ${operador.lexema} com expressão unária aplicada a vetor.`
+            );
+        }
+
         if (esquerdo.tipo === 'vetor' || esquerdo.tipo.endsWith('[]')) {
             if (['dicionario', 'dicionário', 'nulo'].includes(direito.tipo)) {
                 throw this.erro(
