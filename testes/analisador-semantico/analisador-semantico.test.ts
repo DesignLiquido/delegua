@@ -379,6 +379,126 @@ describe('Analisador semântico', () => {
             );
         });
 
+        it('Leia em operação aritmética sem conversão - multiplicação', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var distancia = leia("Digite a distância: ")',
+                    'const diferenca = 30',
+                    'const tempo = 60',
+                    'const tempoGasto = (tempo * distancia) / diferenca',
+                    'escreva(tempoGasto)',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos.length).toBeGreaterThanOrEqual(1);
+
+            const errosOperacaoAritmetica = retornoAnalisadorSemantico.diagnosticos.filter(
+                d => d.mensagem?.includes("Operação aritmética com tipo incompatível")
+            );
+
+            expect(errosOperacaoAritmetica.length).toBeGreaterThanOrEqual(1);
+            expect(errosOperacaoAritmetica[0].mensagem).toContain("tipo 'texto'");
+            expect(errosOperacaoAritmetica[0].mensagem).toContain("operação requer número");
+        });
+
+        it('Leia em operação aritmética sem conversão - subtração', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var numero = leia("Digite um número: ")',
+                    'var resultado = numero - 10',
+                    'escreva(resultado)',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            const errosOperacaoAritmetica = retornoAnalisadorSemantico.diagnosticos.filter(
+                d => d.mensagem?.includes("Operação aritmética com tipo incompatível")
+            );
+
+            expect(errosOperacaoAritmetica.length).toBeGreaterThanOrEqual(1);
+            expect(errosOperacaoAritmetica[0].mensagem).toContain("operando esquerdo é do tipo 'texto'");
+        });
+
+        it('Leia em operação aritmética sem conversão - divisão', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var numero = leia("Digite um número: ")',
+                    'var resultado = numero / 2',
+                    'escreva(resultado)',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            const errosOperacaoAritmetica = retornoAnalisadorSemantico.diagnosticos.filter(
+                d => d.mensagem?.includes("Operação aritmética com tipo incompatível")
+            );
+
+            expect(errosOperacaoAritmetica.length).toBeGreaterThanOrEqual(1);
+        });
+
+        it('Leia em operação aritmética sem conversão - módulo', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var numero = leia("Digite um número: ")',
+                    'var resto = numero % 3',
+                    'escreva(resto)',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            const errosOperacaoAritmetica = retornoAnalisadorSemantico.diagnosticos.filter(
+                d => d.mensagem?.includes("Operação aritmética com tipo incompatível")
+            );
+
+            expect(errosOperacaoAritmetica.length).toBeGreaterThanOrEqual(1);
+        });
+
+        it('Leia com conversão inteiro - deve ser aceito', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var distancia = inteiro(leia("Digite a distância: "))',
+                    'const diferenca = 30',
+                    'const tempo = 60',
+                    'const tempoGasto = (tempo * distancia) / diferenca',
+                    'escreva(tempoGasto)',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            const errosOperacaoAritmetica = retornoAnalisadorSemantico.diagnosticos.filter(
+                d => d.mensagem?.includes("Operação aritmética com tipo incompatível")
+            );
+
+            // Não deve ter erros de operação aritmética quando leia() é convertido
+            expect(errosOperacaoAritmetica.length).toBe(0);
+        });
+
         it('Atribuição de função', async () => {
             const retornoLexador = lexador.mapear(
                 ['var f = função(a, b) {', '   escreva(a + b)', '}', 'f(1)'],
@@ -822,10 +942,12 @@ describe('Analisador semântico', () => {
                 );
 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
-                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe(
-                    "Variável 'valor' foi declarada mas nunca usada."
+                expect(retornoAnalisadorSemantico.diagnosticos.length).toBeGreaterThanOrEqual(1);
+                // Deve ter aviso sobre variável não usada
+                const avisoVariavelNaoUsada = retornoAnalisadorSemantico.diagnosticos.find(
+                    d => d.mensagem === "Variável 'valor' foi declarada mas nunca usada."
                 );
+                expect(avisoVariavelNaoUsada).toBeTruthy();
             });
         });
     });

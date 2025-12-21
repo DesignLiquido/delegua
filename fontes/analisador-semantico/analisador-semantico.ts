@@ -486,6 +486,31 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         return this.verificarCondicao(declaracao.condicao);
     }
 
+    /**
+     * Verifica uma expressão recursivamente, incluindo operações binárias
+     */
+    private verificarExpressao(expressao: Construto): void {
+        if (expressao instanceof Agrupamento) {
+            this.verificarExpressao(expressao.expressao);
+            return;
+        }
+
+        if (expressao instanceof Binario) {
+            this.verificarBinario(expressao);
+            return;
+        }
+
+        if (expressao instanceof Logico) {
+            this.verificarLogico(expressao);
+            return;
+        }
+
+        if (expressao instanceof Chamada) {
+            this.verificarChamada(expressao);
+            return;
+        }
+    }
+
     private verificarCondicao(condicao: Construto): Promise<void> {
         if (condicao instanceof Agrupamento) {
             return this.verificarCondicao(condicao.expressao);
@@ -581,11 +606,41 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     private verificarTiposOperandos(binario: Binario): void {
         const tipoEsquerda = this.obterTipoExpressao(binario.esquerda);
         const tipoDireita = this.obterTipoExpressao(binario.direita);
+        const tiposNumericos = ['inteiro', 'número', 'real'];
+
+        // Verifica se algum operando é do tipo texto em operação aritmética
+        if (tipoEsquerda === 'texto' || tipoDireita === 'texto') {
+            // Verifica se é uma operação que precisa de números (não concatenação)
+            const operadoresAritmeticos = ['SUBTRACAO', 'MULTIPLICACAO', 'DIVISAO', 'MODULO'];
+
+            if (operadoresAritmeticos.includes(binario.operador.tipo)) {
+                const ladoProblematico = tipoEsquerda === 'texto' ? 'esquerdo' : 'direito';
+                const expressaoProblematica = tipoEsquerda === 'texto' ? binario.esquerda : binario.direita;
+
+                // Verifica se a expressão problemática é um Leia ou uma variável inicializada com Leia
+                let mensagemAdicional = '';
+                if (expressaoProblematica instanceof Leia) {
+                    mensagemAdicional = " Função 'leia()' retorna texto. Use 'inteiro(leia(...))' ou 'real(leia(...))' para converter.";
+                } else if (expressaoProblematica instanceof Variavel) {
+                    const variavel = this.gerenciadorEscopos.buscar((expressaoProblematica as Variavel).simbolo.lexema);
+                    if (variavel && variavel.valor instanceof Leia) {
+                        mensagemAdicional = " A variável foi inicializada com 'leia()' que retorna texto. Use 'inteiro(leia(...))' ou 'real(leia(...))' para converter.";
+                    } else {
+                        mensagemAdicional = " Use 'inteiro(...)' ou 'real(...)' para converter texto em número.";
+                    }
+                }
+
+                this.erro(
+                    binario.operador,
+                    `Operação aritmética com tipo incompatível: operando ${ladoProblematico} é do tipo 'texto', mas a operação requer número.${mensagemAdicional}`
+                );
+                return;
+            }
+        }
 
         if (tipoEsquerda && tipoDireita && tipoEsquerda !== tipoDireita) {
             // Verificar se são tipos numéricos compatíveis
-            const tiposNumericos = ['inteiro', 'número', 'real'];
-            const ambosNumericos = tiposNumericos.includes(tipoEsquerda) && 
+            const ambosNumericos = tiposNumericos.includes(tipoEsquerda) &&
                                 tiposNumericos.includes(tipoDireita);
 
             if (!ambosNumericos) {
@@ -689,7 +744,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     }
 
     /**
-     * Obtém o tipo de uma expressão (pode ser Literal, Variavel, ou Binario)
+     * Obtém o tipo de uma expressão (pode ser Literal, Variavel, Binario, Leia, etc)
      */
     private obterTipoExpressao(expressao: Construto): string | null {
         if (expressao instanceof Literal) {
@@ -713,6 +768,11 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
 
         if (expressao instanceof Agrupamento) {
             return this.obterTipoExpressao(expressao.expressao);
+        }
+
+        if (expressao instanceof Leia) {
+            // leia() sempre retorna texto
+            return 'texto';
         }
 
         return null;
@@ -786,10 +846,22 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         switch (chamada.entidadeChamada.constructor) {
             case Variavel:
                 let entidadeChamadaVariavel = chamada.entidadeChamada as Variavel;
-                if (!this.funcoes[entidadeChamadaVariavel.simbolo.lexema]) {
+                const nomeFuncao = entidadeChamadaVariavel.simbolo.lexema;
+
+                // Lista de funções built-in que não precisam ser declaradas
+                const funcoesBuiltIn = ['inteiro', 'real', 'texto', 'leia', 'escreva', 'tipo'];
+
+                // Classes/construtores geralmente começam com letra maiúscula
+                const pareceSerClasse = nomeFuncao[0] === nomeFuncao[0].toUpperCase();
+
+                // Só verifica se a função existe se não for built-in e não parecer ser classe
+                if (!funcoesBuiltIn.includes(nomeFuncao) &&
+                    !pareceSerClasse &&
+                    !this.funcoes[nomeFuncao] &&
+                    !this.gerenciadorEscopos.buscar(nomeFuncao)) {
                     this.erro(
                         entidadeChamadaVariavel.simbolo,
-                        `Chamada da função '${entidadeChamadaVariavel.simbolo.lexema}' não existe.`
+                        `Chamada da função '${nomeFuncao}' não existe.`
                     );
                 }
                 break;
@@ -929,6 +1001,8 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
 
         if (declaracao.inicializador) {
             this.marcarVariaveisUsadasEmExpressao(declaracao.inicializador);
+            // Verifica operações binárias no inicializador
+            this.verificarExpressao(declaracao.inicializador);
         }
 
         const constanteCorrespondente = this.gerenciadorEscopos.buscarNoEscopoAtual(
@@ -964,6 +1038,8 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
 
         if (declaracao.inicializador) {
             this.marcarVariaveisUsadasEmExpressao(declaracao.inicializador);
+            // Verifica operações binárias no inicializador
+            this.verificarExpressao(declaracao.inicializador);
 
             switch (declaracao.inicializador.constructor) {
                 case FuncaoConstruto:
