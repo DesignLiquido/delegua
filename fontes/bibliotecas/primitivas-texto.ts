@@ -1,6 +1,83 @@
 import { InterpretadorInterface } from '../interfaces';
 import { PrimitivaInterface } from '../interfaces/primitiva-interface';
 import { InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
+import { Construto, TuplaN, Literal } from '../construtos';
+import { ErroEmTempoDeExecucao } from '../excecoes';
+
+export const implementacaoParticao = (
+    interpretador: InterpretadorInterface,
+    nomePrimitiva: string,
+    texto: any,
+    separador: any,
+    ...args: any[]
+): Promise<any> => {
+    if (args.length > 0) {
+        return Promise.reject(new ErroEmTempoDeExecucao(
+            null,
+            `A função "${nomePrimitiva}" aceita apenas um argumento.`,
+            interpretador.linhaDeclaracaoAtual
+        ));
+    }
+
+    if (typeof texto !== 'string') {
+        return Promise.reject(new ErroEmTempoDeExecucao(
+            null,
+            `A função "${nomePrimitiva}" só pode ser chamada em textos.`,
+            interpretador.linhaDeclaracaoAtual
+        ));
+    }
+
+    if (separador === undefined) {
+        return Promise.reject(new ErroEmTempoDeExecucao(
+            null,
+            `A função "${nomePrimitiva}" requer um argumento separador.`,
+            interpretador.linhaDeclaracaoAtual
+        ));
+    }
+
+    if (typeof separador !== 'string') {
+        return Promise.reject(new ErroEmTempoDeExecucao(
+            null,
+            'O separador deve ser do tipo texto.',
+            interpretador.linhaDeclaracaoAtual
+        ));
+    }
+
+    if (separador === '') {
+        return Promise.reject(new ErroEmTempoDeExecucao(
+            null,
+            'O separador não pode ser uma string vazia.',
+            interpretador.linhaDeclaracaoAtual
+        ));
+    }
+
+    const indice = texto.indexOf(separador);
+    let partes: string[];
+
+    if (indice === -1) {
+        partes = [texto, '', ''];
+    } else {
+        const antes = texto.substring(0, indice);
+        const depois = texto.substring(indice + separador.length);
+        partes = [antes, separador, depois];
+    }
+
+    const elementos: Construto[] = partes.map(p => new Literal(
+        interpretador.hashArquivoDeclaracaoAtual,
+        interpretador.linhaDeclaracaoAtual,
+        p,
+        'texto'
+    ));
+
+    const tupla = new TuplaN(
+        interpretador.hashArquivoDeclaracaoAtual,
+        interpretador.linhaDeclaracaoAtual,
+        elementos
+    );
+
+    return Promise.resolve(tupla);
+};
+
 
 export default {
     aparar: {
@@ -289,6 +366,44 @@ export default {
             'escreva(t.minusculo()) // "tudo em maiúsculo"\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'texto.minusculo()',
+    },
+    particao: {
+        tipoRetorno: 'tupla',
+        argumentos: [
+            new InformacaoElementoSintatico(
+                'separador',
+                'texto',
+                true,
+                [],
+                'O separador usado para partir o texto.'
+            ),
+        ],
+        implementacao: implementacaoParticao,
+        assinaturaFormato: 'texto.particao(separador: texto)',
+        documentacao:
+            '# `texto.particao(separador)` \n \n' +
+            'Divide o texto na primeira ocorrência do separador e retorna uma tupla com: ' +
+            'o que vem antes, o separador e o que vem depois.',
+        exemploCodigo: 'texto.particao(" ")',
+    },
+    partição: {
+        tipoRetorno: 'tupla',
+        argumentos: [
+            new InformacaoElementoSintatico(
+                'separador',
+                'texto',
+                true,
+                [],
+                'O separador usado para partir o texto.'
+            ),
+        ],
+        implementacao: implementacaoParticao,
+        assinaturaFormato: 'texto.partição(separador: texto)',
+        documentacao:
+            '# `texto.partição(separador)` \n \n' +
+            'Divide o texto na primeira ocorrência do separador e retorna uma tupla com: ' +
+            'o que vem antes, o separador e o que vem depois.',
+        exemploCodigo: 'texto.partição(" ")',
     },
     substituir: {
         tipoRetorno: 'texto',
