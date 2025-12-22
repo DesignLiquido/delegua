@@ -183,4 +183,45 @@ describe('primitiva-vetor', () => {
             );
         });
     });
+
+    describe('paraTupla', () => {
+        it('Transforma vetor para tupla', async () => {
+            const interpretador = criarInterpretadorMock();
+            const vetor = [1, 2, 3, 4, 5];
+
+            const resultado = await primitivaVetor.paraTupla.implementacao(
+                interpretador,
+                'paraTupla',
+                vetor
+            );
+
+            expect(resultado.paraTextoSaida()).toBe('(1, 2, 3, 4, 5)');
+        });
+
+        it('Transforma vetor vazio para tupla', async () => {
+            const interpretador = criarInterpretadorMock();
+            const vetor = [];
+
+            const resultado = await primitivaVetor.paraTupla.implementacao(
+                interpretador,
+                'paraTupla',
+                vetor
+            );
+
+            expect(resultado.paraTextoSaida()).toBe('()');
+        });
+
+        it('Transforma vetor com valores de diversos tipos para tupla', async () => {
+            const interpretador = criarInterpretadorMock();
+            const vetor = [1, true, '3'];
+
+            const resultado = await primitivaVetor.paraTupla.implementacao(
+                interpretador,
+                'paraTupla',
+                vetor
+            );
+
+            expect(resultado.paraTextoSaida()).toBe('(1, true, "3")');
+        });
+    });
 });

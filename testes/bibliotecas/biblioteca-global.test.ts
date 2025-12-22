@@ -140,7 +140,7 @@ describe('Biblioteca Global', () => {
                 "copia['a'] = 99",
                 "escreva(valorOriginal)"
             ];
-            
+
             let _saida = "";
             interpretador.funcaoDeRetorno = (saida: string) => {
                 _saida += saida;
@@ -205,7 +205,7 @@ describe('Biblioteca Global', () => {
             const codigo = [
                 "var original = tupla([1, 2])",
                 "var copia = clonar(original)",
-                "escreva(copia.primeiro)"
+                "escreva(copia[0])"
             ];
             let _saida = "";
             interpretador.funcaoDeRetorno = (saida: string) => {
@@ -650,21 +650,26 @@ describe('Biblioteca Global', () => {
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros).toHaveLength(0);
-            expect(_saidas).toBe('[(1, 2, 3)]');
+            expect(_saidas).toBe('(1, 2, 3)');
         });
+    });
 
-        it('Falha - Vetor com mais de 10 elementos', async () => {
-            const retornoLexador = lexador.mapear(["escreva(tupla([1,2,3,4,5,6,7,8,9,10,11]))"], -1);
+    describe('vetor()', () => {
+        it('Trivial', async () => {
+            let _saidas = "";
+            interpretador.funcaoDeRetorno = (saida: string) => {
+                _saidas += saida;
+            }
+
+            const retornoLexador = lexador.mapear([
+                'escreva(vetor((1, 2, 3)))'
+            ], -1);
             const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
 
-            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
 
-            expect(retornoInterpretador).toBeTruthy
-            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
-            const erro = retornoInterpretador.erros[0];
-            expect(erro.erroInterno).toBeDefined();
-            expect(erro.erroInterno.mensagem).toBeDefined();
-            expect(erro.erroInterno.mensagem).toBe('Para ser transformado em uma tupla, vetor precisa ter de 2 a 10 elementos.');
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saidas).toEqual("[1, 2, 3]");
         });
     });
 });

@@ -3,6 +3,7 @@ import {
     todos_em_condicao,
     primeiro_em_condicao,
     tupla,
+    vetor,
     tamanho,
     mapear,
     ordenar,
@@ -13,6 +14,7 @@ import { DeleguaFuncao } from '../../../../fontes/interpretador/estruturas/deleg
 import { DescritorTipoClasse } from '../../../../fontes/interpretador/estruturas/descritor-tipo-classe';
 import { ObjetoDeleguaClasse } from '../../../../fontes/interpretador/estruturas/objeto-delegua-classe';
 import { criarInterpretadorMock } from '../../../_mocks/interpretador.mock';
+import { Literal, TuplaN } from '../../../../fontes/construtos';
 
 describe('biblioteca-global (pituguês)', () => {
     describe('reduzir', () => {
@@ -243,35 +245,78 @@ describe('biblioteca-global (pituguês)', () => {
             });
         });
 
-        it('retorna Dupla para vetor de tamanho 2', async () => {
+        it('Transforma vetor em tupla', async () => {
             const interpretador = criarInterpretadorMock();
-            const resultado = await tupla(interpretador, [1, 2]);
-            expect(resultado.constructor.name).toBe('Dupla');
+            const resultado = await tupla(interpretador, [1, 2, 3, 4, 5]);
+            expect(resultado.constructor.name).toBe('TuplaN')
+            expect(resultado.paraTextoSaida()).toBe('(1, 2, 3, 4, 5)')
         });
 
-        it('retorna Trio para vetor de tamanho 3', async () => {
+        it('Transforma vetor com um único elemento em tupla', async () => {
             const interpretador = criarInterpretadorMock();
-            const resultado = await tupla(interpretador, [1, 2, 3]);
-            expect(resultado.constructor.name).toBe('Trio');
+            const resultado = await tupla(interpretador, [1]);
+            expect(resultado.constructor.name).toBe('TuplaN');
+            expect(resultado.paraTextoSaida()).toBe('(1)')
         });
 
-            it('retorna Quarteto..Deceto para vetores maiores (4..10)', async () => {
-                const interpretador = criarInterpretadorMock();
+        it('cria tupla com tipos misturados', async () => {
+            const interpretador = criarInterpretadorMock();
+            const resultado = await tupla(interpretador, [1, 'texto', true, null]);
+            expect(resultado.constructor.name).toBe('TuplaN');
+            expect(resultado.paraTextoSaida()).toBe('(1, "texto", true, null)');
+        });
+    });
 
-                const nomes = ['Quarteto','Quinteto','Sexteto','Septeto','Octeto','Noneto','Deceto'];
-                for (let tamanho = 4; tamanho <= 10; ++tamanho) {
-                    const vetor = Array.from({ length: tamanho }, (_, i) => i + 1);
-                    const resultado = await tupla(interpretador, vetor);
-                    expect(resultado.constructor.name).toBe(nomes[tamanho - 4]);
-                }
+    describe('vetor', () => {
+        it('Rejeita quando argumento não é uma tupla', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(vetor(interpretador, 1 as any)).rejects.toMatchObject({
+                mensagem: 'Argumento de função nativa `vetor` não parece ser uma tupla.'
             });
+        });
 
-            it('rejeita quando vetor tem tamanho 1 (mensagem apropriada)', async () => {
-                const interpretador = criarInterpretadorMock();
-                await expect(tupla(interpretador, [1])).rejects.toMatchObject({
-                    mensagem: 'Para ser transformado em uma tupla, vetor precisa ter de 2 a 10 elementos.',
-                });
-            });
+        it('Transforma tupla em vetor', async () => {
+            const interpretador = criarInterpretadorMock();
+            const elementosTupla = [
+                new Literal(0, 1, 1, 'número'),
+                new Literal(0, 1, 2, 'número'),
+                new Literal(0, 1, 3, 'número'),
+                new Literal(0, 1, 4, 'número'),
+                new Literal(0, 1, 5, 'número'),
+            ];
+            const entradaTupla = new TuplaN(0, 1, elementosTupla);
+            const resultado = await vetor(interpretador, entradaTupla);
+
+            expect(resultado.constructor.name).toBe('Array')
+            expect(resultado).toEqual([1, 2, 3, 4, 5])
+        });
+
+        it('Transforma tupla com um único elemento em vetor', async () => {
+            const interpretador = criarInterpretadorMock();
+            const elementosTupla = [
+                new Literal(0, 1, 1, 'número'),
+            ];
+            const entradaTupla = new TuplaN(0, 1, elementosTupla);
+            const resultado = await vetor(interpretador, entradaTupla);
+
+            expect(resultado.constructor.name).toBe('Array');
+            expect(resultado).toEqual([1]);
+        });
+
+        it('Cria vetor com tipos misturados', async () => {
+            const interpretador = criarInterpretadorMock();
+            const elementosTupla = [
+                new Literal(0, 1, 1, 'número'),
+                new Literal(0, 1, "texto", 'texto'),
+                new Literal(0, 1, true, 'qualquer'),
+                new Literal(0, 1, null, 'nulo'),
+            ];
+            const entradaTupla = new TuplaN(0, 1, elementosTupla);
+            const resultado = await vetor(interpretador, entradaTupla);
+
+            expect(resultado.constructor.name).toBe('Array');
+            expect(resultado).toEqual([1, "texto", true, null]);
+        });
     });
 
     describe('tamanho', () => {
@@ -440,43 +485,6 @@ describe('biblioteca-global (pituguês)', () => {
             const interpretador = criarInterpretadorMock();
             await expect(tamanho(interpretador, 123)).rejects.toMatchObject({
                 mensagem: 'Função global tamanho() não funciona com números.',
-            });
-        });
-    });
-
-    describe('tupla', () => {
-        it('cria tupla com valores fornecidos', async () => {
-            const interpretador = criarInterpretadorMock();
-            const resultado = await tupla(interpretador, [1, 2, 3]);
-            expect(resultado).toMatchObject({
-                primeiro: 1,
-                segundo: 2,
-                terceiro: 3
-            });
-        });
-
-        it('rejeita tupla vazia', async () => {
-            const interpretador = criarInterpretadorMock();
-            await expect(tupla(interpretador, [])).rejects.toMatchObject({
-                mensagem: 'Para ser transformado em uma tupla, vetor precisa ter de 2 a 10 elementos.',
-            });
-        });
-
-        it('rejeita tupla com um único elemento', async () => {
-            const interpretador = criarInterpretadorMock();
-            await expect(tupla(interpretador, ['único'])).rejects.toMatchObject({
-                mensagem: 'Para ser transformado em uma tupla, vetor precisa ter de 2 a 10 elementos.',
-            });
-        });
-
-        it('cria tupla com tipos misturados', async () => {
-            const interpretador = criarInterpretadorMock();
-            const resultado = await tupla(interpretador, [1, 'texto', true, null]);
-            expect(resultado).toMatchObject({
-                primeiro: 1,
-                segundo: 'texto',
-                terceiro: true,
-                quarto: null
             });
         });
     });
