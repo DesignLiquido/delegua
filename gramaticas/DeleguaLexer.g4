@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2023-2025 Design Líquido por Leonel Sanches da Silva
+ * Copyright (c) 2023-hoje Design Líquido por Leonel Sanches da Silva
  *
  * Permissão concedida, gratuitamente, a qualquer pessoa que obtenha uma cópia
  * deste software e arquivos de documentação associados (o "Software"), para lidar
@@ -75,9 +75,10 @@ BitNot:                            '~';
 Not:                               '!';
 Multiplicacao:                     '*';
 Divisao:                           '/';
+DivisaoInteira:                    '\\';
 Modulo:                            '%';
 Potencia:                          '**';
-NuloCoalesce:                      '??';
+Elvis:                             '?:';
 Hashtag:                           '#';
 DireitaShiftAritmetico:            '>>';
 EsquerdaShiftAritmetico:           '<<';
@@ -88,8 +89,6 @@ MenosQueIgual:                     '<=';
 MaiorQueIgual:                     '>=';
 Igual_:                            '==';
 NaoIgual:                          '!=';
-IdentityIgual:                     '===';
-IdentityNotIgual:                  '!==';
 BitAnd:                            '&';
 BitXOr:                            '^';
 BitOr:                             '|';
@@ -97,6 +96,7 @@ And:                               '&&';
 Or:                                '||';
 MultiplicacaoAtribuicao:           '*=';
 DivisaoAtribuicao:                 '/=';
+DivisaoInteiraAtribuicao:          '\\=';
 ModuloAtribuicao:                  '%=';
 MaisAtribuicao:                    '+=';
 MenosAtribuicao:                   '-=';
@@ -137,25 +137,23 @@ BigOctalInteiroLiteral:         '0' [oO] [0-7] [_0-7]* 'n';
 BigBinaryInteiroLiteral:        '0' [bB] [01] [_01]* 'n';
 BigDecimalInteiroLiteral:       DecimalInteiroLiteral 'n';
 
-/// Keywords
+/// Palavras-chave
 
 Sustar:                          'sustar';
-Do:                              'faca' | 'faça';
-InstanciaDe:                     'instanceof';
-TipoDe:                          'typeof';
+Do:                              'faca' | 'faça' | 'fazer';
+TipoDe:                          'tipo de';
 Caso:                            'caso';
 Senao:                           'senao' | 'senão';
 Novo:                            'novo';
 Var:                             'var';
-Pegue:                           'pegue';
+Pegue:                           'pegue' | 'pegar';
 Finalmente:                      'finalmente';
-Retorna:                         'retorna' | 'retorne';
+Retorna:                         'retorna' | 'retorne' | 'retornar';
 Vazio:                           'vazio';
-Continue:                        'continue';
+Continue:                        'continue' | 'continua';
 Para:                            'para';
-Escolha:                         'escolha';
+Escolha:                         'escolha' | 'escolher';
 Enquanto:                        'enquanto';
-Debugger:                        'debugger';
 Funcao_:                         'funcao' | 'função';
 Isto:                            'isto';
 Com:                             'com';
@@ -167,20 +165,19 @@ Em:                              'em';
 Tente:                           'tente';
 Como:                            'como';
 De:                              'de';
-
-/// Future Reserved Words
-
 Classe:                         'classe';
 Enum:                           'enum';
-Extende:                        'estende';
+Herda:                          'herda';
 Super:                          'super';
 Const:                          'const';
 Exportar:                       'exportar';
 Importar:                       'importar';
 
-/// The following tokens are also considered to be FutureReservedWords
-/// when parsing strict mode
+/// Talvez uso futuro
 
+Acumular:                       'acumular';
+Aguardar:                       'aguardar' | 'aguarde';
+Assincrono:                     'assincrono' | 'assíncrono';
 Implementa:                     'implements' {this.IsStrictMode()}?;
 StrictLet:                      'let' {this.IsStrictMode()}?;
 NonStrictLet:                   'let' {!this.IsStrictMode()}?;
@@ -205,8 +202,7 @@ WhiteSpaces:                    [\t\u000B\u000C\u0020\u00A0]+ -> channel(HIDDEN)
 
 LinhaTerminador:                 [\r\n\u2028\u2029] -> channel(HIDDEN);
 
-/// Comentarios
-
+/// Comentários
 
 HtmlComentario:                 '<!--' .*? '-->' -> channel(HIDDEN);
 CDataComentario:                '<![CDATA[' .*? ']]>' -> channel(HIDDEN);

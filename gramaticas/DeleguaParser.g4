@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2023-2025 Design Líquido por Leonel Sanches da Silva
+ * Copyright (c) 2023-hoje Design Líquido por Leonel Sanches da Silva
  *
  * Permissão concedida, gratuitamente, a qualquer pessoa que obtenha uma cópia
  * deste software e arquivos de documentação associados (o "Software"), para lidar
@@ -162,10 +162,10 @@ comandoSe
 
 
 comandoIteracao
-    : Do comando Enquanto '(' expressaoSequencia ')' fimDoComando                                                                       # DoComando
-    | Enquanto '(' expressaoSequencia ')' comando                                                                              # EnquantoComando
-    | Para '(' (expressaoSequencia | variavelDeclaracaoList)? ';' expressaoSequencia? ';' expressaoSequencia? ')' comando   # ParaComando
-    | Para '(' (expressaoUnica | variavelDeclaracaoList) Em expressaoSequencia ')' comando                                # ParaEmComando
+    : Do comando Enquanto '(' expressaoSequencia ')' fimDoComando                                                               # DoComando
+    | Enquanto '(' expressaoSequencia ')' comando                                                                               # EnquantoComando
+    | Para '(' (expressaoSequencia | variavelDeclaracaoList)? ';' expressaoSequencia? ';' expressaoSequencia? ')' comando       # ParaComando
+    | Para '(' (expressaoUnica | variavelDeclaracaoList) Em expressaoSequencia ')' comando                                      # ParaEmComando
     | Para Aguardar? '(' (expressaoUnica | variavelDeclaracaoList) identificador{this.p("of")}? expressaoSequencia ')' comando  # ParaOfComando
     ;
 
@@ -236,7 +236,7 @@ declaracaoClasse
     ;
 
 fimDaClasse
-    : (Extende expressaoUnica)? '{' classElement* '}'
+    : (Herda expressaoUnica)? '{' classElement* '}'
     ;
 
 classElement
@@ -281,12 +281,12 @@ elementoVetor
     ;
 
 propertyAtribuicao
-    : nomePropriedade ':' expressaoUnica                                   # PropertyExpressaoAtribuicao
-    | '[' expressaoUnica ']' ':' expressaoUnica                            # ComputedPropertyExpressaoAtribuicao
+    : nomePropriedade ':' expressaoUnica                                             # PropertyExpressaoAtribuicao
+    | '[' expressaoUnica ']' ':' expressaoUnica                                      # ComputedPropertyExpressaoAtribuicao
     | Assincrono? '*'? nomePropriedade '(' listaFormalParametros?  ')'  corpoFuncao  # FunctionProperty
-    | obtenedor '(' ')' corpoFuncao                                           # PropertyGetter
-    | definidor '(' parametroArgumentoFormal ')' corpoFuncao                        # PropertySetter
-    | TresPontos? expressaoUnica                                           # PropertyShorthand
+    | obtenedor '(' ')' corpoFuncao                                                  # PropertyGetter
+    | definidor '(' parametroArgumentoFormal ')' corpoFuncao                         # PropertySetter
+    | TresPontos? expressaoUnica                                                     # PropertyShorthand
     ;
 
 nomePropriedade
@@ -334,12 +334,11 @@ expressaoUnica
     | <assoc=right> expressaoUnica '**' expressaoUnica                  # PotenciaExpressao
     | expressaoUnica ('*' | '/' | '%') expressaoUnica                   # MultiplicativeExpressao
     | expressaoUnica ('+' | '-') expressaoUnica                         # AdditiveExpressao
-    | expressaoUnica '??' expressaoUnica                                # CoalesceExpressao
+    | expressaoUnica '?:' expressaoUnica                                # CoalesceExpressao
     | expressaoUnica ('<<' | '>>' | '>>>') expressaoUnica               # BitShiftExpressao
     | expressaoUnica ('<' | '>' | '<=' | '>=') expressaoUnica           # RelationalExpressao
-    | expressaoUnica InstanciaDe expressaoUnica                         # InstanciaDeExpressao
     | expressaoUnica Em expressaoUnica                                  # EmExpressao
-    | expressaoUnica ('==' | '!=' | '===' | '!==') expressaoUnica       # EqualityExpressao
+    | expressaoUnica ('==' | '!=') expressaoUnica                       # EqualityExpressao
     | expressaoUnica '&' expressaoUnica                                 # BitAndExpressao
     | expressaoUnica '^' expressaoUnica                                 # BitXOrExpressao
     | expressaoUnica '|' expressaoUnica                                 # BitOrExpressao
@@ -463,7 +462,6 @@ palavraReservada
 palavraChave
     : Sustar
     | Do
-    | InstanciaDe
     | TipoDe
     | Caso
     | Senao
@@ -477,7 +475,6 @@ palavraChave
     | Para
     | Escolha
     | Enquanto
-    | Debugger
     | Funcao_
     | Isto
     | Com
@@ -490,7 +487,7 @@ palavraChave
 
     | Classe
     | Enum
-    | Extende
+    | Herda
     | Super
     | Const
     | Exportar
