@@ -395,6 +395,20 @@ describe('Avaliador sintático (Pituguês)', () => {
                 const temValidacaoSe = retornoAvaliador.declaracoes.some(d => d.constructor.name === 'Se');
                 expect(temValidacaoSe).toBe(true);
             });
+
+            it('Deve suportar atribuição composta (+=, -=, *=, /=)', () => {
+                const retornoLexador = lexador.mapear([`
+                    a = 1
+                    a += 2
+                    a -= 1
+                    a *= 3
+                    a /= 2
+                `], -1);
+                const retornoAvaliador = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliador.erros).toHaveLength(0);
+                expect(retornoAvaliador.declaracoes).toHaveLength(5);
+            });
         });
 
         describe('Casos de falha', () => {

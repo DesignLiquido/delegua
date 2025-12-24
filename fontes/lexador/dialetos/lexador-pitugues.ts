@@ -409,6 +409,10 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
                         this.adicionarSimbolo(tiposDeSimbolos.DIVISAO_INTEIRA);
                         this.avancar();
                         break;
+                    case '=':
+                        this.adicionarSimbolo(tiposDeSimbolos.DIVISAO_IGUAL);
+                        this.avancar();
+                        break;
                     default:
                         this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
                         break;
@@ -431,6 +435,9 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
                 if (this.simboloAtual() === '*') {
                     this.avancar();
                     this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
+                } else if (this.simboloAtual() === '=') {
+                    this.avancar();
+                    this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO_IGUAL);
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
                 }

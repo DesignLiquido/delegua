@@ -2012,6 +2012,70 @@ describe('Interpretador (Pituguês)', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
                 expect(_saidas[0]).toBe('Olá');
             });
+
+            it('Deve executar atribuição composta de soma (+=) com sucesso', async () => {
+                const retornoLexador = lexador.mapear([`
+                    a = 10
+                    a += 5
+                    escreva(a)
+                `], -1);
+                const retornoAvaliador = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliador.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toEqual('15');
+            });
+
+            it('Deve executar atribuição composta de subtração (-=) com sucesso', async () => {
+                const retornoLexador = lexador.mapear([`
+                    a = 10
+                    a -= 5
+                    escreva(a)
+                `], -1);
+                const retornoAvaliador = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliador.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toEqual('5');
+            });
+
+            it('Deve executar atribuição composta de divisão (/=) com sucesso', async () => {
+                const retornoLexador = lexador.mapear([`
+                    a = 10
+                    a /= 2
+                    escreva(a)
+                `], -1);
+                const retornoAvaliador = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliador.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toEqual('5');
+            });
+
+            it('Deve executar atribuição composta de multiplicação (*=) com sucesso', async () => {
+                const retornoLexador = lexador.mapear([`
+                    a = 10
+                    a *= 2
+                    escreva(a)
+                `], -1);
+                const retornoAvaliador = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliador.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toEqual('20');
+            });
         });
 
         it('termina_com - sufixo encontrado no final', async () => {
@@ -2628,6 +2692,27 @@ describe('Interpretador (Pituguês)', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(1);
                 });
+            });
+
+            it('Deve falhar ao tentar usar atribuição composta em um literal (Syntax Error)', async () => {
+                const retornoLexador = lexador.mapear([`
+                    10 += 5
+                `], -1);
+
+                const retornoAvaliador = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliador.erros).toHaveLength(1);
+                expect(retornoAvaliador.erros[0].message).toBe('Tarefa de atribuição inválida');
+            });
+
+            it('Deve falhar ao tentar atualizar variável não definida (Runtime Error)', async () => {
+                const retornoLexador = lexador.mapear([`
+                    x += 10
+                `], -1);
+
+                const retornoAvaliador = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliador.erros.length).toBeGreaterThan(0);
             });
         });
     });
