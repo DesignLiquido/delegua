@@ -6,6 +6,16 @@ export default async (): Promise<Config.InitialOptions> => {
         modulePathIgnorePatterns: ['<rootDir>/dist/'],
         preset: 'ts-jest',
         testEnvironment: 'node',
+        transform: {
+            '^.+\\.tsx?$': ['ts-jest', {
+                isolatedModules: false,
+                tsconfig: {
+                    sourceMap: true,
+                    inlineSourceMap: true,
+                    inlineSources: true
+                }
+            }]
+        },
         coverageReporters: ['json-summary', 'lcov', 'text', 'text-summary'],
         coveragePathIgnorePatterns: [
             "<rootDir>/fontes/avaliador-sintatico/traducao/avaliador-sintatico-javascript.ts",

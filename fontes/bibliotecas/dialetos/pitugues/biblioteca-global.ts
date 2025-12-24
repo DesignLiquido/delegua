@@ -1131,7 +1131,7 @@ export async function vetor(
     }
 
     const resultado = objetoTupla.elementos.map((elemento: any) => {
-        return elemento.hasOwnProperty('valor') ? elemento.valor : elemento;
+        return interpretador.resolverValor(elemento);
     });
 
     return Promise.resolve(resultado);
