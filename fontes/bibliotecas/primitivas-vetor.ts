@@ -2,7 +2,32 @@ import { DeleguaFuncao } from '../interpretador/estruturas';
 import { InterpretadorInterface, PrimitivaInterface, SimboloInterface } from '../interfaces';
 import { InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
 import { inferirTipoVariavel } from '../inferenciador';
-import { Literal, TuplaN } from '../construtos';
+import {
+    Literal,
+    Dupla,
+    Trio,
+    Quarteto,
+    Quinteto,
+    Sexteto,
+    Septeto,
+    Octeto,
+    Noneto,
+    Deceto,
+    TuplaN
+} from '../construtos';
+import { ErroEmTempoDeExecucao } from '../excecoes';
+
+const mapaConstrutoresTupla: { [tamanho: number]: any } = {
+    2: Dupla,
+    3: Trio,
+    4: Quarteto,
+    5: Quinteto,
+    6: Sexteto,
+    7: Septeto,
+    8: Octeto,
+    9: Noneto,
+    10: Deceto
+};
 
 export default {
     adicionar: {
@@ -447,14 +472,32 @@ export default {
             nomePrimitiva: string,
             vetor: Array<any>
         ): Promise<any> => {
-            const elementos = vetor.map(item => {
-                return new Literal(
-                    interpretador.hashArquivoDeclaracaoAtual,
-                    interpretador.linhaDeclaracaoAtual,
-                    item,
-                    inferirTipoVariavel(item) as any
+            if (vetor.length < 2) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        {
+                            hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                            linha: interpretador.linhaDeclaracaoAtual,
+                        } as SimboloInterface,
+                        'Para converter um vetor em tupla, ele precisa ter no mínimo 2 elementos.'
+                    )
                 );
-            });
+            }
+
+            const criarLiteral = (item: any) => new Literal(
+                interpretador.hashArquivoDeclaracaoAtual,
+                interpretador.linhaDeclaracaoAtual,
+                item,
+                inferirTipoVariavel(item) as any
+            );
+
+            if (mapaConstrutoresTupla.hasOwnProperty(vetor.length)) {
+                const Construtor = mapaConstrutoresTupla[vetor.length];
+                const args = vetor.map(criarLiteral);
+                return Promise.resolve(new Construtor(...args));
+            }
+
+            const elementos = vetor.map(criarLiteral);
 
             return Promise.resolve(new TuplaN(
                 interpretador.hashArquivoDeclaracaoAtual,
@@ -465,7 +508,7 @@ export default {
         assinaturaFormato: 'vetor.paraTupla()',
         documentacao:
             '# `vetor.paraTupla()` \n \n' +
-            'Converte o vetor atual em uma tupla imutável.',
+            'Converte o vetor atual em uma tupla imutável. Requer no mínimo 2 elementos.',
         exemploCodigo: 'vetor.paraTupla()',
     },
     remover: {

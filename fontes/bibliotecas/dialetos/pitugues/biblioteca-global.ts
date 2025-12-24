@@ -1114,7 +1114,7 @@ export async function vetor(
     interpretador: InterpretadorInterface,
     tupla: TuplaN | any
 ): Promise<any[]> {
-    const objetoTupla = tupla.hasOwnProperty('valor') ? tupla.valor : tupla;
+    const objetoTupla = interpretador.resolverValor(tupla);
 
     // TODO: As lógicas de validação abaixo deixam de fazer sentido com a validação de argumentos feita
     // na avaliação sintática. Estudar remoção.

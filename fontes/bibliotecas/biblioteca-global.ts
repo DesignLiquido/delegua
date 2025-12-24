@@ -23,6 +23,42 @@ import {
 import { RetornoQuebra } from '../quebras';
 import { inferirTipoVariavel } from '../inferenciador';
 
+const configTuplas: { [key: string]: { Classe: any, props: string[] } } = {
+    'Dupla': { Classe: Dupla, props: ['primeiro', 'segundo'] },
+    'Trio': { Classe: Trio, props: ['primeiro', 'segundo', 'terceiro'] },
+    'Quarteto': { Classe: Quarteto, props: ['primeiro', 'segundo', 'terceiro', 'quarto'] },
+    'Quinteto': { Classe: Quinteto, props: ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto'] },
+    'Sexteto': { Classe: Sexteto, props: [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto'] },
+    'Septeto': { Classe: Septeto, props: [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo' ] },
+    'Octeto': { Classe: Octeto, props: [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo' ] },
+    'Noneto': { Classe: Noneto, props: [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo', 'nono' ] },
+    'Deceto': { Classe: Deceto, props: [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo', 'nono', 'decimo' ] },
+};
+
+const mapaConstrutoresTupla: { [tamanho: number]: any } = {
+    2: Dupla,
+    3: Trio,
+    4: Quarteto,
+    5: Quinteto,
+    6: Sexteto,
+    7: Septeto,
+    8: Octeto,
+    9: Noneto,
+    10: Deceto
+};
+
+const mapaPropriedadesTuplas: { [nomeClasse: string]: string[] } = {
+    'Dupla': ['primeiro', 'segundo'],
+    'Trio': ['primeiro', 'segundo', 'terceiro'],
+    'Quarteto': ['primeiro', 'segundo', 'terceiro', 'quarto'],
+    'Quinteto': [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto' ],
+    'Sexteto': [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto' ],
+    'Septeto': [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo' ],
+    'Octeto': [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo' ],
+    'Noneto': [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo', 'nono' ],
+    'Deceto': [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo', 'nono', 'decimo' ],
+};
+
 /**
  * Retorna um número aleatório entre 0 e 1.
  * @returns {Promise<number>} Número real.
@@ -228,32 +264,35 @@ export async function clonar(
             return objetoClonado;
         }
 
-        // Tuplas
-        if (valorAtual instanceof TuplaN || (valorAtual.constructor && valorAtual.constructor.name === 'TuplaN')) {
+        // Tuplas com 11 elementos ou mais
+        if (valorAtual instanceof TuplaN) {
             const elementosClonados: any[] = [];
             visitados.set(valorAtual, elementosClonados);
 
-            for (const elemento of valorAtual.elementos) {
-                if (elemento instanceof Literal || (elemento.constructor && elemento.constructor.name === 'Literal')) {
-                    const valorClonado = clonarProfundo(elemento.valor);
-                    elementosClonados.push(
-                        new Literal(
-                            elemento.hashArquivo,
-                            elemento.linha,
-                            valorClonado,
-                            elemento.tipo
-                        )
-                    );
-                } else {
-                    elementosClonados.push(clonarProfundo(elemento));
-                }
+            for (let i = 0; i < valorAtual.elementos.length; i++) {
+                elementosClonados.push(clonarProfundo(valorAtual.elementos[i]));
             }
 
             return new TuplaN(
-                interpretador.hashArquivoDeclaracaoAtual,
-                interpretador.linhaDeclaracaoAtual,
+                valorAtual.hashArquivo,
+                valorAtual.linha,
                 elementosClonados
             );
+        }
+
+        // Tuplas com até 10 elementos
+        const nomeClasseTupla = valorAtual.constructor?.name;
+        if (nomeClasseTupla && configTuplas[nomeClasseTupla]) {
+            const config = configTuplas[nomeClasseTupla];
+            const argsClonados = [];
+
+            visitados.set(valorAtual, argsClonados);
+
+            for (const prop of config.props) {
+                argsClonados.push(clonarProfundo(valorAtual[prop]));
+            }
+
+            return new config.Classe(...argsClonados);
         }
 
         // DeleguaFuncao e FuncaoPadrao - funções não são clonadas profundamente
@@ -1190,7 +1229,7 @@ export async function todosEmCondicao(
 export async function tupla(
     interpretador: InterpretadorInterface,
     vetor: VariavelInterface | any[]
-): Promise<TuplaN> {
+): Promise<Tupla | TuplaN> {
     const valorVetor: any[] =
         !Array.isArray(vetor) && vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
 
@@ -1208,31 +1247,50 @@ export async function tupla(
         );
     }
 
-    const elementos = valorVetor.map(item => {
-        return new Literal(
-            interpretador.hashArquivoDeclaracaoAtual,
-            interpretador.linhaDeclaracaoAtual,
-            item,
-            inferirTipoVariavel(item) as any
-        );
-    });
+    const tamanho = valorVetor.length;
 
-    return new TuplaN(
+    if (tamanho < 2) {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                {
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual,
+                } as SimboloInterface,
+                'Para ser transformado em uma tupla, vetor precisa ter no mínimo 2 elementos.'
+            )
+        );
+    }
+
+    const criarLiteral = (valor: any) => new Literal(
         interpretador.hashArquivoDeclaracaoAtual,
         interpretador.linhaDeclaracaoAtual,
-        elementos
+        valor,
+        inferirTipoVariavel(valor) as any
     );
+
+    if (mapaConstrutoresTupla.hasOwnProperty(tamanho)) {
+        const Construtor = mapaConstrutoresTupla[tamanho];
+        const args = valorVetor.map(criarLiteral);
+        return Promise.resolve(new Construtor(...args));
+    }
+
+    const elementos = valorVetor.map(criarLiteral);
+    return Promise.resolve(new TuplaN(
+       interpretador.hashArquivoDeclaracaoAtual,
+       interpretador.linhaDeclaracaoAtual,
+       elementos
+    ));
 }
 
 export async function vetor(
     interpretador: InterpretadorInterface,
-    tupla: TuplaN | any
+    tupla: Tupla | TuplaN | any
 ): Promise<any[]> {
-    const objetoTupla = tupla.hasOwnProperty('valor') ? tupla.valor : tupla;
+    const objetoTupla = interpretador.resolverValor(tupla);
 
     // TODO: As lógicas de validação abaixo deixam de fazer sentido com a validação de argumentos feita
     // na avaliação sintática. Estudar remoção.
-    if (!(objetoTupla instanceof TuplaN)) {
+    if (!(objetoTupla instanceof Tupla || objetoTupla instanceof TuplaN)) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 {
@@ -1244,9 +1302,24 @@ export async function vetor(
         );
     }
 
-    const resultado = objetoTupla.elementos.map((elemento: any) => {
-        return elemento.hasOwnProperty('valor') ? elemento.valor : elemento;
-    });
+    let resultado: any[] = [];
 
-    return Promise.resolve(resultado);
+    if (objetoTupla instanceof TuplaN) {
+        resultado = objetoTupla.elementos;
+    } else {
+        const nomeClasse = objetoTupla.constructor.name;
+
+        if (mapaPropriedadesTuplas.hasOwnProperty(nomeClasse)) {
+            const props = mapaPropriedadesTuplas[nomeClasse];
+            resultado = props.map(prop => (objetoTupla as any)[prop]);
+        } else if ((objetoTupla as any).elementos && Array.isArray((objetoTupla as any).elementos)) {
+            resultado = (objetoTupla as any).elementos;
+        }
+    }
+
+    const resultadoFinal = resultado.map(item =>
+        (item && item.hasOwnProperty('valor')) ? item.valor : item
+    );
+
+    return Promise.resolve(resultadoFinal);
 }

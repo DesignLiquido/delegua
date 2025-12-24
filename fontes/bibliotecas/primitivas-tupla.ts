@@ -1,6 +1,18 @@
 import { InterpretadorInterface, PrimitivaInterface } from '../interfaces';
 import { ErroEmTempoDeExecucao } from '../excecoes';
-import { TuplaN } from '../construtos';
+import { Tupla, TuplaN } from '../construtos';
+
+const mapaPropriedadesTuplas: { [nomeClasse: string]: string[] } = {
+    'Dupla': ['primeiro', 'segundo'],
+    'Trio': ['primeiro', 'segundo', 'terceiro'],
+    'Quarteto': ['primeiro', 'segundo', 'terceiro', 'quarto'],
+    'Quinteto': ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto'],
+    'Sexteto': ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto'],
+    'Septeto': ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo'],
+    'Octeto': ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo'],
+    'Noneto': ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo', 'nono'],
+    'Deceto': ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo', 'nono', 'decimo'],
+};
 
 export default {
     paraVetor: {
@@ -9,11 +21,11 @@ export default {
         implementacao: (
             interpretador: InterpretadorInterface,
             nomePrimitiva: string,
-            tupla: TuplaN
+            tupla: Tupla | TuplaN
         ): Promise<any> => {
             const objetoTupla = interpretador.resolverValor(tupla);
 
-            if (!(objetoTupla instanceof TuplaN)) {
+            if (!(objetoTupla instanceof Tupla || objetoTupla instanceof TuplaN)) {
                 return Promise.reject(
                     new ErroEmTempoDeExecucao(
                         null,
@@ -23,11 +35,23 @@ export default {
                 );
             }
 
-            const valoresPuros = objetoTupla.elementos.map(elemento =>
+            let elementosBrutos: any[] = [];
+
+            if (objetoTupla instanceof TuplaN) {
+                elementosBrutos = objetoTupla.elementos;
+            } else {
+                const nomeClasse = objetoTupla.constructor.name;
+                if (mapaPropriedadesTuplas.hasOwnProperty(nomeClasse)) {
+                    const props = mapaPropriedadesTuplas[nomeClasse];
+                    elementosBrutos = props.map(prop => objetoTupla[prop]);
+                }
+            }
+
+            const valoresResolvidos = elementosBrutos.map(elemento =>
                 interpretador.resolverValor(elemento)
             );
 
-            return Promise.resolve(valoresPuros);
+            return Promise.resolve(valoresResolvidos);
         },
         assinaturaFormato: 'tupla.paraVetor()',
         documentacao:
