@@ -20,6 +20,7 @@ export default async (): Promise<Config.InitialOptions> => {
         coveragePathIgnorePatterns: [
             "<rootDir>/fontes/avaliador-sintatico/traducao/avaliador-sintatico-javascript.ts",
             "<rootDir>/fontes/tradutores/python/*.*",
+            "<rootDir>/testes/_mocks/*.*",
         ]
     };
 };
