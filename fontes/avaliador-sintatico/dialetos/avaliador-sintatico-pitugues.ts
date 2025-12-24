@@ -97,6 +97,7 @@ import primitivasDicionario from '../../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../../bibliotecas/primitivas-numero';
 import primitivasTexto from '../../bibliotecas/primitivas-texto';
 import primitivasVetor from '../../bibliotecas/primitivas-vetor';
+import primitivasTupla from '../../bibliotecas/dialetos/pitugues/primitivas-tupla';
 import { MicroLexadorPitugues } from '../../lexador/micro-lexador-pitugues';
 import { MicroAvaliadorSintaticoPitugues } from './micro-avaliador-sintatico-pitugues';
 
@@ -140,6 +141,7 @@ export class AvaliadorSintaticoPitugues
         registrarPrimitiva(this.primitivasConhecidas, 'número', primitivasNumero);
         registrarPrimitiva(this.primitivasConhecidas, 'texto', primitivasTexto);
         registrarPrimitiva(this.primitivasConhecidas, 'vetor', primitivasVetor);
+        registrarPrimitiva(this.primitivasConhecidas, 'tupla', primitivasTupla);
     }
 
     protected logicaComumInferenciaTiposVariaveisEConstantes(

@@ -82,6 +82,7 @@ import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
+import primitivasTupla from '../bibliotecas/dialetos/pitugues/primitivas-tupla';
 
 import tipoDeDadosPrimitivos from '../tipos-de-dados/primitivos';
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
@@ -628,6 +629,39 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             return objeto[valorIndice];
         }
 
+        if (objeto instanceof TuplaN || objeto.constructor.name === 'TuplaN') {
+            if (!Number.isInteger(valorIndice)) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        expressao.simboloFechamento,
+                        'Somente inteiros podem ser usados para indexar uma tupla.',
+                        expressao.linha
+                    )
+                );
+            }
+
+            if (valorIndice < 0 && objeto.elementos.length !== 0) {
+                valorIndice += objeto.elementos.length;
+            }
+
+            if (valorIndice >= objeto.elementos.length || valorIndice < 0) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        expressao.simboloFechamento,
+                        'Índice da tupla fora de intervalo.',
+                        expressao.linha
+                    )
+                );
+            }
+
+            const elemento = objeto.elementos[valorIndice];
+            if (elemento && elemento.constructor && elemento.constructor.name === 'Literal') {
+                return elemento.valor;
+            }
+
+            return elemento;
+        }
+
         if (objeto instanceof Vetor) {
             return objeto.valores[valorIndice];
         }
@@ -700,6 +734,19 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
         if (objeto.constructor && objeto.constructor === ObjetoDeleguaClasse) {
             return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomeMetodo) || null;
+        }
+
+        if (objeto instanceof TuplaN || objeto.constructor.name === 'TuplaN') {
+            const metodoDePrimitivaTupla = primitivasTupla[expressao.nomeMetodo];
+            if (metodoDePrimitivaTupla) {
+                return new MetodoPrimitiva(
+                    nomeObjeto,
+                    objeto,
+                    metodoDePrimitivaTupla.implementacao,
+                    expressao.nomeMetodo,
+                    'tupla'
+                );
+            }
         }
 
         // Objeto simples do JavaScript, ou dicionário de Delégua.
@@ -810,6 +857,19 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
         if (objeto.constructor === ObjetoDeleguaClasse) {
             return (objeto as ObjetoDeleguaClasse).obter(expressao.simbolo);
+        }
+
+        if (objeto instanceof TuplaN || objeto.constructor.name === 'TuplaN') {
+            const metodoDePrimitivaTupla = primitivasTupla[expressao.simbolo.lexema];
+            if (metodoDePrimitivaTupla) {
+                return new MetodoPrimitiva(
+                    nomeObjeto,
+                    objeto,
+                    metodoDePrimitivaTupla.implementacao,
+                    expressao.simbolo.lexema,
+                    'tupla'
+                );
+            }
         }
 
         // Objeto simples do JavaScript, ou dicionário de Delégua.
@@ -944,6 +1004,19 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         // então testamos também o nome do construtor.
         if (objeto.constructor === ObjetoDeleguaClasse) {
             return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomePropriedade) || null;
+        }
+
+        if (objeto instanceof TuplaN || objeto.constructor.name === 'TuplaN') {
+            const metodoPrimitivaTupla = primitivasTupla[expressao.nomePropriedade];
+            if (metodoPrimitivaTupla) {
+                return new MetodoPrimitiva(
+                    nomeObjeto,
+                    objeto,
+                    metodoPrimitivaTupla.implementacao,
+                    expressao.nomePropriedade,
+                    'tupla'
+                );
+            }
         }
 
         // Objeto simples do JavaScript, ou dicionário de Delégua.

@@ -319,7 +319,18 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     async visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> {
-        throw new Error('Método não implementado.');
+        const elementos = [];
+
+        for (let i = 0; i < expressao.elementos.length; i++) {
+            const res = await this.avaliar(expressao.elementos[i]);
+            elementos.push(this.resolverValor(res));
+        }
+
+        const elementosComoConstrutos = elementos.map(valor =>
+            new Literal(expressao.hashArquivo, expressao.linha, valor)
+        );
+
+        return new TuplaN(expressao.hashArquivo, expressao.linha, elementosComoConstrutos);
     }
 
     async visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
@@ -795,7 +806,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                     if (!isNaN(textoParaNumero)) {
                         return textoParaNumero * valorQuantidade;
                     }
-                    
+
                     if (!Number.isInteger(valorQuantidade)) {
                         throw new ErroEmTempoDeExecucao(
                             expressao.operador,
@@ -1674,6 +1685,39 @@ export class InterpretadorBase implements InterpretadorInterface {
             }
 
             return objeto[valorIndice];
+        }
+
+        if (objeto instanceof TuplaN || objeto.constructor.name === 'TuplaN') {
+            if (!Number.isInteger(valorIndice)) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        expressao.simboloFechamento,
+                        'Somente inteiros podem ser usados para indexar uma tupla.',
+                        expressao.linha
+                    )
+                );
+            }
+
+            if (valorIndice < 0 && objeto.elementos.length !== 0) {
+                valorIndice += objeto.elementos.length;
+            }
+
+            if (valorIndice >= objeto.elementos.length || valorIndice < 0) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        expressao.simboloFechamento,
+                        'Índice da tupla fora de intervalo.',
+                        expressao.linha
+                    )
+                );
+            }
+
+            const elemento = objeto.elementos[valorIndice];
+            if (elemento && elemento.constructor && elemento.constructor.name === 'Literal') {
+                return elemento.valor;
+            }
+
+            return elemento;
         }
 
         if (objeto instanceof Vetor) {

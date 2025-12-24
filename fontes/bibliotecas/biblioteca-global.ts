@@ -17,10 +17,47 @@ import {
     Sexteto,
     Trio,
     Tupla,
+    TuplaN
 } from '../construtos';
 
 import { RetornoQuebra } from '../quebras';
 import { inferirTipoVariavel } from '../inferenciador';
+
+const configTuplas: { [key: string]: { Classe: any, props: string[] } } = {
+    'Dupla': { Classe: Dupla, props: ['primeiro', 'segundo'] },
+    'Trio': { Classe: Trio, props: ['primeiro', 'segundo', 'terceiro'] },
+    'Quarteto': { Classe: Quarteto, props: ['primeiro', 'segundo', 'terceiro', 'quarto'] },
+    'Quinteto': { Classe: Quinteto, props: ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto'] },
+    'Sexteto': { Classe: Sexteto, props: [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto'] },
+    'Septeto': { Classe: Septeto, props: [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo' ] },
+    'Octeto': { Classe: Octeto, props: [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo' ] },
+    'Noneto': { Classe: Noneto, props: [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo', 'nono' ] },
+    'Deceto': { Classe: Deceto, props: [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo', 'nono', 'decimo' ] },
+};
+
+const mapaConstrutoresTupla: { [tamanho: number]: any } = {
+    2: Dupla,
+    3: Trio,
+    4: Quarteto,
+    5: Quinteto,
+    6: Sexteto,
+    7: Septeto,
+    8: Octeto,
+    9: Noneto,
+    10: Deceto
+};
+
+const mapaPropriedadesTuplas: { [nomeClasse: string]: string[] } = {
+    'Dupla': ['primeiro', 'segundo'],
+    'Trio': ['primeiro', 'segundo', 'terceiro'],
+    'Quarteto': ['primeiro', 'segundo', 'terceiro', 'quarto'],
+    'Quinteto': [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto' ],
+    'Sexteto': [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto' ],
+    'Septeto': [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo' ],
+    'Octeto': [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo' ],
+    'Noneto': [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo', 'nono' ],
+    'Deceto': [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo', 'nono', 'decimo' ],
+};
 
 /**
  * Retorna um número aleatório entre 0 e 1.
@@ -227,198 +264,35 @@ export async function clonar(
             return objetoClonado;
         }
 
-        // Tuplas
+        // Tuplas com 11 elementos ou mais
+        if (valorAtual instanceof TuplaN) {
+            const elementosClonados: any[] = [];
+            visitados.set(valorAtual, elementosClonados);
+
+            for (let i = 0; i < valorAtual.elementos.length; i++) {
+                elementosClonados.push(clonarProfundo(valorAtual.elementos[i]));
+            }
+
+            return new TuplaN(
+                valorAtual.hashArquivo,
+                valorAtual.linha,
+                elementosClonados
+            );
+        }
+
+        // Tuplas com até 10 elementos
         const nomeClasseTupla = valorAtual.constructor?.name;
-        if (
-            nomeClasseTupla &&
-            /^(Dupla|Trio|Quarteto|Quinteto|Sexteto|Septeto|Octeto|Noneto|Deceto)$/.test(
-                nomeClasseTupla
-            )
-        ) {
-            const valoresClonados: any[] = [];
-            visitados.set(valorAtual, valoresClonados);
+        if (nomeClasseTupla && configTuplas[nomeClasseTupla]) {
+            const config = configTuplas[nomeClasseTupla];
+            const argsClonados = [];
 
-            // Extrair valores da tupla baseado no tipo
-            let valores: any[] = [];
+            visitados.set(valorAtual, argsClonados);
 
-            switch (nomeClasseTupla) {
-                case 'Dupla':
-                    valores = [valorAtual.primeiro, valorAtual.segundo];
-                    break;
-                case 'Trio':
-                    valores = [valorAtual.primeiro, valorAtual.segundo, valorAtual.terceiro];
-                    break;
-                case 'Quarteto':
-                    valores = [
-                        valorAtual.primeiro,
-                        valorAtual.segundo,
-                        valorAtual.terceiro,
-                        valorAtual.quarto,
-                    ];
-                    break;
-                case 'Quinteto':
-                    valores = [
-                        valorAtual.primeiro,
-                        valorAtual.segundo,
-                        valorAtual.terceiro,
-                        valorAtual.quarto,
-                        valorAtual.quinto,
-                    ];
-                    break;
-                case 'Sexteto':
-                    valores = [
-                        valorAtual.primeiro,
-                        valorAtual.segundo,
-                        valorAtual.terceiro,
-                        valorAtual.quarto,
-                        valorAtual.quinto,
-                        valorAtual.sexto,
-                    ];
-                    break;
-                case 'Septeto':
-                    valores = [
-                        valorAtual.primeiro,
-                        valorAtual.segundo,
-                        valorAtual.terceiro,
-                        valorAtual.quarto,
-                        valorAtual.quinto,
-                        valorAtual.sexto,
-                        valorAtual.setimo,
-                    ];
-                    break;
-                case 'Octeto':
-                    valores = [
-                        valorAtual.primeiro,
-                        valorAtual.segundo,
-                        valorAtual.terceiro,
-                        valorAtual.quarto,
-                        valorAtual.quinto,
-                        valorAtual.sexto,
-                        valorAtual.setimo,
-                        valorAtual.oitavo,
-                    ];
-                    break;
-                case 'Noneto':
-                    valores = [
-                        valorAtual.primeiro,
-                        valorAtual.segundo,
-                        valorAtual.terceiro,
-                        valorAtual.quarto,
-                        valorAtual.quinto,
-                        valorAtual.sexto,
-                        valorAtual.setimo,
-                        valorAtual.oitavo,
-                        valorAtual.nono,
-                    ];
-                    break;
-                case 'Deceto':
-                    valores = [
-                        valorAtual.primeiro,
-                        valorAtual.segundo,
-                        valorAtual.terceiro,
-                        valorAtual.quarto,
-                        valorAtual.quinto,
-                        valorAtual.sexto,
-                        valorAtual.setimo,
-                        valorAtual.oitavo,
-                        valorAtual.nono,
-                        valorAtual.decimo,
-                    ];
-                    break;
-                default:
-                    // Se não conseguir identificar, tentar extrair valores diretamente
-                    if (valorAtual.valor) {
-                        valores = Array.isArray(valorAtual.valor)
-                            ? valorAtual.valor
-                            : [valorAtual.valor];
-                    }
+            for (const prop of config.props) {
+                argsClonados.push(clonarProfundo(valorAtual[prop]));
             }
 
-            // Clonar valores
-            for (let i = 0; i < valores.length; i++) {
-                valoresClonados.push(clonarProfundo(valores[i]));
-            }
-
-            // Recriar a tupla com valores clonados
-            switch (nomeClasseTupla) {
-                case 'Dupla':
-                    return new Dupla(valoresClonados[0], valoresClonados[1]);
-                case 'Trio':
-                    return new Trio(valoresClonados[0], valoresClonados[1], valoresClonados[2]);
-                case 'Quarteto':
-                    return new Quarteto(
-                        valoresClonados[0],
-                        valoresClonados[1],
-                        valoresClonados[2],
-                        valoresClonados[3]
-                    );
-                case 'Quinteto':
-                    return new Quinteto(
-                        valoresClonados[0],
-                        valoresClonados[1],
-                        valoresClonados[2],
-                        valoresClonados[3],
-                        valoresClonados[4]
-                    );
-                case 'Sexteto':
-                    return new Sexteto(
-                        valoresClonados[0],
-                        valoresClonados[1],
-                        valoresClonados[2],
-                        valoresClonados[3],
-                        valoresClonados[4],
-                        valoresClonados[5]
-                    );
-                case 'Septeto':
-                    return new Septeto(
-                        valoresClonados[0],
-                        valoresClonados[1],
-                        valoresClonados[2],
-                        valoresClonados[3],
-                        valoresClonados[4],
-                        valoresClonados[5],
-                        valoresClonados[6]
-                    );
-                case 'Octeto':
-                    return new Octeto(
-                        valoresClonados[0],
-                        valoresClonados[1],
-                        valoresClonados[2],
-                        valoresClonados[3],
-                        valoresClonados[4],
-                        valoresClonados[5],
-                        valoresClonados[6],
-                        valoresClonados[7]
-                    );
-                case 'Noneto':
-                    return new Noneto(
-                        valoresClonados[0],
-                        valoresClonados[1],
-                        valoresClonados[2],
-                        valoresClonados[3],
-                        valoresClonados[4],
-                        valoresClonados[5],
-                        valoresClonados[6],
-                        valoresClonados[7],
-                        valoresClonados[8]
-                    );
-                case 'Deceto':
-                    return new Deceto(
-                        valoresClonados[0],
-                        valoresClonados[1],
-                        valoresClonados[2],
-                        valoresClonados[3],
-                        valoresClonados[4],
-                        valoresClonados[5],
-                        valoresClonados[6],
-                        valoresClonados[7],
-                        valoresClonados[8],
-                        valoresClonados[9]
-                    );
-                default:
-                    // Se não conseguir recriar, retornar os valores clonados como array
-                    return valoresClonados;
-            }
+            return new config.Classe(...argsClonados);
         }
 
         // DeleguaFuncao e FuncaoPadrao - funções não são clonadas profundamente
@@ -1355,7 +1229,7 @@ export async function todosEmCondicao(
 export async function tupla(
     interpretador: InterpretadorInterface,
     vetor: VariavelInterface | any[]
-): Promise<Tupla> {
+): Promise<Tupla | TuplaN> {
     const valorVetor: any[] =
         !Array.isArray(vetor) && vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
 
@@ -1373,114 +1247,79 @@ export async function tupla(
         );
     }
 
-    switch (valorVetor.length) {
-        case 2:
-            return Promise.resolve(
-                new Dupla(
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[0], inferirTipoVariavel(valorVetor[0]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[1], inferirTipoVariavel(valorVetor[1]) as any),
-                )
-            );
-        case 3:
-            return Promise.resolve(new Trio(
-                new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[0], inferirTipoVariavel(valorVetor[0]) as any),
-                new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[1], inferirTipoVariavel(valorVetor[1]) as any),
-                new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[2], inferirTipoVariavel(valorVetor[2]) as any),
-            ));
-        case 4:
-            return Promise.resolve(
-                new Quarteto(
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[0], inferirTipoVariavel(valorVetor[0]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[1], inferirTipoVariavel(valorVetor[1]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[2], inferirTipoVariavel(valorVetor[2]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[3], inferirTipoVariavel(valorVetor[3]) as any),
-                )
-            );
-        case 5:
-            return Promise.resolve(
-                new Quinteto(
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[0], inferirTipoVariavel(valorVetor[0]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[1], inferirTipoVariavel(valorVetor[1]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[2], inferirTipoVariavel(valorVetor[2]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[3], inferirTipoVariavel(valorVetor[3]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[4], inferirTipoVariavel(valorVetor[4]) as any),
-                )
-            );
-        case 6:
-            return Promise.resolve(
-                new Sexteto(
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[0], inferirTipoVariavel(valorVetor[0]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[1], inferirTipoVariavel(valorVetor[1]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[2], inferirTipoVariavel(valorVetor[2]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[3], inferirTipoVariavel(valorVetor[3]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[4], inferirTipoVariavel(valorVetor[4]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[5], inferirTipoVariavel(valorVetor[5]) as any),
-                )
-            );
-        case 7:
-            return Promise.resolve(
-                new Septeto(
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[0], inferirTipoVariavel(valorVetor[0]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[1], inferirTipoVariavel(valorVetor[1]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[2], inferirTipoVariavel(valorVetor[2]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[3], inferirTipoVariavel(valorVetor[3]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[4], inferirTipoVariavel(valorVetor[4]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[5], inferirTipoVariavel(valorVetor[5]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[6], inferirTipoVariavel(valorVetor[6]) as any),
-                )
-            );
-        case 8:
-            return Promise.resolve(
-                new Octeto(
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[0], inferirTipoVariavel(valorVetor[0]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[1], inferirTipoVariavel(valorVetor[1]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[2], inferirTipoVariavel(valorVetor[2]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[3], inferirTipoVariavel(valorVetor[3]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[4], inferirTipoVariavel(valorVetor[4]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[5], inferirTipoVariavel(valorVetor[5]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[6], inferirTipoVariavel(valorVetor[6]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[7], inferirTipoVariavel(valorVetor[7]) as any),
-                )
-            );
-        case 9:
-            return Promise.resolve(
-                new Noneto(
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[0], inferirTipoVariavel(valorVetor[0]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[1], inferirTipoVariavel(valorVetor[1]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[2], inferirTipoVariavel(valorVetor[2]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[3], inferirTipoVariavel(valorVetor[3]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[4], inferirTipoVariavel(valorVetor[4]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[5], inferirTipoVariavel(valorVetor[5]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[6], inferirTipoVariavel(valorVetor[6]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[7], inferirTipoVariavel(valorVetor[7]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[8], inferirTipoVariavel(valorVetor[8]) as any),
-                )
-            );
-        case 10:
-            return Promise.resolve(
-                new Deceto(
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[0], inferirTipoVariavel(valorVetor[0]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[1], inferirTipoVariavel(valorVetor[1]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[2], inferirTipoVariavel(valorVetor[2]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[3], inferirTipoVariavel(valorVetor[3]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[4], inferirTipoVariavel(valorVetor[4]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[5], inferirTipoVariavel(valorVetor[5]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[6], inferirTipoVariavel(valorVetor[6]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[7], inferirTipoVariavel(valorVetor[7]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[8], inferirTipoVariavel(valorVetor[8]) as any),
-                    new Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, valorVetor[9], inferirTipoVariavel(valorVetor[9]) as any),
-                )
-            );
-        case 1:
-        default:
-            return Promise.reject(
-                new ErroEmTempoDeExecucao(
-                    {
-                        hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                        linha: interpretador.linhaDeclaracaoAtual,
-                    } as SimboloInterface,
-                    'Para ser transformado em uma tupla, vetor precisa ter de 2 a 10 elementos.'
-                )
-            );
+    const tamanho = valorVetor.length;
+
+    if (tamanho < 2) {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                {
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual,
+                } as SimboloInterface,
+                'Para ser transformado em uma tupla, vetor precisa ter no mínimo 2 elementos.'
+            )
+        );
     }
+
+    const criarLiteral = (valor: any) => new Literal(
+        interpretador.hashArquivoDeclaracaoAtual,
+        interpretador.linhaDeclaracaoAtual,
+        valor,
+        inferirTipoVariavel(valor) as any
+    );
+
+    if (mapaConstrutoresTupla.hasOwnProperty(tamanho)) {
+        const Construtor = mapaConstrutoresTupla[tamanho];
+        const args = valorVetor.map(criarLiteral);
+        return Promise.resolve(new Construtor(...args));
+    }
+
+    const elementos = valorVetor.map(criarLiteral);
+    return Promise.resolve(new TuplaN(
+       interpretador.hashArquivoDeclaracaoAtual,
+       interpretador.linhaDeclaracaoAtual,
+       elementos
+    ));
+}
+
+export async function vetor(
+    interpretador: InterpretadorInterface,
+    tupla: Tupla | TuplaN | any
+): Promise<any[]> {
+    const objetoTupla = interpretador.resolverValor(tupla);
+
+    // TODO: As lógicas de validação abaixo deixam de fazer sentido com a validação de argumentos feita
+    // na avaliação sintática. Estudar remoção.
+    if (!(objetoTupla instanceof Tupla || objetoTupla instanceof TuplaN)) {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                {
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual,
+                } as SimboloInterface,
+                'Argumento de função nativa `vetor` não parece ser uma tupla.'
+            )
+        );
+    }
+
+    let resultado: any[] = [];
+
+    if (objetoTupla instanceof TuplaN) {
+        resultado = objetoTupla.elementos;
+    } else {
+        const nomeClasse = objetoTupla.constructor.name;
+
+        if (mapaPropriedadesTuplas.hasOwnProperty(nomeClasse)) {
+            const props = mapaPropriedadesTuplas[nomeClasse];
+            resultado = props.map(prop => (objetoTupla as any)[prop]);
+        } else if ((objetoTupla as any).elementos && Array.isArray((objetoTupla as any).elementos)) {
+            resultado = (objetoTupla as any).elementos;
+        }
+    }
+
+    const resultadoFinal = resultado.map(item =>
+        (item && item.hasOwnProperty('valor')) ? item.valor : item
+    );
+
+    return Promise.resolve(resultadoFinal);
 }

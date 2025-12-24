@@ -6,18 +6,13 @@ import { SimboloInterface, VariavelInterface } from '../../../interfaces';
 import { InterpretadorInterface } from '../../../interfaces';
 import { DeleguaFuncao } from '../../../interpretador/estruturas';
 import {
-    Deceto,
-    Dupla,
-    Noneto,
-    Octeto,
-    Quarteto,
-    Quinteto,
-    Septeto,
-    Sexteto,
-    Trio,
+    TuplaN,
     Tupla,
+    Literal
 } from '../../../construtos';
 import { RetornoQuebra } from '../../../quebras';
+
+import { inferirTipoVariavel } from '../../../inferenciador';
 
 /**
  * Retorna um número aleatório entre 0 e 1.
@@ -1081,7 +1076,7 @@ export async function todos_em_condicao(
 export async function tupla(
     interpretador: InterpretadorInterface,
     vetor: VariavelInterface | any[]
-): Promise<Tupla> {
+): Promise<TuplaN> {
     const valorVetor: any[] =
         !Array.isArray(vetor) && vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
 
@@ -1099,100 +1094,45 @@ export async function tupla(
         );
     }
 
-    switch (valorVetor.length) {
-        case 2:
-            return Promise.resolve(new Dupla(valorVetor[0], valorVetor[1]));
-        case 3:
-            return Promise.resolve(new Trio(valorVetor[0], valorVetor[1], valorVetor[2]));
-        case 4:
-            return Promise.resolve(
-                new Quarteto(valorVetor[0], valorVetor[1], valorVetor[2], valorVetor[3])
-            );
-        case 5:
-            return Promise.resolve(
-                new Quinteto(
-                    valorVetor[0],
-                    valorVetor[1],
-                    valorVetor[2],
-                    valorVetor[3],
-                    valorVetor[4]
-                )
-            );
-        case 6:
-            return Promise.resolve(
-                new Sexteto(
-                    valorVetor[0],
-                    valorVetor[1],
-                    valorVetor[2],
-                    valorVetor[3],
-                    valorVetor[4],
-                    valorVetor[5]
-                )
-            );
-        case 7:
-            return Promise.resolve(
-                new Septeto(
-                    valorVetor[0],
-                    valorVetor[1],
-                    valorVetor[2],
-                    valorVetor[3],
-                    valorVetor[4],
-                    valorVetor[5],
-                    valorVetor[6]
-                )
-            );
-        case 8:
-            return Promise.resolve(
-                new Octeto(
-                    valorVetor[0],
-                    valorVetor[1],
-                    valorVetor[2],
-                    valorVetor[3],
-                    valorVetor[4],
-                    valorVetor[5],
-                    valorVetor[6],
-                    valorVetor[7]
-                )
-            );
-        case 9:
-            return Promise.resolve(
-                new Noneto(
-                    valorVetor[0],
-                    valorVetor[1],
-                    valorVetor[2],
-                    valorVetor[3],
-                    valorVetor[4],
-                    valorVetor[5],
-                    valorVetor[6],
-                    valorVetor[7],
-                    valorVetor[8]
-                )
-            );
-        case 10:
-            return Promise.resolve(
-                new Deceto(
-                    valorVetor[0],
-                    valorVetor[1],
-                    valorVetor[2],
-                    valorVetor[3],
-                    valorVetor[4],
-                    valorVetor[5],
-                    valorVetor[6],
-                    valorVetor[7],
-                    valorVetor[8],
-                    valorVetor[9]
-                )
-            );
-        case 1:
-        default:
-            return Promise.reject(
-                new ErroEmTempoDeExecucao(
-                    {
-                        hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                        linha: interpretador.linhaDeclaracaoAtual,
-                    } as SimboloInterface,
-                    'Para ser transformado em uma tupla, vetor precisa ter de 2 a 10 elementos.'
-                )
-            );
+    const elementos = valorVetor.map(item => {
+        return new Literal(
+            interpretador.hashArquivoDeclaracaoAtual,
+            interpretador.linhaDeclaracaoAtual,
+            item,
+            inferirTipoVariavel(item) as any
+        );
+    });
+
+    return new TuplaN(
+        interpretador.hashArquivoDeclaracaoAtual,
+        interpretador.linhaDeclaracaoAtual,
+        elementos
+    );
+}
+
+export async function vetor(
+    interpretador: InterpretadorInterface,
+    tupla: TuplaN | any
+): Promise<any[]> {
+    const objetoTupla = interpretador.resolverValor(tupla);
+
+    // TODO: As lógicas de validação abaixo deixam de fazer sentido com a validação de argumentos feita
+    // na avaliação sintática. Estudar remoção.
+    if (!(objetoTupla instanceof TuplaN)) {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                {
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual,
+                } as SimboloInterface,
+                'Argumento de função nativa `vetor` não parece ser uma tupla.'
+            )
+        );
     }
+
+    const resultado = objetoTupla.elementos.map((elemento: any) => {
+        return elemento.hasOwnProperty('valor') ? elemento.valor : elemento;
+    });
+
+    return Promise.resolve(resultado);
 }

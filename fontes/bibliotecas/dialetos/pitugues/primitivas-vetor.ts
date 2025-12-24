@@ -1,6 +1,8 @@
 import { DeleguaFuncao } from '../../../interpretador/estruturas';
 import { InterpretadorInterface, PrimitivaInterface, SimboloInterface } from '../../../interfaces';
 import { InformacaoElementoSintatico } from '../../../informacao-elemento-sintatico';
+import { inferirTipoVariavel } from '../../../inferenciador';
+import { Literal, TuplaN } from '../../../construtos';
 
 export default {
     adicionar: {
@@ -440,6 +442,35 @@ export default {
             'escreva(v.ordenar()) // ["a", "aaa", "aba", "abb", "abc"]\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'vetor.ordenar()',
+    },
+    paraTupla: {
+        tipoRetorno: 'tupla',
+        argumentos: [],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
+            vetor: Array<any>
+        ): Promise<any> => {
+            const elementos = vetor.map(item => {
+                return new Literal(
+                    interpretador.hashArquivoDeclaracaoAtual,
+                    interpretador.linhaDeclaracaoAtual,
+                    item,
+                    inferirTipoVariavel(item) as any
+                );
+            });
+
+            return Promise.resolve(new TuplaN(
+                interpretador.hashArquivoDeclaracaoAtual,
+                interpretador.linhaDeclaracaoAtual,
+                elementos
+            ));
+        },
+        assinaturaFormato: 'vetor.paraTupla()',
+        documentacao:
+            '# `vetor.paraTupla()` \n \n' +
+            'Converte o vetor atual em uma tupla imutável.',
+        exemploCodigo: 'vetor.paraTupla()',
     },
     remover: {
         tipoRetorno: 'qualquer[]',

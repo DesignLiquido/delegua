@@ -140,7 +140,7 @@ describe('Biblioteca Global', () => {
                 "copia['a'] = 99",
                 "escreva(valorOriginal)"
             ];
-            
+
             let _saida = "";
             interpretador.funcaoDeRetorno = (saida: string) => {
                 _saida += saida;
