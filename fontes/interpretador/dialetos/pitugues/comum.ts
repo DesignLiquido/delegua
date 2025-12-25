@@ -9,6 +9,7 @@ import primitivasDicionario from "../../../bibliotecas/dialetos/pitugues/primiti
 import primitivasNumero from "../../../bibliotecas/dialetos/pitugues/primitivas-numero";
 import primitivasTexto from "../../../bibliotecas/dialetos/pitugues/primitivas-texto";
 import primitivasVetor from "../../../bibliotecas/dialetos/pitugues/primitivas-vetor";
+import primitivasTupla from "../../../bibliotecas/dialetos/pitugues/primitivas-tupla";
 
 import tipoDeDadosPrimitivos from '../../../tipos-de-dados/primitivos';
 import tipoDeDadosPitugues from '../../../tipos-de-dados/dialetos/pitugues';
@@ -33,6 +34,19 @@ export async function visitarExpressaoAcessoMetodo(
 
     if (objeto.constructor === ObjetoDeleguaClasse) {
         return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomeMetodo) || null;
+    }
+
+    if (objeto instanceof TuplaN || objeto.constructor.name === 'TuplaN') {
+        const metodoDePrimitivaTupla = primitivasTupla[expressao.nomeMetodo];
+        if (metodoDePrimitivaTupla) {
+            return new MetodoPrimitiva(
+                nomeObjeto,
+                objeto,
+                metodoDePrimitivaTupla.implementacao,
+                expressao.nomeMetodo,
+                'tupla'
+            );
+        }
     }
 
     // Objeto simples do JavaScript, ou dicionário de Delégua.
@@ -144,6 +158,19 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
 
     if (objeto.constructor === ObjetoDeleguaClasse) {
         return (objeto as ObjetoDeleguaClasse).obter(expressao.simbolo);
+    }
+
+    if (objeto instanceof TuplaN || objeto.constructor.name === 'TuplaN') {
+        const metodoDePrimitivaTupla = primitivasTupla[expressao.simbolo.lexema];
+        if (metodoDePrimitivaTupla) {
+            return new MetodoPrimitiva(
+                nomeObjeto,
+                objeto,
+                metodoDePrimitivaTupla.implementacao,
+                expressao.simbolo.lexema,
+                'tupla'
+            );
+        }
     }
 
     // Objeto simples do JavaScript, ou dicionário de Delégua.
@@ -284,6 +311,19 @@ export async function visitarExpressaoAcessoPropriedade(
         (objeto.constructor === ObjetoDeleguaClasse)
     ) {
         return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomePropriedade) || null;
+    }
+
+    if (objeto instanceof TuplaN || objeto.constructor.name === 'TuplaN') {
+        const metodoPrimitivaTupla = primitivasTupla[expressao.nomePropriedade];
+        if (metodoPrimitivaTupla) {
+            return new MetodoPrimitiva(
+                nomeObjeto,
+                objeto,
+                metodoPrimitivaTupla.implementacao,
+                expressao.nomePropriedade,
+                'tupla'
+            );
+        }
     }
 
     // Objeto simples do JavaScript, ou dicionário de Delégua.

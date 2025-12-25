@@ -1712,7 +1712,7 @@ export class AvaliadorSintatico
                 undefined,
                 expressao.operador
             );
-        } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+        } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL, tiposDeSimbolos.SETA_ESQUERDA)) {
             const igual = this.simbolos[this.atual - 1];
             const valor = this.seTernario();
 
@@ -2561,10 +2561,13 @@ export class AvaliadorSintatico
             tiposDeSimbolos.CHAVE_DIREITA,
             'Esperado chave direita para concluir relação de variáveis a serem desestruturadas.'
         );
-        this.consumir(
-            tiposDeSimbolos.IGUAL,
-            'Esperado igual após relação de propriedades da desestruturação.'
-        );
+
+        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL, tiposDeSimbolos.SETA_ESQUERDA)) {
+            throw this.erro(
+                this.simbolos[this.atual],
+                'Esperado igual ou seta esquerda após relação de propriedades da desestruturação.'
+            );
+        }
 
         const inicializador = this.expressao();
         const retornos = [];
@@ -2805,7 +2808,7 @@ export class AvaliadorSintatico
             this.avancarEDevolverAnterior();
         }
 
-        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL, tiposDeSimbolos.SETA_ESQUERDA)) {
             // Inicialização de variáveis sem valor.
             for (let identificador of identificadores.values()) {
                 this.pilhaEscopos.definirInformacoesVariavel(
@@ -2888,10 +2891,13 @@ export class AvaliadorSintatico
             tiposDeSimbolos.CHAVE_DIREITA,
             'Esperado chave direita para concluir relação de variáveis a serem desestruturadas.'
         );
-        this.consumir(
-            tiposDeSimbolos.IGUAL,
-            'Esperado igual após relação de propriedades da desestruturação.'
-        );
+
+        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL, tiposDeSimbolos.SETA_ESQUERDA)) {
+            throw this.erro(
+                this.simbolos[this.atual],
+                'Esperado igual ou seta esquerda após relação de propriedades da desestruturação.'
+            );
+        }
 
         const inicializador = this.expressao();
         const retornos: Const[] = [];
@@ -2939,10 +2945,12 @@ export class AvaliadorSintatico
             this.avancarEDevolverAnterior();
         }
 
-        this.consumir(
-            tiposDeSimbolos.IGUAL,
-            "Esperado '=' após identificador em instrução 'constante'."
-        );
+        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL, tiposDeSimbolos.SETA_ESQUERDA)) {
+            throw this.erro(
+                this.simbolos[this.atual],
+                "Esperado '=' ou '<-' após identificador em instrução 'constante'."
+            );
+        }
 
         const inicializadores = [];
         do {

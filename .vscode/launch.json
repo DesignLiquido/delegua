@@ -90,16 +90,26 @@
             "request": "launch",
             "runtimeArgs": [
                 "--inspect-brk",
+                "--no-async-stack-traces",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
                 "pitugues/interpretador",
-                "--runInBand"
+                "--runInBand",
+                "--no-cache"
             ],
+            "sourceMaps": true,
             "skipFiles": [
-                "<node_internals>/**",
-                "node_modules/**"
+                "<node_internals>/**/*.js",
+                "<node_internals>/internal/**",
+                "**/node_modules/**",
+                "${workspaceFolder}/node_modules/**"
+            ],
+            "resolveSourceMapLocations": [
+                "${workspaceFolder}/**",
+                "!**/node_modules/**"
             ],
             "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen"
+            "internalConsoleOptions": "neverOpen",
+            "showAsyncStacks": false
         },
         {
             "name": "Testes unitários - Prisma",

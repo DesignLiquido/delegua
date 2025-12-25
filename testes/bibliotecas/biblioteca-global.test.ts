@@ -140,7 +140,7 @@ describe('Biblioteca Global', () => {
                 "copia['a'] = 99",
                 "escreva(valorOriginal)"
             ];
-            
+
             let _saida = "";
             interpretador.funcaoDeRetorno = (saida: string) => {
                 _saida += saida;
@@ -651,20 +651,6 @@ describe('Biblioteca Global', () => {
 
             expect(retornoInterpretador.erros).toHaveLength(0);
             expect(_saidas).toBe('[(1, 2, 3)]');
-        });
-
-        it('Falha - Vetor com mais de 10 elementos', async () => {
-            const retornoLexador = lexador.mapear(["escreva(tupla([1,2,3,4,5,6,7,8,9,10,11]))"], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-
-            expect(retornoInterpretador).toBeTruthy
-            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
-            const erro = retornoInterpretador.erros[0];
-            expect(erro.erroInterno).toBeDefined();
-            expect(erro.erroInterno.mensagem).toBeDefined();
-            expect(erro.erroInterno.mensagem).toBe('Para ser transformado em uma tupla, vetor precisa ter de 2 a 10 elementos.');
         });
     });
 });

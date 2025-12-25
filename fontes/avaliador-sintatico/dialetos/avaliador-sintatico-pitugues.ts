@@ -97,6 +97,7 @@ import primitivasDicionario from '../../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../../bibliotecas/primitivas-numero';
 import primitivasTexto from '../../bibliotecas/primitivas-texto';
 import primitivasVetor from '../../bibliotecas/primitivas-vetor';
+import primitivasTupla from '../../bibliotecas/dialetos/pitugues/primitivas-tupla';
 import { MicroLexadorPitugues } from '../../lexador/micro-lexador-pitugues';
 import { MicroAvaliadorSintaticoPitugues } from './micro-avaliador-sintatico-pitugues';
 
@@ -140,6 +141,7 @@ export class AvaliadorSintaticoPitugues
         registrarPrimitiva(this.primitivasConhecidas, 'número', primitivasNumero);
         registrarPrimitiva(this.primitivasConhecidas, 'texto', primitivasTexto);
         registrarPrimitiva(this.primitivasConhecidas, 'vetor', primitivasVetor);
+        registrarPrimitiva(this.primitivasConhecidas, 'tupla', primitivasTupla);
     }
 
     protected logicaComumInferenciaTiposVariaveisEConstantes(
@@ -1135,14 +1137,82 @@ export class AvaliadorSintaticoPitugues
         const expressao = this.seTernario();
 
         if (
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL) ||
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.MAIS_IGUAL)
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.IGUAL,
+                tiposDeSimbolos.MAIS_IGUAL,
+                tiposDeSimbolos.MENOS_IGUAL,
+                tiposDeSimbolos.MULTIPLICACAO_IGUAL,
+                tiposDeSimbolos.DIVISAO_IGUAL
+            )
         ) {
-            const igual = this.simboloAnterior();
+            const operadorAtribuicao = this.simboloAnterior();
             const valor = this.atribuir();
 
+            // Se for apenas '=', é uma atribuição padrão
+            if (operadorAtribuicao.tipo === tiposDeSimbolos.IGUAL) {
+                if (expressao instanceof Variavel) {
+                    return new Atribuir(this.hashArquivo, expressao, valor);
+                }
+
+                if (expressao instanceof AcessoMetodoOuPropriedade) {
+                    return new DefinirValor(
+                        this.hashArquivo,
+                        0,
+                        expressao.objeto,
+                        expressao.simbolo,
+                        valor
+                    );
+                }
+
+                if (expressao instanceof AcessoIndiceVariavel) {
+                    return new AtribuicaoPorIndice(
+                        this.hashArquivo,
+                        0,
+                        expressao.entidadeChamada,
+                        expressao.indice,
+                        valor
+                    );
+                }
+
+                throw this.erro(operadorAtribuicao, 'Tarefa de atribuição inválida');
+            }
+
+            // Se for +=, -=, *=, /=
+            // Transforma 'a += 1' em 'a = a + 1'
+
+            let tipoOperadorMatematico;
+            switch (operadorAtribuicao.tipo) {
+                case tiposDeSimbolos.MAIS_IGUAL:
+                    tipoOperadorMatematico = tiposDeSimbolos.ADICAO;
+                    break;
+                case tiposDeSimbolos.MENOS_IGUAL:
+                    tipoOperadorMatematico = tiposDeSimbolos.SUBTRACAO;
+                    break;
+                case tiposDeSimbolos.MULTIPLICACAO_IGUAL:
+                    tipoOperadorMatematico = tiposDeSimbolos.MULTIPLICACAO;
+                    break;
+                case tiposDeSimbolos.DIVISAO_IGUAL:
+                    tipoOperadorMatematico = tiposDeSimbolos.DIVISAO;
+                    break;
+            }
+
+            const simboloOperador = new Simbolo(
+                tipoOperadorMatematico,
+                operadorAtribuicao.lexema.charAt(0),
+                null,
+                operadorAtribuicao.linha,
+                operadorAtribuicao.hashArquivo
+            );
+
+            const operacaoBinaria = new Binario(
+                this.hashArquivo,
+                expressao,
+                simboloOperador,
+                valor
+            );
+
             if (expressao instanceof Variavel) {
-                return new Atribuir(this.hashArquivo, expressao, valor);
+                return new Atribuir(this.hashArquivo, expressao, operacaoBinaria);
             }
 
             if (expressao instanceof AcessoMetodoOuPropriedade) {
@@ -1151,7 +1221,7 @@ export class AvaliadorSintaticoPitugues
                     0,
                     expressao.objeto,
                     expressao.simbolo,
-                    valor
+                    operacaoBinaria
                 );
             }
 
@@ -1161,10 +1231,11 @@ export class AvaliadorSintaticoPitugues
                     0,
                     expressao.entidadeChamada,
                     expressao.indice,
-                    valor
+                    operacaoBinaria
                 );
             }
-            throw this.erro(igual, 'Tarefa de atribuição inválida');
+
+            throw this.erro(operadorAtribuicao, 'Tarefa de atribuição inválida');
         }
 
         return expressao;

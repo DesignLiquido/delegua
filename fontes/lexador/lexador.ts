@@ -397,6 +397,9 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
                 } else if (this.simboloAtual() === '<') {
                     this.adicionarSimbolo(tiposDeSimbolos.MENOR_MENOR, '<<');
                     this.avancar();
+                } else if (this.simboloAtual() === '-') {
+                    this.adicionarSimbolo(tiposDeSimbolos.SETA_ESQUERDA, '<-');
+                    this.avancar();
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.MENOR);
                 }

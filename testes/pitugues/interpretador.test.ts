@@ -620,6 +620,51 @@ describe('Interpretador (Pituguês)', () => {
                 });
             });
 
+            describe('tupla() e vetor()', () => {
+                // TODO: Corrigir erros de avaliação sintática.
+                it.skip('Transformando tupla para vetor', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        tupla = (1, 2, 3)
+                        vetor = vetor(tupla)
+                        escreva(vetor);
+                    `], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes,
+                        true
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toEqual([1, 2, 3]);
+                });
+
+                // TODO: `paraTextoSaida` em `trio` escreve a tupla como em Delégua.
+                // Pensar numa forma de resolver para o Pituguês.
+                it.skip('Transformando vetor para tupla', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        vetor = [1, 2, 3]
+                        tupla = tupla(vetor)
+                        escreva(tupla);
+                    `], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes,
+                        true
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('(1, 2, 3)');
+                });
+            });
+
             describe('leia', () => {
                 it('Trivial', async () => {
                     let _saida: string = '';
@@ -1907,6 +1952,102 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas).toHaveLength(1);
                     expect(_saidas[0]).toBe('20');
                 });
+
+                describe('paraTupla', () => {
+                    it('paraTupla', async () => {
+                        const codigo = [
+                            'lista = [1, 2, 3]',
+                            'tupla = lista.paraTupla()',
+                            'escreva(tupla)'
+                        ];
+
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes,
+                            true
+                        );
+
+                        expect(retornoAvaliadorSintatico).toBeTruthy();
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('(1, 2, 3)');
+                    });
+
+                    it('paraTupla - vetor vazio', async () => {
+                        const codigo = [
+                            'lista = []',
+                            'tupla = lista.paraTupla()',
+                            'escreva(tupla)'
+                        ];
+
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes,
+                            true
+                        );
+
+                        expect(retornoAvaliadorSintatico).toBeTruthy();
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('()');
+                    });
+                });
+            });
+
+            describe('Uso de primitivas de tupla', () => {
+                describe('paraVetor', () => {
+                    it('paraVetor - uso simples', async () => {
+                        const codigo = [
+                            'tupla = (1, 2, 3)',
+                            'lista = tupla.paraVetor()',
+                            'escreva(lista)'
+                        ];
+
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoAvaliadorSintatico).toBeTruthy();
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('[1, 2, 3]');
+                    });
+
+                    it('paraVetor - tupla vazia', async () => {
+                        const codigo = [
+                            'tupla = ()',
+                            'vetor = tupla.paraVetor()',
+                            'escreva(vetor)'
+                        ];
+
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoAvaliadorSintatico).toBeTruthy();
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('[]');
+                    });
+                });
             });
 
             describe('Interpolação (f-strings)', () => {
@@ -2160,6 +2301,70 @@ describe('Interpretador (Pituguês)', () => {
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
                 expect(_saidas[0]).toBe('Olá');
+            });
+
+            it('Deve executar atribuição composta de soma (+=) com sucesso', async () => {
+                const retornoLexador = lexador.mapear([`
+                    a = 10
+                    a += 5
+                    escreva(a)
+                `], -1);
+                const retornoAvaliador = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliador.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toEqual('15');
+            });
+
+            it('Deve executar atribuição composta de subtração (-=) com sucesso', async () => {
+                const retornoLexador = lexador.mapear([`
+                    a = 10
+                    a -= 5
+                    escreva(a)
+                `], -1);
+                const retornoAvaliador = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliador.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toEqual('5');
+            });
+
+            it('Deve executar atribuição composta de divisão (/=) com sucesso', async () => {
+                const retornoLexador = lexador.mapear([`
+                    a = 10
+                    a /= 2
+                    escreva(a)
+                `], -1);
+                const retornoAvaliador = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliador.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toEqual('5');
+            });
+
+            it('Deve executar atribuição composta de multiplicação (*=) com sucesso', async () => {
+                const retornoLexador = lexador.mapear([`
+                    a = 10
+                    a *= 2
+                    escreva(a)
+                `], -1);
+                const retornoAvaliador = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliador.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toEqual('20');
             });
         });
 
@@ -2657,6 +2862,147 @@ describe('Interpretador (Pituguês)', () => {
                         expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
                     });
                 });
+            });
+
+            describe('tupla() e vetor()', () => {
+                // TODO: Isto não dá erro por algum motivo.
+                it.skip('Erro em transformar vetor para vetor', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        tupla = [1, 2, 3]
+                        vetor = vetor(tupla)
+                        escreva(vetor);
+                    `], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes,
+                        true
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(1);
+                });
+
+                it('Erro em transformar tupla para tupla', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        vetor = (1, 2, 3)
+                        tupla = tupla(vetor)
+                        escreva(tupla);
+                    `], -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes,
+                        true
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(1);
+                });
+            });
+
+            describe('Uso de primitivas de vetor e tupla', () => {
+                it('paraTupla - não sendo uma lista', async () => {
+                    const codigo = [
+                        'lista = (1, 2, 3)',
+                        'tupla = lista.paraTupla()'
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes,
+                        true
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(1);
+                });
+
+                it('paraTupla - tupla vazia', async () => {
+                    const codigo = [
+                        'lista = ()',
+                        'tupla = lista.paraTupla()',
+                        'escreva(tupla)'
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes,
+                        true
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(1);
+                });
+
+                it('paraVetor - não sendo uma tupla', async () => {
+                    const codigo = [
+                        'tupla = [1, 2, 3]',
+                        'lista = tupla.paraVetor()',
+                        'escreva(lista)'
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(1);
+                });
+
+                it('paraVetor - vetor vazio', async () => {
+                    const codigo = [
+                        'tupla = []',
+                        'vetor = tupla.paraVetor()',
+                        'escreva(vetor)'
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(1);
+                });
+            });
+
+            it('Deve falhar ao tentar usar atribuição composta em um literal (Syntax Error)', async () => {
+                const retornoLexador = lexador.mapear([`
+                    10 += 5
+                `], -1);
+
+                const retornoAvaliador = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliador.erros).toHaveLength(1);
+                expect(retornoAvaliador.erros[0].message).toBe('Tarefa de atribuição inválida');
+            });
+
+            it('Deve falhar ao tentar atualizar variável não definida (Runtime Error)', async () => {
+                const retornoLexador = lexador.mapear([`
+                    x += 10
+                `], -1);
+
+                const retornoAvaliador = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliador.erros.length).toBeGreaterThan(0);
             });
         });
     });
