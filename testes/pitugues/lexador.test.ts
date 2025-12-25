@@ -195,6 +195,17 @@ describe('Lexador (Pituguês)', () => {
                     expect(resultado.simbolos[0].lexema).toBe('f');
                 });
             });
+
+            it('Deve mapear operadores compostos corretamente', () => {
+                const codigo = ['+= -= *= /='];
+                const resultado = lexador.mapear(codigo, -1);
+
+                expect(resultado.simbolos).toHaveLength(4);
+                expect(resultado.simbolos[0].tipo).toBe('MAIS_IGUAL');
+                expect(resultado.simbolos[1].tipo).toBe('MENOS_IGUAL');
+                expect(resultado.simbolos[2].tipo).toBe('MULTIPLICACAO_IGUAL');
+                expect(resultado.simbolos[3].tipo).toBe('DIVISAO_IGUAL');
+            });
         });
 
         describe('Cenários de falha', () => {
