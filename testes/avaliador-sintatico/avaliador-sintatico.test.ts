@@ -1683,6 +1683,38 @@ describe('Avaliador sintático', () => {
                     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                 });
+
+                it('Analisa atribuições com operador <- (SETA_ESQUERDA)', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var x <- 10',
+                            'var y <- 20',
+                            'x <- x + y',
+                            'y <- 30'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(4);
+                });
+
+                it('Analisa atribuições mistas com = e <-', () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var a = 5',
+                            'var b <- 10',
+                            'a <- 15',
+                            'b = 20'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(4);
+                });
             });
 
             describe('Vetores e matrizes - casos extremos', () => {

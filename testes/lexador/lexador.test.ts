@@ -142,6 +142,21 @@ describe('Lexador', () => {
                 );
             });
 
+            it('Seta Esquerda (operador de atribuição alternativo)', () => {
+                const resultado = lexador.mapear(["var x <- 10", "var y <- 20"], -1);
+
+                expect(resultado).toBeTruthy();
+                expect(resultado.simbolos).toHaveLength(8);
+                expect(resultado.simbolos).toEqual(
+                    expect.arrayContaining([
+                        expect.objectContaining({ tipo: tiposDeSimbolos.VARIAVEL }),
+                        expect.objectContaining({ tipo: tiposDeSimbolos.IDENTIFICADOR }),
+                        expect.objectContaining({ tipo: tiposDeSimbolos.SETA_ESQUERDA }),
+                        expect.objectContaining({ tipo: tiposDeSimbolos.NUMERO }),
+                    ])
+                );
+            });
+
             it('Comentários multilinha', () => {
                 const resultado = lexador.mapear(["/* comentário ", "outro comentário*/"], -1);
 

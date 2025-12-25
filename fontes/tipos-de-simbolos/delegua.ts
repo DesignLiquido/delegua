@@ -84,6 +84,7 @@ export default {
     SE: 'SE',
     SENAO: 'SENAO',
     SENÃO: 'SENÃO',
+    SETA_ESQUERDA: 'SETA_ESQUERDA',
     SUPER: 'SUPER',
     SUSTAR: 'SUSTAR',
     TENDO: 'TENDO',
