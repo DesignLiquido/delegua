@@ -1017,9 +1017,33 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     async visitarExpressaoDicionario(expressao: any) {
         const dicionario = {};
         for (let i = 0; i < expressao.chaves.length; i++) {
-            dicionario[await this.avaliar(expressao.chaves[i])] = await this.avaliar(
-                expressao.valores[i]
-            );
+            if (expressao.esSpread && expressao.esSpread[i]) {
+                // Desempacotar dicionário
+                const dicionarioParaDesempacotar = await this.avaliar(expressao.valores[i]);
+
+                // Validação: verificar se é realmente um dicionário
+                if (
+                    typeof dicionarioParaDesempacotar !== 'object' ||
+                    dicionarioParaDesempacotar === null ||
+                    Array.isArray(dicionarioParaDesempacotar)
+                ) {
+                    throw new Error(
+                        `Operador '**' só pode ser usado com dicionários. Tipo encontrado: ${
+                            dicionarioParaDesempacotar === null
+                                ? 'nulo'
+                                : Array.isArray(dicionarioParaDesempacotar)
+                                ? 'vetor'
+                                : typeof dicionarioParaDesempacotar
+                        }`
+                    );
+                }
+
+                Object.assign(dicionario, dicionarioParaDesempacotar);
+            } else {
+                dicionario[await this.avaliar(expressao.chaves[i])] = await this.avaliar(
+                    expressao.valores[i]
+                );
+            }
         }
         return dicionario;
     }
