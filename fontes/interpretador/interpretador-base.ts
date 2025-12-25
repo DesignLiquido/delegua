@@ -308,18 +308,36 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     async visitarExpressaoTupla(expressao: Tupla): Promise<any> {
-        const chaves = Object.keys(expressao);
+        // Lista de propriedades válidas para tuplas (ignorar propriedades de controle)
+        const propriedadesValidas = [
+            'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto',
+            'sexto', 'sétimo', 'setimo', 'oitavo', 'nono', 'décimo', 'decimo'
+        ];
+
         const valores = [];
-        for (let chave of chaves) {
-            const valor = await this.avaliar(expressao[chave]);
-            valores.push(valor);
+        for (let propriedade of propriedadesValidas) {
+            if (expressao.hasOwnProperty(propriedade) && expressao[propriedade] !== undefined) {
+                const valor = await this.avaliar(expressao[propriedade]);
+                valores.push(valor);
+            }
         }
 
         return valores;
     }
 
     async visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> {
-        throw new Error('Método não implementado.');
+        const elementos = [];
+
+        for (let i = 0; i < expressao.elementos.length; i++) {
+            const res = await this.avaliar(expressao.elementos[i]);
+            elementos.push(this.resolverValor(res));
+        }
+
+        const elementosComoConstrutos = elementos.map(valor =>
+            new Literal(expressao.hashArquivo, expressao.linha, valor)
+        );
+
+        return new TuplaN(expressao.hashArquivo, expressao.linha, elementosComoConstrutos);
     }
 
     async visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: any): Promise<any> {
@@ -334,12 +352,12 @@ export class InterpretadorBase implements InterpretadorInterface {
         const match = texto.match(/^([\/~@;%#'])(.*?)\1([gimsuy]*)$/);
         return match
             ? new RegExp(
-                  match[2],
-                  match[3]
-                      .split('')
-                      .filter((char, pos, flagArr) => flagArr.indexOf(char) === pos)
-                      .join('')
-              )
+                match[2],
+                match[3]
+                    .split('')
+                    .filter((char, pos, flagArr) => flagArr.indexOf(char) === pos)
+                    .join('')
+            )
             : new RegExp(texto);
     }
 
@@ -649,13 +667,13 @@ export class InterpretadorBase implements InterpretadorInterface {
         const tipoDireita: string = direita.tipo
             ? direita.tipo
             : typeof direita === tipoDeDadosPrimitivos.NUMERO
-              ? tipoDeDadosDelegua.NUMERO
-              : String(NaN);
+                ? tipoDeDadosDelegua.NUMERO
+                : String(NaN);
         const tipoEsquerda: string = esquerda.tipo
             ? esquerda.tipo
             : typeof esquerda === tipoDeDadosPrimitivos.NUMERO
-              ? tipoDeDadosDelegua.NUMERO
-              : String(NaN);
+                ? tipoDeDadosDelegua.NUMERO
+                : String(NaN);
 
         if (this.tiposNumericos.includes(tipoDireita) && this.tiposNumericos.includes(tipoEsquerda))
             return;
@@ -795,7 +813,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                     if (!isNaN(textoParaNumero)) {
                         return textoParaNumero * valorQuantidade;
                     }
-                    
+
                     if (!Number.isInteger(valorQuantidade)) {
                         throw new ErroEmTempoDeExecucao(
                             expressao.operador,
@@ -819,6 +837,16 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             case tiposDeSimbolos.MODULO:
             case tiposDeSimbolos.MODULO_IGUAL:
+                // Se o operando esquerdo é uma string, usar formatação de string
+                if (tipoEsquerdo === tipoDeDadosDelegua.TEXTO || typeof valorEsquerdo === 'string') {
+                    return this.formatarStringComOperadorPorcentagem(
+                        String(valorEsquerdo),
+                        direita,  // Passar 'direita' ao invés de 'valorDireito' para preservar arrays de tuplas
+                        expressao.operador
+                    );
+                }
+
+                // Caso contrário, operação matemática normal
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 return Number(valorEsquerdo) % Number(valorDireito);
 
@@ -906,7 +934,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                     new ErroEmTempoDeExecucao(
                         (expressao as any).parentese,
                         'Chamada de função ou método inexistente: ' +
-                            String(expressao.entidadeChamada),
+                        String(expressao.entidadeChamada),
                         expressao.linha
                     )
                 );
@@ -2014,6 +2042,190 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         return null;
+    }
+
+    /**
+     * Formata uma string usando o operador % (similar ao Python).
+     * @param formato A string de formato com especificadores (ex: "Olá %s").
+     * @param valores Os valores para substituir (pode ser um único valor ou uma tupla/vetor).
+     * @param operador O símbolo do operador para mensagens de erro.
+     * @returns A string formatada.
+     */
+    private formatarStringComOperadorPorcentagem(formato: string, valores: any, operador: any): string {
+        let valoresArray: any[];
+
+        // Verificar se é uma TuplaN (verifica instanceof OU propriedade elementos/tipo para maior compatibilidade)
+        if (valores instanceof TuplaN ||
+            (valores && valores.tipo === 'tupla' && valores.elementos && Array.isArray(valores.elementos))) {
+            valoresArray = valores.elementos.map((elem: any) => {
+                if (elem instanceof Literal || (elem && typeof elem === 'object' && elem.hasOwnProperty('valor'))) {
+                    return this.resolverValor(elem.valor);
+                }
+                return this.resolverValor(elem);
+            });
+        } else if (Array.isArray(valores)) {
+            valoresArray = valores.map(v => this.resolverValor(v));
+        } else {
+            const valorResolvido = this.resolverValor(valores);
+
+            if (Array.isArray(valorResolvido)) {
+                valoresArray = valorResolvido.map(v => this.resolverValor(v));
+            } else {
+                valoresArray = [valorResolvido];
+            }
+        }
+
+        let indiceValor = 0;
+        let resultado = '';
+        let i = 0;
+
+        while (i < formato.length) {
+            if (formato[i] === '%') {
+                if (i + 1 >= formato.length) {
+                    throw new ErroEmTempoDeExecucao(
+                        operador,
+                        'Formato inválido: % no final da string',
+                        operador.linha
+                    );
+                }
+
+                const proximoChar = formato[i + 1];
+
+                // %% -> % literal
+                if (proximoChar === '%') {
+                    resultado += '%';
+                    i += 2;
+                    continue;
+                }
+
+                // Verificar se ainda temos valores para substituir
+                if (indiceValor >= valoresArray.length) {
+                    throw new ErroEmTempoDeExecucao(
+                        operador,
+                        'Argumentos insuficientes para a string de formatação',
+                        operador.linha
+                    );
+                }
+
+                const valor = valoresArray[indiceValor];
+                indiceValor++;
+
+                // Processar especificadores de formato
+                if (proximoChar === 's') {
+                    // %s - string
+                    resultado += this.paraTexto(valor);
+                    i += 2;
+                } else if (proximoChar === 'd') {
+                    // %d - inteiro
+                    const valorNumerico = Number(valor);
+                    if (isNaN(valorNumerico)) {
+                        throw new ErroEmTempoDeExecucao(
+                            operador,
+                            `Esperado número para %d, mas recebeu ${typeof valor}`,
+                            operador.linha
+                        );
+                    }
+                    resultado += Math.floor(valorNumerico).toString();
+                    i += 2;
+                } else if (proximoChar === 'f') {
+                    // %f - flutuante
+                    const valorNumerico = Number(valor);
+                    if (isNaN(valorNumerico)) {
+                        throw new ErroEmTempoDeExecucao(
+                            operador,
+                            `Esperado número para %f, mas recebeu ${typeof valor}`,
+                            operador.linha
+                        );
+                    }
+                    resultado += valorNumerico.toString();
+                    i += 2;
+                } else if (proximoChar === '.') {
+                    // %.nf - flutuante com n casas decimais
+                    let j = i + 2;
+                    let casasDecimais = '';
+                    while (j < formato.length && formato[j] >= '0' && formato[j] <= '9') {
+                        casasDecimais += formato[j];
+                        j++;
+                    }
+
+                    if (j >= formato.length || formato[j] !== 'f') {
+                        throw new ErroEmTempoDeExecucao(
+                            operador,
+                            'Formato inválido: esperado %.nf (ex: %.2f)',
+                            operador.linha
+                        );
+                    }
+
+                    const precisao = parseInt(casasDecimais, 10);
+                    const valorNumerico = Number(valor);
+                    if (isNaN(valorNumerico)) {
+                        throw new ErroEmTempoDeExecucao(
+                            operador,
+                            `Esperado número para %.${precisao}f, mas recebeu ${typeof valor}`,
+                            operador.linha
+                        );
+                    }
+                    resultado += valorNumerico.toFixed(precisao);
+                    i = j + 1;
+                } else if (proximoChar === 'x') {
+                    // %x - hexadecimal (caixa baixa)
+                    const valorNumerico = Number(valor);
+                    if (isNaN(valorNumerico)) {
+                        throw new ErroEmTempoDeExecucao(
+                            operador,
+                            `Esperado número para %x, mas recebeu ${typeof valor}`,
+                            operador.linha
+                        );
+                    }
+                    resultado += Math.floor(valorNumerico).toString(16);
+                    i += 2;
+                } else if (proximoChar === 'X') {
+                    // %X - hexadecimal (caixa alta)
+                    const valorNumerico = Number(valor);
+                    if (isNaN(valorNumerico)) {
+                        throw new ErroEmTempoDeExecucao(
+                            operador,
+                            `Esperado número para %X, mas recebeu ${typeof valor}`,
+                            operador.linha
+                        );
+                    }
+                    resultado += Math.floor(valorNumerico).toString(16).toUpperCase();
+                    i += 2;
+                } else if (proximoChar === 'o') {
+                    // %o - octal
+                    const valorNumerico = Number(valor);
+                    if (isNaN(valorNumerico)) {
+                        throw new ErroEmTempoDeExecucao(
+                            operador,
+                            `Esperado número para %o, mas recebeu ${typeof valor}`,
+                            operador.linha
+                        );
+                    }
+                    resultado += Math.floor(valorNumerico).toString(8);
+                    i += 2;
+                } else {
+                    throw new ErroEmTempoDeExecucao(
+                        operador,
+                        `Especificador de formato desconhecido: %${proximoChar}`,
+                        operador.linha
+                    );
+                }
+            } else {
+                resultado += formato[i];
+                i++;
+            }
+        }
+
+        // Verificar se há valores não utilizados
+        if (indiceValor < valoresArray.length) {
+            throw new ErroEmTempoDeExecucao(
+                operador,
+                'Nem todos os argumentos foram convertidos durante a formatação da string.',
+                operador.linha
+            );
+        }
+
+        return resultado;
     }
 
     paraTexto(objeto: any): string {
