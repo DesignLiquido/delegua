@@ -599,9 +599,15 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     visitarExpressaoDicionario(expressao: Dicionario) {
         this.codigoFormatado += `{`;
         for (let i = 0; i < expressao.chaves.length; i++) {
-            this.formatarDeclaracaoOuConstruto(expressao.chaves[i]);
-            this.codigoFormatado += `: `;
-            this.formatarDeclaracaoOuConstruto(expressao.valores[i]);
+            // Verificar se é spread
+            if (expressao.esSpread && expressao.esSpread[i]) {
+                this.codigoFormatado += `**`;
+                this.formatarDeclaracaoOuConstruto(expressao.valores[i]);
+            } else {
+                this.formatarDeclaracaoOuConstruto(expressao.chaves[i]);
+                this.codigoFormatado += `: `;
+                this.formatarDeclaracaoOuConstruto(expressao.valores[i]);
+            }
             this.codigoFormatado += `, `;
         }
 
