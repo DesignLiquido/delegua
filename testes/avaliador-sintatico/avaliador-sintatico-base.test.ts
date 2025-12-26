@@ -111,7 +111,7 @@ class AvaliadorSintaticoBaseMock extends AvaliadorSintaticoBase {
         }
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
-            const expressao = this.expressao();
+            const expressao = await this.expressao();
             this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
             return expressao;
         }
@@ -142,7 +142,7 @@ class AvaliadorSintaticoBaseMock extends AvaliadorSintaticoBase {
     }
 }
 
-describe.skip('Avaliador Sintático Base', () => {
+describe('Avaliador Sintático Base', () => {
     let avaliador: AvaliadorSintaticoBaseMock;
 
     beforeEach(() => {
@@ -440,9 +440,7 @@ describe.skip('Avaliador Sintático Base', () => {
 
             const entidade = new Variavel(-1, criarSimbolo(tiposDeSimbolos.IDENTIFICADOR, 'funcao'));
 
-            expect(() => {
-                avaliador['finalizarChamada'](entidade);
-            }).toThrow();
+            await expect(avaliador['finalizarChamada'](entidade)).rejects.toThrow();
         });
 
         it('Deve lançar erro quando há mais de 255 argumentos', async () => {
@@ -462,9 +460,7 @@ describe.skip('Avaliador Sintático Base', () => {
 
             const entidade = new Variavel(-1, criarSimbolo(tiposDeSimbolos.IDENTIFICADOR, 'funcao'));
 
-            expect(() => {
-                avaliador['finalizarChamada'](entidade);
-            }).toThrow('Não pode haver mais de 255 argumentos.');
+            await expect(avaliador['finalizarChamada'](entidade)).rejects.toThrow('Não pode haver mais de 255 argumentos.');
         });
     });
 
@@ -965,9 +961,7 @@ describe.skip('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            expect(() => {
-                avaliador['logicaComumParametros']();
-            }).toThrow('Função não pode ter mais de 255 parâmetros.');
+            await expect(avaliador['logicaComumParametros']()).rejects.toThrow('Função não pode ter mais de 255 parâmetros.');
         });
     });
 

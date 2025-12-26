@@ -1947,7 +1947,7 @@ export class AvaliadorSintaticoPitugues
         );
     }
 
-    declaracaoDeClasse(): Classe {
+    async declaracaoDeClasse(): Promise<Classe> {
         const simbolo: SimboloInterface = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
             'Esperado nome da classe.'
@@ -1995,7 +1995,7 @@ export class AvaliadorSintaticoPitugues
                 propriedades.push(propriedade);
             } else {
                 metodos.push(
-                    this.funcao(
+                    await this.funcao(
                         'método',
                         this.simbolos[this.atual - 1].tipo === tiposDeSimbolos.CONSTRUTOR
                     )
@@ -2072,14 +2072,14 @@ export class AvaliadorSintaticoPitugues
                 this.verificarTipoProximoSimbolo(tiposDeSimbolos.IDENTIFICADOR)
             ) {
                 this.avancarEDevolverAnterior();
-                return this.funcao('funcao');
+                return await this.funcao('funcao');
             }
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CLASSE))
-                return this.declaracaoDeClasse();
+                return await this.declaracaoDeClasse();
 
             return await this.resolverDeclaracao();
-        } catch (erro) {
+        } catch (erro: any) {
             this.sincronizar();
             return null;
         }

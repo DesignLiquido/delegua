@@ -270,7 +270,7 @@ export class AvaliadorSintatico
             case tiposDeSimbolos.COLCHETE_ESQUERDO:
                 this.avancarEDevolverAnterior();
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
-                    return this.construtoTupla();
+                    return await this.construtoTupla();
                 }
 
                 throw this.erro(
@@ -515,10 +515,10 @@ export class AvaliadorSintatico
         let valores = [];
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.AJUDA:
-                return this.construtoAjuda();
-                
+                return await this.construtoAjuda();
+
             case tiposDeSimbolos.CHAVE_ESQUERDA:
-                return this.construtoDicionario(simboloAtual);
+                return await this.construtoDicionario(simboloAtual);
 
             case tiposDeSimbolos.COLCHETE_ESQUERDO:
                 this.avancarEDevolverAnterior();
@@ -545,7 +545,7 @@ export class AvaliadorSintatico
                 this.intuirTipoQualquerParaIdentificadores = false;
 
                 if (this.simbolos[this.atual].tipo === tiposDeSimbolos.PARA) {
-                    return this.resolverCompreensaoDeLista(retornoExpressaoOuPrimeiroValor);
+                    return await this.resolverCompreensaoDeLista(retornoExpressaoOuPrimeiroValor);
                 }
 
                 // Aqui já sabemos que não é uma compreensão de lista.
@@ -607,7 +607,7 @@ export class AvaliadorSintatico
 
             case tiposDeSimbolos.ENQUANTO:
                 this.avancarEDevolverAnterior();
-                return this.enquantoComoConstruto();
+                return await this.enquantoComoConstruto();
             case tiposDeSimbolos.EXPRESSAO_REGULAR:
                 let valor: string = '';
                 let linhaAtual = this.simbolos[this.atual].linha;
@@ -634,11 +634,11 @@ export class AvaliadorSintatico
 
             case tiposDeSimbolos.FAZER:
                 const simboloFazer = this.avancarEDevolverAnterior();
-                return this.fazerComoConstruto(simboloFazer);
+                return await this.fazerComoConstruto(simboloFazer);
             case tiposDeSimbolos.FUNCAO:
             case tiposDeSimbolos.FUNÇÃO:
                 const simboloFuncao = this.avancarEDevolverAnterior();
-                const corpoDaFuncao = this.corpoDaFuncao(simboloFuncao.lexema);
+                const corpoDaFuncao = await this.corpoDaFuncao(simboloFuncao.lexema);
                 this.pilhaEscopos.definirInformacoesVariavel(
                     simboloFuncao.lexema,
                     new InformacaoElementoSintatico(simboloFuncao.lexema, 'função')
@@ -707,7 +707,7 @@ export class AvaliadorSintatico
                 return new Isto(this.hashArquivo, Number(simboloAtual.linha), simboloAtual);
 
             case tiposDeSimbolos.LEIA:
-                return this.expressaoLeia();
+                return await this.expressaoLeia();
 
             case tiposDeSimbolos.NULO:
                 this.avancarEDevolverAnterior();
@@ -730,7 +730,7 @@ export class AvaliadorSintatico
 
             case tiposDeSimbolos.PARA:
                 const simboloPara = this.avancarEDevolverAnterior();
-                return this.paraComoConstruto(simboloPara);
+                return await this.paraComoConstruto(simboloPara);
             case tiposDeSimbolos.PARENTESE_ESQUERDO:
                 this.avancarEDevolverAnterior();
                 const expressao = await this.expressao();
@@ -2802,7 +2802,7 @@ export class AvaliadorSintatico
         let tipo: string = 'qualquer';
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA)) {
-            return this.declaracaoDesestruturacaoVariavel();
+            return await this.declaracaoDesestruturacaoVariavel();
         }
 
         do {
@@ -2939,7 +2939,7 @@ export class AvaliadorSintatico
         let tipo: string = 'qualquer';
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA)) {
-            return this.declaracaoDesestruturacaoConstante();
+            return await this.declaracaoDesestruturacaoConstante();
         }
 
         do {
@@ -3352,7 +3352,7 @@ export class AvaliadorSintatico
     protected async resolverDeclaracao(): Promise<Declaracao | Declaracao[]> {
         switch (this.simbolos[this.atual].tipo) {
             case tiposDeSimbolos.AJUDA:
-                return this.declaracaoAjuda();
+                return await this.declaracaoAjuda();
             case tiposDeSimbolos.CHAVE_ESQUERDA:
                 const simboloInicioBloco: SimboloInterface = this.avancarEDevolverAnterior();
                 return new Bloco(
@@ -3364,25 +3364,25 @@ export class AvaliadorSintatico
                 return this.declaracaoComentarioUmaLinha();
             case tiposDeSimbolos.CONSTANTE:
                 this.avancarEDevolverAnterior();
-                return this.declaracaoDeConstantes();
+                return await this.declaracaoDeConstantes();
             case tiposDeSimbolos.CONTINUA:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoContinua();
             case tiposDeSimbolos.ENQUANTO:
                 this.avancarEDevolverAnterior();
-                return this.declaracaoEnquanto();
+                return await this.declaracaoEnquanto();
             case tiposDeSimbolos.ESCOLHA:
                 this.avancarEDevolverAnterior();
-                return this.declaracaoEscolha();
+                return await this.declaracaoEscolha();
             case tiposDeSimbolos.ESCREVA:
                 this.avancarEDevolverAnterior();
-                return this.declaracaoEscreva();
+                return await this.declaracaoEscreva();
             case tiposDeSimbolos.FALHAR:
                 this.avancarEDevolverAnterior();
-                return this.declaracaoFalhar();
+                return await this.declaracaoFalhar();
             case tiposDeSimbolos.FAZER:
                 const simboloFazer = this.avancarEDevolverAnterior();
-                return this.declaracaoFazer(simboloFazer);
+                return await this.declaracaoFazer(simboloFazer);
             case tiposDeSimbolos.IMPORTAR:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoImportar();
@@ -3390,25 +3390,25 @@ export class AvaliadorSintatico
                 return this.declaracaoComentarioMultilinha();
             case tiposDeSimbolos.PARA:
                 this.avancarEDevolverAnterior();
-                return this.declaracaoPara();
+                return await this.declaracaoPara();
             case tiposDeSimbolos.SUSTAR:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoSustar();
             case tiposDeSimbolos.SE:
                 this.avancarEDevolverAnterior();
-                return this.declaracaoSe();
+                return await this.declaracaoSe();
             case tiposDeSimbolos.RETORNA:
                 this.avancarEDevolverAnterior();
-                return this.declaracaoRetorna();
+                return await this.declaracaoRetorna();
             case tiposDeSimbolos.TENDO:
                 this.avancarEDevolverAnterior();
-                return this.declaracaoTendoComo();
+                return await this.declaracaoTendoComo();
             case tiposDeSimbolos.TENTE:
                 this.avancarEDevolverAnterior();
-                return this.declaracaoTente();
+                return await this.declaracaoTente();
             case tiposDeSimbolos.VARIAVEL:
                 this.avancarEDevolverAnterior();
-                return this.declaracaoDeVariaveis();
+                return await this.declaracaoDeVariaveis();
         }
 
         const simboloAtual = this.simbolos[this.atual];
@@ -3430,9 +3430,9 @@ export class AvaliadorSintatico
             }
         }
 
-        return this.declaracaoExpressao();
+        return await this.declaracaoExpressao();
     }
-    
+
     async declaracaoAjuda(): Promise<Ajuda> {
         const simboloAjuda = this.avancarEDevolverAnterior();
 

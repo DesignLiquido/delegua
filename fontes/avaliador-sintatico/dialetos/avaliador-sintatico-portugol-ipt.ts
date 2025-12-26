@@ -67,7 +67,7 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
     }
 
     async atribuir(): Promise<Construto> {
-        const expressao = this.ou();
+        const expressao = await this.ou();
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SETA_ATRIBUICAO)) {
             const setaAtribuicao = this.simbolos[this.atual - 1];
@@ -125,7 +125,7 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
             "Esperado quebra de linha após palavra reservada 'então' ou 'entao' em condição se."
         );
 
-        const caminhoEntao = await this.resolverDeclaracaoForaDeBloco() as Bloco;
+        const caminhoEntao = (await this.resolverDeclaracaoForaDeBloco()) as Bloco;
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA));
 

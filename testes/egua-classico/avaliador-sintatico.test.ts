@@ -3,7 +3,7 @@ import { SimboloInterface } from "../../fontes/interfaces";
 import { RetornoLexador } from "../../fontes/interfaces/retornos/retorno-lexador";
 import { LexadorEguaClassico } from "../../fontes/lexador/dialetos";
 
-describe.skip('Avaliador sintático (Égua Clássico)', () => {
+describe('Avaliador sintático (Égua Clássico)', () => {
     describe('analisar()', () => {
         let lexador: LexadorEguaClassico;
         let avaliadorSintatico: AvaliadorSintaticoEguaClassico;
@@ -21,16 +21,16 @@ describe.skip('Avaliador sintático (Égua Clássico)', () => {
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
         });
 
-        it('Falha - Vetor vazio', () => {
-            expect(() => avaliadorSintatico.analisar({ simbolos: [] } as any as RetornoLexador<SimboloInterface>, -1)).toThrow(TypeError);
+        it('Falha - Vetor vazio', async () => {
+            await expect(avaliadorSintatico.analisar({ simbolos: [] } as any as RetornoLexador<SimboloInterface>, -1)).rejects.toThrow(TypeError);
         });
 
-        it('Falha - Undefined', () => {
-            expect(() => avaliadorSintatico.analisar(undefined as any, -1)).toThrow(TypeError);
+        it('Falha - Undefined', async () => {
+            await expect(avaliadorSintatico.analisar(undefined as any, -1)).rejects.toThrow(TypeError);
         });
 
-        it('Falha - Null', () => {
-            expect(() => avaliadorSintatico.analisar(null as any, -1)).toThrow(TypeError);
+        it('Falha - Null', async () => {
+            await expect(avaliadorSintatico.analisar(null as any, -1)).rejects.toThrow(TypeError);
         });
     });
 });

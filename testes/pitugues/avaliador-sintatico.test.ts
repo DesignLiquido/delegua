@@ -3,7 +3,7 @@ import { Logico, Vetor } from "../../fontes/construtos";
 import { Escreva, Var } from "../../fontes/declaracoes";
 import { LexadorPitugues } from "../../fontes/lexador/dialetos";
 
-describe.skip('Avaliador sintático (Pituguês)', () => {
+describe('Avaliador sintático (Pituguês)', () => {
     describe('analisar()', () => {
         let lexador: LexadorPitugues;
         let avaliadorSintatico: AvaliadorSintaticoPitugues;

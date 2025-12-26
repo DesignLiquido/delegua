@@ -197,14 +197,14 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         throw new Error('Método não implementado.');
     }
 
-    protected resolverBloco(simbolosParada: string[]): Bloco {
+    protected async resolverBloco(simbolosParada: string[]): Promise<Bloco> {
         const declaracoes = [];
         this.pilhaEscopos.empilhar(new InformacaoEscopo());
 
         const primeiroSimbolo = this.simbolos[this.atual];
 
         while (!this.estaNoFinal() && !simbolosParada.includes(this.simbolos[this.atual].lexema)) {
-            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
+            declaracoes.push(await this.resolverDeclaracaoForaDeBloco());
         }
 
         this.pilhaEscopos.removerUltimo();
@@ -224,14 +224,14 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
 
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
 
-        const caminhoEntao = this.resolverBloco(['senao', 'fimSe']);
+        const caminhoEntao = await this.resolverBloco(['senao', 'fimSe']);
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA));
 
         let caminhoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
-            caminhoSenao = this.resolverBloco(['senao', 'fimSe']);
+            caminhoSenao = await this.resolverBloco(['senao', 'fimSe']);
         }
 
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
@@ -315,20 +315,20 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.ESCREVA:
-                return this.declaracaoEscrevaMesmaLinha();
+                return await this.declaracaoEscrevaMesmaLinha();
             case tiposDeSimbolos.ESCREVAL:
-                return this.declaracaoEscreva();
+                return await this.declaracaoEscreva();
             case tiposDeSimbolos.LEIA:
-                return this.expressaoLeia();
+                return await this.expressaoLeia();
             case tiposDeSimbolos.INTEIRO:
                 return this.declaracaoInteiros();
             case tiposDeSimbolos.SE:
-                return this.declaracaoSe();
+                return await this.declaracaoSe();
             case tiposDeSimbolos.QUEBRA_LINHA:
                 this.avancarEDevolverAnterior();
                 return null;
             default:
-                return this.expressao();
+                return await this.expressao();
         }
     }
 

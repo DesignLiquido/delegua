@@ -238,7 +238,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         }
     }
 
-    protected construtoDicionario(simboloChaveEsquerda: SimboloInterface): Dicionario {
+    protected async construtoDicionario(simboloChaveEsquerda: SimboloInterface): Promise<Dicionario> {
         this.avancarEDevolverAnterior();
         const chaves = [];
         const valores = [];
@@ -248,9 +248,9 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         }
 
         while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA)) {
-            const chave = this.obterChaveDicionario();
+            const chave = await this.obterChaveDicionario();
             this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' entre chave e valor.");
-            const valor = this.atribuir();
+            const valor = await this.atribuir();
 
             chaves.push(chave);
             valores.push(valor);
@@ -271,12 +271,12 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         );
     }
 
-    protected construtoTupla(): Tupla {
-        const expressao = this.expressao();
+    protected async construtoTupla(): Promise<Tupla> {
+        const expressao = await this.expressao();
         const argumentos = [expressao];
         while (this.simbolos[this.atual].tipo === tiposDeSimbolos.VIRGULA) {
             this.avancarEDevolverAnterior();
-            argumentos.push(this.expressao());
+            argumentos.push(await this.expressao());
         }
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
@@ -289,7 +289,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         let valores = [];
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.CHAVE_ESQUERDA:
-                return this.construtoDicionario(simboloAtual);
+                return await this.construtoDicionario(simboloAtual);
 
             case tiposDeSimbolos.COLCHETE_ESQUERDO:
                 this.avancarEDevolverAnterior();
@@ -307,10 +307,10 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
 
                 while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
                     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
-                        return this.construtoTupla();
+                        return await this.construtoTupla();
                     }
 
-                    const valor = this.atribuir();
+                    const valor = await this.atribuir();
                     valores.push(valor);
                     if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
                         this.consumir(
@@ -361,7 +361,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
                     tiposDeSimbolos.PARENTESE_ESQUERDO,
                     "Esperado parêntese esquerdo após palavra reservada 'função'."
                 );
-                const corpoDaFuncao = this.corpoDaFuncao(simboloFuncao.lexema as any);
+                const corpoDaFuncao = await this.corpoDaFuncao(simboloFuncao.lexema as any);
                 this.pilhaEscopos.definirInformacoesVariavel(
                     simboloFuncao.lexema,
                     new InformacaoElementoSintatico(simboloFuncao.lexema, 'função')
@@ -994,7 +994,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
             const igual = this.simbolos[this.atual - 1];
-            const valor = await this.ou();
+            const valor = await this.atribuir();
 
             switch (expressao.constructor) {
                 case Variavel:
@@ -1179,14 +1179,14 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         this.blocos -= 1;
         switch (literalOuVariavelInicio.constructor) {
             case Literal:
-                return this.declaracaoParaTradicional(
+                return await this.declaracaoParaTradicional(
                     simboloPara,
                     nomeVariavelIteracao,
                     literalOuVariavelInicio
                 );
             // TODO: Terminar
             default:
-                return this.declaracaoParaCada(
+                return await this.declaracaoParaCada(
                     simboloPara,
                     nomeVariavelIteracao,
                     literalOuVariavelInicio
@@ -1366,7 +1366,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
 
         let caminhoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENÃO)) {
-            caminhoSenao = this.resolverDeclaracao();
+            caminhoSenao = await this.resolverDeclaracao();
         }
 
         return new Se(condicao, caminhoEntao, [], caminhoSenao);
@@ -1408,7 +1408,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
                 return this.declaracaoEscreva();
             case tiposDeSimbolos.FAÇA:
                 this.avancarEDevolverAnterior();
-                return this.blocoEscopo();
+                return await this.blocoEscopo();
             case tiposDeSimbolos.PARA:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoPara();
@@ -1424,7 +1424,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
                 return this.declaracaoRetorna();
             case tiposDeSimbolos.TENTE:
                 this.avancarEDevolverAnterior();
-                return this.declaracaoTente();
+                return await this.declaracaoTente();
             case tiposDeSimbolos.SEJA:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoDeVariaveisOuFuncoes();
@@ -1449,7 +1449,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
             }
         }
 
-        return this.declaracaoExpressao();
+        return await this.declaracaoExpressao();
     }
 
     protected logicaComumInferenciaTiposVariaveis(inicializador: Construto): string {
@@ -1617,7 +1617,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
                 break;
         }
 
-        const corpo = await this.resolverDeclaracao() as Bloco;
+        const corpo = (await this.resolverDeclaracao()) as Bloco;
         // Se o corpo for uma `Expressao`, corpo é convertido para `Retorna`.
         // Tenda trabalha com retornos implícitos.
         let corpoResolvido = [];

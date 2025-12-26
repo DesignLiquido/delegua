@@ -193,7 +193,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
                         // TODO: Terminar
                     }
 
-                    const valor = this.ou();
+                    const valor = await this.ou();
 
                     chaves.push(chave);
                     valores.push(valor);
@@ -215,7 +215,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.FUNCAO:
             case tiposDeSimbolos.FUNÇÃO:
                 const simboloFuncao = this.avancarEDevolverAnterior();
-                const corpoDaFuncao = this.corpoDaFuncao(simboloFuncao.lexema);
+                const corpoDaFuncao = await this.corpoDaFuncao(simboloFuncao.lexema);
                 this.pilhaEscopos.definirInformacoesVariavel(
                     simboloFuncao.lexema,
                     new InformacaoElementoSintatico(simboloFuncao.lexema, 'função')
@@ -330,7 +330,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         }
 
-        await this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os argumentos.");
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os argumentos.");
 
         return new Chamada(this.hashArquivo, entidadeChamada, argumentos);
     }
@@ -342,7 +342,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
                 expressao = await this.finalizarChamada(expressao);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
-                const nome = await this.consumir(
+                const nome = this.consumir(
                     tiposDeSimbolos.IDENTIFICADOR,
                     "Esperado nome do método após '.'."
                 );
@@ -350,7 +350,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
                 expressao = new AcessoMetodoOuPropriedade(this.hashArquivo, expressao, nome);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
                 const indice = await this.expressao();
-                const simboloFechamento = await this.consumir(
+                const simboloFechamento = this.consumir(
                     tiposDeSimbolos.COLCHETE_DIREITO,
                     "Esperado ']' após escrita do indice."
                 );
@@ -546,7 +546,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
     }
 
     async atribuir(): Promise<Construto> {
-        const expressao = this.ou();
+        const expressao = await this.ou();
 
         if (
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL) ||
@@ -604,7 +604,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         }
 
-        await this.consumir(
+        this.consumir(
             tiposDeSimbolos.PARENTESE_DIREITO,
             "Esperado ')' após os valores em imprima."
         );
@@ -640,14 +640,14 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
     }
 
     async declaracaoDeLocal(): Promise<Var> {
-        const identificador = await this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de variável.');
-        
+        const identificador = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de variável.');
+
         let inicializador = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
             inicializador = await this.expressao();
         }
-        
-        await this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, "Esperado ';' após declaração de variável.");
+
+        this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, "Esperado ';' após declaração de variável.");
         
         // Para Prisma, mantemos a tipagem inferida de forma simples por enquanto.
         const tipo = 'qualquer';
@@ -676,7 +676,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         const simboloSe: SimboloInterface = this.simbolos[this.atual];
         const condicao = await this.expressao();
 
-        await this.consumir(
+        this.consumir(
             tiposDeSimbolos.ENTAO,
             "Esperado palavra reservada 'entao' ou 'então' após condição em declaração 'se'."
         );
@@ -707,7 +707,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             );
         }
 
-        await this.consumir(tiposDeSimbolos.FIM, "Esperado palavra-chave 'fimse' para fechamento de declaração 'se'.");
+        this.consumir(tiposDeSimbolos.FIM, "Esperado palavra-chave 'fimse' para fechamento de declaração 'se'.");
 
         return new Se(
             condicao,
@@ -753,7 +753,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             valor = await this.expressao();
         }
 
-        await this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, "Esperado ';' após valor de retorno.");
+        this.consumir(tiposDeSimbolos.PONTO_E_VIRGULA, "Esperado ';' após valor de retorno.");
         return new Retorna(palavraChave, valor);
     }
 
@@ -831,7 +831,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
     }
 
     async funcao(tipo: string): Promise<FuncaoDeclaracao> {
-        const simbolo: SimboloInterface = await this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado nome ${tipo}.`);
+        const simbolo: SimboloInterface = this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado nome ${tipo}.`);
 
         this.pilhaEscopos.definirInformacoesVariavel(
             simbolo.lexema,
@@ -855,7 +855,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.CONTINUA:
                 this.avancarEDevolverAnterior();
-                return await this.declaracaoContinua();
+                return this.declaracaoContinua();
             case tiposDeSimbolos.PONTO_E_VIRGULA:
                 // Ignora ponto e vírgula supérfluo
                 this.avancarEDevolverAnterior();
@@ -886,7 +886,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
                 return await this.declaracaoPara();
             case tiposDeSimbolos.QUEBRE:
                 this.avancarEDevolverAnterior();
-                return await this.declaracaoQuebre();
+                return this.declaracaoQuebre();
             case tiposDeSimbolos.SE:
                 this.avancarEDevolverAnterior();
                 return await this.declaracaoSe();
@@ -904,10 +904,10 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
     async declaracaoOuAtribuicaoVariaveis(): Promise<Var | Expressao> {
         const identificador = this.avancarEDevolverAnterior();
 
-        await this.consumir(tiposDeSimbolos.IGUAL, "Esperado '=' após identificador.");
+        this.consumir(tiposDeSimbolos.IGUAL, "Esperado '=' após identificador.");
 
         if (this.estaNoFinal()) {
-            throw await this.erro(
+            throw this.erro(
                 this.simboloAnterior(),
                 'Esperado valor após o símbolo de igual.'
             )
@@ -959,16 +959,16 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             this.blocos += 1;
             const simboloPara: SimboloInterface = this.avancarEDevolverAnterior();
             
-            const variavelIteracao = await this.consumir(
+            const variavelIteracao = this.consumir(
                 tiposDeSimbolos.IDENTIFICADOR,
                 "Esperado identificador de variável após 'para'."
             );
 
-            await this.consumir(tiposDeSimbolos.IGUAL, `'=' or 'em' esperado próximo a '${this.simbolos[this.atual].lexema}'.`);
+            this.consumir(tiposDeSimbolos.IGUAL, `'=' or 'em' esperado próximo a '${this.simbolos[this.atual].lexema}'.`);
 
             const literalOuVariavelInicio = await this.adicaoOuSubtracao();
 
-            await this.consumir(
+            this.consumir(
                 tiposDeSimbolos.VIRGULA,
                 `Espera-se '=' próximo a '${this.simbolos[this.atual].lexema}'.`
             );
@@ -993,7 +993,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             let passo: Construto = new Literal(this.hashArquivo, Number(simboloPara.linha), 1);
             const resolverIncrementoEmExecucao = false; // Mudar caso seja necessário.
 
-            await this.consumir(
+            this.consumir(
                 tiposDeSimbolos.INICIO,
                 `espera-se 'inicio' proximo a '${this.simbolos[this.atual].lexema}'.`
             );
@@ -1092,24 +1092,24 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
     }
 
     async declaracaoDeClasse(): Promise<Classe> {
-        const simbolo: SimboloInterface = await this.consumir(
+        const simbolo: SimboloInterface = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
             'Esperado nome da classe.'
         );
 
         let superClasse = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
-            const simboloSuperclasse = await this.consumir(
+            const simboloSuperclasse = this.consumir(
                 tiposDeSimbolos.IDENTIFICADOR,
                 'Esperado nome da Superclasse.'
             );
             this.superclasseAtual = simboloSuperclasse.lexema;
             superClasse = new Variavel(this.hashArquivo, this.simboloAnterior());
 
-            await this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração.");
+            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração.");
         }
 
-        await this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' antes do escopo da classe.");
+        this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' antes do escopo da classe.");
 
         const metodos = [];
         while (
@@ -1122,7 +1122,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             metodos.push(await this.funcao('método'));
         }
 
-        await this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após métodos da classe.");
+        this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após métodos da classe.");
 
         this.superclasseAtual = undefined;
         const definicaoClasse = new Classe(simbolo, superClasse, metodos);
