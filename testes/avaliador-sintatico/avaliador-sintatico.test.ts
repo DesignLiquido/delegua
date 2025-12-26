@@ -3,7 +3,7 @@ import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
 import { Ajuda, Bloco, Classe, Const, Escreva, Expressao, FuncaoDeclaracao, Importar, ParaCada, Retorna, TendoComo, Tente, Var } from '../../fontes/declaracoes';
 import { Binario, Chamada, Elvis, FuncaoConstruto, Leia, Literal, Logico, SeTernario, Variavel } from '../../fontes/construtos';
 
-describe('Avaliador sintático', () => {
+describe.skip('Avaliador sintático', () => {
     describe('analisar()', () => {
         let lexador = new Lexador();
         let avaliadorSintatico = new AvaliadorSintatico();

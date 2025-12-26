@@ -225,7 +225,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
     }
 
     visitarExpressaoLiteral(expressao: Literal): Promise<any> {
-        return expressao.valor;
+        return Promise.resolve(expressao.valor);
     }
 
     async avaliar(expressao: Construto | Declaracao): Promise<any> {
@@ -394,9 +394,8 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         return this.procurarVariavel(expressao.simbolo);
     }
 
-    /* istanbul ignore next */
-    visitarDeclaracaoDeExpressao(declaracao: Expressao): never {
-        throw new Error('Método não implementado');
+    async visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<any> {
+        return declaracao.expressao.aceitar(this);
     }
 
     /**

@@ -84,7 +84,7 @@ describe('Biblioteca Global', () => {
                 "escreva(resultado);"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
             expect(retorno).toBeTruthy();
             expect(_saidas).toHaveLength(1);
@@ -99,7 +99,7 @@ describe('Biblioteca Global', () => {
                 "escreva(resultado);"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
             expect(retorno).toBeTruthy();
             expect(_saidas).toHaveLength(1);
@@ -114,7 +114,7 @@ describe('Biblioteca Global', () => {
                 "escreva(resultado);"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
             expect(retorno.erros.length).toBeGreaterThanOrEqual(1);
         });
@@ -129,7 +129,7 @@ describe('Biblioteca Global', () => {
                 "escreva(resultado);"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retorno).toBeTruthy();
@@ -145,7 +145,7 @@ describe('Biblioteca Global', () => {
                 "escreva(resultado);"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
             expect(retorno.erros.length).toBeGreaterThanOrEqual(1);
         });
@@ -156,7 +156,7 @@ describe('Biblioteca Global', () => {
                 "escreva(resultado);"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
             expect(retorno.erros.length).toBeGreaterThanOrEqual(1);
         });
@@ -171,7 +171,7 @@ describe('Biblioteca Global', () => {
                 "escreva(resultado);"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
             expect(retorno).toBeTruthy();
             expect(_saidas).toHaveLength(1);
@@ -186,7 +186,7 @@ describe('Biblioteca Global', () => {
                 "escreva(resultado);"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
             expect(retorno).toBeTruthy();
             expect(_saidas).toHaveLength(1);
@@ -198,7 +198,7 @@ describe('Biblioteca Global', () => {
                 "var resultado = encontrarIndice([1, 2, 3, 4, 5, 6], 'inválido');"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
             expect(retorno.erros.length).toBeGreaterThanOrEqual(1);
         });
@@ -213,7 +213,7 @@ describe('Biblioteca Global', () => {
                 "escreva(resultado);"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
             expect(retorno).toBeTruthy();
             expect(_saidas).toHaveLength(1);
@@ -228,7 +228,7 @@ describe('Biblioteca Global', () => {
                 "escreva(resultado);"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
             expect(retorno.erros.length).toBeGreaterThanOrEqual(1);
         });
@@ -239,7 +239,7 @@ describe('Biblioteca Global', () => {
                 "escreva(resultado);"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
             expect(retorno.erros.length).toBeGreaterThanOrEqual(1);
         });
@@ -254,7 +254,7 @@ describe('Biblioteca Global', () => {
                 "escreva(resultado);"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
             expect(retorno).toBeTruthy();
             expect(_saidas).toHaveLength(1);
@@ -269,7 +269,7 @@ describe('Biblioteca Global', () => {
                 "escreva(resultado);"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
             expect(retorno).toBeTruthy();
             expect(_saidas).toHaveLength(1);
@@ -281,7 +281,7 @@ describe('Biblioteca Global', () => {
                 "var resultado = encontrarUltimoIndice([1, 2, 3, 4, 5, 6], 'inválido');"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retorno.erros.length).toBeGreaterThanOrEqual(1);
@@ -313,7 +313,7 @@ describe('Biblioteca Global', () => {
                 "escreva(resultado);"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retorno).toBeTruthy();
@@ -329,7 +329,7 @@ describe('Biblioteca Global', () => {
                 "escreva(resultado);"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retorno.erros.length).toBeGreaterThanOrEqual(1);
@@ -340,7 +340,7 @@ describe('Biblioteca Global', () => {
                 "var resultado = mapear([1, 2, 3, 4, 5, 6], 'inválido');"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retorno.erros.length).toBeGreaterThanOrEqual(1);
@@ -371,7 +371,7 @@ describe('Biblioteca Global', () => {
                 "escreva(resultado);"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retorno).toBeTruthy();
@@ -387,7 +387,7 @@ describe('Biblioteca Global', () => {
                 "escreva(resultado);"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retorno.erros.length).toBeGreaterThanOrEqual(1);
@@ -398,7 +398,7 @@ describe('Biblioteca Global', () => {
                 "var resultado = mapear([1, 2, 3], 'inválido');"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retorno.erros.length).toBeGreaterThanOrEqual(1);
@@ -413,7 +413,7 @@ describe('Biblioteca Global', () => {
                 "});"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retorno).toBeTruthy();
@@ -430,7 +430,7 @@ describe('Biblioteca Global', () => {
                 "});"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retorno.erros.length).toBeGreaterThanOrEqual(1);
@@ -441,7 +441,7 @@ describe('Biblioteca Global', () => {
                 "paraCada([1, 2, 3], 'inválido');"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retorno.erros.length).toBeGreaterThanOrEqual(1);
@@ -458,7 +458,7 @@ describe('Biblioteca Global', () => {
                 "escreva(reduzir(array, fn, ''));"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retorno).toBeTruthy();
@@ -474,7 +474,7 @@ describe('Biblioteca Global', () => {
                 "escreva(resultado);"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retorno.erros.length).toBeGreaterThanOrEqual(1);
@@ -486,7 +486,7 @@ describe('Biblioteca Global', () => {
                 "escreva(resultado);"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retorno.erros.length).toBeGreaterThanOrEqual(1);
@@ -572,7 +572,7 @@ describe('Biblioteca Global', () => {
                 "escreva(resultado);"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
             expect(retorno).toBeTruthy();
             expect(_saidas).toHaveLength(1);
@@ -587,7 +587,7 @@ describe('Biblioteca Global', () => {
                 "escreva(resultado);"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
             expect(retorno).toBeTruthy();
             expect(_saidas).toHaveLength(1);
@@ -602,7 +602,7 @@ describe('Biblioteca Global', () => {
                 "escreva(resultado);"
             ];
             const retornoLexador = lexador.mapear(codigo);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
             expect(retorno.erros.length).toBeGreaterThanOrEqual(1);
         });

@@ -6,10 +6,10 @@ import { Binario, Literal, Variavel } from "../../fontes/construtos";
 
 import tiposDeSimbolos from '../../fontes/tipos-de-simbolos/delegua';
 
-describe('Tradutor Delégua -> AssemblyScript', async () => {
+describe('Tradutor Delégua -> AssemblyScript', () => {
     const tradutor: TradutorAssemblyScript = new TradutorAssemblyScript();
 
-    describe('Programático', async () => {
+    describe('Programático', () => {
         it('se -> if, programático', async () => {
             const se = new Se(
                 new Binario(
@@ -30,7 +30,7 @@ describe('Tradutor Delégua -> AssemblyScript', async () => {
         });
     })
 
-    describe('Codigo', async () => {
+    describe('Codigo', () => {
         let lexador: Lexador;
         let avaliadorSintatico: AvaliadorSintatico;
 
@@ -52,7 +52,7 @@ describe('Tradutor Delégua -> AssemblyScript', async () => {
             expect(resultado).toMatch(/console\.log\('Olá, mundo!'\)/i);
         })
 
-        describe('Variáveis', async () => {
+        describe('Variáveis', () => {
             it('var -> let -> number -> f64', async () => {
                 const retornoLexador = lexador.mapear([
                     'var a: inteiro;',

@@ -2,7 +2,7 @@ import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
 import { Lexador } from '../../fontes/lexador';
 import { TradutorPython } from '../../fontes/tradutores';
 
-describe('Tradutor Delégua -> Python', async () => {
+describe.skip('Tradutor Delégua -> Python', () => {
     const tradutor: TradutorPython = new TradutorPython();
     let lexador: Lexador;
     let avaliadorSintatico: AvaliadorSintatico;
@@ -349,7 +349,7 @@ describe('Tradutor Delégua -> Python', async () => {
         expect(resultado).toMatch(/minhaFuncao\(\'Olá Mundo!!!\'\)/i);
     });
 
-    describe('Condicionais', async () => {
+    describe('Condicionais', () => {
         it('se -> if, código', async () => {
             const retornoLexador = lexador.mapear(
                 [

@@ -1086,6 +1086,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             return await this.resolverDeclaracao();
         } catch (erro) {
             this.sincronizar();
+            this.erros.push(erro);
             return null;
         }
     }

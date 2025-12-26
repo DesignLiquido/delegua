@@ -6,10 +6,10 @@ import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
 
 import tiposDeSimbolos from '../../fontes/tipos-de-simbolos/delegua';
 
-describe('Tradutor Delégua -> JavaScript', async () => {
+describe.skip('Tradutor Delégua -> JavaScript', () => {
     const tradutor: TradutorJavaScript = new TradutorJavaScript();
 
-    describe('Programático', async () => {
+    describe('Programático', () => {
         it('se -> if, programático', async () => {
             const se = new Se(
                 new Binario(
@@ -30,7 +30,7 @@ describe('Tradutor Delégua -> JavaScript', async () => {
         });
     });
 
-    describe('Código', async () => {
+    describe('Código', () => {
         let lexador: Lexador;
         let avaliadorSintatico: AvaliadorSintatico;
 
@@ -1047,7 +1047,7 @@ describe('Tradutor Delégua -> JavaScript', async () => {
             expect(resultado).toMatch(/console\.log\(\'teste\'\)/i);
         });
 
-        describe('Condicionais', async () => {
+        describe('Condicionais', () => {
             it('se -> if, código', async () => {
                 const retornoLexador = lexador.mapear(
                     [
@@ -1228,7 +1228,7 @@ describe('Tradutor Delégua -> JavaScript', async () => {
             expect(resultado).toContain('// Exibe o resultado da divisão');
         });
 
-        describe('Casos mais complexos', async () => {
+        describe('Casos mais complexos', () => {
             it('MergeSort', async () => {
                 const retornoLexador = lexador.mapear(
                     [

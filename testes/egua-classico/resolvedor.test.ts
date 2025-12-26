@@ -14,12 +14,12 @@ describe('Resolvedor (Égua Clássico)', () => {
             resolvedor = new ResolvedorEguaClassico();
         });
 
-        it('Sucesso', () => {
+        it('Sucesso', async () => {
             const retornoLexador = lexador.mapear(
                 ["escreva('Olá mundo');"]
             );
             const retornoAvaliadorSintatico =
-                avaliadorSintatico.analisar(retornoLexador, -1);
+                await avaliadorSintatico.analisar(retornoLexador, -1);
             resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
             expect(resolvedor.escopos).toBeTruthy();
             expect(resolvedor.escopos.pilha).toBeTruthy();

@@ -25,7 +25,7 @@ export class TradutorPortugolIpt {
 
     traduzirConstrutoLiteral(literal: Literal): string {
         if (typeof literal.valor === 'string') return `'${literal.valor}'`;
-        return literal.valor;
+        return String(literal.valor);
     }
 
     traduzirDeclaracaoEscreva(declaracaoEscreva: any): string {
@@ -56,14 +56,14 @@ export class TradutorPortugolIpt {
         return resultado;
     }
 
-    traduzir(codigo: string): string {
+    async traduzir(codigo: string): Promise<string> {
         let resultado = '';
 
         this.lexador = new LexadorPortugolIpt();
         this.avaliadorSintatico = new AvaliadorSintaticoPortugolIpt();
 
         const retornoLexador = this.lexador.mapear(codigo.split('\n'), -1);
-        const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador, -1);
+        const retornoAvaliadorSintatico = await this.avaliadorSintatico.analisar(retornoLexador, -1);
 
         for (const declaracao of retornoAvaliadorSintatico.declaracoes) {
             resultado += `${this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao)} \n`;

@@ -2000,7 +2000,7 @@ export class AvaliadorSintatico
     protected async declaracaoFalhar(): Promise<Falhar> {
         const simboloFalha: SimboloInterface = this.simbolos[this.atual - 1];
         const expressaoFalha = await this.expressao();
-        return new Falhar(simboloFalha, (expressaoFalha as any).expressao);
+        return new Falhar(simboloFalha, expressaoFalha);
     }
 
     protected async logicaComumFazer() {
@@ -2756,9 +2756,9 @@ export class AvaliadorSintatico
         }
     }
 
-    protected resolverValorConstruto(construto: Construto) {
+    protected resolverValorConstruto(construto: Construto): string {
         if (construto instanceof Literal) {
-            return construto.valor;
+            return String(construto.valor);
         }
 
         throw this.erro(

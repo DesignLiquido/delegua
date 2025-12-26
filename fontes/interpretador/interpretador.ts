@@ -495,7 +495,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             valorVetorOuDicionarioResolvido = Object.entries(valorVetorOuDicionarioResolvido).map(
                 (v) => new Dupla(
                     new Literal(paraCada.hashArquivo, paraCada.linha, v[0], 'texto'),
-                    new Literal(paraCada.hashArquivo, paraCada.linha, v[1], inferirTipoVariavel(v[1]) as any)
+                    new Literal(paraCada.hashArquivo, paraCada.linha, (v[1] as any), inferirTipoVariavel(v[1]) as any)
                 )
             );
         }
@@ -531,13 +531,20 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                     const valorComoDupla = valorVetorOuDicionarioResolvido[
                         paraCada.posicaoAtual
                     ] as Dupla;
+
+                    const promises = await Promise.all([
+                        this.avaliar(paraCada.variavelIteracao.primeiro),
+                        this.avaliar(paraCada.variavelIteracao.segundo)
+                    ])
+
+                    // TODO: O que fazer quando não forem literais?
                     this.pilhaEscoposExecucao.definirVariavel(
-                        (paraCada.variavelIteracao.primeiro as Literal).valor,
+                        String((promises[0] as Literal).valor),
                         valorComoDupla.primeiro
                     );
 
                     this.pilhaEscoposExecucao.definirVariavel(
-                        (paraCada.variavelIteracao.segundo as Literal).valor,
+                        String((promises[0] as Literal).valor),
                         valorComoDupla.segundo
                     );
                 }

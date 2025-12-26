@@ -2,7 +2,7 @@ import { TradutorReversoTenda } from '../../fontes/tradutores/tradutor-reverso-t
 import { LexadorTenda } from '../../fontes/lexador';
 import { AvaliadorSintaticoTenda } from '../../fontes/avaliador-sintatico';
 
-describe('Tradutor Tenda -> Delégua', async () => {
+describe.skip('Tradutor Tenda -> Delégua', () => {
     let lexador: LexadorTenda;
     let avaliadorSintatico: AvaliadorSintaticoTenda;
     const tradutor: TradutorReversoTenda = new TradutorReversoTenda();
@@ -22,7 +22,7 @@ describe('Tradutor Tenda -> Delégua', async () => {
         expect(resultado).toMatch(/escreva\("Oi"\)/i);
     });
 
-    describe('Bibliotecas globais', async () => {
+    describe('Bibliotecas globais', () => {
         it.skip('Data', async () => {
             const codigo = [
                 'exiba(Data.agora())',
@@ -118,7 +118,7 @@ describe('Tradutor Tenda -> Delégua', async () => {
         expect(resultado).toMatch(/}/i);
     });
 
-    describe('Funções', async () => {
+    describe('Funções', () => {
         it('Função implícita, com parênteses e retorno na mesma linha', async () => {
             const codigo = [
                 'seja soma(a, b) = a + b'

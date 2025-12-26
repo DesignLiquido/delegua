@@ -97,7 +97,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
 
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             do {
-                const valor = this.resolverDeclaracaoForaDeBloco();
+                const valor = await this.resolverDeclaracaoForaDeBloco();
 
                 argumentos.push(
                     new FormatacaoEscrita(this.hashArquivo, Number(simboloAtual.linha), valor)
@@ -120,7 +120,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
      * Em Calango, este é o método `escreva()`.
      * @returns {EscrevaMesmaLinha} Uma declaracao de escrita na mesma linha.
      */
-    protected declaracaoEscrevaMesmaLinha(): EscrevaMesmaLinha {
+    protected async declaracaoEscrevaMesmaLinha(): Promise<EscrevaMesmaLinha> {
         const simboloAtual = this.avancarEDevolverAnterior();
 
         this.consumir(
@@ -132,7 +132,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
 
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             do {
-                const valor = this.resolverDeclaracaoForaDeBloco();
+                const valor = await this.resolverDeclaracaoForaDeBloco();
 
                 argumentos.push(
                     new FormatacaoEscrita(this.hashArquivo, Number(simboloAtual.linha), valor)
@@ -255,7 +255,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         const argumentos = [];
 
         do {
-            argumentos.push(this.resolverDeclaracaoForaDeBloco());
+            argumentos.push(await this.resolverDeclaracaoForaDeBloco());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração 'leia'");
@@ -306,12 +306,12 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         }
     }
 
-    override resolverDeclaracaoForaDeBloco():
-        | Declaracao
+    override async resolverDeclaracaoForaDeBloco():
+        Promise<Declaracao
         | Declaracao[]
         | Construto
         | Construto[]
-        | any {
+        | any> {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.ESCREVA:
@@ -377,7 +377,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
             !this.estaNoFinal() &&
             this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIM_PRINCIPAL
         ) {
-            const resolucaoDeclaracao = this.resolverDeclaracaoForaDeBloco();
+            const resolucaoDeclaracao = await this.resolverDeclaracaoForaDeBloco();
 
             if (Array.isArray(resolucaoDeclaracao)) {
                 declaracoes = declaracoes.concat(resolucaoDeclaracao);
