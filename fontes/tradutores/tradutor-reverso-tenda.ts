@@ -235,22 +235,14 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
         let resultado = '{';
 
         for (let i = 0; i < dicionario.chaves.length; i++) {
-            if (dicionario.esSpread && dicionario.esSpread[i]) {
-                resultado += '...';
-                resultado +=
-                    this.dicionarioConstrutos[dicionario.valores[i].constructor.name](
-                        dicionario.valores[i]
-                    ) + ',';
-            } else {
-                resultado += this.dicionarioConstrutos[dicionario.chaves[i].constructor.name](
-                    dicionario.chaves[i]
-                );
-                resultado += ':';
-                resultado +=
-                    this.dicionarioConstrutos[dicionario.valores[i].constructor.name](
-                        dicionario.valores[i]
-                    ) + ',';
-            }
+            resultado += this.dicionarioConstrutos[dicionario.chaves[i].constructor.name](
+                dicionario.chaves[i]
+            );
+            resultado += ':';
+            resultado +=
+                this.dicionarioConstrutos[dicionario.valores[i].constructor.name](
+                    dicionario.valores[i]
+                ) + ',';
         }
         resultado += '}';
 
