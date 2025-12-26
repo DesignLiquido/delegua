@@ -218,7 +218,7 @@ export class AvaliadorSintatico
     protected async construtoAjuda(): Promise<AjudaComoConstruto> {
         const simboloAjuda = this.avancarEDevolverAnterior();
 
-        if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.PARENTESE_ESQUERDO) {
+        if (this.estaNoFinal() || this.simbolos[this.atual].tipo !== tiposDeSimbolos.PARENTESE_ESQUERDO) {
             return new AjudaComoConstruto(simboloAjuda.hashArquivo, simboloAjuda.linha, undefined, false);
         }
 
@@ -2118,10 +2118,10 @@ export class AvaliadorSintatico
             this.blocos += 1;
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CADA)) {
-                return this.declaracaoParaCada(simboloPara);
+                return await this.declaracaoParaCada(simboloPara);
             }
 
-            return this.declaracaoParaTradicional(simboloPara);
+            return await this.declaracaoParaTradicional(simboloPara);
         } finally {
             this.blocos -= 1;
         }
@@ -2303,7 +2303,7 @@ export class AvaliadorSintatico
 
         let condicao = null;
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PONTO_E_VIRGULA)) {
-            condicao = this.expressao();
+            condicao = await this.expressao();
         }
 
         // Ponto-e-vírgula é opcional aqui.
@@ -2311,7 +2311,7 @@ export class AvaliadorSintatico
 
         let incrementar = null;
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
-            incrementar = this.expressao();
+            incrementar = await this.expressao();
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.INCREMENTAR,
                 tiposDeSimbolos.DECREMENTAR
@@ -3351,6 +3351,8 @@ export class AvaliadorSintatico
      */
     protected async resolverDeclaracao(): Promise<Declaracao | Declaracao[]> {
         switch (this.simbolos[this.atual].tipo) {
+            case tiposDeSimbolos.AJUDA:
+                return this.declaracaoAjuda();
             case tiposDeSimbolos.CHAVE_ESQUERDA:
                 const simboloInicioBloco: SimboloInterface = this.avancarEDevolverAnterior();
                 return new Bloco(
