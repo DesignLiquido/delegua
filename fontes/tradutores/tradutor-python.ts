@@ -406,10 +406,17 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         let resultado = `{${dicionario.chaves.length > 0 ? '\n' : ''}`;
         for (let indice = 0; indice < dicionario.chaves.length; indice++) {
             resultado += ' '.repeat(this.indentacao + 4);
-            const chave = dicionario.chaves[indice];
-            resultado += `${this.dicionarioConstrutos[chave.constructor.name](chave)}: `;
-            const valor = dicionario.valores[indice];
-            resultado += `${this.dicionarioConstrutos[valor.constructor.name](valor)},\n`;
+
+            if (dicionario.esSpread && dicionario.esSpread[indice]) {
+                resultado += '**';
+                const valor = dicionario.valores[indice];
+                resultado += `${this.dicionarioConstrutos[valor.constructor.name](valor)},\n`;
+            } else {
+                const chave = dicionario.chaves[indice];
+                resultado += `${this.dicionarioConstrutos[chave.constructor.name](chave)}: `;
+                const valor = dicionario.valores[indice];
+                resultado += `${this.dicionarioConstrutos[valor.constructor.name](valor)},\n`;
+            }
         }
 
         resultado += '}';

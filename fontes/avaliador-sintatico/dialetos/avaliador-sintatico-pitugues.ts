@@ -648,18 +648,29 @@ export class AvaliadorSintaticoPitugues
                 this.avancarEDevolverAnterior();
                 const chaves = [];
                 const valoresDicionario = [];
+                const esSpread = [];
 
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA)) {
-                    return new Dicionario(this.hashArquivo, simboloAtual.linha, [], []);
+                    return new Dicionario(this.hashArquivo, simboloAtual.linha, [], [], []);
                 }
 
                 while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA)) {
-                    const chave = await this.atribuir();
-                    this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' entre chave e valor.");
-                    const valor = await this.atribuir();
+                    // Verificar se é spread (**expressao)
+                    if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EXPONENCIACAO)) {
+                        const expressaoDicionario = await this.atribuir();
 
-                    chaves.push(chave);
-                    valoresDicionario.push(valor);
+                        chaves.push(null);
+                        valoresDicionario.push(expressaoDicionario);
+                        esSpread.push(true);
+                    } else {
+                        const chave = await this.atribuir();
+                        this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' entre chave e valor.");
+                        const valor = await this.atribuir();
+
+                        chaves.push(chave);
+                        valoresDicionario.push(valor);
+                        esSpread.push(false);
+                    }
 
                     if (this.simboloAtual().tipo !== tiposDeSimbolos.CHAVE_DIREITA) {
                         this.consumir(
@@ -669,7 +680,7 @@ export class AvaliadorSintaticoPitugues
                     }
                 }
 
-                return new Dicionario(this.hashArquivo, simboloAtual.linha, chaves, valoresDicionario);
+                return new Dicionario(this.hashArquivo, simboloAtual.linha, chaves, valoresDicionario, esSpread);
 
             case tiposDeSimbolos.COLCHETE_ESQUERDO:
                 this.avancarEDevolverAnterior();

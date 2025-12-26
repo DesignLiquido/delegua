@@ -1150,6 +1150,238 @@ describe('Interpretador (Pituguês)', () => {
                 });
             });
 
+            describe('Desempacotamento de dicionários com **', () => {
+                describe('Casos de sucesso', () => {
+                    it('Spread simples - {**dict}', async () => {
+                        const codigo = [
+                            "pessoa = {'nome': 'Fulano', 'sobrenome': 'de Tal'}",
+                            "copia = {**pessoa}",
+                            "escreva(copia['nome'])",
+                            "escreva(copia['sobrenome'])"
+                        ];
+
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(2);
+                        expect(_saidas[0]).toBe('Fulano');
+                        expect(_saidas[1]).toBe('de Tal');
+                    });
+
+                    it('Múltiplos spreads - {**dict1, **dict2}', async () => {
+                        const codigo = [
+                            "pessoa = {'nome': 'Fulano', 'sobrenome': 'de Tal'}",
+                            "dados_da_pessoa = {'idade': 20, 'uf': 'SP'}",
+                            "dados_completos = {**pessoa, **dados_da_pessoa}",
+                            "escreva(dados_completos['nome'])",
+                            "escreva(dados_completos['idade'])",
+                            "escreva(dados_completos['uf'])"
+                        ];
+
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(3);
+                        expect(_saidas[0]).toBe('Fulano');
+                        expect(_saidas[1]).toBe('20');
+                        expect(_saidas[2]).toBe('SP');
+                    });
+
+                    it('Exemplo completo do Python - escreva(dados_completos)', async () => {
+                        const codigo = [
+                            "pessoa = {'nome': 'Fulano', 'sobrenome': 'de Tal'}",
+                            "dados_da_pessoa = {'idade': 20, 'uf': 'SP'}",
+                            "dados_completos = {**pessoa, **dados_da_pessoa}",
+                            "escreva(dados_completos)"
+                        ];
+
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+
+                        // Validar que o dicionário mesclado contém todas as 4 chaves
+                        const saida = _saidas[0];
+                        expect(saida).toContain('nome');
+                        expect(saida).toContain('Fulano');
+                        expect(saida).toContain('sobrenome');
+                        expect(saida).toContain('de Tal');
+                        expect(saida).toContain('idade');
+                        expect(saida).toContain('20');
+                        expect(saida).toContain('uf');
+                        expect(saida).toContain('SP');
+                    });
+
+                    it('Mix de spread e literal - {**dict, "nova_chave": valor}', async () => {
+                        const codigo = [
+                            "base = {'a': 1, 'b': 2}",
+                            "extendido = {**base, 'c': 3, 'd': 4}",
+                            "escreva(extendido['a'])",
+                            "escreva(extendido['c'])",
+                            "escreva(extendido['d'])"
+                        ];
+
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(3);
+                        expect(_saidas[0]).toBe('1');
+                        expect(_saidas[1]).toBe('3');
+                        expect(_saidas[2]).toBe('4');
+                    });
+
+                    it('Sobrescrita - chave posterior sobrescreve anterior', async () => {
+                        const codigo = [
+                            "original = {'x': 1, 'y': 2}",
+                            "sobrescrito = {**original, 'x': 100}",
+                            "escreva(sobrescrito['x'])",
+                            "escreva(sobrescrito['y'])"
+                        ];
+
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(2);
+                        expect(_saidas[0]).toBe('100');
+                        expect(_saidas[1]).toBe('2');
+                    });
+
+                    it('Dicionário vazio com spread', async () => {
+                        const codigo = [
+                            "vazio = {}",
+                            "com_dados = {**vazio, 'a': 1}",
+                            "escreva(com_dados['a'])"
+                        ];
+
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('1');
+                    });
+
+                    it('Spread de spread - sobrescrita em múltiplos níveis', async () => {
+                        const codigo = [
+                            "d1 = {'a': 1, 'b': 2}",
+                            "d2 = {'b': 20, 'c': 30}",
+                            "d3 = {'c': 300, 'd': 400}",
+                            "resultado = {**d1, **d2, **d3}",
+                            "escreva(resultado['a'])",
+                            "escreva(resultado['b'])",
+                            "escreva(resultado['c'])",
+                            "escreva(resultado['d'])"
+                        ];
+
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(4);
+                        expect(_saidas[0]).toBe('1');
+                        expect(_saidas[1]).toBe('20');
+                        expect(_saidas[2]).toBe('300');
+                        expect(_saidas[3]).toBe('400');
+                    });
+                });
+
+                describe('Casos de erro', () => {
+                    it('Erro ao usar ** com não-dicionário (número)', async () => {
+                        const codigo = [
+                            "numero = 42",
+                            "tentativa = {**numero}"
+                        ];
+
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                        const mensagemErro = retornoInterpretador.erros[0].erroInterno?.mensagem || retornoInterpretador.erros[0].mensagem;
+                        expect(mensagemErro).toContain('só pode ser usado com dicionários');
+                    });
+
+                    it('Erro ao usar ** com vetor', async () => {
+                        const codigo = [
+                            "vetor = [1, 2, 3]",
+                            "tentativa = {**vetor}"
+                        ];
+
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                        const mensagemErro = retornoInterpretador.erros[0].erroInterno?.mensagem || retornoInterpretador.erros[0].mensagem;
+                        expect(mensagemErro).toContain('vetor');
+                    });
+
+                    it('Erro ao usar ** com texto', async () => {
+                        const codigo = [
+                            "texto = 'alguma string'",
+                            "tentativa = {**texto}"
+                        ];
+
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                        const mensagemErro = retornoInterpretador.erros[0].erroInterno?.mensagem || retornoInterpretador.erros[0].mensagem;
+                        expect(mensagemErro).toContain('dicionários');
+                    });
+
+                    it('Erro ao usar ** com nulo', async () => {
+                        const codigo = [
+                            "nulo_var = nulo",
+                            "tentativa = {**nulo_var}"
+                        ];
+
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                        const mensagemErro = retornoInterpretador.erros[0].erroInterno?.mensagem || retornoInterpretador.erros[0].mensagem;
+                        expect(mensagemErro).toContain('nulo');
+                    });
+                });
+            });
+
             describe('Uso de primitivas de número', () => {
                 it('arredondarParaBaixo', async () => {
                     const codigo = ['n1 = 3.1415', 'escreva(n1.arredondar_para_baixo())'];

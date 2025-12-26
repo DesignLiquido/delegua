@@ -1991,18 +1991,44 @@ export class InterpretadorBase implements InterpretadorInterface {
     async visitarExpressaoDicionario(expressao: Dicionario): Promise<any> {
         const dicionario = {};
         for (let i = 0; i < expressao.chaves.length; i++) {
-            const promises = await Promise.all([
-                this.avaliar(expressao.chaves[i]),
-                this.avaliar(expressao.valores[i]),
-            ]);
+            if (expressao.esSpread && expressao.esSpread[i]) {
+                const dicionarioParaDesempacotar = this.resolverValor(await this.avaliar(expressao.valores[i]));
 
-            if (typeof promises[0] === 'boolean') {
-                const chaveLogico = promises[0] === true ? 'verdadeiro' : 'falso';
-                dicionario[chaveLogico] = promises[1];
-                continue;
+                // Validação: verificar se é realmente um dicionário
+                if (
+                    typeof dicionarioParaDesempacotar !== 'object' ||
+                    dicionarioParaDesempacotar === null ||
+                    Array.isArray(dicionarioParaDesempacotar)
+                ) {
+                    throw new ErroEmTempoDeExecucao(
+                        { linha: expressao.linha, lexema: '**' } as any,
+                        `Operador '**' só pode ser usado com dicionários. Tipo encontrado: ${
+                            dicionarioParaDesempacotar === null
+                                ? 'nulo'
+                                : Array.isArray(dicionarioParaDesempacotar)
+                                ? 'vetor'
+                                : typeof dicionarioParaDesempacotar
+                        }`,
+                        expressao.linha
+                    );
+                }
+
+                // Desempacotar: copiar todas as propriedades
+                Object.assign(dicionario, dicionarioParaDesempacotar);
+            } else {
+                const promises = await Promise.all([
+                    this.avaliar(expressao.chaves[i]),
+                    this.avaliar(expressao.valores[i]),
+                ]);
+
+                if (typeof promises[0] === 'boolean') {
+                    const chaveLogico = promises[0] === true ? 'verdadeiro' : 'falso';
+                    dicionario[chaveLogico] = promises[1];
+                    continue;
+                }
+
+                dicionario[promises[0]] = this.resolverValor(promises[1]);
             }
-
-            dicionario[promises[0]] = this.resolverValor(promises[1]);
         }
 
         return dicionario;
