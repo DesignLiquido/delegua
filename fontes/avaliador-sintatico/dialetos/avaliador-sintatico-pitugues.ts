@@ -654,9 +654,9 @@ export class AvaliadorSintaticoPitugues
                 }
 
                 while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA)) {
-                    const chave = this.atribuir();
+                    const chave = await this.atribuir();
                     this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' entre chave e valor.");
-                    const valor = this.atribuir();
+                    const valor = await this.atribuir();
 
                     chaves.push(chave);
                     valoresDicionario.push(valor);
@@ -720,7 +720,7 @@ export class AvaliadorSintaticoPitugues
             case tiposDeSimbolos.FUNCAO:
             case tiposDeSimbolos.FUNÇÃO:
                 const simboloFuncao = this.avancarEDevolverAnterior();
-                const corpoDaFuncao = this.corpoDaFuncao(simboloFuncao.lexema);
+                const corpoDaFuncao = await this.corpoDaFuncao(simboloFuncao.lexema);
                 this.pilhaEscopos.definirInformacoesVariavel(
                     simboloFuncao.lexema,
                     new InformacaoElementoSintatico(simboloFuncao.lexema, 'função')
@@ -824,7 +824,7 @@ export class AvaliadorSintaticoPitugues
         throw this.erro(this.simboloAtual(), 'Esperado expressão.');
     }
 
-    finalizarChamada(entidadeChamada: Construto): Construto {
+    async finalizarChamada(entidadeChamada: Construto): Promise<Construto> {
         const argumentos = [];
 
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
@@ -832,7 +832,7 @@ export class AvaliadorSintaticoPitugues
                 if (argumentos.length >= 255) {
                     throw this.erro(this.simboloAtual(), 'Não pode haver mais de 255 argumentos.');
                 }
-                argumentos.push(this.expressao());
+                argumentos.push(await this.expressao());
             } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         }
 
@@ -848,7 +848,7 @@ export class AvaliadorSintaticoPitugues
 
         while (true) {
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
-                expressao = this.finalizarChamada(expressao);
+                expressao = await this.finalizarChamada(expressao);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
                 const nome = this.consumir(
                     tiposDeSimbolos.IDENTIFICADOR,
@@ -1533,7 +1533,7 @@ export class AvaliadorSintaticoPitugues
 
         let caminhoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO, tiposDeSimbolos.SENÃO)) {
-            caminhoSenao = this.resolverDeclaracao();
+            caminhoSenao = await this.resolverDeclaracao();
         }
 
         return new Se(condicao, caminhoEntao, [], caminhoSenao);
@@ -1571,12 +1571,12 @@ export class AvaliadorSintaticoPitugues
         return new Continua(this.simboloAtual());
     }
 
-    declaracaoRetorna(): Retorna {
+    async declaracaoRetorna(): Promise<Retorna> {
         const palavraChave = this.simboloAnterior();
         let valor = null;
 
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PONTO_E_VIRGULA)) {
-            valor = this.expressao();
+            valor = await this.expressao();
         }
 
         return new Retorna(palavraChave, valor);
@@ -1710,7 +1710,7 @@ export class AvaliadorSintaticoPitugues
         return funcaoDeclaracao;
     }
 
-    logicaComumParametros(): Array<Partial<ParametroInterface>> {
+    async logicaComumParametros(): Promise<Array<Partial<ParametroInterface>>> {
         const parametros: Array<Partial<ParametroInterface>> = [];
 
         do {
@@ -1739,7 +1739,7 @@ export class AvaliadorSintaticoPitugues
             }
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-                parametro.valorPadrao = this.primario();
+                parametro.valorPadrao = await this.primario();
             }
 
             this.pilhaEscopos.definirInformacoesVariavel(
@@ -1910,7 +1910,7 @@ export class AvaliadorSintaticoPitugues
 
         let parametros = [];
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
-            parametros = this.logicaComumParametros();
+            parametros = await this.logicaComumParametros();
         }
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
@@ -2156,7 +2156,7 @@ export class AvaliadorSintaticoPitugues
                 return this.declaracaoSe();
             case tiposDeSimbolos.RETORNA:
                 this.avancarEDevolverAnterior();
-                return this.declaracaoRetorna();
+                return await this.declaracaoRetorna();
             case tiposDeSimbolos.TENTE:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoTente();

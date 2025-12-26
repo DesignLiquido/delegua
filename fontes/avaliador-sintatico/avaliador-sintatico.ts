@@ -955,7 +955,7 @@ export class AvaliadorSintatico
             case tiposDeSimbolos.PARENTESE_ESQUERDO:
                 this.avancarEDevolverAnterior();
                 const chamada = await this.finalizarChamada(expressaoAnterior, tipoAnterior);
-                return this.resolverCadeiaChamadas(chamada);
+                return await this.resolverCadeiaChamadas(chamada);
             case tiposDeSimbolos.PONTO:
                 this.avancarEDevolverAnterior();
                 this.verificarSeSimboloAtualEIgualA()
@@ -988,7 +988,7 @@ export class AvaliadorSintatico
                     nome,
                     tipoInferido
                 );
-                return this.resolverCadeiaChamadas(acesso, tipoInferido);
+                return await this.resolverCadeiaChamadas(acesso, tipoInferido);
             case tiposDeSimbolos.COLCHETE_ESQUERDO:
                 const tipoAcesso = this.resolverTipoAcessoIndiceVariavel(
                     expressaoAnterior
@@ -1009,7 +1009,7 @@ export class AvaliadorSintatico
                     tipoAcesso
                 );
 
-                return this.resolverCadeiaChamadas(acessoVariavel);
+                return await this.resolverCadeiaChamadas(acessoVariavel);
             default:
                 return expressaoAnterior;
         }
@@ -1017,7 +1017,7 @@ export class AvaliadorSintatico
 
     override async chamar(): Promise<Construto> {
         let expressao = await this.primario();
-        return this.resolverCadeiaChamadas(expressao);
+        return await this.resolverCadeiaChamadas(expressao);
     }
 
     /**
@@ -1939,7 +1939,7 @@ export class AvaliadorSintatico
 
                     const declaracoes = [];
                     do {
-                        declaracoes.push(this.resolverDeclaracao());
+                        declaracoes.push(await this.resolverDeclaracao());
                     } while (
                         !this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO) &&
                         !this.verificarTipoSimboloAtual(tiposDeSimbolos.PADRAO) &&
@@ -3086,7 +3086,7 @@ export class AvaliadorSintatico
             }
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-                const valorPadrao = this.primario();
+                const valorPadrao = await this.primario();
                 parametro.valorPadrao = valorPadrao;
             }
 

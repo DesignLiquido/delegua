@@ -4,7 +4,7 @@ import { Interpretador } from '../../fontes/interpretador';
 import { Lexador } from '../../fontes/lexador';
 import { RetornoQuebra } from '../../fontes/quebras';
 
-describe.skip('Interpretador', () => {
+describe('Interpretador', () => {
     describe('interpretar()', () => {
         let lexador: Lexador;
         let avaliadorSintatico: AvaliadorSintatico;

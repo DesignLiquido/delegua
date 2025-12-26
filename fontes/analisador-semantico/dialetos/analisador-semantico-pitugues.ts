@@ -1025,14 +1025,14 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
     override async visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> {
         const expressaoIntervalo = expressao as any;
 
-        this.analisar(expressaoIntervalo.objeto);
+        await expressaoIntervalo.objeto.aceitar(this);
 
         if (expressaoIntervalo.inicio) {
-            this.analisar(expressaoIntervalo.inicio);
+            await expressaoIntervalo.inicio.aceitar(this);
         }
 
         if (expressaoIntervalo.fim) {
-            this.analisar(expressaoIntervalo.fim);
+            await expressaoIntervalo.fim.aceitar(this);
         }
 
         return Promise.resolve();

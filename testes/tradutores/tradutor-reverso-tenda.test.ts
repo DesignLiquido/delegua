@@ -2,7 +2,7 @@ import { TradutorReversoTenda } from '../../fontes/tradutores/tradutor-reverso-t
 import { LexadorTenda } from '../../fontes/lexador';
 import { AvaliadorSintaticoTenda } from '../../fontes/avaliador-sintatico';
 
-describe.skip('Tradutor Tenda -> Delégua', () => {
+describe('Tradutor Tenda -> Delégua', () => {
     let lexador: LexadorTenda;
     let avaliadorSintatico: AvaliadorSintaticoTenda;
     const tradutor: TradutorReversoTenda = new TradutorReversoTenda();

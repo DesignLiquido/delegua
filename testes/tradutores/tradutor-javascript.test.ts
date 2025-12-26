@@ -6,7 +6,7 @@ import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
 
 import tiposDeSimbolos from '../../fontes/tipos-de-simbolos/delegua';
 
-describe.skip('Tradutor Delégua -> JavaScript', () => {
+describe('Tradutor Delégua -> JavaScript', () => {
     const tradutor: TradutorJavaScript = new TradutorJavaScript();
 
     describe('Programático', () => {

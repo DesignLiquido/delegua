@@ -2,7 +2,7 @@ import { AvaliadorSintaticoCalango } from '../../fontes/avaliador-sintatico/dial
 import { LexadorCalango } from '../../fontes/lexador/dialetos';
 import { InterpretadorBase } from '../../fontes/interpretador/interpretador-base';
 
-describe.skip('Interpretador (Calango)', () => {
+describe('Interpretador (Calango)', () => {
     describe('interpretar()', () => {
         let lexador: LexadorCalango;
         let avaliadorSintatico: AvaliadorSintaticoCalango;

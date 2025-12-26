@@ -532,20 +532,25 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                         paraCada.posicaoAtual
                     ] as Dupla;
 
-                    const promises = await Promise.all([
+                    const nomesVariaveis = await Promise.all([
                         this.avaliar(paraCada.variavelIteracao.primeiro),
                         this.avaliar(paraCada.variavelIteracao.segundo)
                     ])
 
-                    // TODO: O que fazer quando não forem literais?
+                    const valoresDupla = await Promise.all([
+                        this.avaliar(valorComoDupla.primeiro),
+                        this.avaliar(valorComoDupla.segundo)
+                    ]);
+
+                    // nomesVariaveis são strings (nomes das variáveis)
                     this.pilhaEscoposExecucao.definirVariavel(
-                        String((promises[0] as Literal).valor),
-                        valorComoDupla.primeiro
+                        String(nomesVariaveis[0]),
+                        valoresDupla[0]
                     );
 
                     this.pilhaEscoposExecucao.definirVariavel(
-                        String((promises[0] as Literal).valor),
-                        valorComoDupla.segundo
+                        String(nomesVariaveis[1]),
+                        valoresDupla[1]
                     );
                 }
 

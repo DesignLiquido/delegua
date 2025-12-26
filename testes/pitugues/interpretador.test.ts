@@ -2,7 +2,7 @@ import { LexadorPitugues } from '../../fontes/lexador/dialetos';
 import { AvaliadorSintaticoPitugues } from '../../fontes/avaliador-sintatico/dialetos';
 import { InterpretadorPitugues } from '../../fontes/interpretador/dialetos/pitugues';
 
-describe.skip('Interpretador (Pituguês)', () => {
+describe('Interpretador (Pituguês)', () => {
     describe('interpretar()', () => {
         let lexador: LexadorPitugues;
         let avaliadorSintatico: AvaliadorSintaticoPitugues;

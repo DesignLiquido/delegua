@@ -2,7 +2,7 @@ import { AvaliadorSintatico } from "../../fontes/avaliador-sintatico";
 import { InterpretadorComDepuracao } from "../../fontes/interpretador/depuracao";
 import { Lexador } from "../../fontes/lexador";
 
-describe.skip('Interpretador com Depuração', () => {
+describe('Interpretador com Depuração', () => {
     let lexador: Lexador;
     let avaliadorSintatico: AvaliadorSintatico;
     let interpretador: InterpretadorComDepuracao;

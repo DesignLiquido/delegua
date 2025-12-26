@@ -6,7 +6,7 @@ import { Lexador } from "../../fontes/lexador";
  * Por enquanto usamos o avaliador sintático de Delégua e o Interpretador Base, 
  * já que os testes são bastante simples, mas isso deve mudar no futuro.
  */
-describe.skip('Interpretador Base com Depuração', () => {
+describe('Interpretador Base com Depuração', () => {
     let lexador: Lexador;
     let avaliadorSintatico: AvaliadorSintatico;
     let interpretador: InterpretadorBaseComDepuracao;
