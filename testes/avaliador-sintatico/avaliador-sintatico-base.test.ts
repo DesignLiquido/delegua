@@ -30,20 +30,20 @@ import tiposDeSimbolos from '../../fontes/tipos-de-simbolos/delegua';
  * Implementa os métodos abstratos de forma mínima para permitir testes.
  */
 class AvaliadorSintaticoBaseMock extends AvaliadorSintaticoBase {
-    protected atribuir(): Construto {
-        return this.ou();
+    protected async atribuir(): Promise<Construto> {
+        return await this.ou();
     }
 
-    protected blocoEscopo(): Declaracao[] {
-        return [];
+    protected async blocoEscopo(): Promise<Declaracao[]> {
+        return Promise.resolve([]);
     }
 
-    protected chamar(): Construto {
-        let expressao = this.primario();
+    protected async chamar(): Promise<Construto> {
+        let expressao = await this.primario();
 
         while (true) {
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
-                expressao = this.finalizarChamada(expressao);
+                expressao = await this.finalizarChamada(expressao);
             } else {
                 break;
             }
@@ -52,44 +52,44 @@ class AvaliadorSintaticoBaseMock extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    protected corpoDaFuncao(tipo: string): FuncaoConstruto {
+    protected async corpoDaFuncao(tipo: string): Promise<FuncaoConstruto> {
         const linha = this.simboloAnterior().linha;
 
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' antes dos parâmetros.");
 
         const parametros = !this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)
-            ? this.logicaComumParametros()
+            ? await this.logicaComumParametros()
             : [];
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os parâmetros.");
         this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, `Esperado '{' antes do corpo ${tipo}.`);
 
-        const corpo = this.blocoEscopo();
+        const corpo = await this.blocoEscopo();
 
         return new FuncaoConstruto(this.hashArquivo, linha, parametros, corpo);
     }
 
-    protected declaracaoEnquanto(): Enquanto {
+    protected async declaracaoEnquanto(): Promise<Enquanto> {
         throw new Error('Método não implementado em mock.');
     }
 
-    protected declaracaoEscreva(): Escreva {
+    protected async declaracaoEscreva(): Promise<Escreva> {
         throw new Error('Método não implementado em mock.');
     }
 
-    protected declaracaoPara(): Para | ParaCada {
+    protected async declaracaoPara(): Promise<Para | ParaCada> {
         throw new Error('Método não implementado em mock.');
     }
 
-    protected declaracaoSe(): Se {
+    protected async declaracaoSe(): Promise<Se> {
         throw new Error('Método não implementado em mock.');
     }
 
-    protected expressaoLeia(): Leia {
+    protected async expressaoLeia(): Promise<Leia> {
         throw new Error('Método não implementado em mock.');
     }
 
-    protected primario(): Construto {
+    protected async primario(): Promise<Construto> {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FALSO)) {
             return new Literal(this.hashArquivo, this.simboloAnterior().linha, false);
         }
@@ -119,14 +119,14 @@ class AvaliadorSintaticoBaseMock extends AvaliadorSintaticoBase {
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
     }
 
-    protected resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] {
+    protected async resolverDeclaracaoForaDeBloco(): Promise<Declaracao | Declaracao[]> {
         throw new Error('Método não implementado em mock.');
     }
 
-    analisar(
+    async analisar(
         retornoLexador: RetornoLexador<SimboloInterface>,
         hashArquivo: number
-    ): RetornoAvaliadorSintatico<Declaracao> {
+    ): Promise<RetornoAvaliadorSintatico<Declaracao>> {
         this.erros = [];
         this.atual = 0;
         this.blocos = 0;
@@ -160,7 +160,7 @@ describe('Avaliador Sintático Base', () => {
     }
 
     describe('erro()', () => {
-        it('Deve criar um erro de avaliador sintático', () => {
+        it('Deve criar um erro de avaliador sintático', async () => {
             const simbolo = criarSimbolo(tiposDeSimbolos.NUMERO, '123');
             const mensagem = 'Erro de teste';
 
@@ -173,7 +173,7 @@ describe('Avaliador Sintático Base', () => {
     });
 
     describe('consumir()', () => {
-        it('Deve consumir símbolo quando tipo corresponde', () => {
+        it('Deve consumir símbolo quando tipo corresponde', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.IDENTIFICADOR, 'x'),
                 criarSimbolo(tiposDeSimbolos.IGUAL, '='),
@@ -181,13 +181,13 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const simbolo = avaliador['consumir'](tiposDeSimbolos.IDENTIFICADOR, 'Esperado identificador');
+            const simbolo = await avaliador['consumir'](tiposDeSimbolos.IDENTIFICADOR, 'Esperado identificador');
 
             expect(simbolo.tipo).toBe(tiposDeSimbolos.IDENTIFICADOR);
             expect(avaliador.atual).toBe(1);
         });
 
-        it('Deve lançar erro quando tipo não corresponde', () => {
+        it('Deve lançar erro quando tipo não corresponde', async () => {
             avaliador.simbolos = [criarSimbolo(tiposDeSimbolos.NUMERO, '123')];
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
@@ -197,7 +197,7 @@ describe('Avaliador Sintático Base', () => {
             }).toThrow('Esperado identificador');
         });
 
-        it('Deve lançar erro quando lista de símbolos está vazia', () => {
+        it('Deve lançar erro quando lista de símbolos está vazia', async () => {
             avaliador.simbolos = [];
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
@@ -207,7 +207,7 @@ describe('Avaliador Sintático Base', () => {
             }).toThrow('Esperado identificador');
         });
 
-        it('Deve lançar erro quando atual excede tamanho da lista', () => {
+        it('Deve lançar erro quando atual excede tamanho da lista', async () => {
             avaliador.simbolos = [criarSimbolo(tiposDeSimbolos.NUMERO, '123')];
             avaliador.atual = 5;
             avaliador.hashArquivo = -1;
@@ -219,19 +219,19 @@ describe('Avaliador Sintático Base', () => {
     });
 
     describe('simboloAnterior()', () => {
-        it('Deve retornar símbolo anterior', () => {
+        it('Deve retornar símbolo anterior', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.IDENTIFICADOR, 'x'),
                 criarSimbolo(tiposDeSimbolos.IGUAL, '='),
             ];
             avaliador.atual = 1;
 
-            const simbolo = avaliador['simboloAnterior']();
+            const simbolo = await avaliador['simboloAnterior']();
 
             expect(simbolo.tipo).toBe(tiposDeSimbolos.IDENTIFICADOR);
         });
 
-        it('Deve lançar erro quando não há símbolo anterior', () => {
+        it('Deve lançar erro quando não há símbolo anterior', async () => {
             avaliador.simbolos = [criarSimbolo(tiposDeSimbolos.IDENTIFICADOR, 'x')];
             avaliador.atual = 0;
 
@@ -242,99 +242,99 @@ describe('Avaliador Sintático Base', () => {
     });
 
     describe('verificarTipoSimboloAtual()', () => {
-        it('Deve retornar verdadeiro quando tipo corresponde', () => {
+        it('Deve retornar verdadeiro quando tipo corresponde', async () => {
             avaliador.simbolos = [criarSimbolo(tiposDeSimbolos.NUMERO, '123')];
             avaliador.atual = 0;
 
-            const resultado = avaliador['verificarTipoSimboloAtual'](tiposDeSimbolos.NUMERO);
+            const resultado = await avaliador['verificarTipoSimboloAtual'](tiposDeSimbolos.NUMERO);
 
             expect(resultado).toBe(true);
         });
 
-        it('Deve retornar falso quando tipo não corresponde', () => {
+        it('Deve retornar falso quando tipo não corresponde', async () => {
             avaliador.simbolos = [criarSimbolo(tiposDeSimbolos.NUMERO, '123')];
             avaliador.atual = 0;
 
-            const resultado = avaliador['verificarTipoSimboloAtual'](tiposDeSimbolos.TEXTO);
+            const resultado = await avaliador['verificarTipoSimboloAtual'](tiposDeSimbolos.TEXTO);
 
             expect(resultado).toBe(false);
         });
 
-        it('Deve retornar falso quando está no final', () => {
+        it('Deve retornar falso quando está no final', async () => {
             avaliador.simbolos = [criarSimbolo(tiposDeSimbolos.NUMERO, '123')];
             avaliador.atual = 1;
 
-            const resultado = avaliador['verificarTipoSimboloAtual'](tiposDeSimbolos.NUMERO);
+            const resultado = await avaliador['verificarTipoSimboloAtual'](tiposDeSimbolos.NUMERO);
 
             expect(resultado).toBe(false);
         });
     });
 
     describe('verificarTipoProximoSimbolo()', () => {
-        it('Deve retornar verdadeiro quando próximo símbolo tem o tipo correto', () => {
+        it('Deve retornar verdadeiro quando próximo símbolo tem o tipo correto', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.NUMERO, '123'),
                 criarSimbolo(tiposDeSimbolos.ADICAO, '+'),
             ];
             avaliador.atual = 0;
 
-            const resultado = avaliador['verificarTipoProximoSimbolo'](tiposDeSimbolos.ADICAO);
+            const resultado = await avaliador['verificarTipoProximoSimbolo'](tiposDeSimbolos.ADICAO);
 
             expect(resultado).toBe(true);
         });
 
-        it('Deve retornar falso quando próximo símbolo tem tipo diferente', () => {
+        it('Deve retornar falso quando próximo símbolo tem tipo diferente', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.NUMERO, '123'),
                 criarSimbolo(tiposDeSimbolos.ADICAO, '+'),
             ];
             avaliador.atual = 0;
 
-            const resultado = avaliador['verificarTipoProximoSimbolo'](tiposDeSimbolos.SUBTRACAO);
+            const resultado = await avaliador['verificarTipoProximoSimbolo'](tiposDeSimbolos.SUBTRACAO);
 
             expect(resultado).toBe(false);
         });
     });
 
     describe('estaNoFinal()', () => {
-        it('Deve retornar verdadeiro quando atual está no final', () => {
+        it('Deve retornar verdadeiro quando atual está no final', async () => {
             avaliador.simbolos = [criarSimbolo(tiposDeSimbolos.NUMERO, '123')];
             avaliador.atual = 1;
 
-            const resultado = avaliador['estaNoFinal']();
+            const resultado = await avaliador['estaNoFinal']();
 
             expect(resultado).toBe(true);
         });
 
-        it('Deve retornar falso quando atual não está no final', () => {
+        it('Deve retornar falso quando atual não está no final', async () => {
             avaliador.simbolos = [criarSimbolo(tiposDeSimbolos.NUMERO, '123')];
             avaliador.atual = 0;
 
-            const resultado = avaliador['estaNoFinal']();
+            const resultado = await avaliador['estaNoFinal']();
 
             expect(resultado).toBe(false);
         });
     });
 
     describe('avancarEDevolverAnterior()', () => {
-        it('Deve avançar e retornar símbolo anterior', () => {
+        it('Deve avançar e retornar símbolo anterior', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.NUMERO, '123'),
                 criarSimbolo(tiposDeSimbolos.ADICAO, '+'),
             ];
             avaliador.atual = 0;
 
-            const simbolo = avaliador['avancarEDevolverAnterior']();
+            const simbolo = await avaliador['avancarEDevolverAnterior']();
 
             expect(simbolo.tipo).toBe(tiposDeSimbolos.NUMERO);
             expect(avaliador.atual).toBe(1);
         });
 
-        it('Não deve avançar quando está no final', () => {
+        it('Não deve avançar quando está no final', async () => {
             avaliador.simbolos = [criarSimbolo(tiposDeSimbolos.NUMERO, '123')];
             avaliador.atual = 1;
 
-            const simbolo = avaliador['avancarEDevolverAnterior']();
+            const simbolo = await avaliador['avancarEDevolverAnterior']();
 
             expect(simbolo.tipo).toBe(tiposDeSimbolos.NUMERO);
             expect(avaliador.atual).toBe(1);
@@ -342,14 +342,14 @@ describe('Avaliador Sintático Base', () => {
     });
 
     describe('verificarSeSimboloAtualEIgualA()', () => {
-        it('Deve retornar verdadeiro e avançar quando tipo corresponde', () => {
+        it('Deve retornar verdadeiro e avançar quando tipo corresponde', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.ADICAO, '+'),
                 criarSimbolo(tiposDeSimbolos.NUMERO, '5'),
             ];
             avaliador.atual = 0;
 
-            const resultado = avaliador['verificarSeSimboloAtualEIgualA'](
+            const resultado = await avaliador['verificarSeSimboloAtualEIgualA'](
                 tiposDeSimbolos.ADICAO,
                 tiposDeSimbolos.SUBTRACAO
             );
@@ -358,11 +358,11 @@ describe('Avaliador Sintático Base', () => {
             expect(avaliador.atual).toBe(1);
         });
 
-        it('Deve retornar falso e não avançar quando tipo não corresponde', () => {
+        it('Deve retornar falso e não avançar quando tipo não corresponde', async () => {
             avaliador.simbolos = [criarSimbolo(tiposDeSimbolos.NUMERO, '123')];
             avaliador.atual = 0;
 
-            const resultado = avaliador['verificarSeSimboloAtualEIgualA'](
+            const resultado = await avaliador['verificarSeSimboloAtualEIgualA'](
                 tiposDeSimbolos.ADICAO,
                 tiposDeSimbolos.SUBTRACAO
             );
@@ -371,11 +371,11 @@ describe('Avaliador Sintático Base', () => {
             expect(avaliador.atual).toBe(0);
         });
 
-        it('Deve verificar múltiplos tipos', () => {
+        it('Deve verificar múltiplos tipos', async () => {
             avaliador.simbolos = [criarSimbolo(tiposDeSimbolos.SUBTRACAO, '-')];
             avaliador.atual = 0;
 
-            const resultado = avaliador['verificarSeSimboloAtualEIgualA'](
+            const resultado = await avaliador['verificarSeSimboloAtualEIgualA'](
                 tiposDeSimbolos.ADICAO,
                 tiposDeSimbolos.SUBTRACAO,
                 tiposDeSimbolos.MULTIPLICACAO
@@ -387,19 +387,19 @@ describe('Avaliador Sintático Base', () => {
     });
 
     describe('finalizarChamada()', () => {
-        it('Deve criar chamada sem argumentos', () => {
+        it('Deve criar chamada sem argumentos', async () => {
             avaliador.simbolos = [criarSimbolo(tiposDeSimbolos.PARENTESE_DIREITO, ')')];
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
             const entidade = new Variavel(-1, criarSimbolo(tiposDeSimbolos.IDENTIFICADOR, 'funcao'));
-            const chamada = avaliador['finalizarChamada'](entidade);
+            const chamada = await avaliador['finalizarChamada'](entidade);
 
             expect(chamada).toBeInstanceOf(Chamada);
             expect(chamada.argumentos.length).toBe(0);
         });
 
-        it('Deve criar chamada com um argumento', () => {
+        it('Deve criar chamada com um argumento', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.NUMERO, '5'),
                 criarSimbolo(tiposDeSimbolos.PARENTESE_DIREITO, ')'),
@@ -408,13 +408,13 @@ describe('Avaliador Sintático Base', () => {
             avaliador.hashArquivo = -1;
 
             const entidade = new Variavel(-1, criarSimbolo(tiposDeSimbolos.IDENTIFICADOR, 'funcao'));
-            const chamada = avaliador['finalizarChamada'](entidade);
+            const chamada = await avaliador['finalizarChamada'](entidade);
 
             expect(chamada).toBeInstanceOf(Chamada);
             expect(chamada.argumentos.length).toBe(1);
         });
 
-        it('Deve criar chamada com múltiplos argumentos', () => {
+        it('Deve criar chamada com múltiplos argumentos', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.NUMERO, '5'),
                 criarSimbolo(tiposDeSimbolos.VIRGULA, ','),
@@ -427,13 +427,13 @@ describe('Avaliador Sintático Base', () => {
             avaliador.hashArquivo = -1;
 
             const entidade = new Variavel(-1, criarSimbolo(tiposDeSimbolos.IDENTIFICADOR, 'funcao'));
-            const chamada = avaliador['finalizarChamada'](entidade);
+            const chamada = await avaliador['finalizarChamada'](entidade);
 
             expect(chamada).toBeInstanceOf(Chamada);
             expect(chamada.argumentos.length).toBe(3);
         });
 
-        it('Deve lançar erro quando falta parêntese direito', () => {
+        it('Deve lançar erro quando falta parêntese direito', async () => {
             avaliador.simbolos = [criarSimbolo(tiposDeSimbolos.NUMERO, '5')];
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
@@ -445,7 +445,7 @@ describe('Avaliador Sintático Base', () => {
             }).toThrow();
         });
 
-        it('Deve lançar erro quando há mais de 255 argumentos', () => {
+        it('Deve lançar erro quando há mais de 255 argumentos', async () => {
             // Criar 256 argumentos
             const simbolos: SimboloInterface[] = [];
             for (let i = 0; i < 256; i++) {
@@ -469,7 +469,7 @@ describe('Avaliador Sintático Base', () => {
     });
 
     describe('unario()', () => {
-        it('Deve processar operador de negação', () => {
+        it('Deve processar operador de negação', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.NEGACAO, '!'),
                 criarSimbolo(tiposDeSimbolos.VERDADEIRO, 'verdadeiro'),
@@ -477,13 +477,13 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['unario']();
+            const expressao = await avaliador['unario']();
 
             expect(expressao).toBeInstanceOf(Unario);
             expect((expressao as Unario).operador.tipo).toBe(tiposDeSimbolos.NEGACAO);
         });
 
-        it('Deve processar operador de subtração unária', () => {
+        it('Deve processar operador de subtração unária', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.SUBTRACAO, '-'),
                 criarSimbolo(tiposDeSimbolos.NUMERO, '5'),
@@ -491,25 +491,25 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['unario']();
+            const expressao = await avaliador['unario']();
 
             expect(expressao).toBeInstanceOf(Unario);
             expect((expressao as Unario).operador.tipo).toBe(tiposDeSimbolos.SUBTRACAO);
         });
 
-        it('Deve processar valor sem operador unário', () => {
+        it('Deve processar valor sem operador unário', async () => {
             avaliador.simbolos = [criarSimbolo(tiposDeSimbolos.NUMERO, '5')];
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['unario']();
+            const expressao = await avaliador['unario']();
 
             expect(expressao).toBeInstanceOf(Literal);
         });
     });
 
     describe('exponenciacao()', () => {
-        it('Deve processar exponenciação', () => {
+        it('Deve processar exponenciação', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.NUMERO, '2'),
                 criarSimbolo(tiposDeSimbolos.EXPONENCIACAO, '**'),
@@ -518,13 +518,13 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['exponenciacao']();
+            const expressao = await avaliador['exponenciacao']();
 
             expect(expressao).toBeInstanceOf(Binario);
             expect((expressao as Binario).operador.tipo).toBe(tiposDeSimbolos.EXPONENCIACAO);
         });
 
-        it('Deve processar múltiplas exponenciações (associatividade à direita)', () => {
+        it('Deve processar múltiplas exponenciações (associatividade à direita)', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.NUMERO, '2'),
                 criarSimbolo(tiposDeSimbolos.EXPONENCIACAO, '**'),
@@ -535,24 +535,24 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['exponenciacao']();
+            const expressao = await avaliador['exponenciacao']();
 
             expect(expressao).toBeInstanceOf(Binario);
         });
 
-        it('Deve processar expressão sem exponenciação', () => {
+        it('Deve processar expressão sem exponenciação', async () => {
             avaliador.simbolos = [criarSimbolo(tiposDeSimbolos.NUMERO, '5')];
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['exponenciacao']();
+            const expressao = await avaliador['exponenciacao']();
 
             expect(expressao).toBeInstanceOf(Literal);
         });
     });
 
     describe('multiplicar()', () => {
-        it('Deve processar multiplicação', () => {
+        it('Deve processar multiplicação', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.NUMERO, '5'),
                 criarSimbolo(tiposDeSimbolos.MULTIPLICACAO, '*'),
@@ -561,13 +561,13 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['multiplicar']();
+            const expressao = await avaliador['multiplicar']();
 
             expect(expressao).toBeInstanceOf(Binario);
             expect((expressao as Binario).operador.tipo).toBe(tiposDeSimbolos.MULTIPLICACAO);
         });
 
-        it('Deve processar divisão', () => {
+        it('Deve processar divisão', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.NUMERO, '10'),
                 criarSimbolo(tiposDeSimbolos.DIVISAO, '/'),
@@ -576,13 +576,13 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['multiplicar']();
+            const expressao = await avaliador['multiplicar']();
 
             expect(expressao).toBeInstanceOf(Binario);
             expect((expressao as Binario).operador.tipo).toBe(tiposDeSimbolos.DIVISAO);
         });
 
-        it('Deve processar divisão inteira', () => {
+        it('Deve processar divisão inteira', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.NUMERO, '10'),
                 criarSimbolo(tiposDeSimbolos.DIVISAO_INTEIRA, '//'),
@@ -591,13 +591,13 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['multiplicar']();
+            const expressao = await avaliador['multiplicar']();
 
             expect(expressao).toBeInstanceOf(Binario);
             expect((expressao as Binario).operador.tipo).toBe(tiposDeSimbolos.DIVISAO_INTEIRA);
         });
 
-        it('Deve processar módulo', () => {
+        it('Deve processar módulo', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.NUMERO, '10'),
                 criarSimbolo(tiposDeSimbolos.MODULO, '%'),
@@ -606,13 +606,13 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['multiplicar']();
+            const expressao = await avaliador['multiplicar']();
 
             expect(expressao).toBeInstanceOf(Binario);
             expect((expressao as Binario).operador.tipo).toBe(tiposDeSimbolos.MODULO);
         });
 
-        it('Deve processar múltiplas operações de multiplicação', () => {
+        it('Deve processar múltiplas operações de multiplicação', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.NUMERO, '2'),
                 criarSimbolo(tiposDeSimbolos.MULTIPLICACAO, '*'),
@@ -623,14 +623,14 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['multiplicar']();
+            const expressao = await avaliador['multiplicar']();
 
             expect(expressao).toBeInstanceOf(Binario);
         });
     });
 
     describe('adicaoOuSubtracao()', () => {
-        it('Deve processar adição', () => {
+        it('Deve processar adição', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.NUMERO, '5'),
                 criarSimbolo(tiposDeSimbolos.ADICAO, '+'),
@@ -639,13 +639,13 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['adicaoOuSubtracao']();
+            const expressao = await avaliador['adicaoOuSubtracao']();
 
             expect(expressao).toBeInstanceOf(Binario);
             expect((expressao as Binario).operador.tipo).toBe(tiposDeSimbolos.ADICAO);
         });
 
-        it('Deve processar subtração', () => {
+        it('Deve processar subtração', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.NUMERO, '10'),
                 criarSimbolo(tiposDeSimbolos.SUBTRACAO, '-'),
@@ -654,13 +654,13 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['adicaoOuSubtracao']();
+            const expressao = await avaliador['adicaoOuSubtracao']();
 
             expect(expressao).toBeInstanceOf(Binario);
             expect((expressao as Binario).operador.tipo).toBe(tiposDeSimbolos.SUBTRACAO);
         });
 
-        it('Deve processar múltiplas operações de adição e subtração', () => {
+        it('Deve processar múltiplas operações de adição e subtração', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.NUMERO, '10'),
                 criarSimbolo(tiposDeSimbolos.ADICAO, '+'),
@@ -671,14 +671,14 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['adicaoOuSubtracao']();
+            const expressao = await avaliador['adicaoOuSubtracao']();
 
             expect(expressao).toBeInstanceOf(Binario);
         });
     });
 
     describe('comparar()', () => {
-        it('Deve processar maior que', () => {
+        it('Deve processar maior que', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.NUMERO, '10'),
                 criarSimbolo(tiposDeSimbolos.MAIOR, '>'),
@@ -687,13 +687,13 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['comparar']();
+            const expressao = await avaliador['comparar']();
 
             expect(expressao).toBeInstanceOf(Binario);
             expect((expressao as Binario).operador.tipo).toBe(tiposDeSimbolos.MAIOR);
         });
 
-        it('Deve processar maior ou igual', () => {
+        it('Deve processar maior ou igual', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.NUMERO, '10'),
                 criarSimbolo(tiposDeSimbolos.MAIOR_IGUAL, '>='),
@@ -702,13 +702,13 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['comparar']();
+            const expressao = await avaliador['comparar']();
 
             expect(expressao).toBeInstanceOf(Binario);
             expect((expressao as Binario).operador.tipo).toBe(tiposDeSimbolos.MAIOR_IGUAL);
         });
 
-        it('Deve processar menor que', () => {
+        it('Deve processar menor que', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.NUMERO, '5'),
                 criarSimbolo(tiposDeSimbolos.MENOR, '<'),
@@ -717,13 +717,13 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['comparar']();
+            const expressao = await avaliador['comparar']();
 
             expect(expressao).toBeInstanceOf(Binario);
             expect((expressao as Binario).operador.tipo).toBe(tiposDeSimbolos.MENOR);
         });
 
-        it('Deve processar menor ou igual', () => {
+        it('Deve processar menor ou igual', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.NUMERO, '5'),
                 criarSimbolo(tiposDeSimbolos.MENOR_IGUAL, '<='),
@@ -732,7 +732,7 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['comparar']();
+            const expressao = await avaliador['comparar']();
 
             expect(expressao).toBeInstanceOf(Binario);
             expect((expressao as Binario).operador.tipo).toBe(tiposDeSimbolos.MENOR_IGUAL);
@@ -740,7 +740,7 @@ describe('Avaliador Sintático Base', () => {
     });
 
     describe('comparacaoIgualdade()', () => {
-        it('Deve processar igualdade com ==', () => {
+        it('Deve processar igualdade com ==', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.NUMERO, '5'),
                 criarSimbolo(tiposDeSimbolos.IGUAL_IGUAL, '=='),
@@ -749,13 +749,13 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['comparacaoIgualdade']();
+            const expressao = await avaliador['comparacaoIgualdade']();
 
             expect(expressao).toBeInstanceOf(Binario);
             expect((expressao as Binario).operador.tipo).toBe(tiposDeSimbolos.IGUAL_IGUAL);
         });
 
-        it('Deve processar igualdade com =', () => {
+        it('Deve processar igualdade com =', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.NUMERO, '5'),
                 criarSimbolo(tiposDeSimbolos.IGUAL, '='),
@@ -764,13 +764,13 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['comparacaoIgualdade']();
+            const expressao = await avaliador['comparacaoIgualdade']();
 
             expect(expressao).toBeInstanceOf(Binario);
             expect((expressao as Binario).operador.tipo).toBe(tiposDeSimbolos.IGUAL);
         });
 
-        it('Deve processar diferença', () => {
+        it('Deve processar diferença', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.NUMERO, '5'),
                 criarSimbolo(tiposDeSimbolos.DIFERENTE, '!='),
@@ -779,7 +779,7 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['comparacaoIgualdade']();
+            const expressao = await avaliador['comparacaoIgualdade']();
 
             expect(expressao).toBeInstanceOf(Binario);
             expect((expressao as Binario).operador.tipo).toBe(tiposDeSimbolos.DIFERENTE);
@@ -787,7 +787,7 @@ describe('Avaliador Sintático Base', () => {
     });
 
     describe('e()', () => {
-        it('Deve processar operador lógico E', () => {
+        it('Deve processar operador lógico E', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.VERDADEIRO, 'verdadeiro'),
                 criarSimbolo(tiposDeSimbolos.E, 'e'),
@@ -796,13 +796,13 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['e']();
+            const expressao = await avaliador['e']();
 
             expect(expressao).toBeInstanceOf(Logico);
             expect((expressao as Logico).operador.tipo).toBe(tiposDeSimbolos.E);
         });
 
-        it('Deve processar múltiplos operadores E', () => {
+        it('Deve processar múltiplos operadores E', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.VERDADEIRO, 'verdadeiro'),
                 criarSimbolo(tiposDeSimbolos.E, 'e'),
@@ -813,24 +813,24 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['e']();
+            const expressao = await avaliador['e']();
 
             expect(expressao).toBeInstanceOf(Logico);
         });
 
-        it('Deve processar expressão sem operador E', () => {
+        it('Deve processar expressão sem operador E', async () => {
             avaliador.simbolos = [criarSimbolo(tiposDeSimbolos.VERDADEIRO, 'verdadeiro')];
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['e']();
+            const expressao = await avaliador['e']();
 
             expect(expressao).toBeInstanceOf(Literal);
         });
     });
 
     describe('ou()', () => {
-        it('Deve processar operador lógico OU', () => {
+        it('Deve processar operador lógico OU', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.VERDADEIRO, 'verdadeiro'),
                 criarSimbolo(tiposDeSimbolos.OU, 'ou'),
@@ -839,13 +839,13 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['ou']();
+            const expressao = await avaliador['ou']();
 
             expect(expressao).toBeInstanceOf(Logico);
             expect((expressao as Logico).operador.tipo).toBe(tiposDeSimbolos.OU);
         });
 
-        it('Deve processar múltiplos operadores OU', () => {
+        it('Deve processar múltiplos operadores OU', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.FALSO, 'falso'),
                 criarSimbolo(tiposDeSimbolos.OU, 'ou'),
@@ -856,24 +856,24 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['ou']();
+            const expressao = await avaliador['ou']();
 
             expect(expressao).toBeInstanceOf(Logico);
         });
     });
 
     describe('expressao()', () => {
-        it('Deve processar expressão simples', () => {
+        it('Deve processar expressão simples', async () => {
             avaliador.simbolos = [criarSimbolo(tiposDeSimbolos.NUMERO, '42')];
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['expressao']();
+            const expressao = await avaliador['expressao']();
 
             expect(expressao).toBeInstanceOf(Literal);
         });
 
-        it('Deve processar expressão complexa', () => {
+        it('Deve processar expressão complexa', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.NUMERO, '5'),
                 criarSimbolo(tiposDeSimbolos.ADICAO, '+'),
@@ -884,26 +884,26 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['expressao']();
+            const expressao = await avaliador['expressao']();
 
             expect(expressao).toBeInstanceOf(Binario);
         });
     });
 
     describe('logicaComumParametros()', () => {
-        it('Deve processar parâmetro simples', () => {
+        it('Deve processar parâmetro simples', async () => {
             avaliador.simbolos = [criarSimbolo(tiposDeSimbolos.IDENTIFICADOR, 'x')];
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const parametros = avaliador['logicaComumParametros']();
+            const parametros = await avaliador['logicaComumParametros']();
 
             expect(parametros.length).toBe(1);
             expect(parametros[0].nome.lexema).toBe('x');
             expect(parametros[0].abrangencia).toBe('padrao');
         });
 
-        it('Deve processar múltiplos parâmetros', () => {
+        it('Deve processar múltiplos parâmetros', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.IDENTIFICADOR, 'x'),
                 criarSimbolo(tiposDeSimbolos.VIRGULA, ','),
@@ -914,7 +914,7 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const parametros = avaliador['logicaComumParametros']();
+            const parametros = await avaliador['logicaComumParametros']();
 
             expect(parametros.length).toBe(3);
             expect(parametros[0].nome.lexema).toBe('x');
@@ -922,7 +922,7 @@ describe('Avaliador Sintático Base', () => {
             expect(parametros[2].nome.lexema).toBe('z');
         });
 
-        it('Deve processar parâmetro com valor padrão', () => {
+        it('Deve processar parâmetro com valor padrão', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.IDENTIFICADOR, 'x'),
                 criarSimbolo(tiposDeSimbolos.IGUAL, '='),
@@ -931,13 +931,13 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const parametros = avaliador['logicaComumParametros']();
+            const parametros = await avaliador['logicaComumParametros']();
 
             expect(parametros.length).toBe(1);
             expect(parametros[0].valorPadrao).toBeDefined();
         });
 
-        it('Deve processar parâmetro múltiplo com *', () => {
+        it('Deve processar parâmetro múltiplo com *', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.MULTIPLICACAO, '*'),
                 criarSimbolo(tiposDeSimbolos.IDENTIFICADOR, 'args'),
@@ -945,13 +945,13 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const parametros = avaliador['logicaComumParametros']();
+            const parametros = await avaliador['logicaComumParametros']();
 
             expect(parametros.length).toBe(1);
             expect(parametros[0].abrangencia).toBe('multiplo');
         });
 
-        it('Deve lançar erro quando há mais de 255 parâmetros', () => {
+        it('Deve lançar erro quando há mais de 255 parâmetros', async () => {
             // Criar 256 parâmetros
             const simbolos: SimboloInterface[] = [];
             for (let i = 0; i < 256; i++) {
@@ -972,79 +972,79 @@ describe('Avaliador Sintático Base', () => {
     });
 
     describe('Métodos não implementados', () => {
-        it('declaracaoDeVariaveis deve lançar erro', () => {
+        it('declaracaoDeVariaveis deve lançar erro', async () => {
             expect(() => {
                 avaliador['declaracaoDeVariaveis']();
             }).toThrow('Método não implementado.');
         });
 
-        it('bitShift deve lançar erro', () => {
+        it('bitShift deve lançar erro', async () => {
             expect(() => {
                 avaliador['bitShift']();
             }).toThrow('Método não implementado.');
         });
 
-        it('bitE deve lançar erro', () => {
+        it('bitE deve lançar erro', async () => {
             expect(() => {
                 avaliador['bitE']();
             }).toThrow('Método não implementado.');
         });
 
-        it('bitOu deve lançar erro', () => {
+        it('bitOu deve lançar erro', async () => {
             expect(() => {
                 avaliador['bitOu']();
             }).toThrow('Método não implementado.');
         });
 
-        it('declaracaoContinua deve lançar erro', () => {
+        it('declaracaoContinua deve lançar erro', async () => {
             expect(() => {
                 avaliador['declaracaoContinua']();
             }).toThrow('Método não implementado.');
         });
 
-        it('declaracaoDeClasse deve lançar erro', () => {
+        it('declaracaoDeClasse deve lançar erro', async () => {
             expect(() => {
                 avaliador['declaracaoDeClasse']();
             }).toThrow('Método não implementado.');
         });
 
-        it('declaracaoDeVariavel deve lançar erro', () => {
+        it('declaracaoDeVariavel deve lançar erro', async () => {
             expect(() => {
                 avaliador['declaracaoDeVariavel']();
             }).toThrow('Método não implementado.');
         });
 
-        it('declaracaoExpressao deve lançar erro', () => {
+        it('declaracaoExpressao deve lançar erro', async () => {
             expect(() => {
                 avaliador['declaracaoExpressao']();
             }).toThrow('Método não implementado.');
         });
 
-        it('declaracaoRetorna deve lançar erro', () => {
+        it('declaracaoRetorna deve lançar erro', async () => {
             expect(() => {
                 avaliador['declaracaoRetorna']();
             }).toThrow('Método não implementado.');
         });
 
-        it('declaracaoSustar deve lançar erro', () => {
+        it('declaracaoSustar deve lançar erro', async () => {
             expect(() => {
                 avaliador['declaracaoSustar']();
             }).toThrow('Método não implementado.');
         });
 
-        it('declaracaoTente deve lançar erro', () => {
+        it('declaracaoTente deve lançar erro', async () => {
             expect(() => {
                 avaliador['declaracaoTente']();
             }).toThrow('Método não implementado.');
         });
 
-        it('em deve lançar erro', () => {
+        it('em deve lançar erro', async () => {
             expect(() => {
                 avaliador['em']();
             }).toThrow('Método não implementado.');
         });
 
-        it('resolverDeclaracao deve lançar erro', () => {
+        it('resolverDeclaracao deve lançar erro', async () => {
             expect(() => {
                 avaliador['resolverDeclaracao']();
             }).toThrow('Método não implementado.');
@@ -1052,7 +1052,7 @@ describe('Avaliador Sintático Base', () => {
     });
 
     describe('chamar()', () => {
-        it('Deve processar chamada de função', () => {
+        it('Deve processar chamada de função', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.IDENTIFICADOR, 'funcao'),
                 criarSimbolo(tiposDeSimbolos.PARENTESE_ESQUERDO, '('),
@@ -1061,12 +1061,12 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['chamar']();
+            const expressao = await avaliador['chamar']();
 
             expect(expressao).toBeInstanceOf(Chamada);
         });
 
-        it('Deve processar chamada de função com argumentos', () => {
+        it('Deve processar chamada de função com argumentos', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.IDENTIFICADOR, 'funcao'),
                 criarSimbolo(tiposDeSimbolos.PARENTESE_ESQUERDO, '('),
@@ -1076,25 +1076,25 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['chamar']();
+            const expressao = await avaliador['chamar']();
 
             expect(expressao).toBeInstanceOf(Chamada);
             expect((expressao as Chamada).argumentos.length).toBe(1);
         });
 
-        it('Deve processar expressão sem chamada', () => {
+        it('Deve processar expressão sem chamada', async () => {
             avaliador.simbolos = [criarSimbolo(tiposDeSimbolos.NUMERO, '42')];
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const expressao = avaliador['chamar']();
+            const expressao = await avaliador['chamar']();
 
             expect(expressao).toBeInstanceOf(Literal);
         });
     });
 
     describe('funcao()', () => {
-        it('Deve processar declaração de função', () => {
+        it('Deve processar declaração de função', async () => {
             avaliador.simbolos = [
                 criarSimbolo(tiposDeSimbolos.FUNCAO, 'funcao'),
                 criarSimbolo(tiposDeSimbolos.IDENTIFICADOR, 'minhaFuncao'),
@@ -1106,7 +1106,7 @@ describe('Avaliador Sintático Base', () => {
             avaliador.atual = 0;
             avaliador.hashArquivo = -1;
 
-            const funcao = avaliador['funcao']('função');
+            const funcao = await avaliador['funcao']('função');
 
             expect(funcao).toBeInstanceOf(FuncaoDeclaracao);
             expect(funcao.simbolo.lexema).toBe('minhaFuncao');
@@ -1114,7 +1114,7 @@ describe('Avaliador Sintático Base', () => {
     });
 
     describe('analisar()', () => {
-        it('Deve inicializar estado corretamente', () => {
+        it('Deve inicializar estado corretamente', async () => {
             const retornoLexador: RetornoLexador<SimboloInterface> = {
                 simbolos: [
                     criarSimbolo(tiposDeSimbolos.NUMERO, '5'),
@@ -1122,7 +1122,7 @@ describe('Avaliador Sintático Base', () => {
                 erros: [],
             };
 
-            const resultado = avaliador.analisar(retornoLexador, 123);
+            const resultado = await avaliador.analisar(retornoLexador, 123);
 
             expect(avaliador.atual).toBe(0);
             expect(avaliador.hashArquivo).toBe(123);

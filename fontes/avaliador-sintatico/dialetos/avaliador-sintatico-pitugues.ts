@@ -686,7 +686,7 @@ export class AvaliadorSintaticoPitugues
 
                 const valoresVetor = [];
                 while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                    const valor = this.atribuir();
+                    const valor = await this.atribuir();
                     valoresVetor.push(valor);
                     if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
                         this.consumir(

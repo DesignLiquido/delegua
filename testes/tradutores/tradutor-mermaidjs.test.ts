@@ -13,13 +13,13 @@ describe('Tradutor Delégua -> MermaidJs', () => {
         tradutor = new TradutorMermaidJs();
     });
 
-    it('Vazio', () => {
+    it('Vazio', async () => {
         const retornoLexador = lexador.mapear(
             [],
             -1
         );
 
-        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
         expect(resultado).toBeTruthy();
@@ -27,13 +27,13 @@ describe('Tradutor Delégua -> MermaidJs', () => {
         expect(resultado).toContain("Vazio;");
     });
 
-    it('Olá mundo', () => {
+    it('Olá mundo', async () => {
         const retornoLexador = lexador.mapear(
             ['escreva("Olá Mundo!")'],
             -1
         );
 
-        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
         expect(resultado).toBeTruthy();
@@ -41,7 +41,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
         expect(resultado).toContain("Linha1(escreva: \\'Olá Mundo!\\')-->Fim;");
     });
 
-    it('Enquanto', () => {
+    it('Enquanto', async () => {
         const retornoLexador = lexador.mapear(
             [
                 'var a = 1',
@@ -53,7 +53,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             -1
         );
 
-        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
         // console.log(resultado);
@@ -66,7 +66,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
         expect(resultado).toContain("Linha4(devolver valor de a, incrementar a em 1)-->Fim;");
     });
 
-    it('Escolha', () => {
+    it('Escolha', async () => {
         const retornoLexador = lexador.mapear(
             [
                 'var teste = leia("Digite alguma coisa: ")',
@@ -82,7 +82,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             -1
         );
 
-        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
         // console.log(resultado);
@@ -100,7 +100,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
         expect(resultado).toContain("Linha8(escreva: \\'Sem opção correspondente\\')-->Fim;");
     });
 
-    it('Fazer ... Enquanto', () => {
+    it('Fazer ... Enquanto', async () => {
         const retornoLexador = lexador.mapear(
             [
                 'var a = 1',
@@ -112,7 +112,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             -1
         );
 
-        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
         // console.log(resultado);
@@ -126,7 +126,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
         expect(resultado).toContain("Linha5(enquanto a for menor que 5)-->Fim;");
     });
 
-    it('Para', () => {
+    it('Para', async () => {
         const retornoLexador = lexador.mapear(
             [
                 'para (var i = 0; i < 5; i = i + 1) {',
@@ -136,7 +136,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             -1
         );
 
-        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
         // console.log(resultado);
@@ -149,7 +149,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
         expect(resultado).toContain("Linha1Condicao{se i for menor que 5}-->|Não|Fim;");
     });
 
-    it('Para cada', () => {
+    it('Para cada', async () => {
         const retornoLexador = lexador.mapear(
             [
                 'para cada elemento em [1, 2, 3, 4, 5] {',
@@ -159,7 +159,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             -1
         );
 
-        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
         // console.log(resultado);
@@ -170,7 +170,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
         expect(resultado).toContain("Linha2(escreva: elemento)-->Fim;");
     });
 
-    it('Se e senão', () => {
+    it('Se e senão', async () => {
         const retornoLexador = lexador.mapear(
             [
                 'se verdadeiro {',
@@ -182,7 +182,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             -1
         );
 
-        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
         // console.log(resultado);
@@ -196,7 +196,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
     });
 
     describe('Funções', () => {
-        it.skip('Função simples sem parâmetros', () => {
+        it.skip('Função simples sem parâmetros', async () => {
             const retornoLexador = lexador.mapear(
                 [
                     'funcao saudar() {',
@@ -207,7 +207,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
                 -1
             );
 
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             console.log(resultado);
@@ -217,7 +217,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             expect(resultado).toContain("Linha4(chamada a saudar, sem argumentos)");
         });
 
-        it.skip('Função com parâmetros', () => {
+        it.skip('Função com parâmetros', async () => {
             const retornoLexador = lexador.mapear(
                 [
                     'funcao somar(a: inteiro, b: inteiro) {',
@@ -228,7 +228,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
                 -1
             );
 
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toBeTruthy();
@@ -237,7 +237,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             expect(resultado).toContain("chamada a somar, com argumentos: 5, 3");
         });
 
-        it.skip('Função com parâmetros sem tipo', () => {
+        it.skip('Função com parâmetros sem tipo', async () => {
             const retornoLexador = lexador.mapear(
                 [
                     'funcao multiplicar(x, y) {',
@@ -248,7 +248,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
                 -1
             );
 
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toBeTruthy();
@@ -257,7 +257,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             expect(resultado).toContain("chamada a multiplicar, com argumentos: 4, 7");
         });
 
-        it.skip('Função com lógica condicional', () => {
+        it.skip('Função com lógica condicional', async () => {
             const retornoLexador = lexador.mapear(
                 [
                     'funcao verificarParidade(numero: inteiro) {',
@@ -272,7 +272,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
                 -1
             );
 
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toBeTruthy();
@@ -281,7 +281,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             expect(resultado).toContain("chamada a verificarParidade, com argumentos: 10");
         });
 
-        it.skip('Múltiplas funções', () => {
+        it.skip('Múltiplas funções', async () => {
             const retornoLexador = lexador.mapear(
                 [
                     'funcao funcao1() {',
@@ -296,7 +296,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
                 -1
             );
 
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toBeTruthy();
@@ -310,8 +310,8 @@ describe('Tradutor Delégua -> MermaidJs', () => {
 
     // ========== TESTES PARA CLASSES ==========
 
-    describe.skip('Classes', () => {
-        it('Classe simples sem métodos', () => {
+    describe.skip('Classes', async () => {
+        it('Classe simples sem métodos', async () => {
             const retornoLexador = lexador.mapear(
                 [
                     'classe Pessoa {',
@@ -321,7 +321,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
                 -1
             );
 
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toBeTruthy();
@@ -331,7 +331,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             expect(resultado).toContain("subgraph Classe_Pessoa");
         });
 
-        it('Classe com um método', () => {
+        it('Classe com um método', async () => {
             const retornoLexador = lexador.mapear(
                 [
                     'classe Animal {',
@@ -343,7 +343,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
                 -1
             );
 
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toBeTruthy();
@@ -353,7 +353,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             expect(resultado).toContain("escreva: \\'Som genérico\\'");
         });
 
-        it('Classe com múltiplos métodos', () => {
+        it('Classe com múltiplos métodos', async () => {
             const retornoLexador = lexador.mapear(
                 [
                     'classe Calculadora {',
@@ -368,7 +368,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
                 -1
             );
 
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toBeTruthy();
@@ -379,7 +379,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             expect(resultado).toContain("a: inteiro, b: inteiro");
         });
 
-        it('Classe com herança', () => {
+        it('Classe com herança', async () => {
             const retornoLexador = lexador.mapear(
                 [
                     'classe Animal {',
@@ -396,7 +396,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
                 -1
             );
 
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toBeTruthy();
@@ -408,7 +408,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             expect(resultado).toContain("Metodo_latir_Cachorro");
         });
 
-        it('Classe com método contendo lógica condicional', () => {
+        it('Classe com método contendo lógica condicional', async () => {
             const retornoLexador = lexador.mapear(
                 [
                     'classe Validador {',
@@ -424,7 +424,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
                 -1
             );
 
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toBeTruthy();
@@ -434,7 +434,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             expect(resultado).toContain("se idade");
         });
 
-        it('Classe com método contendo loops', () => {
+        it('Classe com método contendo loops', async () => {
             const retornoLexador = lexador.mapear(
                 [
                     'classe Contador {',
@@ -448,7 +448,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
                 -1
             );
 
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toBeTruthy();
@@ -461,8 +461,8 @@ describe('Tradutor Delégua -> MermaidJs', () => {
 
     // ========== TESTES COMBINADOS ==========
 
-    describe.skip('Funções e Classes Combinadas', () => {
-        it('Função que cria instância de classe', () => {
+    describe.skip('Funções e Classes Combinadas', async () => {
+        it('Função que cria instância de classe', async () => {
             const retornoLexador = lexador.mapear(
                 [
                     'classe Pessoa {',
@@ -478,7 +478,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
                 -1
             );
 
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toBeTruthy();
@@ -488,7 +488,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             expect(resultado).toContain("chamada a criarPessoa");
         });
 
-        it('Classe com método que chama outra função', () => {
+        it('Classe com método que chama outra função', async () => {
             const retornoLexador = lexador.mapear(
                 [
                     'funcao formatar(texto: texto) {',
@@ -504,7 +504,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
                 -1
             );
 
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toBeTruthy();

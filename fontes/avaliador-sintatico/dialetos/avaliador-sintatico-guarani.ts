@@ -148,7 +148,7 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
 
         let parametros = [];
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
-            parametros = this.logicaComumParametros();
+            parametros = await this.logicaComumParametros();
         }
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
