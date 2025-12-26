@@ -1,17 +1,17 @@
-import { VisitanteComumInterface } from '../interfaces';
+import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
 import { Construto } from './construto';
 
-export class Isto implements Construto {
+export class Isto<TTipoSimbolo extends string = string> implements Construto {
     linha: number;
     hashArquivo: number;
 
-    palavraChave: any;
+    simboloChave: SimboloInterface<TTipoSimbolo>;
 
-    constructor(hashArquivo: number, linha: number, palavraChave?: any) {
+    constructor(hashArquivo: number, linha: number, simboloChave?: SimboloInterface<TTipoSimbolo>) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
 
-        this.palavraChave = palavraChave;
+        this.simboloChave = simboloChave;
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
@@ -20,5 +20,9 @@ export class Isto implements Construto {
 
     paraTexto(): string {
         return `<isto />`;
+    }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
     }
 }

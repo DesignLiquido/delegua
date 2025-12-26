@@ -85,4 +85,15 @@ export class PilhaEscopos implements PilhaInterface<InformacaoEscopo> {
 
         return null;
     }
+
+    variavelJaDefinida(nome: string): boolean {
+        for (let i = 1; i <= this.pilha.length; i++) {
+            const informacaoEscopo = this.pilha[this.pilha.length - i];
+            if (informacaoEscopo.elementosSintaticos[nome] !== undefined) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

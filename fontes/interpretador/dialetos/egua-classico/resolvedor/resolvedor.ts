@@ -1,4 +1,5 @@
 import {
+    AcessoIntervaloVariavel,
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
     ArgumentoReferenciaFuncao,
@@ -14,6 +15,7 @@ import {
     Super,
     TipoDe,
     Tupla,
+    TuplaN,
     Variavel,
 } from '../../../../construtos';
 import {
@@ -28,6 +30,7 @@ import {
     ParaCada,
     Se,
     TendoComo,
+    TextoDocumentacao,
     Var,
     VarMultiplo,
 } from '../../../../declaracoes';
@@ -95,6 +98,20 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.funcaoAtual = TipoFuncao.NENHUM;
         this.classeAtual = TipoClasse.NENHUM;
         this.cicloAtual = TipoClasse.NENHUM;
+    }
+
+    visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    /* istanbul ignore next */
+    visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    /* istanbul ignore next */
+    visitarDeclaracaoTextoDocumentacao(declaracao: TextoDocumentacao): Promise<any> | void {
+        throw new Error('Método não implementado.');
     }
 
     /* istanbul ignore next */
@@ -504,7 +521,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
     visitarExpressaoRetornar(declaracao: any): any {
         if (this.funcaoAtual === TipoFuncao.NENHUM) {
             const erro = new ErroResolvedor(
-                declaracao.palavraChave,
+                declaracao.simboloChave,
                 'Não é possível retornar do código do escopo superior.'
             );
             this.erros.push(erro);
@@ -513,7 +530,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         if (declaracao.valor !== null) {
             if (this.funcaoAtual === TipoFuncao.CONSTRUTOR) {
                 const erro = new ErroResolvedor(
-                    declaracao.palavraChave,
+                    declaracao.simboloChave,
                     'Não pode retornar o valor do construtor.'
                 );
                 this.erros.push(erro);
@@ -655,12 +672,12 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
     visitarExpressaoIsto(expressao?: any): any {
         if (this.classeAtual == TipoClasse.NENHUM) {
             const erro = new ErroResolvedor(
-                expressao.palavraChave,
+                expressao.simboloChave,
                 "Não pode usar 'isto' fora da classe."
             );
             this.erros.push(erro);
         }
-        this.resolverLocal(expressao, expressao.palavraChave);
+        this.resolverLocal(expressao, expressao.simboloChave);
         return null;
     }
 

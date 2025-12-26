@@ -13,7 +13,7 @@ export class Leia implements Construto {
     simbolo: SimboloInterface;
     id: string;
     argumentos: Construto[];
-    tipo?: string;
+    tipo: string = 'texto';
     numeroArgumentosEsperados?: number;
     eParaInterromper?: boolean;
 
@@ -31,5 +31,9 @@ export class Leia implements Construto {
 
     paraTexto(): string {
         return `<leia argumentos=[${this.argumentos.reduce((anterior, atual) => (anterior += atual.paraTexto()), '')}] />`;
+    }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
     }
 }

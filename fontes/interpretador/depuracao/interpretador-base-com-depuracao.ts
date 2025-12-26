@@ -1,4 +1,4 @@
-import { Chamada, Construto } from '../../construtos';
+import { Binario, Chamada, Construto } from '../../construtos';
 import { Declaracao, Enquanto, Escreva, Para, Retorna } from '../../declaracoes';
 import { PontoParada } from '../../depuracao';
 import {
@@ -13,6 +13,29 @@ import { InterpretadorBase } from '../interpretador-base';
 
 import * as comum from './comum';
 
+/**
+ * Implementação do Interpretador Base com suporte a depuração.
+ * Herda o Interpretador Base e implementa métodos a mais, que são
+ * usados por ferramentas de depuração, como a [extensão de VSCode da Design Líquido](https://marketplace.visualstudio.com/items?itemName=designliquido.design-liquido).
+ * Este Interpretador Base com depuração é usado pela maioria dos dialetos de Delégua.
+ * Delégua e Pituguês utilizam uma outra implementação, o Interpretador com Depuração.
+ * Alguns métodos do Interpretador original, como `executarBloco` e `interpretar`,
+ * são reimplementados aqui.
+ *
+ * A separação entre `InterpretadorBase` e `InterpretadorBaseComDepuracao` se faz
+ * necessária por uma série de motivos.
+ * O primeiro deles é o desempenho. A depuração torna o desempenho do
+ * Interpretador com depuração inferior ao Interpretador original pelas
+ * várias verificações de controle que precisam ser feitas para a
+ * funcionalidade do suporte a depuração, como verificar pontos de parada,
+ * estados da pilha de execução e variáveis.
+ * O segundo deles é manter o Interpretador original tão simples quanto possível.
+ * Uma implementação mais simples normalmente é mais robusta.
+ * O terceiro deles é o uso de memória. O Interpretador original não possui
+ * uma série de variáveis implementadas aqui, o que o torna mais econômico em
+ * recursos de máquina.
+ * @see InterpretadorComDepuracao
+ */
 export class InterpretadorBaseComDepuracao
     extends InterpretadorBase
     implements InterpretadorComDepuracaoInterface
@@ -64,6 +87,14 @@ export class InterpretadorBaseComDepuracao
         return await comum.visitarExpressaoDeChamada(
             this,
             super.visitarExpressaoDeChamada.bind(this),
+            expressao
+        );
+    }
+
+    override async visitarExpressaoBinaria(expressao: Binario): Promise<any> {
+        return await comum.visitarExpressaoBinaria(
+            this,
+            // super.visitarExpressaoBinaria.bind(this),
             expressao
         );
     }
@@ -165,11 +196,33 @@ export class InterpretadorBaseComDepuracao
     }
 
     /**
-     * Empilha um escopo se for possível.
-     * Se não for, apenas executa a instrução corrente.
+     * Empilha um escopo se for possível (comando "Step Into" do depurador).
+     * Se a instrução corrente contém uma chamada de função, entra na função e pausa na primeira linha.
+     * Se não houver chamada de função, comporta-se como "próximo" (comando de passo).
+     *
+     * Fluxo de execução:
+     * 1. Define o comando como 'adentrarEscopo'
+     * 2. Executa um passo (que pode ou não entrar em uma função)
+     * 3. Se entrou em função, o escopo da função fica no topo da pilha pronto para executar
+     * 4. Se não entrou, a instrução é executada normalmente
+     * 5. Ativa ponto de parada para aguardar próximo comando do usuário
      */
     async adentrarEscopo(): Promise<any> {
-        throw new Error('Método não implementado.');
+        // Define o comando para indicar modo "adentrar escopo"
+        this.comando = 'adentrarEscopo';
+
+        // Limpa ponto de parada para permitir execução
+        this.pontoDeParadaAtivo = false;
+
+        // Executa um passo (que pode entrar em uma função se houver chamada)
+        await this.instrucaoPasso();
+
+        // Após execução, pausa para aguardar próximo comando do usuário
+        // (a menos que um ponto de parada já tenha sido ativado durante a execução)
+        if (!this.pontoDeParadaAtivo) {
+            this.pontoDeParadaAtivo = true;
+            this.avisoPontoParadaAtivado();
+        }
     }
 
     /**

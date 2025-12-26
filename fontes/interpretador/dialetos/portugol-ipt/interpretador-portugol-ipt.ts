@@ -1,4 +1,5 @@
 import {
+    AcessoIntervaloVariavel,
     AcessoMetodo,
     AcessoPropriedade,
     Agrupamento,
@@ -16,6 +17,7 @@ import {
     Super,
     TipoDe,
     Tupla,
+    TuplaN,
     Variavel,
 } from '../../../construtos';
 import {
@@ -42,6 +44,7 @@ import {
     Sustar,
     TendoComo,
     Tente,
+    TextoDocumentacao,
     Var,
     VarMultiplo,
 } from '../../../declaracoes';
@@ -106,6 +109,21 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
             emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+    }
+    
+    /* istanbul ignore next */
+    visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    /* istanbul ignore next */
+    visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    /* istanbul ignore next */
+    visitarDeclaracaoTextoDocumentacao(declaracao: TextoDocumentacao): Promise<any> | void {
+        throw new Error('Método não implementado.');
     }
 
     /* istanbul ignore next */

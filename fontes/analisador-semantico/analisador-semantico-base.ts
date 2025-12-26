@@ -29,6 +29,11 @@ import {
     Leia,
     ComentarioComoConstruto,
     Separador,
+    Variavel,
+    Constante,
+    Construto,
+    AcessoIntervaloVariavel,
+    TuplaN
 } from '../construtos';
 import {
     Declaracao,
@@ -58,6 +63,7 @@ import {
     Retorna,
     Sustar,
     Comentario,
+    TextoDocumentacao,
 } from '../declaracoes';
 import {
     DiagnosticoAnalisadorSemantico,
@@ -67,13 +73,194 @@ import {
 import { AnalisadorSemanticoInterface } from '../interfaces/analisador-semantico-interface';
 import { RetornoAnalisadorSemantico } from '../interfaces/retornos/retorno-analisador-semantico';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
+import { GerenciadorEscopos } from './gerenciador-escopos';
 
 /**
  * Essa classe só existe para eliminar redundância entre todos os analisadores
- * sintáticos. Por padrão, quando um método não é implementado, ao invés de dar erro,
+ * semânticos. Por padrão, quando um método não é implementado, ao invés de dar erro,
  * simplesmente passa por ele (`return Promise.resolve()`).
  */
 export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInterface {
+    gerenciadorEscopos: GerenciadorEscopos;
+
+    protected diagnosticoJaExiste(simbolo: SimboloInterface, mensagem: string): boolean {
+        return this.diagnosticos.some(
+            d => d.linha === simbolo.linha &&
+                d.mensagem === mensagem &&
+                d.simbolo.lexema === simbolo.lexema
+        );
+    }
+
+    erro(simbolo: SimboloInterface, mensagem: string): void {
+        if (this.diagnosticoJaExiste(simbolo, mensagem)) {
+            return;
+        }
+
+        this.diagnosticos.push({
+            simbolo: simbolo,
+            mensagem: mensagem,
+            hashArquivo: simbolo.hashArquivo,
+            linha: simbolo.linha,
+            severidade: DiagnosticoSeveridade.ERRO,
+        });
+    }
+
+    aviso(simbolo: SimboloInterface, mensagem: string): void {
+        if (this.diagnosticoJaExiste(simbolo, mensagem)) {
+            return;
+        }
+
+        this.diagnosticos.push({
+            simbolo: simbolo,
+            mensagem: mensagem,
+            hashArquivo: simbolo.hashArquivo,
+            linha: simbolo.linha,
+            severidade: DiagnosticoSeveridade.AVISO,
+        });
+    }
+
+     /**
+     * Marca as variáveis usadas em uma expressão.
+     */
+    protected marcarVariaveisUsadasEmExpressao(expressao: Construto): void {
+        if (expressao instanceof Variavel) {
+            this.gerenciadorEscopos.marcarComoUsada(expressao.simbolo.lexema);
+            return;
+        }
+
+        if (expressao instanceof Binario) {
+            this.marcarVariaveisUsadasEmExpressao(expressao.esquerda);
+            this.marcarVariaveisUsadasEmExpressao(expressao.direita);
+            return;
+        }
+
+        if (expressao instanceof Agrupamento) {
+            this.marcarVariaveisUsadasEmExpressao(expressao.expressao);
+            return;
+        }
+
+        if (expressao instanceof Chamada) {
+            this.marcarVariaveisUsadasEmExpressao(expressao.entidadeChamada);
+
+            for (const arg of expressao.argumentos) {
+                this.marcarVariaveisUsadasEmExpressao(arg);
+            }
+            return;
+        }
+
+        if (expressao instanceof AcessoMetodo ||
+            expressao instanceof AcessoMetodoOuPropriedade ||
+            expressao instanceof AcessoPropriedade) {
+            this.marcarVariaveisUsadasEmExpressao((expressao as any).objeto);
+            return;
+        }
+
+        if (expressao instanceof Logico) {
+            this.marcarVariaveisUsadasEmExpressao(expressao.esquerda);
+            this.marcarVariaveisUsadasEmExpressao(expressao.direita);
+            return;
+        }
+
+        if (expressao instanceof Unario) {
+            this.marcarVariaveisUsadasEmExpressao(expressao.operando);
+            return;
+        }
+
+        if (expressao instanceof AcessoIndiceVariavel) {
+            this.marcarVariaveisUsadasEmExpressao(expressao.entidadeChamada);
+            this.marcarVariaveisUsadasEmExpressao(expressao.indice);
+            return;
+        }
+
+        // TODO: Adicionar outros tipos de expressões conforme necessário.
+    }
+
+    /**
+     * Analisa se todos os caminhos retornam
+     * @returns true se todos os caminhos retornam, false caso contrário
+     */
+    protected todosOsCaminhosRetornam(declaracoes: Declaracao[]): boolean {
+        return this.verificarBlocoRetorna(declaracoes);
+    }
+
+    private verificarBlocoRetorna(declaracoes: Declaracao[]): boolean {
+        for (let i = 0; i < declaracoes.length; i++) {
+            const declaracao = declaracoes[i];
+
+            if (declaracao instanceof Retorna) {
+                return true;
+            }
+
+            if (declaracao instanceof Se) {
+                const todosOsCaminhosSe = this.verificarSeRetorna(declaracao);
+                if (todosOsCaminhosSe) {
+                    return true;
+                }
+            }
+
+            if (declaracao instanceof Escolha) {
+                const todosOsCaminhosEscolha = this.verificarEscolhaRetorna(declaracao);
+                if (todosOsCaminhosEscolha) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    protected verificarSeRetorna(declaracaoSe: Se): boolean {
+        const caminhoEntaoResolvido = declaracaoSe.caminhoEntao as Bloco;
+        const entaoRetorna = this.verificarBlocoRetorna(caminhoEntaoResolvido.declaracoes);
+
+        const caminhoSenaoResolvido = declaracaoSe.caminhoSenao as Bloco | Se | null;
+        if (!caminhoSenaoResolvido || (caminhoSenaoResolvido as Bloco).declaracoes?.length === 0) {
+            return false;
+        }
+
+        if (caminhoSenaoResolvido instanceof Se && (caminhoSenaoResolvido.caminhoEntao as Bloco).declaracoes?.length === 1) {
+            const senaoSeRetorna = this.verificarSeRetorna(
+                caminhoSenaoResolvido as Se
+            );
+            return entaoRetorna && senaoSeRetorna;
+        }
+
+        const senaoRetorna = this.verificarBlocoRetorna((declaracaoSe.caminhoSenao as Bloco).declaracoes);
+        return entaoRetorna && senaoRetorna;
+    }
+
+    private verificarEscolhaRetorna(declaracaoEscolha: Escolha): boolean {
+        let temPadrao = false;
+
+        // Verifica se todos os caminhos retornam
+        for (let caminho of declaracaoEscolha.caminhos) {
+            const caminhoRetorna = this.verificarBlocoRetorna(caminho.declaracoes);
+            if (!caminhoRetorna) {
+                return false;
+            }
+
+            // Verifica se há um caso padrão
+            if (caminho.condicoes.length === 0) {
+                temPadrao = true;
+            }
+        }
+
+        // Se não há caso padrão, não podemos garantir que todos os caminhos retornam
+        return temPadrao;
+    }
+
+    visitarDeclaracaoTextoDocumentacao(declaracao: TextoDocumentacao): Promise<any> | void {
+        return Promise.resolve();
+    }
+
+    visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> | void {
+        return Promise.resolve();
+    }
+
+    visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> | void {
+        return Promise.resolve();
+    }
+
     visitarExpressaoComentario(expressao: ComentarioComoConstruto): Promise<any> | void {
         // Comentários não afetam a análise semântica, então não faz nada.
         return Promise.resolve();
@@ -86,7 +273,7 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
 
     diagnosticos: DiagnosticoAnalisadorSemantico[];
 
-    abstract analisar(declaracoes: Declaracao[]): RetornoAnalisadorSemantico;
+    abstract analisar(declaracoes: Declaracao[]): Promise<RetornoAnalisadorSemantico>;
 
     adicionarDiagnostico(
         simbolo: SimboloInterface,
@@ -254,7 +441,7 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
         return Promise.resolve();
     }
 
-    visitarExpressaoDeVariavel(expressao: Var): Promise<any> {
+    visitarExpressaoDeVariavel(expressao: Variavel | Constante): Promise<any> {
         return Promise.resolve();
     }
 

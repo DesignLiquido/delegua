@@ -1,0 +1,22 @@
+// Exemplo de estruturas de repetição em Prisma
+
+// Loop for tradicional
+imprima("Loop for tradicional:");
+para (var i = 1; i <= 5; i = i + 1) {
+    imprima("Contador:", i);
+}
+
+// Loop while
+imprima("Loop while:");
+var contador = 1;
+enquanto (contador <= 3) {
+    imprima("While contador:", contador);
+    contador = contador + 1;
+}
+
+// Loop com array
+imprima("Loop para cada:");
+var numeros = [1, 2, 3, 4, 5];
+para cada numero em numeros {
+    imprima("Número:", numero);
+}

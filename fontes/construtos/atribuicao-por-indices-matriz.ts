@@ -40,4 +40,8 @@ export class AtribuicaoPorIndicesMatriz implements Construto {
             ` />`
         );
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

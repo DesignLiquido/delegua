@@ -25,4 +25,8 @@ export class ComentarioComoConstruto implements Construto {
     paraTexto(): string {
         return `<comentário-como-construto conteúdo=${this.conteudo} />`;
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

@@ -1,0 +1,2 @@
+// Exemplo básico: Olá Mundo em Prisma
+imprima("Olá, mundo!");

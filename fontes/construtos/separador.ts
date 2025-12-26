@@ -19,4 +19,8 @@ export class Separador implements Construto {
     paraTexto(): string {
         return `<separador símbolo=${this.conteudo} />`;
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

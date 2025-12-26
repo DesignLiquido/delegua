@@ -12,12 +12,14 @@ export class AcessoIndiceVariavel<TTipoSimbolo extends string = string> implemen
     entidadeChamada: Construto;
     simboloFechamento: SimboloInterface<TTipoSimbolo>;
     indice: Construto;
+    tipo: string = 'qualquer';
 
     constructor(
         hashArquivo: number,
         entidadeChamada: Construto,
         indice: Construto,
-        simboloFechamento: SimboloInterface<TTipoSimbolo>
+        simboloFechamento: SimboloInterface<TTipoSimbolo>,
+        tipo: string = 'qualquer'
     ) {
         this.linha = entidadeChamada.linha;
         this.hashArquivo = hashArquivo;
@@ -25,6 +27,7 @@ export class AcessoIndiceVariavel<TTipoSimbolo extends string = string> implemen
         this.entidadeChamada = entidadeChamada;
         this.indice = indice;
         this.simboloFechamento = simboloFechamento;
+        this.tipo = tipo;
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
@@ -37,5 +40,9 @@ export class AcessoIndiceVariavel<TTipoSimbolo extends string = string> implemen
             `índice=${this.indice.paraTexto()} ` +
             `/>`
         );
+    }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
     }
 }

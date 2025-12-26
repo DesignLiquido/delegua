@@ -19,6 +19,7 @@ import {
     Isto,
     Construto,
     Leia,
+    ImportarComoConstruto,
 } from '../../construtos';
 
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
@@ -31,8 +32,7 @@ import {
     Escreva,
     Expressao,
     Fazer,
-    FuncaoDeclaracao as FuncaoDeclaracao,
-    Importar,
+    FuncaoDeclaracao,
     Para,
     Sustar,
     Retorna,
@@ -45,7 +45,6 @@ import {
 
 import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
-import { RetornoPrimario } from '../retornos';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/egua-classico';
 
@@ -161,7 +160,7 @@ export class AvaliadorSintaticoEguaClassico
         return false;
     }
 
-    primario(): RetornoPrimario {
+    primario(): Construto {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUPER)) {
             const simboloChave = this.simboloAnterior();
             return new Super(this.hashArquivo, simboloChave, this.superclasseAtual);
@@ -238,7 +237,7 @@ export class AvaliadorSintaticoEguaClassico
         throw this.erro(this.simboloAtual(), 'Esperado expressão.');
     }
 
-    finalizarChamada(entidadeChamada: RetornoPrimario): Chamada {
+    finalizarChamada(entidadeChamada: Construto): Chamada {
         const argumentos = [];
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             do {
@@ -302,6 +301,11 @@ export class AvaliadorSintaticoEguaClassico
         return this.chamar();
     }
 
+    /**
+     * A exponenciacão de Égua [é implementada com resolução à esquerda](https://github.com/eguadev/egua/blob/main/src/parser.js#L230). 
+     * Por isso esse dialeto resolve `direito` chamando `unario()`, e não `exponenciacao()` como os demais.
+     * @returns {Binario} A expressão binária na forma do construto `Binario`. 
+     */
     exponenciacao(): Construto {
         let expressao = this.unario();
 
@@ -745,12 +749,12 @@ export class AvaliadorSintaticoEguaClassico
         }
     }
 
-    declaracaoImportar(): Importar {
+    declaracaoImportar(): ImportarComoConstruto {
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após declaração.");
         const caminho = this.expressao();
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração.");
 
-        return new Importar(caminho as Literal);
+        return new ImportarComoConstruto(caminho as Literal);
     }
 
     declaracaoTente(): Tente {

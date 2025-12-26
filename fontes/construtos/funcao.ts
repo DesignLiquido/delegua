@@ -10,6 +10,7 @@ export class FuncaoConstruto implements Construto {
     corpo: Declaracao[];
     tipo?: string;
     tipoExplicito: boolean;
+    documentacao: Declaracao;
 
     constructor(
         hashArquivo: number,
@@ -17,7 +18,8 @@ export class FuncaoConstruto implements Construto {
         parametros: ParametroInterface[],
         corpo: Declaracao[],
         tipoRetorno?: string,
-        tipoExplicito?: boolean
+        tipoExplicito?: boolean,
+        documentacao?: Declaracao,
     ) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
@@ -26,6 +28,7 @@ export class FuncaoConstruto implements Construto {
         this.corpo = corpo;
         this.tipo = tipoRetorno;
         this.tipoExplicito = tipoExplicito || false;
+        this.documentacao = documentacao;
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
@@ -35,5 +38,9 @@ export class FuncaoConstruto implements Construto {
     paraTexto(): string {
         // TODO: Corpo.
         return `<construto-função parâmetros=${this.parametros} tipoRetorno=${this.tipo} tipoExplícito=${this.tipoExplicito ? 'Sim' : 'Não'} />`;
+    }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
     }
 }

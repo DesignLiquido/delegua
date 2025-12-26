@@ -1,3 +1,4 @@
+import { Dupla, Literal } from '../construtos';
 import { InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
 import { InterpretadorInterface, PrimitivaInterface } from '../interfaces';
 
@@ -55,8 +56,43 @@ export default {
             '\n\n## Formas de uso\n',
         exemploCodigo: 'dicionário.chaves()',
     },
+
     contem: contemComum('contem'),
     contém: contemComum('contém'),
+
+    itens: {
+        tipoRetorno: 'Dupla[]',
+        argumentos: [],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
+            valor: object
+        ): Promise<any> => {
+            const hashArquivo = interpretador.hashArquivoDeclaracaoAtual;
+            const linha = interpretador.linhaDeclaracaoAtual;
+            const pares = Object.entries(valor).map(([chave, valor]) => {
+                return new Dupla(
+                    new Literal(hashArquivo, linha, chave, 'texto'),
+                    new Literal(hashArquivo, linha, valor, 'qualquer')
+                );
+            });
+            return Promise.resolve(pares);
+        },
+        assinaturaFormato: 'dicionário.itens()',
+        documentacao:
+            '# `dicionário.itens()`\n\n' +
+            'Retorna um vetor contendo tuplas, sendo o primeiro valor a chave do dicionário, e o segundo valor o valor correspondente no dicionário. ' +
+            'Funciona de maneira semelhante às funções `entries()` de JavaScript, e `items()` da linguagem Python.\n' +
+            '\n\n## Exemplo de Código\n' +
+            '\n```delegua\n' +
+            'var d = {"a": 1, "b": 2, "c": 3}\n' +
+            'escreva(d.itens())\n' +
+            '// [[("a", 1)], [("b", 2)], [("c", 3)]]\n' +
+            '```\n\n' +
+            '## Formas de uso\n',
+        exemploCodigo: 'dicionário.itens()',
+    },
+
     remover: {
         tipoRetorno: 'lógico',
         argumentos: [new InformacaoElementoSintatico('chave', 'texto')],
@@ -68,6 +104,7 @@ export default {
         ): Promise<boolean> => Promise.resolve(delete valor[chave]),
         assinaturaFormato: `dicionário.remover(chave: qualquer)`,
     },
+
     valores: {
         tipoRetorno: '<T>[]',
         argumentos: [],
@@ -78,5 +115,5 @@ export default {
         ): Promise<any> => {
             return Promise.resolve(Object.values(valor));
         },
-    },
+    }
 } as { [nome: string]: PrimitivaInterface };

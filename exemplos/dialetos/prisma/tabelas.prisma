@@ -1,0 +1,2 @@
+local frutas = {"maçã", "banana", "laranja"};
+imprima(desempacote(frutas));

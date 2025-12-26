@@ -647,7 +647,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         argumentos: Construto[],
         tipoPrimitiva: string | undefined = undefined
     ): Construto {
-        if (entidadeChamada.constructor.name === 'Variavel') {
+        if (entidadeChamada.constructor === Variavel) {
             const entidadeChamadaResolvidaVariavel = entidadeChamada as Variavel;
 
             if (tipoPrimitiva === undefined) {
@@ -704,8 +704,8 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
 
             if (possivelReferencia !== null) {
                 return new ReferenciaFuncao(
-                    entidadeChamada.hashArquivo,
-                    entidadeChamada.linha,
+                    (entidadeChamada as Construto).hashArquivo,
+                    (entidadeChamada as Construto).linha,
                     entidadeChamadaResolvidaVariavel.simbolo,
                     entidadeChamadaResolvidaVariavel.tipo,
                     possivelReferencia.id
@@ -713,13 +713,13 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
             }
 
             return new ArgumentoReferenciaFuncao(
-                entidadeChamada.hashArquivo,
-                entidadeChamada.linha,
+                (entidadeChamada as Construto).hashArquivo,
+                (entidadeChamada as Construto).linha,
                 entidadeChamadaResolvidaVariavel.simbolo
             );
         }
 
-        if (entidadeChamada.constructor.name === 'AcessoMetodoOuPropriedade') {
+        if (entidadeChamada.constructor === AcessoMetodoOuPropriedade) {
             return this.resolverEntidadeChamadaAcessoMetodoOuPropriedade(
                 entidadeChamada as AcessoMetodoOuPropriedade
             );
@@ -1185,8 +1185,6 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
                     literalOuVariavelInicio
                 );
             // TODO: Terminar
-            case Variavel:
-            case Vetor:
             default:
                 return this.declaracaoParaCada(
                     simboloPara,
@@ -1518,10 +1516,6 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
             case Noneto:
             case Deceto:
                 return tipoDeDadosDelegua.TUPLA;
-            // TODO: Avaliar se é realmente necessário.
-            /* case ImportarBiblioteca:
-            case ModuloDeclaracoes:
-                return 'módulo'; */
             default:
                 return inicializador.tipo;
         }
@@ -1627,7 +1621,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         // Se o corpo for uma `Expressao`, corpo é convertido para `Retorna`.
         // Tenda trabalha com retornos implícitos.
         let corpoResolvido = [];
-        if (corpo.constructor.name === 'Expressao') {
+        if (corpo.constructor === Expressao) {
             const expressaoComoRetorna = new Retorna(
                 new Simbolo(
                     tiposDeSimbolos.RETORNA,

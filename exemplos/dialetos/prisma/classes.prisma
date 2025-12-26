@@ -1,0 +1,38 @@
+// Exemplo de classes e objetos em Prisma
+
+classe Pessoa {
+    construtor(nome, idade) {
+        isto.nome = nome;
+        isto.idade = idade;
+    }
+    
+    funcao apresentar() {
+        retorna "Olá, eu sou " + isto.nome + " e tenho " + isto.idade + " anos.";
+    }
+    
+    funcao envelhecer() {
+        isto.idade = isto.idade + 1;
+    }
+}
+
+classe Estudante(Pessoa) {
+    construtor(nome, idade, curso) {
+        super(nome, idade);
+        isto.curso = curso;
+    }
+    
+    funcao apresentar() {
+        retorna super.apresentar() + " Estudo " + isto.curso + ".";
+    }
+}
+
+// Criando objetos
+local pessoa1 = Pessoa("João", 25);
+local estudante1 = Estudante("Maria", 20, "Computação");
+
+// Usando métodos
+imprima(pessoa1.apresentar());
+imprima(estudante1.apresentar());
+
+pessoa1.envelhecer();
+imprima("Após envelhecer:", pessoa1.apresentar());

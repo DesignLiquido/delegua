@@ -47,6 +47,10 @@ export class Binario<TTipoSimbolo extends string = string> implements Construto 
         this.tipo = this.deduzirTipo();
     }
 
+    /**
+     * Dedução otimista de tipos para expressões binárias.
+     * @returns O tipo deduzido.
+     */
     protected deduzirTipo(): string {
         if (
             ['logico', 'lógico'].includes(this.esquerda.tipo) ||
@@ -55,12 +59,11 @@ export class Binario<TTipoSimbolo extends string = string> implements Construto 
             return 'lógico';
         }
 
-        if (this.esquerda.tipo === 'texto' || this.direita.tipo === 'texto') {
+        if (
+            this.esquerda.tipo === 'texto' ||
+            this.direita.tipo === 'texto'
+        ) {
             return 'texto';
-        }
-
-        if (this.esquerda.tipo === 'inteiro' && this.direita.tipo === 'inteiro') {
-            return 'inteiro';
         }
 
         if (
@@ -68,6 +71,10 @@ export class Binario<TTipoSimbolo extends string = string> implements Construto 
             ['numero', 'número'].includes(this.direita.tipo)
         ) {
             return 'número';
+        }
+
+        if (this.esquerda.tipo === this.direita.tipo) {
+            return this.esquerda.tipo;
         }
 
         return 'qualquer';
@@ -84,5 +91,9 @@ export class Binario<TTipoSimbolo extends string = string> implements Construto 
             `tipo=${this.tipo} ` +
             `/>`
         );
+    }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
     }
 }

@@ -7,7 +7,6 @@ import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
 import { FuncaoConstruto } from '../../construtos';
 import { ArgumentoInterface } from '../argumento-interface';
 import { PilhaEscoposExecucaoInterface } from '../../interfaces/pilha-escopos-execucao-interface';
-import { inferirTipoVariavel } from '../../inferenciador';
 import { Retorna } from '../../declaracoes';
 
 /**

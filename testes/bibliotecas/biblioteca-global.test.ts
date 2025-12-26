@@ -1,6 +1,6 @@
-import { AvaliadorSintatico } from "../fontes/avaliador-sintatico";
-import { Interpretador, InterpretadorBase } from "../fontes/interpretador";
-import { Lexador } from "../fontes/lexador";
+import { AvaliadorSintatico } from "../../fontes/avaliador-sintatico";
+import { Interpretador, InterpretadorBase } from "../../fontes/interpretador";
+import { Lexador } from "../../fontes/lexador";
 
 describe('Biblioteca Global', () => {
     let lexador: Lexador;
@@ -140,7 +140,7 @@ describe('Biblioteca Global', () => {
                 "copia['a'] = 99",
                 "escreva(valorOriginal)"
             ];
-            
+
             let _saida = "";
             interpretador.funcaoDeRetorno = (saida: string) => {
                 _saida += saida;
@@ -398,6 +398,67 @@ describe('Biblioteca Global', () => {
         });
     });
 
+    describe('intervalo()', () => {
+        it('Sucesso - Intervalo simples', async () => {
+            const retornoLexador = lexador.mapear(["escreva(intervalo(1, 5))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+
+        it('Sucesso - Intervalo com números negativos', async () => {
+            const retornoLexador = lexador.mapear(["escreva(intervalo(-3, 3))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+
+        it('Sucesso - Intervalo zero', async () => {
+            const retornoLexador = lexador.mapear(["escreva(intervalo(0, 0))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+
+        it('Sucesso - Intervalo com variáveis', async () => {
+            const codigo = [
+                "var inicio = 1",
+                "var fim = 10",
+                "escreva(intervalo(inicio, fim))"
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+
+        it('Falha - Primeiro parâmetro não é número', async () => {
+            const retornoLexador = lexador.mapear(["escreva(intervalo('texto', 5))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+        });
+
+        it('Falha - Segundo parâmetro não é número', async () => {
+            const retornoLexador = lexador.mapear(["escreva(intervalo(1, 'texto'))"], -1);
+            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+        });
+    });
+
     describe('mapear()', () => {
         it('Sucesso', async () => {
             const codigo = [
@@ -589,21 +650,7 @@ describe('Biblioteca Global', () => {
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros).toHaveLength(0);
-            expect(_saidas).toBe('{"primeiro":1,"segundo":2,"terceiro":3}');
-        });
-
-        it('Falha - Vetor com mais de 10 elementos', async () => {
-            const retornoLexador = lexador.mapear(["escreva(tupla([1,2,3,4,5,6,7,8,9,10,11]))"], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
-
-            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-
-            expect(retornoInterpretador).toBeTruthy
-            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
-            const erro = retornoInterpretador.erros[0];
-            expect(erro.erroInterno).toBeDefined();
-            expect(erro.erroInterno.mensagem).toBeDefined();
-            expect(erro.erroInterno.mensagem).toBe('Para ser transformado em uma tupla, vetor precisa ter de 2 a 10 elementos.');
+            expect(_saidas).toBe('[(1, 2, 3)]');
         });
     });
 });

@@ -1,12 +1,12 @@
 import _ from 'lodash';
 
-import { Declaracao, Enquanto, Escreva, Para, Retorna } from '../../declaracoes';
+import { Declaracao, Enquanto, Escreva, Para, Retorna, Tente } from '../../declaracoes';
 import { PontoParada } from '../../depuracao';
 import { ComandoDepurador, InterpretadorComDepuracaoInterface } from '../../interfaces';
 import { TipoEscopoExecucao } from '../../interfaces/escopo-execucao';
 import { RetornoQuebra } from '../../quebras';
 import { RetornoInterpretadorInterface } from '../../interfaces/retornos/retorno-interpretador-interface';
-import { Chamada, Construto } from '../../construtos';
+import { Binario, Chamada, Construto } from '../../construtos';
 import { Interpretador } from '../interpretador';
 import { EspacoMemoria } from '../espaco-memoria';
 
@@ -85,6 +85,14 @@ export class InterpretadorComDepuracao
         return await comum.visitarExpressaoDeChamada(
             this,
             super.visitarExpressaoDeChamada.bind(this),
+            expressao
+        );
+    }
+
+    override async visitarExpressaoBinaria(expressao: Binario): Promise<any> {
+        return await comum.visitarExpressaoBinaria(
+            this,
+            // super.visitarExpressaoBinaria.bind(this),
             expressao
         );
     }
@@ -184,11 +192,33 @@ export class InterpretadorComDepuracao
     }
 
     /**
-     * Empilha um escopo se for possível.
-     * Se não for, apenas executa a instrução corrente.
+     * Empilha um escopo se for possível (comando "Step Into" do depurador).
+     * Se a instrução corrente contém uma chamada de função, entra na função e pausa na primeira linha.
+     * Se não houver chamada de função, comporta-se como "próximo" (comando de passo).
+     *
+     * Fluxo de execução:
+     * 1. Define o comando como 'adentrarEscopo'
+     * 2. Executa um passo (que pode ou não entrar em uma função)
+     * 3. Se entrou em função, o escopo da função fica no topo da pilha pronto para executar
+     * 4. Se não entrou, a instrução é executada normalmente
+     * 5. Ativa ponto de parada para aguardar próximo comando do usuário
      */
     async adentrarEscopo(): Promise<any> {
-        throw new Error('Método não implementado.');
+        // Define o comando para indicar modo "adentrar escopo"
+        this.comando = 'adentrarEscopo';
+
+        // Limpa ponto de parada para permitir execução
+        this.pontoDeParadaAtivo = false;
+
+        // Executa um passo (que pode entrar em uma função se houver chamada)
+        await this.instrucaoPasso();
+
+        // Após execução, pausa para aguardar próximo comando do usuário
+        // (a menos que um ponto de parada já tenha sido ativado durante a execução)
+        if (!this.pontoDeParadaAtivo) {
+            this.pontoDeParadaAtivo = true;
+            this.avisoPontoParadaAtivado();
+        }
     }
 
     /**
@@ -208,6 +238,18 @@ export class InterpretadorComDepuracao
      */
     async instrucaoProximoESair() {
         comum.executarUltimoEscopoComandoContinuar(this, false, true);
+    }
+
+    /**
+     * Override para corrigir a ordem de execução de try-catch-finally em modo de depuração.
+     * Em modo normal, executarBloco() executa o bloco imediatamente.
+     * Em modo de depuração, executarBloco() apenas empilha o bloco para execução posterior.
+     * Isso causa um problema onde o bloco finalmente é empilhado antes do bloco tente ser executado.
+     * @param declaracao A declaração tente-pegue-finalmente.
+     * @returns O valor retornado pela execução.
+     */
+    override async visitarDeclaracaoTente(declaracao: Tente): Promise<any> {
+        return await comum.visitarDeclaracaoTente(this, declaracao);
     }
 
     /**

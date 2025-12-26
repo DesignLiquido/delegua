@@ -40,4 +40,8 @@ export class ParaComoConstruto implements Construto, ParaInterface {
     paraTexto(): string {
         return `<para-como-construto />`;
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

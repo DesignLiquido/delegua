@@ -30,4 +30,8 @@ export class AcessoPropriedade implements Construto {
     paraTexto(): string {
         return `<acesso-propriedade objeto=${this.objeto.paraTexto()} propriedade=${this.nomePropriedade} />`;
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

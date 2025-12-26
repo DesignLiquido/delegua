@@ -27,4 +27,8 @@ export class Super<TTipoSimbolo extends string = string> implements Construto {
     paraTexto(): string {
         return `<super superClasse=${this.superclasse} />`;
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

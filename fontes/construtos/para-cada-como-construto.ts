@@ -35,4 +35,8 @@ export class ParaCadaComoConstruto implements Construto, ParaCadaInterface {
     paraTexto(): string {
         return `<para-cada-como-construto />`;
     }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
+    }
 }

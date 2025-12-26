@@ -2,10 +2,10 @@ import hrtime from 'browser-process-hrtime';
 
 import { LexadorInterface, SimboloInterface } from '../../interfaces';
 import { Simbolo } from '../simbolo';
-import { palavrasReservadas } from './palavras-reservadas/pitugues';
+import { palavrasReservadasPitugues } from './palavras-reservadas/pitugues';
 import { ErroLexador } from '../erro-lexador';
 import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
-import { Pragma } from './pragma';
+import { Localizacao } from './localizacao';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/pitugues';
 
@@ -24,7 +24,7 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
     hashArquivo: number;
     simbolos: SimboloInterface[];
     erros: ErroLexador[];
-    pragmas: { [linha: number]: Pragma };
+    localizacoes: { [linha: number]: Localizacao };
 
     inicioSimbolo: number;
     atual: number;
@@ -36,7 +36,7 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
 
         this.simbolos = [];
         this.erros = [];
-        this.pragmas = {};
+        this.localizacoes = {};
 
         this.inicioSimbolo = 0;
         this.atual = 0;
@@ -118,9 +118,9 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
         }
     }
 
-    adicionarSimbolo(tipo: any, literal: any = null): void {
+    adicionarSimbolo(tipo: any, literal: any = null, linha: number = null): void {
         const texto: string = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
-        this.simbolos.push(new Simbolo(tipo, texto, literal, this.linha + 1, this.hashArquivo));
+        this.simbolos.push(new Simbolo(tipo, texto, literal, linha || this.linha + 1, this.hashArquivo));
     }
 
     simboloAtual(): string {
@@ -138,8 +138,51 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
         return this.codigo[this.linha].charAt(this.atual - 1);
     }
 
-    analisarTexto(delimitador = '"'): void {
+    analisarTextoMultilinha(delimitador: string): void {
+        const inicioLinha = this.linha;
+
+        let contagemDelimitadores = 0;
+        while (!this.eFinalDoCodigo() && contagemDelimitadores < 3) {
+            this.avancar();
+
+            if (this.simboloAtual() === delimitador) {
+                contagemDelimitadores++;
+            } else {
+                contagemDelimitadores = 0;
+            }
+        }
+
+        if (contagemDelimitadores === 3) {
+            const linhas = this.codigo.slice(inicioLinha, this.linha + 1);
+            let conteudo = linhas.join('\n');
+
+            // Remove delimitadores inicial e final
+            const larguraDelimitadoresFim = delimitador.repeat(3);
+            conteudo = conteudo.substring(conteudo.indexOf(larguraDelimitadoresFim) + 3);
+            conteudo = conteudo.substring(0, conteudo.lastIndexOf(larguraDelimitadoresFim));
+
+            this.simbolos.push(
+                new Simbolo(
+                    tiposDeSimbolos.TEXTO_MULTILINHAS,
+                    conteudo,
+                    conteudo,
+                    inicioLinha + 1,
+                    this.hashArquivo
+                )
+            );
+            return;
+        }
+
+        this.erros.push({
+            linha: this.linha + 1,
+            caractere: this.simboloAnterior(),
+            mensagem: 'Texto multilinha não finalizado.',
+        } as ErroLexador);
+    }
+
+    analisarTexto(delimitador = '"', ehFString: boolean = false): void {
         const linhaPrimeiroCaracter: number = this.linha;
+
         while (this.simboloAtual() !== delimitador && !this.eFinalDoCodigo()) {
             this.avancar();
         }
@@ -153,11 +196,23 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
             return;
         }
 
-        const textoCompleto = this.codigo[this.linha].substring(this.inicioSimbolo + 1, this.atual);
+        const deslocamento = ehFString ? 2 : 1;
+        const textoCompleto = this.codigo[this.linha].substring(
+            this.inicioSimbolo + deslocamento,
+            this.atual
+        );
+
+        if (textoCompleto.length === 0 && !this.eFinalDoCodigo() && this.codigo[this.linha].charAt(this.atual + 1) === delimitador) {
+            this.avancar(); // Avança para o próximo delimitador
+            this.analisarTextoMultilinha(delimitador);
+            return;
+        }
+
+        const tipoSimbolo = ehFString ? tiposDeSimbolos.INTERPOLACAO : tiposDeSimbolos.TEXTO;
 
         this.simbolos.push(
             new Simbolo(
-                tiposDeSimbolos.TEXTO,
+                tipoSimbolo,
                 textoCompleto,
                 textoCompleto,
                 linhaPrimeiroCaracter + 1,
@@ -220,8 +275,8 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
         }
 
         const tipo: string =
-            textoPalavraChave in palavrasReservadas
-                ? palavrasReservadas[textoPalavraChave]
+            textoPalavraChave in palavrasReservadasPitugues
+                ? palavrasReservadasPitugues[textoPalavraChave]
                 : tiposDeSimbolos.IDENTIFICADOR;
 
         this.simbolos.push(
@@ -236,7 +291,7 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
             this.avancar();
         }
 
-        this.pragmas[this.linha + 1] = {
+        this.localizacoes[this.linha + 1] = {
             linha: this.linha + 1,
             espacosIndentacao: espacos,
         };
@@ -251,8 +306,8 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
             this.avancar();
         }
 
-        const conteudo = this.codigo[linhaAtual].substring(this.inicioSimbolo + 2, ultimoAtual);
-        this.adicionarSimbolo(tiposDeSimbolos.COMENTARIO, conteudo.trim());
+        const conteudo = this.codigo[linhaAtual].substring(this.inicioSimbolo + 2, ultimoAtual + 1);
+        this.adicionarSimbolo(tiposDeSimbolos.COMENTARIO, conteudo.trim(), linhaAtual + 1);
     }
 
     avancarParaProximaLinha(): void {
@@ -267,13 +322,14 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
         switch (caractere) {
             case ' ':
             case '\t':
-                this.avancar();
-
-                break;
             case '\r':
             case '\n':
             case '\0':
+                this.avancar();
+
+                break;
             case ';':
+                this.adicionarSimbolo(tiposDeSimbolos.PONTO_E_VIRGULA);
                 this.avancar();
                 break;
 
@@ -353,6 +409,10 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
                         this.adicionarSimbolo(tiposDeSimbolos.DIVISAO_INTEIRA);
                         this.avancar();
                         break;
+                    case '=':
+                        this.adicionarSimbolo(tiposDeSimbolos.DIVISAO_IGUAL);
+                        this.avancar();
+                        break;
                     default:
                         this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
                         break;
@@ -375,6 +435,9 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
                 if (this.simboloAtual() === '*') {
                     this.avancar();
                     this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
+                } else if (this.simboloAtual() === '=') {
+                    this.avancar();
+                    this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO_IGUAL);
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
                 }
@@ -434,18 +497,40 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.MAIOR);
                 }
+
                 break;
 
+            case 'f':
+            case 'F':
+                const proximoChar = this.proximoSimbolo();
+
+                if (proximoChar == '"' || proximoChar == "'") {
+                    this.avancar(); // consome o 'f'
+                    const delimitador = this.simboloAtual();
+                    this.avancar(); // consome a aspa inicial
+
+                    // avisa que é F-STRING
+                    this.analisarTexto(delimitador, true);
+
+                    this.avancar(); // Consome a aspa final
+                    break;
+                }
+
+                // Se não tiver aspa depois, é uma palavra comum (ex: "faca", "f")
+                this.identificarPalavraChave();
+                break;
             case '"':
                 this.avancar();
                 this.analisarTexto('"');
                 this.avancar();
+
                 break;
 
             case "'":
                 this.avancar();
                 this.analisarTexto("'");
                 this.avancar();
+
                 break;
 
             default:
@@ -466,7 +551,7 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
         const inicioMapeamento: [number, number] = hrtime();
         this.simbolos = [];
         this.erros = [];
-        this.pragmas = {};
+        this.localizacoes = {};
 
         this.inicioSimbolo = 0;
         this.atual = 0;
@@ -493,7 +578,7 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
         return {
             simbolos: this.simbolos,
             erros: this.erros,
-            pragmas: this.pragmas,
+            pragmas: this.localizacoes,
         } as RetornoLexador<SimboloInterface>;
     }
 }

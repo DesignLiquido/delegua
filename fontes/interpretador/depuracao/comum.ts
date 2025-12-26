@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
-import { Chamada, Construto, Leia } from '../../construtos';
-import { Bloco, Declaracao, Enquanto, Escreva, Expressao, Para, Retorna } from '../../declaracoes';
+import { Binario, Chamada, Construto, Leia, Literal } from '../../construtos';
+import { Bloco, Declaracao, Enquanto, Escreva, Expressao, Para, Retorna, Tente } from '../../declaracoes';
 import {
     InterpretadorComDepuracaoInterface,
     ResultadoParcialInterpretadorInterface,
@@ -11,6 +11,8 @@ import { PontoParada } from '../../depuracao';
 import { EscopoExecucao, TipoEscopoExecucao } from '../../interfaces/escopo-execucao';
 import { inferirTipoVariavel } from '../../inferenciador';
 import { EspacoMemoria } from '../espaco-memoria';
+import tiposDeSimbolos from '../../tipos-de-simbolos/delegua';
+import tipoDeDadosDelegua from '../../tipos-de-dados/delegua';
 
 async function avaliarArgumentosEscreva(
     interpretador: InterpretadorComDepuracaoInterface,
@@ -283,6 +285,66 @@ export async function visitarDeclaracaoPara(
 }
 
 /**
+ * Implementação de try-catch-finally para modo de depuração.
+ * Garante que o bloco finally só é executado após o bloco try ser completado.
+ * Em modo de passo, detecta quando um novo escopo foi criado e está incompleto,
+ * evitando que o finally seja empilhado prematuramente.
+ * @param interpretador O interpretador com depuração.
+ * @param declaracao A declaração tente-pegue-finalmente.
+ * @returns O valor retornado pela execução.
+ */
+export async function visitarDeclaracaoTente(
+    interpretador: InterpretadorComDepuracaoInterface,
+    declaracao: Tente
+): Promise<any> {
+    let valorRetorno: any;
+    (interpretador as any).emDeclaracaoTente = true;
+
+    // Captura o número de escopos antes de executar o bloco try
+    const escoposAntes = interpretador.pilhaEscoposExecucao.elementos();
+
+    try {
+        try {
+            valorRetorno = await interpretador.executarBloco(declaracao.caminhoTente);
+        } catch (erro: any) {
+            if (declaracao.caminhoPegue !== null) {
+                if (Array.isArray(declaracao.caminhoPegue)) {
+                    valorRetorno = await interpretador.executarBloco(declaracao.caminhoPegue);
+                } else {
+                    const literalErro = new Literal(
+                        declaracao.hashArquivo,
+                        Number(declaracao.linha),
+                        erro.mensagem
+                    );
+                    const chamadaPegue = new Chamada(
+                        declaracao.caminhoPegue.hashArquivo,
+                        declaracao.caminhoPegue,
+                        [literalErro]
+                    );
+                    valorRetorno = await chamadaPegue.aceitar(interpretador);
+                }
+            }
+        }
+    } finally {
+        // Verifica se um novo escopo foi criado e ainda está ativo
+        // Se sim, NÃO executa o finally ainda (o escopo try não foi completado)
+        const escoposDepois = interpretador.pilhaEscoposExecucao.elementos();
+        const novoEscopoCriado = escoposDepois > escoposAntes;
+
+        // Só executa finally se:
+        // 1. Existe um bloco finally
+        // 2. Não há um novo escopo criado OU não estamos em modo de passo/adentrar
+        if (declaracao.caminhoFinalmente !== null &&
+            (!novoEscopoCriado || (interpretador.comando !== 'proximo' && interpretador.comando !== 'adentrarEscopo'))) {
+            valorRetorno = await interpretador.executarBloco(declaracao.caminhoFinalmente);
+        }
+        (interpretador as any).emDeclaracaoTente = false;
+    }
+
+    return valorRetorno;
+}
+
+/**
  * Ao executar um retorno, manter o valor retornado no Interpretador para
  * uso por linhas que foram executadas com o comando `próximo` do depurador.
  * @param declaracao Uma declaracao Retorna
@@ -293,11 +355,23 @@ export async function visitarExpressaoRetornar(
     visitarExpressaoRetornarAncestral: (declaracao: Retorna) => Promise<any>,
     declaracao: Retorna
 ): Promise<RetornoQuebra> {
+    // Captura o escopo atual ANTES de avaliar a expressão,
+    // pois a avaliação pode abrir novos escopos
+    const escopoAtual = interpretador.pilhaEscoposExecucao.topoDaPilha();
+
     const retorno = await visitarExpressaoRetornarAncestral(declaracao);
+
+    // Se o retorno é null ou RetornoQuebra com valor null (porque pausamos durante avaliação de expressão,
+    // como ao entrar em uma função em modo adentrarEscopo), não marcar como finalizado ainda
+    const valorRetorno = retorno && retorno.hasOwnProperty('valor') ? retorno.valor : retorno;
+    const novoEscopoFoiCriado = interpretador.pilhaEscoposExecucao.topoDaPilha() !== escopoAtual;
+
+    if (valorRetorno === null && interpretador.comando === 'adentrarEscopo' && novoEscopoFoiCriado) {
+        return retorno;
+    }
 
     // O escopo atual é marcado como finalizado, para notificar a
     // instrução de que deve ser descartado.
-    const escopoAtual = interpretador.pilhaEscoposExecucao.topoDaPilha();
     escopoAtual.finalizado = true;
 
     // Acha o primeiro escopo de função.
@@ -312,6 +386,271 @@ export async function visitarExpressaoRetornar(
     }
 
     return retorno;
+}
+
+// Contador global para gerar IDs únicos de expressões binárias
+let contadorBinarioDebug = 0;
+
+/**
+ * Gera um identificador único para uma expressão binária.
+ * Usado para armazenar estado de avaliação parcial durante step-into.
+ * Cada expressão binária recebe um ID único na primeira vez que é encontrada,
+ * evitando colisões entre expressões na mesma linha.
+ * @param expressao A expressão binária.
+ * @returns Um identificador único para esta instância de expressão.
+ */
+function gerarIdExpressaoBinaria(expressao: any): string {
+    // Se a expressão já tem um ID de depuração, reutiliza
+    if (!expressao._debugId) {
+        // Gera um ID único usando um contador incremental
+        expressao._debugId = `binario_${++contadorBinarioDebug}`;
+    }
+    return expressao._debugId;
+}
+
+/**
+ * Sobrescreve a visita de expressão binária para permitir step-into em cada lado da expressão.
+ * Quando em modo de depuração com step-into, avalia o lado esquerdo primeiro e pausa.
+ * Na próxima execução, avalia o lado direito e completa a operação.
+ * @param interpretador O interpretador com depuração.
+ * @param visitarExpressaoBinariaAncestral Método ancestral para executar a lógica da operação.
+ * @param expressao A expressão binária.
+ * @returns O resultado da operação binária.
+ */
+export async function visitarExpressaoBinaria(
+    interpretador: InterpretadorComDepuracaoInterface,
+    expressao: Binario
+): Promise<any> {
+    const escopoAtual = interpretador.pilhaEscoposExecucao.topoDaPilha();
+    const idExpressao = gerarIdExpressaoBinaria(expressao);
+    const chaveEsquerda = `${idExpressao}_esquerda`;
+
+    // Verifica se já avaliamos o lado esquerdo
+    if (escopoAtual.espacoMemoria.resolucoesChamadas.hasOwnProperty(chaveEsquerda)) {
+        // Lado esquerdo já foi avaliado, agora avaliar o lado direito
+        const esquerda = escopoAtual.espacoMemoria.resolucoesChamadas[chaveEsquerda];
+
+        // Avalia o lado direito
+        const direita = await interpretador.avaliar(expressao.direita);
+
+        // Limpa o cache do lado esquerdo pois já usamos
+        delete escopoAtual.espacoMemoria.resolucoesChamadas[chaveEsquerda];
+
+        // Resolve os valores
+        const valorEsquerdo: any = interpretador.resolverValor(esquerda);
+        const valorDireito: any = interpretador.resolverValor(direita);
+        const tipoEsquerdo: string = esquerda?.hasOwnProperty('tipo')
+            ? esquerda.tipo
+            : inferirTipoVariavel(esquerda);
+        const tipoDireito: string = direita?.hasOwnProperty('tipo')
+            ? direita.tipo
+            : inferirTipoVariavel(direita);
+
+        // Executa a operação binária usando a lógica ancestral
+        // Criamos um objeto temporário com os valores já avaliados para evitar re-avaliação
+        const expressaoTemp = {
+            ...expressao,
+            esquerda: { valor: valorEsquerdo, tipo: tipoEsquerdo },
+            direita: { valor: valorDireito, tipo: tipoDireito }
+        };
+
+        // Não podemos chamar o ancestral diretamente porque ele vai tentar avaliar novamente
+        // Em vez disso, precisamos executar a operação diretamente
+        return await executarOperacaoBinaria(
+            interpretador,
+            expressao,
+            esquerda,
+            direita,
+            valorEsquerdo,
+            valorDireito,
+            tipoEsquerdo,
+            tipoDireito
+        );
+    } else {
+        // Rastreia o número de escopos antes de avaliar o lado esquerdo
+        const escoposAntes = interpretador.pilhaEscoposExecucao.elementos();
+
+        // Primeira avaliação - avaliar apenas o lado esquerdo
+        const esquerda = await interpretador.avaliar(expressao.esquerda);
+
+        // Armazena o resultado do lado esquerdo
+        escopoAtual.espacoMemoria.resolucoesChamadas[chaveEsquerda] = esquerda;
+
+        // Verifica se um novo escopo foi criado durante a avaliação do lado esquerdo
+        const escoposDepois = interpretador.pilhaEscoposExecucao.elementos();
+        const novoEscopoCriado = escoposDepois > escoposAntes;
+
+        // Se estamos em modo adentrarEscopo e um novo escopo foi aberto,
+        // a execução deve pausar aqui para permitir que o usuário adentre na função do lado esquerdo
+        // A próxima chamada a visitarExpressaoBinaria irá continuar do lado direito
+        if (interpretador.comando === 'adentrarEscopo' && novoEscopoCriado) {
+            // Retorna um valor temporário, a avaliação será completada na próxima execução
+            return null;
+        }
+
+        // Verifica se devemos continuar ou pausar
+        // Se pontoDeParadaAtivo foi ativado durante a avaliação do lado esquerdo, devemos retornar
+        if (interpretador.pontoDeParadaAtivo) {
+            // Retorna um valor temporário, a avaliação será completada na próxima execução
+            return null;
+        }
+
+        // Se não há pausa e não entramos em novo escopo, continuar com a avaliação do lado direito
+        const direita = await interpretador.avaliar(expressao.direita);
+
+        // Limpa o cache já que completamos a avaliação
+        delete escopoAtual.espacoMemoria.resolucoesChamadas[chaveEsquerda];
+
+        const valorEsquerdo: any = interpretador.resolverValor(esquerda);
+        const valorDireito: any = interpretador.resolverValor(direita);
+        const tipoEsquerdo: string = esquerda?.hasOwnProperty('tipo')
+            ? esquerda.tipo
+            : inferirTipoVariavel(esquerda);
+        const tipoDireito: string = direita?.hasOwnProperty('tipo')
+            ? direita.tipo
+            : inferirTipoVariavel(direita);
+
+        return await executarOperacaoBinaria(
+            interpretador,
+            expressao,
+            esquerda,
+            direita,
+            valorEsquerdo,
+            valorDireito,
+            tipoEsquerdo,
+            tipoDireito
+        );
+    }
+}
+
+/**
+ * Executa a operação binária após ambos os lados terem sido avaliados.
+ * Contém a lógica de todas as operações binárias suportadas.
+ */
+async function executarOperacaoBinaria(
+    interpretador: any,
+    expressao: Binario,
+    esquerda: Construto,
+    direita: Construto,
+    valorEsquerdo: any,
+    valorDireito: any,
+    tipoEsquerdo: string,
+    tipoDireito: string
+): Promise<any> {
+    switch (expressao.operador.tipo) {
+        case tiposDeSimbolos.EXPONENCIACAO:
+            interpretador.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            return Math.pow(valorEsquerdo, valorDireito);
+
+        case tiposDeSimbolos.MAIOR:
+            if (
+                interpretador.tiposNumericos.includes(tipoEsquerdo) &&
+                interpretador.tiposNumericos.includes(tipoDireito)
+            ) {
+                return Number(valorEsquerdo) > Number(valorDireito);
+            }
+            return String(valorEsquerdo) > String(valorDireito);
+
+        case tiposDeSimbolos.MAIOR_IGUAL:
+            interpretador.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            return Number(valorEsquerdo) >= Number(valorDireito);
+
+        case tiposDeSimbolos.MENOR:
+            if (
+                interpretador.tiposNumericos.includes(tipoEsquerdo) &&
+                interpretador.tiposNumericos.includes(tipoDireito)
+            ) {
+                return Number(valorEsquerdo) < Number(valorDireito);
+            }
+            return String(valorEsquerdo) < String(valorDireito);
+
+        case tiposDeSimbolos.MENOR_IGUAL:
+            interpretador.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            return Number(valorEsquerdo) <= Number(valorDireito);
+
+        case tiposDeSimbolos.SUBTRACAO:
+        case tiposDeSimbolos.MENOS_IGUAL:
+            interpretador.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            return Number(valorEsquerdo) - Number(valorDireito);
+
+        case tiposDeSimbolos.ADICAO:
+        case tiposDeSimbolos.MAIS_IGUAL:
+            if (Array.isArray(valorEsquerdo) && Array.isArray(valorDireito)) {
+                return valorEsquerdo.concat(valorDireito);
+            }
+            if (
+                interpretador.tiposNumericos.includes(tipoEsquerdo) &&
+                interpretador.tiposNumericos.includes(tipoDireito)
+            ) {
+                return Number(valorEsquerdo) + Number(valorDireito);
+            }
+            if (tipoEsquerdo === 'qualquer' || tipoDireito === 'qualquer') {
+                return valorEsquerdo + valorDireito;
+            }
+            return interpretador.paraTexto(valorEsquerdo) + interpretador.paraTexto(valorDireito);
+
+        case tiposDeSimbolos.DIVISAO:
+        case tiposDeSimbolos.DIVISAO_IGUAL:
+            interpretador.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            return Number(valorEsquerdo) / Number(valorDireito);
+
+        case tiposDeSimbolos.DIVISAO_INTEIRA:
+        case tiposDeSimbolos.DIVISAO_INTEIRA_IGUAL:
+            interpretador.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            return Math.floor(Number(valorEsquerdo) / Number(valorDireito));
+
+        case tiposDeSimbolos.MULTIPLICACAO:
+        case tiposDeSimbolos.MULTIPLICACAO_IGUAL:
+            if (
+                tipoDeDadosDelegua && (
+                    tipoEsquerdo === tipoDeDadosDelegua.TEXTO ||
+                    tipoDireito === tipoDeDadosDelegua.TEXTO
+                )
+            ) {
+                if (
+                    tipoEsquerdo === tipoDeDadosDelegua.TEXTO &&
+                    tipoDireito === tipoDeDadosDelegua.TEXTO
+                ) {
+                    return Number(valorEsquerdo) * Number(valorDireito);
+                }
+                if (tipoEsquerdo === tipoDeDadosDelegua.TEXTO) {
+                    return valorEsquerdo.repeat(Number(valorDireito));
+                }
+                return valorDireito.repeat(Number(valorEsquerdo));
+            }
+            return Number(valorEsquerdo) * Number(valorDireito);
+
+        case tiposDeSimbolos.MODULO:
+        case tiposDeSimbolos.MODULO_IGUAL:
+            interpretador.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            return Number(valorEsquerdo) % Number(valorDireito);
+
+        case tiposDeSimbolos.BIT_AND:
+            interpretador.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            return Number(valorEsquerdo) & Number(valorDireito);
+
+        case tiposDeSimbolos.BIT_XOR:
+            interpretador.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            return Number(valorEsquerdo) ^ Number(valorDireito);
+
+        case tiposDeSimbolos.BIT_OR:
+            interpretador.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            return Number(valorEsquerdo) | Number(valorDireito);
+
+        case tiposDeSimbolos.MENOR_MENOR:
+            interpretador.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            return Number(valorEsquerdo) << Number(valorDireito);
+
+        case tiposDeSimbolos.MAIOR_MAIOR:
+            interpretador.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+            return Number(valorEsquerdo) >> Number(valorDireito);
+
+        case tiposDeSimbolos.DIFERENTE:
+            return !interpretador.eIgual(valorEsquerdo, valorDireito);
+
+        case tiposDeSimbolos.IGUAL_IGUAL:
+            return interpretador.eIgual(valorEsquerdo, valorDireito);
+    }
 }
 
 /**
@@ -439,15 +778,40 @@ function descartarTodosEscoposFinalizados(interpretador: InterpretadorComDepurac
 
 async function executarUmPassoNoEscopo(interpretador: InterpretadorComDepuracaoInterface) {
     const ultimoEscopo = interpretador.pilhaEscoposExecucao.topoDaPilha();
+    // Rastreia quantos escopos existem antes da execução para detectar entrada em novo escopo
+    const escoposAntes = interpretador.pilhaEscoposExecucao.elementos();
+
     let retornoExecucao: any;
     if (interpretador.passos > 0) {
         interpretador.passos--;
-        retornoExecucao = await interpretador.executar(
-            ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]
-        );
 
-        if (!interpretador.pontoDeParadaAtivo && !ultimoEscopo.emLacoRepeticao) {
+        // Executa a declaração atual
+        const declaracaoAtual = ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual];
+        retornoExecucao = await interpretador.executar(declaracaoAtual);
+
+        // Verifica se entramos em um novo escopo durante a execução
+        const escoposDepois = interpretador.pilhaEscoposExecucao.elementos();
+        const entroEmNovoEscopo = escoposDepois > escoposAntes;
+
+        // Não incrementa se:
+        // - Há um ponto de parada ativo (de escopo interno)
+        // - Estamos em um laço de repetição (o laço gerencia a iteração)
+        // - Entramos em um novo escopo (precisamos executar o novo escopo antes de avançar)
+        if (!interpretador.pontoDeParadaAtivo && !ultimoEscopo.emLacoRepeticao && !entroEmNovoEscopo) {
             ultimoEscopo.declaracaoAtual++;
+        }
+
+        // Após executar e avançar, verifica se há ponto de parada na PRÓXIMA declaração
+        if (!interpretador.pontoDeParadaAtivo &&
+            ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length) {
+            const proximaDeclaracao = ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual];
+            interpretador.linhaDeclaracaoAtual = proximaDeclaracao.linha;
+            interpretador.hashArquivoDeclaracaoAtual = proximaDeclaracao.hashArquivo;
+            interpretador.pontoDeParadaAtivo = verificarPontoParada(interpretador, proximaDeclaracao);
+
+            if (interpretador.pontoDeParadaAtivo) {
+                interpretador.avisoPontoParadaAtivado();
+            }
         }
 
         if (
@@ -458,6 +822,20 @@ async function executarUmPassoNoEscopo(interpretador: InterpretadorComDepuracaoI
                 descartarEscopoPorRetornoFuncao(interpretador);
             } else {
                 descartarTodosEscoposFinalizados(interpretador);
+
+                // Se escopos foram descartados, precisamos incrementar o contador do escopo pai
+                // para avançar além da declaração que criou o escopo aninhado
+                const escoposAposLimpeza = interpretador.pilhaEscoposExecucao.elementos();
+                if (escoposAposLimpeza < escoposAntes && escoposAposLimpeza > 0) {
+                    // Escopos foram removidos, avançar o contador do escopo pai
+                    const escopoAtual = interpretador.pilhaEscoposExecucao.topoDaPilha();
+                    // Só incrementa se ainda há declarações para executar neste escopo
+                    // e não estamos em um laço de repetição
+                    if (!escopoAtual.emLacoRepeticao &&
+                        escopoAtual.declaracaoAtual < escopoAtual.declaracoes.length) {
+                        escopoAtual.declaracaoAtual++;
+                    }
+                }
             }
         }
 
@@ -526,6 +904,11 @@ export async function executarUltimoEscopoComandoContinuar(
 
         return retornoExecucao;
     } catch (erro: any) {
+        // Se estamos dentro de uma declaração tente, re-lança o erro
+        // para que o bloco pegue possa capturá-lo
+        if ((interpretador as any).emDeclaracaoTente) {
+            throw erro;
+        }
         interpretador.erros.push(erro);
     } finally {
         if (!interpretador.pontoDeParadaAtivo && interpretador.comando !== 'adentrarEscopo') {
@@ -585,6 +968,14 @@ export async function instrucaoPasso(
     interpretador: InterpretadorComDepuracaoInterface,
     escopo = 1
 ) {
+    // Limpa o ponto de parada para permitir a execução
+    interpretador.pontoDeParadaAtivo = false;
+
+    // Define comando como 'proximo' se não estiver definido (ex: chamado diretamente por instrucaoPasso)
+    // Preserva se já estiver definido (ex: 'adentrarEscopo' definido por adentrarEscopo())
+    if (!interpretador.comando) {
+        interpretador.comando = 'proximo';
+    }
     interpretador.passos = 1;
     const escopoVisitado = interpretador.pilhaEscoposExecucao.naPosicao(escopo);
 

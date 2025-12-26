@@ -57,6 +57,33 @@ export default {
     },
     contem: contem_comum('contem'),
     contém: contem_comum('contém'),
+    itens: {
+        tipoRetorno: '(texto|qualquer)[][]',
+        argumentos: [],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
+            valor: object
+        ): Promise<any> => {
+            const pares = Object.entries(valor).map(([chave, valor]) => {
+                return [chave, valor];
+            });
+            return Promise.resolve(pares);
+        },
+        assinaturaFormato: 'dicionário.itens()',
+        documentacao:
+            '# `dicionário.itens()`\n\n' +
+            'Retorna um vetor contendo pares `[chave, valor]` de um dicionário. ' +
+            'Funciona de maneira semelhante à função `items()` da linguagem Python.\n' +
+            '\n\n## Exemplo de Código\n' +
+            '\n```pitugues\n' +
+            'var d = {"a": 1, "b": 2, "c": 3}\n' +
+            'escreva(d.itens())\n' +
+            '// [["a", 1], ["b", 2], ["c", 3]]\n' +
+            '```\n\n' +
+            '## Formas de uso\n',
+        exemploCodigo: 'dicionário.itens()',
+    },
     remover: {
         tipoRetorno: 'lógico',
         argumentos: [new InformacaoElementoSintatico('chave', 'texto')],

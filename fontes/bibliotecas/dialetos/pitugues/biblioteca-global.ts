@@ -6,19 +6,13 @@ import { SimboloInterface, VariavelInterface } from '../../../interfaces';
 import { InterpretadorInterface } from '../../../interfaces';
 import { DeleguaFuncao } from '../../../interpretador/estruturas';
 import {
-    Deceto,
-    Dupla,
-    Noneto,
-    Octeto,
-    Quarteto,
-    Quinteto,
-    Septeto,
-    Sexteto,
-    Trio,
+    TuplaN,
     Tupla,
+    Literal
 } from '../../../construtos';
-import { Simbolo } from '../../../lexador';
 import { RetornoQuebra } from '../../../quebras';
+
+import { inferirTipoVariavel } from '../../../inferenciador';
 
 /**
  * Retorna um número aleatório entre 0 e 1.
@@ -133,7 +127,7 @@ export async function algum(
         );
     }
 
-    if (valorFuncaoPesquisa.constructor.name !== 'DeleguaFuncao') {
+    if (valorFuncaoPesquisa.constructor !== DeleguaFuncao) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 {
@@ -185,7 +179,7 @@ export async function encontrar(
         );
     }
 
-    if (valorFuncaoPesquisa.constructor.name !== 'DeleguaFuncao') {
+    if (valorFuncaoPesquisa.constructor !== DeleguaFuncao) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 {
@@ -237,7 +231,7 @@ export async function encontrar_indice(
         );
     }
 
-    if (valorFuncaoPesquisa.constructor.name !== 'DeleguaFuncao') {
+    if (valorFuncaoPesquisa.constructor !== DeleguaFuncao) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 {
@@ -289,7 +283,7 @@ export async function encontrar_ultimo(
         );
     }
 
-    if (valorFuncaoPesquisa.constructor.name !== 'DeleguaFuncao') {
+    if (valorFuncaoPesquisa.constructor !== DeleguaFuncao) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 {
@@ -340,7 +334,7 @@ export async function encontrar_ultimo_indice(
         );
     }
 
-    if (valorFuncaoPesquisa.constructor.name !== 'DeleguaFuncao') {
+    if (valorFuncaoPesquisa.constructor !== DeleguaFuncao) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 {
@@ -400,8 +394,7 @@ export async function filtrar_por(
         );
     }
 
-    const construtorResolvido = valorFuncaoFiltragem.constructor.name.replaceAll('_', '');
-    if (construtorResolvido !== 'DeleguaFuncao') {
+    if (valorFuncaoFiltragem.constructor !== DeleguaFuncao) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 {
@@ -520,6 +513,58 @@ export async function inteiro(
 }
 
 /**
+ * Cria um vetor com números inteiros no intervalo especificado.
+ * O valor inicial é inclusivo e o valor final é exclusivo.
+ * @param {InterpretadorInterface} interpretador A instância do interpretador.
+ * @param {VariavelInterface | number} valorInicial O valor inicial (inclusivo).
+ * @param {VariavelInterface | number} valorFinal O valor final (exclusivo).
+ * @returns {Promise<number[]>} Um vetor com os números no intervalo.
+ */
+export async function intervalo(
+    interpretador: InterpretadorInterface,
+    valorInicial: VariavelInterface | number,
+    valorFinal: VariavelInterface | number
+): Promise<number[]> {
+    const inicio = interpretador.resolverValor(valorInicial);
+    const fim = interpretador.resolverValor(valorFinal);
+
+    if (typeof inicio !== 'number' || typeof fim !== 'number') {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                {
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual,
+                } as SimboloInterface,
+                'Os dois parâmetros devem ser do tipo número ou inteiro.'
+            )
+        );
+    }
+
+    if (isNaN(inicio) || isNaN(fim)) {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                {
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual,
+                } as SimboloInterface,
+                'Os dois parâmetros devem ser do tipo número ou inteiro.'
+            )
+        );
+    }
+
+    // Remove a parte decimal se houver
+    const inicioInteiro = Math.floor(inicio);
+    const fimInteiro = Math.floor(fim);
+
+    const resultado = [];
+    for (let i = inicioInteiro; i < fimInteiro; i++) {
+        resultado.push(i);
+    }
+
+    return Promise.resolve(resultado);
+}
+
+/**
  * Dado um vetor e uma função de mapeamento, executa a função de mapeamento
  * passando como argumento cada elemento do vetor.
  * @param interpretador A instância do interpretador.
@@ -560,11 +605,7 @@ export async function mapear(
         );
     }
 
-    const nomeConstrutorFuncaoMapeamento = valorFuncaoMapeamento.constructor.name.replaceAll(
-        '_',
-        ''
-    );
-    if (nomeConstrutorFuncaoMapeamento !== 'DeleguaFuncao') {
+    if (valorFuncaoMapeamento.constructor !== DeleguaFuncao) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 {
@@ -710,7 +751,7 @@ export async function para_cada(
         );
     }
 
-    if (valorFuncaoFiltragem.constructor.name !== 'DeleguaFuncao') {
+    if (valorFuncaoFiltragem.constructor !== DeleguaFuncao) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 {
@@ -837,7 +878,10 @@ export async function reduzir(
     const valorFuncaoReducao = funcaoReducao.hasOwnProperty('valor')
         ? funcaoReducao.valor
         : funcaoReducao;
-    const valorPadrao = valorInicial.hasOwnProperty('valor') ? valorInicial.valor : valorInicial;
+    const valorPadrao =
+        valorInicial && valorInicial.hasOwnProperty && valorInicial.hasOwnProperty('valor')
+            ? valorInicial.valor
+            : valorInicial;
 
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
@@ -863,16 +907,29 @@ export async function reduzir(
         );
     }
 
+    // Se não houver valor inicial e vetor vazio, não é possível reduzir
+    if ((valorPadrao === null || valorPadrao === undefined) && (!Array.isArray(valorVetor) || valorVetor.length === 0)) {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                {
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual,
+                } as SimboloInterface,
+                'Não é possível reduzir um vetor vazio sem valor inicial.'
+            )
+        );
+    }
+
     let resultado = valorPadrao;
     let inicio = 0;
 
-    if (!resultado) {
-        resultado = vetor[0];
+    if (resultado === null || resultado === undefined) {
+        resultado = valorVetor[0];
         inicio = 1;
     }
 
-    for (let index = inicio; index < vetor.length; ++index) {
-        resultado = await valorFuncaoReducao.chamar(interpretador, [resultado, vetor[index]]);
+    for (let index = inicio; index < valorVetor.length; ++index) {
+        resultado = await valorFuncaoReducao.chamar(interpretador, [resultado, valorVetor[index]]);
     }
 
     return resultado;
@@ -1019,7 +1076,7 @@ export async function todos_em_condicao(
 export async function tupla(
     interpretador: InterpretadorInterface,
     vetor: VariavelInterface | any[]
-): Promise<Tupla> {
+): Promise<TuplaN> {
     const valorVetor: any[] =
         !Array.isArray(vetor) && vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
 
@@ -1037,100 +1094,45 @@ export async function tupla(
         );
     }
 
-    switch (valorVetor.length) {
-        case 2:
-            return Promise.resolve(new Dupla(valorVetor[0], valorVetor[1]));
-        case 3:
-            return Promise.resolve(new Trio(valorVetor[0], valorVetor[1], valorVetor[2]));
-        case 4:
-            return Promise.resolve(
-                new Quarteto(valorVetor[0], valorVetor[1], valorVetor[2], valorVetor[3])
-            );
-        case 5:
-            return Promise.resolve(
-                new Quinteto(
-                    valorVetor[0],
-                    valorVetor[1],
-                    valorVetor[2],
-                    valorVetor[3],
-                    valorVetor[4]
-                )
-            );
-        case 6:
-            return Promise.resolve(
-                new Sexteto(
-                    valorVetor[0],
-                    valorVetor[1],
-                    valorVetor[2],
-                    valorVetor[3],
-                    valorVetor[4],
-                    valorVetor[5]
-                )
-            );
-        case 7:
-            return Promise.resolve(
-                new Septeto(
-                    valorVetor[0],
-                    valorVetor[1],
-                    valorVetor[2],
-                    valorVetor[3],
-                    valorVetor[4],
-                    valorVetor[5],
-                    valorVetor[6]
-                )
-            );
-        case 8:
-            return Promise.resolve(
-                new Octeto(
-                    valorVetor[0],
-                    valorVetor[1],
-                    valorVetor[2],
-                    valorVetor[3],
-                    valorVetor[4],
-                    valorVetor[5],
-                    valorVetor[6],
-                    valorVetor[7]
-                )
-            );
-        case 9:
-            return Promise.resolve(
-                new Noneto(
-                    valorVetor[0],
-                    valorVetor[1],
-                    valorVetor[2],
-                    valorVetor[3],
-                    valorVetor[4],
-                    valorVetor[5],
-                    valorVetor[6],
-                    valorVetor[7],
-                    valorVetor[8]
-                )
-            );
-        case 10:
-            return Promise.resolve(
-                new Deceto(
-                    valorVetor[0],
-                    valorVetor[1],
-                    valorVetor[2],
-                    valorVetor[3],
-                    valorVetor[4],
-                    valorVetor[5],
-                    valorVetor[6],
-                    valorVetor[7],
-                    valorVetor[8],
-                    valorVetor[9]
-                )
-            );
-        case 1:
-        default:
-            return Promise.reject(
-                new ErroEmTempoDeExecucao(
-                    {
-                        hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                        linha: interpretador.linhaDeclaracaoAtual,
-                    } as SimboloInterface,
-                    'Para ser transformado em uma tupla, vetor precisa ter de 2 a 10 elementos.'
-                )
-            );
+    const elementos = valorVetor.map(item => {
+        return new Literal(
+            interpretador.hashArquivoDeclaracaoAtual,
+            interpretador.linhaDeclaracaoAtual,
+            item,
+            inferirTipoVariavel(item) as any
+        );
+    });
+
+    return new TuplaN(
+        interpretador.hashArquivoDeclaracaoAtual,
+        interpretador.linhaDeclaracaoAtual,
+        elementos
+    );
+}
+
+export async function vetor(
+    interpretador: InterpretadorInterface,
+    tupla: TuplaN | any
+): Promise<any[]> {
+    const objetoTupla = interpretador.resolverValor(tupla);
+
+    // TODO: As lógicas de validação abaixo deixam de fazer sentido com a validação de argumentos feita
+    // na avaliação sintática. Estudar remoção.
+    if (!(objetoTupla instanceof TuplaN)) {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                {
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual,
+                } as SimboloInterface,
+                'Argumento de função nativa `vetor` não parece ser uma tupla.'
+            )
+        );
     }
+
+    const resultado = objetoTupla.elementos.map((elemento: any) => {
+        return interpretador.resolverValor(elemento);
+    });
+
+    return Promise.resolve(resultado);
 }

@@ -1,335 +1,143 @@
-import { AcessoMetodo, AcessoMetodoOuPropriedade, AcessoPropriedade } from "../../../construtos";
-import { ErroEmTempoDeExecucao } from "../../../excecoes";
-import { inferirTipoVariavel } from "../../../inferenciador";
-import { VariavelInterface, SimboloInterface } from "../../../interfaces";
-import { RetornoQuebra } from "../../../quebras";
-import { ObjetoDeleguaClasse, MetodoPrimitiva, DeleguaModulo } from "../../estruturas";
+import { AcessoMetodo,
+    AcessoMetodoOuPropriedade,
+    AcessoPropriedade,
+    AcessoIntervaloVariavel,
+    TuplaN,
+    Atribuir,
+    Literal,
+    AtribuicaoPorIndice,
+    AcessoIndiceVariavel,
+    Unario,
+    Chamada
+} from "../../../construtos";
 import { Interpretador } from "../../interpretador";
+import { ErroEmTempoDeExecucao } from '../../../excecoes';
+import tiposDeSimbolos from '../../../tipos-de-simbolos/pitugues';
 
-import primitivasDicionario from "../../../bibliotecas/dialetos/pitugues/primitivas-dicionario";
-import primitivasNumero from "../../../bibliotecas/dialetos/pitugues/primitivas-numero";
-import primitivasTexto from "../../../bibliotecas/dialetos/pitugues/primitivas-texto";
-import primitivasVetor from "../../../bibliotecas/dialetos/pitugues/primitivas-vetor";
-
-import tipoDeDadosPrimitivos from '../../../tipos-de-dados/primitivos';
-import tipoDeDadosPitugues from '../../../tipos-de-dados/dialetos/pitugues';
+import * as comum from './comum';
 
 export class InterpretadorPitugues extends Interpretador {
-    override async visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> {
-        const nomeObjeto = this.resolverNomeObjectoAcessado(expressao.objeto);
+    override async visitarExpressaoUnaria(expressao: Unario): Promise<any> {
+        // Tratamento especial para expressões unárias aplicadas a chamadas de método em literais numéricos.
+        // Por exemplo: -5.absoluto() deve ser avaliado como (-5).absoluto(), não como -(5.absoluto())
+        // Isso garante que o operador unário seja aplicado ao literal antes de chamar o método.
+        if ((expressao.operador.tipo === tiposDeSimbolos.SUBTRACAO || expressao.operador.tipo === tiposDeSimbolos.ADICAO) &&
+            expressao.operando instanceof Chamada) {
 
-        let variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
+            const entidadeChamada = expressao.operando.entidadeChamada;
 
-        // Este caso acontece quando há encadeamento de métodos.
-        // Por exemplo, `objeto1.metodo1().metodo2()`.
-        // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
-        // valor dele primeiro.
-        if (variavelObjeto.constructor && variavelObjeto.constructor === RetornoQuebra) {
-            variavelObjeto = (variavelObjeto as RetornoQuebra).valor;
-        }
+            // Verifica se é AcessoMetodo ou AcessoMetodoOuPropriedade
+            if (entidadeChamada instanceof AcessoMetodo || entidadeChamada instanceof AcessoMetodoOuPropriedade) {
+                const objetoAcesso = entidadeChamada.objeto;
 
-        const objeto = this.resolverValor(variavelObjeto);
+                // Verifica se o objeto do método é um literal numérico
+                if (objetoAcesso instanceof Literal && typeof objetoAcesso.valor === 'number') {
+                    // Cria um novo literal com o sinal aplicado
+                    const novoLiteral = new Literal(
+                        objetoAcesso.hashArquivo,
+                        objetoAcesso.linha,
+                        expressao.operador.tipo === tiposDeSimbolos.SUBTRACAO ?
+                            -objetoAcesso.valor :
+                            +objetoAcesso.valor
+                    );
 
-        if (objeto.constructor && objeto.constructor.name === 'ObjetoDeleguaClasse') {
-            return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomeMetodo) || null;
-        }
+                    // Cria um novo acesso com o literal modificado
+                    let novoAcesso: AcessoMetodo | AcessoMetodoOuPropriedade;
+                    if (entidadeChamada instanceof AcessoMetodo) {
+                        novoAcesso = new AcessoMetodo(
+                            entidadeChamada.hashArquivo,
+                            novoLiteral,
+                            entidadeChamada.nomeMetodo,
+                            entidadeChamada.tipoRetornoMetodo
+                        );
+                    } else {
+                        novoAcesso = new AcessoMetodoOuPropriedade(
+                            entidadeChamada.hashArquivo,
+                            novoLiteral,
+                            entidadeChamada.simbolo
+                        );
+                    }
 
-        // Objeto simples do JavaScript, ou dicionário de Delégua.
-        if (objeto.constructor === Object) {
-            if (expressao.nomeMetodo in primitivasDicionario) {
-                const metodoDePrimitivaDicionario: Function =
-                    primitivasDicionario[expressao.nomeMetodo].implementacao;
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario);
+                    // Cria uma nova Chamada com o acesso modificado
+                    const novaChamada = new Chamada(
+                        expressao.operando.hashArquivo,
+                        novoAcesso,
+                        expressao.operando.argumentos
+                    );
+
+                    // Avalia a nova chamada
+                    return await this.avaliar(novaChamada);
+                }
             }
-
-            return objeto[expressao.nomeMetodo] || null;
         }
 
-        // Casos em que o objeto possui algum outro tipo que não o de objeto simples.
-        // Normalmente executam quando uma biblioteca é importada, e estamos tentando
-        // obter alguma propriedade ou método desse objeto.
-
-        // Caso 1: Função tradicional do JavaScript.
-        if (typeof objeto[expressao.nomeMetodo] === tipoDeDadosPrimitivos.FUNCAO) {
-            return objeto[expressao.nomeMetodo];
-        }
-
-        // Caso 2: Objeto tradicional do JavaScript.
-        if (typeof objeto[expressao.nomeMetodo] === tipoDeDadosPrimitivos.OBJETO) {
-            return objeto[expressao.nomeMetodo];
-        }
-
-        // A partir daqui, presume-se que o objeto é uma das estruturas
-        // de Delégua.
-        if (objeto instanceof DeleguaModulo) {
-            return objeto.componentes[expressao.nomeMetodo] || null;
-        }
-
-        let tipoObjeto = variavelObjeto.tipo;
-        if (tipoObjeto === null || tipoObjeto === undefined) {
-            tipoObjeto = inferirTipoVariavel(variavelObjeto as any);
-        }
-
-        // Como internamente um dicionário de Delégua é simplesmente um objeto de
-        // JavaScript, as primitivas de dicionário, especificamente, são tratadas
-        // mais acima.
-        switch (tipoObjeto) {
-            case tipoDeDadosPitugues.INTEIRO:
-            case tipoDeDadosPitugues.NUMERO:
-            case tipoDeDadosPitugues.NÚMERO:
-                const metodoDePrimitivaNumero: Function =
-                    primitivasNumero[expressao.nomeMetodo].implementacao;
-                if (metodoDePrimitivaNumero) {
-                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaNumero);
-                }
-                break;
-            case tipoDeDadosPitugues.TEXTO:
-                const metodoDePrimitivaTexto: Function =
-                    primitivasTexto[expressao.nomeMetodo].implementacao;
-                if (metodoDePrimitivaTexto) {
-                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto);
-                }
-                break;
-            case tipoDeDadosPitugues.VETOR:
-            case tipoDeDadosPitugues.VETOR_NUMERO:
-            case tipoDeDadosPitugues.VETOR_NÚMERO:
-            case tipoDeDadosPitugues.VETOR_TEXTO:
-                const metodoDePrimitivaVetor: Function =
-                    primitivasVetor[expressao.nomeMetodo].implementacao;
-                if (metodoDePrimitivaVetor) {
-                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor);
-                }
-                break;
-        }
-
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: this.hashArquivoDeclaracaoAtual,
-                    linha: this.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                `Método para objeto ou primitiva não encontrado: ${expressao.nomeMetodo}.`,
-                expressao.linha
-            )
-        );
+        // Para outros casos, usa o comportamento padrão
+        return await super.visitarExpressaoUnaria(expressao);
     }
 
-    /**
-     * Casos que ocorrem aqui:
-     *
-     * - Quando o método ou propriedade é ou 'qualquer', ou vetor
-     *   de 'qualquer' ('qualquer[]'), e uma primitiva é usada.
-     * - Quando o objeto é uma classe definida em código.
-     * @param {AcessoMetodoOuPropriedade} expressao A expressão de acesso a método ou propriedade.
-     * @returns A primitiva encontrada.
-     */
-    override async visitarExpressaoAcessoMetodoOuPropriedade(
-        expressao: AcessoMetodoOuPropriedade
-    ): Promise<any> {
-        const nomeObjeto = this.resolverNomeObjectoAcessado(expressao.objeto);
-        let variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
+    override async visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> {
+        return comum.visitarExpressaoAcessoMetodo(this, expressao);
+    }
 
-        // Este caso acontece quando há encadeamento de métodos.
-        // Por exemplo, `objeto1.metodo1().metodo2()`.
-        // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
-        // valor dele primeiro.
-        if (variavelObjeto.constructor === RetornoQuebra) {
-            const retornoQuebra = variavelObjeto as RetornoQuebra;
-            variavelObjeto = retornoQuebra.valor;
-        }
-
-        const objeto = this.resolverValor(variavelObjeto, true);
-
-        if (objeto.constructor === ObjetoDeleguaClasse) {
-            return (objeto as ObjetoDeleguaClasse).obter(expressao.simbolo);
-        }
-
-        // Objeto simples do JavaScript, ou dicionário de Delégua.
-        if (objeto.constructor === Object) {
-            if (expressao.simbolo.lexema in primitivasDicionario) {
-                if (!(expressao.simbolo.lexema in primitivasNumero)) {
-                    throw new ErroEmTempoDeExecucao(
-                        expressao.simbolo,
-                        `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo dicionário.`
-                    );
-                }
-
-                const metodoDePrimitivaDicionario: Function =
-                    primitivasDicionario[expressao.simbolo.lexema].implementacao;
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario);
-            }
-
-            return objeto[expressao.simbolo.lexema];
-        }
-
-        // String do JavaScript, ou seja, primitiva de texto.
-        if (objeto.constructor === String) {
-            if (!(expressao.simbolo.lexema in primitivasTexto)) {
-                throw new ErroEmTempoDeExecucao(
-                    expressao.simbolo,
-                    `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo texto.`
-                );
-            }
-
-            const metodoDePrimitivaTexto: Function =
-                primitivasTexto[expressao.simbolo.lexema].implementacao;
-            return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto);
-        }
-
-        // A partir daqui, presume-se que o objeto é uma das estruturas
-        // de Delégua.
-        if (objeto instanceof DeleguaModulo) {
-            return objeto.componentes[expressao.simbolo.lexema] || null;
-        }
-
-        let tipoObjeto = variavelObjeto.tipo;
-        if (tipoObjeto === null || tipoObjeto === undefined) {
-            tipoObjeto = inferirTipoVariavel(variavelObjeto as any);
-        }
-
-        // Como internamente um dicionário de Delégua é simplesmente um objeto de
-        // JavaScript, as primitivas de dicionário, especificamente, são tratadas
-        // mais acima.
-        switch (tipoObjeto) {
-            case tipoDeDadosPitugues.INTEIRO:
-            case tipoDeDadosPitugues.NUMERO:
-            case tipoDeDadosPitugues.NÚMERO:
-                if (!(expressao.simbolo.lexema in primitivasNumero)) {
-                    throw new ErroEmTempoDeExecucao(
-                        expressao.simbolo,
-                        `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo ${tipoObjeto}.`
-                    );
-                }
-
-                const metodoDePrimitivaNumero: Function =
-                    primitivasNumero[expressao.simbolo.lexema].implementacao;
-                if (metodoDePrimitivaNumero) {
-                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaNumero);
-                }
-                break;
-            case tipoDeDadosPitugues.TEXTO:
-                if (!(expressao.simbolo.lexema in primitivasTexto)) {
-                    throw new ErroEmTempoDeExecucao(
-                        expressao.simbolo,
-                        `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo ${tipoObjeto}.`
-                    );
-                }
-
-                const metodoDePrimitivaTexto: Function =
-                    primitivasTexto[expressao.simbolo.lexema].implementacao;
-                if (metodoDePrimitivaTexto) {
-                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto);
-                }
-                break;
-            case tipoDeDadosPitugues.VETOR:
-            case tipoDeDadosPitugues.VETOR_INTEIRO:
-            case tipoDeDadosPitugues.VETOR_LOGICO:
-            case tipoDeDadosPitugues.VETOR_LÓGICO:
-            case tipoDeDadosPitugues.VETOR_NUMERO:
-            case tipoDeDadosPitugues.VETOR_NÚMERO:
-            case tipoDeDadosPitugues.VETOR_QUALQUER:
-            case tipoDeDadosPitugues.VETOR_TEXTO:
-                if (!(expressao.simbolo.lexema in primitivasVetor)) {
-                    throw new ErroEmTempoDeExecucao(
-                        expressao.simbolo,
-                        `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo ${tipoObjeto}.`
-                    );
-                }
-
-                const metodoDePrimitivaVetor: Function =
-                    primitivasVetor[expressao.simbolo.lexema].implementacao;
-                if (metodoDePrimitivaVetor) {
-                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor);
-                }
-                break;
-        }
-
-        // Objeto de uma classe JavaScript regular (ou seja, com construtor e propriedades)
-        // que possua a propriedade.
-        // Exemplos: classes de LinConEs, como `RetornoComando`, ou bibliotecas globais com objetos próprios.
-        if (objeto.hasOwnProperty && objeto.hasOwnProperty(expressao.simbolo.lexema)) {
-            return objeto[expressao.simbolo.lexema];
-        }
-
-        // Último caso: objeto simples, sem construtor, sem protótipo. Exemplo: {'a': 1, 'b': 2}
-        if (typeof objeto[expressao.simbolo.lexema] !== 'undefined') {
-            return objeto[expressao.simbolo.lexema];
-        }
-
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                null,
-                `Método ou propriedade para objeto ou primitiva não encontrado: ${expressao.simbolo.lexema}.`,
-                expressao.linha
-            )
-        );
+    override async visitarExpressaoAcessoMetodoOuPropriedade(expressao: AcessoMetodoOuPropriedade): Promise<any> {
+        return comum.visitarExpressaoAcessoMetodoOuPropriedade(this, expressao);
     }
 
     override async visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> {
-        const nomeObjeto = this.resolverNomeObjectoAcessado(expressao.objeto);
-        let variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
+        return comum.visitarExpressaoAcessoPropriedade(this, expressao);
+    }
 
-        // Este caso acontece quando há encadeamento de métodos.
-        // Por exemplo, `objeto1.metodo1().metodo2()`.
-        // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
-        // valor dele primeiro.
-        if (variavelObjeto.constructor && variavelObjeto.constructor === RetornoQuebra) {
-            variavelObjeto = (variavelObjeto as RetornoQuebra).valor;
+    override async visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> {
+        return comum.visitarExpressaoAcessoIntervaloVariavel(this, expressao);
+    }
+
+    async visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> {
+        return comum.visitarExpressaoTuplaN(this, expressao);
+    }
+
+    async visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> {
+        return super.visitarExpressaoDeAtribuicao(expressao);
+    }
+
+    override async visitarExpressaoAtribuicaoPorIndice(expressao: AtribuicaoPorIndice): Promise<any> {
+        const objeto = await this.avaliar(expressao.objeto);
+        const objetoResolvido = this.resolverValor(objeto);
+
+        if (objetoResolvido instanceof TuplaN || (objetoResolvido.tipo === 'tupla')) {
+            throw new ErroEmTempoDeExecucao(
+                (expressao.objeto as any).simbolo,
+                'Não é possível modificar uma tupla. As tuplas são estruturas de dados imutáveis.',
+                expressao.linha
+            );
         }
 
-        const objeto = this.resolverValor(variavelObjeto);
+        return super.visitarExpressaoAtribuicaoPorIndice(expressao);
+    }
 
-        // Outro caso que `instanceof` simplesmente não funciona para casos em Liquido,
-        // então testamos também o nome do construtor.
-        if (
-            objeto instanceof ObjetoDeleguaClasse ||
-            (objeto.constructor && objeto.constructor.name === 'ObjetoDeleguaClasse')
-        ) {
-            return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomePropriedade) || null;
-        }
+    override async visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel): Promise<any> {
+        const objeto = await this.avaliar(expressao.entidadeChamada);
+        const indice = await this.avaliar(expressao.indice);
+        let valorIndice = this.resolverValor(indice);
+        const objetoResolvido = this.resolverValor(objeto);
 
-        // Objeto simples do JavaScript, ou dicionário de Delégua.
-        if (objeto.constructor === Object) {
-            if (expressao.nomePropriedade in primitivasDicionario) {
-                const metodoDePrimitivaDicionario: Function =
-                    primitivasDicionario[expressao.nomePropriedade].implementacao;
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario);
+        if (objetoResolvido instanceof TuplaN) {
+            if (!Number.isInteger(valorIndice)) {
+                throw new ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Índice deve ser inteiro.', expressao.linha);
             }
 
-            return objeto[expressao.nomePropriedade] || null;
+            if (valorIndice < 0 && objetoResolvido.elementos.length !== 0) {
+                valorIndice += objetoResolvido.elementos.length;
+            }
+
+            if (valorIndice < 0 || valorIndice >= objetoResolvido.elementos.length) {
+                 throw new ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Índice fora do intervalo.', expressao.linha);
+            }
+
+            const elemento = objetoResolvido.elementos[valorIndice];
+            if (elemento instanceof Literal) return elemento.valor;
+            return this.avaliar(elemento);
         }
 
-        // Casos em que o objeto possui algum outro tipo que não o de objeto simples.
-        // Normalmente executam quando uma biblioteca é importada, e estamos tentando
-        // obter alguma propriedade ou método desse objeto.
-
-        // Caso 1: Função tradicional do JavaScript.
-        if (typeof objeto[expressao.nomePropriedade] === tipoDeDadosPrimitivos.FUNCAO) {
-            return objeto[expressao.nomePropriedade];
-        }
-
-        // Caso 2: Objeto tradicional do JavaScript.
-        if (typeof objeto[expressao.nomePropriedade] === tipoDeDadosPrimitivos.OBJETO) {
-            return objeto[expressao.nomePropriedade];
-        }
-
-        // A partir daqui, presume-se que o objeto é uma das estruturas
-        // de Delégua.
-        if (objeto instanceof DeleguaModulo) {
-            return objeto.componentes[expressao.nomePropriedade] || null;
-        }
-
-        let tipoObjeto = variavelObjeto.tipo;
-        if (tipoObjeto === null || tipoObjeto === undefined) {
-            tipoObjeto = inferirTipoVariavel(variavelObjeto as any);
-        }
-
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                null,
-                `Propriedade para objeto ou primitiva não encontrado: ${expressao.nomePropriedade}.`,
-                expressao.linha
-            )
-        );
+        return super.visitarExpressaoAcessoIndiceVariavel(expressao);
     }
 }

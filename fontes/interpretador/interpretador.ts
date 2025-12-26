@@ -29,6 +29,9 @@ import {
     ImportarComoConstruto,
     Elvis,
     SeTernario,
+    Tupla,
+    TuplaN,
+    AjudaComoConstruto,
 } from '../construtos';
 import {
     DeleguaFuncao,
@@ -50,6 +53,7 @@ import { InterpretadorBase } from './interpretador-base';
 import { inferirTipoVariavel } from '../inferenciador';
 import { ErroEmTempoDeExecucao } from '../excecoes';
 import {
+    Ajuda,
     Const,
     ConstMultiplo,
     Declaracao,
@@ -72,12 +76,13 @@ import {
     ParaInterface,
 } from '../interfaces/delegua';
 
-import { carregarBibliotecasGlobais } from './comum';
+import { carregarBibliotecasGlobais, obterTopicoAjuda } from './comum';
 
 import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
+import primitivasTupla from '../bibliotecas/dialetos/pitugues/primitivas-tupla';
 
 import tipoDeDadosPrimitivos from '../tipos-de-dados/primitivos';
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
@@ -166,6 +171,13 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         return objeto;
     }
 
+    private serializarSemEspacos(objeto: any): string {
+        return JSON
+            .stringify(objeto)
+            .replace(/,\s+/g, ',')
+            .replace(/:\s+/g, ':');
+    }
+
     override paraTexto(objeto: any): string {
         if (objeto === null || objeto === undefined) return tipoDeDadosDelegua.NULO;
         if (typeof objeto === tipoDeDadosPrimitivos.BOOLEANO) {
@@ -173,11 +185,16 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         }
 
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
+        if (objeto instanceof Literal || objeto instanceof Tupla) return objeto.paraTextoSaida();
         if (objeto instanceof ObjetoDeleguaClasse || objeto instanceof DeleguaFuncao)
             return objeto.paraTexto();
 
         if (objeto instanceof RetornoQuebra) {
             if (typeof objeto.valor === 'boolean') return objeto.valor ? 'verdadeiro' : 'falso';
+        }
+
+        if (objeto instanceof MetodoPrimitiva) {
+            return objeto.paraTexto();
         }
 
         if (objeto instanceof Date) {
@@ -191,8 +208,13 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         if (Array.isArray(objeto)) {
             let retornoVetor: string = '[';
             for (let elemento of objeto) {
+                if (elemento instanceof Tupla) {
+                    retornoVetor += elemento.paraTextoSaida() + ', ';
+                    continue;
+                }
+
                 if (typeof elemento === 'object') {
-                    retornoVetor += `${JSON.stringify(elemento)}, `;
+                    retornoVetor += `${this.serializarSemEspacos(elemento)}, `;
                     continue;
                 }
                 retornoVetor +=
@@ -230,8 +252,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             return JSON.stringify(objetoEscrita);
         }
 
-        switch (objeto.constructor.name) {
-            case 'Object':
+        switch (objeto.constructor) {
+            case Object:
                 if ('tipo' in objeto) {
                     switch (objeto.tipo) {
                         case 'dicionário':
@@ -259,6 +281,22 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         }
 
         return valorFinal;
+    }
+
+    /**
+     * Declaração de ajuda.
+     * Neste interpretador básico, a ajuda apenas retorna texto sobre um determinado
+     * tópico, ou ainda sobre a ajuda em si.
+     * Outros ambientes implementam mecanismos mais sofisticados, como o modo de ajuda.
+     * @param declaracao A declaração de ajuda.
+     */
+    async visitarDeclaracaoAjuda(declaracao: Ajuda): Promise<any> {
+        if (!declaracao.elemento) {
+            // TODO: Terminar
+        }
+
+        const elementoResolvido = await declaracao.elemento.aceitar(this);
+        console.log(elementoResolvido);
     }
 
     override visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> {
@@ -453,10 +491,12 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
         // Se até aqui vetor resolvido é um dicionário, converte dicionário
         // para vetor de duplas.
-        // TODO: Converter elementos para `Construto` se necessário.
         if (paraCada.vetorOuDicionario.tipo === 'dicionário') {
             valorVetorOuDicionarioResolvido = Object.entries(valorVetorOuDicionarioResolvido).map(
-                (v) => new Dupla(v[0] as any, v[1] as any)
+                (v) => new Dupla(
+                    new Literal(paraCada.hashArquivo, paraCada.linha, v[0], 'texto'),
+                    new Literal(paraCada.hashArquivo, paraCada.linha, v[1], inferirTipoVariavel(v[1]) as any)
+                )
             );
         }
 
@@ -573,12 +613,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             }
 
             if (valorIndice < 0 && objeto.length !== 0) {
-                while (valorIndice < 0) {
-                    valorIndice += objeto.length;
-                }
+                valorIndice += objeto.length;
             }
 
-            if (valorIndice >= objeto.length) {
+            if (valorIndice >= objeto.length || valorIndice < 0) {
                 return Promise.reject(
                     new ErroEmTempoDeExecucao(
                         expressao.simboloFechamento,
@@ -589,6 +627,39 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             }
 
             return objeto[valorIndice];
+        }
+
+        if (objeto instanceof TuplaN || objeto.constructor.name === 'TuplaN') {
+            if (!Number.isInteger(valorIndice)) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        expressao.simboloFechamento,
+                        'Somente inteiros podem ser usados para indexar uma tupla.',
+                        expressao.linha
+                    )
+                );
+            }
+
+            if (valorIndice < 0 && objeto.elementos.length !== 0) {
+                valorIndice += objeto.elementos.length;
+            }
+
+            if (valorIndice >= objeto.elementos.length || valorIndice < 0) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        expressao.simboloFechamento,
+                        'Índice da tupla fora de intervalo.',
+                        expressao.linha
+                    )
+                );
+            }
+
+            const elemento = objeto.elementos[valorIndice];
+            if (elemento && elemento.constructor && elemento.constructor.name === 'Literal') {
+                return elemento.valor;
+            }
+
+            return elemento;
         }
 
         if (objeto instanceof Vetor) {
@@ -618,12 +689,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             }
 
             if (valorIndice < 0 && objeto.length !== 0) {
-                while (valorIndice < 0) {
-                    valorIndice += objeto.length;
-                }
+                valorIndice += objeto.length;
             }
 
-            if (valorIndice >= objeto.length) {
+            if (valorIndice >= objeto.length || valorIndice < 0) {
                 return Promise.reject(
                     new ErroEmTempoDeExecucao(
                         expressao.simboloFechamento,
@@ -657,14 +726,27 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         // Por exemplo, `objeto1.metodo1().metodo2()`.
         // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
         // valor dele primeiro.
-        if (variavelObjeto.constructor && variavelObjeto.constructor.name === 'RetornoQuebra') {
-            variavelObjeto = variavelObjeto.valor;
+        if (variavelObjeto.constructor === RetornoQuebra) {
+            variavelObjeto = (variavelObjeto as any).valor;
         }
 
         const objeto = this.resolverValor(variavelObjeto);
 
-        if (objeto.constructor && objeto.constructor.name === 'ObjetoDeleguaClasse') {
+        if (objeto.constructor && objeto.constructor === ObjetoDeleguaClasse) {
             return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomeMetodo) || null;
+        }
+
+        if (objeto instanceof TuplaN || objeto.constructor.name === 'TuplaN') {
+            const metodoDePrimitivaTupla = primitivasTupla[expressao.nomeMetodo];
+            if (metodoDePrimitivaTupla) {
+                return new MetodoPrimitiva(
+                    nomeObjeto,
+                    objeto,
+                    metodoDePrimitivaTupla.implementacao,
+                    expressao.nomeMetodo,
+                    'tupla'
+                );
+            }
         }
 
         // Objeto simples do JavaScript, ou dicionário de Delégua.
@@ -672,7 +754,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             if (expressao.nomeMetodo in primitivasDicionario) {
                 const metodoDePrimitivaDicionario: Function =
                     primitivasDicionario[expressao.nomeMetodo].implementacao;
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario);
+                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario, expressao.nomeMetodo, 'dicionário');
             }
 
             return objeto[expressao.nomeMetodo] || null;
@@ -713,14 +795,14 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 const metodoDePrimitivaNumero: Function =
                     primitivasNumero[expressao.nomeMetodo].implementacao;
                 if (metodoDePrimitivaNumero) {
-                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaNumero);
+                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaNumero, expressao.nomeMetodo, tipoObjeto);
                 }
                 break;
             case tipoDeDadosDelegua.TEXTO:
                 const metodoDePrimitivaTexto: Function =
                     primitivasTexto[expressao.nomeMetodo].implementacao;
                 if (metodoDePrimitivaTexto) {
-                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto);
+                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto, expressao.nomeMetodo, 'texto');
                 }
                 break;
             case tipoDeDadosDelegua.VETOR:
@@ -730,7 +812,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 const metodoDePrimitivaVetor: Function =
                     primitivasVetor[expressao.nomeMetodo].implementacao;
                 if (metodoDePrimitivaVetor) {
-                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor);
+                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor, expressao.nomeMetodo, tipoObjeto);
                 }
                 break;
         }
@@ -777,19 +859,25 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             return (objeto as ObjetoDeleguaClasse).obter(expressao.simbolo);
         }
 
+        if (objeto instanceof TuplaN || objeto.constructor.name === 'TuplaN') {
+            const metodoDePrimitivaTupla = primitivasTupla[expressao.simbolo.lexema];
+            if (metodoDePrimitivaTupla) {
+                return new MetodoPrimitiva(
+                    nomeObjeto,
+                    objeto,
+                    metodoDePrimitivaTupla.implementacao,
+                    expressao.simbolo.lexema,
+                    'tupla'
+                );
+            }
+        }
+
         // Objeto simples do JavaScript, ou dicionário de Delégua.
         if (objeto.constructor === Object) {
             if (expressao.simbolo.lexema in primitivasDicionario) {
-                if (!(expressao.simbolo.lexema in primitivasNumero)) {
-                    throw new ErroEmTempoDeExecucao(
-                        expressao.simbolo,
-                        `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo dicionário.`
-                    );
-                }
-
                 const metodoDePrimitivaDicionario: Function =
                     primitivasDicionario[expressao.simbolo.lexema].implementacao;
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario);
+                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario, expressao.simbolo.lexema, 'dicionário');
             }
 
             return objeto[expressao.simbolo.lexema];
@@ -806,7 +894,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
             const metodoDePrimitivaTexto: Function =
                 primitivasTexto[expressao.simbolo.lexema].implementacao;
-            return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto);
+            return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto, expressao.simbolo.lexema, 'texto');
         }
 
         // A partir daqui, presume-se que o objeto é uma das estruturas
@@ -837,7 +925,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 const metodoDePrimitivaNumero: Function =
                     primitivasNumero[expressao.simbolo.lexema].implementacao;
                 if (metodoDePrimitivaNumero) {
-                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaNumero);
+                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaNumero, expressao.simbolo.lexema, 'número');
                 }
                 break;
             case tipoDeDadosDelegua.TEXTO:
@@ -851,7 +939,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 const metodoDePrimitivaTexto: Function =
                     primitivasTexto[expressao.simbolo.lexema].implementacao;
                 if (metodoDePrimitivaTexto) {
-                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto);
+                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto, expressao.simbolo.lexema, 'texto');
                 }
                 break;
             case tipoDeDadosDelegua.VETOR:
@@ -872,7 +960,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 const metodoDePrimitivaVetor: Function =
                     primitivasVetor[expressao.simbolo.lexema].implementacao;
                 if (metodoDePrimitivaVetor) {
-                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor);
+                    return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor, expressao.simbolo.lexema, tipoObjeto);
                 }
                 break;
         }
@@ -906,19 +994,29 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         // Por exemplo, `objeto1.metodo1().metodo2()`.
         // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
         // valor dele primeiro.
-        if (variavelObjeto.constructor && variavelObjeto.constructor.name === 'RetornoQuebra') {
-            variavelObjeto = variavelObjeto.valor;
+        if (variavelObjeto.constructor === RetornoQuebra) {
+            variavelObjeto = (variavelObjeto as RetornoQuebra).valor;
         }
 
         const objeto = this.resolverValor(variavelObjeto);
 
         // Outro caso que `instanceof` simplesmente não funciona para casos em Liquido,
         // então testamos também o nome do construtor.
-        if (
-            objeto instanceof ObjetoDeleguaClasse ||
-            (objeto.constructor && objeto.constructor.name === 'ObjetoDeleguaClasse')
-        ) {
+        if (objeto.constructor === ObjetoDeleguaClasse) {
             return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomePropriedade) || null;
+        }
+
+        if (objeto instanceof TuplaN || objeto.constructor.name === 'TuplaN') {
+            const metodoPrimitivaTupla = primitivasTupla[expressao.nomePropriedade];
+            if (metodoPrimitivaTupla) {
+                return new MetodoPrimitiva(
+                    nomeObjeto,
+                    objeto,
+                    metodoPrimitivaTupla.implementacao,
+                    expressao.nomePropriedade,
+                    'tupla'
+                );
+            }
         }
 
         // Objeto simples do JavaScript, ou dicionário de Delégua.
@@ -926,7 +1024,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             if (expressao.nomePropriedade in primitivasDicionario) {
                 const metodoDePrimitivaDicionario: Function =
                     primitivasDicionario[expressao.nomePropriedade].implementacao;
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario);
+                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario, expressao.nomePropriedade, 'dicionário');
             }
 
             return objeto[expressao.nomePropriedade] || null;
@@ -964,6 +1062,20 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 expressao.linha
             )
         );
+    }
+
+    async visitarExpressaoAjuda(expressao: AjudaComoConstruto): Promise<any> {
+        if (!expressao.funcao) {
+            return "Para usar a ajuda, use como uma função: ajuda(objeto).";
+        }
+
+        if (!expressao.valor) {
+            return "Te damos as boas-vindas ao utilitário de ajuda de Delégua!\n\n" +
+                "Use ajuda(objeto) para obter informações sobre um objeto, função, classe ou módulo.\n" +
+                "Use ajuda('tópico') para obter informações sobre um tópico específico.\n\n";
+        }
+
+        return obterTopicoAjuda(expressao.valor);
     }
 
     override async visitarExpressaoArgumentoReferenciaFuncao(
@@ -1105,7 +1217,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 const objeto = this.resolverValor(variavelObjeto);
 
                 const valor = await this.avaliar(expressao.valor);
-                if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
+                if (objeto.constructor === ObjetoDeleguaClasse) {
                     const objetoDeleguaClasse = objeto as ObjetoDeleguaClasse;
                     objetoDeleguaClasse.definir(alvoPropriedade.simbolo, valor);
                 } else {
@@ -1117,7 +1229,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             default:
                 throw new ErroEmTempoDeExecucao(
                     null,
-                    `Atribuição com caso faltante: ${expressao.alvo.constructor.name}.`
+                    `Atribuição com caso faltante: ${JSON.stringify(expressao)}.`
                 );
         }
 
@@ -1392,6 +1504,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 this.montao.excluirReferencias(...escopoFinalizado.espacoMemoria.enderecosMontao);
             }
         }
+    }
+
+    async visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> {
+        return super.visitarExpressaoTuplaN(expressao);
     }
 
     /**

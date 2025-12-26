@@ -23,32 +23,46 @@ describe('Formatadores > Delégua', () => {
         expect(linhasResultado[0]).toBe("3 ** 4 - 9(10 * -1");
         expect(linhasResultado[1]).toBe(" - -2");
         expect(linhasResultado[2]).toBe(")");
-    })
-
-    it('Atribuição por índice', () => {
-        const resultadoLexador = lexador.mapear(
-            ["var fila = []; fila[0] = 1 fila[1] = 2 fila[3] = 3 escreva(fila[3])"], 
-            -1
-        );
-
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
-        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-        const linhasResultado = resultado.split(sistemaOperacional.EOL);
-        
-        // console.log(resultado);
-        expect(linhasResultado).toHaveLength(6);
     });
 
-    it('Atribuições múltiplas', () => {
-        const resultadoLexador = lexador.mapear([
-            "var a, b, c = 1, 2, 3 const d,f,g=4,5,6",
-        ], -1);
+    describe('Atribuições', () => {
+        it('Atribuição por índice', () => {
+            const resultadoLexador = lexador.mapear(
+                ["var fila = []; fila[0] = 1 fila[1] = 2 fila[3] = 3 escreva(fila[3])"], 
+                -1
+            );
 
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
-        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-        const linhasResultado = resultado.split(sistemaOperacional.EOL);
-        
-        expect(linhasResultado).toHaveLength(7);
+            const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+            const linhasResultado = resultado.split(sistemaOperacional.EOL);
+            
+            // console.log(resultado);
+            expect(linhasResultado).toHaveLength(6);
+        });
+
+        it('Atribuições múltiplas', () => {
+            const resultadoLexador = lexador.mapear([
+                "var a, b, c = 1, 2, 3 const d,f,g=4,5,6",
+            ], -1);
+
+            const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+            const linhasResultado = resultado.split(sistemaOperacional.EOL);
+            
+            expect(linhasResultado).toHaveLength(7);
+        });
+
+        it('Atribuições com tipo', () => {
+            const resultadoLexador = lexador.mapear([
+                "var nome: texto = 'Fernando' escreva(nome)",
+            ], -1);
+
+            const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+            const linhasResultado = resultado.split(sistemaOperacional.EOL);
+            
+            expect(linhasResultado).toHaveLength(3);
+        });
     });
 
     it('Funções', () => {

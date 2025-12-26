@@ -14,7 +14,8 @@ export class Comentario extends Declaracao {
         hashArquivo: number,
         linha: number,
         conteudo: string | string[],
-        multilinha: boolean
+        multilinha: boolean,
+        documentacaoPadrao: boolean = false
     ) {
         super(linha, hashArquivo);
         this.conteudo = conteudo;

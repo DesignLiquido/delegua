@@ -26,8 +26,9 @@ import {
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 
-import tiposDeSimbolos from '../../tipos-de-simbolos/portugol-ipt';
 import { SimboloInterface } from '../../interfaces';
+
+import tiposDeSimbolos from '../../tipos-de-simbolos/portugol-ipt';
 
 export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
     async primario(): Promise<Construto> {

@@ -8,6 +8,7 @@ export class Unario<TTipoSimbolo extends string = string> implements Construto {
     operador: SimboloInterface<TTipoSimbolo>;
     operando: Construto;
     incidenciaOperador: 'ANTES' | 'DEPOIS';
+    tipo: string = 'qualquer';
 
     constructor(
         hashArquivo: number,
@@ -21,6 +22,7 @@ export class Unario<TTipoSimbolo extends string = string> implements Construto {
         this.operador = operador;
         this.operando = operando;
         this.incidenciaOperador = incidenciaOperador;
+        this.tipo = operando.tipo;
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
@@ -29,5 +31,9 @@ export class Unario<TTipoSimbolo extends string = string> implements Construto {
 
     paraTexto(): string {
         return `<unário operando=${this.operando.paraTexto()} operador=${this.operador.lexema} incidênciaOperador=${this.incidenciaOperador} />`;
+    }
+
+    paraTextoSaida(): string {
+        throw new Error('Método não implementado.');
     }
 }
