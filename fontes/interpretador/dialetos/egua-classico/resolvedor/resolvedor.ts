@@ -617,15 +617,8 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
 
     visitarExpressaoDicionario(expressao: any): any {
         for (let i = 0; i < expressao.chaves.length; i++) {
-            // Verificar se é spread - neste caso, chave é null
-            if (expressao.esSpread && expressao.esSpread[i]) {
-                // Apenas resolver o valor (que é a expressão do dicionário a ser desempacotado)
-                this.resolver(expressao.valores[i]);
-            } else {
-                // Entrada normal - resolver tanto chave quanto valor
-                this.resolver(expressao.chaves[i]);
-                this.resolver(expressao.valores[i]);
-            }
+            this.resolver(expressao.chaves[i]);
+            this.resolver(expressao.valores[i]);
         }
         return null;
     }
