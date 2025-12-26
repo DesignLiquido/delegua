@@ -4,7 +4,7 @@ import { Lexador } from '../../fontes/lexador';
 import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
 import { FormatadorDelegua } from '../../fontes/formatadores';
 
-describe.skip('Formatadores > Delégua', () => {
+describe('Formatadores > Delégua', () => {
     const formatador = new FormatadorDelegua(sistemaOperacional.EOL);
     const avaliadorSintatico = new AvaliadorSintatico();
     const lexador = new Lexador();

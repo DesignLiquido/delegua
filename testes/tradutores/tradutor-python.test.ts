@@ -2,7 +2,7 @@ import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
 import { Lexador } from '../../fontes/lexador';
 import { TradutorPython } from '../../fontes/tradutores';
 
-describe.skip('Tradutor Delégua -> Python', () => {
+describe('Tradutor Delégua -> Python', () => {
     const tradutor: TradutorPython = new TradutorPython();
     let lexador: Lexador;
     let avaliadorSintatico: AvaliadorSintatico;
