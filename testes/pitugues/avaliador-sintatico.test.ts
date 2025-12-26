@@ -519,6 +519,127 @@ describe('Avaliador sintático (Pituguês)', () => {
                     expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
                 });
             });
+
+            describe('Desempacotamento de dicionários', () => {
+                it('Parser reconhece spread simples', () => {
+                    const codigo = [
+                        "base = {'a': 1}",
+                        "copia = {**base}"
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+
+                    const declaracaoCopia = retornoAvaliadorSintatico.declaracoes[1] as Var;
+                    const dicionario = declaracaoCopia.inicializador as any;
+
+                    expect(dicionario.esSpread).toHaveLength(1);
+                    expect(dicionario.esSpread[0]).toBe(true);
+                });
+
+                it('Parser reconhece exemplo do Python - dados_completos = {**pessoa, **dados_da_pessoa}', () => {
+                    const codigo = [
+                        "pessoa = {'nome': 'Fulano', 'sobrenome': 'de Tal'}",
+                        "dados_da_pessoa = {'idade': 20, 'uf': 'SP'}",
+                        "dados_completos = {**pessoa, **dados_da_pessoa}"
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+
+                    const declaracaoDadosCompletos = retornoAvaliadorSintatico.declaracoes[2] as Var;
+                    const dicionario = declaracaoDadosCompletos.inicializador as any;
+
+                    expect(dicionario.esSpread).toHaveLength(2);
+                    expect(dicionario.esSpread[0]).toBe(true);  // **pessoa
+                    expect(dicionario.esSpread[1]).toBe(true);  // **dados_da_pessoa
+                });
+
+                it('Parser reconhece mix de spread e literal', () => {
+                    const codigo = [
+                        "dict1 = {'a': 1}",
+                        "dict2 = {'b': 2}",
+                        "resultado = {**dict1, 'chave': 'valor', **dict2}"
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                    const declaracao = retornoAvaliadorSintatico.declaracoes[2] as Var;
+                    const dicionario = declaracao.inicializador as any;
+
+                    expect(dicionario.esSpread).toHaveLength(3);
+                    expect(dicionario.esSpread[0]).toBe(true);   // **dict1
+                    expect(dicionario.esSpread[1]).toBe(false);  // 'chave': 'valor'
+                    expect(dicionario.esSpread[2]).toBe(true);   // **dict2
+                });
+
+                it('Parser reconhece múltiplos spreads consecutivos', () => {
+                    const codigo = [
+                        "dict1 = {'a': 1}",
+                        "dict2 = {'b': 2}",
+                        "dict3 = {'c': 3}",
+                        "resultado = {**dict1, **dict2, **dict3}"
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                    const declaracao = retornoAvaliadorSintatico.declaracoes[3] as Var;
+                    const dicionario = declaracao.inicializador as any;
+
+                    expect(dicionario.esSpread).toHaveLength(3);
+                    expect(dicionario.esSpread[0]).toBe(true);
+                    expect(dicionario.esSpread[1]).toBe(true);
+                    expect(dicionario.esSpread[2]).toBe(true);
+                });
+
+                it('Parser reconhece dicionário vazio', () => {
+                    const codigo = [
+                        "vazio = {}"
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                    const declaracao = retornoAvaliadorSintatico.declaracoes[0] as Var;
+                    const dicionario = declaracao.inicializador as any;
+
+                    expect(dicionario.esSpread).toHaveLength(0);
+                    expect(dicionario.chaves).toHaveLength(0);
+                    expect(dicionario.valores).toHaveLength(0);
+                });
+
+                it('Parser reconhece dicionário normal sem spread', () => {
+                    const codigo = [
+                        "normal = {'a': 1, 'b': 2}"
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                    const declaracao = retornoAvaliadorSintatico.declaracoes[0] as Var;
+                    const dicionario = declaracao.inicializador as any;
+
+                    expect(dicionario.esSpread).toHaveLength(2);
+                    expect(dicionario.esSpread[0]).toBe(false);
+                    expect(dicionario.esSpread[1]).toBe(false);
+                });
+            });
         });
     });
 });

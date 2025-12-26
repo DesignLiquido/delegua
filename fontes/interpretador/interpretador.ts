@@ -1267,22 +1267,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
      * armazenados no montão.
      */
     override async visitarExpressaoDicionario(expressao: Dicionario): Promise<any> {
-        const dicionario = {};
-        for (let i = 0; i < expressao.chaves.length; i++) {
-            const promises = await Promise.all([
-                this.avaliar(expressao.chaves[i]),
-                this.avaliar(expressao.valores[i]),
-            ]);
+        // Delega ao interpretador base para processar o dicionário (incluindo spread)
+        const dicionario = await super.visitarExpressaoDicionario(expressao);
 
-            if (typeof promises[0] === 'boolean') {
-                const chaveLogico = promises[0] === true ? 'verdadeiro' : 'falso';
-                dicionario[chaveLogico] = promises[1];
-                continue;
-            }
-
-            dicionario[promises[0]] = this.resolverValor(promises[1]);
-        }
-
+        // Adiciona referência no montão (comportamento específico deste interpretador)
         const enderecoDicionarioMontao = this.montao.adicionarReferencia(dicionario);
         this.pilhaEscoposExecucao.registrarReferenciaMontao(enderecoDicionarioMontao);
         return new ReferenciaMontao(enderecoDicionarioMontao);
