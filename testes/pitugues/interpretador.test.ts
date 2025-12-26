@@ -1161,7 +1161,7 @@ describe('Interpretador (Pituguês)', () => {
                         ];
 
                         const retornoLexador = lexador.mapear(codigo, -1);
-                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                         const retornoInterpretador = await interpretador.interpretar(
                             retornoAvaliadorSintatico.declaracoes
                         );
@@ -1183,7 +1183,7 @@ describe('Interpretador (Pituguês)', () => {
                         ];
 
                         const retornoLexador = lexador.mapear(codigo, -1);
-                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                         const retornoInterpretador = await interpretador.interpretar(
                             retornoAvaliadorSintatico.declaracoes
                         );
@@ -1204,7 +1204,7 @@ describe('Interpretador (Pituguês)', () => {
                         ];
 
                         const retornoLexador = lexador.mapear(codigo, -1);
-                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                         const retornoInterpretador = await interpretador.interpretar(
                             retornoAvaliadorSintatico.declaracoes
                         );
@@ -1234,7 +1234,7 @@ describe('Interpretador (Pituguês)', () => {
                         ];
 
                         const retornoLexador = lexador.mapear(codigo, -1);
-                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                         const retornoInterpretador = await interpretador.interpretar(
                             retornoAvaliadorSintatico.declaracoes
                         );
@@ -1255,7 +1255,7 @@ describe('Interpretador (Pituguês)', () => {
                         ];
 
                         const retornoLexador = lexador.mapear(codigo, -1);
-                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                         const retornoInterpretador = await interpretador.interpretar(
                             retornoAvaliadorSintatico.declaracoes
                         );
@@ -1274,7 +1274,7 @@ describe('Interpretador (Pituguês)', () => {
                         ];
 
                         const retornoLexador = lexador.mapear(codigo, -1);
-                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                         const retornoInterpretador = await interpretador.interpretar(
                             retornoAvaliadorSintatico.declaracoes
                         );
@@ -1297,7 +1297,7 @@ describe('Interpretador (Pituguês)', () => {
                         ];
 
                         const retornoLexador = lexador.mapear(codigo, -1);
-                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                         const retornoInterpretador = await interpretador.interpretar(
                             retornoAvaliadorSintatico.declaracoes
                         );
@@ -1319,7 +1319,7 @@ describe('Interpretador (Pituguês)', () => {
                         ];
 
                         const retornoLexador = lexador.mapear(codigo, -1);
-                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                         const retornoInterpretador = await interpretador.interpretar(
                             retornoAvaliadorSintatico.declaracoes
                         );
@@ -1336,7 +1336,7 @@ describe('Interpretador (Pituguês)', () => {
                         ];
 
                         const retornoLexador = lexador.mapear(codigo, -1);
-                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                         const retornoInterpretador = await interpretador.interpretar(
                             retornoAvaliadorSintatico.declaracoes
                         );
@@ -1353,7 +1353,7 @@ describe('Interpretador (Pituguês)', () => {
                         ];
 
                         const retornoLexador = lexador.mapear(codigo, -1);
-                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                         const retornoInterpretador = await interpretador.interpretar(
                             retornoAvaliadorSintatico.declaracoes
                         );
@@ -1370,7 +1370,7 @@ describe('Interpretador (Pituguês)', () => {
                         ];
 
                         const retornoLexador = lexador.mapear(codigo, -1);
-                        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                         const retornoInterpretador = await interpretador.interpretar(
                             retornoAvaliadorSintatico.declaracoes
                         );

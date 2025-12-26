@@ -521,14 +521,14 @@ describe('Avaliador sintático (Pituguês)', () => {
             });
 
             describe('Desempacotamento de dicionários', () => {
-                it('Parser reconhece spread simples', () => {
+                it('Parser reconhece spread simples', async () => {
                     const codigo = [
                         "base = {'a': 1}",
                         "copia = {**base}"
                     ];
 
                     const retornoLexador = lexador.mapear(codigo, -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
@@ -540,7 +540,7 @@ describe('Avaliador sintático (Pituguês)', () => {
                     expect(dicionario.esSpread[0]).toBe(true);
                 });
 
-                it('Parser reconhece exemplo do Python - dados_completos = {**pessoa, **dados_da_pessoa}', () => {
+                it('Parser reconhece exemplo do Python - dados_completos = {**pessoa, **dados_da_pessoa}', async () => {
                     const codigo = [
                         "pessoa = {'nome': 'Fulano', 'sobrenome': 'de Tal'}",
                         "dados_da_pessoa = {'idade': 20, 'uf': 'SP'}",
@@ -548,7 +548,7 @@ describe('Avaliador sintático (Pituguês)', () => {
                     ];
 
                     const retornoLexador = lexador.mapear(codigo, -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
@@ -561,7 +561,7 @@ describe('Avaliador sintático (Pituguês)', () => {
                     expect(dicionario.esSpread[1]).toBe(true);  // **dados_da_pessoa
                 });
 
-                it('Parser reconhece mix de spread e literal', () => {
+                it('Parser reconhece mix de spread e literal', async () => {
                     const codigo = [
                         "dict1 = {'a': 1}",
                         "dict2 = {'b': 2}",
@@ -569,7 +569,7 @@ describe('Avaliador sintático (Pituguês)', () => {
                     ];
 
                     const retornoLexador = lexador.mapear(codigo, -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
 
@@ -582,7 +582,7 @@ describe('Avaliador sintático (Pituguês)', () => {
                     expect(dicionario.esSpread[2]).toBe(true);   // **dict2
                 });
 
-                it('Parser reconhece múltiplos spreads consecutivos', () => {
+                it('Parser reconhece múltiplos spreads consecutivos', async () => {
                     const codigo = [
                         "dict1 = {'a': 1}",
                         "dict2 = {'b': 2}",
@@ -591,7 +591,7 @@ describe('Avaliador sintático (Pituguês)', () => {
                     ];
 
                     const retornoLexador = lexador.mapear(codigo, -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
 
@@ -604,13 +604,13 @@ describe('Avaliador sintático (Pituguês)', () => {
                     expect(dicionario.esSpread[2]).toBe(true);
                 });
 
-                it('Parser reconhece dicionário vazio', () => {
+                it('Parser reconhece dicionário vazio', async () => {
                     const codigo = [
                         "vazio = {}"
                     ];
 
                     const retornoLexador = lexador.mapear(codigo, -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
 
@@ -622,13 +622,13 @@ describe('Avaliador sintático (Pituguês)', () => {
                     expect(dicionario.valores).toHaveLength(0);
                 });
 
-                it('Parser reconhece dicionário normal sem spread', () => {
+                it('Parser reconhece dicionário normal sem spread', async () => {
                     const codigo = [
                         "normal = {'a': 1, 'b': 2}"
                     ];
 
                     const retornoLexador = lexador.mapear(codigo, -1);
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
 
