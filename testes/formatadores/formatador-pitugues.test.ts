@@ -15,7 +15,7 @@ describe('Formatador (Pituguês)', () => {
 
     const executar = async (codigos: string[]): Promise<string> => {
         const retornoLexador = lexador.mapear(codigos, -1);
-        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         return await formatador.formatar(retornoAvaliadorSintatico.declaracoes);
     };
 

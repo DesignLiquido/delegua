@@ -2,7 +2,7 @@ import { VisitanteComumInterface } from '../interfaces';
 import { TipoDadosElementar } from '../tipo-dados-elementar';
 import { Construto } from './construto';
 
-export type ValorLiteral = number | string | number[] | string[] | any;
+export type ValorLiteral = boolean | null | number | string | number[] | string[] | Construto;
 
 export class Literal implements Construto {
     linha: number;
@@ -27,6 +27,11 @@ export class Literal implements Construto {
     }
 
     paraTexto(): string {
+        let valor = this.valor;
+        if (this.valor.hasOwnProperty('paraTextoSaida')) {
+            valor = (this.valor as any).paraTextoSaida();
+        }
+
         return `<literal valor=${this.valor} tipo=${this.tipo} />`;
     }
 

@@ -46,7 +46,7 @@ describe('Interpretador Base com Depuração', () => {
                     "fixo c = 3",
                     "escreva(a, a, a)"
                 ], -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                 interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
                 await interpretador.instrucaoContinuarInterpretacao();
@@ -80,7 +80,7 @@ describe('Interpretador Base com Depuração', () => {
                     "fixo c = 3",
                     "escreva(a, a, a)"
                 ], -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                 interpretador.pontosParada = [{
                     hashArquivo: -1,
@@ -130,7 +130,7 @@ describe('Interpretador Base com Depuração', () => {
                     "escreva(numeros.filtrarPor)",
                 ], -1);
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                 interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
                 await interpretador.instrucaoContinuarInterpretacao();
@@ -173,7 +173,7 @@ describe('Interpretador Base com Depuração', () => {
                 "var c = 3",
                 "escreva(a, b, c)"
             ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             // Ponto de parada na linha 2
             interpretador.pontosParada = [{
@@ -210,7 +210,7 @@ describe('Interpretador Base com Depuração', () => {
                 "var c = 3",
                 "escreva(a, b, c)"
             ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             // Pontos de parada nas linhas 2 e 3
             interpretador.pontosParada = [
@@ -250,7 +250,7 @@ describe('Interpretador Base com Depuração', () => {
                 "var c = 3",
                 "escreva(a, b, c)"
             ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             // Ponto de parada apenas na linha 2
             interpretador.pontosParada = [{
@@ -313,7 +313,7 @@ describe('Interpretador Base com Depuração', () => {
                 "var resultado = somar(5, 3)",
                 "escreva(resultado)"
             ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
 
@@ -344,7 +344,7 @@ describe('Interpretador Base com Depuração', () => {
                 "var c = a + b",
                 "escreva(c)"
             ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
 
@@ -374,7 +374,7 @@ describe('Interpretador Base com Depuração', () => {
                 "var resultado = dobrar(5) + triplicar(10)",
                 "escreva(resultado)"
             ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
 
@@ -403,7 +403,7 @@ describe('Interpretador Base com Depuração', () => {
                 "}",
                 "var valor = calcular(10)"
             ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             // Ponto de parada na linha 3 (dentro da função)
             interpretador.pontosParada = [{
@@ -446,7 +446,7 @@ describe('Interpretador Base com Depuração', () => {
                 "}",
                 "var resultado = externa(5)"
             ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
 
@@ -485,7 +485,7 @@ describe('Interpretador Base com Depuração', () => {
                 "var x = obterNumero()",
                 "escreva(x)"
             ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
 
@@ -516,7 +516,7 @@ describe('Interpretador Base com Depuração', () => {
                 "}",
                 "simples()"
             ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
 

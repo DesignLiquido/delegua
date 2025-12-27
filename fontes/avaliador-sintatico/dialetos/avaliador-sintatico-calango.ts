@@ -40,12 +40,12 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         this.pilhaEscopos = new PilhaEscopos();
     }
 
-    protected atribuir(): Construto {
-        const expressao = this.ou();
+    protected async atribuir(): Promise<Construto> {
+        const expressao = await this.ou();
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL_ATRIBUICAO)) {
             const setaAtribuicao = this.simbolos[this.atual - 1];
-            const valor = this.atribuir();
+            const valor = await this.atribuir();
 
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
 
@@ -68,21 +68,24 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    protected blocoEscopo(): Declaracao[] {
+    protected blocoEscopo(): Promise<Declaracao[]> {
         throw new Error('Método não implementado.');
     }
-    protected chamar(): Construto {
-        return this.primario();
+
+    protected async chamar(): Promise<Construto> {
+        return await this.primario();
     }
-    protected declaracaoEnquanto(): Enquanto {
+
+    protected declaracaoEnquanto(): Promise<Enquanto> {
         throw new Error('Método não implementado.');
     }
+
     protected declaracaoEscolha(): Escolha {
         throw new Error('Método não implementado.');
     }
 
     // Em Calango, método "escreval"
-    protected declaracaoEscreva(): Escreva {
+    protected async declaracaoEscreva(): Promise<Escreva> {
         const simboloAtual = this.avancarEDevolverAnterior();
 
         this.consumir(
@@ -94,7 +97,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
 
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             do {
-                const valor = this.resolverDeclaracaoForaDeBloco();
+                const valor = await this.resolverDeclaracaoForaDeBloco();
 
                 argumentos.push(
                     new FormatacaoEscrita(this.hashArquivo, Number(simboloAtual.linha), valor)
@@ -117,7 +120,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
      * Em Calango, este é o método `escreva()`.
      * @returns {EscrevaMesmaLinha} Uma declaracao de escrita na mesma linha.
      */
-    protected declaracaoEscrevaMesmaLinha(): EscrevaMesmaLinha {
+    protected async declaracaoEscrevaMesmaLinha(): Promise<EscrevaMesmaLinha> {
         const simboloAtual = this.avancarEDevolverAnterior();
 
         this.consumir(
@@ -129,7 +132,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
 
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             do {
-                const valor = this.resolverDeclaracaoForaDeBloco();
+                const valor = await this.resolverDeclaracaoForaDeBloco();
 
                 argumentos.push(
                     new FormatacaoEscrita(this.hashArquivo, Number(simboloAtual.linha), valor)
@@ -190,18 +193,18 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         throw new Error('Método não implementado.');
     }
 
-    protected declaracaoPara(): Para | ParaCada {
+    protected declaracaoPara(): Promise<Para | ParaCada> {
         throw new Error('Método não implementado.');
     }
 
-    protected resolverBloco(simbolosParada: string[]): Bloco {
+    protected async resolverBloco(simbolosParada: string[]): Promise<Bloco> {
         const declaracoes = [];
         this.pilhaEscopos.empilhar(new InformacaoEscopo());
 
         const primeiroSimbolo = this.simbolos[this.atual];
 
         while (!this.estaNoFinal() && !simbolosParada.includes(this.simbolos[this.atual].lexema)) {
-            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
+            declaracoes.push(await this.resolverDeclaracaoForaDeBloco());
         }
 
         this.pilhaEscopos.removerUltimo();
@@ -212,23 +215,23 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         );
     }
 
-    protected declaracaoSe(): Se {
+    protected async declaracaoSe(): Promise<Se> {
         this.avancarEDevolverAnterior();
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'se'");
-        const condicao = this.expressao();
+        const condicao = await this.expressao();
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após condição do 'se'");
         this.consumir(tiposDeSimbolos.ENTAO, "Esperado 'entao' após condição");
 
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
 
-        const caminhoEntao = this.resolverBloco(['senao', 'fimSe']);
+        const caminhoEntao = await this.resolverBloco(['senao', 'fimSe']);
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA));
 
         let caminhoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
-            caminhoSenao = this.resolverBloco(['senao', 'fimSe']);
+            caminhoSenao = await this.resolverBloco(['senao', 'fimSe']);
         }
 
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
@@ -241,7 +244,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         return new Se(condicao, caminhoEntao, [], caminhoSenao);
     }
 
-    protected expressaoLeia(): Leia {
+    protected async expressaoLeia(): Promise<Leia> {
         const simboloAtual = this.avancarEDevolverAnterior();
 
         this.consumir(
@@ -252,7 +255,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         const argumentos = [];
 
         do {
-            argumentos.push(this.resolverDeclaracaoForaDeBloco());
+            argumentos.push(await this.resolverDeclaracaoForaDeBloco());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração 'leia'");
@@ -265,7 +268,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         return new Leia(simboloAtual, argumentos);
     }
 
-    protected primario(): Construto {
+    protected async primario(): Promise<Construto> {
         switch (this.simbolos[this.atual].tipo) {
             case tiposDeSimbolos.IDENTIFICADOR:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
@@ -292,7 +295,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
                 );
             case tiposDeSimbolos.PARENTESE_ESQUERDO:
                 this.avancarEDevolverAnterior();
-                const expressao = this.expressao();
+                const expressao = await this.expressao();
                 this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
 
                 return new Agrupamento(
@@ -303,33 +306,33 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         }
     }
 
-    override resolverDeclaracaoForaDeBloco():
-        | Declaracao
+    override async resolverDeclaracaoForaDeBloco():
+        Promise<Declaracao
         | Declaracao[]
         | Construto
         | Construto[]
-        | any {
+        | any> {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.ESCREVA:
-                return this.declaracaoEscrevaMesmaLinha();
+                return await this.declaracaoEscrevaMesmaLinha();
             case tiposDeSimbolos.ESCREVAL:
-                return this.declaracaoEscreva();
+                return await this.declaracaoEscreva();
             case tiposDeSimbolos.LEIA:
-                return this.expressaoLeia();
+                return await this.expressaoLeia();
             case tiposDeSimbolos.INTEIRO:
                 return this.declaracaoInteiros();
             case tiposDeSimbolos.SE:
-                return this.declaracaoSe();
+                return await this.declaracaoSe();
             case tiposDeSimbolos.QUEBRA_LINHA:
                 this.avancarEDevolverAnterior();
                 return null;
             default:
-                return this.expressao();
+                return await this.expressao();
         }
     }
 
-    protected corpoDaFuncao(tipo: string): FuncaoConstruto {
+    protected corpoDaFuncao(tipo: string): Promise<FuncaoConstruto> {
         throw new Error('Método não implementado.');
     }
 
@@ -348,12 +351,13 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.PRINCIPAL, `Expressão 'principal' não declarada`);
     }
 
-    analisar(
+    async analisar(
         retornoLexador: RetornoLexador<SimboloInterface>,
         hashArquivo: number
-    ): RetornoAvaliadorSintatico<Declaracao> {
+    ): Promise<RetornoAvaliadorSintatico<Declaracao>> {
         this.erros = [];
-        ((this.atual = 0), (this.blocos = 0));
+        this.atual = 0;
+        this.blocos = 0;
         this.pilhaEscopos = new PilhaEscopos();
         this.pilhaEscopos.empilhar(new InformacaoEscopo());
 
@@ -373,7 +377,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
             !this.estaNoFinal() &&
             this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIM_PRINCIPAL
         ) {
-            const resolucaoDeclaracao = this.resolverDeclaracaoForaDeBloco();
+            const resolucaoDeclaracao = await this.resolverDeclaracaoForaDeBloco();
 
             if (Array.isArray(resolucaoDeclaracao)) {
                 declaracoes = declaracoes.concat(resolucaoDeclaracao);

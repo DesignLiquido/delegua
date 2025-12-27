@@ -263,7 +263,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     visitarExpressaoLiteral(expressao: Literal) {
-        return expressao.valor;
+        return Promise.resolve(expressao.valor);
     }
 
     avaliar(expressao: Construto | Declaracao): VariavelInterface | any {

@@ -10,7 +10,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
     const tradutor: TradutorAssemblyScript = new TradutorAssemblyScript();
 
     describe('Programático', () => {
-        it('se -> if, programático', () => {
+        it('se -> if, programático', async () => {
             const se = new Se(
                 new Binario(
                     -1,
@@ -39,12 +39,12 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
             avaliadorSintatico = new AvaliadorSintatico();
         })
 
-        it('escreva -> console.log', () => {
+        it('escreva -> console.log', async () => {
             const retornoLexador = lexador.mapear([
                 'escreva("Olá, mundo!")',
             ], -1);
 
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, 1);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
@@ -53,12 +53,12 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
         })
 
         describe('Variáveis', () => {
-            it('var -> let -> number -> f64', () => {
+            it('var -> let -> number -> f64', async () => {
                 const retornoLexador = lexador.mapear([
                     'var a: inteiro;',
                 ], -1)
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, 1);
 
                 const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
@@ -66,48 +66,48 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 expect(resultado).toMatch(/let a: f64;/i);
             })
 
-            it('var -> let -> string -> string', () => {
+            it('var -> let -> string -> string', async () => {
                 const retornoLexador = lexador.mapear([
                     'var a: texto = "teste"',
                 ], -1)
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, 1);
 
                 const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado).toMatch(/let a: string = 'teste'/i);
             })
-            it('var -> sem inicializador -> let', () => {
+            it('var -> sem inicializador -> let', async () => {
                 const retornoLexador = lexador.mapear([
                     'var a;'
                 ], -1)
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, 1);
 
                 const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado).toMatch(/let a: any;/i);
             })
-            it('constante -> const -> number -> f64', () => {
+            it('constante -> const -> number -> f64', async () => {
                 const retornoLexador = lexador.mapear([
                     'constante a: inteiro = 1'
                 ], -1)
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, 1);
 
                 const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado).toMatch(/const a: f64 = 1/i);
             })
-            it('constante -> const -> string -> string', () => {
+            it('constante -> const -> string -> string', async () => {
                 const retornoLexador = lexador.mapear([
                     'constante a: texto = "teste"',
                 ], -1)
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, 1);
 
                 const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
@@ -115,57 +115,57 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 expect(resultado).toMatch(/const a: string = 'teste'/i);
             });
 
-            it('var -> let com tipo iniciado -> number -> f64', () => {
+            it('var -> let com tipo iniciado -> number -> f64', async () => {
                 const retornoLexador = lexador.mapear([
                     'var a: inteiro = 1'
                 ], -1)
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, 1);
                 const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado).toMatch(/let a: f64 = 1/i);
             });
 
-            it('var -> let com tipo iniciado -> string -> string', () => {
+            it('var -> let com tipo iniciado -> string -> string', async () => {
                 const retornoLexador = lexador.mapear([
                     'var a: texto = "teste"'
                 ], -1)
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, 1);
                 const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado).toMatch(/let a: string = 'teste'/i);
             });
 
-            it('var -> let com tipo iniciado -> real -> f64', () => {
+            it('var -> let com tipo iniciado -> real -> f64', async () => {
                 const retornoLexador = lexador.mapear([
                     'var a: real = 1.1'
                 ], -1)
 
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, 1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, 1);
                 const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
                 expect(resultado).toBeTruthy();
                 expect(resultado).toMatch(/let a: f64 = 1.1/i);
             });
 
-            it('falhar - throw', () => {
+            it('falhar - throw', async () => {
                 const retornoLexador = lexador.mapear(
                     [
                         'falhar \"erro inesperado!\"',
                     ],
                     -1
                 );
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                 const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
                 expect(resultado).toBeTruthy();
                 expect(resultado).toMatch(/throw 'erro inesperado!'/i);
             });
 
-            it('tipo de - typeof', () => {
+            it('tipo de - typeof', async () => {
                 const retornoLexador = lexador.mapear(
                     [
                         'escreva(tipo de 1)',
@@ -175,7 +175,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                     ],
                     -1
                 );
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                 const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
                 expect(resultado).toBeTruthy();
@@ -185,7 +185,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 expect(resultado).toMatch(/typeof \[1, 2, 3\]/i);
             });
 
-            it('bit a bit', () => {
+            it('bit a bit', async () => {
                 const retornoLexador = lexador.mapear(
                     [
                         'escreva(8 | 1)',
@@ -197,7 +197,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                     ],
                     -1
                 );
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                 const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
                 expect(resultado).toBeTruthy();
@@ -210,7 +210,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
             });
         });
 
-        it('definindo função com variável', () => {
+        it('definindo função com variável', async () => {
             const retornoLexador = lexador.mapear(
                 [
                     'var a = funcao(parametro1: inteiro, parametro2: inteiro) { escreva(\'Oi\')\nescreva(\'Olá\') \n retorna 123 }',
@@ -218,7 +218,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 ],
                 -1
             );
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
@@ -228,7 +228,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
             expect(resultado).toMatch(/a\(1, 2\)/i);
         });
 
-        it('Comentários', () => {
+        it('Comentários', async () => {
             const retornoLexador = lexador.mapear(
                 [
                     '// Isto é um comentário',
@@ -236,7 +236,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 ],
                 -1
             );
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();

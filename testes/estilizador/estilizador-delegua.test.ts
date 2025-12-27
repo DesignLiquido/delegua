@@ -20,9 +20,9 @@ describe('Estilizador Delégua', () => {
             estilizador = new EstilizadorDelegua([new RegraFortalecerTipos()]);
         });
 
-        it('Deve fortalecer tipo de variável com literal numérico', () => {
+        it('Deve fortalecer tipo de variável com literal numérico', async () => {
             const retornoLexador = lexador.mapear(['var x = 5'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
@@ -32,9 +32,9 @@ describe('Estilizador Delégua', () => {
             expect(varDeclaracao.tipoExplicito).toBe(true);
         });
 
-        it('Deve fortalecer tipo de variável com literal de texto', () => {
+        it('Deve fortalecer tipo de variável com literal de texto', async () => {
             const retornoLexador = lexador.mapear(['var nome = "João"'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
@@ -44,9 +44,9 @@ describe('Estilizador Delégua', () => {
             expect(varDeclaracao.tipoExplicito).toBe(true);
         });
 
-        it('Deve fortalecer tipo de variável com literal booleano', () => {
+        it('Deve fortalecer tipo de variável com literal booleano', async () => {
             const retornoLexador = lexador.mapear(['var ativo = verdadeiro'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
@@ -56,9 +56,9 @@ describe('Estilizador Delégua', () => {
             expect(varDeclaracao.tipoExplicito).toBe(true);
         });
 
-        it('Deve fortalecer tipo de constante com literal numérico', () => {
+        it('Deve fortalecer tipo de constante com literal numérico', async () => {
             const retornoLexador = lexador.mapear(['constante PI = 3.14'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
@@ -68,9 +68,9 @@ describe('Estilizador Delégua', () => {
             expect(constDeclaracao.tipoExplicito).toBe(true);
         });
 
-        it('Não deve modificar tipo já explicitamente definido', () => {
+        it('Não deve modificar tipo já explicitamente definido', async () => {
             const retornoLexador = lexador.mapear(['var x: número = 5'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
@@ -80,13 +80,13 @@ describe('Estilizador Delégua', () => {
             expect(varDeclaracao.tipoExplicito).toBe(true);
         });
 
-        it('Deve processar múltiplas declarações', () => {
+        it('Deve processar múltiplas declarações', async () => {
             const retornoLexador = lexador.mapear([
                 'var x = 5',
                 'var nome = "Maria"',
                 'constante PI = 3.14'
             ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
@@ -98,14 +98,14 @@ describe('Estilizador Delégua', () => {
     });
 
     describe('Convenção de Nomenclatura', () => {
-        it('Deve validar variáveis em caixaCamelo', () => {
+        it('Deve validar variáveis em caixaCamelo', async () => {
             const regra = new RegraConvencaoNomenclatura({
                 variavel: 'caixaCamelo'
             });
             estilizador = new EstilizadorDelegua([regra]);
 
             const retornoLexador = lexador.mapear(['var MeuNome = "João"'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const violacoes = estilizador.validar(retornoAvaliadorSintatico.declaracoes);
 
@@ -113,14 +113,14 @@ describe('Estilizador Delégua', () => {
             expect(violacoes[0].regra).toBe('convencao-nomenclatura');
         });
 
-        it('Deve transformar variáveis para caixaCamelo', () => {
+        it('Deve transformar variáveis para caixaCamelo', async () => {
             const regra = new RegraConvencaoNomenclatura({
                 variavel: 'caixaCamelo'
             });
             estilizador = new EstilizadorDelegua([regra]);
 
             const retornoLexador = lexador.mapear(['var MeuNome = "João"'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
@@ -129,14 +129,14 @@ describe('Estilizador Delégua', () => {
             expect(varDeclaracao.simbolo.lexema).toBe('meuNome');
         });
 
-        it('Deve transformar constantes para CAIXA_ALTA', () => {
+        it('Deve transformar constantes para CAIXA_ALTA', async () => {
             const regra = new RegraConvencaoNomenclatura({
                 constante: 'CAIXA_ALTA'
             });
             estilizador = new EstilizadorDelegua([regra]);
 
             const retornoLexador = lexador.mapear(['constante piValor = 3.14'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
@@ -145,14 +145,14 @@ describe('Estilizador Delégua', () => {
             expect(constDeclaracao.simbolo.lexema).toBe('PI_VALOR');
         });
 
-        it('Deve transformar variáveis para caixa_cobra quando configurado', () => {
+        it('Deve transformar variáveis para caixa_cobra quando configurado', async () => {
             const regra = new RegraConvencaoNomenclatura({
                 variavel: 'caixa_cobra'
             });
             estilizador = new EstilizadorDelegua([regra]);
 
             const retornoLexador = lexador.mapear(['var meuNomeCompleto = "João Silva"'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
@@ -163,7 +163,7 @@ describe('Estilizador Delégua', () => {
     });
 
     describe('Múltiplas Regras', () => {
-        it('Deve aplicar múltiplas regras em sequência', () => {
+        it('Deve aplicar múltiplas regras em sequência', async () => {
             estilizador = new EstilizadorDelegua([
                 new RegraFortalecerTipos(),
                 new RegraConvencaoNomenclatura({
@@ -172,7 +172,7 @@ describe('Estilizador Delégua', () => {
             ]);
 
             const retornoLexador = lexador.mapear(['var meu_numero = 42'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
@@ -189,7 +189,7 @@ describe('Estilizador Delégua', () => {
     });
 
     describe('Adicionar e Remover Regras', () => {
-        it('Deve permitir adicionar regras dinamicamente', () => {
+        it('Deve permitir adicionar regras dinamicamente', async () => {
             estilizador = new EstilizadorDelegua();
             expect(estilizador.regras.length).toBe(0);
 
@@ -200,7 +200,7 @@ describe('Estilizador Delégua', () => {
             expect(estilizador.regras.length).toBe(2);
         });
 
-        it('Deve permitir remover regras pelo nome', () => {
+        it('Deve permitir remover regras pelo nome', async () => {
             estilizador = new EstilizadorDelegua([
                 new RegraFortalecerTipos(),
                 new RegraConvencaoNomenclatura()
@@ -212,7 +212,7 @@ describe('Estilizador Delégua', () => {
             expect(estilizador.regras[0].nome).toBe('convencao-nomenclatura');
         });
 
-        it('Deve remover regra inexistente sem erros', () => {
+        it('Deve remover regra inexistente sem erros', async () => {
             estilizador = new EstilizadorDelegua([
                 new RegraFortalecerTipos()
             ]);
@@ -224,14 +224,14 @@ describe('Estilizador Delégua', () => {
     });
 
     describe('Modo Validação', () => {
-        it('Deve detectar violações sem modificar declarações', () => {
+        it('Deve detectar violações sem modificar declarações', async () => {
             const regra = new RegraConvencaoNomenclatura({
                 variavel: 'caixaCamelo'
             });
             estilizador = new EstilizadorDelegua([regra]);
 
             const retornoLexador = lexador.mapear(['var MeuNome = "João"'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const declaracaoOriginal = retornoAvaliadorSintatico.declaracoes[0] as Var;
             const nomeOriginal = declaracaoOriginal.simbolo.lexema;
 
@@ -244,28 +244,28 @@ describe('Estilizador Delégua', () => {
             expect(declaracaoOriginal.simbolo.lexema).toBe(nomeOriginal);
         });
 
-        it('Deve resetar modo validação após validar', () => {
+        it('Deve resetar modo validação após validar', async () => {
             const regra = new RegraConvencaoNomenclatura({
                 variavel: 'caixaCamelo'
             });
             estilizador = new EstilizadorDelegua([regra]);
 
             const retornoLexador = lexador.mapear(['var MeuNome = "João"'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             // Executa validação
             estilizador.validar(retornoAvaliadorSintatico.declaracoes);
 
             // Executa estilização - deve modificar
             const retornoLexador2 = lexador.mapear(['var OutroNome = "Maria"'], -1);
-            const retornoAvaliadorSintatico2 = avaliadorSintatico.analisar(retornoLexador2, -1);
+            const retornoAvaliadorSintatico2 = await avaliadorSintatico.analisar(retornoLexador2, -1);
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico2.declaracoes);
 
             const varDeclaracao = declaracoesEstilizadas[0] as Var;
             expect(varDeclaracao.simbolo.lexema).toBe('outroNome');
         });
 
-        it('Deve detectar múltiplas violações', () => {
+        it('Deve detectar múltiplas violações', async () => {
             const regra = new RegraConvencaoNomenclatura({
                 variavel: 'caixaCamelo',
                 constante: 'CAIXA_ALTA'
@@ -277,21 +277,21 @@ describe('Estilizador Delégua', () => {
                 'var OutroNome = "Maria"',
                 'constante piValor = 3.14'
             ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const violacoes = estilizador.validar(retornoAvaliadorSintatico.declaracoes);
 
             expect(violacoes.length).toBe(3);
         });
 
-        it('Não deve gerar violações quando código está conforme', () => {
+        it('Não deve gerar violações quando código está conforme', async () => {
             const regra = new RegraConvencaoNomenclatura({
                 variavel: 'caixaCamelo'
             });
             estilizador = new EstilizadorDelegua([regra]);
 
             const retornoLexador = lexador.mapear(['var meuNome = "João"'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const violacoes = estilizador.validar(retornoAvaliadorSintatico.declaracoes);
 
@@ -300,7 +300,7 @@ describe('Estilizador Delégua', () => {
     });
 
     describe('Estilização de Estruturas Aninhadas', () => {
-        it('Deve estilizar variáveis dentro de blocos se', () => {
+        it('Deve estilizar variáveis dentro de blocos se', async () => {
             estilizador = new EstilizadorDelegua([
                 new RegraFortalecerTipos(),
                 new RegraConvencaoNomenclatura({
@@ -313,7 +313,7 @@ describe('Estilizador Delégua', () => {
                 '    var meu_numero = 10',
                 '}'
             ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
@@ -323,7 +323,7 @@ describe('Estilizador Delégua', () => {
             expect(blocoSe).toBeDefined();
         });
 
-        it('Deve estilizar variáveis dentro de loops', () => {
+        it('Deve estilizar variáveis dentro de loops', async () => {
             estilizador = new EstilizadorDelegua([
                 new RegraConvencaoNomenclatura({
                     variavel: 'caixaCamelo'
@@ -335,14 +335,14 @@ describe('Estilizador Delégua', () => {
                 '    var CONTADOR = 0',
                 '}'
             ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
             expect(declaracoesEstilizadas.length).toBe(1);
         });
 
-        it('Deve estilizar múltiplas declarações aninhadas', () => {
+        it('Deve estilizar múltiplas declarações aninhadas', async () => {
             estilizador = new EstilizadorDelegua([new RegraFortalecerTipos()]);
 
             const retornoLexador = lexador.mapear([
@@ -351,7 +351,7 @@ describe('Estilizador Delégua', () => {
                 '    var y = 10',
                 '}'
             ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
@@ -360,7 +360,7 @@ describe('Estilizador Delégua', () => {
     });
 
     describe('Casos Extremos', () => {
-        it('Deve processar lista vazia de declarações', () => {
+        it('Deve processar lista vazia de declarações', async () => {
             estilizador = new EstilizadorDelegua([new RegraFortalecerTipos()]);
 
             const declaracoesEstilizadas = estilizador.estilizar([]);
@@ -368,7 +368,7 @@ describe('Estilizador Delégua', () => {
             expect(declaracoesEstilizadas.length).toBe(0);
         });
 
-        it('Deve validar lista vazia de declarações', () => {
+        it('Deve validar lista vazia de declarações', async () => {
             estilizador = new EstilizadorDelegua([new RegraFortalecerTipos()]);
 
             const violacoes = estilizador.validar([]);
@@ -376,22 +376,22 @@ describe('Estilizador Delégua', () => {
             expect(violacoes.length).toBe(0);
         });
 
-        it('Deve funcionar sem regras', () => {
+        it('Deve funcionar sem regras', async () => {
             estilizador = new EstilizadorDelegua([]);
 
             const retornoLexador = lexador.mapear(['var x = 5'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
             expect(declaracoesEstilizadas.length).toBe(1);
         });
 
-        it('Deve processar declaração sem inicializador', () => {
+        it('Deve processar declaração sem inicializador', async () => {
             estilizador = new EstilizadorDelegua([new RegraFortalecerTipos()]);
 
             const retornoLexador = lexador.mapear(['var x'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
@@ -400,11 +400,11 @@ describe('Estilizador Delégua', () => {
     });
 
     describe('Detecção de Mudanças em Validação', () => {
-        it('Deve detectar mudança de tipo', () => {
+        it('Deve detectar mudança de tipo', async () => {
             estilizador = new EstilizadorDelegua([new RegraFortalecerTipos()]);
 
             const retornoLexador = lexador.mapear(['var x = 5'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const violacoes = estilizador.validar(retornoAvaliadorSintatico.declaracoes);
 
@@ -412,14 +412,14 @@ describe('Estilizador Delégua', () => {
             expect(violacoes.length).toBeGreaterThanOrEqual(0);
         });
 
-        it('Deve detectar mudança de nome de símbolo', () => {
+        it('Deve detectar mudança de nome de símbolo', async () => {
             const regra = new RegraConvencaoNomenclatura({
                 variavel: 'caixaCamelo'
             });
             estilizador = new EstilizadorDelegua([regra]);
 
             const retornoLexador = lexador.mapear(['var NOME_COMPLETO = "João"'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const violacoes = estilizador.validar(retornoAvaliadorSintatico.declaracoes);
 
@@ -429,14 +429,14 @@ describe('Estilizador Delégua', () => {
     });
 
     describe('Clonagem de Declarações', () => {
-        it('Deve clonar declaração corretamente durante validação', () => {
+        it('Deve clonar declaração corretamente durante validação', async () => {
             const regra = new RegraConvencaoNomenclatura({
                 variavel: 'caixaCamelo'
             });
             estilizador = new EstilizadorDelegua([regra]);
 
             const retornoLexador = lexador.mapear(['var MeuNome = "João"'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracaoOriginal = retornoAvaliadorSintatico.declaracoes[0] as Var;
             const linhaOriginal = declaracaoOriginal.linha;
@@ -451,7 +451,7 @@ describe('Estilizador Delégua', () => {
     });
 
     describe('Regras com Aplicação Parcial', () => {
-        it('Deve funcionar com regra que só tem aplicarEmDeclaracao', () => {
+        it('Deve funcionar com regra que só tem aplicarEmDeclaracao', async () => {
             const regraCustomizada = {
                 nome: 'regra-teste',
                 descricao: 'Regra de teste',
@@ -460,14 +460,14 @@ describe('Estilizador Delégua', () => {
             estilizador = new EstilizadorDelegua([regraCustomizada]);
 
             const retornoLexador = lexador.mapear(['var x = 5'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
             expect(declaracoesEstilizadas.length).toBe(1);
         });
 
-        it('Deve funcionar com regra que só tem aplicarEmConstruto', () => {
+        it('Deve funcionar com regra que só tem aplicarEmConstruto', async () => {
             const regraCustomizada = {
                 nome: 'regra-construto',
                 descricao: 'Regra para construtos',
@@ -476,14 +476,14 @@ describe('Estilizador Delégua', () => {
             estilizador = new EstilizadorDelegua([regraCustomizada]);
 
             const retornoLexador = lexador.mapear(['var x = 5 + 3'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
             expect(declaracoesEstilizadas.length).toBe(1);
         });
 
-        it('Deve aplicar regra em construtos recursivamente', () => {
+        it('Deve aplicar regra em construtos recursivamente', async () => {
             let contadorAplicacoes = 0;
             const regraCustomizada = {
                 nome: 'regra-contador',
@@ -497,7 +497,7 @@ describe('Estilizador Delégua', () => {
 
             // Expressão com múltiplos construtos: (5 + 3) * 2
             const retornoLexador = lexador.mapear(['var x = (5 + 3) * 2'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
@@ -507,7 +507,7 @@ describe('Estilizador Delégua', () => {
     });
 
     describe('Validação com Construtos', () => {
-        it('Modo validação foca em declarações', () => {
+        it('Modo validação foca em declarações', async () => {
             // O modo validação do estilizador foca principalmente em declarações
             // e não processa construtos recursivamente (por design, conforme linha 66 do código)
             const regraCustomizada = {
@@ -521,7 +521,7 @@ describe('Estilizador Delégua', () => {
             estilizador = new EstilizadorDelegua([regraCustomizada]);
 
             const retornoLexador = lexador.mapear(['var x = 5 + 3'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const violacoes = estilizador.validar(retornoAvaliadorSintatico.declaracoes);
 
@@ -529,7 +529,7 @@ describe('Estilizador Delégua', () => {
             expect(violacoes.length).toBeGreaterThanOrEqual(0);
         });
 
-        it('Não deve modificar construtos em modo validação', () => {
+        it('Não deve modificar construtos em modo validação', async () => {
             const regraCustomizada = {
                 nome: 'regra-modifica',
                 descricao: 'Tenta modificar construtos',
@@ -540,7 +540,7 @@ describe('Estilizador Delégua', () => {
             estilizador = new EstilizadorDelegua([regraCustomizada]);
 
             const retornoLexador = lexador.mapear(['var x = 5'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const declaracaoOriginal = retornoAvaliadorSintatico.declaracoes[0];
 
             estilizador.validar(retornoAvaliadorSintatico.declaracoes);
@@ -554,21 +554,21 @@ describe('Estilizador Delégua', () => {
     });
 
     describe('Detecção de Tipos de Objetos', () => {
-        it('Deve processar declarações com expressões complexas', () => {
+        it('Deve processar declarações com expressões complexas', async () => {
             estilizador = new EstilizadorDelegua([]);
 
             const retornoLexador = lexador.mapear([
                 'var resultado = (10 + 5) * 2',
                 'var condicao = verdadeiro e falso'
             ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
             expect(declaracoesEstilizadas.length).toBe(2);
         });
 
-        it('Deve processar funções com corpo', () => {
+        it('Deve processar funções com corpo', async () => {
             estilizador = new EstilizadorDelegua([new RegraFortalecerTipos()]);
 
             const retornoLexador = lexador.mapear([
@@ -577,33 +577,33 @@ describe('Estilizador Delégua', () => {
                 '    retorna resultado',
                 '}'
             ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
             expect(declaracoesEstilizadas.length).toBe(1);
         });
 
-        it('Deve processar declarações com arrays', () => {
+        it('Deve processar declarações com arrays', async () => {
             estilizador = new EstilizadorDelegua([]);
 
             const retornoLexador = lexador.mapear([
                 'var numeros = [1, 2, 3, 4, 5]'
             ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
             expect(declaracoesEstilizadas.length).toBe(1);
         });
 
-        it('Deve processar declarações com dicionários', () => {
+        it('Deve processar declarações com dicionários', async () => {
             estilizador = new EstilizadorDelegua([]);
 
             const retornoLexador = lexador.mapear([
                 'var pessoa = { "nome": "João", "idade": 30 }'
             ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
@@ -613,7 +613,7 @@ describe('Estilizador Delégua', () => {
     });
 
     describe('Modificação de Tipo em Validação', () => {
-        it('Deve detectar mudança de tipoExplicito', () => {
+        it('Deve detectar mudança de tipoExplicito', async () => {
             const regraCustomizada = {
                 nome: 'regra-tipo-explicito',
                 descricao: 'Torna tipo explícito',
@@ -626,7 +626,7 @@ describe('Estilizador Delégua', () => {
             estilizador = new EstilizadorDelegua([regraCustomizada]);
 
             const retornoLexador = lexador.mapear(['var x = 5'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const violacoes = estilizador.validar(retornoAvaliadorSintatico.declaracoes);
 
@@ -634,7 +634,7 @@ describe('Estilizador Delégua', () => {
             expect(violacoes.length).toBeGreaterThanOrEqual(0);
         });
 
-        it('Deve detectar mudança de tipo da declaração', () => {
+        it('Deve detectar mudança de tipo da declaração', async () => {
             const regraCustomizada = {
                 nome: 'regra-mudar-tipo',
                 descricao: 'Muda o tipo da variável',
@@ -647,7 +647,7 @@ describe('Estilizador Delégua', () => {
             estilizador = new EstilizadorDelegua([regraCustomizada]);
 
             const retornoLexador = lexador.mapear(['var x = 5'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const violacoes = estilizador.validar(retornoAvaliadorSintatico.declaracoes);
 
@@ -656,7 +656,7 @@ describe('Estilizador Delégua', () => {
     });
 
     describe('Clonagem de Estruturas Complexas', () => {
-        it('Deve clonar declaração com arrays', () => {
+        it('Deve clonar declaração com arrays', async () => {
             const regraCustomizada = {
                 nome: 'regra-teste-clone',
                 descricao: 'Testa clonagem',
@@ -668,7 +668,7 @@ describe('Estilizador Delégua', () => {
             estilizador = new EstilizadorDelegua([regraCustomizada]);
 
             const retornoLexador = lexador.mapear(['var x = [1, 2, 3]'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const violacoes = estilizador.validar(retornoAvaliadorSintatico.declaracoes);
 

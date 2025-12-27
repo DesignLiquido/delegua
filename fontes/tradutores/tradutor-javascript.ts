@@ -296,7 +296,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
             return possuiInterpolacao ? `\`${valor}\`` : `'${literal.valor}'`;
         }
 
-        return literal.valor;
+        return String(literal.valor);
     }
 
     traduzirConstrutoVariavel(variavel: Variavel, argumentos: Construto[]): string {

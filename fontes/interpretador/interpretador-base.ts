@@ -483,12 +483,13 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     async visitarExpressaoLiteral(expressao: Literal): Promise<any> {
-        if (this.regexInterpolacao.test(expressao.valor)) {
+        if (this.regexInterpolacao.test(String(expressao.valor))) {
+            const valorComoTexto = String(expressao.valor);
             const interpolacoes = await this.resolverInterpolacoes(
-                expressao.valor,
+                valorComoTexto,
                 expressao.linha
             );
-            return this.retirarInterpolacao(expressao.valor, interpolacoes);
+            return this.retirarInterpolacao(valorComoTexto, interpolacoes);
         }
 
         return expressao.valor;
@@ -1217,13 +1218,20 @@ export class InterpretadorBase implements InterpretadorInterface {
 
                 if (declaracao.variavelIteracao instanceof Dupla) {
                     const valorComoDupla = valorVetorResolvido[declaracao.posicaoAtual] as Dupla;
+
+                    const promises = await Promise.all([
+                        this.avaliar(declaracao.variavelIteracao.primeiro),
+                        this.avaliar(declaracao.variavelIteracao.segundo)
+                    ]);
+
+                    // TODO: O que fazer quando não forem literais?
                     this.pilhaEscoposExecucao.definirVariavel(
-                        (declaracao.variavelIteracao.primeiro as Literal).valor,
+                        String((promises[0] as Literal).valor),
                         valorComoDupla.primeiro
                     );
 
                     this.pilhaEscoposExecucao.definirVariavel(
-                        (declaracao.variavelIteracao.segundo as Literal).valor,
+                        String((promises[1] as Literal).valor),
                         valorComoDupla.segundo
                     );
                 }

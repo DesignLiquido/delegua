@@ -186,7 +186,7 @@ export class TradutorAssemblyScript {
 
     traduzirConstrutoLiteral(literal: Literal): string {
         if (typeof literal.valor === 'string') return `'${literal.valor}'`;
-        return literal.valor;
+        return String(literal.valor);
     }
 
     resolveTipoDeclaracaoVarEContante(tipo: string): string {

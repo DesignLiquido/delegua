@@ -11,20 +11,20 @@ describe('Avaliador sintático (Calango)', () => {
             avaliadorSintatico = new AvaliadorSintaticoCalango();
         });
 
-        it('Sucesso - escreva()', () => {
+        it('Sucesso - escreva()', async () => {
             const retornoLexador = lexador.mapear([
                 'algoritmo tituloDoAlgoritmo;', 
                 'principal', 
                 'escreva("Ola Mundo");',
                 'fimPrincipal'
             ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
         });
 
-        it('Sucesso - escreval()', () => {
+        it('Sucesso - escreval()', async () => {
             const retornoLexador = lexador.mapear([
                 'algoritmo tituloDoAlgoritmo;', 
                 'principal', 
@@ -32,13 +32,13 @@ describe('Avaliador sintático (Calango)', () => {
                 'escreval("Ola Mundo"); escreva("nova linha");', 
                 'fimPrincipal'
             ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
         });
 
-        it('Sucesso - Atribuindo variáveis', () => {
+        it('Sucesso - Atribuindo variáveis', async () => {
             const retornoLexador = lexador.mapear([
                 'algoritmo tituloDoAlgoritmo;', 
                 'principal', 
@@ -48,14 +48,14 @@ describe('Avaliador sintático (Calango)', () => {
                 'fimPrincipal'
             ], -1);
             
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
         });
 
         // TODO @Maitê: Corrigir.
-        it.skip('Sucesso - Condicionais (se, senao)', () => {
+        it.skip('Sucesso - Condicionais (se, senao)', async () => {
             const retornoLexador = lexador.mapear([
                 'algoritmo tituloDoAlgoritmo;', 
                 'principal', 
@@ -73,7 +73,7 @@ describe('Avaliador sintático (Calango)', () => {
                 'fimSe',
                 'fimPrincipal'
             ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(4);

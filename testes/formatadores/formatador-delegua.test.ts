@@ -9,13 +9,13 @@ describe('Formatadores > Delégua', () => {
     const avaliadorSintatico = new AvaliadorSintatico();
     const lexador = new Lexador();
 
-    it('Unários', () => {
+    it('Unários', async () => {
         const resultadoLexador = lexador.mapear(
             ["3 ** 4 - 9 (10 * -1 - -2)"], 
             -1
         );
 
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
@@ -26,13 +26,13 @@ describe('Formatadores > Delégua', () => {
     });
 
     describe('Atribuições', () => {
-        it('Atribuição por índice', () => {
+        it('Atribuição por índice', async () => {
             const resultadoLexador = lexador.mapear(
                 ["var fila = []; fila[0] = 1 fila[1] = 2 fila[3] = 3 escreva(fila[3])"], 
                 -1
             );
 
-            const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
             const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
             const linhasResultado = resultado.split(sistemaOperacional.EOL);
             
@@ -40,24 +40,24 @@ describe('Formatadores > Delégua', () => {
             expect(linhasResultado).toHaveLength(6);
         });
 
-        it('Atribuições múltiplas', () => {
+        it('Atribuições múltiplas', async () => {
             const resultadoLexador = lexador.mapear([
                 "var a, b, c = 1, 2, 3 const d,f,g=4,5,6",
             ], -1);
 
-            const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
             const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
             const linhasResultado = resultado.split(sistemaOperacional.EOL);
             
             expect(linhasResultado).toHaveLength(7);
         });
 
-        it('Atribuições com tipo', () => {
+        it('Atribuições com tipo', async () => {
             const resultadoLexador = lexador.mapear([
                 "var nome: texto = 'Fernando' escreva(nome)",
             ], -1);
 
-            const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
             const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
             const linhasResultado = resultado.split(sistemaOperacional.EOL);
             
@@ -65,7 +65,7 @@ describe('Formatadores > Delégua', () => {
         });
     });
 
-    it('Funções', () => {
+    it('Funções', async () => {
         const resultadoLexador = lexador.mapear([
             "funcao teste(a: inteiro, b: inteiro): inteiro {",
             "    retorna a + b",
@@ -73,7 +73,7 @@ describe('Formatadores > Delégua', () => {
             "var resultado = teste(1, 2)",
         ], -1);
 
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
@@ -81,69 +81,69 @@ describe('Formatadores > Delégua', () => {
         expect(linhasResultado[0]).toBe("função teste(a: inteiro, b: inteiro): inteiro {");
     });
 
-    it('Classes', () => {
+    it('Classes', async () => {
         const resultadoLexador = lexador.mapear([
             `classe Teste {propriedade1: numero propriedade2: texto construtor(){isto.propriedade1=0 isto.propriedade2="123"}testeMetodo(argumento1: numero){isto.propriedade1=argumento1}}`,
         ], -1);
 
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         expect(linhasResultado).toHaveLength(13);
     });
 
-    it('Classes com herança, uso de super', () => {
+    it('Classes com herança, uso de super', async () => {
         const resultadoLexador = lexador.mapear([
             `classe Ancestral{ propriedade1:numero}`,
             `classe Teste herda Ancestral{ construtor(){super.propriedade1=0 }}`,
         ], -1);
 
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         expect(linhasResultado).toHaveLength(11);
     });
 
-    it('Dicionários', () => {
+    it('Dicionários', async () => {
         const resultadoLexador = lexador.mapear([
             `var dicionario = {  'a':1, 'b'  : 2    }`,
         ], -1);
 
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         expect(linhasResultado).toHaveLength(2);
     });
 
-    it('Escolha', () => {
+    it('Escolha', async () => {
         const resultadoLexador = lexador.mapear([
             "escolha (2) { caso 1: escreva('correspondente à opção 1'); caso 2: caso 3: escreva('correspondente à opção 2 e 3'); padrao: escreva('Sem opção correspondente'); }",
         ], -1);
 
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         expect(linhasResultado).toHaveLength(10);
     });
 
-    it('Enquanto', () => {
+    it('Enquanto', async () => {
         const resultadoLexador = lexador.mapear(
             ["var a = 1 enquanto a < 10 { a += 1 se a > 8 {sustar  }}"], 
             -1
         );
 
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         expect(linhasResultado).toHaveLength(8);
     });
 
-    it('Expressões Regulares', () => {
+    it('Expressões Regulares', async () => {
         const resultadoLexador = lexador.mapear(
             [
                 "var str = \"olá mundo, olá universo\" var novaStr = str.substituir(||/olá/g||, \"oi\") escreva(novaStr);",
@@ -151,14 +151,14 @@ describe('Formatadores > Delégua', () => {
             -1
         );
 
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         expect(linhasResultado).toHaveLength(4);
     });
 
-    it('Falhar', () => {
+    it('Falhar', async () => {
         const resultadoLexador = lexador.mapear(
             [
                 "funcao temDigitoRepetido(num) {",
@@ -174,40 +174,40 @@ describe('Formatadores > Delégua', () => {
             -1
         );
 
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         expect(linhasResultado).toHaveLength(10);
     });
 
-    it('Fazer', () => {
+    it('Fazer', async () => {
         const resultadoLexador = lexador.mapear(
             ["var a = 1 fazer { a++ } enquanto a < 10 "],
             -1
         );
 
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         expect(linhasResultado).toHaveLength(5);
     });
 
-    it('Funções', () => {
+    it('Funções', async () => {
         const resultadoLexador = lexador.mapear(
             ["funcao teste() { retorna 1} var a = teste() escreva(a)"],
             -1
         );
 
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         expect(linhasResultado).toHaveLength(6);
     });
 
-    it('Funções, indentação bem zoada', () => {
+    it('Funções, indentação bem zoada', async () => {
         const resultadoLexador = lexador.mapear(
             [
                 "funcao temDigitoRepetido(num) {",
@@ -223,14 +223,14 @@ describe('Formatadores > Delégua', () => {
             -1
         );
 
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         expect(linhasResultado).toHaveLength(10);
     });
 
-    it('Funções com argumentos tipados', () => {
+    it('Funções com argumentos tipados', async () => {
         const resultadoLexador = lexador.mapear(
             [
                 'função f(a:texto,b:inteiro, c: texto, d){ escreva(a +b)}',
@@ -238,7 +238,7 @@ describe('Formatadores > Delégua', () => {
             -1
         );
 
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
@@ -259,14 +259,14 @@ describe('Formatadores > Delégua', () => {
             "escreva(someViaCurryng(1)(2))"
         ], -1);
 
-        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         const resultado = formatador.formatar(retornoAvaliadorSintatico.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         expect(linhasResultado).toHaveLength(15);
     });
 
-    it('Importar', () => {
+    it('Importar', async () => {
         const resultadoLexador = lexador.mapear(
             [
                 "var dm = importar('@designliquido/delegua-matematica')var m = importar('matematica') dm.raizQuadrada(9) // Imprime 3",
@@ -274,20 +274,20 @@ describe('Formatadores > Delégua', () => {
             -1
         );
 
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
         expect(linhasResultado).toHaveLength(3);
     });
 
-    it('leia() e escreva()', () => {
+    it('leia() e escreva()', async () => {
         const resultadoLexador = lexador.mapear(
             [`var a=leia( "Escreva alguma coisa"   ) escreva( a )`], 
             -1
         );
 
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
@@ -295,13 +295,13 @@ describe('Formatadores > Delégua', () => {
         expect(linhasResultado).toHaveLength(3);
     });
 
-    it('Operadores lógicos', () => {
+    it('Operadores lógicos', async () => {
         const resultadoLexador = lexador.mapear(
             [`var a=falso var b=verdadeiro escreva( a    ou b)`], 
             -1
         );
 
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
@@ -309,13 +309,13 @@ describe('Formatadores > Delégua', () => {
         expect(linhasResultado).toHaveLength(4);
     });
 
-    it('Para', () => {
+    it('Para', async () => {
         const resultadoLexador = lexador.mapear(
             ["para var a = 1; a < 10; a++ { se a %2==0 { continua } escreva(a) }"], 
             -1
         );
 
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
@@ -323,13 +323,13 @@ describe('Formatadores > Delégua', () => {
         expect(linhasResultado).toHaveLength(7);
     });
 
-    it('Para cada', () => {
+    it('Para cada', async () => {
         const resultadoLexador = lexador.mapear(
             ["var a = [1, 2,3] para cada  elemento   de  a    {  escreva( a  ) }"], 
             -1
         );
 
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
@@ -337,13 +337,13 @@ describe('Formatadores > Delégua', () => {
         expect(linhasResultado).toHaveLength(5);
     });
 
-    it('Se', () => {
+    it('Se', async () => {
         const resultadoLexador = lexador.mapear(
             ["var a = 2 se a == 1 { escreva(a) } senao {escreva(a + 1)} "], 
             -1
         );
 
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
@@ -351,7 +351,7 @@ describe('Formatadores > Delégua', () => {
         expect(linhasResultado).toHaveLength(7);
     });
 
-    it('Tendo ... como', () => {
+    it('Tendo ... como', async () => {
         const resultadoLexador = lexador.mapear(
             [
                 'funcao teste(){retorna "Ok" }',
@@ -361,7 +361,7 @@ describe('Formatadores > Delégua', () => {
             -1
         );
 
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
@@ -369,13 +369,13 @@ describe('Formatadores > Delégua', () => {
         expect(linhasResultado).toHaveLength(7);
     });
 
-    it('Tente', () => {
+    it('Tente', async () => {
         const resultadoLexador = lexador.mapear(
             ["tente { escreva('sucesso') } pegue {escreva('pegue')} finalmente { escreva('pronto') }"], 
             -1
         );
 
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
@@ -383,13 +383,13 @@ describe('Formatadores > Delégua', () => {
         expect(linhasResultado).toHaveLength(8);
     });
 
-    it('Tipo de', () => {
+    it('Tipo de', async () => {
         const resultadoLexador = lexador.mapear(
             [`var a   = "Teste" escreva( tipo     de a      )`],
             -1
         );
 
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
@@ -397,13 +397,13 @@ describe('Formatadores > Delégua', () => {
         expect(linhasResultado).toHaveLength(3);
     });
 
-    it('Variaveis', () => {
+    it('Variaveis', async () => {
         const resultadoLexador = lexador.mapear(
             ["var a=1 fixo c = 2"], 
             -1
         );
 
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
@@ -411,13 +411,13 @@ describe('Formatadores > Delégua', () => {
         expect(linhasResultado).toHaveLength(3);
     });
 
-    it('Vetor', () => {
+    it('Vetor', async () => {
         const resultadoLexador = lexador.mapear(
             ["var a = [1,2,3] const c=[4,5,6] escreva(a[0])"], 
             -1
         );
 
-        const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
@@ -456,7 +456,7 @@ describe('Formatadores > Delégua', () => {
             ];
             
             const resultadoLexador = lexador.mapear(codigo, -1);
-            const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
             const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
             const linhasResultado = resultado.split(sistemaOperacional.EOL);
             
@@ -476,7 +476,7 @@ describe('Formatadores > Delégua', () => {
             ];
             
             const resultadoLexador = lexador.mapear(codigo, -1);
-            const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
             const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
             const linhasResultado = resultado.split(sistemaOperacional.EOL);
             
@@ -504,7 +504,7 @@ describe('Formatadores > Delégua', () => {
             ];
             
             const resultadoLexador = lexador.mapear(codigo, -1);
-            const resultadoAvaliacaoSintatica = avaliadorSintatico.analisar(resultadoLexador, -1);
+            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
             const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
             const linhasResultado = resultado.split(sistemaOperacional.EOL);
 
