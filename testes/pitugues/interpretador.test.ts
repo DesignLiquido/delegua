@@ -2308,6 +2308,41 @@ describe('Interpretador (Pituguês)', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
                 expect(_saidas[0]).toEqual('20');
             });
+
+            describe('Caracteres de Escape', () => {
+                it('Deve interpretar quebra de linha (\\n) na saída', async () => {
+                    const retornoLexador = lexador.mapear(['escreva("Linha 1\\nLinha 2")'], -1);
+                    const retornoAvaliador = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliador.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('Linha 1\nLinha 2');
+                });
+
+                it('Deve interpretar tabulação (\\t) em variável', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        texto = "Coluna1\\tColuna2"
+                        escreva(texto)
+                    `], -1);
+                    const retornoAvaliador = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliador.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('Coluna1\tColuna2');
+                });
+
+                it('Deve interpretar aspas duplas escapadas (\\") sem quebrar a string', async () => {
+                    const retornoLexador = lexador.mapear(['escreva("Ela disse: \\"Olá!\\"")'], -1);
+                    const retornoAvaliador = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliador.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('Ela disse: "Olá!"');
+                });
+            });
         });
 
         it('termina_com - sufixo encontrado no final', async () => {

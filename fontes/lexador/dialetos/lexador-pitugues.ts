@@ -182,8 +182,45 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
 
     analisarTexto(delimitador = '"', ehFString: boolean = false): void {
         const linhaPrimeiroCaracter: number = this.linha;
+        let valor = '';
 
         while (this.simboloAtual() !== delimitador && !this.eFinalDoCodigo()) {
+            const caractereAtual = this.simboloAtual();
+
+            if (caractereAtual === '\\') {
+                this.avancar();
+                const proximoCaractere = this.simboloAtual();
+
+                switch (proximoCaractere) {
+                    case 'r':
+                        valor += '\r';
+                        break;
+                    case 'b':
+                        valor += '\b';
+                        break;
+                    case 'n':
+                        valor += '\n';
+                        break;
+                    case 't':
+                        valor += '\t';
+                        break;
+                    case "'":
+                        valor += "'";
+                        break;
+                    case '"':
+                        valor += '"';
+                        break;
+                    case '\\':
+                        valor += '\\';
+                        break;
+                    default:
+                        valor += '\\' + proximoCaractere;
+                        break;
+                }
+            } else {
+                valor += caractereAtual;
+            }
+
             this.avancar();
         }
 
@@ -214,7 +251,7 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
             new Simbolo(
                 tipoSimbolo,
                 textoCompleto,
-                textoCompleto,
+                valor,
                 linhaPrimeiroCaracter + 1,
                 this.hashArquivo
             )

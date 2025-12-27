@@ -206,6 +206,49 @@ describe('Lexador (Pituguês)', () => {
                 expect(resultado.simbolos[2].tipo).toBe('MULTIPLICACAO_IGUAL');
                 expect(resultado.simbolos[3].tipo).toBe('DIVISAO_IGUAL');
             });
+
+            it('Deve mapear caractere de escape \\r (quebra de linha)', () => {
+                const codigo = ['t = "linha 1\\rlinha 2"'];
+                const resultado = lexador.mapear(codigo, -1);
+
+                expect(resultado.simbolos[2].tipo).toBe('TEXTO');
+                expect(resultado.simbolos[2].literal).toBe('linha 1\rlinha 2');
+            });
+
+            it('Deve mapear caractere de escape \\b (backspace)', () => {
+                const codigo = ['t = "texto\\b"'];
+                const resultado = lexador.mapear(codigo, -1);
+
+                expect(resultado.simbolos[2].literal).toBe('texto\b');
+            });
+
+            it('Deve mapear aspas duplas escapadas dentro de string com aspas duplas', () => {
+                const codigo = ['t = "Ela disse \\"Oi\\""'];
+                const resultado = lexador.mapear(codigo, -1);
+
+                expect(resultado.simbolos[2].literal).toBe('Ela disse "Oi"');
+            });
+
+            it('Deve mapear aspas simples escapadas dentro de string com aspas simples', () => {
+                const codigo = ["t = 'D\\'agua'"];
+                const resultado = lexador.mapear(codigo, -1);
+
+                expect(resultado.simbolos[2].literal).toBe("D'agua");
+            });
+
+            it('Deve mapear barra invertida literal (\\\\)', () => {
+                const codigo = ['caminho = "C:\\\\Windows"'];
+                const resultado = lexador.mapear(codigo, -1);
+
+                expect(resultado.simbolos[2].literal).toBe('C:\\Windows');
+            });
+
+            it('Deve mapear múltiplos escapes na mesma string', () => {
+                const codigo = ['t = "L1\\nL2\\tTab"'];
+                const resultado = lexador.mapear(codigo, -1);
+
+                expect(resultado.simbolos[2].literal).toBe('L1\nL2\tTab');
+            });
         });
 
         describe('Cenários de falha', () => {
@@ -261,6 +304,30 @@ describe('Lexador (Pituguês)', () => {
                     expect(resultado.simbolos[0].lexema).toBe('fa');
                     expect(resultado.simbolos[1].tipo).toBe(tiposDeSimbolos.TEXTO);
                 });
+            });
+
+            it('Deve falhar ao terminar o código com uma string aberta', () => {
+                const codigo = ['t = "Texto sem fechar'];
+                const resultado = lexador.mapear(codigo, -1);
+
+                expect(resultado.erros.length).toBeGreaterThan(0);
+                expect(resultado.erros[0].mensagem).toBe('Texto não finalizado.');
+            });
+
+            it('Deve falhar se a aspa de fechamento for escapada', () => {
+                const codigo = ['t = "texto\\"'];
+                const resultado = lexador.mapear(codigo, -1);
+
+                expect(resultado.erros.length).toBeGreaterThan(0);
+                expect(resultado.erros[0].mensagem).toBe('Texto não finalizado.');
+            });
+
+            it('Deve manter a barra se o caractere de escape for desconhecido', () => {
+                const codigo = ['t = "\\z"'];
+                const resultado = lexador.mapear(codigo, -1);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(resultado.simbolos[2].literal).toBe('\\z');
             });
         });
     });
