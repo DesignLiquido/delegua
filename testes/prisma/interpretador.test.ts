@@ -23,7 +23,7 @@ describe('Interpretador (Prisma)', () => {
         describe('Cenários de sucesso', () => {
             it('Declaração de variável simples', async () => {
                 const retornoLexador = lexador.mapear(['local x = 42;'], -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
@@ -38,7 +38,7 @@ describe('Interpretador (Prisma)', () => {
                     'local b = 3;',
                     'local resultado = a + b;'
                 ], -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 
@@ -51,7 +51,7 @@ describe('Interpretador (Prisma)', () => {
                     'local verdade = verdadeiro;',
                     'local mentira = falso;'
                 ], -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 
@@ -64,7 +64,7 @@ describe('Interpretador (Prisma)', () => {
                     'local nome = "João";',
                     'local sobrenome = "Silva";'
                 ], -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 

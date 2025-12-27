@@ -220,13 +220,13 @@ export class AvaliadorSintaticoJavaScript
         throw new Error('Método não implementado.');
     }
 
-    analisar(
+    async analisar(
         retornoLexador: RetornoLexador<Statement | Directive | ModuleDeclaration>,
         hashArquivo: number
-    ): RetornoAvaliadorSintatico<Statement | Directive | ModuleDeclaration> {
-        return {
+    ): Promise<RetornoAvaliadorSintatico<Statement | Directive | ModuleDeclaration>> {
+        return Promise.resolve({
             declaracoes: retornoLexador.simbolos,
             erros: [],
-        };
+        });
     }
 }

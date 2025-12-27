@@ -19,9 +19,9 @@ describe('Regra Paradigma Consistente', () => {
             estilizador = new EstilizadorDelegua([new RegraParadigmaConsistente({ paradigma: 'imperativo' })]);
         });
 
-        it('Deve transformar "escrever" para "escreva"', () => {
+        it('Deve transformar "escrever" para "escreva"', async () => {
             const retornoLexador = lexador.mapear(['escrever("Hello")'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
@@ -31,9 +31,9 @@ describe('Regra Paradigma Consistente', () => {
             expect(escreva.simboloEscreva!.lexema).toBe('escreva');
         });
 
-        it('Deve manter "escreva" como está', () => {
+        it('Deve manter "escreva" como está', async () => {
             const retornoLexador = lexador.mapear(['escreva("Hello")'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
@@ -43,9 +43,9 @@ describe('Regra Paradigma Consistente', () => {
             expect(escreva.simboloEscreva!.lexema).toBe('escreva');
         });
 
-        it('Deve validar violações para palavras infinitivas', () => {
+        it('Deve validar violações para palavras infinitivas', async () => {
             const retornoLexador = lexador.mapear(['escrever("Hello")'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const violacoes = estilizador.validar(retornoAvaliadorSintatico.declaracoes);
 
@@ -61,9 +61,9 @@ describe('Regra Paradigma Consistente', () => {
             estilizador = new EstilizadorDelegua([new RegraParadigmaConsistente({ paradigma: 'infinitivo' })]);
         });
 
-        it('Deve transformar "escreva" para "escrever"', () => {
+        it('Deve transformar "escreva" para "escrever"', async () => {
             const retornoLexador = lexador.mapear(['escreva("Hello")'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
@@ -73,9 +73,9 @@ describe('Regra Paradigma Consistente', () => {
             expect(escreva.simboloEscreva!.lexema).toBe('escrever');
         });
 
-        it('Deve manter "escrever" como está', () => {
+        it('Deve manter "escrever" como está', async () => {
             const retornoLexador = lexador.mapear(['escrever("Hello")'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
@@ -85,9 +85,9 @@ describe('Regra Paradigma Consistente', () => {
             expect(escreva.simboloEscreva!.lexema).toBe('escrever');
         });
 
-        it('Deve validar violações para palavras imperativas', () => {
+        it('Deve validar violações para palavras imperativas', async () => {
             const retornoLexador = lexador.mapear(['escreva("Hello")'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const violacoes = estilizador.validar(retornoAvaliadorSintatico.declaracoes);
 
@@ -103,9 +103,9 @@ describe('Regra Paradigma Consistente', () => {
             estilizador = new EstilizadorDelegua([new RegraParadigmaConsistente({ paradigma: 'ambos' })]);
         });
 
-        it('Deve aceitar "escreva" sem transformação', () => {
+        it('Deve aceitar "escreva" sem transformação', async () => {
             const retornoLexador = lexador.mapear(['escreva("Hello")'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
@@ -115,9 +115,9 @@ describe('Regra Paradigma Consistente', () => {
             expect(escreva.simboloEscreva!.lexema).toBe('escreva');
         });
 
-        it('Deve aceitar "escrever" sem transformação', () => {
+        it('Deve aceitar "escrever" sem transformação', async () => {
             const retornoLexador = lexador.mapear(['escrever("Hello")'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
 
@@ -127,9 +127,9 @@ describe('Regra Paradigma Consistente', () => {
             expect(escreva.simboloEscreva!.lexema).toBe('escrever');
         });
 
-        it('Não deve gerar violações', () => {
+        it('Não deve gerar violações', async () => {
             const retornoLexador = lexador.mapear(['escreva("Hello")', 'escrever("World")'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const violacoes = estilizador.validar(retornoAvaliadorSintatico.declaracoes);
 
@@ -139,12 +139,12 @@ describe('Regra Paradigma Consistente', () => {
     });
 
     describe('Criação sem opções', () => {
-        it('Deve usar paradigma "ambos" como padrão', () => {
+        it('Deve usar paradigma "ambos" como padrão', async () => {
             const regra = new RegraParadigmaConsistente();
             estilizador = new EstilizadorDelegua([regra]);
 
             const retornoLexador = lexador.mapear(['escreva("Hello")', 'escrever("World")'], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
             const violacoes = estilizador.validar(retornoAvaliadorSintatico.declaracoes);

@@ -12,75 +12,75 @@ describe('Tradutor Tenda -> Delégua', () => {
         avaliadorSintatico = new AvaliadorSintaticoTenda();
     });
 
-    it('exiba -> escreva', () => {
+    it('exiba -> escreva', async () => {
         const codigo = `exiba("Oi")`;
 
         const retornoLexador = lexador.mapear(codigo.split('\n'), -1);
-        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
         expect(resultado).toBeTruthy();
         expect(resultado).toMatch(/escreva\("Oi"\)/i);
     });
 
     describe('Bibliotecas globais', () => {
-        it.skip('Data', () => {
+        it.skip('Data', async () => {
             const codigo = [
                 'exiba(Data.agora())',
             ];
 
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
         });
 
-        it.skip('Lista', () => {
+        it.skip('Lista', async () => {
             const codigo = [
                 'seja listaQualquer = [2, 4, 6, 8, 10]',
                 'exiba(Lista.tamanho(listaQualquer))',
             ];
 
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
         });
 
-        it.skip('Matemática', () => {
+        it.skip('Matemática', async () => {
             const codigo = [
                 'exiba(Matemática.aleatório(1, 100))'
             ];
 
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
         });
 
-        it.skip('Saída', () => {
+        it.skip('Saída', async () => {
             const codigo = [
                 'exiba(Saída.exiba("Olá mundo!"))'
             ];
 
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
         });
 
-        it.skip('Texto', () => {
+        it.skip('Texto', async () => {
             const codigo = [
                 'exiba(Texto.tamanho("Olá mundo!"))'
             ];
 
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
         });
     });
 
-    it('dicionário', () => {
+    it('dicionário', async () => {
         const codigo = [
             'seja dicionário = { "nome": "Tenda", "versão": 1.0 }',
             'seja nome = dicionário["nome"]',
@@ -89,7 +89,7 @@ describe('Tradutor Tenda -> Delégua', () => {
         ];
 
         const retornoLexador = lexador.mapear(codigo, -1);
-        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
         expect(resultado).toBeTruthy();
         expect(resultado).toMatch(/var dicionário = {"nome":"Tenda","versão":1,}/i);
@@ -98,7 +98,7 @@ describe('Tradutor Tenda -> Delégua', () => {
         expect(resultado).toMatch(/escreva\("Nome: " \+ nome \+ ", Versão: " \+ versão\)/i);
     });
 
-    it('enquanto', () => {
+    it('enquanto', async () => {
         const codigo = [
             'seja contador = 1',
             'enquanto contador <= 5 faça',
@@ -108,7 +108,7 @@ describe('Tradutor Tenda -> Delégua', () => {
         ];
 
         const retornoLexador = lexador.mapear(codigo, -1);
-        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
         expect(resultado).toBeTruthy();
         expect(resultado).toMatch(/var contador = 1/i);
@@ -119,20 +119,20 @@ describe('Tradutor Tenda -> Delégua', () => {
     });
 
     describe('Funções', () => {
-        it('Função implícita, com parênteses e retorno na mesma linha', () => {
+        it('Função implícita, com parênteses e retorno na mesma linha', async () => {
             const codigo = [
                 'seja soma(a, b) = a + b'
             ];
 
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/função soma\(a, b\) \{/i);
             expect(resultado).toMatch(/retorna a \+ b/i);
         });
 
-        it('Função estruturada, com bloco', () => {
+        it('Função estruturada, com bloco', async () => {
             const codigo = [
                 'seja soma(lista) =',
                 '  faça',
@@ -146,7 +146,7 @@ describe('Tradutor Tenda -> Delégua', () => {
             ];
 
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/função soma\(lista\) \{/i);
@@ -157,7 +157,7 @@ describe('Tradutor Tenda -> Delégua', () => {
             expect(resultado).toMatch(/escreva\(soma\(\[1, 3, 5, 7, 9\]\)\)/i);
         });
 
-        it('Função anônima, usando palavra reservada `função`', () => {
+        it('Função anônima, usando palavra reservada `função`', async () => {
             const codigo = [
                 'seja soma = função(a, b) -> a + b',
                 'seja resultado = soma(10, 5)',
@@ -165,7 +165,7 @@ describe('Tradutor Tenda -> Delégua', () => {
             ];
 
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/var soma = função\(a, b\) \{/i);
@@ -174,17 +174,17 @@ describe('Tradutor Tenda -> Delégua', () => {
         });
     });
 
-    it('leia -> leia', () => {
+    it('leia -> leia', async () => {
         const codigo = `leia("Digite sua idade: ")`;
 
         const retornoLexador = lexador.mapear(codigo.split('\n'), -1);
-        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
         expect(resultado).toBeTruthy();
         expect(resultado).toMatch(/leia\(\"Digite sua idade: \"\)/i);
     });
 
-    it('operações de comparação', () => {
+    it('operações de comparação', async () => {
         const codigo = [
             'seja a = 10',
             'seja b = 5',
@@ -198,7 +198,7 @@ describe('Tradutor Tenda -> Delégua', () => {
         ];
         
         const retornoLexador = lexador.mapear(codigo, -1);
-        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
         expect(resultado).toBeTruthy();
         expect(resultado).toMatch(/var a = 10/i);
@@ -212,7 +212,7 @@ describe('Tradutor Tenda -> Delégua', () => {
         expect(resultado).toMatch(/var negado = !a/i);
     });
 
-    it('operações de concatenação', () => {
+    it('operações de concatenação', async () => {
         const codigo = [
             'seja texto1 = "Olá"',
             'seja texto2 = "Mundo"',
@@ -223,7 +223,7 @@ describe('Tradutor Tenda -> Delégua', () => {
         ];
         
         const retornoLexador = lexador.mapear(codigo, -1);
-        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
         expect(resultado).toBeTruthy();
         expect(resultado).toMatch(/var texto1 = \"Olá\"/i);
@@ -234,7 +234,7 @@ describe('Tradutor Tenda -> Delégua', () => {
         expect(resultado).toMatch(/var lista_concatenada = lista1 \+ lista2/i);
     });
 
-    it('operações matemáticas', () => {
+    it('operações matemáticas', async () => {
         const codigo = [
             "seja a = 10",
             "seja b = 5",
@@ -248,7 +248,7 @@ describe('Tradutor Tenda -> Delégua', () => {
         ];
         
         const retornoLexador = lexador.mapear(codigo, -1);
-        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
         expect(resultado).toBeTruthy();
         expect(resultado).toMatch(/var a = 10/i);
@@ -262,14 +262,14 @@ describe('Tradutor Tenda -> Delégua', () => {
         expect(resultado).toMatch(/var negativo = -a/i);
     });
 
-    it('seja -> var', () => {
+    it('seja -> var', async () => {
         const codigo = `seja nome = "Tenda"
         seja idade = 10
         seja lista = [1, 2, 3, 4, 5]
         `;
 
         const retornoLexador = lexador.mapear(codigo.split('\n'), -1);
-        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
         expect(resultado).toBeTruthy();
         expect(resultado).toMatch(/var nome = \"Tenda\"/i);
@@ -277,7 +277,7 @@ describe('Tradutor Tenda -> Delégua', () => {
         expect(resultado).toMatch(/var lista = \[1, 2, 3, 4, 5\]/i);
     });
 
-    it('para cada, iterando variável de controle', () => {
+    it('para cada, iterando variável de controle', async () => {
         const codigo = [
             "seja total = 0",
             "para cada i em 1 até 10 faça",
@@ -286,7 +286,7 @@ describe('Tradutor Tenda -> Delégua', () => {
             "exiba(total)",
         ];
         const retornoLexador = lexador.mapear(codigo, -1);
-        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
         expect(resultado).toBeTruthy();
         expect(resultado).toMatch(/var total = 0/i);
@@ -295,7 +295,7 @@ describe('Tradutor Tenda -> Delégua', () => {
         expect(resultado).toMatch(/escreva\(total\)/i);
     });
 
-    it('para cada, iterando lista de elementos', () => {
+    it('para cada, iterando lista de elementos', async () => {
         const codigo = [
             'seja total = 0',
             'para cada i em [1, 2, 3, 4, 5] faça',
@@ -304,7 +304,7 @@ describe('Tradutor Tenda -> Delégua', () => {
             'exiba(total)'
         ];
         const retornoLexador = lexador.mapear(codigo, -1);
-        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
         expect(resultado).toBeTruthy();
         expect(resultado).toMatch(/var total = 0/i);
@@ -313,7 +313,7 @@ describe('Tradutor Tenda -> Delégua', () => {
         expect(resultado).toMatch(/escreva\(total\)/i);
     });
 
-    it('se senão', () => {
+    it('se senão', async () => {
         const codigo = `seja idade = 18
         se idade >= 18 então
             exiba("Você é maior de idade.")
@@ -323,7 +323,7 @@ describe('Tradutor Tenda -> Delégua', () => {
         `;
 
         const retornoLexador = lexador.mapear(codigo.split('\n'), -1);
-        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
         const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
         expect(resultado).toBeTruthy();
         expect(resultado).toMatch(/var idade = 18/i);

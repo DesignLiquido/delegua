@@ -14,5 +14,5 @@ export interface AvaliadorSintaticoInterface<TSimbolo, TDeclaracao> {
     analisar(
         retornoLexador: RetornoLexador<TSimbolo>,
         hashArquivo: number
-    ): RetornoAvaliadorSintatico<TDeclaracao>;
+    ): Promise<RetornoAvaliadorSintatico<TDeclaracao>>;
 }
