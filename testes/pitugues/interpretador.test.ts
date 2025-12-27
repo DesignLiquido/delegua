@@ -2312,7 +2312,7 @@ describe('Interpretador (Pituguês)', () => {
             describe('Caracteres de Escape', () => {
                 it('Deve interpretar quebra de linha (\\n) na saída', async () => {
                     const retornoLexador = lexador.mapear(['escreva("Linha 1\\nLinha 2")'], -1);
-                    const retornoAvaliador = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliador = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliador.declaracoes);
 
@@ -2325,7 +2325,7 @@ describe('Interpretador (Pituguês)', () => {
                         texto = "Coluna1\\tColuna2"
                         escreva(texto)
                     `], -1);
-                    const retornoAvaliador = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliador = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliador.declaracoes);
 
@@ -2335,7 +2335,7 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('Deve interpretar aspas duplas escapadas (\\") sem quebrar a string', async () => {
                     const retornoLexador = lexador.mapear(['escreva("Ela disse: \\"Olá!\\"")'], -1);
-                    const retornoAvaliador = avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAvaliador = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliador.declaracoes);
 
