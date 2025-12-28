@@ -1,13 +1,13 @@
-import primitivaVetor from '../../../../fontes/bibliotecas/dialetos/pitugues/primitivas-vetor';
+import primitivasVetor from '../../../../fontes/bibliotecas/dialetos/pitugues/primitivas-vetor';
 import { criarInterpretadorMock } from '../../../_mocks/interpretador.mock';
 import { DeleguaFuncaoMock } from '../../../_mocks/delegua-funcao.mock';
 
-describe('primitiva-vetor', () => {
+describe('Primitivas de Vetor (Pituguês)', () => {
     describe('filtrar_por', () => {
         it("deve rejeitar quando não for passada uma função", async () => {
             const interpretador = criarInterpretadorMock();
             await expect(
-                primitivaVetor.filtrar_por.implementacao(interpretador, '', [1, 2, 3], null)
+                primitivasVetor.filtrar_por.implementacao(interpretador, [1, 2, 3], null)
             ).rejects.toBe("É necessário passar uma função para o método 'filtrarPor'");
         });
 
@@ -15,9 +15,8 @@ describe('primitiva-vetor', () => {
             const interpretador = criarInterpretadorMock();
             const funcao = new DeleguaFuncaoMock((n: number) => ({ valorRetornado: { valor: n % 2 === 1 } }));
 
-            const resultado = await primitivaVetor.filtrar_por.implementacao(
+            const resultado = await primitivasVetor.filtrar_por.implementacao(
                 interpretador,
-                '',
                 [1, 2, 3, 4, 5],
                 funcao as any
             );
@@ -30,7 +29,7 @@ describe('primitiva-vetor', () => {
         it("deve rejeitar quando não for passada uma função", async () => {
             const interpretador = criarInterpretadorMock();
             await expect(
-                primitivaVetor.mapear.implementacao(interpretador, '', [1, 2, 3], null)
+                primitivasVetor.mapear.implementacao(interpretador, [1, 2, 3], null)
             ).rejects.toBe("É necessário passar uma função para o método 'mapear'");
         });
 
@@ -38,9 +37,8 @@ describe('primitiva-vetor', () => {
             const interpretador = criarInterpretadorMock();
             const funcao = new DeleguaFuncaoMock((n: number) => n * 2);
 
-            const resultado = await primitivaVetor.mapear.implementacao(
+            const resultado = await primitivasVetor.mapear.implementacao(
                 interpretador,
-                '',
                 [1, 2, 3],
                 funcao as any
             );
@@ -54,9 +52,8 @@ describe('primitiva-vetor', () => {
             const interpretador = criarInterpretadorMock();
             const vetor = [4, 2, 12, 5];
 
-            const resultado = await primitivaVetor.ordenar.implementacao(
+            const resultado = await primitivasVetor.ordenar.implementacao(
                 interpretador,
-                '',
                 vetor.slice(),
                 undefined
             );
@@ -68,9 +65,8 @@ describe('primitiva-vetor', () => {
             const interpretador = criarInterpretadorMock();
             const vetor = ['aaa', 'a', 'aba', 'abb', 'abc'];
 
-            const resultado = await primitivaVetor.ordenar.implementacao(
+            const resultado = await primitivasVetor.ordenar.implementacao(
                 interpretador,
-                '',
                 vetor.slice(),
                 undefined
             );
@@ -87,18 +83,13 @@ describe('primitiva-vetor', () => {
             // comparador que retorna a - b (mantém ordem ascendente)
             const funcaoComparadora = new DeleguaFuncaoMock((a: number, b: number) => a - b);
 
-            const resultado = await primitivaVetor.ordenar.implementacao(
+            const resultado = await primitivasVetor.ordenar.implementacao(
                 interpretador,
-                'minhaVar',
                 vetor.slice(),
                 funcaoComparadora as any
             );
 
             expect(resultado).toEqual([1, 2, 3]);
-            expect(interpretador.pilhaEscoposExecucao.atribuirVariavel).toHaveBeenCalledWith(
-                { lexema: 'minhaVar' },
-                expect.any(Array)
-            );
         });
     });
 
@@ -109,19 +100,14 @@ describe('primitiva-vetor', () => {
 
             const vetor = [1, 2, 3];
 
-            const resultado = await primitivaVetor.encaixar.implementacao(
+            const resultado = await primitivasVetor.encaixar.implementacao(
                 interpretador,
-                'v',
                 vetor.slice(),
                 1,
                 1
             );
 
             expect(resultado).toEqual([2]);
-            expect(interpretador.pilhaEscoposExecucao.atribuirVariavel).toHaveBeenCalledWith(
-                { lexema: 'v' },
-                expect.any(Array)
-            );
         });
 
         it('quando só posição inicial é passada, remove do índice e atribui as posições removidas', async () => {
@@ -130,21 +116,14 @@ describe('primitiva-vetor', () => {
 
             const vetor = [1, 2, 3];
 
-            const resultado = await primitivaVetor.encaixar.implementacao(
+            const resultado = await primitivasVetor.encaixar.implementacao(
                 interpretador,
-                'v',
                 vetor,
                 1
             );
 
             // retorna o vetor modificado (após remoção a partir da posição 1)
             expect(resultado).toEqual([1]);
-
-            // a variável 'v' deve ter sido atribuída com os elementos removidos
-            expect(interpretador.pilhaEscoposExecucao.atribuirVariavel).toHaveBeenCalledWith(
-                { lexema: 'v' },
-                [2, 3]
-            );
         });
 
         it('quando chamada sem posição inicial, remove todos os elementos e retorna vetor vazio (sem atribuir variável quando nome é vazio)', async () => {
@@ -153,14 +132,12 @@ describe('primitiva-vetor', () => {
 
             const vetor = [1, 2, 3];
 
-            const resultado = await primitivaVetor.encaixar.implementacao(
+            const resultado = await primitivasVetor.encaixar.implementacao(
                 interpretador,
-                '',
                 vetor
             );
 
             expect(resultado).toEqual([]);
-            expect(interpretador.pilhaEscoposExecucao.atribuirVariavel).not.toHaveBeenCalled();
         });
 
         it('coerção de posição não numérica equivale a 0 (remove tudo)', async () => {
@@ -169,18 +146,13 @@ describe('primitiva-vetor', () => {
 
             const vetor = [1, 2, 3];
 
-            const resultado = await primitivaVetor.encaixar.implementacao(
+            const resultado = await primitivasVetor.encaixar.implementacao(
                 interpretador,
-                'v',
                 vetor,
                 'a' as any
             );
 
             expect(resultado).toEqual([]);
-            expect(interpretador.pilhaEscoposExecucao.atribuirVariavel).toHaveBeenCalledWith(
-                { lexema: 'v' },
-                [1, 2, 3]
-            );
         });
     });
 
@@ -189,9 +161,8 @@ describe('primitiva-vetor', () => {
             const interpretador = criarInterpretadorMock();
             const vetor = [1, 2, 3, 4, 5];
 
-            const resultado = await primitivaVetor.paraTupla.implementacao(
+            const resultado = await primitivasVetor.paraTupla.implementacao(
                 interpretador,
-                'paraTupla',
                 vetor
             );
 
@@ -200,11 +171,10 @@ describe('primitiva-vetor', () => {
 
         it('Transforma vetor vazio para tupla', async () => {
             const interpretador = criarInterpretadorMock();
-            const vetor = [];
+            const vetor: any[] = [];
 
-            const resultado = await primitivaVetor.paraTupla.implementacao(
+            const resultado = await primitivasVetor.paraTupla.implementacao(
                 interpretador,
-                'paraTupla',
                 vetor
             );
 
@@ -215,9 +185,8 @@ describe('primitiva-vetor', () => {
             const interpretador = criarInterpretadorMock();
             const vetor = [1, true, '3'];
 
-            const resultado = await primitivaVetor.paraTupla.implementacao(
+            const resultado = await primitivasVetor.paraTupla.implementacao(
                 interpretador,
-                'paraTupla',
                 vetor
             );
 

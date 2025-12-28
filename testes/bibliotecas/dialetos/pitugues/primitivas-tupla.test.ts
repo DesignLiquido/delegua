@@ -1,9 +1,8 @@
-import primitivaTupla from '../../../../fontes/bibliotecas/dialetos/pitugues/primitivas-tupla';
+import primitivasTupla from '../../../../fontes/bibliotecas/dialetos/pitugues/primitivas-tupla';
 import { criarInterpretadorMock } from '../../../_mocks/interpretador.mock';
 import { Literal, TuplaN } from '../../../../fontes/construtos';
-import { DeleguaFuncaoMock } from '../../../_mocks/delegua-funcao.mock';
 
-describe('primitiva-tupla', () => {
+describe('Primitivas de Tupla (Pituguês)', () => {
     describe('paraVetor', () => {
         it('Transforma tupla para vetor', async () => {
             const interpretador = criarInterpretadorMock();
@@ -16,9 +15,8 @@ describe('primitiva-tupla', () => {
             ];
             const entradaTupla = new TuplaN(0, 1, elementosTupla);
 
-            const resultado = await primitivaTupla.paraVetor.implementacao(
+            const resultado = await primitivasTupla.paraVetor.implementacao(
                 interpretador,
-                'paraVetor',
                 entradaTupla
             );
 
@@ -27,12 +25,11 @@ describe('primitiva-tupla', () => {
 
         it('Transforma tupla vazia para vetor', async () => {
             const interpretador = criarInterpretadorMock();
-            const elementosTupla = [];
+            const elementosTupla: any[] = [];
             const entradaTupla = new TuplaN(0, 1, elementosTupla);
 
-            const resultado = await primitivaTupla.paraVetor.implementacao(
+            const resultado = await primitivasTupla.paraVetor.implementacao(
                 interpretador,
-                'paraVetor',
                 entradaTupla
             );
 
@@ -48,9 +45,8 @@ describe('primitiva-tupla', () => {
             ];
             const entradaTupla = new TuplaN(0, 1, elementosTupla);
 
-            const resultado = await primitivaTupla.paraVetor.implementacao(
+            const resultado = await primitivasTupla.paraVetor.implementacao(
                 interpretador,
-                'paraVetor',
                 entradaTupla
             );
 

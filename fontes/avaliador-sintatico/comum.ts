@@ -1,9 +1,7 @@
-import { FuncaoConstruto } from '../construtos';
 import { Bloco, Declaracao, Retorna, Se } from '../declaracoes';
 import { InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
 import {
     AvaliadorSintaticoInterface,
-    InterpretadorInterface,
     PrimitivaInterface,
     SimboloInterface,
 } from '../interfaces';

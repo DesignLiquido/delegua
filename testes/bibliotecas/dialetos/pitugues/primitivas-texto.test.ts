@@ -1,9 +1,9 @@
-import primitivaTexto from '../../../../fontes/bibliotecas/dialetos/pitugues/primitivas-texto';
+import primitivasTexto from '../../../../fontes/bibliotecas/dialetos/pitugues/primitivas-texto';
 import { criarInterpretadorMock } from '../../../_mocks/interpretador.mock';
 import { TuplaN } from '../../../../fontes/construtos/tupla-n';
 import { Literal } from '../../../../fontes/construtos';
 
-describe('primitiva-texto', () => {
+describe('Primitivas de Texto (Pituguês)', () => {
     const interpretador = criarInterpretadorMock();
 
     describe('particao / partição', () => {
@@ -11,9 +11,8 @@ describe('primitiva-texto', () => {
             const texto = "I could eat bananas all day";
             const separador = "bananas";
 
-            const resultado = await primitivaTexto.particao.implementacao(
+            const resultado = await primitivasTexto.particao.implementacao(
                 interpretador,
-                'particao',
                 texto,
                 separador
             );
@@ -30,9 +29,8 @@ describe('primitiva-texto', () => {
             const texto = "fruta";
             const separador = "carro";
 
-            const resultado = await primitivaTexto.particao.implementacao(
+            const resultado = await primitivasTexto.particao.implementacao(
                 interpretador,
-                'particao',
                 texto,
                 separador
             );
@@ -49,9 +47,8 @@ describe('primitiva-texto', () => {
             const texto = "python-pitugues";
             const separador = "-";
 
-            const resultado = await primitivaTexto.partição.implementacao(
+            const resultado = await primitivasTexto.partição.implementacao(
                 interpretador,
-                'partição',
                 texto,
                 separador
             );
@@ -68,9 +65,8 @@ describe('primitiva-texto', () => {
             const texto = ".texto";
             const separador = ".";
 
-            const resultado = await primitivaTexto.particao.implementacao(
+            const resultado = await primitivasTexto.particao.implementacao(
                 interpretador,
-                'particao',
                 texto,
                 separador
             );

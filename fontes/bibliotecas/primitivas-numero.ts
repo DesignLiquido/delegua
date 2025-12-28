@@ -7,7 +7,6 @@ export default {
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             valor: number
         ): Promise<number> => {
             return Promise.resolve(Math.abs(valor));
@@ -28,7 +27,6 @@ export default {
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             valor: number
         ): Promise<number> => {
             return Promise.resolve(Math.floor(valor));
@@ -49,7 +47,6 @@ export default {
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             valor: number
         ): Promise<number> => {
             return Promise.resolve(Math.ceil(valor));
@@ -78,7 +75,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             valor: number,
             opcoes: { [opcao: string]: any }
         ): Promise<string> => {

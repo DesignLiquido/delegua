@@ -43,19 +43,10 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             elemento: any
         ): Promise<any> => {
             vetor.push(elemento);
-            // TODO: Será que apenas isso é suficiente aqui?
-            if (nomePrimitiva !== '') {
-                interpretador.pilhaEscoposExecucao.atribuirVariavel(
-                    { lexema: nomePrimitiva } as SimboloInterface,
-                    vetor
-                );
-            }
-
             return Promise.resolve(vetor);
         },
         assinaturaFormato: 'vetor.adicionar(...elemento: qualquer)',
@@ -83,7 +74,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             outroVetor: Array<any>
         ): Promise<any> => {
@@ -104,7 +94,6 @@ export default {
         argumentos: [new InformacaoElementoSintatico('elemento', 'qualquer', true, [], '')],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             elemento: any
         ): Promise<any> => {
@@ -133,7 +122,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             posicaoInicial: number,
             quantidadeExclusao?: number,
@@ -146,27 +134,13 @@ export default {
                     ? vetor.splice(posicaoInicial, quantidadeExclusao)
                     : vetor.splice(posicaoInicial, quantidadeExclusao, ...itens);
 
-                if (nomePrimitiva !== '') {
-                    interpretador.pilhaEscoposExecucao.atribuirVariavel(
-                        { lexema: nomePrimitiva } as SimboloInterface,
-                        vetor
-                    );
-                }
-
                 return Promise.resolve(elementos);
             } else {
                 elementos = !itens.length
                     ? vetor.splice(posicaoInicial)
                     : vetor.splice(posicaoInicial, ...itens);
 
-                if (nomePrimitiva !== '') {
-                    interpretador.pilhaEscoposExecucao.atribuirVariavel(
-                        { lexema: nomePrimitiva } as SimboloInterface,
-                        elementos
-                    );
-                }
-
-                return Promise.resolve(vetor);
+                return Promise.resolve(elementos);
             }
         },
         assinaturaFormato:
@@ -213,7 +187,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             inicio: number,
             fim: number
@@ -240,7 +213,6 @@ export default {
         ],
         implementacao: async (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             funcao: DeleguaFuncao
         ): Promise<any> => {
@@ -285,7 +257,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             elemento: any
         ): Promise<any> => Promise.resolve(vetor.includes(elemento)),
@@ -305,7 +276,6 @@ export default {
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>
         ): Promise<any> => Promise.resolve(vetor.reverse()),
         assinaturaFormato: 'vetor.inverter()',
@@ -331,7 +301,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             separador: string
         ): Promise<any> => Promise.resolve(vetor.join(separador)),
@@ -358,7 +327,6 @@ export default {
         ],
         implementacao: async (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             funcao: DeleguaFuncao
         ): Promise<any> => {
@@ -399,7 +367,6 @@ export default {
         ],
         implementacao: async (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             funcaoOrdenacao: DeleguaFuncao
         ): Promise<any> => {
@@ -421,15 +388,6 @@ export default {
                     }
                 }
 
-                if (nomePrimitiva !== '') {
-                    interpretador.pilhaEscoposExecucao.atribuirVariavel(
-                        {
-                            lexema: nomePrimitiva,
-                        } as SimboloInterface,
-                        vetor
-                    );
-                }
-
                 return vetor;
             }
 
@@ -437,15 +395,6 @@ export default {
                 vetor.sort();
             } else {
                 vetor.sort((a, b) => a - b);
-            }
-
-            if (nomePrimitiva !== '') {
-                interpretador.pilhaEscoposExecucao.atribuirVariavel(
-                    {
-                        lexema: nomePrimitiva,
-                    } as SimboloInterface,
-                    vetor
-                );
             }
 
             return vetor;
@@ -469,7 +418,6 @@ export default {
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>
         ): Promise<any> => {
             if (vetor.length < 2) {
@@ -524,7 +472,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             elemento: any
         ): Promise<any> => {
@@ -548,7 +495,6 @@ export default {
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>
         ): Promise<any> => {
             let elemento = vetor.shift();
@@ -571,7 +517,6 @@ export default {
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>
         ): Promise<any> => {
             let elemento = vetor.pop();
@@ -594,7 +539,6 @@ export default {
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<number | { valor: number }>
         ): Promise<number | { valor: number }> => {
             return Promise.resolve(
@@ -619,7 +563,6 @@ export default {
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>
         ): Promise<any> => Promise.resolve(vetor.length),
         assinaturaFormato: 'vetor.tamanho()',
