@@ -495,7 +495,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             valorVetorOuDicionarioResolvido = Object.entries(valorVetorOuDicionarioResolvido).map(
                 (v) => new Dupla(
                     new Literal(paraCada.hashArquivo, paraCada.linha, v[0], 'texto'),
-                    new Literal(paraCada.hashArquivo, paraCada.linha, v[1], inferirTipoVariavel(v[1]) as any)
+                    new Literal(paraCada.hashArquivo, paraCada.linha, (v[1] as any), inferirTipoVariavel(v[1]) as any)
                 )
             );
         }
@@ -531,14 +531,26 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                     const valorComoDupla = valorVetorOuDicionarioResolvido[
                         paraCada.posicaoAtual
                     ] as Dupla;
+
+                    const nomesVariaveis = await Promise.all([
+                        this.avaliar(paraCada.variavelIteracao.primeiro),
+                        this.avaliar(paraCada.variavelIteracao.segundo)
+                    ])
+
+                    const valoresDupla = await Promise.all([
+                        this.avaliar(valorComoDupla.primeiro),
+                        this.avaliar(valorComoDupla.segundo)
+                    ]);
+
+                    // nomesVariaveis são strings (nomes das variáveis)
                     this.pilhaEscoposExecucao.definirVariavel(
-                        (paraCada.variavelIteracao.primeiro as Literal).valor,
-                        valorComoDupla.primeiro
+                        String(nomesVariaveis[0]),
+                        valoresDupla[0]
                     );
 
                     this.pilhaEscoposExecucao.definirVariavel(
-                        (paraCada.variavelIteracao.segundo as Literal).valor,
-                        valorComoDupla.segundo
+                        String(nomesVariaveis[1]),
+                        valoresDupla[1]
                     );
                 }
 

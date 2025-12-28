@@ -432,7 +432,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
             return String(literal.valor);
         }
         if (!literal.valor) return 'None';
-        return literal.valor;
+        return String(literal.valor);
     }
 
     traduzirConstrutoLogico(logico: Logico): string {

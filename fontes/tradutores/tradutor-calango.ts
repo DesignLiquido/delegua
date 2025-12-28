@@ -1,5 +1,6 @@
 import { AvaliadorSintaticoCalango } from '../avaliador-sintatico/dialetos/avaliador-sintatico-calango';
 import { FormatacaoEscrita, Literal } from '../construtos';
+import { Declaracao, Escreva, EscrevaMesmaLinha } from '../declaracoes';
 import { LexadorCalango } from '../lexador/dialetos';
 
 export class TradutorCalango {
@@ -18,21 +19,22 @@ export class TradutorCalango {
     };
 
     traduzirConstrutoFormatacaoEscrita(formatacaoEscrita: FormatacaoEscrita) {
-        let resultado = '';
-        resultado += String(formatacaoEscrita.expressao.valor);
-        return resultado;
+        const avaliacaoExpressao = this.dicionarioConstrutos[formatacaoEscrita.expressao.constructor.name](
+                formatacaoEscrita.expressao
+            );
+        return `${avaliacaoExpressao}`;
     }
 
     traduzirConstrutoLiteral(literal: Literal): string {
         if (typeof literal.valor === 'string') return `'${literal.valor}'`;
-        return literal.valor;
+        return String(literal.valor);
     }
 
-    traduzirDeclaracaoEscreva(declaracaoEscreva: any): string {
+    traduzirDeclaracaoEscreva(declaracaoEscreva: Escreva): string {
         let resultado = 'escreva(';
         for (const argumento of declaracaoEscreva.argumentos) {
-            const valor = this.dicionarioConstrutos[argumento.expressao.constructor.name](
-                argumento.expressao
+            const valor = this.dicionarioConstrutos[argumento.constructor.name](
+                argumento
             );
             resultado += valor + ', ';
         }
@@ -42,11 +44,11 @@ export class TradutorCalango {
         return resultado;
     }
 
-    traduzirDeclaracaoEscrevaMesmaLinha(declaracaoEscreva: any): string {
+    traduzirDeclaracaoEscrevaMesmaLinha(declaracaoEscreva: EscrevaMesmaLinha): string {
         let resultado = 'escreva(';
         for (const argumento of declaracaoEscreva.argumentos) {
-            const valor = this.dicionarioConstrutos[argumento.expressao.constructor.name](
-                argumento.expressao
+            const valor = this.dicionarioConstrutos[argumento.constructor.name](
+                argumento
             );
             resultado += valor + ', ';
         }
@@ -56,16 +58,10 @@ export class TradutorCalango {
         return resultado;
     }
 
-    traduzir(codigo: string): string {
+    traduzir(declaracoes: Declaracao[]): string {
         let resultado = '';
 
-        this.lexador = new LexadorCalango();
-        this.avaliadorSintatico = new AvaliadorSintaticoCalango();
-
-        const retornoLexador = this.lexador.mapear(codigo.split('\n'), -1);
-        const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador, -1);
-
-        for (const declaracao of retornoAvaliadorSintatico.declaracoes) {
+        for (const declaracao of declaracoes) {
             resultado += `${this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao)} \n`;
         }
 

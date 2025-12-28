@@ -1,5 +1,5 @@
 import { Construto, FuncaoConstruto, Leia, Literal } from '../../construtos';
-import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer } from '../../declaracoes';
+import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer, Expressao } from '../../declaracoes';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 import { SimboloInterface } from '../../interfaces';
@@ -12,26 +12,26 @@ import tiposDeSimbolos from '../../tipos-de-simbolos/guarani';
  * Um dia pode ser terminado para virar um dialeto completo.
  */
 export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
-    protected expressaoLeia(): Leia {
+    protected expressaoLeia(): Promise<Leia> {
         throw new Error('Método não implementado.');
     }
 
-    primario(): Construto {
+    primario(): Promise<Construto> {
         const simboloAtual = this.simbolos[this.atual];
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NUMERO, tiposDeSimbolos.TEXTO)) {
             const simboloAnterior: SimboloInterface = this.simbolos[this.atual - 1];
-            return new Literal(
+            return Promise.resolve(new Literal(
                 this.hashArquivo,
                 Number(simboloAnterior.linha),
                 simboloAnterior.literal
-            );
+            ));
         }
 
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
     }
 
-    chamar(): Construto {
-        let expressao = this.primario();
+    async chamar(): Promise<Construto> {
+        let expressao = await this.primario();
 
         /* while (true) {
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
@@ -54,8 +54,8 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    atribuir(): Construto {
-        const expressao = this.ou();
+    async atribuir(): Promise<Construto> {
+        const expressao = await this.ou();
 
         /* if (
             expressao instanceof Binario &&
@@ -95,7 +95,7 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    declaracaoEscreva(): Escreva {
+    async declaracaoEscreva(): Promise<Escreva> {
         const simboloAtual = this.consumir(tiposDeSimbolos.HAI, '');
 
         this.consumir(
@@ -106,7 +106,7 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
         const argumentos: Construto[] = [];
 
         do {
-            argumentos.push(this.expressao());
+            argumentos.push(await this.expressao());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Oñeha'arõ ')' valores rire jehaipyrépe.");
@@ -114,19 +114,19 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
         return new Escreva(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
     }
 
-    blocoEscopo(): Declaracao[] {
+    blocoEscopo(): Promise<Declaracao[]> {
         throw new Error('Método não implementado.');
     }
 
-    declaracaoSe(): Se {
+    declaracaoSe(): Promise<Se> {
         throw new Error('Método não implementado.');
     }
 
-    declaracaoEnquanto(): Enquanto {
+    declaracaoEnquanto(): Promise<Enquanto> {
         throw new Error('Método não implementado.');
     }
 
-    declaracaoPara(): Para {
+    declaracaoPara(): Promise<Para> {
         throw new Error('Método não implementado.');
     }
 
@@ -138,7 +138,7 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
         throw new Error('Método não implementado.');
     }
 
-    corpoDaFuncao(tipo: string): FuncaoConstruto {
+    async corpoDaFuncao(tipo: string): Promise<FuncaoConstruto> {
         // O parêntese esquerdo é considerado o símbolo inicial para
         // fins de pragma.
         const parenteseEsquerdo = this.consumir(
@@ -148,13 +148,13 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
 
         let parametros = [];
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
-            parametros = this.logicaComumParametros();
+            parametros = await this.logicaComumParametros();
         }
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
         this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, `Esperado '{' antes do escopo do ${tipo}.`);
 
-        const corpo = this.blocoEscopo();
+        const corpo = await this.blocoEscopo();
 
         return new FuncaoConstruto(
             this.hashArquivo,
@@ -164,24 +164,24 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
         );
     }
 
-    expressao(): Construto {
-        return this.atribuir();
+    async expressao(): Promise<Construto> {
+        return await this.atribuir();
     }
 
-    resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[] | Construto | Construto[] | any {
+    async resolverDeclaracaoForaDeBloco(): Promise<Declaracao | Declaracao[]> {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.HAI:
-                return this.declaracaoEscreva();
+                return await this.declaracaoEscreva();
             default:
-                return this.expressao();
+                return new Expressao(await this.expressao());
         }
     }
 
-    analisar(
+    async analisar(
         retornoLexador: RetornoLexador<SimboloInterface>,
         hashArquivo: number
-    ): RetornoAvaliadorSintatico<Declaracao> {
+    ): Promise<RetornoAvaliadorSintatico<Declaracao>> {
         this.erros = [];
         this.atual = 0;
         this.blocos = 0;
@@ -191,7 +191,7 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
 
         const declaracoes: Declaracao[] = [];
         while (!this.estaNoFinal()) {
-            declaracoes.push(this.resolverDeclaracaoForaDeBloco() as Declaracao);
+            declaracoes.push(await this.resolverDeclaracaoForaDeBloco() as Declaracao);
         }
 
         return {

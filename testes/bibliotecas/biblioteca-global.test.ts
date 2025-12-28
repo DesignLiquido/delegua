@@ -16,7 +16,7 @@ describe('Biblioteca Global', () => {
     describe('aleatorio()', () => {
         it('Trivial', async () => {
             const retornoLexador = lexador.mapear(["escreva(aleatorio())"], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -27,7 +27,7 @@ describe('Biblioteca Global', () => {
     describe('aleatorioEntre()', () => {
         it('Sucesso', async () => {
             const retornoLexador = lexador.mapear(["escreva(aleatorioEntre(1, 5))"], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -38,7 +38,7 @@ describe('Biblioteca Global', () => {
     describe('algum()', () => {
         it('Sucesso', async () => {
             const retornoLexador = lexador.mapear(["escreva(algum([1, 2, 3], funcao(a) { retorna(a == 1) }))"], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -60,7 +60,7 @@ describe('Biblioteca Global', () => {
             };
 
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -81,7 +81,7 @@ describe('Biblioteca Global', () => {
             };
 
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -102,7 +102,7 @@ describe('Biblioteca Global', () => {
             };
 
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -124,7 +124,7 @@ describe('Biblioteca Global', () => {
             };
 
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -147,7 +147,7 @@ describe('Biblioteca Global', () => {
             };
 
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -170,7 +170,7 @@ describe('Biblioteca Global', () => {
             };
 
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -193,7 +193,7 @@ describe('Biblioteca Global', () => {
             };
 
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -213,7 +213,7 @@ describe('Biblioteca Global', () => {
             };
 
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -233,7 +233,7 @@ describe('Biblioteca Global', () => {
             };
 
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -254,7 +254,7 @@ describe('Biblioteca Global', () => {
             };
 
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -275,7 +275,7 @@ describe('Biblioteca Global', () => {
             };
 
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -305,7 +305,7 @@ describe('Biblioteca Global', () => {
             };
 
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -317,7 +317,7 @@ describe('Biblioteca Global', () => {
     describe('encontrar()', () => {
         it('Sucesso', async () => {
             const retornoLexador = lexador.mapear(["escreva(encontrar([1, 2, 3], funcao(a) { retorna(a == 1) }))"], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -328,7 +328,7 @@ describe('Biblioteca Global', () => {
     describe('encontrarIndice()', () => {
         it('Sucesso', async () => {
             const retornoLexador = lexador.mapear(["escreva(encontrarIndice([1, 2, 3], funcao(a) { retorna(a == 1) }))"], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -339,7 +339,7 @@ describe('Biblioteca Global', () => {
     describe('encontrarUltimo()', () => {
         it('Sucesso', async () => {
             const retornoLexador = lexador.mapear(["escreva(encontrarUltimo([1, 2, 3], funcao(a) { retorna(a == 3) }))"], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -350,7 +350,7 @@ describe('Biblioteca Global', () => {
     describe('encontrarUltimoIndice()', () => {
         it('Sucesso', async () => {
             const retornoLexador = lexador.mapear(["escreva(encontrarUltimoIndice([1, 2, 3], funcao(a) { retorna(a == 3) }))"], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -361,7 +361,7 @@ describe('Biblioteca Global', () => {
     describe('incluido()', () => {
         it('Sucesso', async () => {
             const retornoLexador = lexador.mapear(["escreva(incluido([1, 2, 3], 3))"], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -372,7 +372,7 @@ describe('Biblioteca Global', () => {
     describe('inteiro()', () => {
         it('Sucesso', async () => {
             const retornoLexador = lexador.mapear(["escreva(inteiro(1 + 1))"], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -381,7 +381,7 @@ describe('Biblioteca Global', () => {
 
         it('Nulo', async () => {
             const retornoLexador = lexador.mapear(["escreva(inteiro(nulo))"], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -390,7 +390,7 @@ describe('Biblioteca Global', () => {
 
         it('Falha - Não inteiro', async () => {
             const retornoLexador = lexador.mapear(["escreva(inteiro('Oi'))"], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -401,7 +401,7 @@ describe('Biblioteca Global', () => {
     describe('intervalo()', () => {
         it('Sucesso - Intervalo simples', async () => {
             const retornoLexador = lexador.mapear(["escreva(intervalo(1, 5))"], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -410,7 +410,7 @@ describe('Biblioteca Global', () => {
 
         it('Sucesso - Intervalo com números negativos', async () => {
             const retornoLexador = lexador.mapear(["escreva(intervalo(-3, 3))"], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -419,7 +419,7 @@ describe('Biblioteca Global', () => {
 
         it('Sucesso - Intervalo zero', async () => {
             const retornoLexador = lexador.mapear(["escreva(intervalo(0, 0))"], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -433,7 +433,7 @@ describe('Biblioteca Global', () => {
                 "escreva(intervalo(inicio, fim))"
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -442,7 +442,7 @@ describe('Biblioteca Global', () => {
 
         it('Falha - Primeiro parâmetro não é número', async () => {
             const retornoLexador = lexador.mapear(["escreva(intervalo('texto', 5))"], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -451,7 +451,7 @@ describe('Biblioteca Global', () => {
 
         it('Falha - Segundo parâmetro não é número', async () => {
             const retornoLexador = lexador.mapear(["escreva(intervalo(1, 'texto'))"], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -466,7 +466,7 @@ describe('Biblioteca Global', () => {
                 "escreva(mapear([1, 2, 3], f))"
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -481,7 +481,7 @@ describe('Biblioteca Global', () => {
                 "escreva(todosEmCondicao([1, 2, 3, 4, 5, 6], f))"
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -498,7 +498,7 @@ describe('Biblioteca Global', () => {
                 "escreva(valoresVerdadeiros)"
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             interpretador.funcaoDeRetorno = (saida: any) => {
                 expect(saida).toEqual('[\'verdadeiro\', verdadeiro, \'verdadeiro\']');
@@ -515,7 +515,7 @@ describe('Biblioteca Global', () => {
                 "escreva(filtrarPor([1, 2, 3, 4, 5, 6], f))"
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -531,7 +531,7 @@ describe('Biblioteca Global', () => {
                 "escreva(primeiroEmCondicao([1, 2, 3, 4, 5, 6], f))"
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -546,7 +546,7 @@ describe('Biblioteca Global', () => {
                 "escreva(paraCada([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], f))"
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -560,7 +560,7 @@ describe('Biblioteca Global', () => {
                 "ordenar([5, 12, 10, 1, 4, 25, 33, 9, 7, 6, 2])"
             ];
             const retornoLexador = lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -571,7 +571,7 @@ describe('Biblioteca Global', () => {
     describe('real()', () => {
         it('Sucesso', async () => {
             const retornoLexador = lexador.mapear(["escreva(real(3.14))"], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -580,7 +580,7 @@ describe('Biblioteca Global', () => {
 
         it('Nulo ou Indefinido (resolve para zero)', async () => {
             const retornoLexador = lexador.mapear(["escreva(real(nulo))"], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -589,7 +589,7 @@ describe('Biblioteca Global', () => {
 
         it('Falha - Não inteiro', async () => {
             const retornoLexador = lexador.mapear(["escreva(real('Oi'))"], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -600,7 +600,7 @@ describe('Biblioteca Global', () => {
     describe('tamanho()', () => {
         it('Sucesso', async () => {
             const retornoLexador = lexador.mapear(["escreva(tamanho([1, 2, 3]))"], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -609,7 +609,7 @@ describe('Biblioteca Global', () => {
 
         it('Falha - Argumento não é lista', async () => {
             const retornoLexador = lexador.mapear(["escreva(tamanho(1))"], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -618,7 +618,7 @@ describe('Biblioteca Global', () => {
 
         it('Falha - Nulo', async () => {
             const retornoLexador = lexador.mapear(["escreva(tamanho(nulo))"], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -629,7 +629,7 @@ describe('Biblioteca Global', () => {
     describe('texto()', () => {
         it('Trivial', async () => {
             const retornoLexador = lexador.mapear(["escreva(texto(123))"], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
@@ -645,7 +645,7 @@ describe('Biblioteca Global', () => {
             }
 
             const retornoLexador = lexador.mapear(["escreva(tupla([1,2,3]))"], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 

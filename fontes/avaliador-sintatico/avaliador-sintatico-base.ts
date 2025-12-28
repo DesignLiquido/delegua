@@ -103,20 +103,20 @@ export abstract class AvaliadorSintaticoBase
      * Esses métodos não precisam ser expostos. A recomendação geral é
      * implementá-los como `protected`.
      */
-    protected abstract atribuir(): Construto; // `atribuir()` deve chamar `ou()` ou algum outro método unário ou
+    protected abstract atribuir(): Promise<Construto>; // `atribuir()` deve chamar `ou()` ou algum outro método unário ou
     // binário de visita na implementação.
-    protected abstract blocoEscopo(): Declaracao[];
-    protected abstract chamar(): Construto;
-    protected abstract corpoDaFuncao(tipo: string): FuncaoConstruto;
-    protected abstract declaracaoEnquanto(): Enquanto;
-    protected abstract declaracaoEscreva(): Escreva;
-    protected abstract declaracaoPara(): Para | ParaCada;
-    protected abstract declaracaoSe(): Se;
-    protected abstract expressaoLeia(): Leia;
-    protected abstract primario(): Construto;
-    protected abstract resolverDeclaracaoForaDeBloco(): Declaracao | Declaracao[];
+    protected abstract blocoEscopo(): Promise<Declaracao[]>;
+    protected abstract chamar(): Promise<Construto>;
+    protected abstract corpoDaFuncao(tipo: string): Promise<FuncaoConstruto>;
+    protected abstract declaracaoEnquanto(): Promise<Enquanto>;
+    protected abstract declaracaoEscreva(): Promise<Escreva>;
+    protected abstract declaracaoPara(): Promise<Para | ParaCada>;
+    protected abstract declaracaoSe(): Promise<Se>;
+    protected abstract expressaoLeia(): Promise<Leia>;
+    protected abstract primario(): Promise<Construto>;
+    protected abstract resolverDeclaracaoForaDeBloco(): Promise<Declaracao | Declaracao[]>;
 
-    protected finalizarChamada(entidadeChamada: Construto): Chamada {
+    protected async finalizarChamada(entidadeChamada: Construto): Promise<Chamada> {
         const argumentos: Array<Construto> = [];
 
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
@@ -128,7 +128,7 @@ export abstract class AvaliadorSintaticoBase
                         'Não pode haver mais de 255 argumentos.'
                     );
                 }
-                argumentos.push(this.expressao());
+                argumentos.push(await this.expressao());
             } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         }
 
@@ -136,37 +136,37 @@ export abstract class AvaliadorSintaticoBase
         return new Chamada(this.hashArquivo, entidadeChamada, argumentos);
     }
 
-    protected unario(): Construto {
+    protected async unario(): Promise<Construto> {
         if (
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NEGACAO, tiposDeSimbolos.SUBTRACAO)
         ) {
             const operador = this.simbolos[this.atual - 1];
-            const direito = this.unario();
-            return new Unario(this.hashArquivo, operador, direito, 'ANTES');
+            const direito = await this.unario();
+            return Promise.resolve(new Unario(this.hashArquivo, operador, direito, 'ANTES'));
         }
 
-        return this.chamar();
+        return await this.chamar();
     }
 
     /**
-     * A exponenciacão é uma exceção na ordem de avaliação (resolve primeiro à direita). 
+     * A exponenciacão é uma exceção na ordem de avaliação (resolve primeiro à direita).
      * Por isso `direito` chama `exponenciacao()`, e não `unario()`.
-     * @returns {Binario} A expressão binária na forma do construto `Binario`. 
+     * @returns {Binario} A expressão binária na forma do construto `Binario`.
      */
-    protected exponenciacao(): Construto {
-        let expressao = this.unario();
+    protected async exponenciacao(): Promise<Construto> {
+        let expressao = await this.unario();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EXPONENCIACAO)) {
             const operador = this.simbolos[this.atual - 1];
-            const direito = this.exponenciacao();
+            const direito = await this.exponenciacao();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
         }
 
         return expressao;
     }
 
-    protected multiplicar(): Construto {
-        let expressao = this.exponenciacao();
+    protected async multiplicar(): Promise<Construto> {
+        let expressao = await this.exponenciacao();
 
         while (
             this.verificarSeSimboloAtualEIgualA(
@@ -177,21 +177,21 @@ export abstract class AvaliadorSintaticoBase
             )
         ) {
             const operador = this.simbolos[this.atual - 1];
-            const direito = this.exponenciacao();
+            const direito = await this.exponenciacao();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
         }
 
         return expressao;
     }
 
-    protected adicaoOuSubtracao(): Construto {
-        let expressao = this.multiplicar();
+    protected async adicaoOuSubtracao(): Promise<Construto> {
+        let expressao = await this.multiplicar();
 
         while (
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUBTRACAO, tiposDeSimbolos.ADICAO)
         ) {
             const operador = this.simbolos[this.atual - 1];
-            const direito = this.multiplicar();
+            const direito = await this.multiplicar();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
         }
 
@@ -199,15 +199,15 @@ export abstract class AvaliadorSintaticoBase
     }
 
     /**
-     * Este método é usado por alguns dialetos de Portugol que possuem declarações
+     * Este método é usado por Delégua e alguns dialetos de Portugol que possuem declarações
      * de múltiplas variáveis na mesma linha.
      */
-    protected declaracaoDeVariaveis(): Var[] {
+    protected declaracaoDeVariaveis(): Promise<Var[]> {
         throw new Error('Método não implementado.');
     }
 
-    protected comparar(): Construto {
-        let expressao = this.adicaoOuSubtracao();
+    protected async comparar(): Promise<Construto> {
+        let expressao = await this.adicaoOuSubtracao();
 
         while (
             this.verificarSeSimboloAtualEIgualA(
@@ -218,15 +218,15 @@ export abstract class AvaliadorSintaticoBase
             )
         ) {
             const operador = this.simbolos[this.atual - 1];
-            const direito = this.adicaoOuSubtracao();
+            const direito = await this.adicaoOuSubtracao();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
         }
 
         return expressao;
     }
 
-    protected comparacaoIgualdade(): Construto {
-        let expressao = this.comparar();
+    protected async comparacaoIgualdade(): Promise<Construto> {
+        let expressao = await this.comparar();
 
         while (
             this.verificarSeSimboloAtualEIgualA(
@@ -236,31 +236,31 @@ export abstract class AvaliadorSintaticoBase
             )
         ) {
             const operador = this.simbolos[this.atual - 1];
-            const direito = this.comparar();
+            const direito = await this.comparar();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
         }
 
         return expressao;
     }
 
-    protected e(): Construto {
-        let expressao = this.comparacaoIgualdade();
+    protected async e(): Promise<Construto> {
+        let expressao = await this.comparacaoIgualdade();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.E)) {
             const operador = this.simbolos[this.atual - 1];
-            const direito = this.comparacaoIgualdade();
+            const direito = await this.comparacaoIgualdade();
             expressao = new Logico(this.hashArquivo, expressao, operador, direito);
         }
 
         return expressao;
     }
 
-    protected ou(): Construto {
-        let expressao = this.e();
+    protected async ou(): Promise<Construto> {
+        let expressao = await this.e();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.OU)) {
             const operador = this.simbolos[this.atual - 1];
-            const direito = this.e();
+            const direito = await this.e();
             expressao = new Logico(this.hashArquivo, expressao, operador, direito);
         }
 
@@ -271,8 +271,8 @@ export abstract class AvaliadorSintaticoBase
      * Processa tuplas, que são expressões separadas por vírgula entre parênteses.
      * Se não houver vírgula, retorna apenas a expressão simples.
      */
-    protected tupla(): Construto {
-        let expressao = this.ou();
+    protected async tupla(): Promise<Construto> {
+        let expressao = await this.ou();
 
         // Se não há vírgula, retorna a expressão simples
         if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)) {
@@ -286,17 +286,17 @@ export abstract class AvaliadorSintaticoBase
             if (this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
                 break;
             }
-            elementos.push(this.ou());
+            elementos.push(await this.ou());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         return new TuplaN(this.hashArquivo, expressao.linha, elementos);
     }
 
-    protected expressao(): Construto {
-        return this.atribuir();
+    protected async expressao(): Promise<Construto> {
+        return await this.atribuir();
     }
 
-    protected funcao(tipo: string): FuncaoDeclaracao {
+    protected async funcao(tipo: string): Promise<FuncaoDeclaracao> {
         // Avançar `função` ou `funcao`.
         this.avancarEDevolverAnterior();
 
@@ -304,10 +304,12 @@ export abstract class AvaliadorSintaticoBase
             tiposDeSimbolos.IDENTIFICADOR,
             `Esperado nome ${tipo}.`
         );
-        return new FuncaoDeclaracao(nomeFuncao, this.corpoDaFuncao(tipo));
+
+        const corpo = await this.corpoDaFuncao(tipo)
+        return new FuncaoDeclaracao(nomeFuncao, corpo);
     }
 
-    protected logicaComumParametros(): ParametroInterface[] {
+    protected async logicaComumParametros(): Promise<ParametroInterface[]> {
         const parametros: ParametroInterface[] = [];
 
         do {
@@ -333,7 +335,7 @@ export abstract class AvaliadorSintaticoBase
             );
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-                parametro.valorPadrao = this.primario();
+                parametro.valorPadrao = await this.primario();
             }
 
             parametros.push(parametro as ParametroInterface);
@@ -349,15 +351,15 @@ export abstract class AvaliadorSintaticoBase
      * erro em caso contrário.
      */
 
-    protected bitShift(): Construto {
+    protected bitShift(): Promise<Construto> {
         throw new Error('Método não implementado.');
     }
 
-    protected bitE(): Construto {
+    protected bitE(): Promise<Construto> {
         throw new Error('Método não implementado.');
     }
 
-    protected bitOu(): Construto {
+    protected bitOu(): Promise<Construto> {
         throw new Error('Método não implementado.');
     }
 
@@ -365,7 +367,7 @@ export abstract class AvaliadorSintaticoBase
         throw new Error('Método não implementado.');
     }
 
-    protected declaracaoDeClasse(): Classe {
+    protected declaracaoDeClasse(): Promise<Classe> {
         throw new Error('Método não implementado.');
     }
 
@@ -373,11 +375,11 @@ export abstract class AvaliadorSintaticoBase
         throw new Error('Método não implementado.');
     }
 
-    protected declaracaoExpressao(simboloAnterior?: SimboloInterface): Expressao {
+    protected declaracaoExpressao(simboloAnterior?: SimboloInterface): Promise<Expressao> {
         throw new Error('Método não implementado.');
     }
 
-    protected declaracaoRetorna(): Retorna {
+    protected declaracaoRetorna(): Promise<Retorna> {
         throw new Error('Método não implementado.');
     }
 
@@ -385,11 +387,11 @@ export abstract class AvaliadorSintaticoBase
         throw new Error('Método não implementado.');
     }
 
-    protected declaracaoTente(): Tente {
+    protected declaracaoTente(): Promise<Tente> {
         throw new Error('Método não implementado.');
     }
 
-    protected em(): Construto {
+    protected em(): Promise<Construto> {
         throw new Error('Método não implementado.');
     }
 
@@ -408,5 +410,5 @@ export abstract class AvaliadorSintaticoBase
     abstract analisar(
         retornoLexador: RetornoLexador<SimboloInterface>,
         hashArquivo: number
-    ): RetornoAvaliadorSintatico<Declaracao>;
+    ): Promise<RetornoAvaliadorSintatico<Declaracao>>;
 }

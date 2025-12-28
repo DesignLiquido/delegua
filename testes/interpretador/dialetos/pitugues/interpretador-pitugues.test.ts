@@ -32,7 +32,7 @@ describe('Interpretador (Pituguês)', () => {
                         ],
                         -1
                     );
-                    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
                         retornoLexador,
                         -1
                     );

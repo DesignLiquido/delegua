@@ -62,6 +62,7 @@ import {
     Comentario,
     PropriedadeClasse,
     TextoDocumentacao,
+    Para,
 } from '../../declaracoes';
 
 import {
@@ -243,7 +244,7 @@ export class AvaliadorSintaticoPitugues
         }
     }
 
-    expressaoLeia(): Leia {
+    async expressaoLeia(): Promise<Leia> {
         const simboloLeia = this.avancarEDevolverAnterior();
 
         this.consumir(
@@ -254,7 +255,7 @@ export class AvaliadorSintaticoPitugues
         const argumentos: Construto[] = [];
 
         do {
-            argumentos.push(this.expressao());
+            argumentos.push(await this.expressao());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após os valores em leia.");
@@ -275,7 +276,7 @@ export class AvaliadorSintaticoPitugues
         }
     }
 
-    private declaracaoImplicitaVariaveis(): Var {
+    private async declaracaoImplicitaVariaveis(): Promise<Var> {
         const identificador = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
             'Esperado nome de variável.'
@@ -290,7 +291,7 @@ export class AvaliadorSintaticoPitugues
             )
         }
 
-        const valor = this.expressao();
+        const valor = await this.expressao();
         const tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(valor, 'qualquer');
 
         this.pilhaEscopos.definirInformacoesVariavel(
@@ -410,13 +411,13 @@ export class AvaliadorSintaticoPitugues
         return { simbolos: identificadores, indexResto };
     }
 
-    private consumirInicializadores(): Construto[] {
+    private async consumirInicializadores(): Promise<Construto[]> {
         const inicializadores: Construto[] = [];
         do {
             if (this.estaNoFinal()) {
                 throw this.erro(this.simboloAtual(), 'Esperado inicializador após vírgula.');
             }
-            inicializadores.push(this.expressao());
+            inicializadores.push(await this.expressao());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         return inicializadores;
@@ -453,12 +454,12 @@ export class AvaliadorSintaticoPitugues
         return new Se(condicaoErro, new Bloco(this.hashArquivo, linha, [falha]), [], null);
     }
 
-    declaracaoDeVariaveis(): any {
+    async declaracaoDeVariaveis(): Promise<any> {
         const { simbolos: identificadores, indexResto } = this.consumirIdentificadores();
 
         this.consumir(tiposDeSimbolos.IGUAL, 'Esperado o símbolo igual(=) após identificador.');
 
-        const inicializadores = this.consumirInicializadores();
+        const inicializadores = await this.consumirInicializadores();
 
         const qtdIdentificadores = identificadores.length;
         const qtdValores = inicializadores.length;
@@ -639,7 +640,7 @@ export class AvaliadorSintaticoPitugues
         return false;
     }
 
-    primario(): Construto {
+    async primario(): Promise<Construto> {
         const simboloAtual = this.simbolos[this.atual];
 
         switch (simboloAtual.tipo) {
@@ -656,15 +657,15 @@ export class AvaliadorSintaticoPitugues
                 while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA)) {
                     // Verificar se é spread (**expressao)
                     if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EXPONENCIACAO)) {
-                        const expressaoDicionario = this.atribuir();
+                        const expressaoDicionario = await this.atribuir();
 
                         chaves.push(null);
                         valoresDicionario.push(expressaoDicionario);
                         esSpread.push(true);
                     } else {
-                        const chave = this.atribuir();
+                        const chave = await this.atribuir();
                         this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' entre chave e valor.");
-                        const valor = this.atribuir();
+                        const valor = await this.atribuir();
 
                         chaves.push(chave);
                         valoresDicionario.push(valor);
@@ -696,7 +697,7 @@ export class AvaliadorSintaticoPitugues
 
                 const valoresVetor = [];
                 while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                    const valor = this.atribuir();
+                    const valor = await this.atribuir();
                     valoresVetor.push(valor);
                     if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
                         this.consumir(
@@ -730,7 +731,7 @@ export class AvaliadorSintaticoPitugues
             case tiposDeSimbolos.FUNCAO:
             case tiposDeSimbolos.FUNÇÃO:
                 const simboloFuncao = this.avancarEDevolverAnterior();
-                const corpoDaFuncao = this.corpoDaFuncao(simboloFuncao.lexema);
+                const corpoDaFuncao = await this.corpoDaFuncao(simboloFuncao.lexema);
                 this.pilhaEscopos.definirInformacoesVariavel(
                     simboloFuncao.lexema,
                     new InformacaoElementoSintatico(simboloFuncao.lexema, 'função')
@@ -745,7 +746,7 @@ export class AvaliadorSintaticoPitugues
                 const simboloIsto = this.avancarEDevolverAnterior();
                 return new Isto(this.hashArquivo, simboloAtual.linha, simboloIsto);
             case tiposDeSimbolos.LEIA:
-                return this.expressaoLeia();
+                return await this.expressaoLeia();
             case tiposDeSimbolos.NUMERO:
             case tiposDeSimbolos.TEXTO:
                 const simboloLiteral: SimboloInterface = this.avancarEDevolverAnterior();
@@ -816,7 +817,7 @@ export class AvaliadorSintaticoPitugues
                     return new TuplaN(this.hashArquivo, simboloAtual.linha, []);
                 }
 
-                const expressao = this.tupla();
+                const expressao = await this.tupla();
 
                 // Se a expressão já é uma tupla (com vírgulas), retorna ela
                 if (expressao instanceof TuplaN) {
@@ -834,7 +835,7 @@ export class AvaliadorSintaticoPitugues
         throw this.erro(this.simboloAtual(), 'Esperado expressão.');
     }
 
-    finalizarChamada(entidadeChamada: Construto): Construto {
+    async finalizarChamada(entidadeChamada: Construto): Promise<Construto> {
         const argumentos = [];
 
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
@@ -842,7 +843,7 @@ export class AvaliadorSintaticoPitugues
                 if (argumentos.length >= 255) {
                     throw this.erro(this.simboloAtual(), 'Não pode haver mais de 255 argumentos.');
                 }
-                argumentos.push(this.expressao());
+                argumentos.push(await this.expressao());
             } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         }
 
@@ -853,12 +854,12 @@ export class AvaliadorSintaticoPitugues
         return chamada;
     }
 
-    chamar(): Construto {
-        let expressao: Construto = this.primario();
+    async chamar(): Promise<Construto> {
+        let expressao: Construto = await this.primario();
 
         while (true) {
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
-                expressao = this.finalizarChamada(expressao);
+                expressao = await this.finalizarChamada(expressao);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
                 const nome = this.consumir(
                     tiposDeSimbolos.IDENTIFICADOR,
@@ -872,7 +873,7 @@ export class AvaliadorSintaticoPitugues
                 let indiceFim: Construto | null = null;
 
                 if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.DOIS_PONTOS)) {
-                    indiceInicio = this.expressao();
+                    indiceInicio = await this.expressao();
                 }
 
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
@@ -881,7 +882,7 @@ export class AvaliadorSintaticoPitugues
                     // Se o próximo não é ':', nem ']', então é o índice fim
                     if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.DOIS_PONTOS) &&
                         !this.verificarTipoSimboloAtual(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                        indiceFim = this.expressao();
+                        indiceFim = await this.expressao();
                     }
                 }
 
@@ -914,7 +915,7 @@ export class AvaliadorSintaticoPitugues
         return expressao;
     }
 
-    unario(): Construto {
+    async unario(): Promise<Construto> {
         if (
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.NEGACAO,
@@ -923,27 +924,27 @@ export class AvaliadorSintaticoPitugues
             )
         ) {
             const operador = this.simboloAnterior();
-            const direito = this.unario();
+            const direito = await this.unario();
             return new Unario(this.hashArquivo, operador, direito);
         }
 
-        return this.chamar();
+        return await this.chamar();
     }
 
-    exponenciacao(): Construto {
-        let expressao = this.unario();
+    async exponenciacao(): Promise<Construto> {
+        let expressao = await this.unario();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EXPONENCIACAO)) {
             const operador = this.simboloAnterior();
-            const direito = this.exponenciacao();
+            const direito = await this.exponenciacao();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
         }
 
         return expressao;
     }
 
-    multiplicar(): Construto {
-        let expressao = this.exponenciacao();
+    async multiplicar(): Promise<Construto> {
+        let expressao = await this.exponenciacao();
 
         while (
             this.verificarSeSimboloAtualEIgualA(
@@ -954,29 +955,29 @@ export class AvaliadorSintaticoPitugues
             )
         ) {
             const operador = this.simboloAnterior();
-            const direito = this.exponenciacao();
+            const direito = await this.exponenciacao();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
         }
 
         return expressao;
     }
 
-    adicaoOuSubtracao(): Construto {
-        let expressao = this.multiplicar();
+    async adicaoOuSubtracao(): Promise<Construto> {
+        let expressao = await this.multiplicar();
 
         while (
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUBTRACAO, tiposDeSimbolos.ADICAO)
         ) {
             const operador = this.simboloAnterior();
-            const direito = this.multiplicar();
+            const direito = await this.multiplicar();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
         }
 
         return expressao;
     }
 
-    bitShift(): Construto {
-        let expressao = this.adicaoOuSubtracao();
+    async bitShift(): Promise<Construto> {
+        let expressao = await this.adicaoOuSubtracao();
 
         while (
             this.verificarSeSimboloAtualEIgualA(
@@ -985,41 +986,41 @@ export class AvaliadorSintaticoPitugues
             )
         ) {
             const operador = this.simboloAnterior();
-            const direito = this.adicaoOuSubtracao();
+            const direito = await this.adicaoOuSubtracao();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
         }
 
         return expressao;
     }
 
-    bitE(): Construto {
-        let expressao = this.bitShift();
+    async bitE(): Promise<Construto> {
+        let expressao = await this.bitShift();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIT_AND)) {
             const operador = this.simboloAnterior();
-            const direito = this.bitShift();
+            const direito = await this.bitShift();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
         }
 
         return expressao;
     }
 
-    bitOu(): Construto {
-        let expressao = this.bitE();
+    async bitOu(): Promise<Construto> {
+        let expressao = await this.bitE();
 
         while (
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIT_OR, tiposDeSimbolos.BIT_XOR)
         ) {
             const operador = this.simboloAnterior();
-            const direito = this.bitE();
+            const direito = await this.bitE();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
         }
 
         return expressao;
     }
 
-    comparar(): Construto {
-        let expressao = this.bitOu();
+    async comparar(): Promise<Construto> {
+        let expressao = await this.bitOu();
 
         while (
             this.verificarSeSimboloAtualEIgualA(
@@ -1030,15 +1031,15 @@ export class AvaliadorSintaticoPitugues
             )
         ) {
             const operador = this.simboloAnterior();
-            const direito = this.bitOu();
+            const direito = await this.bitOu();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
         }
 
         return expressao;
     }
 
-    comparacaoIgualdade(): Construto {
-        let expressao = this.comparar();
+    async comparacaoIgualdade(): Promise<Construto> {
+        let expressao = await this.comparar();
 
         while (
             this.verificarSeSimboloAtualEIgualA(
@@ -1047,16 +1048,16 @@ export class AvaliadorSintaticoPitugues
             )
         ) {
             const operador = this.simboloAnterior();
-            const direito = this.comparar();
+            const direito = await this.comparar();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
         }
 
         return expressao;
     }
 
-    em(): Construto {
-        let expressao = this.comparacaoIgualdade();
-
+    async em(): Promise<Construto> {
+        let expressao = await this.comparacaoIgualdade();
+            
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EM, tiposDeSimbolos.CONTEM, tiposDeSimbolos.NAO)) {
             let operador = this.simboloAnterior();
             let negado = false;
@@ -1065,7 +1066,7 @@ export class AvaliadorSintaticoPitugues
                 negado = true;
             }
 
-            const direito = this.comparacaoIgualdade();
+            const direito = await this.comparacaoIgualdade();
             expressao = new Logico(this.hashArquivo, expressao, operador, direito);
             (expressao as Logico).negado = negado;
         }
@@ -1073,43 +1074,43 @@ export class AvaliadorSintaticoPitugues
         return expressao;
     }
 
-    e(): Construto {
-        let expressao = this.em();
+    async e(): Promise<Construto> {
+        let expressao = await this.em();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.E)) {
             const operador = this.simboloAnterior();
-            const direito = this.em();
+            const direito = await this.em();
             expressao = new Logico(this.hashArquivo, expressao, operador, direito);
         }
 
         return expressao;
     }
 
-    ou(): Construto {
-        let expressao = this.e();
+    async ou(): Promise<Construto> {
+        let expressao = await this.e();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.OU)) {
             const operador = this.simboloAnterior();
-            const direito = this.e();
+            const direito = await this.e();
             expressao = new Logico(this.hashArquivo, expressao, operador, direito);
         }
 
         return expressao;
     }
 
-    protected seTernario(): Construto {
-        let expressaoEntao = this.ou();
+    protected async seTernario(): Promise<Construto> {
+        let expressaoEntao = await this.ou();
 
         if (this.simbolos[this.atual] && this.simbolos[this.atual].tipo === tiposDeSimbolos.SE && expressaoEntao.linha === this.simbolos[this.atual].linha) {
             while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SE)) {
                 const operador = this.simbolos[this.atual - 1];
-                const expressaoOuCondicao = this.seTernario();
+                const expressaoOuCondicao = await this.seTernario();
                 this.consumir(
                     tiposDeSimbolos.SENAO,
                     `Esperado 'senão' ou 'senao' após caminho positivo em se ternário. Atual:
                     ${this.simbolos[this.atual].lexema}.`
                 );
-                const expressaoSenao = this.seTernario();
+                const expressaoSenao = await this.seTernario();
                 expressaoEntao = new SeTernario(
                     this.hashArquivo,
                     expressaoOuCondicao,
@@ -1123,8 +1124,8 @@ export class AvaliadorSintaticoPitugues
         return expressaoEntao;
     }
 
-    tupla(): Construto {
-        let expressao = this.seTernario();
+    async tupla(): Promise<Construto> {
+        let expressao = await this.seTernario();
 
         // Se não há vírgula, retorna a expressão simples
         if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)) {
@@ -1138,14 +1139,14 @@ export class AvaliadorSintaticoPitugues
             if (this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
                 break;
             }
-            elementos.push(this.seTernario());
+            elementos.push(await this.seTernario());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         return new TuplaN(this.hashArquivo, expressao.linha, elementos);
     }
 
-    atribuir(): Construto {
-        const expressao = this.seTernario();
+    async atribuir(): Promise<Construto> {
+        const expressao = await this.seTernario();
 
         if (
             this.verificarSeSimboloAtualEIgualA(
@@ -1157,7 +1158,7 @@ export class AvaliadorSintaticoPitugues
             )
         ) {
             const operadorAtribuicao = this.simboloAnterior();
-            const valor = this.atribuir();
+            const valor = await this.atribuir();
 
             // Se for apenas '=', é uma atribuição padrão
             if (operadorAtribuicao.tipo === tiposDeSimbolos.IGUAL) {
@@ -1253,11 +1254,11 @@ export class AvaliadorSintaticoPitugues
     }
 
     // TODO: Depreciar.
-    expressao(): Construto {
-        return this.atribuir();
+    async expressao(): Promise<Construto> {
+        return await this.atribuir();
     }
 
-    declaracaoEscreva(simboloEscreva: SimboloInterface): Escreva {
+    async declaracaoEscreva(simboloEscreva: SimboloInterface): Promise<Escreva> {
         this.consumir(
             tiposDeSimbolos.PARENTESE_ESQUERDO,
             "Esperado '(' antes dos valores em escreva."
@@ -1266,7 +1267,7 @@ export class AvaliadorSintaticoPitugues
         const argumentos: Array<Construto> = [];
 
         do {
-            argumentos.push(this.expressao());
+            argumentos.push(await this.expressao());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         this.consumir(
@@ -1279,12 +1280,12 @@ export class AvaliadorSintaticoPitugues
         return declaracaoEscreva;
     }
 
-    declaracaoExpressao() {
-        const expressao = this.expressao();
+    async declaracaoExpressao() {
+        const expressao = await this.expressao();
         return new Expressao(expressao);
     }
 
-    blocoEscopo(): any[] {
+    async blocoEscopo(): Promise<any[]> {
         this.pilhaEscopos.empilhar(new InformacaoEscopo());
         let declaracoes: Array<Declaracao> = [];
         let simboloAtual = this.simboloAtual();
@@ -1296,7 +1297,12 @@ export class AvaliadorSintaticoPitugues
         // Neste caso, linha do símbolo atual é igual à linha do símbolo anterior.
 
         if (simboloAtual.linha === simboloAnterior.linha) {
-            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
+            const declaracoesBloco = await this.resolverDeclaracaoForaDeBloco();
+            if (Array.isArray(declaracoesBloco)) {
+                declaracoes = declaracoes.concat(declaracoesBloco);
+            } else {
+                declaracoes.push(declaracoesBloco as Declaracao);
+            }
         } else {
             // Situação 2: símbolo atual fica na próxima linha.
             //
@@ -1323,7 +1329,7 @@ export class AvaliadorSintaticoPitugues
             // Significa que o código acabou, então o bloco também acabou.
             const espacosIndentacaoBloco = espacosIndentacaoLinhaAtual;
             while (espacosIndentacaoLinhaAtual === espacosIndentacaoBloco) {
-                const retornoDeclaracao = this.resolverDeclaracaoForaDeBloco();
+                const retornoDeclaracao = await this.resolverDeclaracaoForaDeBloco();
                 if (Array.isArray(retornoDeclaracao)) {
                     declaracoes = declaracoes.concat(retornoDeclaracao);
                 } else {
@@ -1340,13 +1346,12 @@ export class AvaliadorSintaticoPitugues
         return declaracoes;
     }
 
-    declaracaoEnquanto(): Enquanto {
+    async declaracaoEnquanto(): Promise<Enquanto> {
         try {
             this.blocos += 1;
 
-            const condicao = this.expressao();
-
-            const bloco = this.resolverDeclaracao();
+            const condicao = await this.expressao();
+            const bloco = await this.resolverDeclaracao() as Bloco;
 
             return new Enquanto(condicao, bloco);
         } finally {
@@ -1354,11 +1359,11 @@ export class AvaliadorSintaticoPitugues
         }
     }
 
-    declaracaoEscolha(): Escolha {
+    async declaracaoEscolha(): Promise<Escolha> {
         try {
             this.blocos += 1;
 
-            const condicao = this.expressao();
+            const condicao = await this.expressao();
 
             this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após 'escolha'.");
 
@@ -1371,12 +1376,12 @@ export class AvaliadorSintaticoPitugues
                 )
             ) {
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CASO)) {
-                    const caminhoCondicoes = [this.expressao()];
+                    const caminhoCondicoes = [await this.expressao()];
                     this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após o 'caso'.");
 
                     while (this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO)) {
                         this.consumir(tiposDeSimbolos.CASO, null);
-                        caminhoCondicoes.push(this.expressao());
+                        caminhoCondicoes.push(await this.expressao());
                         this.consumir(
                             tiposDeSimbolos.DOIS_PONTOS,
                             "Esperado ':' após declaração do 'caso'."
@@ -1388,7 +1393,7 @@ export class AvaliadorSintaticoPitugues
                     // foi consumido na verificação.
                     // Outro problema é que, aparentemente, o Interpretador não espera um Bloco, e sim
                     // um vetor de Declaracao, o qual obtemos com `this.blocoEscopo()`.
-                    const declaracoes = this.blocoEscopo();
+                    const declaracoes = await this.blocoEscopo();
 
                     caminhos.push({
                         condicoes: caminhoCondicoes,
@@ -1414,7 +1419,7 @@ export class AvaliadorSintaticoPitugues
                     // foi consumido na verificação.
                     // Outro problema é que, aparentemente, o Interpretador não espera um Bloco, e sim
                     // um vetor de Declaracao, o qual obtemos com `this.blocoEscopo()`.
-                    const declaracoes = this.blocoEscopo();
+                    const declaracoes = await this.blocoEscopo();
 
                     caminhoPadrao = {
                         declaracoes,
@@ -1428,7 +1433,52 @@ export class AvaliadorSintaticoPitugues
         }
     }
 
-    declaracaoPara(): ParaCada {
+    protected async declaracaoParaCada(simboloPara: SimboloInterface): Promise<ParaCada> {
+        const nomeVariavelIteracao = this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            "Esperado identificador de variável de iteração para instrução 'para cada'."
+        );
+
+        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DE, tiposDeSimbolos.EM)) {
+            throw this.erro(
+                this.simbolos[this.atual],
+                "Esperado palavras reservadas 'em' ou 'de' após variável de iteração em instrução 'para cada'."
+            );
+        }
+
+        const vetor = await this.expressao();
+        if (!vetor.hasOwnProperty('tipo')) {
+            throw this.erro(
+                simboloPara,
+                `Variável ou constante em 'para cada' não parece possuir um tipo iterável.`
+            );
+        }
+
+        const tipoVetor = (vetor as any).tipo as string;
+        if (!tipoVetor.endsWith('[]') && !['qualquer', 'vetor'].includes(tipoVetor)) {
+            throw this.erro(
+                simboloPara,
+                `Variável ou constante em 'para cada' não é iterável. Tipo resolvido: ${tipoVetor}.`
+            );
+        }
+
+        this.pilhaEscopos.definirInformacoesVariavel(
+            nomeVariavelIteracao.lexema,
+            new InformacaoElementoSintatico(nomeVariavelIteracao.lexema, tipoVetor.slice(0, -2))
+        );
+        // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
+        const corpo: Bloco = await this.resolverDeclaracao() as Bloco;
+
+        return new ParaCada(
+            this.hashArquivo,
+            Number(simboloPara.linha),
+            new Variavel(this.hashArquivo, nomeVariavelIteracao),
+            vetor,
+            corpo
+        );
+    }
+
+    async declaracaoPara(): Promise<ParaCada> {
         try {
             const simboloPara: SimboloInterface = this.simboloAnterior();
             this.blocos += 1;
@@ -1450,7 +1500,7 @@ export class AvaliadorSintaticoPitugues
                 );
             }
 
-            const vetor = this.expressao();
+            const vetor = await this.expressao();
             if (!vetor.hasOwnProperty('tipo')) {
                 throw this.erro(
                     simboloPara,
@@ -1471,7 +1521,7 @@ export class AvaliadorSintaticoPitugues
                 new InformacaoElementoSintatico(nomeVariavelIteracao.lexema, tipoVetor.slice(0, -2))
             );
             // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
-            const corpo: Bloco = this.resolverDeclaracao() as Bloco;
+            const corpo: Bloco = await this.resolverDeclaracao() as Bloco;
 
             return new ParaCada(
                 this.hashArquivo,
@@ -1487,14 +1537,14 @@ export class AvaliadorSintaticoPitugues
         }
     }
 
-    declaracaoSe(): Se {
-        const condicao = this.expressao();
+    async declaracaoSe(): Promise<Se> {
+        const condicao = await this.expressao();
 
-        const caminhoEntao = this.resolverDeclaracao();
+        const caminhoEntao = await this.resolverDeclaracao() as Bloco;
 
         let caminhoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO, tiposDeSimbolos.SENÃO)) {
-            caminhoSenao = this.resolverDeclaracao();
+            caminhoSenao = await this.resolverDeclaracao();
         }
 
         return new Se(condicao, caminhoEntao, [], caminhoSenao);
@@ -1532,31 +1582,31 @@ export class AvaliadorSintaticoPitugues
         return new Continua(this.simboloAtual());
     }
 
-    declaracaoRetorna(): Retorna {
+    async declaracaoRetorna(): Promise<Retorna> {
         const palavraChave = this.simboloAnterior();
         let valor = null;
 
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PONTO_E_VIRGULA)) {
-            valor = this.expressao();
+            valor = await this.expressao();
         }
 
         return new Retorna(palavraChave, valor);
     }
 
-    declaracaoImportar(): ImportarComoConstruto {
+    async declaracaoImportar(): Promise<ImportarComoConstruto> {
         this.avancarEDevolverAnterior();
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após declaração.");
-        const caminho = this.expressao();
+        const caminho = await this.expressao();
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração.");
 
         return new ImportarComoConstruto(caminho as Literal);
     }
 
-    declaracaoTente(): Tente {
+    async declaracaoTente(): Promise<Tente> {
         const simboloTente: SimboloInterface = this.simboloAnterior();
         this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após a declaração 'tente'.");
 
-        const blocoTente = this.blocoEscopo();
+        const blocoTente = await this.blocoEscopo();
 
         let blocoPegue = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PEGUE)) {
@@ -1572,7 +1622,7 @@ export class AvaliadorSintaticoPitugues
                     new InformacaoElementoSintatico(variavelExcecao.lexema, 'qualquer')
                 );
 
-                const corpo = this.blocoEscopo();
+                const corpo = await this.blocoEscopo();
 
                 blocoPegue = new FuncaoConstruto(
                     this.hashArquivo,
@@ -1594,7 +1644,7 @@ export class AvaliadorSintaticoPitugues
                     "Esperado ':' após a declaração 'pegue'."
                 );
 
-                blocoPegue = this.blocoEscopo();
+                blocoPegue = await this.blocoEscopo();
             }
         }
 
@@ -1602,14 +1652,14 @@ export class AvaliadorSintaticoPitugues
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO, tiposDeSimbolos.SENÃO)) {
             this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após a declaração 'senão'.");
 
-            blocoSenao = this.blocoEscopo();
+            blocoSenao = await this.blocoEscopo();
         }
 
         let blocoFinalmente = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FINALMENTE)) {
             this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após a declaração 'pegue'.");
 
-            blocoFinalmente = this.blocoEscopo();
+            blocoFinalmente = await this.blocoEscopo();
         }
 
         return new Tente(
@@ -1622,20 +1672,20 @@ export class AvaliadorSintaticoPitugues
         );
     }
 
-    declaracaoFazer(): Fazer {
+    async declaracaoFazer(): Promise<Fazer> {
         const simboloFazer: SimboloInterface = this.simboloAnterior();
 
         try {
             this.blocos += 1;
 
-            const declaracaoOuBlocoFazer = this.resolverDeclaracao();
+            const declaracaoOuBlocoFazer = await this.resolverDeclaracao() as Bloco;
 
             this.consumir(
                 tiposDeSimbolos.ENQUANTO,
                 "Esperado declaração do 'enquanto' após o escopo da declaração 'fazer'."
             );
 
-            const condicaoEnquanto = this.expressao();
+            const condicaoEnquanto = await this.expressao();
 
             return new Fazer(
                 simboloFazer.hashArquivo,
@@ -1648,7 +1698,7 @@ export class AvaliadorSintaticoPitugues
         }
     }
 
-    funcao(tipo: string, construtor?: boolean): FuncaoDeclaracao {
+    async funcao(tipo: string, construtor?: boolean): Promise<FuncaoDeclaracao> {
         const simbolo: SimboloInterface = !construtor
             ? this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado nome ${tipo}.`)
             : new Simbolo(tiposDeSimbolos.CONSTRUTOR, 'construtor', null, -1, -1);
@@ -1660,7 +1710,7 @@ export class AvaliadorSintaticoPitugues
             new InformacaoElementoSintatico(simbolo.lexema, 'qualquer')
         );
 
-        const corpoDaFuncao = this.corpoDaFuncao(tipo);
+        const corpoDaFuncao = await this.corpoDaFuncao(tipo);
         const tipoDaFuncao = `função<${corpoDaFuncao.tipo}>`;
         this.pilhaEscopos.definirInformacoesVariavel(
             simbolo.lexema,
@@ -1671,7 +1721,7 @@ export class AvaliadorSintaticoPitugues
         return funcaoDeclaracao;
     }
 
-    logicaComumParametros(): Array<Partial<ParametroInterface>> {
+    async logicaComumParametros(): Promise<Array<Partial<ParametroInterface>>> {
         const parametros: Array<Partial<ParametroInterface>> = [];
 
         do {
@@ -1700,7 +1750,7 @@ export class AvaliadorSintaticoPitugues
             }
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-                parametro.valorPadrao = this.primario();
+                parametro.valorPadrao = await this.primario();
             }
 
             this.pilhaEscopos.definirInformacoesVariavel(
@@ -1722,7 +1772,7 @@ export class AvaliadorSintaticoPitugues
      * Resolve uma lista de compreensão.
      * @returns {ListaCompreensao} A lista de compreensão resolvida.
      */
-    protected resolverCompreensaoDeLista(): ListaCompreensao {
+    protected async resolverCompreensaoDeLista(): Promise<ListaCompreensao> {
         // TODO: Se expressão não começar com um identificador, por exemplo `3 * x`, como faríamos para
         // aceitar o `x` na avaliação da expressão?
         if (this.simbolos[this.atual].tipo === tiposDeSimbolos.IDENTIFICADOR) {
@@ -1735,7 +1785,7 @@ export class AvaliadorSintaticoPitugues
         }
 
         // TODO: Reavaliar a precedência do se ternário.
-        const retornoExpressao = this.ou();
+        const retornoExpressao = await this.ou();
 
         this.consumir(tiposDeSimbolos.PARA, "Esperado instrução 'para' após identificado.");
         this.consumir(tiposDeSimbolos.CADA, "Esperado instrução 'cada' após 'para'.");
@@ -1762,11 +1812,11 @@ export class AvaliadorSintaticoPitugues
 
         const localizacaoVetor = this.simboloAnterior();
         // TODO: Reavaliar a precedência do se ternário.
-        const vetor = this.ou();
+        const vetor = await this.ou();
 
         this.consumir(tiposDeSimbolos.SE, "Esperado condição 'se' após vetor.");
 
-        const condicao = this.expressao();
+        const condicao = await this.expressao();
 
         this.consumir(
             tiposDeSimbolos.COLCHETE_DIREITO,
@@ -1861,7 +1911,7 @@ export class AvaliadorSintaticoPitugues
         }
     }
 
-    corpoDaFuncao(tipo: string): FuncaoConstruto {
+    async corpoDaFuncao(tipo: string): Promise<FuncaoConstruto> {
         // O parêntese esquerdo é considerado o símbolo inicial para
         // fins de localização.
         const parenteseEsquerdo = this.consumir(
@@ -1871,7 +1921,7 @@ export class AvaliadorSintaticoPitugues
 
         let parametros = [];
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
-            parametros = this.logicaComumParametros();
+            parametros = await this.logicaComumParametros();
         }
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
@@ -1885,8 +1935,9 @@ export class AvaliadorSintaticoPitugues
         }
 
         this.consumir(tiposDeSimbolos.DOIS_PONTOS, `Esperado ':' antes do escopo do ${tipo}.`);
+
         const documentacao = this.declaracaoTextoDeDocumentacao();
-        const corpo = this.blocoEscopo();
+        const corpo = await this.blocoEscopo();
 
         tipoRetorno = logicaValidacaoRetornoFuncao(
             this,
@@ -1907,7 +1958,7 @@ export class AvaliadorSintaticoPitugues
         );
     }
 
-    declaracaoDeClasse(): Classe {
+    async declaracaoDeClasse(): Promise<Classe> {
         const simbolo: SimboloInterface = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
             'Esperado nome da classe.'
@@ -1955,7 +2006,7 @@ export class AvaliadorSintaticoPitugues
                 propriedades.push(propriedade);
             } else {
                 metodos.push(
-                    this.funcao(
+                    await this.funcao(
                         'método',
                         this.simbolos[this.atual - 1].tipo === tiposDeSimbolos.CONSTRUTOR
                     )
@@ -2024,7 +2075,7 @@ export class AvaliadorSintaticoPitugues
      * ou uma expressão.
      * @returns Objeto do tipo `Declaracao`.
      */
-    resolverDeclaracaoForaDeBloco(): Declaracao {
+    async resolverDeclaracaoForaDeBloco(): Promise<Declaracao | Declaracao[]> {
         try {
             if (
                 (this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) ||
@@ -2032,20 +2083,20 @@ export class AvaliadorSintaticoPitugues
                 this.verificarTipoProximoSimbolo(tiposDeSimbolos.IDENTIFICADOR)
             ) {
                 this.avancarEDevolverAnterior();
-                return this.funcao('funcao');
+                return await this.funcao('funcao');
             }
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CLASSE))
-                return this.declaracaoDeClasse();
+                return await this.declaracaoDeClasse();
 
-            return this.resolverDeclaracao();
-        } catch (erro) {
+            return await this.resolverDeclaracao();
+        } catch (erro: any) {
             this.sincronizar();
             return null;
         }
     }
 
-    resolverDeclaracao(): any {
+    async resolverDeclaracao(): Promise<Declaracao | Declaracao[]> {
         // Detecção de declaração implícita ou múltipla atribuição (pode começar com * ou identificador)
         const simboloAtual = this.simbolos[this.atual];
 
@@ -2086,7 +2137,7 @@ export class AvaliadorSintaticoPitugues
                 return new Bloco(
                     simboloInicioBloco.hashArquivo,
                     Number(simboloInicioBloco.linha),
-                    this.blocoEscopo()
+                    await this.blocoEscopo()
                 );
             case tiposDeSimbolos.ENQUANTO:
                 this.avancarEDevolverAnterior();
@@ -2116,7 +2167,7 @@ export class AvaliadorSintaticoPitugues
                 return this.declaracaoSe();
             case tiposDeSimbolos.RETORNA:
                 this.avancarEDevolverAnterior();
-                return this.declaracaoRetorna();
+                return await this.declaracaoRetorna();
             case tiposDeSimbolos.TENTE:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoTente();
@@ -2291,10 +2342,10 @@ export class AvaliadorSintaticoPitugues
         );
     }
 
-    analisar(
+    async analisar(
         retornoLexador: RetornoLexador<SimboloInterface>,
         hashArquivo: number
-    ): RetornoAvaliadorSintatico<Declaracao> {
+    ): Promise<RetornoAvaliadorSintatico<Declaracao>> {
         const inicioAnalise: [number, number] = hrtime();
         this.erros = [];
         this.atual = 0;
@@ -2311,7 +2362,8 @@ export class AvaliadorSintaticoPitugues
 
         let declaracoes: Declaracao[] = [];
         while (!this.estaNoFinal()) {
-            const retornoDeclaracao = this.resolverDeclaracaoForaDeBloco();
+            const retornoDeclaracao = await this.resolverDeclaracaoForaDeBloco();
+
             if (retornoDeclaracao === null) {
                 continue;
             }

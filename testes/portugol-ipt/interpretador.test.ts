@@ -21,7 +21,7 @@ describe('Interpretador', () => {
                     'escrever "Olá mundo"',
                     'fim'
                 ], -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                 interpretador.funcaoDeRetorno = (saida: string) => {
                     expect(saida).toEqual("Olá mundo")
@@ -55,7 +55,7 @@ describe('Interpretador', () => {
                     '    fimse',
                     'fim'
                 ], -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                 interpretador.funcaoDeRetorno = (saida: string) => {
                     expect(saida).toEqual("Você é maior de idade")

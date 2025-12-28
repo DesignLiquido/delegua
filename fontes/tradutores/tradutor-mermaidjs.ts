@@ -202,7 +202,7 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
             case 'texto':
                 return `\\'${literal.valor}\\'`;
             default:
-                return literal.valor;
+                return String(literal.valor);
         }
     }
 

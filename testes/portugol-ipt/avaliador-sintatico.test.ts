@@ -11,13 +11,13 @@ describe('Avaliador sintático (Portugol IPT)', () => {
             avaliadorSintatico = new AvaliadorSintaticoPortugolIpt();
         });
 
-        it('Sucesso - Olá Mundo', () => {
+        it('Sucesso - Olá Mundo', async () => {
             const retornoLexador = lexador.mapear([
                 'inicio',
                 'escrever "Olá mundo"',
                 'fim'
             ], -1);
-            const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
             expect(retornoAvaliadorSintatico).toBeTruthy();
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);

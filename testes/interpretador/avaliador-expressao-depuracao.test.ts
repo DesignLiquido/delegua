@@ -185,7 +185,7 @@ describe('Avaliador de Expressões para Depuração', () => {
                     'var lista = [1, 2, 3]',
                     'escreva(x)'
                 ], -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                 interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
                 // Executar primeira linha para definir variável
@@ -230,7 +230,7 @@ describe('Avaliador de Expressões para Depuração', () => {
                     'var contador = 0',
                     'escreva(contador)'
                 ], -1);
-                const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                 interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
                 await interpretador.instrucaoPasso();
