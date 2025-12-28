@@ -37,6 +37,7 @@ import {
     Super,
     TipoDe,
     Tupla,
+    TuplaN,
     Unario,
     Variavel,
     Vetor,
@@ -730,9 +731,21 @@ export class AvaliadorSintatico
                 return this.paraComoConstruto(simboloPara);
             case tiposDeSimbolos.PARENTESE_ESQUERDO:
                 this.avancarEDevolverAnterior();
-                const expressao = this.expressao();
-                this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
 
+                // Verifica se é tupla vazia
+                if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_DIREITO)) {
+                    return new TuplaN(this.hashArquivo, Number(simboloAtual.linha), []);
+                }
+
+                const expressao = this.tupla();
+
+                // Se a expressão já é uma tupla (com vírgulas), retorna ela
+                if (expressao instanceof TuplaN) {
+                    this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após itens da tupla.");
+                    return expressao;
+                }
+
+                this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
                 return new Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
 
             case tiposDeSimbolos.SUPER:
@@ -1680,6 +1693,32 @@ export class AvaliadorSintatico
      * Método que resolve atribuições.
      * @returns Um construto do tipo `Atribuir`, `Conjunto` ou `AtribuicaoPorIndice`.
      */
+    /**
+     * Processa tuplas, que são expressões separadas por vírgula entre parênteses.
+     * Se não houver vírgula, retorna apenas a expressão simples.
+     * Sobrescreve o método da base para usar seTernario() em vez de ou().
+     */
+    override tupla(): Construto {
+        let expressao = this.seTernario();
+
+        // Se não há vírgula, retorna a expressão simples
+        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)) {
+            return expressao;
+        }
+
+        // Se há vírgula, então é uma tupla
+        const elementos = [expressao];
+
+        do {
+            if (this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+                break;
+            }
+            elementos.push(this.seTernario());
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        return new TuplaN(this.hashArquivo, expressao.linha, elementos);
+    }
+
     override atribuir(): Construto {
         const expressao = this.seTernario();
 

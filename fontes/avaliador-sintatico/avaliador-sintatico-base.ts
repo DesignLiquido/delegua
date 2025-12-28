@@ -1,4 +1,4 @@
-import { Binario, Chamada, Construto, FuncaoConstruto, Leia, Logico, Unario } from '../construtos';
+import { Binario, Chamada, Construto, FuncaoConstruto, Leia, Logico, TuplaN, Unario } from '../construtos';
 import {
     Classe,
     Continua,
@@ -265,6 +265,31 @@ export abstract class AvaliadorSintaticoBase
         }
 
         return expressao;
+    }
+
+    /**
+     * Processa tuplas, que são expressões separadas por vírgula entre parênteses.
+     * Se não houver vírgula, retorna apenas a expressão simples.
+     */
+    protected tupla(): Construto {
+        let expressao = this.ou();
+
+        // Se não há vírgula, retorna a expressão simples
+        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)) {
+            return expressao;
+        }
+
+        // Se há vírgula, então é uma tupla
+        const elementos = [expressao];
+
+        do {
+            if (this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+                break;
+            }
+            elementos.push(this.ou());
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        return new TuplaN(this.hashArquivo, expressao.linha, elementos);
     }
 
     protected expressao(): Construto {
