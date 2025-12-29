@@ -1,4 +1,5 @@
-import { AcessoMetodo,
+import {
+    AcessoMetodo,
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
     AcessoIntervaloVariavel,
@@ -95,7 +96,45 @@ export class InterpretadorPitugues extends Interpretador {
         return comum.visitarExpressaoTuplaN(this, expressao);
     }
 
-    async visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> {
+    override async visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> {
+        const valor = await this.avaliar(expressao.valor);
+        const valorResolvido = this.resolverValor(valor);
+        let indice: any = null;
+
+        if (expressao.indice) {
+            indice = await this.avaliar(expressao.indice);
+        }
+
+        // Comportamento específico do Pituguês (LEGB - como Python):
+        // Quando se faz uma atribuição dentro de uma função, SEMPRE tem que ser criada
+        // uma variável local, a menos que a variável já exista no escopo atual.
+        // Isso evita que atribuições dentro de funções modifiquem variáveis globais.
+        if (expressao.alvo.constructor.name === 'Variavel') {
+            const alvoVariavel = expressao.alvo as any;
+            const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
+            const nomeVariavel = alvoVariavel.simbolo.lexema;
+
+
+            const variavelNoEscopoAtual = escopoAtual.espacoMemoria.valores[nomeVariavel];
+
+            if (variavelNoEscopoAtual !== undefined) {
+                this.pilhaEscoposExecucao.atribuirVariavel(
+                    alvoVariavel.simbolo,
+                    valorResolvido,
+                    indice
+                );
+            } else {
+                this.pilhaEscoposExecucao.definirVariavel(
+                    nomeVariavel,
+                    valorResolvido
+                );
+            }
+
+            return valorResolvido;
+        }
+
+        // Para outros tipos de atribuição (propriedades, índices, etc.),
+        // usa o comportamento padrão
         return super.visitarExpressaoDeAtribuicao(expressao);
     }
 
@@ -130,7 +169,7 @@ export class InterpretadorPitugues extends Interpretador {
             }
 
             if (valorIndice < 0 || valorIndice >= objetoResolvido.elementos.length) {
-                 throw new ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Índice fora do intervalo.', expressao.linha);
+                throw new ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Índice fora do intervalo.', expressao.linha);
             }
 
             const elemento = objetoResolvido.elementos[valorIndice];
