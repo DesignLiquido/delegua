@@ -337,7 +337,7 @@ export default {
             const retorno = [];
             for (let elemento of vetor) {
                 let resultado = await funcao.chamar(interpretador, [elemento]);
-                retorno.push(resultado);
+                retorno.push(interpretador.resolverValor(resultado));
             }
 
             return retorno;

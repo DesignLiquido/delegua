@@ -6,7 +6,6 @@ import { ErroEmTempoDeExecucao } from '../excecoes';
 
 export const implementacaoParticao = (
     interpretador: InterpretadorInterface,
-    nomePrimitiva: string,
     texto: any,
     separador: any,
     ...args: any[]
@@ -14,7 +13,7 @@ export const implementacaoParticao = (
     if (args.length > 0) {
         return Promise.reject(new ErroEmTempoDeExecucao(
             null,
-            `A função "${nomePrimitiva}" aceita apenas um argumento.`,
+            `A função "partição" aceita apenas um argumento.`,
             interpretador.linhaDeclaracaoAtual
         ));
     }
@@ -22,7 +21,7 @@ export const implementacaoParticao = (
     if (typeof texto !== 'string') {
         return Promise.reject(new ErroEmTempoDeExecucao(
             null,
-            `A função "particao" só pode ser chamada em textos.`,
+            `A função "partição" só pode ser chamada em textos.`,
             interpretador.linhaDeclaracaoAtual
         ));
     }
@@ -30,7 +29,7 @@ export const implementacaoParticao = (
     if (separador === undefined) {
         return Promise.reject(new ErroEmTempoDeExecucao(
             null,
-            `A função "particao" requer um argumento separador.`,
+            `A função "partição" requer um argumento separador.`,
             interpretador.linhaDeclaracaoAtual
         ));
     }

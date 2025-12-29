@@ -250,6 +250,45 @@ export class InterpretadorBase implements InterpretadorInterface {
         return objeto;
     }
 
+    /**
+     * Resolve valores recursivamente, incluindo valores aninhados em arrays e dicionários.
+     * Remove metadados que não devem ser serializados.
+     * @param objeto O objeto a ser resolvido
+     * @returns O valor resolvido sem metadados
+     */
+    protected resolverValorRecursivo(objeto: any): any {
+        // Null, undefined, ou tipos primitivos
+        if (objeto === null || objeto === undefined || typeof objeto !== 'object') {
+            return objeto;
+        }
+
+        // Resolve metadados primeiro (valorRetornado ou valor)
+        if (objeto.hasOwnProperty && objeto.hasOwnProperty('valorRetornado')) {
+            return this.resolverValorRecursivo(objeto.valorRetornado);
+        }
+
+        if (objeto.hasOwnProperty && objeto.hasOwnProperty('valor')) {
+            return this.resolverValorRecursivo(objeto.valor);
+        }
+
+        // Se é array, resolve recursivamente todos os elementos
+        if (Array.isArray(objeto)) {
+            return objeto.map(elemento => this.resolverValorRecursivo(elemento));
+        }
+
+        // Se é objeto plano, resolve recursivamente todas as propriedades
+        if (objeto && objeto.constructor && objeto.constructor === Object) {
+            const objetoResolvido: any = {};
+            for (const chave in objeto) {
+                objetoResolvido[chave] = this.resolverValorRecursivo(objeto[chave]);
+            }
+            return objetoResolvido;
+        }
+
+        // Outros tipos de objetos (Date, classes customizadas, etc.)
+        return objeto;
+    }
+
     visitarExpressaoArgumentoReferenciaFuncao(
         expressao: ArgumentoReferenciaFuncao
     ): Promise<any> | void {
@@ -2023,7 +2062,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
                 if (typeof promises[0] === 'boolean') {
                     const chaveLogico = promises[0] === true ? 'verdadeiro' : 'falso';
-                    dicionario[chaveLogico] = promises[1];
+                    dicionario[chaveLogico] = this.resolverValor(promises[1]);
                     continue;
                 }
 
@@ -2037,7 +2076,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     async visitarExpressaoVetor(expressao: Vetor): Promise<any> {
         const valores = [];
         for (let i = 0; i < expressao.valores.length; i++) {
-            valores.push(await this.avaliar(expressao.valores[i]));
+            valores.push(this.resolverValor(await this.avaliar(expressao.valores[i])));
         }
 
         return valores.filter((v) => v !== null && v !== undefined);
@@ -2143,7 +2182,8 @@ export class InterpretadorBase implements InterpretadorInterface {
                 if ('tipo' in objeto) {
                     switch (objeto.tipo) {
                         case 'dicionário':
-                            return JSON.stringify(objeto.valor);
+                            const valorResolvido = this.resolverValorRecursivo(objeto.valor);
+                            return JSON.stringify(valorResolvido);
                         default:
                             return objeto.valor;
                     }

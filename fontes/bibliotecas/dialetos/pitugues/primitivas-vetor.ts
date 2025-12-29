@@ -1,5 +1,5 @@
 import { DeleguaFuncao } from '../../../interpretador/estruturas';
-import { InterpretadorInterface, PrimitivaInterface, SimboloInterface } from '../../../interfaces';
+import { InterpretadorInterface, PrimitivaInterface } from '../../../interfaces';
 import { InformacaoElementoSintatico } from '../../../informacao-elemento-sintatico';
 import { inferirTipoVariavel } from '../../../inferenciador';
 import { Literal, TuplaN } from '../../../construtos';
@@ -316,7 +316,7 @@ export default {
             const retorno = [];
             for (let elemento of vetor) {
                 let resultado = await funcao.chamar(interpretador, [elemento]);
-                retorno.push(resultado);
+                retorno.push(interpretador.resolverValor(resultado));
             }
 
             return retorno;

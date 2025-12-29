@@ -343,7 +343,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 }
 
                 if (acumularRetornos) {
-                    retornos.push(retornoExecucao);
+                    retornos.push(this.resolverValor(retornoExecucao));
                 }
             } catch (erro: any) {
                 this.erros.push({
@@ -391,7 +391,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 }
 
                 if (acumularRetornos) {
-                    retornos.push(retornoExecucao);
+                    retornos.push(this.resolverValor(retornoExecucao));
                 }
             } catch (erro: any) {
                 this.erros.push({
@@ -458,7 +458,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             }
 
             if (acumularRetornos) {
-                retornos.push(retornoExecucao);
+                retornos.push(this.resolverValor(retornoExecucao));
             }
 
             if (para.incrementar !== null) {
@@ -573,7 +573,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 }
 
                 if (acumularRetornos) {
-                    retornos.push(retornoExecucao);
+                    retornos.push(this.resolverValor(retornoExecucao));
                 }
 
                 paraCada.posicaoAtual++;
@@ -1156,7 +1156,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             objeto[indice] = valor;
             // this.pilhaEscoposExecucao.atribuirVariavel((expressao.objeto as any).simbolo, objeto);
         } else if (
-            objeto.constructor === Object ||
+            (objeto && objeto.constructor === Object) ||
             objeto instanceof ObjetoDeleguaClasse ||
             objeto instanceof DeleguaFuncao ||
             objeto instanceof DescritorTipoClasse ||
