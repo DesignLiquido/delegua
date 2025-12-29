@@ -15,7 +15,6 @@ const contem_comum = (nome: string) => {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             valor: object,
             chave: any
         ): Promise<boolean> => Promise.resolve(chave in valor),
@@ -39,7 +38,6 @@ export default {
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             valor: object
         ): Promise<any> => {
             return Promise.resolve(Object.keys(valor));
@@ -62,7 +60,6 @@ export default {
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             valor: object
         ): Promise<any> => {
             const pares = Object.entries(valor).map(([chave, valor]) => {
@@ -89,7 +86,6 @@ export default {
         argumentos: [new InformacaoElementoSintatico('chave', 'texto')],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             valor: object,
             chave: string
         ): Promise<boolean> => Promise.resolve(delete valor[chave]),
@@ -100,7 +96,6 @@ export default {
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             valor: object
         ): Promise<any> => {
             return Promise.resolve(Object.values(valor));

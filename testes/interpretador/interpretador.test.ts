@@ -2213,6 +2213,27 @@ describe('Interpretador', () => {
                         expect(retornoInterpretador.erros).toHaveLength(0);
                         expect(_saidas).toHaveLength(1);
                     });
+
+                    it('Para com aninhamento', async () => {
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'var castelo = [[0, 1, 0], [0, 0, 0], [0, 0, 0]]',
+                                'para (var i = 0; i < castelo.tamanho(); i++) {',
+                                '    para (var j = 0; j < castelo[i].tamanho(); j++) {',
+                                '        se (castelo[i][j] == 1) {',
+                                '            castelo[i][j] = \'princesa\'',
+                                '        }',
+                                '    }',
+                                '}',
+                                'escreva(castelo)'
+                            ], -1);
+
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                    });
                 });
             });
 

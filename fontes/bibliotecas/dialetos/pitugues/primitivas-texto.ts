@@ -9,7 +9,6 @@ export default {
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             texto: string
         ): Promise<string> => Promise.resolve(texto.trim()),
         assinaturaFormato: 'texto.aparar()',
@@ -27,7 +26,6 @@ export default {
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             texto: string
         ): Promise<string> => Promise.resolve(texto.trimEnd()),
         assinaturaFormato: 'texto.aparar_fim()',
@@ -45,7 +43,6 @@ export default {
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             texto: string
         ): Promise<string> => Promise.resolve(texto.trimStart()),
         assinaturaFormato: 'texto.aparar_inicio()',
@@ -71,7 +68,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             ...texto: string[]
         ): Promise<string> => Promise.resolve(''.concat(...texto)),
         assinaturaFormato: 'texto.concatenar(...outroTexto: texto)',
@@ -105,7 +101,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             texto: string,
             divisor: string,
             limite?: number
@@ -146,7 +141,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             texto: string,
             subtexto: string,
             indiceInicio?: number
@@ -188,7 +182,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             texto: string,
             subtexto: string,
             indiceInicio?: number
@@ -244,7 +237,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             texto: string,
             inicio: number,
             fim: number
@@ -275,7 +267,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             texto: string,
             elemento: string
         ): Promise<boolean> => Promise.resolve(texto.includes(elemento)),
@@ -295,7 +286,6 @@ export default {
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             texto: string
         ): Promise<string> =>
             Promise.resolve(
@@ -316,7 +306,6 @@ export default {
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             texto: string
         ): Promise<string> => Promise.resolve(texto.toUpperCase()),
         assinaturaFormato: 'texto.maiusculo()',
@@ -334,7 +323,6 @@ export default {
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             texto: string
         ): Promise<string> => Promise.resolve(texto.toLowerCase()),
         assinaturaFormato: 'texto.minusculo()',
@@ -399,7 +387,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             texto: string,
             elemento: string,
             substituto: string
@@ -434,7 +421,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             texto: string,
             inicio: number,
             fim: number
@@ -454,7 +440,6 @@ export default {
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             texto: string
         ): Promise<number> => Promise.resolve(texto.length),
         assinaturaFormato: 'texto.tamanho()',
@@ -480,7 +465,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             texto: string,
             sufixo: string
         ): Promise<boolean> => Promise.resolve(texto.endsWith(sufixo)),
@@ -501,7 +485,6 @@ export default {
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             texto: string
         ): Promise<boolean> => Promise.resolve(texto === texto.toUpperCase()),
         assinaturaFormato: 'texto.tudo_maiusculo()',
@@ -521,7 +504,6 @@ export default {
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             texto: string
         ): Promise<boolean> => Promise.resolve(texto === texto.toLowerCase()),
         assinaturaFormato: 'texto.tudo_minusculo()',

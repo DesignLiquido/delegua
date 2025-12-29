@@ -1145,7 +1145,7 @@ describe('Interpretador (Pituguês)', () => {
 
                         expect(retornoInterpretador.erros).toHaveLength(0);
                         expect(_saidas).toHaveLength(1);
-                        expect(_saidas[0]).toBe("[[\"a\",1], [\"b\",2], [\"c\",3]]");
+                        expect(_saidas[0]).toBe("[['a', 1], ['b', 2], ['c', 3]]");
                     });
                 });
             });

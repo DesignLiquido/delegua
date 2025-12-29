@@ -129,17 +129,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         }
 
         if (Array.isArray(objeto)) {
-            // Caso interpretador precise da referência ao vetor original (por exemplo, visita a `AcessoMetodoOuPropriedade`).
-            if (referencia) {
-                return objeto;
-            }
-
-            const vetorResolvido: any[] = [];
-            for (const elemento of objeto) {
-                vetorResolvido.push(this.resolverValor(elemento));
-            }
-
-            return vetorResolvido;
+            return objeto;
         }
 
         if (objeto instanceof ReferenciaMontao) {
@@ -208,8 +198,20 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         if (Array.isArray(objeto)) {
             let retornoVetor: string = '[';
             for (let elemento of objeto) {
+                // Resolve referências ao montão antes de processar
+                if (elemento instanceof ReferenciaMontao) {
+                    elemento = this.resolverValor(elemento);
+                }
+
                 if (elemento instanceof Tupla) {
                     retornoVetor += elemento.paraTextoSaida() + ', ';
+                    continue;
+                }
+
+                // Se o elemento é um array (incluindo arrays resolvidos de referências),
+                // chama paraTexto recursivamente para processá-lo corretamente
+                if (Array.isArray(elemento)) {
+                    retornoVetor += this.paraTexto(elemento) + ', ';
                     continue;
                 }
 
@@ -341,7 +343,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 }
 
                 if (acumularRetornos) {
-                    retornos.push(retornoExecucao);
+                    retornos.push(this.resolverValor(retornoExecucao));
                 }
             } catch (erro: any) {
                 this.erros.push({
@@ -389,7 +391,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 }
 
                 if (acumularRetornos) {
-                    retornos.push(retornoExecucao);
+                    retornos.push(this.resolverValor(retornoExecucao));
                 }
             } catch (erro: any) {
                 this.erros.push({
@@ -456,7 +458,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             }
 
             if (acumularRetornos) {
-                retornos.push(retornoExecucao);
+                retornos.push(this.resolverValor(retornoExecucao));
             }
 
             if (para.incrementar !== null) {
@@ -571,7 +573,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 }
 
                 if (acumularRetornos) {
-                    retornos.push(retornoExecucao);
+                    retornos.push(this.resolverValor(retornoExecucao));
                 }
 
                 paraCada.posicaoAtual++;
@@ -794,7 +796,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
         let tipoObjeto = variavelObjeto.tipo;
         if (tipoObjeto === null || tipoObjeto === undefined) {
-            tipoObjeto = inferirTipoVariavel(variavelObjeto as any);
+            tipoObjeto = inferirTipoVariavel(objeto as any);
         }
 
         // Como internamente um dicionário de Delégua é simplesmente um objeto de
@@ -917,7 +919,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
         let tipoObjeto = variavelObjeto.tipo;
         if (tipoObjeto === null || tipoObjeto === undefined) {
-            tipoObjeto = inferirTipoVariavel(variavelObjeto as any);
+            tipoObjeto = inferirTipoVariavel(objeto as any);
         }
 
         // Como internamente um dicionário de Delégua é simplesmente um objeto de
@@ -1064,7 +1066,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
         let tipoObjeto = variavelObjeto.tipo;
         if (tipoObjeto === null || tipoObjeto === undefined) {
-            tipoObjeto = inferirTipoVariavel(variavelObjeto as any);
+            tipoObjeto = inferirTipoVariavel(objeto as any);
         }
 
         return Promise.reject(
@@ -1152,9 +1154,9 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             }
 
             objeto[indice] = valor;
-            this.pilhaEscoposExecucao.atribuirVariavel((expressao.objeto as any).simbolo, objeto);
+            // this.pilhaEscoposExecucao.atribuirVariavel((expressao.objeto as any).simbolo, objeto);
         } else if (
-            objeto.constructor === Object ||
+            (objeto && objeto.constructor === Object) ||
             objeto instanceof ObjetoDeleguaClasse ||
             objeto instanceof DeleguaFuncao ||
             objeto instanceof DescritorTipoClasse ||
@@ -1441,6 +1443,16 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             default:
                 return inferirTipoVariavel(valorTipoDe);
         }
+    }
+
+    override async visitarExpressaoVetor(expressao: Vetor): Promise<any> {
+        // Delega ao interpretador base para processar o vetor
+        const vetor = await super.visitarExpressaoVetor(expressao);
+
+        // Adiciona referência no montão (comportamento específico deste interpretador)                                                                             
+        const enderecoVetorMontao = this.montao.adicionarReferencia(vetor);                                                                                         
+        this.pilhaEscoposExecucao.registrarReferenciaMontao(enderecoVetorMontao);                                                                                   
+        return new ReferenciaMontao(enderecoVetorMontao);
     }
 
     /**

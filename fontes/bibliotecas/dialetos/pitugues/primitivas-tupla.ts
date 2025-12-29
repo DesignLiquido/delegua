@@ -8,7 +8,6 @@ export default {
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             tupla: TuplaN
         ): Promise<any> => {
             const objetoTupla = interpretador.resolverValor(tupla);
@@ -17,7 +16,7 @@ export default {
                 return Promise.reject(
                     new ErroEmTempoDeExecucao(
                         null,
-                        `A função "${nomePrimitiva}" só pode ser chamada em tuplas.`,
+                        `A função "paraVetor" só pode ser chamada em tuplas.`,
                         interpretador.linhaDeclaracaoAtual
                     )
                 );
