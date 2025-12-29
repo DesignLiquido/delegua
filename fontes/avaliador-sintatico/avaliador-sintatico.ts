@@ -37,6 +37,7 @@ import {
     Super,
     TipoDe,
     Tupla,
+    TuplaN,
     Unario,
     Variavel,
     Vetor,
@@ -234,7 +235,7 @@ export class AvaliadorSintatico
         this.emAjuda = false;
 
         this.consumir(
-            tiposDeSimbolos.PARENTESE_DIREITO, 
+            tiposDeSimbolos.PARENTESE_DIREITO,
             `Esperado parêntese direito após expressão usada como argumento em ajuda(). Atual: ${this.simbolos[this.atual].lexema}.`
         );
 
@@ -320,7 +321,7 @@ export class AvaliadorSintatico
 
     /**
      * `delegua-node` e a extensão para VSCode precisam que este método seja assíncrono.
-     * @returns 
+     * @returns
      */
     protected async construtoImportar(): Promise<ImportarComoConstruto> {
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após declaração.");
@@ -538,7 +539,7 @@ export class AvaliadorSintatico
                     return this.construtoTupla();
                 }
 
-                // Ao resolver a expressão aqui, identificadores dentro da expressão de compreensão 
+                // Ao resolver a expressão aqui, identificadores dentro da expressão de compreensão
                 // de lista serão tratados como 'qualquer', para evitar erros de tipo.
                 this.intuirTipoQualquerParaIdentificadores = true;
                 const retornoExpressaoOuPrimeiroValor = await this.seTernario();
@@ -650,7 +651,7 @@ export class AvaliadorSintatico
                 let tipoOperando: string;
 
                 if (this.intuirTipoQualquerParaIdentificadores) {
-                    // Esta indicação é utilizada para compreensões de lista, onde o 
+                    // Esta indicação é utilizada para compreensões de lista, onde o
                     // tipo do identificador de iteração é 'qualquer' por definição.
                     tipoOperando = 'qualquer';
                     this.pilhaEscopos.definirInformacoesVariavel(
@@ -733,7 +734,15 @@ export class AvaliadorSintatico
                 return await this.paraComoConstruto(simboloPara);
             case tiposDeSimbolos.PARENTESE_ESQUERDO:
                 this.avancarEDevolverAnterior();
-                const expressao = await this.expressao();
+
+                if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_DIREITO)) {
+                    return new TuplaN(this.hashArquivo, Number(simboloAtual.linha), []);
+                }
+                const expressao = await this.tupla();
+                if (expressao instanceof TuplaN) {
+                    this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após itens da tupla.");
+                    return expressao;
+                }
                 this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
 
                 return new Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
@@ -895,7 +904,7 @@ export class AvaliadorSintatico
                 return new TipoDe(this.hashArquivo, simboloAtual, construto);
         }
 
-        // TODO: O correto seria emitir algum aviso aqui que este avaliador sintático não consegue 
+        // TODO: O correto seria emitir algum aviso aqui que este avaliador sintático não consegue
         // lidar com tópicos de ajuda neste ponto.
         if (this.emAjuda) {
             console.log(this.simbolos[this.atual]);
@@ -1353,9 +1362,9 @@ export class AvaliadorSintatico
     }
 
     /**
-     * A exponenciacão é uma exceção na ordem de avaliação (resolve primeiro à direita). 
+     * A exponenciacão é uma exceção na ordem de avaliação (resolve primeiro à direita).
      * Por isso `direito` chama `exponenciacao()`, e não `unario()`.
-     * @returns {Binario} A expressão binária na forma do construto `Binario`. 
+     * @returns {Binario} A expressão binária na forma do construto `Binario`.
      */
     override async exponenciacao(): Promise<Construto> {
         let expressao = await this.unario();
@@ -1680,6 +1689,36 @@ export class AvaliadorSintatico
         }
 
         return expressaoOuCondicao;
+    }
+
+    /**
+     * Método que resolve atribuições.
+     * @returns Um construto do tipo `Atribuir`, `Conjunto` ou `AtribuicaoPorIndice`.
+     */
+    /**
+     * Processa tuplas, que são expressões separadas por vírgula entre parênteses.
+     * Se não houver vírgula, retorna apenas a expressão simples.
+     * Sobrescreve o método da base para usar seTernario() em vez de ou().
+     */
+    override async tupla(): Promise<Construto> {
+        let expressao = await this.seTernario();
+
+        // Se não há vírgula, retorna a expressão simples
+        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)) {
+            return expressao;
+        }
+
+        // Se há vírgula, então é uma tupla
+        const elementos = [expressao];
+
+        do {
+            if (this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+                break;
+            }
+            elementos.push(await this.seTernario());
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        return new TuplaN(this.hashArquivo, expressao.linha, elementos);
     }
 
     /**
@@ -3449,7 +3488,7 @@ export class AvaliadorSintatico
 
         const expressaoAjuda = await this.expressao();
         this.consumir(
-            tiposDeSimbolos.PARENTESE_DIREITO, 
+            tiposDeSimbolos.PARENTESE_DIREITO,
             `Esperado parêntese direito após expressão usada como argumento em ajuda(). Atual: ${this.simbolos[this.atual].lexema}.`
         );
 

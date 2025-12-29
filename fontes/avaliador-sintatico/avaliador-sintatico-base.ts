@@ -1,4 +1,4 @@
-import { Binario, Chamada, Construto, FuncaoConstruto, Leia, Logico, Unario } from '../construtos';
+import { Binario, Chamada, Construto, FuncaoConstruto, Leia, Logico, TuplaN, Unario } from '../construtos';
 import {
     Classe,
     Continua,
@@ -149,9 +149,9 @@ export abstract class AvaliadorSintaticoBase
     }
 
     /**
-     * A exponenciacão é uma exceção na ordem de avaliação (resolve primeiro à direita). 
+     * A exponenciacão é uma exceção na ordem de avaliação (resolve primeiro à direita).
      * Por isso `direito` chama `exponenciacao()`, e não `unario()`.
-     * @returns {Binario} A expressão binária na forma do construto `Binario`. 
+     * @returns {Binario} A expressão binária na forma do construto `Binario`.
      */
     protected async exponenciacao(): Promise<Construto> {
         let expressao = await this.unario();
@@ -265,6 +265,31 @@ export abstract class AvaliadorSintaticoBase
         }
 
         return expressao;
+    }
+
+    /**
+     * Processa tuplas, que são expressões separadas por vírgula entre parênteses.
+     * Se não houver vírgula, retorna apenas a expressão simples.
+     */
+    protected async tupla(): Promise<Construto> {
+        let expressao = await this.ou();
+
+        // Se não há vírgula, retorna a expressão simples
+        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)) {
+            return expressao;
+        }
+
+        // Se há vírgula, então é uma tupla
+        const elementos = [expressao];
+
+        do {
+            if (this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+                break;
+            }
+            elementos.push(await this.ou());
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        return new TuplaN(this.hashArquivo, expressao.linha, elementos);
     }
 
     protected async expressao(): Promise<Construto> {

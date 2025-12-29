@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
 import { ResultadoParcialInterpretadorInterface } from '../../fontes/interfaces';
 import { Interpretador } from '../../fontes/interpretador';
@@ -21,6 +22,294 @@ describe('Interpretador', () => {
             avaliadorSintatico = new AvaliadorSintatico();
             interpretador = new Interpretador(process.cwd(), false, funcaoSaida, funcaoSaida);
         });
+
+        describe('Formatação de strings com operador %', () => {
+                it('Formatação com %s (string)', async () => {
+                    const codigo = ['escreva("Olá %s" % "Mark")'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('Olá Mark');
+                });
+
+                it('Formatação com %d (inteiro)', async () => {
+                    const codigo = ['escreva("Idade: %d anos" % 25)'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('Idade: 25 anos');
+                });
+
+                it('Formatação com %d converte float para inteiro', async () => {
+                    const codigo = ['escreva("Valor: %d" % 3.7)'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('Valor: 3');
+                });
+
+                it('Formatação com %f (flutuante)', async () => {
+                    const codigo = ['escreva("Pi: %f" % 3.14159)'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('Pi: 3.14159');
+                });
+
+                it('Formatação com %.2f (flutuante com 2 casas decimais)', async () => {
+                    const codigo = ['escreva("Preço: R$ %.2f" % 19.99)'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('Preço: R$ 19.99');
+                });
+
+                it('Formatação com %.4f (flutuante com 4 casas decimais)', async () => {
+                    const codigo = ['escreva("Pi: %.4f" % 3.14159265)'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('Pi: 3.1416');
+                });
+
+                it('Formatação com %x (hexadecimal caixa baixa)', async () => {
+                    const codigo = ['escreva("Hex: %x" % 255)'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('Hex: ff');
+                });
+
+                it('Formatação com %X (hexadecimal caixa alta)', async () => {
+                    const codigo = ['escreva("Hex: %X" % 255)'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('Hex: FF');
+                });
+
+                it('Formatação com %o (octal)', async () => {
+                    const codigo = ['escreva("Octal: %o" % 8)'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('Octal: 10');
+                });
+
+                it('Formatação com múltiplos valores usando tupla', async () => {
+                    const codigo = ['escreva("Nome: %s, Idade: %d" % ("João", 30))'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('Nome: João, Idade: 30');
+                });
+
+                it('Formatação com múltiplos valores usando vetor', async () => {
+                    const codigo = ['escreva("X: %d, Y: %d, Z: %d" % [10, 20, 30])'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('X: 10, Y: 20, Z: 30');
+                });
+
+                it('Formatação com %% (porcentagem literal)', async () => {
+                    const codigo = ['escreva("Taxa: %d%%" % 15)'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('Taxa: 15%');
+                });
+
+                it('Formatação com variáveis', async () => {
+                    const codigo = [
+                        'var nome = "Maria"',
+                        'var idade = 25',
+                        'var mensagem = "Olá, %s! Você tem %d anos." % (nome, idade)',
+                        'escreva(mensagem)'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+                    
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('Olá, Maria! Você tem 25 anos.');
+                });
+
+                it('Erro: especificador desconhecido', async () => {
+                    const codigo = ['escreva("Teste: %z" % 123)'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(1);
+                    expect(retornoInterpretador.erros[0].erroInterno.message).toContain('Especificador de formato desconhecido: %z');
+                });
+
+                it('Erro: valores insuficientes', async () => {
+                    const codigo = ['escreva("Nome: %s, Idade: %d" % "João")'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(1);
+                    expect(retornoInterpretador.erros[0].erroInterno.message).toContain('Argumentos insuficientes para a string de formatação');
+                });
+
+                it('Erro: valores em excesso', async () => {
+                    const codigo = ['escreva("Nome: %s" % ("João", 30))'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(1);
+                    expect(retornoInterpretador.erros[0].erroInterno.message).toContain('Nem todos os argumentos foram convertidos durante a formatação da string.');
+                });
+
+                it('Operador % matemático ainda funciona com números', async () => {
+                    const codigo = ['escreva(10 % 3)'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('1');
+                });
+            });
 
         describe('Cenários de sucesso', () => {
             describe('Acesso a operações matemáticas em posições de vetor', () => {
