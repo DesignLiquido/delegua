@@ -2077,7 +2077,7 @@ export class AvaliadorSintatico
      * sobrescrito em `delegua-node`.
      * @returns {Importar} Uma declaração `Importar`.
      */
-    declaracaoImportar(): Importar {
+    declaracaoImportar(): Promise<Importar> {
         let identificadorDeTudo: SimboloInterface | null = null;
         const elementosImportacao: SimboloInterface[] = [];
 
@@ -2148,7 +2148,7 @@ export class AvaliadorSintatico
             importar.elementosImportacao = elementosImportacao;
         }
 
-        return importar;
+        return Promise.resolve(importar);
     }
 
     override async declaracaoPara(): Promise<Para | ParaCada> {
@@ -3424,7 +3424,7 @@ export class AvaliadorSintatico
                 return await this.declaracaoFazer(simboloFazer);
             case tiposDeSimbolos.IMPORTAR:
                 this.avancarEDevolverAnterior();
-                return this.declaracaoImportar();
+                return await this.declaracaoImportar();
             case tiposDeSimbolos.LINHA_COMENTARIO:
                 return this.declaracaoComentarioMultilinha();
             case tiposDeSimbolos.PARA:

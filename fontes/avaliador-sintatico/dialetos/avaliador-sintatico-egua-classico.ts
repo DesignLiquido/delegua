@@ -232,7 +232,7 @@ export class AvaliadorSintaticoEguaClassico
             return new Agrupamento(this.hashArquivo, 0, expressao);
         }
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IMPORTAR))
-            return this.declaracaoImportar();
+            return this.construtoImportar();
 
         throw this.erro(this.simboloAtual(), 'Esperado expressão.');
     }
@@ -749,7 +749,7 @@ export class AvaliadorSintaticoEguaClassico
         }
     }
 
-    declaracaoImportar(): ImportarComoConstruto {
+    construtoImportar(): ImportarComoConstruto {
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após declaração.");
         const caminho = this.expressao();
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração.");
