@@ -54,6 +54,11 @@ export class FormatadorPitugues implements VisitanteComumInterface {
     private códigoFormatado = '';
     private quebraLinha = '\n';
 
+    constructor(quebraLinha: string, tamanhoIndentacao: number = 4) {
+        this.quebraLinha = quebraLinha;
+        this.tamanhoIndentação = tamanhoIndentacao;
+    }
+
     private indentar(): string {
         return ' '.repeat(this.nívelIndentação);
     }
