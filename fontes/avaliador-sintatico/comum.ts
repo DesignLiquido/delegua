@@ -88,6 +88,9 @@ export function logicaDescobertaRetornoFuncao(
         expressoesRetorna.filter((e) => e.tipo !== 'qualquer').map((e) => e.tipo)
     );
     let retornaChamadoExplicitamente = tiposRetornos.size > 0;
+    // Verifica se há retornos com valores (incluindo retornos 'qualquer')
+    let temRetornosComValor = expressoesRetorna.some((e) => e.valor !== null && e.valor !== undefined);
+
     if (tiposRetornos.size > 1 && tipoRetorno !== 'qualquer') {
         let tiposEncontrados = Array.from(tiposRetornos).reduce(
             (acumulador, valor) => (acumulador += valor + ', '),
@@ -109,8 +112,8 @@ export function logicaDescobertaRetornoFuncao(
             // de retornos encontrados nos blocos internos da função.
             const tipoRetornoDeduzido = tiposRetornos.values().next().value;
             tipoRetorno = tipoRetornoDeduzido;
-        } else if (!retornaChamadoExplicitamente && !definicaoExplicitaDeTipo) {
-            // Ou, se esses retornos sequer existem, e não foi definido um tipo
+        } else if (!temRetornosComValor && !definicaoExplicitaDeTipo) {
+            // Ou, se não há retornos com valores, e não foi definido um tipo
             // explícito com 'qualquer', o tipo inferido é 'vazio'.
             tipoRetorno = 'vazio';
         }

@@ -1046,10 +1046,6 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
     }
 
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> {
-        if (declaracao.funcao.tipo === undefined) {
-            this.erro(declaracao.simbolo, `Declaração de retorno da função é inválido.`);
-        }
-
         if (declaracao.funcao.parametros.length >= 255) {
             this.erro(declaracao.simbolo, 'Função não pode ter mais de 255 parâmetros.');
         }
