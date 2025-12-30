@@ -50,7 +50,6 @@ export class TradutorReversoJavaScript
         }
     }
 
-    //TODO: @Samuel
     traduzirFuncoesNativas(metodo: string): string {
         switch (metodo.toLowerCase()) {
             case 'concat':
@@ -290,7 +289,6 @@ export class TradutorReversoJavaScript
         return resultado;
     }
 
-    //TODO: Refatorar esse método. @Samuel
     traduzirDeclaracaoClasse(declaracao: ClassDeclaration): string {
         let resultado = `classe ${declaracao.id.name} `;
         if (declaracao.superClass) {

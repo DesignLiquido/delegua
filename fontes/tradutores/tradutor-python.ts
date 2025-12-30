@@ -12,6 +12,7 @@ import {
     Construto,
     DefinirValor,
     Dicionario,
+    FuncaoConstruto,
     Isto,
     Leia,
     Literal,
@@ -177,9 +178,43 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         return `${entidade}[${indice}]`;
     }
 
-    // TODO: Talvez terminar (ou remover, sei lá).
+    /**
+     * Traduz uma função anônima de Delégua para uma lambda do Python.
+     * Em Delégua: funcao(x) { retorna x * 2 }
+     * Em Python: lambda x: x * 2
+     *
+     * Limitação: Python lambdas suportam apenas uma expressão, então apenas funções
+     * simples com um único retorno podem ser traduzidas adequadamente.
+     * @param argumento O construto da função anônima
+     * @returns String com a lambda do Python
+     */
     traduzirFuncaoAnonimaParaLambda(argumento: Construto): string {
-        return '';
+        if (!(argumento instanceof FuncaoConstruto)) {
+            return '';
+        }
+
+        const funcao = argumento as FuncaoConstruto;
+
+        // Extrai os nomes dos parâmetros
+        const parametros = funcao.parametros.map(param => param.nome.lexema).join(', ');
+
+        // Python lambdas suportam apenas uma expressão
+        // Assumimos que a função tem um corpo simples com uma declaração de retorno
+        let expressao = '';
+        if (funcao.corpo.length > 0) {
+            const primeiraDeclaracao = funcao.corpo[0];
+
+            // Se for uma declaração de retorno, extraímos a expressão
+            if (primeiraDeclaracao.constructor.name === 'Retorna') {
+                const retorna = primeiraDeclaracao as Retorna;
+                if (retorna.valor) {
+                    expressao = this.dicionarioConstrutos[retorna.valor.constructor.name](retorna.valor);
+                }
+            }
+        }
+
+        // Retorna a lambda formatada
+        return `lambda ${parametros}: ${expressao}`;
     }
 
     traduzirAcessoMetodoVetor(
@@ -868,6 +903,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         ComentarioComoConstruto: this.traduzirConstrutoComentario.bind(this),
         DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
         Dicionario: this.traduzirConstrutoDicionario.bind(this),
+        FuncaoConstruto: this.traduzirFuncaoAnonimaParaLambda.bind(this),
         Literal: this.traduzirConstrutoLiteral.bind(this),
         Logico: this.traduzirConstrutoLogico.bind(this),
         ReferenciaFuncao: this.traduzirConstrutoReferenciaFuncao.bind(this),

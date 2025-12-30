@@ -1046,4 +1046,78 @@ describe('Tradutor Delégua -> Python', () => {
         expect(resultado).toContain('enfileirar(valorEntrada)');
         expect(resultado).toContain('mostrar_fila()');
     });
+
+    describe('Funções Anônimas -> Lambda', () => {
+        it('Lambda simples com um parâmetro e expressão aritmética', async () => {
+            const codigo = [
+                'var numeros = [1, 2, 3, 4, 5]',
+                'var dobrados = numeros.mapear(funcao(x) { retorna x * 2 })',
+                'escreva(dobrados)'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toContain('numeros = [1, 2, 3, 4, 5]');
+            expect(resultado).toContain('list(map(lambda x: x * 2), numeros)');
+            expect(resultado).toContain('print(dobrados)');
+        });
+
+        it('Lambda com múltiplos parâmetros', async () => {
+            const codigo = [
+                'var numeros = [1, 2, 3]',
+                'var resultado = numeros.mapear(funcao(x, indice) { retorna x + indice })',
+                'escreva(resultado)'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toContain('lambda x, indice: x + indice');
+        });
+
+        it('Lambda sem parâmetros', async () => {
+            const codigo = [
+                'var vetor = [1, 2, 3]',
+                'var constantes = vetor.mapear(funcao() { retorna 42 })',
+                'escreva(constantes)'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toContain('lambda : 42');
+        });
+
+        it('Lambda com expressão lógica', async () => {
+            const codigo = [
+                'var numeros = [1, 2, 3, 4, 5]',
+                'var pares = numeros.mapear(funcao(n) { retorna n % 2 == 0 })',
+                'escreva(pares)'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toContain('lambda n: n % 2 == 0');
+        });
+
+        it('Lambda com retorno de texto', async () => {
+            const codigo = [
+                'var nomes = ["Ana", "João", "Maria"]',
+                'var saudacoes = nomes.mapear(funcao(nome) { retorna "Olá, " + nome })',
+                'escreva(saudacoes)'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toContain("lambda nome: 'Olá, ' + nome");
+        });
+    });
 });
