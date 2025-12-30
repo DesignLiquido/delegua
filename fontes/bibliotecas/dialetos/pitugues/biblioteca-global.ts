@@ -692,7 +692,7 @@ export async function maximo(
         );
     }
 
-    const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
+    const valorVetor = interpretador.resolverValor(vetor);
 
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
@@ -764,7 +764,7 @@ export async function minimo(
         );
     }
 
-    const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
+    const valorVetor = interpretador.resolverValor(vetor);
 
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
@@ -1129,7 +1129,7 @@ export async function somar(
         );
     }
 
-    const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
+    const valorVetor = interpretador.resolverValor(vetor);
 
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
