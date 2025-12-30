@@ -98,6 +98,20 @@ export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExe
     pilhaEscoposExecucao.definirVariavel('tupla', new FuncaoPadrao(1, bibliotecaGlobal.tupla));
 }
 
+export function pontoEntradaAjuda(funcao: boolean, topico: any) {
+    if (!funcao) {
+        return "Para usar a ajuda, use como uma função: ajuda(objeto).";
+    }
+
+    if (!topico) {
+        return "Te damos as boas-vindas ao utilitário de ajuda de Delégua!\n\n" +
+            "Use ajuda(objeto) para obter informações sobre um objeto, função, classe ou módulo.\n" +
+            "Use ajuda('tópico') para obter informações sobre um tópico específico.\n\n";
+    }
+
+    return obterTopicoAjuda(topico);
+}
+
 export function obterTopicoAjuda(topico: any): string {
     switch (topico.constructor) {
         case Leia:

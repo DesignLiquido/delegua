@@ -1,4 +1,5 @@
 import { Construto } from "../construtos";
+import { VisitanteDeleguaInterface } from "../interfaces";
 import { Declaracao } from "./declaracao";
 
 /**
@@ -13,6 +14,10 @@ export class Ajuda extends Declaracao {
         super(linha, hashArquivo);
         this.elemento = elemento;
         this.funcao = funcao;
+    }
+
+    async aceitar(visitante: VisitanteDeleguaInterface): Promise<any> {
+        return await visitante.visitarDeclaracaoAjuda(this);
     }
 
     paraTexto(): string {

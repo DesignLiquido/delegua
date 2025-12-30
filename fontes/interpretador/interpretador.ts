@@ -76,7 +76,7 @@ import {
     ParaInterface,
 } from '../interfaces/delegua';
 
-import { carregarBibliotecasGlobais, obterTopicoAjuda } from './comum';
+import { carregarBibliotecasGlobais, pontoEntradaAjuda } from './comum';
 
 import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
@@ -295,12 +295,9 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
      * @param declaracao A declaração de ajuda.
      */
     async visitarDeclaracaoAjuda(declaracao: Ajuda): Promise<any> {
-        if (!declaracao.elemento) {
-            // TODO: Terminar
-        }
-
-        const elementoResolvido = await declaracao.elemento.aceitar(this);
-        console.log(elementoResolvido);
+        return Promise.resolve(
+            pontoEntradaAjuda(declaracao.funcao, declaracao.elemento)
+        );
     }
 
     override visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> {
@@ -1081,17 +1078,9 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
     }
 
     async visitarExpressaoAjuda(expressao: AjudaComoConstruto): Promise<any> {
-        if (!expressao.funcao) {
-            return "Para usar a ajuda, use como uma função: ajuda(objeto).";
-        }
-
-        if (!expressao.valor) {
-            return "Te damos as boas-vindas ao utilitário de ajuda de Delégua!\n\n" +
-                "Use ajuda(objeto) para obter informações sobre um objeto, função, classe ou módulo.\n" +
-                "Use ajuda('tópico') para obter informações sobre um tópico específico.\n\n";
-        }
-
-        return obterTopicoAjuda(expressao.valor);
+        return Promise.resolve(
+            pontoEntradaAjuda(expressao.funcao, expressao.valor)
+        );
     }
 
     override async visitarExpressaoArgumentoReferenciaFuncao(
