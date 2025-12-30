@@ -9,3 +9,4 @@ export * from './tradutor-python';
 export * from './tradutor-reverso-javascript';
 export * from './tradutor-reverso-python';
 export * from './tradutor-reverso-tenda';
+export * from './tradutor-ruby';
