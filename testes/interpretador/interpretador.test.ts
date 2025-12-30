@@ -3445,6 +3445,67 @@ describe('Interpretador', () => {
             });
         });
 
+        describe('Ajuda', () => {
+            it('Trivial - ajuda sem parênteses (declaração)', async () => {
+                const retornoLexador = lexador.mapear(['ajuda'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(retornoInterpretador.resultado).toHaveLength(1);
+                const resultado = retornoInterpretador.resultado[0] as ResultadoParcialInterpretadorInterface;
+                expect(resultado.valorRetornado).toBe('Para usar a ajuda, use como uma função: ajuda(objeto).');
+            });
+
+            it('ajuda() - com parênteses sem argumentos (expressão)', async () => {
+                const retornoLexador = lexador.mapear(['ajuda()'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(retornoInterpretador.resultado).toHaveLength(1);
+                const resultado = retornoInterpretador.resultado[0] as ResultadoParcialInterpretadorInterface;
+                expect(resultado.valorRetornado).toContain('Te damos as boas-vindas ao utilitário de ajuda de Delégua!');
+                expect(resultado.valorRetornado).toContain('Use ajuda(objeto) para obter informações');
+            });
+
+            it('ajuda(leia) - com tópico específico usando escreva', async () => {
+                const retornoLexador = lexador.mapear(['escreva(ajuda(leia))'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toContain("A instrução 'leia' permite capturar a entrada do usuário");
+            });
+
+            it('ajuda com escreva - exibe resultado', async () => {
+                const retornoLexador = lexador.mapear(['escreva(ajuda())'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toContain('Te damos as boas-vindas ao utilitário de ajuda de Delégua!');
+            });
+
+            it('ajuda com tópico desconhecido', async () => {
+                const retornoLexador = lexador.mapear(['var x = 123', 'ajuda(x)'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(retornoInterpretador.resultado).toHaveLength(1);
+                const resultado = retornoInterpretador.resultado[0] as ResultadoParcialInterpretadorInterface;
+                expect(resultado.valorRetornado).toContain('não há documentação disponível');
+            });
+        });
+
         describe('Cenários de falha', () => {
             describe('Acesso a variáveis e objetos', () => {
                 it('Acesso a elementos de vetor', async () => {
