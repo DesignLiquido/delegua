@@ -2633,6 +2633,122 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas[0]).toBe('Ela disse: "Olá!"');
                 });
             });
+
+            describe('maximo()', () => {
+                it('Deve retornar o vetor com os maiores elementos', async () => {
+                    const codigo = ['escreva(maximo([[1, 2, 3], [4, 5, 6]]))'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('[4, 5, 6]');
+                });
+
+                it('Deve retornar o maior número em um vetor de inteiros positivos', async () => {
+                    const codigo = ['escreva(maximo([1, 10, 5, 3]))'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('10');
+                });
+
+                it('Deve retornar o maior número em um vetor de números negativos', async () => {
+                    const codigo = ['escreva(maximo([-5, -1, -20]))'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('-1');
+                });
+
+                it('Deve retornar o maior número em um vetor de reais (ponto flutuante)', async () => {
+                    const codigo = ['escreva(maximo([2.5, 2.9, 2.1]))'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('2.9');
+                });
+            });
+
+            describe('minimo()', () => {
+                it('Deve retornar o vetor com os menores elementos', async () => {
+                    const codigo = ['escreva(minimo([[1, 2, 3], [4, 5, 6]]))'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('[1, 2, 3]');
+                });
+
+                it('Deve retornar o menor número em um vetor de inteiros', async () => {
+                    const codigo = ['escreva(minimo([5, 1, 10, 3]))'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('1');
+                });
+
+                it('Deve retornar o menor número em um vetor de números negativos', async () => {
+                    const codigo = ['escreva(minimo([-5, -1, -20]))'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('-20');
+                });
+
+                it('Deve retornar o menor número em um vetor misto', async () => {
+                    const codigo = ['escreva(minimo([10, 0, -5]))'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('-5');
+                });
+            });
+
+            describe('somar()', () => {
+                it('Deve somar corretamente números inteiros', async () => {
+                    const codigo = ['escreva(somar([1, 2, 3]))'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('6');
+                });
+
+                it('Deve somar corretamente números reais', async () => {
+                    const codigo = ['escreva(somar([1.5, 2.5]))'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('4');
+                });
+
+                it('Deve retornar 0 para um vetor vazio', async () => {
+                    const codigo = ['escreva(somar([]))'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('0');
+                });
+            });
         });
 
         it('termina_com - sufixo encontrado no final', async () => {
@@ -3270,6 +3386,101 @@ describe('Interpretador (Pituguês)', () => {
                 const retornoAvaliador = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                 expect(retornoAvaliador.erros.length).toBeGreaterThan(0);
+            });
+
+            describe('maximo()', () => {
+                it('Deve falhar ao passar um argumento que não é vetor', async () => {
+                    const codigo = ['maximo(123)'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toContain('deve ser um vetor');
+                });
+
+                it('Deve falhar ao passar um vetor vazio', async () => {
+                    const codigo = ['maximo([])'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toContain('não pode estar vazio');
+                });
+
+                it('Deve falhar ao tentar comparar tipos incomparáveis dentro do vetor', async () => {
+                    const codigo = ['maximo([1, [2]])']; // Comparar número com vetor
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toContain('Não é possível comparar elementos');
+                });
+            });
+
+            describe('minimo()', () => {
+                it('Deve falhar ao passar um argumento que não é vetor', async () => {
+                    const codigo = ['minimo("texto")'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toContain('deve ser um vetor');
+                });
+
+                it('Deve falhar ao passar um vetor vazio', async () => {
+                    const codigo = ['minimo([])'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toContain('não pode estar vazio');
+                });
+
+                it('Deve falhar com tipos incompatíveis para comparação', async () => {
+                    const codigo = ['minimo([1, "a"])'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                });
+            });
+
+            describe('somar()', () => {
+                it('Deve falhar ao passar um argumento que não é vetor', async () => {
+                    const codigo = ['somar(123)'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toContain('deve ser um vetor');
+                });
+
+                it('Deve falhar se o vetor contiver textos', async () => {
+                    const codigo = ['somar([1, "2"])'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toContain('aceita apenas vetores contendo números');
+                });
+
+                it('Deve falhar se o vetor contiver booleanos', async () => {
+                    const codigo = ['somar([1, verdadeiro])'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toContain('aceita apenas vetores contendo números');
+                });
             });
         });
     });

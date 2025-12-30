@@ -6,7 +6,10 @@ import {
     vetor,
     tamanho,
     mapear,
+    maximo,
+    minimo,
     ordenar,
+    somar
 } from '../../../../fontes/bibliotecas/dialetos/pitugues/biblioteca-global';
 import { FuncaoPadrao } from '../../../../fontes/interpretador/estruturas/funcao-padrao';
 import { RetornoQuebra } from '../../../../fontes/quebras';
@@ -485,6 +488,131 @@ describe('biblioteca-global (pituguês)', () => {
             const interpretador = criarInterpretadorMock();
             await expect(tamanho(interpretador, 123)).rejects.toMatchObject({
                 mensagem: 'Função global tamanho() não funciona com números.',
+            });
+        });
+    });
+
+    describe('maximo', () => {
+        it('Deve retornar o maior número de um vetor simples', async () => {
+            const interpretador = criarInterpretadorMock();
+            const resultado = await maximo(interpretador, [1, 10, 5, -2]);
+            expect(resultado).toBe(10);
+        });
+
+        it('Deve retornar o maior vetor lexicograficamente (vetor de vetores)', async () => {
+            const interpretador = criarInterpretadorMock();
+            // [1, 3] é maior que [1, 2]
+            const resultado = await maximo(interpretador, [[1, 2], [1, 3]]);
+            expect(resultado).toEqual([1, 3]);
+        });
+
+        it('Deve funcionar com números negativos e decimais', async () => {
+            const interpretador = criarInterpretadorMock();
+            const resultado = await maximo(interpretador, [-10.5, -5.2, -20.0]);
+            expect(resultado).toBe(-5.2);
+        });
+
+        it('Deve rejeitar se o parâmetro não for um vetor', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(maximo(interpretador, 123 as any)).rejects.toMatchObject({
+                mensagem: 'Parâmetro inválido. O parâmetro da função maximo() deve ser um vetor.',
+            });
+        });
+
+        it('Deve rejeitar vetor vazio', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(maximo(interpretador, [])).rejects.toMatchObject({
+                mensagem: 'Parâmetro inválido. O vetor não pode estar vazio.',
+            });
+        });
+
+        it('Deve rejeitar tipos misturados incompatíveis (número vs vetor)', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(maximo(interpretador, [1, [2]])).rejects.toMatchObject({
+                mensagem: 'Não é possível comparar elementos de tipos diferentes dentro do vetor (ex: números com vetores).',
+            });
+        });
+    });
+
+    describe('minimo', () => {
+        it('Deve retornar o menor número de um vetor simples', async () => {
+            const interpretador = criarInterpretadorMock();
+            const resultado = await minimo(interpretador, [10, 2, 20]);
+            expect(resultado).toBe(2);
+        });
+
+        it('Deve retornar o menor vetor lexicograficamente', async () => {
+            const interpretador = criarInterpretadorMock();
+            // [0, 5] é menor que [1, 0]
+            const resultado = await minimo(interpretador, [[1, 0], [0, 5]]);
+            expect(resultado).toEqual([0, 5]);
+        });
+
+        it('Deve funcionar com um único elemento', async () => {
+            const interpretador = criarInterpretadorMock();
+            const resultado = await minimo(interpretador, [42]);
+            expect(resultado).toBe(42);
+        });
+
+        it('Deve rejeitar se o parâmetro for nulo', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(minimo(interpretador, null as any)).rejects.toMatchObject({
+                mensagem: 'Parâmetro inválido. O parâmetro da função minimo() não pode ser nulo.',
+            });
+        });
+
+        it('Deve rejeitar vetor vazio', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(minimo(interpretador, [])).rejects.toMatchObject({
+                mensagem: 'Parâmetro inválido. O vetor não pode estar vazio.',
+            });
+        });
+
+        it('Deve rejeitar tipos misturados (texto vs número)', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(minimo(interpretador, [1, [2]])).rejects.toMatchObject({
+                mensagem: 'Não é possível comparar elementos de tipos diferentes dentro do vetor (ex: números com vetores).',
+            });
+        });
+    });
+
+    describe('somar', () => {
+        it('Deve somar corretamente inteiros positivos', async () => {
+            const interpretador = criarInterpretadorMock();
+            const resultado = await somar(interpretador, [1, 2, 3]);
+            expect(resultado).toBe(6);
+        });
+
+        it('Deve retornar 0 para vetor vazio', async () => {
+            const interpretador = criarInterpretadorMock();
+            const resultado = await somar(interpretador, []);
+            expect(resultado).toBe(0);
+        });
+
+        it('Deve somar decimais e negativos', async () => {
+            const interpretador = criarInterpretadorMock();
+            const resultado = await somar(interpretador, [10.5, -0.5, 2]);
+            expect(resultado).toBe(12);
+        });
+
+        it('Deve rejeitar se o parâmetro não for vetor (ex: número)', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(somar(interpretador, 123 as any)).rejects.toMatchObject({
+                mensagem: 'Parâmetro inválido. O parâmetro da função somar() deve ser um vetor.',
+            });
+        });
+
+        it('Deve rejeitar se o parâmetro for nulo', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(somar(interpretador, null as any)).rejects.toMatchObject({
+                mensagem: 'Parâmetro inválido. O parâmetro da função somar() não pode ser nulo.',
+            });
+        });
+
+        it('Deve rejeitar se vetor contiver elementos não numéricos', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(somar(interpretador, [1, '2'])).rejects.toMatchObject({
+                mensagem: 'A função somar() aceita apenas vetores contendo números.',
             });
         });
     });
