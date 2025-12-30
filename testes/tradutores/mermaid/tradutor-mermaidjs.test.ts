@@ -1,6 +1,6 @@
-import { AvaliadorSintatico } from "../../fontes/avaliador-sintatico";
-import { Lexador } from "../../fontes/lexador";
-import { TradutorMermaidJs } from '../../fontes/tradutores';
+import { AvaliadorSintatico } from "../../../fontes/avaliador-sintatico";
+import { Lexador } from "../../../fontes/lexador";
+import { TradutorMermaidJs } from '../../../fontes/tradutores';
 
 describe('Tradutor Delégua -> MermaidJs', () => {
     let lexador: Lexador;
@@ -322,7 +322,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
 
     // ========== TESTES PARA CLASSES ==========
 
-    describe.skip('Classes', () => {
+    describe('Classes', () => {
         it('Classe simples sem métodos', async () => {
             const retornoLexador = lexador.mapear(
                 [
@@ -338,16 +338,14 @@ describe('Tradutor Delégua -> MermaidJs', () => {
 
             expect(resultado).toBeTruthy();
             expect(resultado).toContain("graph TD;");
-            expect(resultado).toContain("Linha1_ClasseEntrada_Pessoa((Definir classe Pessoa))");
-            expect(resultado).toContain("Linha1_ClasseSaida_Pessoa((Classe Pessoa definida))");
-            expect(resultado).toContain("subgraph Classe_Pessoa");
+            expect(resultado).toContain('subgraph Pessoa["Classe: Pessoa"]');
         });
 
         it('Classe com um método', async () => {
             const retornoLexador = lexador.mapear(
                 [
                     'classe Animal {',
-                    '    metodo falar() {',
+                    '    falar() {',
                     '        escreva("Som genérico")',
                     '    }',
                     '}'
@@ -360,8 +358,10 @@ describe('Tradutor Delégua -> MermaidJs', () => {
 
             expect(resultado).toBeTruthy();
             expect(resultado).toContain("graph TD;");
-            expect(resultado).toContain("subgraph Classe_Animal");
-            expect(resultado).toContain("Metodo_falar_Animal");
+            expect(resultado).toContain('subgraph Animal["Classe: Animal"]');
+            expect(resultado).toContain('subgraph falar_Animal["Método: falar()"]');
+            expect(resultado).toContain("MetodofalarAnimalInicio[Início: falar()]");
+            expect(resultado).toContain("MetodofalarAnimalFim[Fim: falar()]");
             expect(resultado).toContain("escreva: \\'Som genérico\\'");
         });
 
@@ -369,10 +369,10 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             const retornoLexador = lexador.mapear(
                 [
                     'classe Calculadora {',
-                    '    metodo somar(a: inteiro, b: inteiro) {',
+                    '    somar(a: inteiro, b: inteiro) {',
                     '        retorna a + b',
                     '    }',
-                    '    metodo subtrair(a: inteiro, b: inteiro) {',
+                    '    subtrair(a: inteiro, b: inteiro) {',
                     '        retorna a - b',
                     '    }',
                     '}'
@@ -385,22 +385,23 @@ describe('Tradutor Delégua -> MermaidJs', () => {
 
             expect(resultado).toBeTruthy();
             expect(resultado).toContain("graph TD;");
-            expect(resultado).toContain("subgraph Classe_Calculadora");
-            expect(resultado).toContain("Metodo_somar_Calculadora");
-            expect(resultado).toContain("Metodo_subtrair_Calculadora");
-            expect(resultado).toContain("a: inteiro, b: inteiro");
+            expect(resultado).toContain('subgraph Calculadora["Classe: Calculadora"]');
+            expect(resultado).toContain('subgraph somar_Calculadora["Método: somar()"]');
+            expect(resultado).toContain('subgraph subtrair_Calculadora["Método: subtrair()"]');
+            expect(resultado).toContain("MetodosomarCalculadoraInicio[Início: somar()]");
+            expect(resultado).toContain("MetodosubtrairCalculadoraInicio[Início: subtrair()]");
         });
 
         it('Classe com herança', async () => {
             const retornoLexador = lexador.mapear(
                 [
                     'classe Animal {',
-                    '    metodo falar() {',
+                    '    falar() {',
                     '        escreva("Som")',
                     '    }',
                     '}',
                     'classe Cachorro herda Animal {',
-                    '    metodo latir() {',
+                    '    latir() {',
                     '        escreva("Au au!")',
                     '    }',
                     '}'
@@ -413,18 +414,17 @@ describe('Tradutor Delégua -> MermaidJs', () => {
 
             expect(resultado).toBeTruthy();
             expect(resultado).toContain("graph TD;");
-            expect(resultado).toContain("subgraph Classe_Animal");
-            expect(resultado).toContain("subgraph Classe_Cachorro");
-            expect(resultado).toContain("estende Animal");
-            expect(resultado).toContain("Metodo_falar_Animal");
-            expect(resultado).toContain("Metodo_latir_Cachorro");
+            expect(resultado).toContain('subgraph Animal["Classe: Animal"]');
+            expect(resultado).toContain('subgraph Cachorro["Classe: Cachorro (estende Animal)"]');
+            expect(resultado).toContain('subgraph falar_Animal["Método: falar()"]');
+            expect(resultado).toContain('subgraph latir_Cachorro["Método: latir()"]');
         });
 
         it('Classe com método contendo lógica condicional', async () => {
             const retornoLexador = lexador.mapear(
                 [
                     'classe Validador {',
-                    '    metodo ehMaiorDeIdade(idade: inteiro) {',
+                    '    ehMaiorDeIdade(idade: inteiro) {',
                     '        se idade >= 18 {',
                     '            escreva("Maior de idade")',
                     '        } senão {',
@@ -441,16 +441,17 @@ describe('Tradutor Delégua -> MermaidJs', () => {
 
             expect(resultado).toBeTruthy();
             expect(resultado).toContain("graph TD;");
-            expect(resultado).toContain("subgraph Classe_Validador");
-            expect(resultado).toContain("Metodo_ehMaiorDeIdade_Validador");
-            expect(resultado).toContain("se idade");
+            expect(resultado).toContain('subgraph Validador["Classe: Validador"]');
+            expect(resultado).toContain('subgraph ehMaiorDeIdade_Validador["Método: ehMaiorDeIdade()"]');
+            expect(resultado).toContain("{se }");
+            expect(resultado).toContain("senão");
         });
 
         it('Classe com método contendo loops', async () => {
             const retornoLexador = lexador.mapear(
                 [
                     'classe Contador {',
-                    '    metodo contar(limite: inteiro) {',
+                    '    contar(limite: inteiro) {',
                     '        para (var i = 0; i < limite; i++) {',
                     '            escreva(i)',
                     '        }',
@@ -465,8 +466,8 @@ describe('Tradutor Delégua -> MermaidJs', () => {
 
             expect(resultado).toBeTruthy();
             expect(resultado).toContain("graph TD;");
-            expect(resultado).toContain("subgraph Classe_Contador");
-            expect(resultado).toContain("Metodo_contar_Contador");
+            expect(resultado).toContain('subgraph Contador["Classe: Contador"]');
+            expect(resultado).toContain('subgraph contar_Contador["Método: contar()"]');
             expect(resultado).toContain("para uma variável");
         });
     });

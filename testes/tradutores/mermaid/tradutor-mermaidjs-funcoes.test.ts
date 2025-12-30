@@ -1,6 +1,6 @@
-import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
-import { Lexador } from '../../fontes/lexador';
-import { TradutorMermaidJs } from '../../fontes/tradutores';
+import { AvaliadorSintatico } from '../../../fontes/avaliador-sintatico';
+import { Lexador } from '../../../fontes/lexador';
+import { TradutorMermaidJs } from '../../../fontes/tradutores';
 
 describe('Tradutor Delégua -> MermaidJs - Funções', () => {
     const tradutor: TradutorMermaidJs = new TradutorMermaidJs();

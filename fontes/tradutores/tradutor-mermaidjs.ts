@@ -37,7 +37,7 @@ import {
 import { CaminhoEscolha, TradutorInterface } from '../interfaces';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
-import { ArestaFluxograma, DiagramaClasse, SubgrafoClasse, SubgrafoFuncao, VerticeFluxograma } from './mermaid';
+import { ArestaFluxograma, SubgrafoClasse, SubgrafoFuncao, SubgrafoMetodo, VerticeFluxograma } from './mermaid';
 
 /**
  * [MermaidJs](https://mermaid.js.org/) é uma especificação que nos permite
@@ -55,8 +55,8 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
     anteriores: ArestaFluxograma[];
     vertices: VerticeFluxograma[];
     ultimaDicaVertice: string | undefined;
-    classes: DiagramaClasse[];
     declaracoesFuncoes: { [nome: string]: SubgrafoFuncao };
+    declaracoesClasses: { [nome: string]: SubgrafoClasse };
     indentacaoAtual: number;
 
     traduzirConstrutoAcessoIndiceVariavel(acessoIndiceVariavel: AcessoIndiceVariavel): string {
@@ -309,46 +309,83 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
 
     traduzirDeclaracaoClasse(declaracaoClasse: Classe): VerticeFluxograma[] {
         const nomeClasse = declaracaoClasse.simbolo.lexema;
-        const superClasse = declaracaoClasse.superClasse 
-            ? declaracaoClasse.superClasse.nome.lexema 
+        const superClasse = declaracaoClasse.superClasse
+            ? (declaracaoClasse.superClasse.simbolo?.lexema || declaracaoClasse.superClasse.nome?.lexema)
             : undefined;
+        const linha = declaracaoClasse.linha;
 
-        // Cria o diagrama de classe
-        const diagramaClasse = new DiagramaClasse(nomeClasse, superClasse);
+        // Cria arestas de entrada e saída para a classe
+        const textoInicio = `Classe${nomeClasse}Inicio[Início: Classe ${nomeClasse}]`;
+        const arestaInicial = new ArestaFluxograma(declaracaoClasse, textoInicio);
 
-        // Adiciona métodos ao diagrama
+        const textoFim = `Classe${nomeClasse}Fim[Fim: Classe ${nomeClasse}]`;
+        const arestaFinal = new ArestaFluxograma(declaracaoClasse, textoFim);
+
+        // Cria o subgrafo da classe
+        const subgrafo = new SubgrafoClasse(nomeClasse, linha, arestaInicial, arestaFinal, superClasse);
+
+        // Salva o estado anterior
+        const anterioresAntes = [...this.anteriores];
+
+        // Processa métodos
         if (declaracaoClasse.metodos && declaracaoClasse.metodos.length > 0) {
-            for (const metodo of declaracaoClasse.metodos) {
-                const parametros: string[] = [];
-                
-                if (metodo.funcao.parametros && metodo.funcao.parametros.length > 0) {
-                    for (const param of metodo.funcao.parametros) {
-                        const nomeParam = param.nome.lexema;
-                        const tipoParam = param.tipoDado || 'qualquer';
-                        parametros.push(`${nomeParam}: ${tipoParam}`);
+            for (const metodoDeclaracao of declaracaoClasse.metodos) {
+                const nomeMetodo = metodoDeclaracao.simbolo.lexema;
+                const linhaMetodo = metodoDeclaracao.linha;
+                const ehConstrutor = nomeMetodo === 'construtor' || nomeMetodo === 'iniciar';
+
+                // Cria arestas de entrada e saída para o método
+                const textoInicioMetodo = `Metodo${nomeMetodo}${nomeClasse}Inicio[Início: ${nomeMetodo}()]`;
+                const arestaInicialMetodo = new ArestaFluxograma(metodoDeclaracao, textoInicioMetodo);
+
+                const textoFimMetodo = `Metodo${nomeMetodo}${nomeClasse}Fim[Fim: ${nomeMetodo}()]`;
+                const arestaFinalMetodo = new ArestaFluxograma(metodoDeclaracao, textoFimMetodo);
+
+                // Cria o subgrafo do método
+                const subgrafoMetodo = new SubgrafoMetodo(
+                    nomeMetodo,
+                    nomeClasse,
+                    linhaMetodo,
+                    arestaInicialMetodo,
+                    arestaFinalMetodo,
+                    ehConstrutor
+                );
+
+                // Traduz o corpo do método
+                this.anteriores = [arestaInicialMetodo];
+
+                if (metodoDeclaracao.funcao.corpo && metodoDeclaracao.funcao.corpo.length > 0) {
+                    for (const declaracaoCorpo of metodoDeclaracao.funcao.corpo) {
+                        const verticesCorpo = this.dicionarioDeclaracoes[
+                            declaracaoCorpo.constructor.name
+                        ](declaracaoCorpo);
+                        subgrafoMetodo.vertices = subgrafoMetodo.vertices.concat(verticesCorpo);
                     }
                 }
 
-                const tipoRetorno = metodo.funcao.tipo;
+                // Conecta o último vértice do corpo ao fim do método
+                if (this.anteriores.length > 0) {
+                    for (const anterior of this.anteriores) {
+                        subgrafoMetodo.vertices.push(new VerticeFluxograma(anterior, arestaFinalMetodo));
+                    }
+                }
 
-                diagramaClasse.metodos.push({
-                    nome: metodo.simbolo.lexema,
-                    parametros,
-                    tipoRetorno
-                });
+                // Adiciona o método ao subgrafo da classe
+                if (ehConstrutor) {
+                    subgrafo.construtor = subgrafoMetodo;
+                } else {
+                    subgrafo.metodos.push(subgrafoMetodo);
+                }
             }
         }
 
-        // Adiciona o diagrama à lista
-        this.classes.push(diagramaClasse);
+        // Restaura o estado anterior
+        this.anteriores = anterioresAntes;
 
-        // No fluxograma principal, apenas mostra a definição da classe
-        const texto = `Linha${declaracaoClasse.linha}[Classe ${nomeClasse}${superClasse ? ` herda ${superClasse}` : ''}]`;
-        const aresta = new ArestaFluxograma(declaracaoClasse, texto);
-        const vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
+        // Armazena o subgrafo da classe
+        this.declaracoesClasses[nomeClasse] = subgrafo;
 
-        this.anteriores.push(aresta);
-        return vertices;
+        return [];
     }
 
     traduzirDeclaracaoConst(declaracaoConst: Const): VerticeFluxograma[] {
@@ -791,8 +828,7 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
 
     dicionarioDeclaracoes = {
         Bloco: this.traduzirDeclaracaoBloco.bind(this),
-        // Classe: this.traduzirDeclaracaoClasse.bind(this),
-        Classe: () => { throw new Error("Fluxogramas de classes ainda não é suportado.") },
+        Classe: this.traduzirDeclaracaoClasse.bind(this),
         Comentario: () => '',
         Const: this.traduzirDeclaracaoConst.bind(this),
         Enquanto: this.traduzirDeclaracaoEnquanto.bind(this),
@@ -801,7 +837,6 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         Escreva: this.traduzirDeclaracaoEscreva.bind(this),
         Fazer: this.traduzirDeclaracaoFazerEnquanto.bind(this),
         FuncaoDeclaracao: this.traduzirDeclaracaoFuncao.bind(this),
-        // FuncaoDeclaracao: () => { throw new Error("Fluxogramas de funções ainda não é suportado.") },
         Para: this.traduzirDeclaracaoPara.bind(this),
         ParaCada: this.traduzirDeclaracaoParaCada.bind(this),
         Retorna: this.traduzirDeclaracaoRetorna.bind(this),
@@ -821,6 +856,7 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         let resultado = 'graph TD;\n';
         this.indentacaoAtual = 4;
         this.declaracoesFuncoes = {};
+        this.declaracoesClasses = {};
 
         for (const declaracao of declaracoes) {
             this.vertices = this.vertices.concat(
@@ -839,6 +875,13 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
                 }
 
                 resultado += `    end\n`;
+            }
+        }
+
+        // Renderiza os subgrafos de classes
+        if (Object.keys(this.declaracoesClasses).length > 0) {
+            for (const [nomeClasse, subgrafo] of Object.entries(this.declaracoesClasses)) {
+                resultado += subgrafo.paraTexto();
             }
         }
 
