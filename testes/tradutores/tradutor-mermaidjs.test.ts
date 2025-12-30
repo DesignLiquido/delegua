@@ -196,7 +196,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
     });
 
     describe('Funções', () => {
-        it.skip('Função simples sem parâmetros', async () => {
+        it('Função simples sem parâmetros', async () => {
             const retornoLexador = lexador.mapear(
                 [
                     'funcao saudar() {',
@@ -213,11 +213,13 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             console.log(resultado);
             expect(resultado).toBeTruthy();
             expect(resultado).toContain("graph TD;");
-            expect(resultado).toContain("Linha1[[definir função saudar]]");
+            expect(resultado).toContain('subgraph saudar["Função: saudar()"]');
+            expect(resultado).toContain("FuncsaudarInicio[Início: saudar()]");
+            expect(resultado).toContain("FuncsaudarFim[Fim: saudar()]");
             expect(resultado).toContain("Linha4(chamada a saudar, sem argumentos)");
         });
 
-        it.skip('Função com parâmetros', async () => {
+        it('Função com parâmetros', async () => {
             const retornoLexador = lexador.mapear(
                 [
                     'funcao somar(a: inteiro, b: inteiro) {',
@@ -233,11 +235,13 @@ describe('Tradutor Delégua -> MermaidJs', () => {
 
             expect(resultado).toBeTruthy();
             expect(resultado).toContain("graph TD;");
-            expect(resultado).toContain("Linha1[[definir função somar com parâmetros: a: inteiro, b: inteiro]]");
+            expect(resultado).toContain('subgraph somar["Função: somar()"]');
+            expect(resultado).toContain("FuncsomarInicio[Início: somar()]");
+            expect(resultado).toContain("FuncsomarFim[Fim: somar()]");
             expect(resultado).toContain("chamada a somar, com argumentos: 5, 3");
         });
 
-        it.skip('Função com parâmetros sem tipo', async () => {
+        it('Função com parâmetros sem tipo', async () => {
             const retornoLexador = lexador.mapear(
                 [
                     'funcao multiplicar(x, y) {',
@@ -253,11 +257,13 @@ describe('Tradutor Delégua -> MermaidJs', () => {
 
             expect(resultado).toBeTruthy();
             expect(resultado).toContain("graph TD;");
-            expect(resultado).toContain("Linha1[[definir função multiplicar com parâmetros: x: qualquer, y: qualquer]]");
+            expect(resultado).toContain('subgraph multiplicar["Função: multiplicar()"]');
+            expect(resultado).toContain("FuncmultiplicarInicio[Início: multiplicar()]");
+            expect(resultado).toContain("FuncmultiplicarFim[Fim: multiplicar()]");
             expect(resultado).toContain("chamada a multiplicar, com argumentos: 4, 7");
         });
 
-        it.skip('Função com lógica condicional', async () => {
+        it('Função com lógica condicional', async () => {
             const retornoLexador = lexador.mapear(
                 [
                     'funcao verificarParidade(numero: inteiro) {',
@@ -277,11 +283,13 @@ describe('Tradutor Delégua -> MermaidJs', () => {
 
             expect(resultado).toBeTruthy();
             expect(resultado).toContain("graph TD;");
-            expect(resultado).toContain("Linha1[[definir função verificarParidade com parâmetros: numero: inteiro]]");
+            expect(resultado).toContain('subgraph verificarParidade["Função: verificarParidade()"]');
+            expect(resultado).toContain("FuncverificarParidadeInicio[Início: verificarParidade()]");
+            expect(resultado).toContain("FuncverificarParidadeFim[Fim: verificarParidade()]");
             expect(resultado).toContain("chamada a verificarParidade, com argumentos: 10");
         });
 
-        it.skip('Múltiplas funções', async () => {
+        it('Múltiplas funções', async () => {
             const retornoLexador = lexador.mapear(
                 [
                     'funcao funcao1() {',
@@ -301,8 +309,12 @@ describe('Tradutor Delégua -> MermaidJs', () => {
 
             expect(resultado).toBeTruthy();
             expect(resultado).toContain("graph TD;");
-            expect(resultado).toContain("Linha1[[definir função funcao1]]");
-            expect(resultado).toContain("Linha4[[definir função funcao2 com parâmetros: x: texto]]");
+            expect(resultado).toContain('subgraph funcao1["Função: funcao1()"]');
+            expect(resultado).toContain("Funcfuncao1Inicio[Início: funcao1()]");
+            expect(resultado).toContain("Funcfuncao1Fim[Fim: funcao1()]");
+            expect(resultado).toContain('subgraph funcao2["Função: funcao2()"]');
+            expect(resultado).toContain("Funcfuncao2Inicio[Início: funcao2()]");
+            expect(resultado).toContain("Funcfuncao2Fim[Fim: funcao2()]");
             expect(resultado).toContain("chamada a funcao1, sem argumentos");
             expect(resultado).toContain("chamada a funcao2, com argumentos: \\'Olá\\'");
         });

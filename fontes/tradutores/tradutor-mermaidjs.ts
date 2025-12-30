@@ -30,6 +30,7 @@ import {
     FuncaoDeclaracao,
     Para,
     ParaCada,
+    Retorna,
     Se,
     Var,
 } from '../declaracoes';
@@ -55,7 +56,7 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
     vertices: VerticeFluxograma[];
     ultimaDicaVertice: string | undefined;
     classes: DiagramaClasse[];
-    subgrafosFuncoes: { [nome: string]: SubgrafoFuncao };
+    declaracoesFuncoes: { [nome: string]: SubgrafoFuncao };
     indentacaoAtual: number;
 
     traduzirConstrutoAcessoIndiceVariavel(acessoIndiceVariavel: AcessoIndiceVariavel): string {
@@ -130,6 +131,39 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         }
 
         return texto;
+    }
+
+    /**
+     * Traduz uma declaração de Expressao que contém uma chamada de função,
+     * criando os vértices necessários para conectar ao subgrafo da função.
+     */
+    traduzirChamadaFuncao(declaracaoExpressao: Expressao, chamada: Chamada): VerticeFluxograma[] {
+        // Verifica se é uma chamada a uma função conhecida
+        if (chamada.entidadeChamada.constructor.name === 'Variavel') {
+            const variavel = chamada.entidadeChamada as Variavel;
+            const nomeFuncao = variavel.simbolo.lexema;
+
+            if (this.declaracoesFuncoes[nomeFuncao]) {
+                const subgrafo = this.declaracoesFuncoes[nomeFuncao];
+                let vertices: VerticeFluxograma[] = [];
+
+                // Conecta do fluxo atual para a entrada da função
+                const textoPreChamada = `Linha${declaracaoExpressao.linha}(${this.traduzirConstrutoChamada(chamada)})`;
+                const arestaPreChamada = new ArestaFluxograma(declaracaoExpressao, textoPreChamada);
+                vertices = vertices.concat(this.logicaComumConexaoArestas(arestaPreChamada));
+
+                // Conecta a pré-chamada ao início da função
+                vertices.push(new VerticeFluxograma(arestaPreChamada, subgrafo.arestaInicial));
+
+                // A saída da função volta para o fluxo principal
+                this.anteriores = [subgrafo.arestaFinal];
+
+                return vertices;
+            }
+        }
+
+        // Se não for uma função conhecida, trata como expressão normal
+        return [];
     }
 
     traduzirConstrutoDefinirValor(definirValor: DefinirValor): string {
@@ -467,6 +501,18 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
     }
 
     traduzirDeclaracaoExpressao(declaracaoExpressao: Expressao): VerticeFluxograma[] {
+        // Verifica se é uma chamada de função
+        if (declaracaoExpressao.expressao.constructor.name === 'Chamada') {
+            const chamada = declaracaoExpressao.expressao as Chamada;
+            const verticesChamada = this.traduzirChamadaFuncao(declaracaoExpressao, chamada);
+
+            if (verticesChamada.length > 0) {
+                return verticesChamada;
+            }
+        }
+
+        // Se não for uma chamada de função ou não for uma função conhecida,
+        // trata como expressão normal
         let texto = `Linha${declaracaoExpressao.linha}(`;
         const textoConstruto = this.dicionarioConstrutos[
             declaracaoExpressao.expressao.constructor.name
@@ -512,30 +558,47 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
     }
 
     traduzirDeclaracaoFuncao(declaracaoFuncao: FuncaoDeclaracao): VerticeFluxograma[] {
-        // Gera o corpo como vértices, mas não conecta nada ao fluxo principal
-        const verticesCorpo = this.traduzirFuncaoConstruto(declaracaoFuncao.funcao);
+        const nomeFuncao = declaracaoFuncao.simbolo.lexema;
+        const linha = declaracaoFuncao.linha;
 
-        if (verticesCorpo.length === 0) {
-            return [];
+        // Cria arestas de entrada e saída para a função
+        const textoInicio = `Func${nomeFuncao}Inicio[Início: ${nomeFuncao}()]`;
+        const arestaInicial = new ArestaFluxograma(declaracaoFuncao, textoInicio);
+
+        const textoFim = `Func${nomeFuncao}Fim[Fim: ${nomeFuncao}()]`;
+        const arestaFinal = new ArestaFluxograma(declaracaoFuncao, textoFim);
+
+        // Cria o subgrafo da função
+        const subgrafo = new SubgrafoFuncao(nomeFuncao, linha, arestaInicial, arestaFinal);
+
+        // Salva o estado atual de anteriores
+        const anterioresAntes = [...this.anteriores];
+        this.anteriores = [arestaInicial];
+
+        // Processa o corpo da função
+        if (declaracaoFuncao.funcao.corpo && declaracaoFuncao.funcao.corpo.length > 0) {
+            for (const declaracaoCorpo of declaracaoFuncao.funcao.corpo) {
+                const verticesCorpo = this.dicionarioDeclaracoes[
+                    declaracaoCorpo.constructor.name
+                ](declaracaoCorpo);
+                subgrafo.vertices = subgrafo.vertices.concat(verticesCorpo);
+            }
         }
 
-        // Descobre o texto dos nós do corpo
-        /* let textoSubgrafo = `subgraph função ${declaracaoFuncao.simbolo.lexema}\n`;
-        for (const vertice of verticesCorpo) {
-            textoSubgrafo += vertice.paraTexto();
+        // Conecta o fim do corpo à aresta final
+        if (this.anteriores.length > 0) {
+            for (const anterior of this.anteriores) {
+                subgrafo.vertices.push(new VerticeFluxograma(anterior, arestaFinal));
+            }
         }
-        textoSubgrafo += `end;\n`; */
 
-        // Armazena o subgraph para imprimir depois de graph TD;
-        // this.subgrafosFuncoes.push(textoSubgrafo);
+        // Restaura o estado anterior
+        this.anteriores = anterioresAntes;
 
-        // IMPORTANTE: não altera this.anteriores aqui, para a função
-        // não entrar no fluxo principal. O fluxo principal continua
-        // sendo só as declarações "top-level" (como a chamada em Linha4).
+        // Armazena o subgrafo
+        this.declaracoesFuncoes[nomeFuncao] = subgrafo;
 
-        // Também não precisa devolver vértices, porque eles já
-        // foram adicionados em this.vertices pelos próprios tradutores
-        // das declarações do corpo (via dicionarioDeclaracoes).
+        // Não adiciona ao fluxo principal
         return [];
     }
 
@@ -689,6 +752,20 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         return vertices;
     }
 
+    traduzirDeclaracaoRetorna(declaracaoRetorna: Retorna): VerticeFluxograma[] {
+        let texto = `Linha${declaracaoRetorna.linha}(retorna`;
+        if (declaracaoRetorna.valor) {
+            texto += `: ${this.dicionarioConstrutos[declaracaoRetorna.valor.constructor.name](declaracaoRetorna.valor)}`;
+        }
+        texto += ')';
+
+        const aresta = new ArestaFluxograma(declaracaoRetorna, texto);
+        const vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
+
+        this.anteriores.push(aresta);
+        return vertices;
+    }
+
     dicionarioConstrutos = {
         AcessoIndiceVariavel: this.traduzirConstrutoAcessoIndiceVariavel.bind(this),
         AcessoMetodo: this.traduzirConstrutoAcessoMetodo.bind(this),
@@ -723,10 +800,11 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         Expressao: this.traduzirDeclaracaoExpressao.bind(this),
         Escreva: this.traduzirDeclaracaoEscreva.bind(this),
         Fazer: this.traduzirDeclaracaoFazerEnquanto.bind(this),
-        // FuncaoDeclaracao: this.traduzirDeclaracaoFuncao.bind(this),
-        FuncaoDeclaracao: () => { throw new Error("Fluxogramas de funções ainda não é suportado.") },
+        FuncaoDeclaracao: this.traduzirDeclaracaoFuncao.bind(this),
+        // FuncaoDeclaracao: () => { throw new Error("Fluxogramas de funções ainda não é suportado.") },
         Para: this.traduzirDeclaracaoPara.bind(this),
         ParaCada: this.traduzirDeclaracaoParaCada.bind(this),
+        Retorna: this.traduzirDeclaracaoRetorna.bind(this),
         Se: this.traduzirDeclaracaoSe.bind(this),
         Var: this.traduzirDeclaracaoVar.bind(this),
     };
@@ -742,7 +820,7 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         this.vertices = [];
         let resultado = 'graph TD;\n';
         this.indentacaoAtual = 4;
-        this.subgrafosFuncoes = {};
+        this.declaracoesFuncoes = {};
 
         for (const declaracao of declaracoes) {
             this.vertices = this.vertices.concat(
@@ -750,9 +828,17 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
             );
         }
 
-        if (Object.keys(this.subgrafosFuncoes).length > 0) {
-            for (const subgrafo of Object.values(this.subgrafosFuncoes)) {
-                resultado += subgrafo;
+        // Renderiza os subgrafos de funções
+        if (Object.keys(this.declaracoesFuncoes).length > 0) {
+            for (const [nomeFuncao, subgrafo] of Object.entries(this.declaracoesFuncoes)) {
+                resultado += `    subgraph ${nomeFuncao}["Função: ${nomeFuncao}()"]\n`;
+
+                // Renderiza os vértices da função
+                for (const vertice of subgrafo.vertices) {
+                    resultado += '    ' + vertice.paraTexto();
+                }
+
+                resultado += `    end\n`;
             }
         }
 
