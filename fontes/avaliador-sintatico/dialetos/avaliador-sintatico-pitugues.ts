@@ -738,7 +738,7 @@ export class AvaliadorSintaticoPitugues
                 );
                 return corpoDaFuncao;
             case tiposDeSimbolos.IMPORTAR:
-                return this.declaracaoImportar();
+                return await this.construtoImportar();
             case tiposDeSimbolos.NULO:
                 this.avancarEDevolverAnterior();
                 return new Literal(this.hashArquivo, simboloAtual.linha, null);
@@ -1593,7 +1593,7 @@ export class AvaliadorSintaticoPitugues
         return new Retorna(palavraChave, valor);
     }
 
-    async declaracaoImportar(): Promise<ImportarComoConstruto> {
+    async construtoImportar(): Promise<ImportarComoConstruto> {
         this.avancarEDevolverAnterior();
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após declaração.");
         const caminho = await this.expressao();

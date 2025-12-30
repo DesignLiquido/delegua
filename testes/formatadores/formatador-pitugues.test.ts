@@ -10,7 +10,7 @@ describe('Formatador (Pituguês)', () => {
     beforeEach(() => {
         lexador = new LexadorPitugues();
         avaliadorSintatico = new AvaliadorSintaticoPitugues();
-        formatador = new FormatadorPitugues();
+        formatador = new FormatadorPitugues('\n');
     });
 
     const executar = async (codigos: string[]): Promise<string> => {

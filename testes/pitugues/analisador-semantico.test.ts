@@ -39,21 +39,21 @@ describe('Analisador semântico', () => {
                 const retornoLexador = lexador.mapear([
                     `funcao maior(x, y):`,
                     `    retorna (x + y + (x - y).absoluto()) \ 2`,
-                    
+
                     ` x = inteiro(leia("Digite o primeiro número: "))`,
                     ` y = inteiro(leia("Digite o segundo número: "))`,
                     ` z = inteiro(leia("Digite o terceiro número: "))`,
                     ` maior_numero = maior(x, maior(y, z))`,
                     `escreva("\${maior_numero} eh o maior")`,
                 ], -1);
-                
+
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
-                // Antes das correções: 3 diagnósticos (1 sobre tipo de retorno + 2 sobre variáveis não usadas)
-                // Após as correções: 1 diagnóstico (apenas sobre tipo de retorno, pois x, y, z agora são corretamente marcadas como usadas)
-                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
+                // Funções sem tipo de retorno declarado podem retornar valores (tratados como 'qualquer')
+                // As variáveis x, y, z são corretamente marcadas como usadas na interpolação e nas chamadas
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
             });
 
             describe('Declaração se ... senão se ... senão', () => {
@@ -945,6 +945,19 @@ describe('Analisador semântico', () => {
     });
 
     describe('Cenários adicionais de funções', () => {
+        it('Sucesso - função sem tipo de retorno declarado mas que retorna valor', async () => {
+            const retornoLexador = lexador.mapear([
+                `função teste(argumento):`,
+                `    retorna argumento`,
+                `escreva(teste("1, 2, 3"))`,
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+
         it('Sucesso - função que não retorna valor', async () => {
             const retornoLexador = lexador.mapear([
                 `funcao imprimir(mensagem):`,
