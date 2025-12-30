@@ -56,6 +56,10 @@ export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExe
 
     pilhaEscoposExecucao.definirVariavel('mapear', new FuncaoPadrao(2, bibliotecaGlobal.mapear));
 
+    pilhaEscoposExecucao.definirVariavel('maximo', new FuncaoPadrao(1, bibliotecaGlobal.maximo));
+
+    pilhaEscoposExecucao.definirVariavel('minimo', new FuncaoPadrao(1, bibliotecaGlobal.minimo));
+
     pilhaEscoposExecucao.definirVariavel('numero', new FuncaoPadrao(1, bibliotecaGlobal.numero));
     pilhaEscoposExecucao.definirVariavel('número', new FuncaoPadrao(1, bibliotecaGlobal.numero));
 
@@ -74,6 +78,8 @@ export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExe
     pilhaEscoposExecucao.definirVariavel('real', new FuncaoPadrao(1, bibliotecaGlobal.real));
 
     pilhaEscoposExecucao.definirVariavel('reduzir', new FuncaoPadrao(3, bibliotecaGlobal.reduzir));
+
+    pilhaEscoposExecucao.definirVariavel('somar', new FuncaoPadrao(1, bibliotecaGlobal.somar));
 
     pilhaEscoposExecucao.definirVariavel('tamanho', new FuncaoPadrao(1, bibliotecaGlobal.tamanho));
 
@@ -290,6 +296,12 @@ function obterAjudaFuncaoPadrao(funcaoPadrao: FuncaoPadrao): string {
                 `\tvar quadrados = mapear(numeros, funcao(n) { retorna n * n })\n` +
                 `\tescreva(quadrados) // [1, 4, 9, 16]\n`;
 
+        case 'maximo':
+            return `# maximo(vetor)\n\nRetorna o maior valor encontrado em um vetor de números.`;
+
+        case 'minimo':
+            return `# minimo(vetor)\n\nRetorna o menor valor encontrado em um vetor de números.`;
+
         case 'numero':
             return `# numero(valor)\n\n` +
                 `Converte um valor em um número (pode ter parte decimal).\n\n` +
@@ -365,6 +377,9 @@ function obterAjudaFuncaoPadrao(funcaoPadrao: FuncaoPadrao): string {
                 `\tvar numeros = [1, 2, 3, 4]\n` +
                 `\tvar soma = reduzir(numeros, funcao(acc, n) { retorna acc + n }, 0)\n` +
                 `\tescreva(soma) // 10\n`;
+
+        case 'somar':
+            return `# somar(vetor)\n\nRetorna a soma de todos os elementos de um vetor numérico.`;
 
         case 'tamanho':
             return `# tamanho(objeto)\n\n` +

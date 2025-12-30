@@ -60,6 +60,34 @@ const mapaPropriedadesTuplas: { [nomeClasse: string]: string[] } = {
 };
 
 /**
+ * Compara dois valores (números ou vetores).
+ * Retorna:
+ * > 0 se a > b
+ * < 0 se a < b
+ * 0 se a == b
+ * Lança erro se os tipos forem incompatíveis.
+ */
+function compararElementosRecursivamente(a: any, b: any): number {
+    if (typeof a === 'number' && typeof b === 'number') {
+        return a - b;
+    }
+
+    if (Array.isArray(a) && Array.isArray(b)) {
+        const tamanho = Math.min(a.length, b.length);
+
+        for (let i = 0; i < tamanho; i++) {
+            const comparacao = compararElementosRecursivamente(a[i], b[i]);
+            if (comparacao !== 0) return comparacao;
+        }
+
+        return a.length - b.length;
+    }
+
+    // Tipos incompatíveis (ex: comparar número com vetor)
+    throw new Error('Tipos incompatíveis para comparação.');
+}
+
+/**
  * Retorna um número aleatório entre 0 e 1.
  * @returns {Promise<number>} Número real.
  */
@@ -812,6 +840,150 @@ export async function mapear(
 }
 
 /**
+ * Encontra o maior número dentro de um vetor.
+ * @param {InterpretadorInterface} interpretador A instância do interpretador.
+ * @param {VariavelInterface | any} vetor Uma variável de Delégua ou um vetor nativo de JavaScript contendo números.
+ * @returns {Promise<number>} O maior número encontrado no vetor.
+ */
+export async function maximo(
+    interpretador: InterpretadorInterface,
+    vetor: VariavelInterface | any
+): Promise<number> {
+    if (vetor === null || vetor === undefined) {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                {
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual,
+                } as SimboloInterface,
+                'Parâmetro inválido. O parâmetro da função maximo() não pode ser nulo.'
+            )
+        );
+    }
+
+    const valorVetor = interpretador.resolverValor(vetor);
+
+    if (!Array.isArray(valorVetor)) {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                {
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual,
+                } as SimboloInterface,
+                'Parâmetro inválido. O parâmetro da função maximo() deve ser um vetor.'
+            )
+        );
+    }
+
+    if (vetor.length == 0) {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                {
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual,
+                } as SimboloInterface,
+                'Parâmetro inválido. O vetor não pode estar vazio.'
+            )
+        );
+    }
+
+    let maiorValor = valorVetor[0];
+
+    try {
+        for (let i = 1; i < valorVetor.length; i++) {
+            const elementoAtual = valorVetor[i];
+            if (compararElementosRecursivamente(elementoAtual, maiorValor) > 0) {
+                maiorValor = elementoAtual;
+            }
+        }
+    } catch (erro: any) {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                {
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual,
+                } as SimboloInterface,
+                'Não é possível comparar elementos de tipos diferentes dentro do vetor (ex: números com vetores).'
+            )
+        );
+    }
+
+    return Promise.resolve(maiorValor);
+}
+
+/**
+ * Encontra o menor número dentro de um vetor.
+ * @param {InterpretadorInterface} interpretador A instância do interpretador.
+ * @param {VariavelInterface | any} vetor Uma variável de Delégua ou um vetor nativo de JavaScript contendo números.
+ * @returns {Promise<number>} O menor número encontrado no vetor.
+ */
+export async function minimo(
+    interpretador: InterpretadorInterface,
+    vetor: VariavelInterface | any
+): Promise<number> {
+    if (vetor === null || vetor === undefined) {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                {
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual,
+                } as SimboloInterface,
+                'Parâmetro inválido. O parâmetro da função minimo() não pode ser nulo.'
+            )
+        );
+    }
+
+    const valorVetor = interpretador.resolverValor(vetor);
+
+    if (!Array.isArray(valorVetor)) {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                {
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual,
+                } as SimboloInterface,
+                'Parâmetro inválido. O parâmetro da função minimo() deve ser um vetor.'
+            )
+        );
+    }
+
+    if (valorVetor.length == 0) {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                {
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual,
+                } as SimboloInterface,
+                'Parâmetro inválido. O vetor não pode estar vazio.'
+            )
+        );
+    }
+
+    let menorValor = valorVetor[0];
+
+    try {
+        for (let i = 1; i < valorVetor.length; i++) {
+            const elementoAtual = valorVetor[i];
+            if (compararElementosRecursivamente(elementoAtual, menorValor) < 0) {
+                menorValor = elementoAtual;
+            }
+        }
+    } catch (erro: any) {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                {
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual,
+                } as SimboloInterface,
+                'Não é possível comparar elementos de tipos diferentes dentro do vetor (ex: números com vetores).'
+            )
+        );
+    }
+
+    return Promise.resolve(menorValor);
+}
+
+/**
  * Converte um valor em um número, com parte decimal ou não.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
  * @param {VariavelInterface | any} valorParaConverter O valor a ser convertido.
@@ -1086,6 +1258,64 @@ export async function reduzir(
     }
 
     return resultado;
+}
+
+/**
+ * Realiza a soma de todos os números dentro de um vetor.
+ * @param {InterpretadorInterface} interpretador A instância do interpretador.
+ * @param {VariavelInterface | any} vetor Uma variável de Pituguês ou um vetor nativo de JavaScript contendo números.
+ * @returns {Promise<number>} A soma de todos os elementos do vetor.
+ */
+export async function somar(
+    interpretador: InterpretadorInterface,
+    vetor: VariavelInterface | any
+): Promise<number> {
+    if (vetor === null || vetor === undefined) {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                {
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual,
+                } as SimboloInterface,
+                'Parâmetro inválido. O parâmetro da função somar() não pode ser nulo.'
+            )
+        );
+    }
+
+    const valorVetor = interpretador.resolverValor(vetor);
+
+    if (!Array.isArray(valorVetor)) {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                {
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual,
+                } as SimboloInterface,
+                'Parâmetro inválido. O parâmetro da função somar() deve ser um vetor.'
+            )
+        );
+    }
+
+    if (valorVetor.length === 0) return Promise.resolve(0);
+
+    let somaDosElementos = 0;
+    for (let elemento of valorVetor) {
+        if (typeof elemento !== 'number' || isNaN(elemento)) {
+            return Promise.reject(
+                new ErroEmTempoDeExecucao(
+                    {
+                        hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                        linha: interpretador.linhaDeclaracaoAtual,
+                    } as SimboloInterface,
+                    'A função somar() aceita apenas vetores contendo números.'
+                )
+            );
+        }
+
+        somaDosElementos += elemento
+    }
+
+    return Promise.resolve(somaDosElementos);
 }
 
 /**

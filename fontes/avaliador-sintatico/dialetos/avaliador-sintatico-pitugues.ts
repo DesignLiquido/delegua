@@ -1057,7 +1057,7 @@ export class AvaliadorSintaticoPitugues
 
     async em(): Promise<Construto> {
         let expressao = await this.comparacaoIgualdade();
-            
+
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EM, tiposDeSimbolos.CONTEM, tiposDeSimbolos.NAO)) {
             let operador = this.simboloAnterior();
             let negado = false;
@@ -2337,6 +2337,24 @@ export class AvaliadorSintaticoPitugues
         this.pilhaEscopos.definirInformacoesVariavel(
             'tupla',
             new InformacaoElementoSintatico('tupla', 'tupla', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'maximo',
+            new InformacaoElementoSintatico('maximo', 'número', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'minimo',
+            new InformacaoElementoSintatico('minimo', 'número', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'somar',
+            new InformacaoElementoSintatico('somar', 'número', true, [
                 new InformacaoElementoSintatico('vetor', 'qualquer[]'),
             ])
         );
