@@ -32,6 +32,13 @@ export async function visitarExpressaoAcessoMetodo(
 
     const objeto = interpretador.resolverValor(variavelObjeto);
 
+    if (Array.isArray(objeto)) {
+        const metodoDePrimitivaVetor: Function = primitivasVetor[expressao.nomeMetodo]?.implementacao;
+        if (metodoDePrimitivaVetor) {
+            return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor, expressao.nomeMetodo, 'vetor');
+        }
+    }
+
     if (objeto.constructor === ObjetoDeleguaClasse) {
         return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomeMetodo) || null;
     }
@@ -155,6 +162,13 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
     }
 
     const objeto = interpretador.resolverValor(variavelObjeto, true);
+
+    if (Array.isArray(objeto)) {
+        if (expressao.simbolo.lexema in primitivasVetor) {
+            const metodoDePrimitivaVetor: Function = primitivasVetor[expressao.simbolo.lexema].implementacao;
+            return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor, expressao.simbolo.lexema, 'vetor');
+        }
+    }
 
     if (objeto.constructor === ObjetoDeleguaClasse) {
         return (objeto as ObjetoDeleguaClasse).obter(expressao.simbolo);

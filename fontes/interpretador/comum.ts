@@ -96,6 +96,8 @@ export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExe
     );
 
     pilhaEscoposExecucao.definirVariavel('tupla', new FuncaoPadrao(1, bibliotecaGlobal.tupla));
+
+    pilhaEscoposExecucao.definirVariavel('vetor', new FuncaoPadrao(1, bibliotecaGlobal.vetor));
 }
 
 export function pontoEntradaAjuda(funcao: boolean, topico: any) {

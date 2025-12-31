@@ -1459,9 +1459,8 @@ export async function todosEmCondicao(
 export async function tupla(
     interpretador: InterpretadorInterface,
     vetor: VariavelInterface | any[]
-): Promise<Tupla | TuplaN> {
-    const valorVetor: any[] =
-        !Array.isArray(vetor) && vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
+): Promise<TuplaN> {
+    const valorVetor: any[] = interpretador.resolverValor(vetor);
 
     // TODO: As lógicas de validação abaixo deixam de fazer sentido com a validação de argumentos feita
     // na avaliação sintática. Estudar remoção.
@@ -1477,39 +1476,19 @@ export async function tupla(
         );
     }
 
-    const tamanho = valorVetor.length;
-
-    if (tamanho < 2) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Para ser transformado em uma tupla, vetor precisa ter no mínimo 2 elementos.'
-            )
-        );
-    }
-
-    const criarLiteral = (valor: any) => new Literal(
-        interpretador.hashArquivoDeclaracaoAtual,
-        interpretador.linhaDeclaracaoAtual,
-        valor,
-        inferirTipoVariavel(valor) as any
+    const elementos = valorVetor.map(item =>
+        new Literal(
+            interpretador.hashArquivoDeclaracaoAtual,
+            interpretador.linhaDeclaracaoAtual,
+            interpretador.resolverValor(item)
+        )
     );
 
-    if (mapaConstrutoresTupla.hasOwnProperty(tamanho)) {
-        const Construtor = mapaConstrutoresTupla[tamanho];
-        const args = valorVetor.map(criarLiteral);
-        return Promise.resolve(new Construtor(...args));
-    }
-
-    const elementos = valorVetor.map(criarLiteral);
-    return Promise.resolve(new TuplaN(
-       interpretador.hashArquivoDeclaracaoAtual,
-       interpretador.linhaDeclaracaoAtual,
-       elementos
-    ));
+    return new TuplaN(
+        interpretador.hashArquivoDeclaracaoAtual,
+        interpretador.linhaDeclaracaoAtual,
+        elementos
+    );
 }
 
 export async function vetor(

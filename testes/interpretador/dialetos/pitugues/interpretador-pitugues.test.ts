@@ -621,8 +621,7 @@ describe('Interpretador (Pituguês)', () => {
             });
 
             describe('tupla() e vetor()', () => {
-                // TODO: Corrigir erros de avaliação sintática.
-                it.skip('Transformando tupla para vetor', async () => {
+                it('Transformando tupla para vetor', async () => {
                     const retornoLexador = lexador.mapear([`
                         tupla = (1, 2, 3)
                         vetor = vetor(tupla)
@@ -639,15 +638,55 @@ describe('Interpretador (Pituguês)', () => {
                     );
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
-                    expect(_saidas[0]).toEqual([1, 2, 3]);
+                    expect(_saidas[0]).toEqual('[1, 2, 3]');
                 });
 
-                // TODO: `paraTextoSaida` em `trio` escreve a tupla como em Delégua.
-                // Pensar numa forma de resolver para o Pituguês.
-                it.skip('Transformando vetor para tupla', async () => {
+                it('Transformando vetor para tupla', async () => {
                     const retornoLexador = lexador.mapear([`
                         vetor = [1, 2, 3]
                         tupla = tupla(vetor)
+                        escreva(tupla);
+                    `], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes,
+                        true
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('(1, 2, 3)');
+                });
+            });
+
+            describe('paraTupla() e paraVetor()', () => {
+                it('Transformando tupla para vetor usando paraVetor()', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        tupla = (1, 2, 3)
+                        vetor = tupla.paraVetor()
+                        escreva(vetor);
+                    `], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes,
+                        true
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toEqual('[1, 2, 3]');
+                });
+
+                it('Transformando vetor para tupla usando paraTupla()', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        vetor = [1, 2, 3]
+                        tupla = vetor.paraTupla()
                         escreva(tupla);
                     `], -1);
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
@@ -3248,11 +3287,10 @@ describe('Interpretador (Pituguês)', () => {
             });
 
             describe('tupla() e vetor()', () => {
-                // TODO: Isto não dá erro por algum motivo.
-                it.skip('Erro em transformar vetor para vetor', async () => {
+                it('Erro em transformar vetor para vetor', async () => {
                     const retornoLexador = lexador.mapear([`
-                        tupla = [1, 2, 3]
-                        vetor = vetor(tupla)
+                        vetor_muito_legal = [1, 2, 3]
+                        vetor = vetor(vetor_muito_legal)
                         escreva(vetor);
                     `], -1);
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
@@ -3270,8 +3308,48 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('Erro em transformar tupla para tupla', async () => {
                     const retornoLexador = lexador.mapear([`
-                        vetor = (1, 2, 3)
-                        tupla = tupla(vetor)
+                        tupla_muito_legal = (1, 2, 3)
+                        tupla = tupla(tupla_muito_legal)
+                        escreva(tupla);
+                    `], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes,
+                        true
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(1);
+                });
+            });
+
+            describe('paraTupla() e paraVetor()', () => {
+                it('Erro em transformar vetor para vetor usando paraVetor()', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        vetor_muito_legal = [1, 2, 3]
+                        vetor = vetor_muito_legal.paraVetor()
+                        escreva(vetor);
+                    `], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes,
+                        true
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(1);
+                });
+
+                it('Erro em transformar tupla para tupla usando paraTupla()', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        tupla_muito_legal = (1, 2, 3)
+                        tupla = tupla_muito_legal.paraTupla()
                         escreva(tupla);
                     `], -1);
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(

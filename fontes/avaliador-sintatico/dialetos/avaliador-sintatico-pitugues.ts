@@ -2269,6 +2269,18 @@ export class AvaliadorSintaticoPitugues
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
+            'maximo',
+            new InformacaoElementoSintatico('maximo', 'número', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'minimo',
+            new InformacaoElementoSintatico('minimo', 'número', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
             'numero',
             new InformacaoElementoSintatico('número', 'número', true, [
                 new InformacaoElementoSintatico('valorParaConverter', 'qualquer'),
@@ -2316,6 +2328,12 @@ export class AvaliadorSintaticoPitugues
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
+            'somar',
+            new InformacaoElementoSintatico('somar', 'número', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
             'tamanho',
             new InformacaoElementoSintatico('tamanho', 'inteiro', true, [
                 new InformacaoElementoSintatico('objeto', 'qualquer'),
@@ -2341,21 +2359,9 @@ export class AvaliadorSintaticoPitugues
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
-            'maximo',
-            new InformacaoElementoSintatico('maximo', 'número', true, [
-                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
-            ])
-        );
-        this.pilhaEscopos.definirInformacoesVariavel(
-            'minimo',
-            new InformacaoElementoSintatico('minimo', 'número', true, [
-                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
-            ])
-        );
-        this.pilhaEscopos.definirInformacoesVariavel(
-            'somar',
-            new InformacaoElementoSintatico('somar', 'número', true, [
-                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+            'vetor',
+            new InformacaoElementoSintatico('vetor', 'vetor', true, [
+                new InformacaoElementoSintatico('tupla', 'qualquer')
             ])
         );
     }
