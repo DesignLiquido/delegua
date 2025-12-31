@@ -1307,8 +1307,7 @@ export async function tupla(
     interpretador: InterpretadorInterface,
     vetor: VariavelInterface | any[]
 ): Promise<TuplaN> {
-    const valorVetor: any[] =
-        !Array.isArray(vetor) && vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
+    const valorVetor: any[] = interpretador.resolverValor(vetor);
 
     // TODO: As lógicas de validação abaixo deixam de fazer sentido com a validação de argumentos feita
     // na avaliação sintática. Estudar remoção.
@@ -1324,14 +1323,13 @@ export async function tupla(
         );
     }
 
-    const elementos = valorVetor.map(item => {
-        return new Literal(
+    const elementos = valorVetor.map(item =>
+        new Literal(
             interpretador.hashArquivoDeclaracaoAtual,
             interpretador.linhaDeclaracaoAtual,
-            item,
-            inferirTipoVariavel(item) as any
-        );
-    });
+            interpretador.resolverValor(item)
+        )
+    );
 
     return new TuplaN(
         interpretador.hashArquivoDeclaracaoAtual,
@@ -1360,9 +1358,7 @@ export async function vetor(
         );
     }
 
-    const resultado = objetoTupla.elementos.map((elemento: any) => {
-        return interpretador.resolverValor(elemento);
-    });
+    const resultado = objetoTupla.elementos.map((elemento: any) => interpretador.resolverValor(elemento));
 
     return Promise.resolve(resultado);
 }
