@@ -266,7 +266,7 @@ describe('biblioteca-global (pituguês)', () => {
             const interpretador = criarInterpretadorMock();
             const resultado = await tupla(interpretador, [1, 'texto', true, null]);
             expect(resultado.constructor.name).toBe('TuplaN');
-            expect(resultado.paraTextoSaida()).toBe('(1, "texto", true, null)');
+            expect(resultado.paraTextoSaida()).toBe("(1, 'texto', true, null)");
         });
     });
 

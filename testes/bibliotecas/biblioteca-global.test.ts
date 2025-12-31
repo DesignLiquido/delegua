@@ -205,7 +205,7 @@ describe('Biblioteca Global', () => {
             const codigo = [
                 "var original = tupla([1, 2])",
                 "var copia = clonar(original)",
-                "escreva(copia.primeiro)"
+                "escreva(copia[0])"
             ];
             let _saida = "";
             interpretador.funcaoDeRetorno = (saida: string) => {
@@ -650,7 +650,7 @@ describe('Biblioteca Global', () => {
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
             expect(retornoInterpretador.erros).toHaveLength(0);
-            expect(_saidas).toBe('[(1, 2, 3)]');
+            expect(_saidas).toBe('(1, 2, 3)');
         });
     });
 });

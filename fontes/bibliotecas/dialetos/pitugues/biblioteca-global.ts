@@ -1323,13 +1323,21 @@ export async function tupla(
         );
     }
 
-    const elementos = valorVetor.map(item =>
-        new Literal(
+    const elementos = valorVetor.map(item => {
+        const valorResolvido = interpretador.resolverValor(item);
+
+        const literal = new Literal(
             interpretador.hashArquivoDeclaracaoAtual,
             interpretador.linhaDeclaracaoAtual,
-            interpretador.resolverValor(item)
-        )
-    );
+            valorResolvido
+        );
+
+        if (typeof valorResolvido === 'string') {
+            literal.paraTextoSaida = () => `'${valorResolvido}'`;
+        }
+
+        return literal;
+    });
 
     return new TuplaN(
         interpretador.hashArquivoDeclaracaoAtual,
