@@ -944,6 +944,54 @@ describe('Analisador semântico', () => {
         });
     });
 
+    describe('Cenários de uso de variáveis em expressões', () => {
+        it('Sucesso - variável usada em expressão com operador de exponenciação', async () => {
+            const retornoLexador = lexador.mapear([
+                `x = 1`,
+                `y = 2`,
+                `z = x ^ y`,
+                `escreva(z)`,
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+
+        it('Sucesso - variável usada em chamada de método', async () => {
+            const retornoLexador = lexador.mapear([
+                `tex = "teste"`,
+                `x = tex.maiusculo()`,
+                `escreva(x)`,
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+
+        it('Sucesso - variáveis usadas em expressões binárias com exponenciação', async () => {
+            const retornoLexador = lexador.mapear([
+                `x1 = 3`,
+                `y1 = 4`,
+                `x2 = 6`,
+                `y2 = 8`,
+                `resultado = (x2 - x1) ^ 2 + (y2 - y1) ^ 2`,
+                `escreva(resultado)`,
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            // Todas as variáveis são usadas:
+            // - x1, y1, x2, y2: usadas na expressão binária
+            // - resultado: usada em escreva
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+    });
+
     describe('Cenários adicionais de funções', () => {
         it('Sucesso - função sem tipo de retorno declarado mas que retorna valor', async () => {
             const retornoLexador = lexador.mapear([

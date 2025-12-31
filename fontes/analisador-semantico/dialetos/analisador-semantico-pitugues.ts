@@ -71,6 +71,12 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
             return;
         }
 
+        if (expressao instanceof Atribuir) {
+            // Em atribuições, marca variáveis usadas no valor (lado direito)
+            this.marcarVariaveisUsadasEmExpressao(expressao.valor);
+            return;
+        }
+
         if (expressao instanceof Binario) {
             this.marcarVariaveisUsadasEmExpressao(expressao.esquerda);
             this.marcarVariaveisUsadasEmExpressao(expressao.direita);
@@ -343,7 +349,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    visitarExpressaoDeAtribuicao(expressao: Atribuir) {
+    override visitarExpressaoDeAtribuicao(expressao: Atribuir) {
         let simboloAlvo: SimboloInterface;
 
         switch (expressao.alvo.constructor) {
@@ -464,7 +470,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
 
     }
 
-    async visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<any> {
+    override async visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<any> {
         return await declaracao.expressao.aceitar(this);
     }
 
