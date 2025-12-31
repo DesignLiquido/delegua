@@ -35,9 +35,9 @@ import {
     Var,
 } from '../declaracoes';
 import { CaminhoEscolha, TradutorInterface } from '../interfaces';
+import { ArestaFluxograma, SubgrafoClasse, SubgrafoFuncao, SubgrafoMetodo, VerticeFluxograma } from './mermaid';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
-import { ArestaFluxograma, SubgrafoClasse, SubgrafoFuncao, SubgrafoMetodo, VerticeFluxograma } from './mermaid';
 
 /**
  * [MermaidJs](https://mermaid.js.org/) é uma especificação que nos permite

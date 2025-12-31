@@ -474,12 +474,12 @@ describe('Tradutor Delégua -> MermaidJs', () => {
 
     // ========== TESTES COMBINADOS ==========
 
-    describe.skip('Funções e Classes Combinadas', () => {
+    describe('Funções e Classes Combinadas', () => {
         it('Função que cria instância de classe', async () => {
             const retornoLexador = lexador.mapear(
                 [
                     'classe Pessoa {',
-                    '    metodo saudar() {',
+                    '    saudar() {',
                     '        escreva("Olá!")',
                     '    }',
                     '}',
@@ -496,8 +496,9 @@ describe('Tradutor Delégua -> MermaidJs', () => {
 
             expect(resultado).toBeTruthy();
             expect(resultado).toContain("graph TD;");
-            expect(resultado).toContain("subgraph Classe_Pessoa");
-            expect(resultado).toContain("Linha6[[definir função criarPessoa]]");
+            expect(resultado).toContain('subgraph Pessoa["Classe: Pessoa"]');
+            expect(resultado).toContain('subgraph saudar_Pessoa["Método: saudar()"]');
+            expect(resultado).toContain('subgraph criarPessoa["Função: criarPessoa()"]');
             expect(resultado).toContain("chamada a criarPessoa");
         });
 
@@ -508,7 +509,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
                     '    retorna texto',
                     '}',
                     'classe Impressora {',
-                    '    metodo imprimir(mensagem: texto) {',
+                    '    imprimir(mensagem: texto) {',
                     '        var formatada = formatar(mensagem)',
                     '        escreva(formatada)',
                     '    }',
@@ -522,8 +523,9 @@ describe('Tradutor Delégua -> MermaidJs', () => {
 
             expect(resultado).toBeTruthy();
             expect(resultado).toContain("graph TD;");
-            expect(resultado).toContain("Linha1[[definir função formatar");
-            expect(resultado).toContain("subgraph Classe_Impressora");
+            expect(resultado).toContain('subgraph formatar["Função: formatar()"]');
+            expect(resultado).toContain('subgraph Impressora["Classe: Impressora"]');
+            expect(resultado).toContain('subgraph imprimir_Impressora["Método: imprimir()"]');
             expect(resultado).toContain("chamada a formatar");
         });
     });
