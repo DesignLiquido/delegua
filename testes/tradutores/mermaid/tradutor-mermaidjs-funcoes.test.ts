@@ -22,7 +22,7 @@ describe('Tradutor Delégua -> MermaidJs - Funções', () => {
 
         const retornoLexador = lexador.mapear(codigo, -1);
         const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-        const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+        const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
         console.log(resultado);
 
@@ -46,7 +46,7 @@ describe('Tradutor Delégua -> MermaidJs - Funções', () => {
 
         const retornoLexador = lexador.mapear(codigo, -1);
         const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-        const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+        const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
         console.log(resultado);
 
@@ -72,7 +72,7 @@ describe('Tradutor Delégua -> MermaidJs - Funções', () => {
 
         const retornoLexador = lexador.mapear(codigo, -1);
         const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-        const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+        const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
         console.log(resultado);
 
@@ -97,7 +97,7 @@ describe('Tradutor Delégua -> MermaidJs - Funções', () => {
 
         const retornoLexador = lexador.mapear(codigo, -1);
         const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-        const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+        const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
         console.log(resultado);
 

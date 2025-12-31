@@ -62,7 +62,7 @@ import {
     Var,
     VarMultiplo,
 } from '../declaracoes';
-import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
+import { ContinuarQuebra, SustarQuebra } from '../quebras';
 
 export interface VisitanteComumInterface {
     visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> | void;
@@ -120,7 +120,7 @@ export interface VisitanteComumInterface {
     visitarExpressaoLiteral(expressao: Literal): Promise<any> | void;
     visitarExpressaoLogica(expressao: Logico): Promise<any> | void;
     visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> | void;
-    visitarExpressaoRetornar(expressao: Retorna): Promise<RetornoQuebra> | void;
+    visitarExpressaoRetornar(expressao: Retorna): Promise<any> | void;
     visitarExpressaoSeparador(expressao: Separador): Promise<any> | void;
     visitarExpressaoSuper(expressao: Super): Promise<any> | void;
     visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra | void;

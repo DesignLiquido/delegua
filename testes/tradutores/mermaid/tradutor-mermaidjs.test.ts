@@ -20,7 +20,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
         );
 
         const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-        const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+        const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
         expect(resultado).toBeTruthy();
         expect(resultado).toContain("graph TD;");
@@ -34,7 +34,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
         );
 
         const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-        const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+        const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
         expect(resultado).toBeTruthy();
         expect(resultado).toContain("graph TD;");
@@ -54,7 +54,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
         );
 
         const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-        const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+        const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
         // console.log(resultado);
         expect(resultado).toBeTruthy();
@@ -83,7 +83,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
         );
 
         const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-        const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+        const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
         // console.log(resultado);
         expect(resultado).toBeTruthy();
@@ -113,7 +113,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
         );
 
         const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-        const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+        const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
         // console.log(resultado);
         expect(resultado).toBeTruthy();
@@ -137,7 +137,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
         );
 
         const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-        const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+        const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
         // console.log(resultado);
         expect(resultado).toBeTruthy();
@@ -160,7 +160,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
         );
 
         const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-        const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+        const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
         // console.log(resultado);
         expect(resultado).toBeTruthy();
@@ -183,7 +183,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
         );
 
         const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-        const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+        const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
         // console.log(resultado);
         expect(resultado).toBeTruthy();
@@ -208,7 +208,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             );
 
             const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             console.log(resultado);
             expect(resultado).toBeTruthy();
@@ -231,7 +231,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             );
 
             const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toBeTruthy();
             expect(resultado).toContain("graph TD;");
@@ -253,7 +253,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             );
 
             const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toBeTruthy();
             expect(resultado).toContain("graph TD;");
@@ -279,7 +279,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             );
 
             const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toBeTruthy();
             expect(resultado).toContain("graph TD;");
@@ -305,7 +305,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             );
 
             const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toBeTruthy();
             expect(resultado).toContain("graph TD;");
@@ -334,7 +334,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             );
 
             const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toBeTruthy();
             expect(resultado).toContain("graph TD;");
@@ -354,7 +354,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             );
 
             const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toBeTruthy();
             expect(resultado).toContain("graph TD;");
@@ -381,7 +381,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             );
 
             const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toBeTruthy();
             expect(resultado).toContain("graph TD;");
@@ -410,7 +410,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             );
 
             const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toBeTruthy();
             expect(resultado).toContain("graph TD;");
@@ -437,7 +437,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             );
 
             const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toBeTruthy();
             expect(resultado).toContain("graph TD;");
@@ -462,7 +462,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             );
 
             const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toBeTruthy();
             expect(resultado).toContain("graph TD;");
@@ -492,7 +492,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             );
 
             const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toBeTruthy();
             expect(resultado).toContain("graph TD;");
@@ -519,7 +519,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             );
 
             const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toBeTruthy();
             expect(resultado).toContain("graph TD;");

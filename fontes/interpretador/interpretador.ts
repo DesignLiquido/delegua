@@ -64,6 +64,7 @@ import {
     Para,
     ParaCada,
     Retorna,
+    TendoComo,
     Var,
     VarMultiplo,
 } from '../declaracoes';
@@ -598,6 +599,28 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
     async visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
         return this.logicaComumExecucaoParaCada(declaracao, false);
+    }
+
+    override async visitarDeclaracaoTendoComo(declaracao: TendoComo): Promise<any> {
+        const retornoInicializacao = await this.avaliar(declaracao.inicializacaoVariavel);
+        const retornoInicializacaoResolvido = this.resolverValor(retornoInicializacao);
+        this.pilhaEscoposExecucao.definirConstante(
+            declaracao.simboloVariavel.lexema,
+            retornoInicializacaoResolvido
+        );
+        await this.executar(declaracao.corpo);
+
+        if (retornoInicializacao instanceof ObjetoDeleguaClasse) {
+            const metodoFinalizar = retornoInicializacaoResolvido.classe.metodos['finalizar'];
+            if (metodoFinalizar) {
+                const chamavel = metodoFinalizar.funcaoPorMetodoDeClasse(
+                    retornoInicializacaoResolvido
+                );
+                chamavel.chamar(this, []);
+            }
+        }
+
+        return null;
     }
 
     override async visitarExpressaoAcessoIndiceVariavel(
