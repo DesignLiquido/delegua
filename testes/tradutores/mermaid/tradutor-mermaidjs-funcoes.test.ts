@@ -103,7 +103,7 @@ describe('Tradutor Delégua -> MermaidJs - Funções', () => {
 
         expect(resultado).toBeTruthy();
         expect(resultado).toContain('subgraph verificaPositivo');
-        expect(resultado).toContain('{se }');
+        expect(resultado).toContain('{se ');
         expect(resultado).toContain('senão');
     });
 });

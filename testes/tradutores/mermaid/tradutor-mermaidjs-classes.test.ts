@@ -135,7 +135,7 @@ describe('Tradutor Delégua -> MermaidJs - Classes', () => {
         expect(resultado).toContain('graph TD;');
         expect(resultado).toContain('subgraph Validador["Classe: Validador"]');
         expect(resultado).toContain('subgraph ehPar_Validador["Método: ehPar()"]');
-        expect(resultado).toContain('{se }');
+        expect(resultado).toContain('{se ');
         expect(resultado).toContain('senão');
     });
 });

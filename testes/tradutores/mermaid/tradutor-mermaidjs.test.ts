@@ -195,6 +195,303 @@ describe('Tradutor Delégua -> MermaidJs', () => {
         expect(resultado).toContain("Linha2(escreva: \\'Verdadeiro!\\')-->Fim;");
     });
 
+    it('Expressões lógicas com E e OU', async () => {
+        const retornoLexador = lexador.mapear(
+            [
+                'var a = 5',
+                'var b = 10',
+                'se a > 0 e b < 20 {',
+                '    escreva("Ambas condições verdadeiras")',
+                '}',
+                'se a < 0 ou b > 5 {',
+                '    escreva("Pelo menos uma condição verdadeira")',
+                '}'
+            ],
+            -1
+        );
+
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+        const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+        // console.log(resultado);
+        expect(resultado).toBeTruthy();
+        expect(resultado).toContain("graph TD;");
+        expect(resultado).toContain("a for maior que 0 e b for menor que 20");
+        expect(resultado).toContain("a for menor que 0 ou b for maior que 5");
+    });
+
+    it('Tente-Pegue-Finalmente', async () => {
+        const retornoLexador = lexador.mapear(
+            [
+                'tente {',
+                '    escreva("Tentando...")',
+                '} pegue {',
+                '    escreva("Erro capturado")',
+                '} finalmente {',
+                '    escreva("Finalizando")',
+                '}'
+            ],
+            -1
+        );
+
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+        const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+        // console.log(resultado);
+        expect(resultado).toBeTruthy();
+        expect(resultado).toContain("graph TD;");
+        expect(resultado).toContain("Linha1(tente)");
+        expect(resultado).toContain("Linha1Pegue(pegue)");
+        expect(resultado).toContain("Linha1Finalmente(finalmente)");
+        expect(resultado).toContain("escreva: \\'Tentando...\\'");
+        expect(resultado).toContain("escreva: \\'Erro capturado\\'");
+        expect(resultado).toContain("escreva: \\'Finalizando\\'");
+    });
+
+    it('Tente-Pegue sem Finalmente', async () => {
+        const retornoLexador = lexador.mapear(
+            [
+                'tente {',
+                '    var x = 10',
+                '} pegue {',
+                '    escreva("Erro")',
+                '}'
+            ],
+            -1
+        );
+
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+        const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+        // console.log(resultado);
+        expect(resultado).toBeTruthy();
+        expect(resultado).toContain("graph TD;");
+        expect(resultado).toContain("Linha1(tente)");
+        expect(resultado).toContain("Linha1Pegue(pegue)");
+        expect(resultado).toContain("variável: x");
+    });
+
+    it('Atribuição por índice em vetor', async () => {
+        const retornoLexador = lexador.mapear(
+            [
+                'var vetor = [1, 2, 3]',
+                'vetor[0] = 10',
+                'vetor[1] = 20'
+            ],
+            -1
+        );
+
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+        const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+        // console.log(resultado);
+        expect(resultado).toBeTruthy();
+        expect(resultado).toContain("graph TD;");
+        expect(resultado).toContain("vetor no índice 0 recebe: 10");
+        expect(resultado).toContain("vetor no índice 1 recebe: 20");
+    });
+
+    it('Continua em laço para', async () => {
+        const retornoLexador = lexador.mapear(
+            [
+                'para (var i = 0; i < 5; i++) {',
+                '    se (i == 3) {',
+                '        continua',
+                '    }',
+                '    escreva(i)',
+                '}'
+            ],
+            -1
+        );
+
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+        const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+        // console.log(resultado);
+        expect(resultado).toBeTruthy();
+        expect(resultado).toContain("graph TD;");
+        expect(resultado).toContain("Linha3(continua)");
+        expect(resultado).toContain("se i for igual a 3");
+    });
+
+    it('Função anônima', async () => {
+        const retornoLexador = lexador.mapear(
+            [
+                'var dobrar = funcao(x) {',
+                '    retorna x * 2',
+                '}',
+                'var resultado = dobrar(5)'
+            ],
+            -1
+        );
+
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+        const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+        // console.log(resultado);
+        expect(resultado).toBeTruthy();
+        expect(resultado).toContain("graph TD;");
+        expect(resultado).toContain("função anônima(x)");
+    });
+
+    it('Expressão regular - implementação básica', async () => {
+        // Teste direto do método visitarExpressaoExpressaoRegular
+        // Nota: A sintaxe de regex em Delegua pode variar por dialeto
+        const { ExpressaoRegular } = require('../../../fontes/construtos');
+        const { SimboloInterface } = require('../../../fontes/interfaces');
+
+        const simboloMock = {
+            tipo: 'EXPRESSAO_REGULAR',
+            lexema: '[0-9]+',
+            literal: null,
+            linha: 1,
+            hashArquivo: -1
+        };
+
+        const expressaoRegex = new ExpressaoRegular(-1, simboloMock, '[0-9]+');
+        const resultado = await tradutor.visitarExpressaoExpressaoRegular(expressaoRegex);
+
+        expect(resultado).toBeTruthy();
+        expect(resultado).toContain("expressão regular:");
+        expect(resultado).toContain("[0-9]+");
+    });
+
+    it('Falhar com mensagem', async () => {
+        const retornoLexador = lexador.mapear(
+            [
+                'se verdadeiro {',
+                '    falhar "Erro ocorreu"',
+                '}'
+            ],
+            -1
+        );
+
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+        const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+        // console.log(resultado);
+        expect(resultado).toBeTruthy();
+        expect(resultado).toContain("graph TD;");
+        expect(resultado).toContain("Linha2(falhar:");
+        expect(resultado).toContain("Erro ocorreu");
+    });
+
+    it('Sustar em laço para', async () => {
+        const retornoLexador = lexador.mapear(
+            [
+                'para (var i = 0; i < 10; i++) {',
+                '    se (i == 5) {',
+                '        sustar',
+                '    }',
+                '    escreva(i)',
+                '}'
+            ],
+            -1
+        );
+
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+        const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+        // console.log(resultado);
+        expect(resultado).toBeTruthy();
+        expect(resultado).toContain("graph TD;");
+        expect(resultado).toContain("Linha3(sustar)");
+        expect(resultado).toContain("se i for igual a 5");
+    });
+
+    it('Tupla com valores', async () => {
+        const retornoLexador = lexador.mapear(
+            [
+                'var coordenadas = (10, 20, 30)',
+                'var pessoa = ("João", 25)',
+                'escreva(coordenadas)',
+                'escreva(pessoa)'
+            ],
+            -1
+        );
+
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+        const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+        // console.log(resultado);
+        expect(resultado).toBeTruthy();
+        expect(resultado).toContain("graph TD;");
+        expect(resultado).toContain("tupla(");
+    });
+
+    it('Argumento referência função - implementação básica', async () => {
+        // Teste direto do método visitarExpressaoArgumentoReferenciaFuncao
+        const { ArgumentoReferenciaFuncao } = require('../../../fontes/construtos');
+
+        const simboloMock = {
+            tipo: 'IDENTIFICADOR',
+            lexema: 'minhaFuncao',
+            literal: null,
+            linha: 1,
+            hashArquivo: -1
+        };
+
+        const argumentoRef = new ArgumentoReferenciaFuncao(-1, 1, simboloMock);
+        const resultado = await tradutor.visitarExpressaoArgumentoReferenciaFuncao(argumentoRef);
+
+        expect(resultado).toBeTruthy();
+        expect(resultado).toContain("referência à função");
+        expect(resultado).toContain("minhaFuncao");
+    });
+
+    it('Formatação escrita - implementação básica', async () => {
+        // Teste direto do método visitarExpressaoFormatacaoEscrita
+        const { FormatacaoEscrita } = require('../../../fontes/construtos');
+        const { Literal } = require('../../../fontes/construtos');
+
+        const literal = new Literal(-1, 1, 3.14159, 'número');
+        const formatacao = new FormatacaoEscrita(-1, 1, literal, 10, 2);
+
+        const resultado = await tradutor.visitarExpressaoFormatacaoEscrita(formatacao);
+
+        expect(resultado).toBeTruthy();
+        expect(resultado).toContain("10 espaços");
+        expect(resultado).toContain("2 casas decimais");
+    });
+
+    it('Referência função - implementação básica', async () => {
+        // Teste direto do método visitarExpressaoReferenciaFuncao
+        const { ReferenciaFuncao } = require('../../../fontes/construtos');
+
+        const simboloMock = {
+            tipo: 'IDENTIFICADOR',
+            lexema: 'processar',
+            literal: null,
+            linha: 1,
+            hashArquivo: -1
+        };
+
+        const referenciaFuncao = new ReferenciaFuncao(-1, 1, simboloMock, 'funcao', 'processar_123');
+        const resultado = await tradutor.visitarExpressaoReferenciaFuncao(referenciaFuncao);
+
+        expect(resultado).toBeTruthy();
+        expect(resultado).toBe("@processar");
+    });
+
+    it('Super - implementação básica', async () => {
+        // Teste direto do método visitarExpressaoSuper
+        const { Super } = require('../../../fontes/construtos');
+
+        const simboloMock = {
+            tipo: 'SUPER',
+            lexema: 'super',
+            literal: null,
+            linha: 1,
+            hashArquivo: -1
+        };
+
+        const expressaoSuper = new Super(-1, simboloMock, 'Animal');
+        const resultado = await tradutor.visitarExpressaoSuper(expressaoSuper);
+
+        expect(resultado).toBeTruthy();
+        expect(resultado).toBe("super");
+    });
+
     describe('Funções', () => {
         it('Função simples sem parâmetros', async () => {
             const retornoLexador = lexador.mapear(
@@ -443,7 +740,7 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             expect(resultado).toContain("graph TD;");
             expect(resultado).toContain('subgraph Validador["Classe: Validador"]');
             expect(resultado).toContain('subgraph ehMaiorDeIdade_Validador["Método: ehMaiorDeIdade()"]');
-            expect(resultado).toContain("{se }");
+            expect(resultado).toContain("{se idade for maior ou igual a 18}");
             expect(resultado).toContain("senão");
         });
 
