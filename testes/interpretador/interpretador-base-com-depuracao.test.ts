@@ -434,9 +434,7 @@ describe('Interpretador Base com Depuração', () => {
             expect(interpretador.pilhaEscoposExecucao.elementos()).toBe(escoposAposAdentrar);
         });
 
-        // TODO: Avaliar implementar suporte a `ReferenciaFuncao` e `ArgumentoReferenciaFuncao` para demais dialetos
-        // que não Delégua e Pituguês.
-        it.skip('Deve funcionar com funções aninhadas', async () => {
+        it('Deve funcionar com funções aninhadas', async () => {
             const retornoLexador = lexador.mapear([
                 "funcao externa(x) {",
                 "    funcao interna(y) {",

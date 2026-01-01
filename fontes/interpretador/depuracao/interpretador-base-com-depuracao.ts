@@ -99,6 +99,22 @@ export class InterpretadorBaseComDepuracao
         );
     }
 
+    override async visitarExpressaoReferenciaFuncao(expressao: any): Promise<any> {
+        return await comum.visitarExpressaoReferenciaFuncao(
+            this,
+            super.visitarExpressaoReferenciaFuncao.bind(this),
+            expressao
+        );
+    }
+
+    override async visitarExpressaoArgumentoReferenciaFuncao(expressao: any): Promise<any> {
+        return await comum.visitarExpressaoArgumentoReferenciaFuncao(
+            this,
+            super.visitarExpressaoArgumentoReferenciaFuncao.bind(this),
+            expressao
+        );
+    }
+
     override async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
         return await comum.visitarDeclaracaoEnquanto(this, declaracao);
     }

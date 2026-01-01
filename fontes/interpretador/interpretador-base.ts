@@ -289,14 +289,14 @@ export class InterpretadorBase implements InterpretadorInterface {
         return objeto;
     }
 
-    visitarExpressaoArgumentoReferenciaFuncao(
+    async visitarExpressaoArgumentoReferenciaFuncao(
         expressao: ArgumentoReferenciaFuncao
-    ): Promise<any> | void {
-        throw new Error('Método não implementado.');
-    }
+    ): Promise<any> {
+        const deleguaFuncao = this.pilhaEscoposExecucao.obterVariavelPorNome(
+            expressao.simboloFuncao.lexema
+        );
 
-    visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> | void {
-        throw new Error('Método não implementado.');
+        return deleguaFuncao;
     }
 
     visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> | void {
@@ -398,6 +398,11 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     async visitarExpressaoFimPara(declaracao: FimPara): Promise<any> {
         throw new Error('Método não implementado.');
+    }
+
+    async visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> {
+        const deleguaFuncao = this.pilhaEscoposExecucao.obterReferenciaFuncao(expressao.idFuncao);
+        return deleguaFuncao;
     }
 
     /**
@@ -1866,6 +1871,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> {
         const funcao = new DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
+        this.pilhaEscoposExecucao.registrarReferenciaFuncao(declaracao.id, funcao);
 
         return Promise.resolve({
             declaracao: funcao,

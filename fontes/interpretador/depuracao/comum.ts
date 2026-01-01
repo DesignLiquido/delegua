@@ -116,6 +116,22 @@ export async function avaliar(
     return await expressao.aceitar(interpretador);
 }
 
+export async function visitarExpressaoReferenciaFuncao(
+    interpretador: InterpretadorComDepuracaoInterface,
+    visitarExpressaoReferenciaFuncaoAncestral: (expressao: any) => Promise<any>,
+    expressao: any
+): Promise<any> {
+    return await visitarExpressaoReferenciaFuncaoAncestral(expressao);
+}
+
+export async function visitarExpressaoArgumentoReferenciaFuncao(
+    interpretador: InterpretadorComDepuracaoInterface,
+    visitarExpressaoArgumentoReferenciaFuncaoAncestral: (expressao: any) => Promise<any>,
+    expressao: any
+): Promise<any> {
+    return await visitarExpressaoArgumentoReferenciaFuncaoAncestral(expressao);
+}
+
 export async function visitarExpressaoDeChamada(
     interpretador: InterpretadorComDepuracaoInterface,
     visitarExpressaoDeChamadaAncestral: (expressao: Chamada) => Promise<any>,
@@ -358,15 +374,21 @@ export async function visitarExpressaoRetornar(
     // Captura o escopo atual ANTES de avaliar a expressão,
     // pois a avaliação pode abrir novos escopos
     const escopoAtual = interpretador.pilhaEscoposExecucao.topoDaPilha();
+    const escoposAntes = interpretador.pilhaEscoposExecucao.elementos();
 
     const retorno = await visitarExpressaoRetornarAncestral(declaracao);
+
+    // Verifica se novos escopos foram criados durante a avaliação
+    const escoposDepois = interpretador.pilhaEscoposExecucao.elementos();
+    const novoEscopoFoiCriado = escoposDepois > escoposAntes;
 
     // Se o retorno é null ou RetornoQuebra com valor null (porque pausamos durante avaliação de expressão,
     // como ao entrar em uma função em modo adentrarEscopo), não marcar como finalizado ainda
     const valorRetorno = retorno && retorno.hasOwnProperty('valor') ? retorno.valor : retorno;
-    const novoEscopoFoiCriado = interpretador.pilhaEscoposExecucao.topoDaPilha() !== escopoAtual;
 
-    if (valorRetorno === null && interpretador.comando === 'adentrarEscopo' && novoEscopoFoiCriado) {
+    // Em modo adentrarEscopo, se um novo escopo foi criado (entramos em uma função aninhada),
+    // NÃO marcar o escopo atual como finalizado ainda
+    if (interpretador.comando === 'adentrarEscopo' && novoEscopoFoiCriado) {
         return retorno;
     }
 

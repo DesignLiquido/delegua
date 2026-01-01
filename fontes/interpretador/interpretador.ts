@@ -1104,17 +1104,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         return Promise.resolve(
             pontoEntradaAjuda(expressao.funcao, expressao.valor)
         );
-    }
-
-    override async visitarExpressaoArgumentoReferenciaFuncao(
-        expressao: ArgumentoReferenciaFuncao
-    ): Promise<any> {
-        const deleguaFuncao = this.pilhaEscoposExecucao.obterVariavelPorNome(
-            expressao.simboloFuncao.lexema
-        );
-
-        return deleguaFuncao;
-    }
+    } 
 
     override async visitarExpressaoAtribuicaoPorIndice(
         expressao: AtribuicaoPorIndice
@@ -1355,11 +1345,6 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
     visitarExpressaoParaCada(expressao: ParaCadaComoConstruto): Promise<any> {
         return this.logicaComumExecucaoParaCada(expressao, true);
-    }
-
-    override async visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> {
-        const deleguaFuncao = this.pilhaEscoposExecucao.obterReferenciaFuncao(expressao.idFuncao);
-        return deleguaFuncao;
     }
 
     override async visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
