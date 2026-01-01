@@ -472,12 +472,23 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao>, Visitan
 
         if (declaracao.caminhoSenao) {
             this.anteriores = [];
-            const arestaSenao = new ArestaFluxograma(
-                declaracao,
-                `Linha${declaracao.caminhoSenao.linha}(senão)`
-            );
-            vertices.push(new VerticeFluxograma(aresta, arestaSenao, 'Não'));
-            this.anteriores.push(arestaSenao);
+
+            // Verifica se é "senão se" ou apenas "senão"
+            const ehSenaoSe = declaracao.caminhoSenao.constructor === Se;
+
+            if (ehSenaoSe) {
+                // Para "senão se", conecta diretamente ao próximo condicional sem nó intermediário
+                this.anteriores.push(aresta);
+                this.ultimaDicaVertice = 'Não';
+            } else {
+                // Para "senão" simples, cria o nó intermediário
+                const arestaSenao = new ArestaFluxograma(
+                    declaracao,
+                    `Linha${declaracao.caminhoSenao.linha}(senão)`
+                );
+                vertices.push(new VerticeFluxograma(aresta, arestaSenao, 'Não'));
+                this.anteriores.push(arestaSenao);
+            }
 
             const verticesSenao: VerticeFluxograma[] = await declaracao.caminhoSenao.aceitar(this);
             vertices = vertices.concat(verticesSenao);
@@ -1059,12 +1070,13 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao>, Visitan
         declaracaoVarOuConst: Var | Const,
         textoInicial: string
     ): Promise<string> {
+        let adicional = '';
         if (declaracaoVarOuConst.inicializador) {
-            textoInicial += `, iniciada com: ${await declaracaoVarOuConst.inicializador.aceitar(this)}`;
+            adicional += `, iniciada com: ${await declaracaoVarOuConst.inicializador.aceitar(this)}`;
         }
 
-        textoInicial += ')';
-        return Promise.resolve(textoInicial);
+        adicional += ')';
+        return Promise.resolve(adicional);
     }
 
     /**

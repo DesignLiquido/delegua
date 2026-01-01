@@ -195,6 +195,56 @@ describe('Tradutor Delégua -> MermaidJs', () => {
         expect(resultado).toContain("Linha2(escreva: \\'Verdadeiro!\\')-->Fim;");
     });
 
+    it('Se-senão se-senão com cálculo de média', async () => {
+        const retornoLexador = lexador.mapear(
+            [
+                'var n1 = inteiro(leia("digite a nota 1 "))',
+                'var n2 = inteiro(leia("digite a nota 2 "))',
+                '',
+                'var media = (n1+n2)/2',
+                '',
+                'se (media >= 7){',
+                '    escreva("sua média foi "+media+ " parabens, voce foi aprovado")',
+                '',
+                '}',
+                'senao se(media>=5 e media <7){',
+                '    escreva("sua média foi "+media+ " voce esta de recuperação")',
+                '}',
+                'senao{',
+                '    escreva("sua média foi "+media+ " voce esta reprovado")',
+                '}'
+            ],
+            -1
+        );
+
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+        const resultado = await tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+        console.log(resultado);
+        expect(resultado).toBeTruthy();
+        expect(resultado).toContain("graph TD;");
+
+        // Verifica que os nós não estão duplicados
+        expect(resultado).toContain("Linha1(variável: n1, iniciada com:");
+        expect(resultado).not.toContain("Linha1(variável: n1Linha1(variável: n1");
+
+        expect(resultado).toContain("Linha2(variável: n2, iniciada com:");
+        expect(resultado).not.toContain("Linha2(variável: n2Linha2(variável: n2");
+
+        expect(resultado).toContain("Linha4(variável: media");
+        expect(resultado).not.toContain("Linha4(variável: mediaLinh");
+
+        // Verifica a conexão entre Linha4 e Linha6
+        expect(resultado).toContain("Linha4");
+        expect(resultado).toContain("Linha6{se media for maior ou igual a 7}");
+        expect(resultado).toMatch(/Linha4[^>]*-->.*Linha6/);
+
+        // Verifica os três caminhos do if-else
+        expect(resultado).toContain("se media for maior ou igual a 7");
+        expect(resultado).toContain("se media for maior ou igual a 5 e media for menor que 7");
+        expect(resultado).toContain("senão");
+    });
+
     it('Expressões lógicas com E e OU', async () => {
         const retornoLexador = lexador.mapear(
             [
