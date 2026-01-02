@@ -20,6 +20,6 @@ export class Dupla extends Tupla {
     }
 
     paraTextoSaida(): string {
-        return `[(${this.primeiro.paraTextoSaida()}, ${this.segundo.paraTextoSaida()})]`;
+        return `(${this.primeiro.paraTextoSaida()}, ${this.segundo.paraTextoSaida()})`;
     }
 }
