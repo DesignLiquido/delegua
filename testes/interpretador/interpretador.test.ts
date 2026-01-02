@@ -239,7 +239,7 @@ describe('Interpretador', () => {
                     const retornoInterpretador = await interpretador.interpretar(
                         retornoAvaliadorSintatico.declaracoes
                     );
-                    
+
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(_saidas).toHaveLength(1);
                     expect(_saidas[0]).toBe('Olá, Maria! Você tem 25 anos.');
@@ -1928,9 +1928,9 @@ describe('Interpretador', () => {
 
                         expect(retornoInterpretador.erros).toHaveLength(0);
                         expect(_saidas).toHaveLength(3);
-                        expect(_saidas[0]).toContain('[(\"a\", 1)]');
-                        expect(_saidas[1]).toContain('[(\"b\", 2)]');
-                        expect(_saidas[2]).toContain('[(\"c\", 3)]');
+                        expect(_saidas[0]).toContain('(\"a\", 1)');
+                        expect(_saidas[1]).toContain('(\"b\", 2)');
+                        expect(_saidas[2]).toContain('(\"c\", 3)');
                     });
 
                     it('para cada - texto', async () => {
@@ -2897,7 +2897,7 @@ describe('Interpretador', () => {
                         expect(_saidas).toHaveLength(5);
                         expect(_saidas[0]).toEqual('[\'a\', \'b\', \'c\']');
                         expect(_saidas[1]).toEqual('[1, 2, 3]');
-                        expect(_saidas[2]).toEqual('[[(\"a\", 1)], [(\"b\", 2)], [(\"c\", 3)]]');
+                        expect(_saidas[2]).toEqual('[(\"a\", 1), (\"b\", 2), (\"c\", 3)]');
                         expect(_saidas[3]).toEqual('falso');
                         expect(_saidas[4]).toEqual('verdadeiro');
                     });
