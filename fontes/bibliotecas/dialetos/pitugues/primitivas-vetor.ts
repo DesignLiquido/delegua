@@ -142,42 +142,53 @@ export default {
                 'qualquer[]',
                 true,
                 [],
-                'Um ou mais vetores cujos elementos serão adicionados ao final deste vetor.'
+                'Um ou mais vetores (ou dicionários) cujos elementos serão adicionados ao final deste vetor.'
             ),
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
             vetor: Array<any>,
-            ...outrosVetores: any[]
+            ...iteraveis: any[]
         ): Promise<any[]> => {
-            if (outrosVetores.length === 0) {
+            if (iteraveis.length === 0) {
                 return Promise.reject(
                     new ErroEmTempoDeExecucao(
                         null,
-                        'A função "estender" espera pelo menos um vetor como argumento.',
+                        'A função "estender" espera pelo menos um argumento (vetor ou dicionário).',
                         interpretador.linhaDeclaracaoAtual
                     )
                 );
             }
 
-            for (const argumento of outrosVetores) {
-                const listaAdicional = interpretador.resolverValor(argumento);
-                if (!Array.isArray(listaAdicional)) {
-                    return Promise.reject(
-                        new ErroEmTempoDeExecucao(
-                            null,
-                            'O argumento da função "estender" deve ser um vetor.',
-                            interpretador.linhaDeclaracaoAtual,
-                        )
-                    );
+            for (const argumento of iteraveis) {
+                const itemResolvido = interpretador.resolverValor(argumento);
+
+                // É um vetor
+                if (Array.isArray(itemResolvido)) {
+                    vetor.push(...itemResolvido);
+                    continue;
                 }
-                vetor.push(...listaAdicional);
+
+                // É um dicionário
+                if (typeof itemResolvido === 'object' && itemResolvido !== null) {
+                    vetor.push(...Object.keys(itemResolvido));
+                    continue;
+                }
+
+                // Não é iterável
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        null,
+                        'O argumento da função "estender" deve ser um vetor ou um dicionário.',
+                        interpretador.linhaDeclaracaoAtual
+                    )
+                );
             }
             return Promise.resolve(vetor);
         },
-        assinaturaFormato: 'vetor.estender(...outroVetor: qualquer[])',
-        documentacao: '# `vetor.estender(outroVetor)`\n\nAdiciona todos os elementos de outro vetor ao final do vetor atual.',
-        exemploCodigo: 'vetor.estender(...argumentos)',
+        assinaturaFormato: 'vetor.estender(...iteravel: qualquer[])',
+        documentacao: '# `vetor.estender(iteravel)`\n\nAdiciona elementos de um vetor ou chaves de um dicionário ao final do vetor atual.',
+        exemploCodigo: 'vetor.estender([1, 2])',
     },
     fatiar: {
         tipoRetorno: 'qualquer[]',

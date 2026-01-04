@@ -2916,6 +2916,20 @@ describe('Interpretador (Pituguês)', () => {
 
                     expect(_saidas[0]).toBe('[1, 2]');
                 });
+
+                it('Estender com um objeto literal', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        v = [1]
+                        v.estender({ 'a': 1 })
+                        v.estender({ 'b': 2 })
+                        escreva(v)
+                    `], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(_saidas[0]).toBe("[1, 'a', 'b']");
+                });
             });
 
             describe('vetor.inserir()', () => {
@@ -3825,21 +3839,6 @@ describe('Interpretador (Pituguês)', () => {
             });
 
             describe('vetor.estender()', () => {
-                // VERIFICAR ISSO
-                it('Falha - Tentar estender com um objeto literal em vez de vetor', async () => {
-                    const retornoLexador = lexador.mapear([`
-                        v = [1]
-                        v.estender({ 'a': 1 })
-                        escreva(v)
-                    `], -1);
-
-                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
-
-                    // O código não deve quebrar, mas o vetor original não deve ser alterado
-                    expect(_saidas[0]).toBe('[1]');
-                });
-
                 it('Falha - Tentar estender com um valor booleano', async () => {
                     const retornoLexador = lexador.mapear([`
                         v = [1]
