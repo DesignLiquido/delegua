@@ -3,6 +3,34 @@ import { criarInterpretadorMock } from '../../../_mocks/interpretador.mock';
 import { DeleguaFuncaoMock } from '../../../_mocks/delegua-funcao.mock';
 
 describe('Primitivas de Vetor (Pituguês)', () => {
+    describe('contar', () => {
+        it('deve contar quantas vezes um elemento aparece no vetor', async () => {
+            const interpretador = criarInterpretadorMock();
+            const vetor = [1, 2, 2, 3, 2];
+
+            const resultado = await primitivasVetor.contar.implementacao(
+                interpretador,
+                vetor,
+                2
+            );
+
+            expect(resultado).toBe(3);
+        });
+
+        it('deve retornar 0 se o elemento não existir no vetor', async () => {
+            const interpretador = criarInterpretadorMock();
+            const vetor = [1, 2, 3];
+
+            const resultado = await primitivasVetor.contar.implementacao(
+                interpretador,
+                vetor,
+                99
+            );
+
+            expect(resultado).toBe(0);
+        });
+    });
+
     describe('filtrar_por', () => {
         it("deve rejeitar quando não for passada uma função", async () => {
             const interpretador = criarInterpretadorMock();
@@ -22,6 +50,32 @@ describe('Primitivas de Vetor (Pituguês)', () => {
             );
 
             expect(resultado).toEqual([1, 3, 5]);
+        });
+    });
+
+    describe('limpar', () => {
+        it('deve remover todos os elementos do vetor', async () => {
+            const interpretador = criarInterpretadorMock();
+            const vetor = [1, 2, 3];
+
+            await primitivasVetor.limpar.implementacao(
+                interpretador,
+                vetor
+            );
+
+            expect(vetor).toEqual([]);
+        });
+
+        it('não deve quebrar se o vetor já estiver vazio', async () => {
+            const interpretador = criarInterpretadorMock();
+            const vetor: any[] = [];
+
+            await primitivasVetor.limpar.implementacao(
+                interpretador,
+                vetor
+            );
+
+            expect(vetor).toEqual([]);
         });
     });
 
@@ -93,66 +147,62 @@ describe('Primitivas de Vetor (Pituguês)', () => {
         });
     });
 
-    describe('encaixar', () => {
-        it('remove elementos quando quantidadeExclusao é fornecida e atribui variável', async () => {
-            const interpretador: any = criarInterpretadorMock();
-            interpretador.pilhaEscoposExecucao.atribuirVariavel = jest.fn();
+    describe('indice', () => {
+        it('deve retornar o índice do elemento se ele existir', async () => {
+            const interpretador = criarInterpretadorMock();
+            const vetor = ['a', 'b', 'c'];
 
+            const resultado = await primitivasVetor.indice.implementacao(
+                interpretador,
+                vetor,
+                'b'
+            );
+
+            expect(resultado).toBe(1);
+        });
+
+        it('deve retornar -1 se o elemento não existir', async () => {
+            const interpretador = criarInterpretadorMock();
             const vetor = [1, 2, 3];
 
-            const resultado = await primitivasVetor.encaixar.implementacao(
+            const resultado = await primitivasVetor.indice.implementacao(
                 interpretador,
-                vetor.slice(),
-                1,
+                vetor,
+                99
+            );
+
+            expect(resultado).toBe(-1);
+        });
+    });
+
+    describe('inserir', () => {
+        it('deve inserir elemento na posição indicada e deslocar os demais', async () => {
+            const interpretador = criarInterpretadorMock();
+            const vetor = [1, 2, 4];
+
+            const resultado = await primitivasVetor.inserir.implementacao(
+                interpretador,
+                vetor,
+                2,
+                3
+            );
+
+            expect(resultado).toEqual([1, 2, 3, 4]);
+            expect(vetor).toEqual([1, 2, 3, 4]);
+        });
+
+        it('deve inserir no início do vetor (índice 0)', async () => {
+            const interpretador = criarInterpretadorMock();
+            const vetor = [2, 3];
+
+            await primitivasVetor.inserir.implementacao(
+                interpretador,
+                vetor,
+                0,
                 1
             );
 
-            expect(resultado).toEqual([2]);
-        });
-
-        it('quando só posição inicial é passada, remove do índice e atribui as posições removidas', async () => {
-            const interpretador: any = criarInterpretadorMock();
-            interpretador.pilhaEscoposExecucao.atribuirVariavel = jest.fn();
-
-            const vetor = [1, 2, 3];
-
-            const resultado = await primitivasVetor.encaixar.implementacao(
-                interpretador,
-                vetor,
-                1
-            );
-
-            // retorna o vetor modificado (após remoção a partir da posição 1)
-            expect(resultado).toEqual([1]);
-        });
-
-        it('quando chamada sem posição inicial, remove todos os elementos e retorna vetor vazio (sem atribuir variável quando nome é vazio)', async () => {
-            const interpretador: any = criarInterpretadorMock();
-            interpretador.pilhaEscoposExecucao.atribuirVariavel = jest.fn();
-
-            const vetor = [1, 2, 3];
-
-            const resultado = await primitivasVetor.encaixar.implementacao(
-                interpretador,
-                vetor
-            );
-
-            expect(resultado).toEqual([]);
-        });
-
-        it('coerção de posição não numérica equivale a 0 (remove tudo)', async () => {
-            const interpretador: any = criarInterpretadorMock();
-            interpretador.pilhaEscoposExecucao.atribuirVariavel = jest.fn();
-
-            const vetor = [1, 2, 3];
-
-            const resultado = await primitivasVetor.encaixar.implementacao(
-                interpretador,
-                vetor,
-                'a' as any
-            );
-
-            expect(resultado).toEqual([]);
+            expect(vetor).toEqual([1, 2, 3]);
         });
     });
 
