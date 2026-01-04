@@ -3,6 +3,7 @@ import { InterpretadorInterface, PrimitivaInterface } from '../../../interfaces'
 import { InformacaoElementoSintatico } from '../../../informacao-elemento-sintatico';
 import { inferirTipoVariavel } from '../../../inferenciador';
 import { Literal, TuplaN } from '../../../construtos';
+import { ErroEmTempoDeExecucao } from '../../../excecoes';
 
 export default {
     adicionar: {
@@ -64,6 +65,51 @@ export default {
             '\n\n ### Formas de uso  \n',
         exemploCodigo: 'vetor.concatenar(...argumentos)',
     },
+    contar: {
+        tipoRetorno: 'numero',
+        argumentos: [
+            new InformacaoElementoSintatico(
+                'elemento',
+                'qualquer',
+                true,
+                [],
+                'O elemento a ser contado no vetor.'
+            ),
+        ],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            vetor: Array<any>,
+            ...args: any[]
+        ): Promise<any> => {
+            if (args.length === 0) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        null,
+                        `A função "contar" espera um argumento.`,
+                        interpretador.linhaDeclaracaoAtual
+                    )
+                );
+            }
+
+            if (args.length > 1) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        null,
+                        `A função "contar" espera apenas um argumento.`,
+                        interpretador.linhaDeclaracaoAtual
+                    )
+                );
+            }
+
+            const elemento = args[0];
+            const valorProcurado = interpretador.resolverValor(elemento);
+            const total = vetor.filter(item => interpretador.resolverValor(item) === valorProcurado).length;
+            return Promise.resolve(total);
+        },
+        assinaturaFormato: 'vetor.contar(elemento)',
+        documentacao: '# `vetor.contar(elemento)`\n\nRetorna quantas vezes o elemento aparece no vetor.',
+        exemploCodigo: 'vetor.contar(elemento)',
+    },
     empilhar: {
         tipoRetorno: 'qualquer[]',
         argumentos: [new InformacaoElementoSintatico('elemento', 'qualquer', true, [], '')],
@@ -88,56 +134,50 @@ export default {
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'vetor.empilhar(elemento)',
     },
-    encaixar: {
+    estender: {
         tipoRetorno: 'qualquer[]',
         argumentos: [
-            new InformacaoElementoSintatico('inicio', 'inteiro'),
-            new InformacaoElementoSintatico('excluirQuantidade', 'número'),
-            new InformacaoElementoSintatico('itens', 'qualquer[]'),
+            new InformacaoElementoSintatico(
+                'outrosVetores',
+                'qualquer[]',
+                true,
+                [],
+                'Um ou mais vetores cujos elementos serão adicionados ao final deste vetor.'
+            ),
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
             vetor: Array<any>,
-            posicaoInicial: number,
-            quantidadeExclusao?: number,
-            ...itens: any[]
-        ): Promise<any> => {
-            let elementos = [];
-
-            if (quantidadeExclusao || quantidadeExclusao === 0) {
-                elementos = !itens.length
-                    ? vetor.splice(posicaoInicial, quantidadeExclusao)
-                    : vetor.splice(posicaoInicial, quantidadeExclusao, ...itens);
-
-                return Promise.resolve(elementos);
-            } else {
-                elementos = !itens.length ? vetor.splice(posicaoInicial) : vetor.splice(posicaoInicial, ...itens);
-
-                return Promise.resolve(vetor);
+            ...outrosVetores: any[]
+        ): Promise<any[]> => {
+            if (outrosVetores.length === 0) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        null,
+                        'A função "estender" espera pelo menos um vetor como argumento.',
+                        interpretador.linhaDeclaracaoAtual
+                    )
+                );
             }
+
+            for (const argumento of outrosVetores) {
+                const listaAdicional = interpretador.resolverValor(argumento);
+                if (!Array.isArray(listaAdicional)) {
+                    return Promise.reject(
+                        new ErroEmTempoDeExecucao(
+                            null,
+                            'O argumento da função "estender" deve ser um vetor.',
+                            interpretador.linhaDeclaracaoAtual,
+                        )
+                    );
+                }
+                vetor.push(...listaAdicional);
+            }
+            return Promise.resolve(vetor);
         },
-        assinaturaFormato: 'vetor.encaixar(posicaoInicial?: número, quantidadeExclusao?: número, itens?: qualquer[])',
-        documentacao:
-            '# `vetor.encaixar(posicaoInicial, quantidadeExclusao, itens)` \n \n' +
-            'Encaixa um vetor em outro, dadas posições de início e quantidade de ítens a serem excluídos do vetor original. \n' +
-            '\n\n ## Exemplo de Código\n' +
-            '\n\n```pitugues\nvar v = [1, 2, 3, 4, 5]\n' +
-            'escreva(v.encaixar()) // "[1, 2, 3, 4, 5]", ou seja, não faz coisa alguma.\n' +
-            `var v1 = v.encaixar(2)\n` +
-            'escreva(v) // "[3, 4, 5]", ou seja, a posição 2, onde fica o 3, passa a ser a nova posição inicial do vetor.\n' +
-            'escreva(v1) // "[1, 2]", ou seja, o retorno de `encaixar()` são as posições removidas do vetor original.\n' +
-            'var v2 = [1, 2, 3, 4, 5]\n' +
-            'escreva(v2.encaixar(2, 1)) // "[3]"\n' +
-            'escreva(v2) // "[1, 2, 4, 5]"\n```' +
-            'var v3 = [1, 2, 3, 4, 5]\n' +
-            'escreva(v3.encaixar(2, 1, "teste")) // "[3]"\n' +
-            'escreva(v3) // "[1, 2, "teste", 4, 5]"\n```' +
-            '\n\n ### Formas de uso \n' +
-            '`encaixar` suporta sobrecarga do método.\n\n',
-        exemploCodigo:
-            'vetor.encaixar(<nova posição inicial>)\n' +
-            'vetor.encaixar(<a partir desta posição>, <exclua esta quantidade de elementos>)\n' +
-            'vetor.encaixar(<a partir desta posição>, <exclua esta quantidade de elementos>, <adicione estes elementos>)',
+        assinaturaFormato: 'vetor.estender(...outroVetor: qualquer[])',
+        documentacao: '# `vetor.estender(outroVetor)`\n\nAdiciona todos os elementos de outro vetor ao final do vetor atual.',
+        exemploCodigo: 'vetor.estender(...argumentos)',
     },
     fatiar: {
         tipoRetorno: 'qualquer[]',
@@ -249,6 +289,122 @@ export default {
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'vetor.inclui(elemento)'
     },
+    indice: {
+        tipoRetorno: 'numero',
+        argumentos: [
+            new InformacaoElementoSintatico(
+                'elemento',
+                'qualquer',
+                true,
+                [],
+                'O elemento cuja posição (índice) será buscada no vetor.'
+            ),
+        ],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            vetor: Array<any>,
+            elemento: any
+        ): Promise<any> => {
+            if (elemento === undefined) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        null,
+                        '',
+                        interpretador.linhaDeclaracaoAtual
+                    )
+                );
+            }
+
+            if (elemento === 'nulo') return Promise.reject(-1);
+
+            const valorProcurado = interpretador.resolverValor(elemento);
+            const index = vetor.findIndex(item => interpretador.resolverValor(item) === valorProcurado);
+            return Promise.resolve(index);
+        },
+        assinaturaFormato: 'vetor.indice(elemento: qualquer)',
+        documentacao:
+            '# `vetor.indice(elemento)` \n \n' +
+            'Retorna a posição (índice) da primeira ocorrência do elemento no vetor. \n' +
+            'Caso o elemento não seja encontrado, devolve `-1`.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```pitugues\n' +
+            'var v = ["maçã", "banana", "uva"]\n' +
+            'escreva(v.indice("banana")) // 1\n' +
+            'escreva(v.indice("abacaxi")) // -1\n' +
+            '```',
+        exemploCodigo: 'vetor.indice(elemento)'
+    },
+    inserir: {
+        tipoRetorno: 'qualquer[]',
+        argumentos: [
+            new InformacaoElementoSintatico(
+                'índice',
+                'inteiro',
+                true,
+                [],
+                'O índice onde o elemento será inserido.'
+            ),
+            new InformacaoElementoSintatico(
+                'elemento',
+                'qualquer',
+                true,
+                [],
+                'O elemento a ser inserido.'
+            )
+        ],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            vetor: Array<any>,
+            ...args: any[]
+        ): Promise<any> => {
+            if (args.length !== 2) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        null,
+                        `A função "inserir" espera exatamente 2 argumentos (índice e elemento), mas recebeu ${args.length}.`,
+                        interpretador.linhaDeclaracaoAtual
+                    )
+                );
+            }
+
+            const idx = interpretador.resolverValor(args[0]);
+            const item = interpretador.resolverValor(args[1]);
+
+            if (typeof idx !== 'number') {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        null,
+                        'O primeiro argumento da função "inserir" (índice) deve ser um número.',
+                        interpretador.linhaDeclaracaoAtual
+                    )
+                );
+            }
+
+            if (idx < 0 || idx > vetor.length) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        null,
+                        `Índice ${idx} fora dos limites do vetor. O tamanho atual é ${vetor.length}.`,
+                        interpretador.linhaDeclaracaoAtual
+                    )
+                );
+            }
+
+            vetor.splice(idx, 0, item);
+            return Promise.resolve(vetor);
+        },
+        assinaturaFormato: 'vetor.inserir(indice: numero, elemento: qualquer)',
+        documentacao:
+            '# `vetor.inserir(indice, elemento)` \n \n' +
+            'Insere um elemento em uma posição específica do vetor, deslocando os elementos existentes para a direita. \n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```pitugues\n' +
+            'v = [1, 2, 4, 5]\n' +
+            'v.inserir(2, 3) \n' +
+            'escreva(v) // "[1, 2, 3, 4, 5]"\n' +
+            '```',
+        exemploCodigo: 'vetor.inserir(indice, elemento)'
+    },
     inverter: {
         tipoRetorno: 'qualquer[]',
         argumentos: [],
@@ -292,6 +448,20 @@ export default {
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'vetor.juntar()\n' +
             'vetor.juntar(<separador>)',
+    },
+    limpar: {
+        tipoRetorno: 'qualquer[]',
+        argumentos: [],
+        implementacao: async (
+            interpretador: InterpretadorInterface,
+            vetor: Array<any>
+        ): Promise<any> => {
+            vetor.splice(0, vetor.length);
+            return Promise.resolve();
+        },
+        assinaturaFormato: 'vetor.limpar()',
+        documentacao: '# `vetor.limpar()`\n\nRemove todos os elementos do vetor original, deixando-o vazio.',
+        exemploCodigo: 'vetor.limpar()',
     },
     mapear: {
         tipoRetorno: 'qualquer[]',

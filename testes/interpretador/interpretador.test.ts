@@ -239,7 +239,7 @@ describe('Interpretador', () => {
                     const retornoInterpretador = await interpretador.interpretar(
                         retornoAvaliadorSintatico.declaracoes
                     );
-                    
+
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(_saidas).toHaveLength(1);
                     expect(_saidas[0]).toBe('Olá, Maria! Você tem 25 anos.');
