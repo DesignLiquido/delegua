@@ -3578,6 +3578,12 @@ export class AvaliadorSintatico
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
+            'longo',
+            new InformacaoElementoSintatico('longo', 'longo', true, [
+                new InformacaoElementoSintatico('valor', 'qualquer'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
             'intervalo',
             new InformacaoElementoSintatico('intervalo', 'inteiro[]', true, [
                 new InformacaoElementoSintatico('valorInicial', 'qualquer'),

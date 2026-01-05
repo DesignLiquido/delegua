@@ -148,6 +148,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     regexInterpolacao = /\${(.*?)}/g;
     private tiposNumericos = [
         tipoDeDadosDelegua.INTEIRO,
+        tipoDeDadosDelegua.LONGO,
         tipoDeDadosDelegua.NUMERO,
         tipoDeDadosDelegua.NÚMERO,
         tipoDeDadosDelegua.REAL,
@@ -582,7 +583,11 @@ export class InterpretadorBase implements InterpretadorInterface {
             case tiposDeSimbolos.NEGACAO:
                 return !this.eVerdadeiro(valor);
             case tiposDeSimbolos.BIT_NOT:
-                return ~valor;
+                // Mantém BigInt como BigInt, converte outros para Number
+                if (typeof valor === 'bigint') {
+                    return ~valor;
+                }
+                return ~Number(valor);
             // Para incrementar e decrementar, primeiro precisamos saber se o operador
             // veio antes do literal ou variável.
             // Se veio antes e o operando é uma variável, precisamos incrementar/decrementar,
@@ -675,6 +680,15 @@ export class InterpretadorBase implements InterpretadorInterface {
     eIgual(esquerda: VariavelInterface | any, direita: VariavelInterface | any): boolean {
         if (esquerda === null && direita === null) return true;
         if (esquerda === null) return false;
+
+        // Handle BigInt/Number comparison
+        if (typeof esquerda === 'bigint' && typeof direita === 'number') {
+            return esquerda == BigInt(direita);
+        }
+        if (typeof esquerda === 'number' && typeof direita === 'bigint') {
+            return BigInt(esquerda) == direita;
+        }
+
         return esquerda === direita;
     }
 
@@ -695,12 +709,16 @@ export class InterpretadorBase implements InterpretadorInterface {
             ? direita.tipo
             : typeof direita === tipoDeDadosPrimitivos.NUMERO
                 ? tipoDeDadosDelegua.NUMERO
-                : String(NaN);
+                : typeof direita === 'bigint'
+                    ? tipoDeDadosDelegua.LONGO
+                    : String(NaN);
         const tipoEsquerda: string = esquerda.tipo
             ? esquerda.tipo
             : typeof esquerda === tipoDeDadosPrimitivos.NUMERO
                 ? tipoDeDadosDelegua.NUMERO
-                : String(NaN);
+                : typeof esquerda === 'bigint'
+                    ? tipoDeDadosDelegua.LONGO
+                    : String(NaN);
 
         if (this.tiposNumericos.includes(tipoDireita) && this.tiposNumericos.includes(tipoEsquerda))
             return;
@@ -737,6 +755,12 @@ export class InterpretadorBase implements InterpretadorInterface {
         switch (expressao.operador.tipo) {
             case tiposDeSimbolos.EXPONENCIACAO:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                // Auto-promove para BigInt se qualquer operando for BigInt
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                    return esq ** dir;
+                }
                 const resultadoExponenciacao = Math.pow(valorEsquerdo, valorDireito);
                 return resultadoExponenciacao;
 
@@ -745,32 +769,38 @@ export class InterpretadorBase implements InterpretadorInterface {
                     this.tiposNumericos.includes(tipoEsquerdo) &&
                     this.tiposNumericos.includes(tipoDireito)
                 ) {
-                    return Number(valorEsquerdo) > Number(valorDireito);
+                    return valorEsquerdo > valorDireito;
                 }
 
                 return String(valorEsquerdo) > String(valorDireito);
 
             case tiposDeSimbolos.MAIOR_IGUAL:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                return Number(valorEsquerdo) >= Number(valorDireito);
+                return valorEsquerdo >= valorDireito;
 
             case tiposDeSimbolos.MENOR:
                 if (
                     this.tiposNumericos.includes(tipoEsquerdo) &&
                     this.tiposNumericos.includes(tipoDireito)
                 ) {
-                    return Number(valorEsquerdo) < Number(valorDireito);
+                    return valorEsquerdo < valorDireito;
                 }
 
                 return String(valorEsquerdo) < String(valorDireito);
 
             case tiposDeSimbolos.MENOR_IGUAL:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                return Number(valorEsquerdo) <= Number(valorDireito);
+                return valorEsquerdo <= valorDireito;
 
             case tiposDeSimbolos.SUBTRACAO:
             case tiposDeSimbolos.MENOS_IGUAL:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                // Auto-promove para BigInt se qualquer operando for BigInt
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                    return esq - dir;
+                }
                 return Number(valorEsquerdo) - Number(valorDireito);
 
             case tiposDeSimbolos.ADICAO:
@@ -778,6 +808,13 @@ export class InterpretadorBase implements InterpretadorInterface {
                 // Se ambos os operandos são vetores, concatená-los
                 if (Array.isArray(valorEsquerdo) && Array.isArray(valorDireito)) {
                     return valorEsquerdo.concat(valorDireito);
+                }
+
+                // Auto-promove para BigInt se qualquer operando for BigInt
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                    return esq + dir;
                 }
 
                 if (
@@ -798,15 +835,32 @@ export class InterpretadorBase implements InterpretadorInterface {
             case tiposDeSimbolos.DIVISAO:
             case tiposDeSimbolos.DIVISAO_IGUAL:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                // SEMPRE retorna Number para precisão decimal (preferência do usuário)
+                // Mesmo se operandos forem BigInt, converte para Number
                 return Number(valorEsquerdo) / Number(valorDireito);
 
             case tiposDeSimbolos.DIVISAO_INTEIRA:
             case tiposDeSimbolos.DIVISAO_INTEIRA_IGUAL:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                // Retorna BigInt se qualquer operando for BigInt
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                    return esq / dir; // Trunca automaticamente
+                }
                 return Math.floor(Number(valorEsquerdo) / Number(valorDireito));
 
             case tiposDeSimbolos.MULTIPLICACAO:
             case tiposDeSimbolos.MULTIPLICACAO_IGUAL:
+                // Auto-promove para BigInt se qualquer operando for BigInt (e não for texto)
+                if ((typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') &&
+                    tipoEsquerdo !== tipoDeDadosDelegua.TEXTO &&
+                    tipoDireito !== tipoDeDadosDelegua.TEXTO) {
+                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                    return esq * dir;
+                }
+
                 if (
                     tipoEsquerdo === tipoDeDadosDelegua.TEXTO ||
                     tipoDireito === tipoDeDadosDelegua.TEXTO
@@ -879,22 +933,52 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             case tiposDeSimbolos.BIT_AND:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                // Auto-promove para BigInt se qualquer operando for BigInt
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                    return esq & dir;
+                }
                 return Number(valorEsquerdo) & Number(valorDireito);
 
             case tiposDeSimbolos.BIT_XOR:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                // Auto-promove para BigInt se qualquer operando for BigInt
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                    return esq ^ dir;
+                }
                 return Number(valorEsquerdo) ^ Number(valorDireito);
 
             case tiposDeSimbolos.BIT_OR:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                // Auto-promove para BigInt se qualquer operando for BigInt
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                    return esq | dir;
+                }
                 return Number(valorEsquerdo) | Number(valorDireito);
 
             case tiposDeSimbolos.MENOR_MENOR:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                // Auto-promove para BigInt se qualquer operando for BigInt
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                    return esq << dir;
+                }
                 return Number(valorEsquerdo) << Number(valorDireito);
 
             case tiposDeSimbolos.MAIOR_MAIOR:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                // Auto-promove para BigInt se qualquer operando for BigInt
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                    return esq >> dir;
+                }
                 return Number(valorEsquerdo) >> Number(valorDireito);
 
             case tiposDeSimbolos.DIFERENTE:

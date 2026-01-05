@@ -710,6 +710,60 @@ export async function inteiro(
 }
 
 /**
+ * Converte um valor em um número longo (BigInt).
+ * @param {InterpretadorInterface} interpretador A instância do interpretador.
+ * @param {VariavelInterface | any} valorParaConverter O valor a ser convertido.
+ * @returns {Promise<any>} Uma Promise com o resultado da conversão para BigInt.
+ */
+export async function longo(
+    interpretador: InterpretadorInterface,
+    valorParaConverter: VariavelInterface | any
+): Promise<any> {
+    if (valorParaConverter === null || valorParaConverter === undefined) {
+        return Promise.resolve(BigInt(0));
+    }
+
+    const valor = valorParaConverter.hasOwnProperty('valor')
+        ? valorParaConverter.valor
+        : valorParaConverter;
+
+    // Se já é BigInt, retorna direto
+    if (typeof valor === 'bigint') {
+        return Promise.resolve(valor);
+    }
+
+    // Se é número, converte para BigInt (trunca decimais)
+    if (typeof valor === 'number') {
+        return Promise.resolve(BigInt(Math.floor(valor)));
+    }
+
+    // Para strings, remove parte decimal se presente
+    const strValue = String(valor).trim();
+
+    // Trata string vazia
+    if (!strValue || strValue === '') {
+        return Promise.resolve(BigInt(0));
+    }
+
+    // Remove parte decimal da string (ex: "3.14" -> "3")
+    const integerPart = strValue.split('.')[0];
+
+    try {
+        return Promise.resolve(BigInt(integerPart));
+    } catch (e) {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                {
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual,
+                } as SimboloInterface,
+                `Não foi possível converter '${valor}' para longo. O valor deve ser um número ou texto numérico.`
+            )
+        );
+    }
+}
+
+/**
  * Cria um vetor com números inteiros no intervalo especificado.
  * O valor inicial é inclusivo e o valor final é exclusivo.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.

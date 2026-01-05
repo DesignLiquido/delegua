@@ -83,6 +83,7 @@ export function inferirTipoVariavel(variavel: any): TipoInferencia | TipoNativoS
         case 'Number':
         case 'number':
             return 'número';
+        case 'BigInt':
         case 'bigint':
             return 'longo';
         case 'Boolean':

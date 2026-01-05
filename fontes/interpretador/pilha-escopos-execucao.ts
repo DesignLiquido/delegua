@@ -45,6 +45,13 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         switch (tipo) {
             case 'inteiro':
                 return parseInt(valor);
+            case 'longo':
+                // Converte para BigInt
+                if (typeof valor === 'bigint') return valor;
+                if (typeof valor === 'number') return BigInt(Math.floor(valor));
+                // Para strings, remove parte decimal antes de converter
+                const strValue = String(valor).split('.')[0].trim();
+                return BigInt(strValue || '0');
             case 'logico':
             case 'lógico':
                 return Boolean(valor);
