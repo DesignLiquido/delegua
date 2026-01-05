@@ -2788,6 +2788,230 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas[0]).toBe('0');
                 });
             });
+
+            describe('vetor.limpar()', () => {
+                it('Limpar vetor usando o método vetor.limpar()', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        vetor = [1, 2, 3]
+                        vetor.limpar()
+                        escreva(vetor);
+                    `], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('[]');
+                });
+
+                it('Limpar um vetor que já está vazio', async () => {
+                    const código = [
+                        "vetor = []",
+                        "vetor.limpar()",
+                        "escreva(vetor)"
+                    ];
+                    const retornoLexador = lexador.mapear(código, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(_saidas[0]).toBe('[]');
+                });
+
+                it('Verificar se o vetor limpo pode receber novos itens após a limpeza', async () => {
+                    const código = [
+                        "vetor = [1, 2]",
+                        "vetor.limpar()",
+                        "vetor.adicionar(10)",
+                        "escreva(vetor)"
+                    ];
+                    const retornoLexador = lexador.mapear(código, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(_saidas[0]).toBe('[10]');
+                });
+            });
+
+            describe('vetor.contar()', () => {
+                it('Contar ocorrências de elementos repetidos', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "v = [1, 'a', 1, 'b', 1, 'a']",
+                        "escreva(v.contar(1))",
+                        "escreva(v.contar('a'))",
+                        "escreva(v.contar('z'))"
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('3');
+                    expect(_saidas[1]).toBe('2');
+                    expect(_saidas[2]).toBe('0');
+                });
+
+                it('Contar elemento que não existe no vetor', async () => {
+                    const código = [
+                        "v = [1, 2, 3]",
+                        "escreva(v.contar(99))"
+                    ];
+                    const retornoLexador = lexador.mapear(código, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(_saidas[0]).toBe('0');
+                });
+
+                it('Contar em um vetor vazio', async () => {
+                    const código = [
+                        "v = []",
+                        "escreva(v.contar(1))"
+                    ];
+                    const retornoLexador = lexador.mapear(código, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(_saidas[0]).toBe('0');
+                });
+            });
+
+            describe('vetor.estender()', () => {
+                it('Estender vetor', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        v1 = [1, 2]
+                        v2 = [3, 4]
+                        v1.estender(v2)
+                        escreva(v1)
+                    `], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('[1, 2, 3, 4]');
+                });
+
+                it('Estender usando múltiplos vetores (variádico)', async () => {
+                    const código = [
+                        "v1 = [1]",
+                        "v1.estender([2], [3], [4])",
+                        "escreva(v1)"
+                    ];
+                    const retornoLexador = lexador.mapear(código, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(_saidas[0]).toBe('[1, 2, 3, 4]');
+                });
+
+                it('Estender um vetor vazio com outro vetor', async () => {
+                    const código = [
+                        "v1 = []",
+                        "v1.estender([1, 2])",
+                        "escreva(v1)"
+                    ];
+                    const retornoLexador = lexador.mapear(código, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(_saidas[0]).toBe('[1, 2]');
+                });
+
+                it('Estender com um objeto literal', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        v = [1]
+                        v.estender({ 'a': 1 })
+                        v.estender({ 'b': 2 })
+                        escreva(v)
+                    `], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(_saidas[0]).toBe("[1, 'a', 'b']");
+                });
+            });
+
+            describe('vetor.inserir()', () => {
+                it('Inserir elemento no vetor', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        vetor = [10, 30, 40]
+                        vetor.inserir(1, 20)
+                        escreva(vetor)
+                    `], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('[10, 20, 30, 40]');
+                });
+
+                it('Inserir elemento no início (índice 0)', async () => {
+                    const código = [
+                        "vetor = [2, 3]",
+                        "vetor.inserir(0, 1)",
+                        "escreva(vetor)"
+                    ];
+                    const retornoLexador = lexador.mapear(código, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(_saidas[0]).toBe('[1, 2, 3]');
+                });
+
+                it('Inserir elemento no final do vetor usando o tamanho atual como índice', async () => {
+                    const código = [
+                        "vetor = [1, 2]",
+                        "vetor.inserir(2, 3)",
+                        "escreva(vetor)"
+                    ];
+                    const retornoLexador = lexador.mapear(código, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(_saidas[0]).toBe('[1, 2, 3]');
+                });
+            });
+
+            describe('vetor.indice()', () => {
+                it('Verificar índice de elemento', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        vetor = [1, 2, 3, 4, 5]
+                        escreva(vetor.indice(3))
+                    `], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('2');
+                });
+
+                it('Retornar -1 para elemento inexistente', async () => {
+                    const código = [
+                        "vetor = [1, 2, 3]",
+                        "escreva(vetor.indice(50))"
+                    ];
+                    const retornoLexador = lexador.mapear(código, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(_saidas[0]).toBe('-1');
+                });
+
+                it('Retornar o índice da primeira ocorrência quando há duplicatas', async () => {
+                    const código = [
+                        "vetor = ['a', 'b', 'a', 'c']",
+                        "escreva(vetor.indice('a'))"
+                    ];
+                    const retornoLexador = lexador.mapear(código, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(_saidas[0]).toBe('0');
+                });
+            });
         });
 
         it('termina_com - sufixo encontrado no final', async () => {
@@ -3558,6 +3782,152 @@ describe('Interpretador (Pituguês)', () => {
 
                     expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
                     expect(retornoInterpretador.erros[0].erroInterno.mensagem).toContain('aceita apenas vetores contendo números');
+                });
+            });
+
+            describe('vetor.limpar()', () => {
+                it('Falha - Tentar limpar uma variável que não é um vetor (ex: número)', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        numero = 10
+                        numero.limpar()
+                    `], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                    expect(retornoInterpretador.erros[0].erroInterno.message).toContain("não encontrado");
+                });
+
+                it('Falha - Tentar limpar um vetor nulo', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        v = nulo
+                        v.limpar()
+                    `], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                });
+            });
+
+            describe('vetor.contar()', () => {
+                it('Falha - Chamar contar() sem passar o argumento do elemento', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        v = [1, 2]
+                        escreva(v.contar())
+                    `], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                });
+
+                it('Falha - Passar mais argumentos do que o esperado (deve ignorar ou falhar)', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        v = [1, 2]
+                        escreva(v.contar(1, 2, 3))
+                    `], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                });
+            });
+
+            describe('vetor.estender()', () => {
+                it('Falha - Tentar estender com um valor booleano', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        v = [1]
+                        v.estender(verdadeiro)
+                        escreva(v)
+                    `], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                });
+
+                it('Falha - Estender com nulo', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        v = [1]
+                        v.estender(nulo)
+                        escreva(v)
+                    `], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                });
+            });
+
+            describe('vetor.inserir()', () => {
+                it('Falha - Inserir passando texto no lugar do índice', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        v = [1, 2]
+                        v.inserir('texto', 10)
+                    `], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                });
+
+                it('Falha - Passar apenas um argumento (faltando o elemento)', async () => {
+                    const codigo = ["v = [1, 2]", "v.inserir(0)"];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                });
+
+                it('Falha - Índice muito negativo (fora da realidade do vetor)', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        v = [1, 2]
+                        v.inserir(-999, 0)
+                        escreva(v)
+                    `], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                });
+            });
+
+            describe('vetor.indice()', () => {
+                it('Falha - Chamar sem argumentos', async () => {
+                    const codigo = ["v = [1, 2]", "v.indice()"];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                });
+
+                it('Falha - Chamar em um dicionário (objeto)', async () => {
+                    const codigo = ["d = { 'chave': 'valor' }", "d.indice('valor')"];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                });
+
+                it('Falha - Argumento nulo para busca', async () => {
+                    const codigo = ["v = [1, 2]", "escreva(v.indice(nulo))"];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(_saidas[0]).toBe('-1');
                 });
             });
         });
