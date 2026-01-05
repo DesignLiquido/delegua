@@ -2,6 +2,7 @@ import { InterpretadorInterface } from '../../../interfaces';
 import { PrimitivaInterface } from '../../../interfaces/primitiva-interface';
 import { InformacaoElementoSintatico } from '../../../informacao-elemento-sintatico';
 import { implementacaoParticao } from '../../primitivas-texto';
+import { ErroEmTempoDeExecucao } from '../../../excecoes';
 
 export default {
     aparar: {
@@ -253,6 +254,51 @@ export default {
             't.fatiar(8) // "três quatro", ou seja, seleciona tudo da posição 8 até o final do texto.\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'texto.fatiar(início, final)\n' + 'texto.fatiar(aPartirDaPosicao)',
+    },
+    formatar: {
+        tipoRetorno: 'texto',
+        argumentos: [
+            new InformacaoElementoSintatico(
+                'elemento',
+                'qualquer',
+                true,
+                [],
+                'O elemento a ser formatado.'
+            ),
+        ],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            mascara: string,
+            elemento: any,
+        ): Promise<string> => {
+            const valor = interpretador.resolverValor(elemento);
+            const matchMascara = mascara.match(/\{:(.*?)\}/);
+
+            if (matchMascara) {
+                const configuracao = matchMascara[1];
+
+                if (configuracao.includes('f') && typeof valor !== 'number') {
+                    return Promise.reject(
+                        new ErroEmTempoDeExecucao(
+                            null,
+                            `Erro: Código de formato 'f' desconhecido para objeto do tipo '${typeof valor === 'string' ? 'texto' : typeof valor}'`,
+                            interpretador.linhaDeclaracaoAtual
+                        )
+                    );
+                }
+
+                if (typeof valor === 'number') {
+                    const matchCasas = configuracao.match(/\.(\d+)f/);
+                    const casas = matchCasas ? parseInt(matchCasas[1]) : 2;
+                    return Promise.resolve(mascara.replace(matchMascara[0], valor.toFixed(casas)));
+                }
+            }
+
+            return Promise.resolve(mascara.replace(/\{.*?\}/, String(valor)));
+        },
+        assinaturaFormato: 'texto.formatar(elemento: qualquer)',
+        documentacao: '# `texto.formatar(valor)` \n\n Formata um valor com base na máscara de texto.',
+        exemploCodigo: '"{:.2f}".formatar(1.2345)',
     },
     inclui: {
         tipoRetorno: 'lógico',

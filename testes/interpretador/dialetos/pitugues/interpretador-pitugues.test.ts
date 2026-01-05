@@ -2380,6 +2380,45 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas).toHaveLength(1);
                     expect(_saidas[0]).toBe('Valor: 10');
                 });
+
+                it('Formatação de pontos flutuantes', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        valor = 1234.56789
+                        escreva(f"Duas casas decimais: {valor:.2f}")
+                    `], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes,
+                        true
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('Duas casas decimais: 1234.57')
+                });
+            });
+
+            it('Formatação de ponto flutuante usando formatar()', async () => {
+                const retornoLexador = lexador.mapear([`
+                    valor = 1234.56789
+                    escreva("Duas casas decimais: {:.2f}".formatar(valor))
+                `], -1);
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                    retornoLexador,
+                    -1
+                );
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('Duas casas decimais: 1234.57')
             });
 
             describe('Tuplas', () => {
@@ -3339,6 +3378,46 @@ describe('Interpretador (Pituguês)', () => {
                     expect(retornoLexador.erros).toHaveLength(1);
                     expect(retornoLexador.erros[0].mensagem).toContain('Texto não finalizado');
                 });
+
+                it('Tentativa de formatar uma string como ponto flutuante', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        valor = "estudante"
+                        escreva(f"{valor:.2f}")
+                    `], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                });
+
+                it('Variável não definida dentro da f-string', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        escreva(f"O resultado é: {resultado_fantasma:.2f}")
+                    `], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                });
+            });
+
+            it('Tentativa de formatação de ponto flutuante usando formatar() com valor string', async () => {
+                const retornoLexador = lexador.mapear([`
+                    valor = "1234.56789"
+                    escreva("Duas casas decimais: {:.2f}".formatar(valor))
+                `], -1);
+
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                    retornoLexador,
+                    -1
+                );
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
             });
 
             it('Deve dar erro ao tentar alterar valor de uma tupla (Imutabilidade)', async () => {
