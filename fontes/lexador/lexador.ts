@@ -80,6 +80,22 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
         return this.eDigito(caractere) || this.eAlfabeto(caractere);
     }
 
+    eHexDigito(caractere: string): boolean {
+        return (
+            (caractere >= '0' && caractere <= '9') ||
+            (caractere >= 'a' && caractere <= 'f') ||
+            (caractere >= 'A' && caractere <= 'F')
+        );
+    }
+
+    eBinarioDigito(caractere: string): boolean {
+        return caractere === '0' || caractere === '1';
+    }
+
+    eOctalDigito(caractere: string): boolean {
+        return caractere >= '0' && caractere <= '7';
+    }
+
     eFinalDaLinha(): boolean {
         if (this.codigo.length === this.linha) {
             return true;
@@ -205,7 +221,87 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
         } as ErroLexador);
     }
 
+    analisarHexadecimal(): void {
+        this.avancar(); // Pula '0'
+        this.avancar(); // Pula 'x' ou 'X'
+
+        while (this.eHexDigito(this.simboloAtual())) {
+            this.avancar();
+        }
+
+        const hexString = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
+        try {
+            const bigintValue = BigInt(hexString);
+            this.adicionarSimbolo(tiposDeSimbolos.NUMERO, bigintValue);
+        } catch (e) {
+            this.erros.push({
+                linha: this.linha + 1,
+                caractere: this.simboloAnterior(),
+                mensagem: `Literal hexadecimal inválido: ${hexString}`,
+            } as ErroLexador);
+        }
+    }
+
+    analisarBinario(): void {
+        this.avancar(); // Pula '0'
+        this.avancar(); // Pula 'b' ou 'B'
+
+        while (this.eBinarioDigito(this.simboloAtual())) {
+            this.avancar();
+        }
+
+        const binaryString = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
+        try {
+            const bigintValue = BigInt(binaryString);
+            this.adicionarSimbolo(tiposDeSimbolos.NUMERO, bigintValue);
+        } catch (e) {
+            this.erros.push({
+                linha: this.linha + 1,
+                caractere: this.simboloAnterior(),
+                mensagem: `Literal binário inválido: ${binaryString}`,
+            } as ErroLexador);
+        }
+    }
+
+    analisarOctal(): void {
+        this.avancar(); // Pula '0'
+        this.avancar(); // Pula 'o' ou 'O'
+
+        while (this.eOctalDigito(this.simboloAtual())) {
+            this.avancar();
+        }
+
+        const octalString = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
+        try {
+            const bigintValue = BigInt(octalString);
+            this.adicionarSimbolo(tiposDeSimbolos.NUMERO, bigintValue);
+        } catch (e) {
+            this.erros.push({
+                linha: this.linha + 1,
+                caractere: this.simboloAnterior(),
+                mensagem: `Literal octal inválido: ${octalString}`,
+            } as ErroLexador);
+        }
+    }
+
     analisarNumero(): void {
+        // Verifica se é um literal especial (hexadecimal, binário ou octal)
+        if (this.simboloAtual() === '0') {
+            const proximoChar = this.proximoSimbolo();
+
+            if (proximoChar === 'x' || proximoChar === 'X') {
+                this.analisarHexadecimal();
+                return;
+            } else if (proximoChar === 'b' || proximoChar === 'B') {
+                this.analisarBinario();
+                return;
+            } else if (proximoChar === 'o' || proximoChar === 'O') {
+                this.analisarOctal();
+                return;
+            }
+        }
+
+        // Análise de número decimal normal
         while (this.eDigito(this.simboloAtual())) {
             this.avancar();
         }
