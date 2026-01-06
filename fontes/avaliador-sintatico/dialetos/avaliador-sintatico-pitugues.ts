@@ -779,13 +779,18 @@ export class AvaliadorSintaticoPitugues
                 const simboloInterpolacao = this.avancarEDevolverAnterior();
                 const conteudoOriginal = simboloInterpolacao.literal as string;
 
-                // Transforma "Olá {nome}" em '"Olá " + (nome) + ""'
-                // Adicionado parênteses em volta das variáveis para garantir precedência na soma
-                const codigoTransformado = '"' +
-                    conteudoOriginal
-                        .replace(/\{/g, '" + (')
-                        .replace(/\}/g, ') + "') +
-                    '"';
+                const codigoTransformado = '"' + conteudoOriginal.replace(/\{(.*?)\}/g, (_, miolo) => {
+                    // 'miolo' é o texto que estava dentro das chaves. Ex: "valor" ou "valor:.2f"
+                    if (miolo.includes(':')) {
+                        const [variavel, formato] = miolo.split(':').map(s => s.trim());
+
+                        if (variavel !== "") {
+                            // Transforma {valor:.2f} em "{:.2f}".formatar(valor)
+                            return '" + "{:' + formato + '}".formatar(' + variavel + ') + "';
+                        }
+                    }
+                    return '" + (' + miolo.trim() + ') + "';
+                }) + '"';
 
                 const microLexador = new MicroLexadorPitugues();
                 const retornoMicroLexador = microLexador.mapear(codigoTransformado);
