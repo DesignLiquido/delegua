@@ -737,6 +737,38 @@ describe('Interpretador (Pituguês)', () => {
                 });
             });
 
+            describe('entrada', () => {
+                it('Trivial', async () => {
+                    let _saida: string = '';
+                    const respostas = ['5'];
+                    interpretador.interfaceEntradaSaida = {
+                        question: (mensagem: string, callback: Function) => {
+                            callback(respostas.shift());
+                        },
+                    };
+
+                    const retornoLexador = lexador.mapear(
+                        ['teste = entrada("Insira algo:")', 'imprima(teste)'],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saida = saida;
+                    };
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saida).toBeTruthy();
+                    expect(_saida).toBe('5');
+                });
+            });
+
             describe('Operações matemáticas', () => {
                 it('Trivial', async () => {
                     const retornoLexador = lexador.mapear(
@@ -3051,6 +3083,52 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas[0]).toBe('0');
                 });
             });
+
+            describe('arredondar()', () => {
+                it('Arredondando número para duas casas decimais', async () => {
+                    const codigo = [
+                        "numeroLegal = 10.7561",
+                        "escreva(arredondar(numeroLegal, 2))"
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('10.76');
+                });
+
+                it('Arredondando para o inteiro mais próximo', async () => {
+                    const codigo = [
+                        "numeroMuitoLegal = 10.75",
+                        "escreva(arredondar(numeroMuitoLegal))"
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('11');
+                });
+            });
+
+            it('Usando tipo() para saber o tipo de um dado', async () => {
+                const codigo = [
+                    "escreva(tipo(10))",
+                    "escreva(tipo('olá'))",
+                    "escreva(tipo([]))",
+                    "escreva(tipo({ 'a': 10 }))"
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toBe('número');
+                expect(_saidas[1]).toBe('texto');
+                expect(_saidas[2]).toBe('vetor');
+                expect(_saidas[3]).toBe('dicionário');
+            });
         });
 
         it('termina_com - sufixo encontrado no final', async () => {
@@ -4007,6 +4085,31 @@ describe('Interpretador (Pituguês)', () => {
                     await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
 
                     expect(_saidas[0]).toBe('-1');
+                });
+            });
+
+            describe('arredondar()', () => {
+                it('Falha - Arredondando texto', async () => {
+                    const codigo = [
+                        "numeroLegal = 'olá'",
+                        "escreva(arredondar(numeroLegal, 2))"
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                });
+
+                it('Falha - Não informou o número a ser arredondado', async () => {
+                    const codigo = [
+                        "numeroLegal = 10",
+                        "escreva(arredondar(, 2))"
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
                 });
             });
         });
