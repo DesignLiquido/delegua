@@ -24,7 +24,6 @@ export default {
     DOIS_PONTOS: 'DOIS_PONTOS',
     E: 'E',
     EM: 'EM',
-    ENTRADA: 'ENTRADA',
     ENQUANTO: 'ENQUANTO',
     EOF: 'EOF',
     ESCOLHA: 'ESCOLHA',

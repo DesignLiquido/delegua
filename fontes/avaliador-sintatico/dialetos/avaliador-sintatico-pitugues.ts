@@ -10,7 +10,6 @@ import {
     Binario,
     Chamada,
     DefinirValor,
-    Entrada,
     Construto,
     Dicionario,
     FuncaoConstruto,
@@ -225,7 +224,6 @@ export class AvaliadorSintaticoPitugues
             case FuncaoConstruto:
                 const funcaoConstruto = inicializador as FuncaoConstruto;
                 return `função<${funcaoConstruto.tipo}>`;
-            case Entrada:
             case Leia:
                 return 'texto';
             case Dupla:
@@ -756,7 +754,6 @@ export class AvaliadorSintaticoPitugues
             case tiposDeSimbolos.ISTO:
                 const simboloIsto = this.avancarEDevolverAnterior();
                 return new Isto(this.hashArquivo, simboloAtual.linha, simboloIsto);
-            case tiposDeSimbolos.ENTRADA:
             case tiposDeSimbolos.LEIA:
                 return await this.expressaoLeia();
             case tiposDeSimbolos.NUMERO:
