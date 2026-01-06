@@ -8,7 +8,8 @@ import { AcessoMetodo,
     AtribuicaoPorIndice,
     AcessoIndiceVariavel,
     Unario,
-    Chamada
+    Chamada,
+    TipoDe
 } from "../../../construtos";
 import { Interpretador } from "../../interpretador";
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
@@ -80,5 +81,13 @@ export class InterpretadorPitugues extends Interpretador {
         }
 
         return super.visitarExpressaoAcessoIndiceVariavel(expressao);
+    }
+
+    override async visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
+        const resultado = await super.visitarExpressaoTipoDe(expressao);
+
+        if (typeof resultado === 'string') return resultado.replace('tipo de', 'tipo');
+
+        return resultado;
     }
 }

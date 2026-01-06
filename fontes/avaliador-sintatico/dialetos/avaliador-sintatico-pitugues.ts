@@ -10,6 +10,7 @@ import {
     Binario,
     Chamada,
     DefinirValor,
+    Entrada,
     Construto,
     Dicionario,
     FuncaoConstruto,
@@ -38,6 +39,7 @@ import {
     Quinteto,
     Septeto,
     Sexteto,
+    TipoDe,
     Trio,
     TuplaN,
 } from '../../construtos';
@@ -223,6 +225,7 @@ export class AvaliadorSintaticoPitugues
             case FuncaoConstruto:
                 const funcaoConstruto = inicializador as FuncaoConstruto;
                 return `função<${funcaoConstruto.tipo}>`;
+            case Entrada:
             case Leia:
                 return 'texto';
             case Dupla:
@@ -245,7 +248,15 @@ export class AvaliadorSintaticoPitugues
     }
 
     async expressaoLeia(): Promise<Leia> {
-        const simboloLeia = this.avancarEDevolverAnterior();
+        const simboloOriginal = this.avancarEDevolverAnterior();
+
+        const simboloLeia = new Simbolo(
+            tiposDeSimbolos.LEIA,
+            simboloOriginal.lexema,
+            simboloOriginal.literal,
+            simboloOriginal.linha,
+            simboloOriginal.hashArquivo
+        );
 
         this.consumir(
             tiposDeSimbolos.PARENTESE_ESQUERDO,
@@ -745,6 +756,7 @@ export class AvaliadorSintaticoPitugues
             case tiposDeSimbolos.ISTO:
                 const simboloIsto = this.avancarEDevolverAnterior();
                 return new Isto(this.hashArquivo, simboloAtual.linha, simboloIsto);
+            case tiposDeSimbolos.ENTRADA:
             case tiposDeSimbolos.LEIA:
                 return await this.expressaoLeia();
             case tiposDeSimbolos.NUMERO:
@@ -760,6 +772,22 @@ export class AvaliadorSintaticoPitugues
                     simboloLiteral.literal,
                     tipoDadosElementar
                 );
+            case tiposDeSimbolos.TIPO:
+                const simboloTipo = this.avancarEDevolverAnterior();
+
+                this.consumir(
+                    tiposDeSimbolos.PARENTESE_ESQUERDO,
+                    "Esperado '(' após 'tipo'."
+                );
+
+                const expressaoAvaliar = await this.expressao();
+
+                this.consumir(
+                    tiposDeSimbolos.PARENTESE_DIREITO,
+                    "Esperado ')' após expressão em 'tipo'."
+                );
+
+                return new TipoDe(simboloTipo.hashArquivo, simboloTipo, expressaoAvaliar);
             case tiposDeSimbolos.IDENTIFICADOR:
                 const simboloIdentificador = this.avancarEDevolverAnterior();
                 let tipoOperando: string;
@@ -2212,6 +2240,13 @@ export class AvaliadorSintaticoPitugues
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
+            'arredondar',
+            new InformacaoElementoSintatico('arredondar', 'numero', true, [
+                new InformacaoElementoSintatico('numero', 'numero'),
+                new InformacaoElementoSintatico('casasDecimais', 'numero'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
             'encontrar',
             new InformacaoElementoSintatico('encontrar', 'qualquer', true, [
                 new InformacaoElementoSintatico('vetor', 'qualquer[]'),
@@ -2354,6 +2389,12 @@ export class AvaliadorSintaticoPitugues
             'texto',
             new InformacaoElementoSintatico('texto', 'texto', true, [
                 new InformacaoElementoSintatico('valorParaConverter', 'qualquer'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'tipo',
+            new InformacaoElementoSintatico('tipo', 'qualquer', true, [
+                new InformacaoElementoSintatico('elemento', 'qualquer'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(

@@ -24,6 +24,7 @@ export const palavrasReservadasPitugues = {
     importar: tiposDeSimbolos.IMPORTAR,
     imprima: tiposDeSimbolos.IMPRIMA,
     isto: tiposDeSimbolos.ISTO,
+    entrada: tiposDeSimbolos.ENTRADA,
     leia: tiposDeSimbolos.LEIA,
     nao: tiposDeSimbolos.NAO,
     não: tiposDeSimbolos.NAO,

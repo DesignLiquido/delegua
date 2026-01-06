@@ -177,6 +177,47 @@ export async function algum(
 }
 
 /**
+ * Arredonda um número para uma quantidade específica de casas decimais.
+ * @param {InterpretadorInterface} interpretador A instância do interpretador.
+ * @param {any} numero O número a ser arredondado.
+ * @param {any} casasDecimais A quantidade de casas decimais para o arredondamento.
+ * @returns {Promise<number>} O número arredondado.
+ */
+export async function arredondar(
+    interpretador: InterpretadorInterface,
+    numero: any,
+    casasDecimais: any
+): Promise<number> {
+    const valorNumero = interpretador.resolverValor(numero);
+    const valorCasas = interpretador.resolverValor(casasDecimais);
+
+    if (numero == undefined || numero == null) {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                null,
+                "Erro: arredondar() deve receber um número.",
+                interpretador.linhaDeclaracaoAtual
+            )
+        );
+    }
+
+    if (typeof numero !== "number") {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                null,
+                `Erro de Tipo: arredondar() espera um número, mas recebeu '${typeof valorNumero}'.`,
+                interpretador.linhaDeclaracaoAtual
+            )
+        );
+    }
+
+    const fator = Math.pow(10, valorCasas);
+    const resultado = Math.round(valorNumero * fator) / fator;
+
+    return Promise.resolve(resultado);
+};
+
+/**
  * Encontra o primeiro elemento de um vetor cuja função de pesquisa retorne
  * verdadeiro na avaliação de cada elemento.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.

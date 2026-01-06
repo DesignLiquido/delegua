@@ -18,6 +18,8 @@ export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExe
 
     pilhaEscoposExecucao.definirVariavel('algum', new FuncaoPadrao(2, bibliotecaGlobal.algum));
 
+    pilhaEscoposExecucao.definirVariavel('arredondar', new FuncaoPadrao(2, bibliotecaGlobal.arredondar));
+
     pilhaEscoposExecucao.definirVariavel('clonar', new FuncaoPadrao(1, bibliotecaGlobal.clonar));
 
     pilhaEscoposExecucao.definirVariavel(
