@@ -34,6 +34,24 @@ describe('Lexador (Pituguês)', () => {
                 );
             });
 
+            it('Sucesso - imprima', () => {
+                const resultado = lexador.mapear(
+                    ["imprima('Você está aprendendo sobre o Lexador do Pituguês!')"],
+                    -1
+                );
+
+                expect(resultado).toBeTruthy();
+                expect(resultado.simbolos).toHaveLength(4);
+                expect(resultado.simbolos).toEqual(
+                    expect.arrayContaining([
+                        expect.objectContaining({ tipo: 'IMPRIMA' }),
+                        expect.objectContaining({ tipo: 'PARENTESE_ESQUERDO' }),
+                        expect.objectContaining({ tipo: 'TEXTO' }),
+                        expect.objectContaining({ tipo: 'PARENTESE_DIREITO' }),
+                    ])
+                );
+            });
+
             it('Sucesso - Operação Matemática (soma e igualdade)', () => {
                 const resultado = lexador.mapear(['2 + 3 == 5'], -1);
 
