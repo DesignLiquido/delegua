@@ -78,5 +78,31 @@ describe('Primitivas de Texto (Pituguês)', () => {
             expect(valores).toEqual(['', '.', 'texto']);
             expect(resultado.paraTextoSaida()).toBe('("", ".", "texto")');
         });
+        it('deve aparar inicio do texto', async () => {
+            const texto = "   texto com espaco no inicio";
+            const resultado = await primitivasTexto.aparar_inicio.implementacao(
+                interpretador,
+                texto
+            );
+            expect(resultado).toBe("texto com espaco no inicio");
+        });
+        it('deve aparar fim do texto', async () => {
+            const texto = "texto com espaco no fim   ";
+            const resultado = await primitivasTexto.aparar_fim.implementacao(
+                interpretador,
+                texto
+            );
+            expect(resultado).toBe("texto com espaco no fim");
+        });
+        it('deve concatenar textos', async () => {
+            const texto1 = "Gosto de ";
+            const texto2 = "programar em Pituguês.";
+            const resultado = await primitivasTexto.concatenar.implementacao(
+                interpretador,
+                texto1,
+                texto2
+            );
+            expect(resultado).toBe("Gosto de programar em Pituguês.");
+        });
     });
 });
