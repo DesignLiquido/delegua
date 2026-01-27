@@ -52,5 +52,15 @@ describe('Primitivas de Tupla (Pituguês)', () => {
 
             expect(resultado).toEqual([1, true, "3"]);
         });
+        it('Lança erro ao tentar transformar não-tupla', async () => {
+            const interpretador = criarInterpretadorMock();
+            const naoTupla = new Literal(0, 1, 'não é tupla', 'texto');
+            await expect(
+                primitivasTupla.paraVetor.implementacao(
+                    interpretador,
+                    naoTupla
+                )
+            ).rejects.toThrow( "A função \"paraVetor\" só pode ser chamada em tuplas.");
+        });
     });
 });
