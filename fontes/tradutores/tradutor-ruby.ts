@@ -57,7 +57,7 @@ export class TradutorRuby implements TradutorInterface<Declaracao> {
                 return '&';
             case tiposDeSimbolos.BIT_OR:
                 return '|';
-            case tiposDeSimbolos.BIT_XOR:
+            case tiposDeSimbolos.CIRCUMFLEXO:
                 return '^';
             case tiposDeSimbolos.BIT_NOT:
                 return '~';

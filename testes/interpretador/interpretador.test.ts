@@ -1302,6 +1302,54 @@ describe('Interpretador', () => {
             });
 
             describe('Operações lógicas', () => {
+                it('Operações lógicas - bitwise com variáveis lógicas (&, |, ^)', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'escreva(verdadeiro & falso)',
+                            'escreva(verdadeiro | falso)',
+                            'escreva(verdadeiro ^ falso)',
+                            'escreva(verdadeiro ^ verdadeiro)',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saidas.push(saida);
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(4);
+                    expect(_saidas[0]).toBe('falso');
+                    expect(_saidas[1]).toBe('verdadeiro');
+                    expect(_saidas[2]).toBe('verdadeiro');
+                    expect(_saidas[3]).toBe('falso');
+                });
+
+                it('Operações lógicas - e/ou como bitwise com números', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'escreva(1 e 3)', // 1 & 3 = 1
+                            'escreva(1 ou 2)', // 1 | 2 = 3
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saidas.push(saida);
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(2);
+                    expect(_saidas[0]).toBe('1');
+                    expect(_saidas[1]).toBe('3');
+                });
+
                 it('Operações lógicas - concatenação de texto', async () => {
                     const retornoLexador = lexador.mapear(
                         [

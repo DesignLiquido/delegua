@@ -651,7 +651,7 @@ async function executarOperacaoBinaria(
             interpretador.verificarOperandosNumeros(expressao.operador, esquerda, direita);
             return Number(valorEsquerdo) & Number(valorDireito);
 
-        case tiposDeSimbolos.BIT_XOR:
+        case tiposDeSimbolos.CIRCUMFLEXO:
             interpretador.verificarOperandosNumeros(expressao.operador, esquerda, direita);
             return Number(valorEsquerdo) ^ Number(valorDireito);
 

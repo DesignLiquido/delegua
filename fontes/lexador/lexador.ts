@@ -481,7 +481,7 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
                 break;
 
             case '^':
-                this.adicionarSimbolo(tiposDeSimbolos.BIT_XOR);
+                this.adicionarSimbolo(tiposDeSimbolos.CIRCUMFLEXO);
                 this.avancar();
                 break;
 

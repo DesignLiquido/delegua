@@ -73,6 +73,7 @@ import {
     Vetor,
     ListaCompreensao,
     Isto,
+    Binario,
 } from '../construtos';
 import { ErroInterpretador } from '../interfaces/erros/erro-interpretador';
 import { RetornoInterpretadorInterface } from '../interfaces/retornos/retorno-interpretador-interface';
@@ -740,7 +741,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         );
     }
 
-    async visitarExpressaoBinaria(expressao: any): Promise<any> {
+    async visitarExpressaoBinaria(expressao: Binario): Promise<any> {
         const esquerda: VariavelInterface | any = await this.avaliar(expressao.esquerda);
         const direita: VariavelInterface | any = await this.avaliar(expressao.direita);
         const valorEsquerdo: any = this.resolverValor(esquerda);
@@ -932,6 +933,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                 return Number(valorEsquerdo) % Number(valorDireito);
 
             case tiposDeSimbolos.BIT_AND:
+                if (typeof valorEsquerdo === 'boolean' && typeof valorDireito === 'boolean') {
+                    return valorEsquerdo && valorDireito;
+                }
+
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 // Auto-promove para BigInt se qualquer operando for BigInt
                 if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
@@ -941,7 +946,11 @@ export class InterpretadorBase implements InterpretadorInterface {
                 }
                 return Number(valorEsquerdo) & Number(valorDireito);
 
-            case tiposDeSimbolos.BIT_XOR:
+            case tiposDeSimbolos.CIRCUMFLEXO:
+                if (typeof valorEsquerdo === 'boolean' && typeof valorDireito === 'boolean') {
+                    return valorEsquerdo !== valorDireito;
+                }
+
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 // Auto-promove para BigInt se qualquer operando for BigInt
                 if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
@@ -952,6 +961,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                 return Number(valorEsquerdo) ^ Number(valorDireito);
 
             case tiposDeSimbolos.BIT_OR:
+                if (typeof valorEsquerdo === 'boolean' && typeof valorDireito === 'boolean') {
+                    return valorEsquerdo || valorDireito;
+                }
+
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 // Auto-promove para BigInt se qualquer operando for BigInt
                 if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
@@ -1247,6 +1260,38 @@ export class InterpretadorBase implements InterpretadorInterface {
                     return this.logicaContemOuEm(esquerda, direita, expressao);
                 case tiposDeSimbolos.CONTEM:
                     return this.logicaContemOuEm(direita, esquerda, expressao);
+            }
+        }
+
+        // E/OU como bitwise quando ambos operandos são numéricos
+        if ([tiposDeSimbolos.E, tiposDeSimbolos.OU].includes(expressao.operador.tipo)) {
+            const valorEsquerdo = this.resolverValor(esquerda);
+            if (typeof valorEsquerdo === 'number' || typeof valorEsquerdo === 'bigint') {
+                const direita = await this.avaliar(expressao.direita);
+                const valorDireito = this.resolverValor(direita);
+
+                if (typeof valorDireito === 'number' || typeof valorDireito === 'bigint') {
+                    if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                        const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
+                        const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                        return expressao.operador.tipo === tiposDeSimbolos.E ? (esq & dir) : (esq | dir);
+                    }
+
+                    return expressao.operador.tipo === tiposDeSimbolos.E
+                        ? (Number(valorEsquerdo) & Number(valorDireito))
+                        : (Number(valorEsquerdo) | Number(valorDireito));
+                }
+
+                // Demais casos sem diferença de tipos
+                if (expressao.operador.tipo === tiposDeSimbolos.OU) {
+                    if (this.eVerdadeiro(esquerda)) return esquerda;
+                    return direita;
+                }
+
+                if (expressao.operador.tipo === tiposDeSimbolos.E) {
+                    if (!this.eVerdadeiro(esquerda)) return esquerda;
+                    return direita;
+                }
             }
         }
 

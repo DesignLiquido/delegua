@@ -1565,7 +1565,7 @@ export class AvaliadorSintatico
         let expressao = await this.bitE();
 
         while (
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIT_OR, tiposDeSimbolos.BIT_XOR)
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIT_OR, tiposDeSimbolos.CIRCUMFLEXO)
         ) {
             const operador = this.simbolos[this.atual - 1];
             const direito = await this.bitE();
