@@ -296,6 +296,43 @@ describe('Primitivas de Texto (Pituguês)', () => {
         });
     });
     describe('formatar', () => {
+        it('deve lançar erro quando usar formato de float (f) com tipo texto', async () => {
+            const texto = "Valor: {:.2f}";
+            const valorTexto = "texto";
+            
+            await expect(
+                primitivasTexto.formatar.implementacao(
+                    interpretador,
+                    texto,
+                    valorTexto
+                )
+            ).rejects.toThrow("Erro: Código de formato 'f' desconhecido para objeto do tipo 'texto'");
+        });
+        
+        it('deve lançar erro quando usar formato de float (f) com tipo booleano', async () => {
+            const texto = "Valor: {:.2f}";
+            const valorBooleano = true;
+            
+            await expect(
+                primitivasTexto.formatar.implementacao(
+                    interpretador,
+                    texto,
+                    valorBooleano
+                )
+            ).rejects.toThrow("Erro: Código de formato 'f' desconhecido para objeto do tipo 'boolean'");
+        });
+        it('deve lançar erro quando usar formato de float (f) com tipo não numérico', async () => {
+            const texto = "Valor: {:.2f}";
+            const valorTexto = "texto";
+            
+            await expect(
+                primitivasTexto.formatar.implementacao(
+                    interpretador,
+                    texto,
+                    valorTexto
+                )
+            ).rejects.toThrow();
+        });
         it('deve formatar o número com duas casas decimais', async () => {
             const texto = "O valor é {:.2f}";
             const numero = 3.14159;
@@ -350,6 +387,16 @@ describe('Primitivas de Texto (Pituguês)', () => {
             );
             expect(resultado).toBe("Negativo: -15.79");
         });
+        it('deve formatar texto com formato especial que não seja f', async () => {
+            const texto = "Valor: {:s}";
+            const valor = "teste";
+            const resultado = await primitivasTexto.formatar.implementacao(
+                interpretador,
+                texto,
+                valor
+            );
+            expect(resultado).toBe("Valor: teste");
+        });
     
         it('deve formatar texto simples sem formato especial', async () => {
             const texto = "Olá {}";
@@ -381,8 +428,18 @@ describe('Primitivas de Texto (Pituguês)', () => {
                 texto,
                 numero
             );
-            // Nota: comportamento atual substitui apenas o primeiro
+    
             expect(resultado).toBe("Valor: 3.14 e {:.2f}");
+        });
+        it('deve formatar número com formato f sem especificar casas decimais', async () => {
+            const texto = "Valor: {:f}";
+            const numero = 3.14159;
+            const resultado = await primitivasTexto.formatar.implementacao(
+                interpretador,
+                texto,
+                numero
+            );
+            expect(resultado).toBe("Valor: 3.14");
         });
     });
     describe('inclui', () => {
