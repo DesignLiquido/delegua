@@ -9,7 +9,23 @@ import {
     maximo,
     minimo,
     ordenar,
-    somar
+    somar,
+    aleatorio_entre,
+    aleatorio,
+    algum,
+    arredondar,
+    encontrar,
+    encontrar_indice,
+    encontrar_ultimo,
+    encontrar_ultimo_indice,
+    filtrar_por,
+    incluido,
+    inteiro,
+    intervalo,
+    numero,
+    para_cada,
+    real,
+    texto,
 } from '../../../../fontes/bibliotecas/dialetos/pitugues/biblioteca-global';
 import { FuncaoPadrao } from '../../../../fontes/interpretador/estruturas/funcao-padrao';
 import { RetornoQuebra } from '../../../../fontes/quebras';
@@ -616,4 +632,524 @@ describe('biblioteca-global (pituguês)', () => {
             });
         });
     });
+    describe('aleatorio_entre', () => {
+        it('Deve retornar número dentro do intervalo especificado', async () => {
+            const interpretador = criarInterpretadorMock();
+            const min = 5;
+            const max = 15;
+            const resultado = await aleatorio_entre(interpretador, min as any, max as any);
+            expect(resultado).toBeGreaterThanOrEqual(min);
+            expect(resultado).toBeLessThan(max);
+        });
+        it('Deve rejeitar se não for passado número como parâmetro', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(aleatorio_entre(interpretador, '5' as any, 15 as any)).rejects.toMatchObject({
+                mensagem: 'Os dois parâmetros devem ser do tipo número.',
+            });
+        });
+        
+    });
+
 });
+
+    describe('aleatorio', () => {
+        it('retorna número entre 0 e 1', async () => {
+            const interpretador = criarInterpretadorMock();
+            const resultado = await aleatorio(interpretador as any);
+            expect(typeof resultado).toBe('number');
+            expect(resultado).toBeGreaterThanOrEqual(0);
+            expect(resultado).toBeLessThanOrEqual(1);
+        });
+    });
+
+    describe('algum', () => {
+        it('retorna true quando algum elemento satisfaz', async () => {
+            const interpretador = criarInterpretadorMock();
+            const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
+            fakeFunc.chamar = jest.fn()
+                .mockResolvedValueOnce(false)
+                .mockResolvedValueOnce(true);
+
+            const resultado = await algum(interpretador, [1, 2], fakeFunc);
+            expect(resultado).toBe(true);
+            expect(fakeFunc.chamar).toHaveBeenCalledTimes(2);
+        });
+    });
+
+    describe('arredondar', () => {
+        it('arredonda para N casas decimais', async () => {
+            const interpretador = criarInterpretadorMock();
+            const resultado = await arredondar(interpretador as any, 1.2345 as any, 2 as any);
+            expect(resultado).toBe(1.23);
+        });
+    });
+
+    describe('encontrar / encontrar_indice / encontrar_ultimo / encontrar_ultimo_indice', () => {
+        it('encontra primeiro elemento que satisfaz e seu índice', async () => {
+            const interpretador = criarInterpretadorMock();
+            const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
+            fakeFunc.chamar = jest.fn()
+                .mockResolvedValueOnce(false)
+                .mockResolvedValueOnce(true);
+
+            const fakeFuncForFind = Object.create(DeleguaFuncao.prototype) as any;
+            fakeFuncForFind.chamar = jest.fn()
+                .mockResolvedValueOnce(false)
+                .mockResolvedValueOnce(true);
+
+            const fakeFuncForIndex = Object.create(DeleguaFuncao.prototype) as any;
+            fakeFuncForIndex.chamar = jest.fn()
+                .mockResolvedValueOnce(false)
+                .mockResolvedValueOnce(true);
+
+            const valor = await encontrar(interpretador, [1, 2, 3], fakeFuncForFind);
+            const idx = await encontrar_indice(interpretador, [1, 2, 3], fakeFuncForIndex);
+            expect(valor).toBe(2);
+            expect(idx).toBe(1);
+        });
+
+        it('encontra último elemento que satisfaz e seu índice', async () => {
+            const interpretador = criarInterpretadorMock();
+            const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
+            // for reverse loop, first call checks 4
+            fakeFunc.chamar = jest.fn().mockResolvedValueOnce(true);
+
+            const fakeFuncForFindLast = Object.create(DeleguaFuncao.prototype) as any;
+            fakeFuncForFindLast.chamar = jest.fn().mockResolvedValueOnce(true);
+
+            const fakeFuncForIndexLast = Object.create(DeleguaFuncao.prototype) as any;
+            fakeFuncForIndexLast.chamar = jest.fn().mockResolvedValueOnce(true);
+
+            const valor = await encontrar_ultimo(interpretador, [1, 2, 3, 4], fakeFuncForFindLast);
+            const idx = await encontrar_ultimo_indice(interpretador, [1, 2, 3, 4], fakeFuncForIndexLast);
+            expect(valor).toBe(4);
+            expect(idx).toBe(3);
+        });
+    });
+
+    describe('filtrar_por', () => {
+        it('filtra valores conforme função de filtragem', async () => {
+            const interpretador = criarInterpretadorMock();
+            const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
+            fakeFunc.chamar = jest.fn()
+                .mockResolvedValueOnce({ valorRetornado: new RetornoQuebra(true) })
+                .mockResolvedValueOnce({ valorRetornado: new RetornoQuebra(false) })
+                .mockResolvedValueOnce({ valorRetornado: new RetornoQuebra(true) });
+
+            const resultado = await filtrar_por(interpretador, [1,2,3], fakeFunc);
+            expect(resultado).toEqual([1,3]);
+            expect(fakeFunc.chamar).toHaveBeenCalledTimes(3);
+        });
+    });
+
+    describe('incluido', () => {
+        it('detecta inclusão de valor simples', async () => {
+            const interpretador = criarInterpretadorMock();
+            expect(await incluido(interpretador, [1,2,3], 2)).toBe(true);
+            expect(await incluido(interpretador, [1,2,3], 4)).toBe(false);
+        });
+    });
+
+    describe('inteiro / numero / real', () => {
+        it('converte para inteiro corretamente', async () => {
+            const interpretador = criarInterpretadorMock();
+            expect(await inteiro(interpretador as any, '42' as any)).toBe(42);
+            expect(await inteiro(interpretador as any, 7 as any)).toBe(7);
+        });
+
+        it('converte para número com parte decimal', async () => {
+            const interpretador = criarInterpretadorMock();
+            expect(await numero(interpretador as any, '3.14' as any)).toBe(3.14);
+            expect(await real(interpretador as any, '2.5' as any)).toBe(2.5);
+        });
+    });
+
+    describe('intervalo', () => {
+        it('cria intervalo correto (inicio inclusivo, fim exclusivo)', async () => {
+            const interpretador = criarInterpretadorMock();
+            const resultado = await intervalo(interpretador as any, 1 as any, 5 as any);
+            expect(resultado).toEqual([1,2,3,4]);
+        });
+    });
+
+    describe('para_cada', () => {
+        it('chama função para cada elemento', async () => {
+            const interpretador = criarInterpretadorMock();
+            const calls: any[] = [];
+            const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
+            fakeFunc.chamar = jest.fn().mockImplementation(async (_i: any, args: any[]) => calls.push(args[0]));
+
+            await para_cada(interpretador as any, [9,8,7], fakeFunc as any);
+            expect(calls).toEqual([9,8,7]);
+        });
+    });
+
+    describe('texto', () => {
+        it('converte valores para string', async () => {
+            const interpretador = criarInterpretadorMock();
+            expect(await texto(interpretador as any, 123)).toBe('123');
+            expect(await texto(interpretador as any, { valor: 'x' } as any)).toBe('x');
+        });
+    });
+
+    describe('cobertura extra (branches não cobertos)', () => {
+        it('aleatorio_entre sem argumentos rejeita', async () => {
+            await expect((require('../../../../fontes/bibliotecas/dialetos/pitugues/biblioteca-global') as any).aleatorio_entre()).rejects.toBeDefined();
+        });
+
+        it('aleatorio_entre com dois argumentos executa o branch de 2 argumentos', async () => {
+            const interpretador = criarInterpretadorMock();
+            const res = await (aleatorio_entre as any)(interpretador as any, 3 as any);
+            expect(typeof res).toBe('number');
+        });
+
+        it('aleatorio_entre com mais de 3 argumentos rejeita', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect((aleatorio_entre as any)(interpretador as any, 1 as any, 2 as any, 3 as any, 4 as any)).rejects.toMatchObject({
+                mensagem: 'A quantidade de parâmetros máxima para esta função é 2.',
+            });
+        });
+
+        it('algum retorna false quando nenhum satisfaça', async () => {
+            const interpretador = criarInterpretadorMock();
+            const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
+            fakeFunc.chamar = jest.fn().mockResolvedValue(false);
+            const resultado = await algum(interpretador, [1,2,3], fakeFunc);
+            expect(resultado).toBe(false);
+        });
+
+        it('arredondar rejeita quando numero é null ou tipo inválido', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(arredondar(interpretador as any, null as any, 2 as any)).rejects.toBeDefined();
+            await expect(arredondar(interpretador as any, 'x' as any, 2 as any)).rejects.toBeDefined();
+        });
+
+        it('encontrar* rejeitam quando primeiro parâmetro não é vetor', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(encontrar(interpretador as any, 1 as any, {} as any)).rejects.toBeDefined();
+            await expect(encontrar_indice(interpretador as any, 1 as any, {} as any)).rejects.toBeDefined();
+            await expect(encontrar_ultimo(interpretador as any, 1 as any, {} as any)).rejects.toBeDefined();
+            await expect(encontrar_ultimo_indice(interpretador as any, 1 as any, {} as any)).rejects.toBeDefined();
+        });
+
+        it('encontrar* aceitam wrapper {valor: ...} nos parâmetros', async () => {
+            const interpretador = criarInterpretadorMock();
+            const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
+            fakeFunc.chamar = jest.fn().mockResolvedValueOnce(true).mockResolvedValueOnce(false);
+
+            const valor = await encontrar(interpretador as any, { valor: [1,2] } as any, { valor: fakeFunc } as any);
+            expect(valor).toBe(1);
+        });
+
+        it('filtrar_por trata informacoesValor nulo e wrapper params', async () => {
+            const interpretador = criarInterpretadorMock();
+            const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
+            fakeFunc.chamar = jest.fn()
+                .mockResolvedValueOnce(null)
+                .mockResolvedValueOnce({ valorRetornado: { valor: true } });
+
+            const resultado = await filtrar_por(interpretador as any, { valor: [5,6] } as any, { valor: fakeFunc } as any);
+            expect(resultado).toEqual([6]);
+        });
+
+        it('incluido rejeita quando primeiro parâmetro não é vetor e aceita wrapper', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(incluido(interpretador as any, 1 as any, 2 as any)).rejects.toBeDefined();
+            expect(await incluido(interpretador as any, { valor: [1,2] } as any, { valor: 2 } as any)).toBe(true);
+        });
+
+        it('inteiro trata null/undefined e erros de validação', async () => {
+            const interpretador = criarInterpretadorMock();
+            expect(await inteiro(interpretador as any, null as any)).toBe(0);
+            await expect(inteiro(interpretador as any, 'abc' as any)).rejects.toBeDefined();
+            await expect(inteiro(interpretador as any, NaN as any)).rejects.toBeDefined();
+        });
+
+        it('intervalo rejeita tipos inválidos e NaN', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(intervalo(interpretador as any, 'a' as any, 5 as any)).rejects.toBeDefined();
+            await expect(intervalo(interpretador as any, NaN as any, 5 as any)).rejects.toBeDefined();
+        });
+
+        it('mapear rejeita quando argumentos inválidos', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(mapear(interpretador as any, null as any, {} as any)).rejects.toBeDefined();
+            await expect(mapear(interpretador as any, [1,2] as any, {} as any)).rejects.toBeDefined();
+        });
+
+        it('ordenar lança quando vetor é null', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(ordenar(interpretador as any, null as any)).rejects.toBeDefined();
+        });
+
+        it('para_cada rejeita quando primeiro parametro nulo', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(para_cada(interpretador as any, null as any, {} as any)).rejects.toBeDefined();
+        });
+
+        it('real trata null e rejeita entrada inválida', async () => {
+            const interpretador = criarInterpretadorMock();
+            expect(await real(interpretador as any, null as any)).toBe(0);
+            await expect(real(interpretador as any, 'abc' as any)).rejects.toBeDefined();
+        });
+
+        it('maximo com diferença de tamanho entre vetores', async () => {
+            const interpretador = criarInterpretadorMock();
+            const resultado = await maximo(interpretador as any, [[1],[1,2]] as any);
+            expect(resultado).toEqual([1,2]);
+        });
+    });
+
+    describe('cobertura fina adicional', () => {
+        it('encontrar_indice retorna -1 quando não encontra', async () => {
+            const interpretador = criarInterpretadorMock();
+            const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
+            fakeFunc.chamar = jest.fn().mockResolvedValue(false);
+            const idx = await encontrar_indice(interpretador, [1,2,3], fakeFunc);
+            expect(idx).toBe(-1);
+        });
+
+        it('encontrar_ultimo_indice retorna null quando não encontra', async () => {
+            const interpretador = criarInterpretadorMock();
+            const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
+            fakeFunc.chamar = jest.fn().mockResolvedValue(false);
+            const idx = await encontrar_ultimo_indice(interpretador, [1,2,3], fakeFunc);
+            expect(idx).toBeNull();
+        });
+
+        it('maximo rejeita quando parâmetro é nulo', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(maximo(interpretador as any, null as any)).rejects.toBeDefined();
+        });
+
+        it('filtrar_por rejeita quando segundo parâmetro não é função', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(filtrar_por(interpretador as any, [1,2] as any, {} as any)).rejects.toBeDefined();
+        });
+
+        it('para_cada rejeita quando segundo parâmetro não é função', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(para_cada(interpretador as any, [1,2] as any, {} as any)).rejects.toBeDefined();
+        });
+
+        it('todos_em_condicao rejeita quando segundo parâmetro não é função (constructor name)', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(todos_em_condicao(interpretador as any, [1,2] as any, {} as any)).rejects.toBeDefined();
+        });
+
+        it('algum rejeita quando primeiro argumento não é array', async () => {
+            const interpretador = criarInterpretadorMock();
+            const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
+            await expect(algum(interpretador as any, 'not array' as any, fakeFunc)).rejects.toBeDefined();
+        });
+
+        it('algum rejeita quando segundo argumento não é função', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(algum(interpretador as any, [1,2,3] as any, {} as any)).rejects.toBeDefined();
+        });
+
+        it('algum chama função para cada elemento até encontrar true', async () => {
+            const interpretador = criarInterpretadorMock();
+            const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
+            fakeFunc.chamar = jest.fn()
+                .mockResolvedValueOnce(false)
+                .mockResolvedValueOnce(true);
+            const resultado = await algum(interpretador, [1,2,3], fakeFunc);
+            expect(resultado).toBe(true);
+            expect(fakeFunc.chamar).toHaveBeenCalledTimes(2);
+        });
+
+        it('encontrar rejeita quando segundo parâmetro não é função', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(encontrar(interpretador as any, [1,2,3] as any, {} as any)).rejects.toBeDefined();
+        });
+
+        it('encontrar_indice rejeita quando segundo parâmetro não é função', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(encontrar_indice(interpretador as any, [1,2,3] as any, {} as any)).rejects.toBeDefined();
+        });
+
+        it('encontrar_ultimo rejeita quando segundo parâmetro não é função', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(encontrar_ultimo(interpretador as any, [1,2,3] as any, {} as any)).rejects.toBeDefined();
+        });
+
+        it('encontrar_ultimo_indice rejeita quando segundo parâmetro não é função', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(encontrar_ultimo_indice(interpretador as any, [1,2,3] as any, {} as any)).rejects.toBeDefined();
+        });
+
+        it('mapear rejeita quando primeiro argumento não é vetor', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(mapear(interpretador as any, 'not array' as any, {} as any)).rejects.toBeDefined();
+        });
+
+        it('mapear rejeita quando segundo argumento não é função', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(mapear(interpretador as any, [1,2] as any, {} as any)).rejects.toBeDefined();
+        });
+
+        it('minimo rejeita quando argumento não é vetor', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(minimo(interpretador as any, 'not array' as any)).rejects.toBeDefined();
+        });
+
+        it('para_cada rejeita quando primeiro argumento não é vetor', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(para_cada(interpretador as any, 'not array' as any, {} as any)).rejects.toBeDefined();
+        });
+
+        it('primeiro_em_condicao rejeita quando primeiro argumento não é vetor', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(primeiro_em_condicao(interpretador as any, 'not array' as any, {} as any)).rejects.toBeDefined();
+        });
+
+        it('inteiro rejeita com regex validation (caracteres inválidos)', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(inteiro(interpretador as any, 'abc123' as any)).rejects.toBeDefined();
+        });
+
+        it('todos_em_condicao rejeita quando primeiro argumento não é vetor', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(todos_em_condicao(interpretador as any, 'not array' as any, {} as any)).rejects.toBeDefined();
+        });
+
+        it('algum retorna false quando nenhum elemento satisfaz a condição', async () => {
+            const interpretador = criarInterpretadorMock();
+            const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
+            fakeFunc.chamar = jest.fn().mockResolvedValue(false);
+            const resultado = await algum(interpretador, [1,2,3,4,5], fakeFunc);
+            expect(resultado).toBe(false);
+            expect(fakeFunc.chamar).toHaveBeenCalledTimes(5);
+        });
+
+        it('encontrar retorna o elemento quando encontra na primeira iteração', async () => {
+            const interpretador = criarInterpretadorMock();
+            const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
+            fakeFunc.chamar = jest.fn().mockResolvedValueOnce(true);
+            const resultado = await encontrar(interpretador, [10,20,30], fakeFunc);
+            expect(resultado).toBe(10);
+            expect(fakeFunc.chamar).toHaveBeenCalledTimes(1);
+        });
+
+        it('encontrar_ultimo_indice retorna null quando nenhum elemento satisfaz', async () => {
+            const interpretador = criarInterpretadorMock();
+            const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
+            fakeFunc.chamar = jest.fn().mockResolvedValue(false);
+            const idx = await encontrar_ultimo_indice(interpretador, [1,2,3], fakeFunc);
+            expect(idx).toBeNull();
+        });
+
+        it('filtrar_por rejeita quando vetor é nulo', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(filtrar_por(interpretador as any, null as any, {} as any)).rejects.toBeDefined();
+        });
+
+        it('filtrar_por rejeita quando vetor é undefined', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(filtrar_por(interpretador as any, undefined as any, {} as any)).rejects.toBeDefined();
+        });
+
+        it('filtrar_por rejeita quando primeiro parâmetro não é vetor', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect(filtrar_por(interpretador as any, 'not array' as any, {} as any)).rejects.toBeDefined();
+        });
+
+        it('inteiro rejeita quando input passa isNaN mas falha regex test', async () => {
+            const interpretador = criarInterpretadorMock();
+            // String que contém números mas não passa no regex
+            await expect(inteiro(interpretador as any, '1.2.3' as any)).rejects.toBeDefined();
+        });
+
+        it('aleatorio_entre rejeita quando segundo argumento não é número (2 args)', async () => {
+            const interpretador = criarInterpretadorMock();
+            await expect((aleatorio_entre as any)(interpretador, 'not a number')).rejects.toBeDefined();
+        });
+
+        it('algum itera sobre todos os elementos até algum retornar true', async () => {
+            const interpretador = criarInterpretadorMock();
+            const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
+            // Mock que retorna false para 3 primeiras chamadas, true na última
+            fakeFunc.chamar = jest.fn()
+                .mockResolvedValueOnce(false)
+                .mockResolvedValueOnce(false)
+                .mockResolvedValueOnce(false)
+                .mockResolvedValueOnce(true);
+            const resultado = await algum(interpretador, [1,2,3,4], fakeFunc);
+            expect(resultado).toBe(true);
+            // Verify it was called 4 times (iterated through the loop)
+            expect(fakeFunc.chamar).toHaveBeenCalledTimes(4);
+        });
+
+        it('encontrar retorna elemento quando encontra (não necessariamente primeira iteração)', async () => {
+            const interpretador = criarInterpretadorMock();
+            const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
+            // Mock que retorna false,false, then true
+            fakeFunc.chamar = jest.fn()
+                .mockResolvedValueOnce(false)
+                .mockResolvedValueOnce(false)
+                .mockResolvedValueOnce(true);
+            const resultado = await encontrar(interpretador, [10,20,30], fakeFunc);
+            expect(resultado).toBe(30);
+            // Verify it iterated 3 times through the loop
+            expect(fakeFunc.chamar).toHaveBeenCalledTimes(3);
+        });
+
+        it('encontrar_ultimo_indice retorna null quando não encontra nenhum (todas as chamadas false)', async () => {
+            const interpretador = criarInterpretadorMock();
+            const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
+            // Mock que sempre retorna false - will iterate through all 5 elements
+            fakeFunc.chamar = jest.fn().mockResolvedValue(false);
+            const idx = await encontrar_ultimo_indice(interpretador, [1,2,3,4,5], fakeFunc);
+            expect(idx).toBeNull();
+            // Verify it iterated 5 times (going backwards through array)
+            expect(fakeFunc.chamar).toHaveBeenCalledTimes(5);
+        });
+
+        it('inteiro rejeita quando texto passa isNaN mas não passa regex', async () => {
+            const interpretador = criarInterpretadorMock();
+            // String "abc" passará isNaN (não é número) mas falhará no regex /^(-)?\d+(\.\d+)?$/
+            await expect(inteiro(interpretador as any, 'abc' as any)).rejects.toBeDefined();
+        });
+
+        it('inteiro rejeita quando texto passa isNaN mas não passa regex (invalid format)', async () => {
+            const interpretador = criarInterpretadorMock();
+            // String "12.34.56" passará isNaN mas falhará no regex
+            await expect(inteiro(interpretador as any, '12.34.56' as any)).rejects.toBeDefined();
+        });
+
+        it('inteiro rejeita números que falham no regex mas passam isNaN', async () => {
+            const interpretador = criarInterpretadorMock();
+            // boolean true: isNaN(true) = false (coerce to 1), mas regex falha em "true"
+            await expect(inteiro(interpretador as any, true as any)).rejects.toBeDefined();
+        });
+
+        it('algum mantém iterando se nenhum retorna verdadeiro', async () => {
+            const interpretador = criarInterpretadorMock();
+            const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
+            // Todas as 6 chamadas retornam false
+            fakeFunc.chamar = jest.fn().mockResolvedValue(false);
+            const resultado = await algum(interpretador, [1,2,3,4,5,6], fakeFunc);
+            expect(resultado).toBe(false);
+            // Verify completo loop
+            expect(fakeFunc.chamar).toHaveBeenCalledTimes(6);
+        });
+
+        it('encontrar retorna null quando nenhum elemento satisfaz', async () => {
+            const interpretador = criarInterpretadorMock();
+            const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
+            // Todas as chamadas retornam false
+            fakeFunc.chamar = jest.fn().mockResolvedValue(false);
+            const resultado = await encontrar(interpretador, [1,2,3], fakeFunc);
+            expect(resultado).toBeNull();
+        });
+
+        it('encontrar_ultimo retorna null quando nenhum elemento satisfaz', async () => {
+            const interpretador = criarInterpretadorMock();
+            const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
+            // Todas as chamadas retornam false
+            fakeFunc.chamar = jest.fn().mockResolvedValue(false);
+            const resultado = await encontrar_ultimo(interpretador, [1,2,3,4], fakeFunc);
+            expect(resultado).toBeNull();
+        });
+    });
