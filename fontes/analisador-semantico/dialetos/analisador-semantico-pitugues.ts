@@ -37,6 +37,7 @@ import { ParametroInterface, SimboloInterface } from '../../interfaces';
 import { DiagnosticoAnalisadorSemantico, DiagnosticoSeveridade } from '../../interfaces/erros';
 import { RetornoAnalisadorSemantico } from '../../interfaces/retornos/retorno-analisador-semantico';
 import { RetornoQuebra } from '../../quebras';
+import { buscarRetornos } from '../../avaliador-sintatico/comum';
 import { AnalisadorSemanticoBase } from '../analisador-semantico-base';
 import { EscopoVariavel } from '../escopo-variavel';
 import { FuncaoHipoteticaInterface } from '../funcao-hipotetica-interface';
@@ -1071,15 +1072,36 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                 }
             }
 
-            let funcaoContemRetorno = declaracao.funcao.corpo.find(
-                (c) => c instanceof Retorna
-            ) as Retorna;
+            const retornos = declaracao.funcao.corpo.flatMap((c) => buscarRetornos(c));
+            // Filtra retornos com tipo 'qualquer' (não determinado em tempo de análise sintática)
+            const retornosComTipoIndeterminado = retornos.filter(
+                (retorno) => retorno.valor !== null &&
+                             retorno.valor !== undefined &&
+                             retorno.tipo === 'qualquer'
+            );
 
-            if (funcaoContemRetorno && funcaoContemRetorno.valor) {
-                if (tipoRetornoFuncao === 'vazio') {
-                    this.erro(declaracao.simbolo, `A função não pode ter nenhum tipo de retorno.`);
+            // Se a função é 'vazio' e há retornos com tipo indeterminado,
+            // tenta inferir o tipo e fornece mensagem útil ao desenvolvedor
+            if (tipoRetornoFuncao === 'vazio' && declaracao.funcao.tipoExplicito && retornosComTipoIndeterminado.length > 0) {
+                const retornoComValor = retornosComTipoIndeterminado[0];
+                const tipoInferido = this.obterTipoExpressao(retornoComValor.valor);
+
+                if (tipoInferido && tipoInferido !== 'qualquer') {
+                    this.erro(
+                        declaracao.simbolo,
+                        `A função não pode ter nenhum tipo de retorno. Tipo inferido do retorno: '${tipoInferido}'.`
+                    );
                 } else {
-                    const tipoValor = typeof funcaoContemRetorno.valor.valor;
+                    this.erro(declaracao.simbolo, `A função não pode ter nenhum tipo de retorno.`);
+                }
+            } else {
+                // Verifica tipos de retorno para funções não-vazio
+                const retornoComValor = retornos.find(
+                    (retorno) => retorno.valor !== null && retorno.valor !== undefined
+                );
+
+                if (retornoComValor) {
+                    const tipoValor = typeof retornoComValor.valor?.valor;
                     if (!['qualquer'].includes(tipoRetornoFuncao)) {
                         if (tipoValor === 'string' && tipoRetornoFuncao !== 'texto') {
                             this.erro(

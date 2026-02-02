@@ -133,6 +133,25 @@ describe('Analisador semântico', () => {
             expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
         });
 
+        it('Função sem tipo de retorno explícito com retorno de valor', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'funcao f(x, a, b) {',
+                    '    retorna a * x + b',
+                    '}',
+                    'escreva(f(1, 2, 3))',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+
         it('Absoluto', async () => {
             const retornoLexador = lexador.mapear(
                 [
@@ -304,6 +323,27 @@ describe('Analisador semântico', () => {
             expect(retornoAnalisadorSemantico).toBeTruthy();
             expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe(
                 "Esperado retorno do tipo 'inteiro' dentro da função."
+            );
+        });
+
+        it('Retorno de valor com tipo vazio explícito', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'funcao f(x, a, b): vazio {',
+                    '    retorna a * x + b',
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
+            expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe(
+                'A função não pode ter nenhum tipo de retorno.'
             );
         });
 

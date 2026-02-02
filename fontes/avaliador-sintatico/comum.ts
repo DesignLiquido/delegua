@@ -75,7 +75,9 @@ export function logicaDescobertaRetornoFuncao(
     }
 
     if (tipoRetorno === 'vazio' && expressoesRetorna.length > 0) {
-        const retornosNaoVazios = expressoesRetorna.filter((e) => e.tipo !== 'vazio');
+        // Filtra retornos que têm tipo conhecido e diferente de 'vazio'.
+        // 'qualquer' é excluído pois o tipo não pode ser determinado em tempo de análise sintática.
+        const retornosNaoVazios = expressoesRetorna.filter((e) => e.tipo !== 'vazio' && e.tipo !== 'qualquer');
         if (retornosNaoVazios.length > 0) {
             throw avaliadorSintatico.erro(
                 retornosNaoVazios[0].simboloChave,
