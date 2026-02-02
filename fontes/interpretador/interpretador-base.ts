@@ -75,7 +75,7 @@ import {
     Isto,
     Binario,
 } from '../construtos';
-import { ErroInterpretador } from '../interfaces/erros/erro-interpretador';
+import { ErroInterpretadorInterface } from '../interfaces/erros/erro-interpretador-interface';
 import { RetornoInterpretadorInterface } from '../interfaces/retornos/retorno-interpretador-interface';
 import { EscopoExecucao } from '../interfaces/escopo-execucao';
 import { PilhaEscoposExecucao } from './pilha-escopos-execucao';
@@ -116,7 +116,7 @@ import primitivasVetor from '../bibliotecas/primitivas-vetor';
  */
 export class InterpretadorBase implements InterpretadorInterface {
     diretorioBase: string;
-    erros: ErroInterpretador[];
+    erros: ErroInterpretadorInterface[];
     declaracoes: Declaracao[];
     resultadoInterpretador: ResultadoParcialInterpretadorInterface[] = [];
     linhaDeclaracaoAtual: number;

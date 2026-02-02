@@ -2893,6 +2893,7 @@ export class AvaliadorSintatico
         }
 
         for (let [indice, identificador] of identificadores.entries()) {
+            const tipoOriginal = tipo; // Preserva o tipo antes da inferência
             tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(
                 inicializadores[indice],
                 tipo
@@ -2917,7 +2918,8 @@ export class AvaliadorSintatico
                     inicializadores[indice],
                     tipo,
                     tipoExplicito,
-                    Array.from(this.pilhaDecoradores)
+                    Array.from(this.pilhaDecoradores),
+                    tipoOriginal // Passa o tipo original para o construtor
                 )
             );
         }

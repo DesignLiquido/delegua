@@ -1945,4 +1945,98 @@ describe('Analisador semântico', () => {
             expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
         });
     });
+
+    describe('Sugestões de tipo (Quick Fixes)', () => {
+        it('Sugestão - tipo qualquer pode ser inferido para número', async () => {
+            const retornoLexador = lexador.mapear(
+                ['var a: qualquer = 1', 'escreva(a)'],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
+
+            const sugestao = retornoAnalisadorSemantico.diagnosticos[0];
+            expect(sugestao.severidade).toBe(DiagnosticoSeveridade.SUGESTAO);
+            expect(sugestao.mensagem).toBe('Um tipo melhor pode ser inferido.');
+            expect(sugestao.correcoes).toBeDefined();
+            expect(sugestao.correcoes).toHaveLength(1);
+            expect(sugestao.correcoes[0].titulo).toBe("Alterar tipo para 'número'");
+            expect(sugestao.correcoes[0].textoOriginal).toBe('qualquer');
+            expect(sugestao.correcoes[0].textoSubstituto).toBe('número');
+        });
+
+        it('Sugestão - tipo qualquer pode ser inferido para texto', async () => {
+            const retornoLexador = lexador.mapear(
+                ['var b: qualquer = "hello"', 'escreva(b)'],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
+
+            const sugestao = retornoAnalisadorSemantico.diagnosticos[0];
+            expect(sugestao.severidade).toBe(DiagnosticoSeveridade.SUGESTAO);
+            expect(sugestao.correcoes[0].titulo).toBe("Alterar tipo para 'texto'");
+            expect(sugestao.correcoes[0].textoSubstituto).toBe('texto');
+        });
+
+        it('Sem sugestão - tipo já é específico', async () => {
+            const retornoLexador = lexador.mapear(
+                ['var c: inteiro = 1', 'escreva(c)'],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+
+        it('Sem sugestão - tipo qualquer sem inicializador', async () => {
+            const retornoLexador = lexador.mapear(
+                ['var d: qualquer', 'escreva(d)'],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            // Pode ter aviso sobre variável não inicializada, mas não deve ter sugestão de tipo
+            const sugestoes = retornoAnalisadorSemantico.diagnosticos.filter(
+                d => d.severidade === DiagnosticoSeveridade.SUGESTAO
+            );
+            expect(sugestoes).toHaveLength(0);
+        });
+
+        it('Sem sugestão - tipo qualquer inferido implicitamente (não explícito)', async () => {
+            const retornoLexador = lexador.mapear(
+                ['var e = 1', 'escreva(e)'],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            // Não deve ter sugestão porque o tipo não foi explicitamente declarado como qualquer
+            const sugestoes = retornoAnalisadorSemantico.diagnosticos.filter(
+                d => d.severidade === DiagnosticoSeveridade.SUGESTAO
+            );
+            expect(sugestoes).toHaveLength(0);
+        });
+    });
 });

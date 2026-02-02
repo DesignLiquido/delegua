@@ -119,6 +119,27 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
         });
     }
 
+    sugestao(
+        simbolo: SimboloInterface,
+        mensagem: string,
+        correcoes: import('../interfaces/erros').CorrecaoSugeridaInterface[]
+    ): void {
+        if (this.diagnosticoJaExiste(simbolo, mensagem)) {
+            return;
+        }
+
+        this.diagnosticos.push({
+            simbolo: simbolo,
+            mensagem: mensagem,
+            hashArquivo: simbolo.hashArquivo,
+            linha: simbolo.linha,
+            severidade: DiagnosticoSeveridade.SUGESTAO,
+            colunaInicio: correcoes[0]?.colunaInicio,
+            colunaFim: correcoes[0]?.colunaFim,
+            correcoes: correcoes,
+        });
+    }
+
      /**
      * Marca as variáveis usadas em uma expressão.
      */

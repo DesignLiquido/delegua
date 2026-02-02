@@ -1108,6 +1108,25 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             tipoInferido = this.obterTipoExpressao(declaracao.inicializador);
         }
 
+        // Sugestão de tipo melhor quando 'qualquer' é usado explicitamente
+        if (declaracao.tipoExplicito && declaracao.tipoOriginal === 'qualquer' && declaracao.inicializador) {
+            const tipoMelhor = this.obterTipoExpressao(declaracao.inicializador);
+            if (tipoMelhor && tipoMelhor !== 'qualquer') {
+                this.sugestao(
+                    declaracao.simbolo,
+                    'Um tipo melhor pode ser inferido.',
+                    [{
+                        titulo: `Alterar tipo para '${tipoMelhor}'`,
+                        textoOriginal: 'qualquer',
+                        textoSubstituto: tipoMelhor,
+                        linha: declaracao.simbolo.linha,
+                        colunaInicio: 0,
+                        colunaFim: 0,
+                    }]
+                );
+            }
+        }
+
         const variavel: EscopoVariavel = {
             nome: declaracao.simbolo.lexema,
             tipo: tipoInferido || 'qualquer',

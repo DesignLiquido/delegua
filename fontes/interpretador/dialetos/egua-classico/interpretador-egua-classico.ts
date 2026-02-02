@@ -61,7 +61,7 @@ import {
     SimboloInterface,
     VariavelInterface,
 } from '../../../interfaces';
-import { ErroInterpretador } from '../../../interfaces/erros/erro-interpretador';
+import { ErroInterpretadorInterface } from '../../../interfaces/erros/erro-interpretador-interface';
 import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
 import { RetornoInterpretadorInterface } from '../../../interfaces/retornos/retorno-interpretador-interface';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../../../quebras';
@@ -91,7 +91,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     diretorioBase: any;
     funcaoDeRetorno: Function;
     locais: Map<Construto, number>;
-    erros: ErroInterpretador[];
+    erros: ErroInterpretadorInterface[];
     pilhaEscoposExecucao: PilhaEscoposExecucao;
     interfaceEntradaSaida: any = null;
     hashArquivoDeclaracaoAtual: number;

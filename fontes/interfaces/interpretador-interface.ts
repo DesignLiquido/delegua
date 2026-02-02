@@ -1,14 +1,14 @@
 import { Construto } from '../construtos';
 import { Declaracao } from '../declaracoes';
 import { EspacoMemoria } from '../interpretador/espaco-memoria';
-import { ErroInterpretador } from './erros/erro-interpretador';
+import { ErroInterpretadorInterface } from './erros/erro-interpretador-interface';
 import { PilhaEscoposExecucaoInterface } from './pilha-escopos-execucao-interface';
 
 import { RetornoInterpretadorInterface } from './retornos/retorno-interpretador-interface';
 import { VisitanteComumInterface } from './visitante-comum-interface';
 
 export interface InterpretadorInterface extends VisitanteComumInterface {
-    erros: ErroInterpretador[];
+    erros: ErroInterpretadorInterface[];
     diretorioBase: any;
     funcaoDeRetorno: Function;
     pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
