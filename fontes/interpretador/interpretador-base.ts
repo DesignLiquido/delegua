@@ -155,6 +155,8 @@ export class InterpretadorBase implements InterpretadorInterface {
         tipoDeDadosDelegua.REAL,
     ];
 
+    lancarErroPorDivisaoPorZero = false;
+
     constructor(
         diretorioBase: string,
         performance = false,
@@ -836,6 +838,15 @@ export class InterpretadorBase implements InterpretadorInterface {
             case tiposDeSimbolos.DIVISAO:
             case tiposDeSimbolos.DIVISAO_IGUAL:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+
+                if (this.lancarErroPorDivisaoPorZero && Number(valorDireito) === 0) {
+                    throw new ErroEmTempoDeExecucao(
+                        expressao.operador,
+                        'Divisão por zero não é permitida.',
+                        expressao.operador.linha
+                    );
+                }
+
                 // SEMPRE retorna Number para precisão decimal (preferência do usuário)
                 // Mesmo se operandos forem BigInt, converte para Number
                 return Number(valorEsquerdo) / Number(valorDireito);
@@ -843,6 +854,15 @@ export class InterpretadorBase implements InterpretadorInterface {
             case tiposDeSimbolos.DIVISAO_INTEIRA:
             case tiposDeSimbolos.DIVISAO_INTEIRA_IGUAL:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+
+                if (this.lancarErroPorDivisaoPorZero && valorDireito === 0) {
+                    throw new ErroEmTempoDeExecucao(
+                        expressao.operador,
+                        'Divisão por zero não é permitida.',
+                        expressao.operador.linha
+                    );
+                }
+
                 // Retorna BigInt se qualquer operando for BigInt
                 if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
                     const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
