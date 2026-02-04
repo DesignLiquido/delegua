@@ -17,6 +17,16 @@ import { ErroEmTempoDeExecucao } from '../../../excecoes';
 import * as comum from './comum';
 
 export class InterpretadorPitugues extends Interpretador {
+    constructor(
+        diretorioBase: string,
+        performance = false,
+        funcaoDeRetorno: Function = null,
+        funcaoDeRetornoMesmaLinha: Function = null
+    ) {
+        super(diretorioBase, performance, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
+        this.lancarErroPorDivisaoPorZero = true;
+    }
+
     override async visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> {
         return comum.visitarExpressaoAcessoMetodo(this, expressao);
     }

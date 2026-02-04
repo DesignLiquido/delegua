@@ -4112,6 +4112,26 @@ describe('Interpretador (Pituguês)', () => {
                     expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
                 });
             });
+
+            it('Lançando erro quando a divisão de um número é por zero', async () => {
+                const codigo = ["escreva(10 / 0)"];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                expect(retornoInterpretador.erros).toHaveLength(1);
+                expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe('Divisão por zero não é permitida.');
+            });
+
+            it('Lançando erro quando a divisão inteira de um número é por zero', async () => {
+                const codigo = ["escreva(10 // 0)"];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                expect(retornoInterpretador.erros).toHaveLength(1);
+                expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe('Divisão por zero não é permitida.');
+            });
         });
 
         describe('Métodos de primitivas com dependência no interpretador', () => {
