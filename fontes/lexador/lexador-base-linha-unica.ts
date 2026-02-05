@@ -83,8 +83,13 @@ export abstract class LexadorBaseLinhaUnica implements LexadorInterface<SimboloI
 
     adicionarSimbolo(tipo: any, literal?: any): void {
         const texto: string = this.codigo.substring(this.inicioSimbolo, this.atual);
+        const lexema = literal || texto;
+        const comprimentoLexema = typeof lexema === 'string' ? lexema.length : 0;
+        const comprimento = Math.max(comprimentoLexema, texto.length) || 1;
+        const colunaInicio = this.inicioSimbolo + 1;
+        const colunaFim = this.inicioSimbolo + comprimento;
         this.simbolos.push(
-            new Simbolo(tipo, literal || texto, literal, this.linha + 1, this.hashArquivo)
+            new Simbolo(tipo, lexema, literal, this.linha + 1, this.hashArquivo, colunaInicio, colunaFim)
         );
     }
 

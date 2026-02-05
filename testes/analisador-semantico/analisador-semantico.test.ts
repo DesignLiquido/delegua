@@ -1965,9 +1965,15 @@ describe('Analisador semântico', () => {
             expect(sugestao.mensagem).toBe('Um tipo melhor pode ser inferido.');
             expect(sugestao.correcoes).toBeDefined();
             expect(sugestao.correcoes).toHaveLength(1);
-            expect(sugestao.correcoes[0].titulo).toBe("Alterar tipo para 'número'");
-            expect(sugestao.correcoes[0].textoOriginal).toBe('qualquer');
-            expect(sugestao.correcoes[0].textoSubstituto).toBe('número');
+            const primeiraCorrecao = sugestao.correcoes![0];
+            expect(primeiraCorrecao.titulo).toBe("Alterar tipo para 'número'");
+            expect(primeiraCorrecao.textoOriginal).toBe('qualquer');
+            expect(primeiraCorrecao.textoSubstituto).toBe('número');
+            // 'a' está na coluna 5
+            expect(primeiraCorrecao.colunaInicio).toBe(5);
+            expect(primeiraCorrecao.colunaFim).toBe(5);
+            expect(sugestao.colunaInicio).toBe(5);
+            expect(sugestao.colunaFim).toBe(5);
         });
 
         it('Sugestão - tipo qualquer pode ser inferido para texto', async () => {
@@ -1985,8 +1991,12 @@ describe('Analisador semântico', () => {
 
             const sugestao = retornoAnalisadorSemantico.diagnosticos[0];
             expect(sugestao.severidade).toBe(DiagnosticoSeveridade.SUGESTAO);
-            expect(sugestao.correcoes[0].titulo).toBe("Alterar tipo para 'texto'");
-            expect(sugestao.correcoes[0].textoSubstituto).toBe('texto');
+            const primeiraCorrecao = sugestao.correcoes![0];
+            expect(primeiraCorrecao.titulo).toBe("Alterar tipo para 'texto'");
+            expect(primeiraCorrecao.textoSubstituto).toBe('texto');
+            // 'b' está na coluna 5
+            expect(primeiraCorrecao.colunaInicio).toBe(5);
+            expect(primeiraCorrecao.colunaFim).toBe(5);
         });
 
         it('Sem sugestão - tipo já é específico', async () => {

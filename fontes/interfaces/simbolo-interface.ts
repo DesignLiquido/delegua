@@ -4,4 +4,6 @@ export interface SimboloInterface<TTipo = string> {
     literal: string;
     linha: number;
     hashArquivo: number;
+    colunaInicio?: number;
+    colunaFim?: number;
 }

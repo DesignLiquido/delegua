@@ -1120,8 +1120,8 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                         textoOriginal: 'qualquer',
                         textoSubstituto: tipoMelhor,
                         linha: declaracao.simbolo.linha,
-                        colunaInicio: 0,
-                        colunaFim: 0,
+                        colunaInicio: declaracao.simbolo.colunaInicio,
+                        colunaFim: declaracao.simbolo.colunaFim,
                     }]
                 );
             }

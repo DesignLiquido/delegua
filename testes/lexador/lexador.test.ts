@@ -267,6 +267,128 @@ describe('Lexador', () => {
             });
         });
 
+        describe('Informações de coluna (colunaInicio e colunaFim)', () => {
+            it('Identificador simples - colunaInicio e colunaFim corretas', () => {
+                const resultado = lexador.mapear(['var x = 10'], -1);
+
+                expect(resultado).toBeTruthy();
+                // 'var' na coluna 1-3
+                expect(resultado.simbolos[0]).toEqual(
+                    expect.objectContaining({
+                        tipo: tiposDeSimbolos.VARIAVEL,
+                        colunaInicio: 1,
+                        colunaFim: 3,
+                    })
+                );
+                // 'x' na coluna 5
+                expect(resultado.simbolos[1]).toEqual(
+                    expect.objectContaining({
+                        tipo: tiposDeSimbolos.IDENTIFICADOR,
+                        colunaInicio: 5,
+                        colunaFim: 5,
+                    })
+                );
+                // '=' na coluna 7
+                expect(resultado.simbolos[2]).toEqual(
+                    expect.objectContaining({
+                        tipo: tiposDeSimbolos.IGUAL,
+                        colunaInicio: 7,
+                        colunaFim: 7,
+                    })
+                );
+                // '10' na coluna 9-10
+                expect(resultado.simbolos[3]).toEqual(
+                    expect.objectContaining({
+                        tipo: tiposDeSimbolos.NUMERO,
+                        colunaInicio: 9,
+                        colunaFim: 10,
+                    })
+                );
+            });
+
+            it('Operadores compostos - colunaInicio e colunaFim corretas', () => {
+                const resultado = lexador.mapear(['a >= b'], -1);
+
+                expect(resultado).toBeTruthy();
+                // 'a' na coluna 1
+                expect(resultado.simbolos[0]).toEqual(
+                    expect.objectContaining({
+                        tipo: tiposDeSimbolos.IDENTIFICADOR,
+                        colunaInicio: 1,
+                        colunaFim: 1,
+                    })
+                );
+                // '>=' na coluna 3-4
+                expect(resultado.simbolos[1]).toEqual(
+                    expect.objectContaining({
+                        tipo: tiposDeSimbolos.MAIOR_IGUAL,
+                        colunaInicio: 3,
+                        colunaFim: 4,
+                    })
+                );
+                // 'b' na coluna 6
+                expect(resultado.simbolos[2]).toEqual(
+                    expect.objectContaining({
+                        tipo: tiposDeSimbolos.IDENTIFICADOR,
+                        colunaInicio: 6,
+                        colunaFim: 6,
+                    })
+                );
+            });
+
+            it('Texto (string) - colunaInicio e colunaFim corretas', () => {
+                const resultado = lexador.mapear(['"ola"'], -1);
+
+                expect(resultado).toBeTruthy();
+                // '"ola"' abrange colunas 1-5
+                expect(resultado.simbolos[0]).toEqual(
+                    expect.objectContaining({
+                        tipo: tiposDeSimbolos.TEXTO,
+                        colunaInicio: 1,
+                        colunaFim: 5,
+                    })
+                );
+            });
+
+            it('Múltiplas linhas - cada linha tem colunas independentes', () => {
+                const resultado = lexador.mapear(['var a = 1', 'var b = 2'], -1);
+
+                expect(resultado).toBeTruthy();
+                // Primeira linha: 'var' col 1-3, 'a' col 5, '=' col 7, '1' col 9
+                expect(resultado.simbolos[0]).toEqual(
+                    expect.objectContaining({
+                        tipo: tiposDeSimbolos.VARIAVEL,
+                        linha: 1,
+                        colunaInicio: 1,
+                        colunaFim: 3,
+                    })
+                );
+                // Segunda linha: 'var' col 1-3 (coluna reinicia)
+                expect(resultado.simbolos[4]).toEqual(
+                    expect.objectContaining({
+                        tipo: tiposDeSimbolos.VARIAVEL,
+                        linha: 2,
+                        colunaInicio: 1,
+                        colunaFim: 3,
+                    })
+                );
+            });
+
+            it('Número decimal - colunaInicio e colunaFim corretas', () => {
+                const resultado = lexador.mapear(['3.14'], -1);
+
+                expect(resultado).toBeTruthy();
+                // '3.14' na coluna 1-4
+                expect(resultado.simbolos[0]).toEqual(
+                    expect.objectContaining({
+                        tipo: tiposDeSimbolos.NUMERO,
+                        colunaInicio: 1,
+                        colunaFim: 4,
+                    })
+                );
+            });
+        });
+
         describe('Cenários de falha', () => {
             it('Falha léxica - texto sem fim', () => {
                 const resultado = lexador.mapear(['"texto sem fim'], -1);

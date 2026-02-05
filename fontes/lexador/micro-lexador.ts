@@ -69,7 +69,12 @@ export class MicroLexador {
 
     adicionarSimbolo(tipo: string, literal: any = null): void {
         const texto: string = this.codigo.substring(this.inicioSimbolo, this.atual);
-        this.simbolos.push(new Simbolo(tipo, literal || texto, literal, 1, -1));
+        const lexema = literal || texto;
+        const comprimentoLexema = typeof lexema === 'string' ? lexema.length : 0;
+        const comprimento = Math.max(comprimentoLexema, texto.length) || 1;
+        const colunaInicio = this.inicioSimbolo + 1;
+        const colunaFim = this.inicioSimbolo + comprimento;
+        this.simbolos.push(new Simbolo(tipo, lexema, literal, 1, -1, colunaInicio, colunaFim));
     }
 
     analisarTexto(delimitador = '"'): void {
