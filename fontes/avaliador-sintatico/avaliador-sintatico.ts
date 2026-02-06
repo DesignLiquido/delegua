@@ -2567,6 +2567,14 @@ export class AvaliadorSintatico
             case Chamada:
                 const construtoChamada = expressaoInicializacao as Chamada;
                 switch (construtoChamada.entidadeChamada.constructor) {
+                    case AcessoMetodo:
+                        const entidadeChamadaAcessoMetodo =
+                            construtoChamada.entidadeChamada as AcessoMetodo;
+                        tipoInicializacao = entidadeChamadaAcessoMetodo.tipoRetornoMetodo.replace(
+                            '<T>',
+                            entidadeChamadaAcessoMetodo.objeto.tipo
+                        );
+                        break;
                     case Variavel:
                         const entidadeChamadaVariavel =
                             construtoChamada.entidadeChamada as Variavel;
@@ -2721,14 +2729,16 @@ export class AvaliadorSintatico
                                 entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema in
                                 tipoCorrespondente.metodos
                             ) {
-                                return tipoCorrespondente.metodos[
+                                const metodoCorrespondente = tipoCorrespondente.metodos[
                                     entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema
-                                ].tipo;
+                                ];
+                                return metodoCorrespondente.tipoRetorno || 'qualquer';
                             }
 
-                            return tipoCorrespondente.propriedades[
+                            const propriedadeCorrespondente = tipoCorrespondente.propriedades[
                                 entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema
-                            ].tipo;
+                            ];
+                            return propriedadeCorrespondente.tipo;
                         }
 
                         // Este caso ocorre quando a variável/constante é do tipo 'qualquer',

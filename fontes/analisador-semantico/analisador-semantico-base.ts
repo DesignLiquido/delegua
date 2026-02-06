@@ -66,6 +66,7 @@ import {
     TextoDocumentacao,
 } from '../declaracoes';
 import {
+    CorrecaoSugeridaInterface,
     DiagnosticoAnalisadorSemantico,
     DiagnosticoSeveridade,
     SimboloInterface,
@@ -122,7 +123,7 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     sugestao(
         simbolo: SimboloInterface,
         mensagem: string,
-        correcoes: import('../interfaces/erros').CorrecaoSugeridaInterface[]
+        correcoes: CorrecaoSugeridaInterface[]
     ): void {
         if (this.diagnosticoJaExiste(simbolo, mensagem)) {
             return;
