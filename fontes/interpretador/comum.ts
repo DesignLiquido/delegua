@@ -56,7 +56,7 @@ export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExe
 
     pilhaEscoposExecucao.definirVariavel('longo', new FuncaoPadrao(1, bibliotecaGlobal.longo));
 
-    pilhaEscoposExecucao.definirVariavel('intervalo', new FuncaoPadrao(2, bibliotecaGlobal.intervalo));
+    pilhaEscoposExecucao.definirVariavel('intervalo', new FuncaoPadrao(1, bibliotecaGlobal.intervalo));
 
     pilhaEscoposExecucao.definirVariavel('mapear', new FuncaoPadrao(2, bibliotecaGlobal.mapear));
 

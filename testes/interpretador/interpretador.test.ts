@@ -1005,6 +1005,48 @@ describe('Interpretador', () => {
                     expect(_saida).toBeTruthy();
                     expect(_saida).toBe('[0, 1, 2]');
                 });
+
+                it('Chamada a função nativa intervalo sem início definido', async () => {
+                    let _saida: string = '';
+
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'escreva(intervalo(10))'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saida = saida;
+                    };
+
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(_saida).toBeTruthy();
+                    expect(_saida).toBe('[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]');
+                });
+
+                it('Chamada a função nativa intervalo com passo definido', async () => {
+                    let _saida: string = '';
+
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'escreva(intervalo(0, 10, 2))'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saida = saida;
+                    };
+
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(_saida).toBeTruthy();
+                    expect(_saida).toBe('[0, 2, 4, 6, 8]');
+                });
             });
 
             describe('Conversões entre tipos', () => {
