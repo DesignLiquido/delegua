@@ -2301,7 +2301,8 @@ export class AvaliadorSintaticoPitugues
             'intervalo',
             new InformacaoElementoSintatico('intervalo', 'inteiro[]', true, [
                 new InformacaoElementoSintatico('valorInicial', 'qualquer'),
-                new InformacaoElementoSintatico('valorFinal', 'qualquer'),
+                new InformacaoElementoSintatico('valorFinal', 'qualquer', false),
+                new InformacaoElementoSintatico('valorPasso', 'qualquer', false),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
