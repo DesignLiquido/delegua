@@ -8,6 +8,8 @@ import { TipoInferencia, inferirTipoVariavel } from '../inferenciador';
 
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 
+const tiposNumericos = ['inteiro', 'número', 'numero', 'real', 'longo'];
+
 export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
     pilha: EscopoExecucao[];
 
@@ -39,6 +41,12 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
     removerUltimo(): EscopoExecucao {
         if (this.eVazio()) throw new Error('Pilha vazia.');
         return this.pilha.pop();
+    }
+
+    private tiposCompativeis(tipoVariavel: string, tipoValor: string): boolean {
+        if (tipoVariavel === tipoValor) return true;
+        if (tiposNumericos.includes(tipoVariavel) && tiposNumericos.includes(tipoValor as string)) return true;
+        return false;
     }
 
     private converterValor(tipo: string, valor: any) {
@@ -100,7 +108,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         this.pilha[this.pilha.length - 1].espacoMemoria.valores[nomeConstante] = elementoAlvo;
     }
 
-    definirVariavel(nomeVariavel: string, valor: any, tipo?: string) {
+    definirVariavel(nomeVariavel: string, valor: any, tipo?: string, tipoExplicito?: boolean) {
         const variavel = this.pilha[this.pilha.length - 1].espacoMemoria.valores[nomeVariavel];
 
         let tipoVariavel: string;
@@ -124,6 +132,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
             tipo: tipoVariavel,
             subtipo: subtipo,
             imutavel: false,
+            tipoExplicito: tipoExplicito || false,
         };
 
         if ([tipoDeDadosDelegua.VETOR, tipoDeDadosDelegua.TUPLA].includes(tipoVariavel)) {
@@ -144,16 +153,29 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
 
     atribuirVariavelEm(distancia: number, simbolo: any, valor: any): void {
         const espacoMemoriaAncestral = this.pilha[this.pilha.length - distancia].espacoMemoria;
-        if (espacoMemoriaAncestral.valores[simbolo.lexema].imutavel) {
+        const variavel = espacoMemoriaAncestral.valores[simbolo.lexema];
+        if (variavel.imutavel) {
             throw new ErroEmTempoDeExecucao(
                 simbolo,
                 `Constante '${simbolo.lexema}' não pode receber novos valores.`
             );
         }
+
+        if (variavel.tipoExplicito && variavel.tipo !== 'qualquer') {
+            const tipoDoValor = inferirTipoVariavel(valor);
+            if (!this.tiposCompativeis(variavel.tipo, tipoDoValor as string)) {
+                throw new ErroEmTempoDeExecucao(
+                    simbolo,
+                    `Variável '${simbolo.lexema}' é do tipo '${variavel.tipo}' e não pode receber um valor do tipo '${tipoDoValor}'.`
+                );
+            }
+        }
+
         espacoMemoriaAncestral.valores[simbolo.lexema] = {
             valor,
-            tipo: inferirTipoVariavel(valor),
+            tipo: variavel.tipo || inferirTipoVariavel(valor),
             imutavel: false,
+            tipoExplicito: variavel.tipoExplicito,
         };
     }
 
@@ -167,6 +189,16 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
                         simbolo,
                         `Constante '${simbolo.lexema}' não pode receber novos valores.`
                     );
+                }
+
+                if (variavel.tipoExplicito && variavel.tipo !== 'qualquer') {
+                    const tipoDoValor = inferirTipoVariavel(valor);
+                    if (!this.tiposCompativeis(variavel.tipo, tipoDoValor as string)) {
+                        throw new ErroEmTempoDeExecucao(
+                            simbolo,
+                            `Variável '${simbolo.lexema}' é do tipo '${variavel.tipo}' e não pode receber um valor do tipo '${tipoDoValor}'.`
+                        );
+                    }
                 }
 
                 const tipoInferido =
@@ -192,6 +224,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
                         valor: valorResolvido,
                         tipo,
                         imutavel: false,
+                        tipoExplicito: variavel.tipoExplicito,
                     };
                 }
 

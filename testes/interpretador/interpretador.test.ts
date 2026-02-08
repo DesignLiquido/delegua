@@ -3776,5 +3776,107 @@ describe('Interpretador', () => {
                 });
             });
         });
+
+        describe('Verificação de tipos em atribuição', () => {
+            it('Erro ao atribuir número a variável do tipo texto', async () => {
+                const codigo = [
+                    'var nome: texto = "Fernando"',
+                    'nome = 10',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(1);
+                expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe(
+                    "Variável 'nome' é do tipo 'texto' e não pode receber um valor do tipo 'número'."
+                );
+            });
+
+            it('Erro ao atribuir texto a variável do tipo inteiro', async () => {
+                const codigo = [
+                    'var idade: inteiro = 25',
+                    'idade = "vinte"',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(1);
+                expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe(
+                    "Variável 'idade' é do tipo 'inteiro' e não pode receber um valor do tipo 'texto'."
+                );
+            });
+
+            it('Erro ao atribuir texto a variável do tipo lógico', async () => {
+                const codigo = [
+                    'var ativo: lógico = verdadeiro',
+                    'ativo = "sim"',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(1);
+                expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe(
+                    "Variável 'ativo' é do tipo 'lógico' e não pode receber um valor do tipo 'texto'."
+                );
+            });
+
+            it('Variável com tipo qualquer aceita qualquer valor', async () => {
+                const codigo = [
+                    'var x: qualquer = "hello"',
+                    'x = 10',
+                    'escreva(x)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toBe('10');
+            });
+
+            it('Tipos numéricos são compatíveis entre si', async () => {
+                const codigo = [
+                    'var n: número = 10',
+                    'n = 3.14',
+                    'escreva(n)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it('Variável sem tipo explícito aceita qualquer valor', async () => {
+                const codigo = [
+                    'var y = "hello"',
+                    'y = 10',
+                    'escreva(y)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toBe('10');
+            });
+
+            it('Reatribuição com mesmo tipo funciona normalmente', async () => {
+                const codigo = [
+                    'var z: inteiro = 5',
+                    'z = 42',
+                    'escreva(z)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toBe('42');
+            });
+        });
     });
 });

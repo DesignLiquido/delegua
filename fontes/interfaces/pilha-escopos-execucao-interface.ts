@@ -8,7 +8,7 @@ export interface PilhaEscoposExecucaoInterface extends PilhaInterface<EscopoExec
     atribuirVariavel(simbolo: SimboloInterface, valor: any, indice?: number): void;
     atribuirVariavelEm(distancia: number, simbolo: SimboloInterface, valor: any): void;
     definirConstante(nomeConstante: string, valor: any, tipo?: string): void;
-    definirVariavel(nomeVariavel: string, valor: any, tipo?: string): void;
+    definirVariavel(nomeVariavel: string, valor: any, tipo?: string, tipoExplicito?: boolean): void;
     elementos(): number;
     naPosicao(posicao: number): EscopoExecucao;
     obterEscopoPorTipo(idChamada: string): EscopoExecucao | undefined;

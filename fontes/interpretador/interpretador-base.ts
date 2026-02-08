@@ -2258,7 +2258,8 @@ export class InterpretadorBase implements InterpretadorInterface {
         this.pilhaEscoposExecucao.definirVariavel(
             declaracao.simbolo.lexema,
             valorFinal,
-            tipoResolvido
+            tipoResolvido,
+            declaracao.tipoExplicito && declaracao.tipoOriginal !== 'qualquer'
         );
 
         // TODO: É relevante registrar uma declaração de variável no
