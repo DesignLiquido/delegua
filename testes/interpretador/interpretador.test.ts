@@ -2651,6 +2651,64 @@ describe('Interpretador', () => {
                     expect(_saidas).toHaveLength(1);
                     expect(_saidas[0]).toBe('Maria');
                 });
+
+                it('Instância criada em escopo interno (se) e atribuída a variável externa permanece válida', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'classe Produto {',
+                            '  nome: texto',
+                            '  preco: numero',
+                            '  construtor(nome, preco) {',
+                            '    isto.nome = nome',
+                            '    isto.preco = preco',
+                            '  }',
+                            '}',
+                            'var produto',
+                            'se (verdadeiro) {',
+                            '  produto = Produto("Notebook", 2500)',
+                            '}',
+                            'escreva(produto.nome)',
+                            'escreva(produto.preco)',
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(2);
+                    expect(_saidas[0]).toBe('Notebook');
+                    expect(_saidas[1]).toBe('2500');
+                });
+
+                it('Instância criada em escopo interno (enquanto) e atribuída a variável externa permanece válida', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'classe Contador {',
+                            '  valor: numero',
+                            '  construtor(valorInicial) {',
+                            '    isto.valor = valorInicial',
+                            '  }',
+                            '}',
+                            'var contador',
+                            'var i = 0',
+                            'enquanto (i < 1) {',
+                            '  contador = Contador(10)',
+                            '  i = i + 1',
+                            '}',
+                            'escreva(contador.valor)',
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('10');
+                });
             });
 
             describe('Declaração e chamada de funções', () => {
