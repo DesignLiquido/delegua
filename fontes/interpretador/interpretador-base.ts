@@ -996,8 +996,9 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             case tiposDeSimbolos.MENOR_MENOR:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                // Auto-promove para BigInt se qualquer operando for BigInt
-                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                // Auto-promove para BigInt (interno para longo) se qualquer operando for BigInt ou se deslocamento >= 32
+                const tamanhoDeslocamentoEsquerda = Number(valorDireito);
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint' || tamanhoDeslocamentoEsquerda >= 32) {
                     const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
                     const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
                     return esq << dir;
@@ -1006,8 +1007,9 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             case tiposDeSimbolos.MAIOR_MAIOR:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                // Auto-promove para BigInt se qualquer operando for BigInt
-                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                // Auto-promove para BigInt (interno para longo) se qualquer operando for BigInt ou se deslocamento >= 32
+                const tamanhoDeslocamentoDireita = Number(valorDireito);
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint' || tamanhoDeslocamentoDireita >= 32) {
                     const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
                     const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
                     return esq >> dir;
