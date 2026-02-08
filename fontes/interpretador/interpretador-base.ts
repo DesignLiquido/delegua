@@ -147,6 +147,11 @@ export class InterpretadorBase implements InterpretadorInterface {
     microAvaliadorSintatico: MicroAvaliadorSintaticoBase = new MicroAvaliadorSintatico();
 
     regexInterpolacao = /\${(.*?)}/g;
+
+    // Número de iterações entre cada cessão de controle ao loop de eventos do JavaScript.
+    // Isso permite que laços de repetição longos ou infinitos não bloqueiem o loop de eventos.
+    private iteracoesParaCederControle = 1000;
+
     private tiposNumericos = [
         tipoDeDadosDelegua.INTEIRO,
         tipoDeDadosDelegua.LONGO,
@@ -192,6 +197,23 @@ export class InterpretadorBase implements InterpretadorInterface {
             emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+    }
+
+    /**
+     * Cede o controle ao loop de eventos do JavaScript.
+     * Usado em laços de repetição para evitar bloqueio do loop de eventos
+     * em iterações longas ou infinitas.
+     */
+    protected async cederControle(iteracoes: number): Promise<void> {
+        if (iteracoes % this.iteracoesParaCederControle === 0) {
+            await new Promise<void>((resolve) => {
+                if (typeof setImmediate !== 'undefined') {
+                    setImmediate(resolve);
+                } else {
+                    setTimeout(resolve, 0);
+                }
+            });
+        }
     }
 
     visitarDeclaracaoTextoDocumentacao(declaracao: TextoDocumentacao): Promise<any> | void {
@@ -1340,6 +1362,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         let retornoExecucao: ResultadoParcialInterpretadorInterface;
+        let iteracoes = 0;
         while (!(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) {
             if (
                 declaracao.condicao !== null &&
@@ -1349,6 +1372,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             }
 
             try {
+                await this.cederControle(++iteracoes);
                 retornoExecucao = await this.executar(declaracao.corpo);
                 if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                     return null;
@@ -1398,11 +1422,13 @@ export class InterpretadorBase implements InterpretadorInterface {
             );
         }
 
+        let iteracoes = 0;
         while (
             !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
             declaracao.posicaoAtual < valorVetorResolvido.length
         ) {
             try {
+                await this.cederControle(++iteracoes);
                 if (declaracao.variavelIteracao instanceof Variavel) {
                     this.pilhaEscoposExecucao.definirVariavel(
                         declaracao.variavelIteracao.simbolo.lexema,
@@ -1483,11 +1509,13 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
         let retornoExecucao: ResultadoParcialInterpretadorInterface;
+        let iteracoes = 0;
         while (
             !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
             this.eVerdadeiro(await this.avaliar(declaracao.condicao))
         ) {
             try {
+                await this.cederControle(++iteracoes);
                 retornoExecucao = await this.executar(declaracao.corpo);
                 if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                     return null;
@@ -1555,8 +1583,10 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     async visitarDeclaracaoFazer(declaracao: Fazer): Promise<any> {
         let retornoExecucao: ResultadoParcialInterpretadorInterface;
+        let iteracoes = 0;
         do {
             try {
+                await this.cederControle(++iteracoes);
                 retornoExecucao = await this.executar(declaracao.caminhoFazer);
                 if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                     return null;

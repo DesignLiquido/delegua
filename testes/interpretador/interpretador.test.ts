@@ -1982,6 +1982,50 @@ describe('Interpretador', () => {
                     expect(_saidas[0]).toBe("[12, 18, 24, 30, 36]");
                 });
 
+                it('enquanto verdadeiro com sustar (laço potencialmente infinito)', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var contador = 0',
+                            'enquanto verdadeiro {',
+                            '    contador++',
+                            '    se contador >= 5000 {',
+                            '        sustar',
+                            '    }',
+                            '}',
+                            'escreva(contador)',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('5000');
+                });
+
+                it('fazer ... enquanto verdadeiro com sustar (laço potencialmente infinito)', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var contador = 0',
+                            'fazer {',
+                            '    contador++',
+                            '    se contador >= 5000 {',
+                            '        sustar',
+                            '    }',
+                            '} enquanto verdadeiro',
+                            'escreva(contador)',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('5000');
+                });
+
                 describe('Para cada', () => {
                     it('para cada - trivial', async () => {
                         const saidasMensagens = ['Valor:  1', 'Valor:  2', 'Valor:  3'];

@@ -14,6 +14,20 @@ import { EspacoMemoria } from '../espaco-memoria';
 import tiposDeSimbolos from '../../tipos-de-simbolos/delegua';
 import tipoDeDadosDelegua from '../../tipos-de-dados/delegua';
 
+const ITERACOES_PARA_CEDER_CONTROLE = 1000;
+
+async function cederControle(iteracoes: number): Promise<void> {
+    if (iteracoes % ITERACOES_PARA_CEDER_CONTROLE === 0) {
+        await new Promise<void>((resolve) => {
+            if (typeof setImmediate !== 'undefined') {
+                setImmediate(resolve);
+            } else {
+                setTimeout(resolve, 0);
+            }
+        });
+    }
+}
+
 async function avaliarArgumentosEscreva(
     interpretador: InterpretadorComDepuracaoInterface,
     argumentos: Construto[]
@@ -166,6 +180,7 @@ export async function visitarDeclaracaoEnquanto(
             return null;
         default:
             let retornoExecucao: any;
+            let iteracoes = 0;
             while (
                 !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
                 !interpretador.pontoDeParadaAtivo &&
@@ -173,6 +188,7 @@ export async function visitarDeclaracaoEnquanto(
             ) {
                 escopoAtual.emLacoRepeticao = true;
                 try {
+                    await cederControle(++iteracoes);
                     retornoExecucao = await interpretador.executar(declaracao.corpo);
                     if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                         return null;
@@ -266,6 +282,7 @@ export async function visitarDeclaracaoPara(
             return null;
         default:
             let retornoExecucao: any;
+            let iteracoes = 0;
             while (
                 !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
                 !interpretador.pontoDeParadaAtivo
@@ -280,6 +297,7 @@ export async function visitarDeclaracaoPara(
                 }
 
                 try {
+                    await cederControle(++iteracoes);
                     retornoExecucao = await interpretador.executar(corpoExecucao);
                     if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                         return null;
