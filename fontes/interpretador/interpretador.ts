@@ -175,6 +175,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             return objeto ? 'verdadeiro' : 'falso';
         }
 
+        if (objeto instanceof ReferenciaMontao) {
+            objeto = this.resolverReferenciaMontao(objeto);
+        }
+
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
         if (objeto instanceof Literal || objeto instanceof Tupla) return objeto.paraTextoSaida();
         if (objeto instanceof ObjetoDeleguaClasse || objeto instanceof DeleguaFuncao)
@@ -608,7 +612,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         );
         await this.executar(declaracao.corpo);
 
-        if (retornoInicializacao instanceof ObjetoDeleguaClasse) {
+        if (retornoInicializacaoResolvido instanceof ObjetoDeleguaClasse) {
             const metodoFinalizar = retornoInicializacaoResolvido.classe.metodos['finalizar'];
             if (metodoFinalizar) {
                 const chamavel = metodoFinalizar.funcaoPorMetodoDeClasse(
@@ -1276,6 +1280,20 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         if (objeto.constructor === Object) {
             objeto[expressao.nome.lexema] = valorResolvido;
         }
+    }
+
+    /**
+     * Instâncias de classes em Delégua são passadas por referência, portanto, são
+     * armazenadas no montão.
+     */
+    override async visitarExpressaoDeChamada(expressao: Chamada): Promise<any> {
+        const resultado = await super.visitarExpressaoDeChamada(expressao);
+        if (resultado instanceof ObjetoDeleguaClasse) {
+            const enderecoMontao = this.montao.adicionarReferencia(resultado);
+            this.pilhaEscoposExecucao.registrarReferenciaMontao(enderecoMontao);
+            return new ReferenciaMontao(enderecoMontao);
+        }
+        return resultado;
     }
 
     /**
