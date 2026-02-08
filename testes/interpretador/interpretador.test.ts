@@ -2597,6 +2597,60 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(_saidas).toHaveLength(1);
                 });
+
+                it('Semântica de referência - duas variáveis apontam para a mesma instância', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'classe Contador {',
+                            '  valor: numero',
+                            '  construtor() {',
+                            '    isto.valor = 0',
+                            '  }',
+                            '  incrementar() {',
+                            '    isto.valor += 1',
+                            '  }',
+                            '}',
+                            'var a = Contador()',
+                            'var b = a',
+                            'b.incrementar()',
+                            'escreva(a.valor)',
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('1');
+                });
+
+                it('Instância retornada de função preserva referência no montão', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'classe Pessoa {',
+                            '  nome: texto',
+                            '  construtor(nome) {',
+                            '    isto.nome = nome',
+                            '  }',
+                            '}',
+                            'funcao criarPessoa(nome) {',
+                            '  retorna Pessoa(nome)',
+                            '}',
+                            'var p = criarPessoa("Maria")',
+                            'escreva(p.nome)',
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('Maria');
+                });
             });
 
             describe('Declaração e chamada de funções', () => {
