@@ -487,8 +487,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         if (entidadeChamada instanceof DeleguaFuncao) {
             parametros = entidadeChamada.declaracao.parametros;
         } else if (entidadeChamada instanceof DescritorTipoClasse) {
-            parametros = entidadeChamada.metodos.inicializacao
-                ? entidadeChamada.metodos.inicializacao.declaracao.parametros
+            const metodoInit = entidadeChamada.metodos.inicializacao;
+            parametros = metodoInit && !Array.isArray(metodoInit)
+                ? metodoInit.declaracao.parametros
                 : [];
         } else {
             parametros = [];
@@ -964,7 +965,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             this.pilhaEscoposExecucao.definirVariavel('super', superClasse);
         }
 
-        const metodos = {};
+        const metodos: { [nome: string]: DeleguaFuncao | DeleguaFuncao[] } = {};
         const definirMetodos = declaracao.metodos;
         for (let i = 0; i < declaracao.metodos.length; i++) {
             const metodoAtual = definirMetodos[i];
@@ -975,7 +976,15 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                 undefined,
                 eInicializador
             );
-            metodos[metodoAtual.simbolo.lexema] = funcao;
+            const nomeMetodo = metodoAtual.simbolo.lexema;
+            if (metodos[nomeMetodo]) {
+                if (!Array.isArray(metodos[nomeMetodo])) {
+                    metodos[nomeMetodo] = [metodos[nomeMetodo] as DeleguaFuncao];
+                }
+                (metodos[nomeMetodo] as DeleguaFuncao[]).push(funcao);
+            } else {
+                metodos[nomeMetodo] = funcao;
+            }
         }
 
         const deleguaClasse = new DescritorTipoClasse(declaracao.simbolo, superClasse, metodos);

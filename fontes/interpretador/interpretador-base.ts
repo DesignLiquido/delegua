@@ -33,6 +33,7 @@ import {
     Chamavel,
     DescritorTipoClasse,
     DeleguaFuncao,
+    MetodoPolimorfico,
     ObjetoDeleguaClasse,
     DeleguaModulo,
     FuncaoPadrao,
@@ -1140,7 +1141,13 @@ export class InterpretadorBase implements InterpretadorInterface {
                 : entidadeChamada.length;
 
             // Completar os argumentos não preenchidos com valores indefinidos.
-            if (argumentos.length < aridade) {
+            // Para métodos polimórficos e classes com construtores polimórficos,
+            // a quantidade original de argumentos é necessária para o despacho
+            // correto da sobrecarga.
+            const ehPolimorfico = entidadeChamada instanceof MetodoPolimorfico ||
+                (entidadeChamada instanceof DescritorTipoClasse &&
+                    entidadeChamada.encontrarMetodo('construtor') instanceof MetodoPolimorfico);
+            if (!ehPolimorfico && argumentos.length < aridade) {
                 const diferenca = aridade - argumentos.length;
                 for (let i = 0; i < diferenca; i++) {
                     argumentos.push({
@@ -1171,7 +1178,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             // então precisamos testar o nome do construtor também.
             if (
                 entidadeChamada instanceof Chamavel ||
-                entidadeChamada.constructor.name === 'DeleguaFuncao'
+                entidadeChamada.constructor.name === 'DeleguaFuncao' ||
+                entidadeChamada.constructor.name === 'MetodoPolimorfico'
             ) {
                 const retornoEntidadeChamada = await entidadeChamada.chamar(this, argumentos);
                 return retornoEntidadeChamada;
@@ -2088,7 +2096,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             this.pilhaEscoposExecucao.definirVariavel('super', superClasse);
         }
 
-        const metodos = {};
+        const metodos: { [nome: string]: DeleguaFuncao | DeleguaFuncao[] } = {};
         const definirMetodos = declaracao.metodos;
         for (let i = 0; i < declaracao.metodos.length; i++) {
             const metodoAtual = definirMetodos[i];
@@ -2099,7 +2107,15 @@ export class InterpretadorBase implements InterpretadorInterface {
                 undefined,
                 eInicializador
             );
-            metodos[metodoAtual.simbolo.lexema] = funcao;
+            const nomeMetodo = metodoAtual.simbolo.lexema;
+            if (metodos[nomeMetodo]) {
+                if (!Array.isArray(metodos[nomeMetodo])) {
+                    metodos[nomeMetodo] = [metodos[nomeMetodo] as DeleguaFuncao];
+                }
+                (metodos[nomeMetodo] as DeleguaFuncao[]).push(funcao);
+            } else {
+                metodos[nomeMetodo] = funcao;
+            }
         }
 
         const descritorTipoClasse: DescritorTipoClasse = new DescritorTipoClasse(
