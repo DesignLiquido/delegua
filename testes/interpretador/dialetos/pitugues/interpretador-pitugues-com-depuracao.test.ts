@@ -92,13 +92,12 @@ describe('Interpretador Pituguês com Depuração', () => {
     });
     it('visitarExpressaoAcessoIndiceVariavel com TuplaN válida', async () => {
                
-        const lit1 = new Literal(1, 1, 'valor1', 'texto');
-        const lit2 = new Literal(1, 2, 'valor2', 'texto');
         const tupla = new TuplaN(1, 6);
         
         jest.spyOn(interpretador, 'avaliar')
         .mockResolvedValueOnce(tupla)
         .mockResolvedValueOnce(0);
+        
         
         jest.spyOn(interpretador, 'resolverValor')
         .mockReturnValueOnce(tupla)
