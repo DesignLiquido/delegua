@@ -1508,8 +1508,20 @@ export async function tamanho(interpretador: InterpretadorInterface, objeto: any
         const metodos = valorObjeto.metodos;
         let tamanho = 0;
 
-        if (metodos.inicializacao && metodos.inicializacao.eInicializador) {
-            tamanho = metodos.inicializacao.declaracao.parametros.length;
+        const metodoInicializacao = metodos.inicializacao;
+        if (metodoInicializacao && !Array.isArray(metodoInicializacao) && metodoInicializacao.eInicializador) {
+            tamanho = metodoInicializacao.declaracao.parametros.length;
+        } else if (Array.isArray(metodoInicializacao)) {
+            // Em caso de construtores sobrecarregados, `metodos.inicializacao` pode ser um array.
+            // Usamos o maior número de parâmetros entre as sobrecargas que são inicializadores.
+            for (const inicializador of metodoInicializacao) {
+                if (inicializador && inicializador.eInicializador && inicializador.declaracao?.parametros) {
+                    const aridade = inicializador.declaracao.parametros.length;
+                    if (aridade > tamanho) {
+                        tamanho = aridade;
+                    }
+                }
+            }
         }
 
         return Promise.resolve(tamanho);
