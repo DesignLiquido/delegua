@@ -291,6 +291,14 @@ export class AvaliadorSintaticoPitugues
             'Esperado nome de variável.'
         );
 
+        let tipo: string = 'qualquer';
+        let tipoExplicito: boolean = false;
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+            tipo = this.verificarDefinicaoTipoAtual();
+            tipoExplicito = true;
+            this.avancarEDevolverAnterior();
+        }
+
         this.consumir(tiposDeSimbolos.IGUAL, "Esperado '=' após identificador.");
 
         if (this.estaNoFinal()) {
@@ -301,14 +309,16 @@ export class AvaliadorSintaticoPitugues
         }
 
         const valor = await this.expressao();
-        const tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(valor, 'qualquer');
+        if (!tipoExplicito) {
+            tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(valor, 'qualquer');
+        }
 
         this.pilhaEscopos.definirInformacoesVariavel(
             identificador.lexema,
             new InformacaoElementoSintatico(identificador.lexema, tipo)
         );
 
-        return new Var(identificador, valor, tipo);
+        return new Var(identificador, valor, tipo, tipoExplicito);
     }
 
     private temPadraoMultiplaAtribuicao(): boolean {
@@ -2152,6 +2162,10 @@ export class AvaliadorSintaticoPitugues
             const proximoSimbolo = this.simbolos[this.atual + 1];
             if (proximoSimbolo && proximoSimbolo.tipo === tiposDeSimbolos.IGUAL) {
                 if (!this.variavelJaDeclarada(simboloAtual.lexema)) return this.declaracaoImplicitaVariaveis();
+            }
+
+            if (proximoSimbolo && proximoSimbolo.tipo === tiposDeSimbolos.DOIS_PONTOS) {
+                return this.declaracaoImplicitaVariaveis();
             }
         }
 

@@ -498,7 +498,13 @@ describe('Analisador semântico', () => {
                     const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoAnalisadorSemantico).toBeTruthy();
-                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
+                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(2);
+                    expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toContain(
+                        'Operação entre tipos diferentes'
+                    );
+                    expect(retornoAnalisadorSemantico.diagnosticos[1].mensagem).toContain(
+                        'foi declarada mas nunca usada'
+                    );
                 });
             });
         });
