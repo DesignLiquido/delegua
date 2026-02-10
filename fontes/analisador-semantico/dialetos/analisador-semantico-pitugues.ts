@@ -601,6 +601,11 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
             this.verificarChamada(expressao);
             return;
         }
+
+        if (expressao instanceof Variavel) {
+            this.verificarVariavel(expressao);
+            return;
+        }
     }
 
     private verificarBinario(binario: Binario): Promise<void> {
