@@ -83,7 +83,7 @@
     "devDependencies": {
         "@babel/preset-env": "^7.26.9",
         "@eslint/eslintrc": "^3.3.1",
-        "@eslint/js": "^9.28.0",
+        "@eslint/js": "^10.0.1",
         "@types/esprima": "^4.0.6",
         "@types/estree": "^1.0.7",
         "@types/jest": "^30.0.0",
