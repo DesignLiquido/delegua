@@ -529,15 +529,18 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         }
 
         if (condicao instanceof Binario) {
-            return this.verificarBinario(condicao);
+            this.verificarBinario(condicao);
+            return Promise.resolve();
         }
 
         if (condicao instanceof Logico) {
-            return this.verificarLogico(condicao);
+            this.verificarLogico(condicao);
+            return Promise.resolve();
         }
 
         if (condicao instanceof Chamada) {
-            return this.verificarChamada(condicao);
+            this.verificarChamada(condicao);
+            return Promise.resolve();
         }
 
         return Promise.resolve();
@@ -603,11 +606,10 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         }
     }
 
-    private verificarBinario(binario: Binario): Promise<void> {
+    private verificarBinario(binario: Binario): void {
         this.verificarExistenciaConstruto(binario.direita);
         this.verificarExistenciaConstruto(binario.esquerda);
         this.verificarOperadorBinario(binario);
-        return Promise.resolve();
     }
 
     private verificarOperadorBinario(binario: Binario): void {
@@ -825,13 +827,12 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         }
     }
 
-    private verificarLogico(logico: Logico): Promise<void> {
+    private verificarLogico(logico: Logico): void {
         this.verificarLadoLogico(logico.direita);
         this.verificarLadoLogico(logico.esquerda);
-        return Promise.resolve();
     }
 
-    private verificarChamada(chamada: Chamada): Promise<void> {
+    private verificarChamada(chamada: Chamada): void {
         switch (chamada.entidadeChamada.constructor) {
             case Variavel:
                 let entidadeChamadaVariavel = chamada.entidadeChamada as Variavel;
@@ -852,8 +853,6 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                 }
                 break;
         }
-
-        return Promise.resolve();
     }
 
     private verificarLadoLogico(lado: Construto): void {
