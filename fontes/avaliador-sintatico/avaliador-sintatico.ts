@@ -3672,9 +3672,15 @@ export class AvaliadorSintatico
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
+            'todos',
+            new InformacaoElementoSintatico('todos', 'lógico', true, [
+                new InformacaoElementoSintatico('iteravel', 'qualquer')
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
             'todosEmCondicao',
             new InformacaoElementoSintatico('todosEmCondicao', 'lógico', true, [
-                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+                new InformacaoElementoSintatico('iteravel', 'qualquer'),
                 new InformacaoElementoSintatico('funcaoCondicional', 'função'),
             ])
         );

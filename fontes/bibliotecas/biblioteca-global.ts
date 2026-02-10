@@ -1534,62 +1534,95 @@ export async function texto(
 }
 
 /**
+ * Retorna verdadeiro se todos os elementos do iterável forem truly.
+ * @param {InterpretadorInterface} interpretador A instância do interpretador.
+ * @param {VariavelInterface | any} iteravel O primeiro parâmetro, qualquer dado que seja iterável (vetores, tuplas, dicionários etc.).
+ * @returns {Promise<boolean>} Verdadeiro, se todos os valores do iterável forem Truly.
+ */
+export async function todos(
+    interpretador: InterpretadorInterface,
+    iteravel: VariavelInterface | any
+): Promise<boolean> {
+    const valorIteravel = interpretador.resolverValor(iteravel);
+    const ehObjetoOuDicionario = valorIteravel && typeof valorIteravel === 'object' && !Array.isArray(valorIteravel);
+    const ehIteravelNativo = valorIteravel && typeof valorIteravel[Symbol.iterator] === 'function';
+
+    if (!ehIteravelNativo && !ehObjetoOuDicionario) {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                {
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual,
+                } as SimboloInterface,
+                'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
+            )
+        );
+    }
+
+    const itens = ehIteravelNativo ? valorIteravel : Object.values(valorIteravel);
+
+    for (const valor of itens) {
+        const valorResolvido = interpretador.resolverValor(valor);
+        if (!interpretador.eVerdadeiro(valorResolvido)) return false;
+    }
+
+    return true;
+}
+
+/**
  * Retorna verdadeiro se todos os elementos do primeiro parâmetro retornam verdadeiro ao
  * serem aplicados como argumentos da função passada como segundo parâmetro.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
- * @param {VariavelInterface | any} vetor O primeiro parâmetro, um vetor.
+ * @param {VariavelInterface | any} iteravel O primeiro parâmetro, qualquer dado que seja iterável (vetores, tuplas, dicionários etc.).
  * @param {VariavelInterface | any} funcaoCondicional A função que será executada com cada
- *                                  valor do vetor passado como primeiro parâmetro.
- * @returns {Promise<boolean>} Verdadeiro, se todos os valores do vetor fazem a função passada
+ *                                  valor do iterável passado como primeiro parâmetro.
+ * @returns {Promise<boolean>} Verdadeiro, se todos os valores do iterável fazem a função passada
  *                             por parâmetro devolver verdadeiro, ou falso em caso contrário.
  */
 export async function todosEmCondicao(
     interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | any,
+    iteravel: VariavelInterface | any,
     funcaoCondicional: VariavelInterface | any
 ): Promise<boolean> {
-    if (vetor === null || vetor === undefined)
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O primeiro parâmetro da função todosEmCondicao() não pode ser nulo.'
-            )
-        );
+    const valorIteravel = interpretador.resolverValor(iteravel);
 
-    const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
-    const valorFuncaoCondicional = funcaoCondicional.hasOwnProperty('valor')
-        ? funcaoCondicional.valor
-        : funcaoCondicional;
-    if (!Array.isArray(valorVetor)) {
+    const ehObjetoOuDicionario = valorIteravel && typeof valorIteravel === 'object' && !Array.isArray(valorIteravel);
+    const ehIteravelNativo = valorIteravel && typeof valorIteravel[Symbol.iterator] === 'function';
+
+    if (!ehIteravelNativo && !ehObjetoOuDicionario) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 {
                     hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
                     linha: interpretador.linhaDeclaracaoAtual,
                 } as SimboloInterface,
-                'Parâmetro inválido. O primeiro parâmetro da função todosEmCondicao() deve ser um vetor.'
+                'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
             )
         );
     }
 
-    if (valorFuncaoCondicional.constructor !== DeleguaFuncao) {
+    const valorFuncao = interpretador.resolverValor(funcaoCondicional);
+    const naoEhUmaFuncao = !['DeleguaFuncao', 'FuncaoPadrao'].includes(valorFuncao.constructor.name);
+
+    if (!valorFuncao || naoEhUmaFuncao) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 {
                     hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
                     linha: interpretador.linhaDeclaracaoAtual,
                 } as SimboloInterface,
-                'Parâmetro inválido. O segundo parâmetro da função todosEmCondicao() deve ser uma função.'
+                'Parâmetro inválido. O segundo parâmetro deve ser uma função.'
             )
         );
     }
 
-    for (let indice = 0; indice < valorVetor.length; ++indice) {
-        if (!(await valorFuncaoCondicional.chamar(interpretador, [valorVetor[indice]])))
-            return false;
+    const itens = ehIteravelNativo ? valorIteravel : Object.values(valorIteravel);
+
+    for (const valor of itens) {
+        const resultadoChamada = await valorFuncao.chamar(interpretador, [valor]);
+        const resultadoResolvido = interpretador.resolverValor(resultadoChamada);
+
+        if (!interpretador.eVerdadeiro(resultadoResolvido)) return false;
     }
 
     return true;

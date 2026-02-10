@@ -140,14 +140,14 @@ describe('biblioteca-global (pituguês)', () => {
         it('rejeita quando primeiro parâmetro for nulo', async () => {
             const interpretador = criarInterpretadorMock();
             await expect(todos_em_condicao(interpretador, null as any, {} as any)).rejects.toMatchObject({
-                mensagem: 'Parâmetro inválido. O primeiro parâmetro da função todosEmCondicao() não pode ser nulo.',
+                mensagem: 'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.',
             });
         });
 
         it('rejeita quando segundo parâmetro não for função DeleguaFuncao', async () => {
             const interpretador = criarInterpretadorMock();
             await expect(todos_em_condicao(interpretador, [1, 2], {} as any)).rejects.toMatchObject({
-                mensagem: 'Parâmetro inválido. O segundo parâmetro da função todosEmCondicao() deve ser uma função.',
+                mensagem: 'Parâmetro inválido. O segundo parâmetro deve ser uma função.',
             });
         });
 

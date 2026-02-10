@@ -1047,6 +1047,125 @@ describe('Interpretador', () => {
                     expect(_saida).toBeTruthy();
                     expect(_saida).toBe('[0, 2, 4, 6, 8]');
                 });
+
+                describe('todos()', () => {
+                    it('Chama a função nativa "todos()" com iterável de dados Truly', async () => {
+                        let _saida: string = '';
+
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'var listaDeNumeros = [1, "Delégua", verdadeiro]',
+                                'escreva(todos(listaDeNumeros))'
+                            ],
+                            -1
+                        );
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                        interpretador.funcaoDeRetorno = (saida: any) => {
+                            _saida = saida;
+                        };
+
+                        await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(_saida).toBeTruthy();
+                        expect(_saida).toBe('verdadeiro');
+                    });
+
+                    it('Chama a função nativa "todos()" com um objeto', async () => {
+                        let _saida: string = '';
+
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'var objetoLegal = { 1: "a", 2: "b", 3: "c" }',
+                                'escreva(todos(objetoLegal))'
+                            ],
+                            -1
+                        );
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                        interpretador.funcaoDeRetorno = (saida: any) => {
+                            _saida = saida;
+                        };
+
+                        await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(_saida).toBeTruthy();
+                        expect(_saida).toBe('verdadeiro');
+                    });
+
+                    it('Chama a função nativa "todos()" com iterável de dados Falsy', async () => {
+                        let _saida: string = '';
+
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'var listaDeNumeros = [0, "", nulo, falso]',
+                                'escreva(todos(listaDeNumeros))'
+                            ],
+                            -1
+                        );
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                        interpretador.funcaoDeRetorno = (saida: any) => {
+                            _saida = saida;
+                        };
+
+                        await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(_saida).toBeTruthy();
+                        expect(_saida).toBe('falso');
+                    });
+                });
+
+                describe('todosEmCondicao()', () => {
+                    it('Chama a função nativa "todosEmCondicao()" para verificar se os elementos do array são par.', async () => {
+                        let _saida: string = '';
+
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'var listaDeNumeros = [1, 2, 3, 4, 5]',
+                                'funcao ehPar(valor) {',
+                                '    retorna valor % 2 == 0',
+                                '}',
+                                'escreva(todosEmCondicao(listaDeNumeros, ehPar))'
+                            ],
+                            -1
+                        );
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                        interpretador.funcaoDeRetorno = (saida: any) => {
+                            _saida = saida;
+                        };
+
+                        await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(_saida).toBe('falso');
+                    });
+
+                    it('Chama a função nativa "todosEmCondicao()" para verificar se todos os nomes começam com V', async () => {
+                        let _saida: string = '';
+
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'var listaDeNomes = ["Victor", "Verônica", "Vanessa"]',
+                                'funcao verificar_nomes(nome) {',
+                                '    retorna nome[0] == "V"',
+                                '}',
+                                'escreva(todosEmCondicao(listaDeNomes, verificar_nomes))'
+                            ],
+                            -1
+                        );
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                        interpretador.funcaoDeRetorno = (saida: any) => {
+                            _saida = saida;
+                        };
+
+                        await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(_saida).toBeTruthy();
+                        expect(_saida).toBe('verdadeiro');
+                    });
+                });
             });
 
             describe('Conversões entre tipos', () => {
@@ -3928,6 +4047,47 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(1);
                     expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe(
                         'Não é possível modificar uma tupla. As tuplas são estruturas de dados imutáveis.'
+                    );
+                });
+            });
+
+            describe('todos()', () => {
+                it('Chama a função nativa "todos()" passando dados que não são iteráveis', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var listaDeNumeros = 67',
+                            'escreva(todos(listaDeNumeros))'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe(
+                        'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
+                    );
+                });
+            });
+
+            describe('todosEmCondicao()', () => {
+                it('Chama a função nativa "todosEmCondicao()" passando dados que não são iteráveis', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var listaDeNumeros = 67',
+                            'funcao ehPar(valor) {',
+                            '    retorna valor % 2 == 0',
+                            '}',
+                            'escreva(todosEmCondicao(listaDeNumeros, ehPar))'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toContain(
+                        'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
                     );
                 });
             });
