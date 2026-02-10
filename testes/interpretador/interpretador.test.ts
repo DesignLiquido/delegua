@@ -2830,6 +2830,241 @@ describe('Interpretador', () => {
                 });
             });
 
+            describe('Polimorfismo de métodos', () => {
+                it('Despacho por aridade - métodos com quantidades diferentes de parâmetros', async () => {
+                    const codigo = [
+                        'classe Calculadora {',
+                        '    somar(a: número) {',
+                        '        retorna a',
+                        '    }',
+                        '    somar(a: número, b: número) {',
+                        '        retorna a + b',
+                        '    }',
+                        '}',
+                        'var calc = Calculadora()',
+                        'escreva(calc.somar(5))',
+                        'escreva(calc.somar(3, 7))',
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(2);
+                    expect(_saidas[0]).toBe('5');
+                    expect(_saidas[1]).toBe('10');
+                });
+
+                it('Despacho por tipo - mesma aridade, tipos diferentes', async () => {
+                    const codigo = [
+                        'classe Impressora {',
+                        '    imprimir(valor: texto) {',
+                        '        escreva("Texto: " + valor)',
+                        '    }',
+                        '    imprimir(valor: número) {',
+                        '        escreva("Número: " + texto(valor))',
+                        '    }',
+                        '}',
+                        'var imp = Impressora()',
+                        'imp.imprimir("olá")',
+                        'imp.imprimir(42)',
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(2);
+                    expect(_saidas[0]).toBe('Texto: olá');
+                    expect(_saidas[1]).toBe('Número: 42');
+                });
+
+                it('Correspondência com curinga - parâmetro tipado tem prioridade sobre não-tipado', async () => {
+                    const codigo = [
+                        'classe Processador {',
+                        '    processar(valor: texto) {',
+                        '        escreva("texto: " + valor)',
+                        '    }',
+                        '    processar(valor) {',
+                        '        escreva("genérico: " + texto(valor))',
+                        '    }',
+                        '}',
+                        'var proc = Processador()',
+                        'proc.processar("teste")',
+                        'proc.processar(123)',
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(2);
+                    expect(_saidas[0]).toBe('texto: teste');
+                    expect(_saidas[1]).toBe('genérico: 123');
+                });
+
+                it('Compatibilidade numérica - inteiro compatível com número', async () => {
+                    const codigo = [
+                        'classe Conversor {',
+                        '    converter(valor: inteiro) {',
+                        '        escreva("inteiro: " + texto(valor))',
+                        '    }',
+                        '    converter(valor: texto) {',
+                        '        escreva("texto: " + valor)',
+                        '    }',
+                        '}',
+                        'var conv = Conversor()',
+                        'conv.converter(42)',
+                        'conv.converter("olá")',
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(2);
+                    expect(_saidas[0]).toBe('inteiro: 42');
+                    expect(_saidas[1]).toBe('texto: olá');
+                });
+
+                it('Sobrecarga de construtores', async () => {
+                    const codigo = [
+                        'classe Ponto {',
+                        '    x: número',
+                        '    y: número',
+                        '    construtor(x: número, y: número) {',
+                        '        isto.x = x',
+                        '        isto.y = y',
+                        '    }',
+                        '    construtor(valor: número) {',
+                        '        isto.x = valor',
+                        '        isto.y = valor',
+                        '    }',
+                        '}',
+                        'var p1 = Ponto(3, 4)',
+                        'var p2 = Ponto(5)',
+                        'escreva(p1.x)',
+                        'escreva(p1.y)',
+                        'escreva(p2.x)',
+                        'escreva(p2.y)',
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(4);
+                    expect(_saidas[0]).toBe('3');
+                    expect(_saidas[1]).toBe('4');
+                    expect(_saidas[2]).toBe('5');
+                    expect(_saidas[3]).toBe('5');
+                });
+
+                it('Herança com polimorfismo - subclasse adiciona sobrecargas a métodos herdados', async () => {
+                    const codigo = [
+                        'classe Base {',
+                        '    cumprimentar(nome: texto) {',
+                        '        escreva("Olá, " + nome)',
+                        '    }',
+                        '}',
+                        'classe Derivada herda Base {',
+                        '    cumprimentar(nome: texto, sobrenome: texto) {',
+                        '        escreva("Olá, " + nome + " " + sobrenome)',
+                        '    }',
+                        '}',
+                        'var d = Derivada()',
+                        'd.cumprimentar("João")',
+                        'd.cumprimentar("João", "Silva")',
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(2);
+                    expect(_saidas[0]).toBe('Olá, João');
+                    expect(_saidas[1]).toBe('Olá, João Silva');
+                });
+
+                it('Herança com sobrescrita de assinatura específica', async () => {
+                    const codigo = [
+                        'classe Base {',
+                        '    processar(valor: texto) {',
+                        '        escreva("base-texto: " + valor)',
+                        '    }',
+                        '    processar(valor: número) {',
+                        '        escreva("base-número: " + texto(valor))',
+                        '    }',
+                        '}',
+                        'classe Derivada herda Base {',
+                        '    processar(valor: texto) {',
+                        '        escreva("derivada-texto: " + valor)',
+                        '    }',
+                        '}',
+                        'var d = Derivada()',
+                        'd.processar("teste")',
+                        'd.processar(99)',
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(2);
+                    expect(_saidas[0]).toBe('derivada-texto: teste');
+                    expect(_saidas[1]).toBe('base-número: 99');
+                });
+
+                it('Método único - compatibilidade retroativa', async () => {
+                    const codigo = [
+                        'classe Simples {',
+                        '    saudar() {',
+                        '        escreva("Olá mundo")',
+                        '    }',
+                        '}',
+                        'var s = Simples()',
+                        's.saudar()',
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('Olá mundo');
+                });
+
+                it('Erro quando nenhuma sobrecarga corresponde', async () => {
+                    const codigo = [
+                        'classe Estrita {',
+                        '    executar(valor: texto) {',
+                        '        escreva(valor)',
+                        '    }',
+                        '    executar(a: número, b: número) {',
+                        '        escreva(a + b)',
+                        '    }',
+                        '}',
+                        'var est = Estrita()',
+                        'est.executar(verdadeiro)',
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(1);
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toContain('sobrecarga');
+                });
+            });
+
             describe('Declaração e chamada de funções', () => {
                 it('Aglutinação de argumentos', async () => {
                     const codigo = ['função teste(*argumentos) {', '   escreva(argumentos)', '}', 'teste(1, 2, 3)'];

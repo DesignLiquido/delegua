@@ -613,7 +613,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         await this.executar(declaracao.corpo);
 
         if (retornoInicializacaoResolvido instanceof ObjetoDeleguaClasse) {
-            const metodoFinalizar = retornoInicializacaoResolvido.classe.metodos['finalizar'];
+            const metodoFinalizar = retornoInicializacaoResolvido.classe.encontrarMetodo('finalizar');
             if (metodoFinalizar) {
                 const chamavel = metodoFinalizar.funcaoPorMetodoDeClasse(
                     retornoInicializacaoResolvido

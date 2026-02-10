@@ -487,8 +487,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         if (entidadeChamada instanceof DeleguaFuncao) {
             parametros = entidadeChamada.declaracao.parametros;
         } else if (entidadeChamada instanceof DescritorTipoClasse) {
-            parametros = entidadeChamada.metodos.inicializacao
-                ? entidadeChamada.metodos.inicializacao.declaracao.parametros
+            const metodoInit = entidadeChamada.metodos.inicializacao as DeleguaFuncao;
+            parametros = metodoInit
+                ? metodoInit.declaracao.parametros
                 : [];
         } else {
             parametros = [];
@@ -964,7 +965,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             this.pilhaEscoposExecucao.definirVariavel('super', superClasse);
         }
 
-        const metodos = {};
+        const metodos: { [nome: string]: DeleguaFuncao } = {};
         const definirMetodos = declaracao.metodos;
         for (let i = 0; i < declaracao.metodos.length; i++) {
             const metodoAtual = definirMetodos[i];
