@@ -1088,7 +1088,9 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         }
 
         let tipoInferido = declaracao.tipo;
-        if (!tipoInferido && declaracao.inicializador) {
+        // Se o tipo é o padrão implícito 'qualquer', tenta inferir um tipo mais específico
+        // a partir do inicializador. Para 'qualquer' explícito, apenas sugerimos mais abaixo.
+        if (tipoInferido === 'qualquer' && !declaracao.tipoExplicito && declaracao.inicializador) {
             tipoInferido = this.obterTipoExpressao(declaracao.inicializador);
         }
 
