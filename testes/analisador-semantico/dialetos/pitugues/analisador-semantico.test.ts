@@ -499,11 +499,12 @@ describe('Analisador semântico', () => {
 
                     expect(retornoAnalisadorSemantico).toBeTruthy();
                     expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(2);
-                    expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toContain(
-                        'Operação entre tipos diferentes'
-                    );
-                    expect(retornoAnalisadorSemantico.diagnosticos[1].mensagem).toContain(
-                        'foi declarada mas nunca usada'
+                    const mensagens = retornoAnalisadorSemantico.diagnosticos.map((d: any) => d.mensagem);
+                    expect(mensagens).toEqual(
+                        expect.arrayContaining([
+                            expect.stringContaining('Operação entre tipos diferentes'),
+                            expect.stringContaining('foi declarada mas nunca usada'),
+                        ])
                     );
                 });
             });
