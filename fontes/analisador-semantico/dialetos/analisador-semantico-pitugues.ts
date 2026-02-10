@@ -581,6 +581,33 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
+    private verificarExpressao(expressao: Construto): void {
+        if (expressao instanceof Agrupamento) {
+            this.verificarExpressao(expressao.expressao);
+            return;
+        }
+
+        if (expressao instanceof Binario) {
+            this.verificarBinario(expressao);
+            return;
+        }
+
+        if (expressao instanceof Logico) {
+            this.verificarLogico(expressao);
+            return;
+        }
+
+        if (expressao instanceof Chamada) {
+            this.verificarChamada(expressao);
+            return;
+        }
+
+        if (expressao instanceof Variavel) {
+            this.verificarVariavel(expressao);
+            return;
+        }
+    }
+
     private verificarBinario(binario: Binario): Promise<void> {
         this.verificarExistenciaConstruto(binario.direita);
         this.verificarExistenciaConstruto(binario.esquerda);
@@ -813,10 +840,19 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         switch (chamada.entidadeChamada.constructor) {
             case Variavel:
                 let entidadeChamadaVariavel = chamada.entidadeChamada as Variavel;
-                if (!this.funcoes[entidadeChamadaVariavel.simbolo.lexema]) {
+                const nomeFuncao = entidadeChamadaVariavel.simbolo.lexema;
+
+                const funcoesBuiltIn = ['inteiro', 'real', 'número', 'texto', 'leia', 'escreva', 'tipo'];
+
+                const pareceSerClasse = nomeFuncao[0] === nomeFuncao[0].toUpperCase();
+
+                if (!funcoesBuiltIn.includes(nomeFuncao) &&
+                    !pareceSerClasse &&
+                    !this.funcoes[nomeFuncao] &&
+                    !this.gerenciadorEscopos.buscar(nomeFuncao)) {
                     this.erro(
                         entidadeChamadaVariavel.simbolo,
-                        `Chamada da função '${entidadeChamadaVariavel.simbolo.lexema}' não existe.`
+                        `Chamada da função '${nomeFuncao}' não existe.`
                     );
                 }
                 break;
@@ -929,6 +965,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
 
         if (declaracao.inicializador) {
             this.marcarVariaveisUsadasEmExpressao(declaracao.inicializador);
+            this.verificarExpressao(declaracao.inicializador);
         }
 
         const constanteCorrespondente = this.gerenciadorEscopos.buscarNoEscopoAtual(
@@ -961,11 +998,63 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
 
     override visitarDeclaracaoVar(declaracao: Var): Promise<any> {
         this.verificarTipoAtribuido(declaracao);
-        let valorInicializador: any = undefined;
 
         if (declaracao.inicializador) {
             this.marcarVariaveisUsadasEmExpressao(declaracao.inicializador);
+            this.verificarExpressao(declaracao.inicializador);
 
+            switch (declaracao.inicializador.constructor) {
+                case FuncaoConstruto:
+                    const funcaoConstruto = declaracao.inicializador as FuncaoConstruto;
+                    if (funcaoConstruto.parametros.length >= 255) {
+                        this.erro(
+                            declaracao.simbolo,
+                            'Função não pode ter mais de 255 parâmetros.'
+                        );
+                    }
+                    if (funcaoConstruto.tipo) {
+                        const tipoRetornoFuncao = funcaoConstruto.tipo;
+                        if (!['vazio', 'qualquer'].includes(tipoRetornoFuncao)) {
+                            const todosOsCaminhosRetornam = this.todosOsCaminhosRetornam(
+                                funcaoConstruto.corpo
+                            );
+
+                            if (!todosOsCaminhosRetornam) {
+                                this.erro(
+                                    declaracao.simbolo,
+                                    `Função '${declaracao.simbolo.lexema}' deve retornar '${tipoRetornoFuncao}' em todos os caminhos de execução.`
+                                );
+                            }
+
+                            const funcaoContemRetorno = funcaoConstruto.corpo.find(
+                                (c) => c instanceof Retorna
+                            ) as Retorna;
+
+                            if (funcaoContemRetorno && funcaoContemRetorno.valor) {
+                                const tipoValor = typeof funcaoContemRetorno.valor.valor;
+                                if (!['qualquer'].includes(tipoRetornoFuncao)) {
+                                    if (tipoValor === 'string' && tipoRetornoFuncao !== 'texto') {
+                                        this.erro(
+                                            declaracao.simbolo,
+                                            `Esperado retorno do tipo '${tipoRetornoFuncao}' dentro da função.`
+                                        );
+                                    }
+                                    if (tipoValor === 'number' && !['inteiro', 'real', 'número'].includes(tipoRetornoFuncao)) {
+                                        this.erro(
+                                            declaracao.simbolo,
+                                            `Esperado retorno do tipo '${tipoRetornoFuncao}' dentro da função.`
+                                        );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    break;
+            }
+        }
+
+        let valorInicializador: any = undefined;
+        if (declaracao.inicializador) {
             if (declaracao.inicializador.hasOwnProperty('valor')) {
                 valorInicializador = (declaracao.inicializador as any).valor;
             } else {
@@ -973,9 +1062,34 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
             }
         }
 
+        let tipoInferido = declaracao.tipo;
+        // Se o tipo é o padrão implícito 'qualquer', tenta inferir um tipo mais específico
+        // a partir do inicializador. Para 'qualquer' explícito, apenas sugerimos mais abaixo.
+        if (tipoInferido === 'qualquer' && !declaracao.tipoExplicito && declaracao.inicializador) {
+            tipoInferido = this.obterTipoExpressao(declaracao.inicializador);
+        }
+
+        if (declaracao.tipoExplicito && declaracao.tipoOriginal === 'qualquer' && declaracao.inicializador) {
+            const tipoMelhor = this.obterTipoExpressao(declaracao.inicializador);
+            if (tipoMelhor && tipoMelhor !== 'qualquer') {
+                this.sugestao(
+                    declaracao.simbolo,
+                    'Um tipo melhor pode ser inferido.',
+                    [{
+                        titulo: `Alterar tipo para '${tipoMelhor}'`,
+                        textoOriginal: 'qualquer',
+                        textoSubstituto: tipoMelhor,
+                        linha: declaracao.simbolo.linha,
+                        colunaInicio: declaracao.simbolo.colunaInicio,
+                        colunaFim: declaracao.simbolo.colunaFim,
+                    }]
+                );
+            }
+        }
+
         const variavel: EscopoVariavel = {
             nome: declaracao.simbolo.lexema,
-            tipo: declaracao.tipo || 'qualquer',
+            tipo: tipoInferido || 'qualquer',
             imutavel: false,
             valor: valorInicializador,
             inicializada: declaracao.inicializador !== null && declaracao.inicializador !== undefined,
