@@ -1026,50 +1026,25 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                                 );
                             }
 
-                            // Valida todos os retornos do corpo da função, não apenas o primeiro.
-                            const retornosFuncao = buscarRetornos(funcaoConstruto.corpo) as Retorna[];
+                            const funcaoContemRetorno = funcaoConstruto.corpo.find(
+                                (c) => c instanceof Retorna
+                            ) as Retorna;
 
-                            for (const retorno of retornosFuncao) {
-                                if (!retorno || !retorno.valor) {
-                                    continue;
-                                }
-
-                                // Tenta obter o tipo da expressão de retorno de forma semântica.
-                                let tipoValor: string | undefined;
-                                if (typeof (this as any).obterTipoExpressao === 'function') {
-                                    tipoValor = (this as any).obterTipoExpressao(retorno.valor);
-                                } else {
-                                    // Fallback para comportamento anterior quando não houver suporte semântico,
-                                    // tomando cuidado com expressões que não possuem a propriedade `valor`.
-                                    const expressao: any = retorno.valor as any;
-                                    if (expressao && Object.prototype.hasOwnProperty.call(expressao, 'valor')) {
-                                        tipoValor = typeof expressao.valor;
+                            if (funcaoContemRetorno && funcaoContemRetorno.valor) {
+                                const tipoValor = typeof funcaoContemRetorno.valor.valor;
+                                if (!['qualquer'].includes(tipoRetornoFuncao)) {
+                                    if (tipoValor === 'string' && tipoRetornoFuncao !== 'texto') {
+                                        this.erro(
+                                            declaracao.simbolo,
+                                            `Esperado retorno do tipo '${tipoRetornoFuncao}' dentro da função.`
+                                        );
                                     }
-                                }
-
-                                if (!tipoValor || ['qualquer'].includes(tipoRetornoFuncao)) {
-                                    continue;
-                                }
-
-                                // Normaliza tipos possíveis (tanto de JS quanto do dialeto) para a checagem.
-                                const tipoTexto = ['texto', 'string'];
-                                const tiposNumero = ['inteiro', 'real', 'número', 'number'];
-
-                                if (tipoTexto.includes(tipoValor) && tipoRetornoFuncao !== 'texto') {
-                                    this.erro(
-                                        declaracao.simbolo,
-                                        `Esperado retorno do tipo '${tipoRetornoFuncao}' dentro da função.`
-                                    );
-                                }
-
-                                if (
-                                    tiposNumero.includes(tipoValor) &&
-                                    !['inteiro', 'real', 'número'].includes(tipoRetornoFuncao)
-                                ) {
-                                    this.erro(
-                                        declaracao.simbolo,
-                                        `Esperado retorno do tipo '${tipoRetornoFuncao}' dentro da função.`
-                                    );
+                                    if (tipoValor === 'number' && !['inteiro', 'real', 'número'].includes(tipoRetornoFuncao)) {
+                                        this.erro(
+                                            declaracao.simbolo,
+                                            `Esperado retorno do tipo '${tipoRetornoFuncao}' dentro da função.`
+                                        );
+                                    }
                                 }
                             }
                         }
