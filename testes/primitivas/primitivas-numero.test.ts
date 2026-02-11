@@ -53,7 +53,7 @@ describe('Primitivas de número', () => {
             expect(resultado).toStrictEqual('1.234,568');
         });
         it('Com casas decimais igual a zero', async () => {
-            const resultado = await primitivasNumero.formatar.implementacao(interpretador, 1234.56, 0);
+            const resultado = await primitivasNumero.formatar.implementacao(interpretador, 1234.56, { casasDecimais: 0 } );
             expect(resultado).toStrictEqual('1.234,56');
         });
             

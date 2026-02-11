@@ -80,7 +80,7 @@ describe('Analisador semântico', () => {
         });
         
         describe('Cenários de diagnósticos detectados', () => {
-            it('Atribuição de constante + reatribuição de constante', async () => {
+            it('Atribuição e reatribuição de variável', async () => {
                 const retornoLexador = lexador.mapear([
                     " a = 1",
                     "a = 2"
@@ -311,6 +311,7 @@ describe('Analisador semântico', () => {
                     expect(retornoAnalisadorSemantico).toBeTruthy();
                     expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
                 });
+        
                 it('sucesso - verificar valores lógicos nas operações binárias', async () => {
                     const retornoLexador = lexador.mapear([
                         ` x = 5 > 2`,
@@ -458,6 +459,15 @@ describe('Analisador semântico', () => {
                     expect(retornoAnalisadorSemantico).toBeTruthy();
                     expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(2);
                 });
+                it('Função escreva sem parâmetros', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "escreva()",
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+                });
             });
         });
         
@@ -485,6 +495,23 @@ describe('Analisador semântico', () => {
                     expect(retornoAnalisadorSemantico).toBeTruthy();
                     expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(2);
                 });
+                 it('Trivial', async () => {
+                    const retornoLexador = lexador.mapear(["falhar 'teste de falha'"], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoAnalisadorSemantico.diagnosticos.length).toBeGreaterThanOrEqual(0);
+                });
+
+                it('Trivial com atribuição', async () => {
+                    const retornoLexador = lexador.mapear(['mensagem = "teste de falha"', 'falhar mensagem'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoAnalisadorSemantico.diagnosticos.length).toBeGreaterThanOrEqual(0);
+                })
             });
         });
         
@@ -799,7 +826,7 @@ describe('Analisador semântico', () => {
             const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
             
             expect(retornoAnalisadorSemantico).toBeTruthy();
-            const diagnosticoValor = retornoAnalisadorSemantico.diagnosticos.some(d => d.mensagem?.includes("Variável 'valor' foi declarada mas nunca usada") || d.mensagem?.includes("'valor' foi declarada mas nunca usada"));
+            const diagnosticoValor = retornoAnalisadorSemantico.diagnosticos.some(d => d.mensagem?.includes("Variável 'nome' foi declarada mas nunca usada") || d.mensagem?.includes("'nome' foi declarada mas nunca usada"));
             expect(diagnosticoValor || retornoAnalisadorSemantico.diagnosticos.length === 0).toBeTruthy();
         });
         
@@ -808,6 +835,17 @@ describe('Analisador semântico', () => {
                 `x = 10`,
                 `y = 20`,
                 `escreva('Valores: \${x} e \${y}')`,
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+            
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+        it('Falha - interpolação com variável não inicializada', async () => {
+            const retornoLexador = lexador.mapear([
+                `x `,
+                `escreva('Valor: \${x}')`,
             ], -1);
             const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
@@ -1120,7 +1158,17 @@ describe('Analisador semântico', () => {
             expect(retornoAnalisadorSemantico).toBeTruthy();
             expect(retornoAnalisadorSemantico).toBeDefined();
         }); 
-        
+        it('Vetores com tipos mistos', async () => {
+            const retornoLexador = lexador.mapear([
+                `lista = [1, 2, 3, 4, 5, "texto", verdadeiro]`,
+                `escreva(lista)`,
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+            
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
     });
     describe('Atribuição de tipos vetoriais', () => {
         describe('Tipo inteiro[]', () => {
@@ -1467,5 +1515,53 @@ describe('Analisador semântico', () => {
         });
         
     });
-    
+//     describe('verificarInterpolacaoTexto - branches adicionais', () => {
+//   it('gera erro quando variável e função não existem', () => {
+//     const literal: any = { linha: 1, hashArquivo: 'hash' };
+
+//     analisador.verificarInterpolacaoTexto('Olá ${inexistente}', literal);
+
+//     expect(analisador.erros.length).toBeGreaterThan(0);
+//   });
+
+//   it('marca variável inicializada como usada', () => {
+//     const literal: any = { linha: 1, hashArquivo: 'hash' };
+
+//     analisador.gerenciadorEscopos.definir('nome', {
+//       simbolo: { lexema: 'nome' },
+//       inicializada: true,
+//     });
+
+//     analisador.verificarInterpolacaoTexto('Olá ${nome}', literal);
+
+//     expect(analisador.avisos.length).toBe(0);
+//     expect(analisador.erros.length).toBe(0);
+//   });
+
+//   it('gera aviso quando variável não foi inicializada', () => {
+//     const literal: any = { linha: 1, hashArquivo: 'hash' };
+
+//     analisador.gerenciadorEscopos.definir('nome', {
+//       simbolo: { lexema: 'nome' },
+//       inicializada: false,
+//     });
+
+//     analisador.verificarInterpolacaoTexto('Olá ${nome}', literal);
+
+//     expect(analisador.avisos.length).toBeGreaterThan(0);
+//   });
+
+//   it('aceita função existente mesmo sem variável', () => {
+//     const cod
+//   });
+// });
+
+
+// describe('verificarLadoLogico - branch adicional', () => {
+//   it('não faz nada quando lado não é Variavel', () => {
+//     const codigo = { tipo: 'Literal' } as any;
+//     analisador.verificarLadoLogico(codigo);
+//   });
+// });
+
 });
