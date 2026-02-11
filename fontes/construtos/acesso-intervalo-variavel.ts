@@ -3,7 +3,7 @@ import { Construto } from './construto';
 
 /**
  * Construto para acesso de intervalos (fatiamento/slicing) em vetores.
- * Ex: vetor[1:4], vetor[1:], vetor[:3] ou vetor[:]
+ * Ex: vetor[1:4], vetor[1:4:2], vetor[1:], vetor[:3] ou vetor[:]
  */
 export class AcessoIntervaloVariavel<TTipoSimbolo extends string = string> implements Construto {
     linha: number;
@@ -13,6 +13,7 @@ export class AcessoIntervaloVariavel<TTipoSimbolo extends string = string> imple
     simboloFechamento: SimboloInterface<TTipoSimbolo>;
     indiceInicio: Construto | null;
     indiceFim: Construto | null;
+    indicePasso: Construto | null;
     tipo: string = 'qualquer';
 
     constructor(
@@ -20,6 +21,7 @@ export class AcessoIntervaloVariavel<TTipoSimbolo extends string = string> imple
         entidadeChamada: Construto,
         indiceInicio: Construto | null,
         indiceFim: Construto | null,
+        indicePasso: Construto | null,
         simboloFechamento: SimboloInterface<TTipoSimbolo>,
         tipo: string = 'qualquer'
     ) {
@@ -29,6 +31,7 @@ export class AcessoIntervaloVariavel<TTipoSimbolo extends string = string> imple
         this.entidadeChamada = entidadeChamada;
         this.indiceInicio = indiceInicio;
         this.indiceFim = indiceFim;
+        this.indicePasso = indicePasso;
         this.simboloFechamento = simboloFechamento;
         this.tipo = tipo;
     }
@@ -40,11 +43,13 @@ export class AcessoIntervaloVariavel<TTipoSimbolo extends string = string> imple
     paraTexto(): string {
         const inicio = this.indiceInicio ? this.indiceInicio.paraTexto() : 'sem-início';
         const fim = this.indiceFim ? this.indiceFim.paraTexto() : 'sem-fim';
+        const passo = this.indicePasso ? this.indicePasso.paraTexto() : 'sem-passo';
 
         return (
             `<acesso-índice-variável entidadeChamada=${this.entidadeChamada.paraTexto()} ` +
             `inicio=${inicio} ` +
             `fim=${fim}` +
+            `passo=${passo}` +
             `/>`
         );
     }

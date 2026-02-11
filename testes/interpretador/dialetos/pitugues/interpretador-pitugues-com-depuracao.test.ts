@@ -61,7 +61,7 @@ describe('Interpretador Pituguês com Depuração', () => {
 
         const entidade = { linha: 4, paraTexto: () => '<e>' } as any;
         const simb = { lexema: ']' } as any;
-        const expressao = new AcessoIntervaloVariavel(4, entidade, null, null, simb);
+        const expressao = new AcessoIntervaloVariavel(4, entidade, null, null, null, simb);
 
         await expect(interpretador.visitarExpressaoAcessoIntervaloVariavel(expressao)).resolves.toBe(
             'ok-intervalo'
