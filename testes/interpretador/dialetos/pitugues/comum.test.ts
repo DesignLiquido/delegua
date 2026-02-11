@@ -43,9 +43,16 @@ describe('comum (dialeto pitugues)', () => {
   it('visitarExpressaoAcessoIntervaloVariavel lança ErroEmTempoDeExecucao quando não é vetor nem texto', async () => {
     const literal = new Literal(1, 1, 10, 'número');
     const simboloFechamento: any = { linha: 5 };
-    const expressao = new AcessoIntervaloVariavel(1, literal, null, null, simboloFechamento);
+    const expressao = new AcessoIntervaloVariavel(
+        1,
+        literal,
+        null,
+        null,
+        null,
+        simboloFechamento
+    );
 
-    const interpretador: any = {
+      const interpretador: any = {
       avaliar: jest.fn().mockResolvedValue({ valor: 10 }),
       resolverValor: jest.fn().mockReturnValue(10),
     };

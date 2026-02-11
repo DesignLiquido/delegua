@@ -261,6 +261,29 @@ describe('Interpretador (Pituguês)', () => {
                             expect(variavelFatia.valor).toEqual([1, 2, 3]);
                         });
 
+                        it('Fatiamento com início, fim e passo definidos [início:fim:passo]', async () => {
+                            const retornoLexador = lexador.mapear([`
+                                numeros = [0, 1, 2, 3, 4, 5]
+                                fatia = numeros[1::2]
+                            `], -1);
+
+                            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                                retornoLexador,
+                                -1
+                            );
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+
+                            const variavelFatia = interpretador.pilhaEscoposExecucao.obterVariavelPorNome('fatia');
+
+                            expect(variavelFatia.valor).toEqual([1, 3, 5]);
+                        });
+
                         it('Fatiamento sem fim definido [início:]', async () => {
                             const retornoLexador = lexador.mapear([`
                                 numeros = [0, 1, 2, 3]
