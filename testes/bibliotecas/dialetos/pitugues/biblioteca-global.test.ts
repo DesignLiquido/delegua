@@ -154,36 +154,24 @@ describe('biblioteca-global (pituguês)', () => {
         it('retorna verdadeiro quando todos satisfazem condição', async () => {
             const interpretador = criarInterpretadorMock();
 
-            class DeleguaFuncao {
-                private fn: (...args: any[]) => any;
-                constructor(fn: (...args: any[]) => any) {
-                    this.fn = fn;
-                }
-                async chamar(_interpretador: any, argumentos: any[]) {
-                    return this.fn(...argumentos);
-                }
-            }
+            interpretador.resolverValor = jest.fn(v => v);
+            interpretador.eVerdadeiro = jest.fn(v => !!v);
 
-            const func = new DeleguaFuncao((n: number) => n % 2 === 0);
-            const resultado = await todos_em_condicao(interpretador, [2, 4, 6], func as any);
+            const func = new FuncaoPadrao(1, (_interpretador: any, n: number) => n % 2 === 0);
+
+            const resultado = await todos_em_condicao(interpretador, [2, 4, 6], func);
             expect(resultado).toBe(true);
         });
 
         it('retorna falso quando pelo menos um elemento não satisfaz condição', async () => {
             const interpretador = criarInterpretadorMock();
 
-            class DeleguaFuncao {
-                private fn: (...args: any[]) => any;
-                constructor(fn: (...args: any[]) => any) {
-                    this.fn = fn;
-                }
-                async chamar(_interpretador: any, argumentos: any[]) {
-                    return this.fn(...argumentos);
-                }
-            }
+            interpretador.resolverValor = jest.fn(v => v);
+            interpretador.eVerdadeiro = jest.fn(v => !!v);
 
-            const func = new DeleguaFuncao((n: number) => n % 2 === 0);
-            const resultado = await todos_em_condicao(interpretador, [2, 3, 4], func as any);
+            const func = new FuncaoPadrao(1, (_interpretador: any, n: number) => n % 2 === 0);
+
+            const resultado = await todos_em_condicao(interpretador, [2, 3, 4], func);
             expect(resultado).toBe(false);
         });
     });

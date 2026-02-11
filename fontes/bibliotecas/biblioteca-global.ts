@@ -1596,6 +1596,11 @@ export async function todosEmCondicao(
     iteravel: VariavelInterface | any,
     funcaoCondicional: VariavelInterface | any
 ): Promise<boolean> {
+    const simboloChamada = {
+        linha: interpretador.linhaDeclaracaoAtual,
+        hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+    } as SimboloInterface;
+
     const valorIteravel = interpretador.resolverValor(iteravel);
 
     const ehObjetoOuDicionario = valorIteravel && typeof valorIteravel === 'object' && !Array.isArray(valorIteravel);
@@ -1634,7 +1639,7 @@ export async function todosEmCondicao(
     const itens = ehIteravelNativo ? valorIteravel : Object.values(valorIteravel);
 
     for (const valor of itens) {
-        const resultadoChamada = await valorFuncao.chamar(interpretador, [valor]);
+        const resultadoChamada = await valorFuncao.chamar(interpretador, [valor], simboloChamada);
         const resultadoResolvido = interpretador.resolverValor(resultadoChamada);
 
         if (!interpretador.eVerdadeiro(resultadoResolvido)) return false;
