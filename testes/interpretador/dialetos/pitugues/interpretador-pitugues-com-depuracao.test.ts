@@ -90,6 +90,8 @@ describe('Interpretador Pituguês com Depuração', () => {
         await expect(interpretador.visitarExpressaoDeAtribuicao(expressao)).resolves.toBe('ok-atrib');
         expect(spy).toHaveBeenCalledWith(expressao);
     });
+    it('visitarExpressaoAcessoIndiceVariavel com TuplaN válida', async () => {
+               
     it.skip('visitarExpressaoAcessoIndiceVariavel com TuplaN válida', async () => {
         
         const lit1 = new Literal(1, 1, 'valor1', 'texto');
@@ -99,6 +101,7 @@ describe('Interpretador Pituguês com Depuração', () => {
         jest.spyOn(interpretador, 'avaliar')
         .mockResolvedValueOnce(tupla)
         .mockResolvedValueOnce(0);
+        
         
         jest.spyOn(interpretador, 'resolverValor')
         .mockReturnValueOnce(tupla)
