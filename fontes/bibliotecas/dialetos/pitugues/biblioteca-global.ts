@@ -1396,7 +1396,7 @@ export async function todos_em_condicao(
     }
 
     const valorFuncao = interpretador.resolverValor(funcaoCondicional);
-    const naoEhUmaFuncao = !['DeleguaFuncao', 'FuncaoPadrao'].includes(valorFuncao.constructor.name);
+    const naoEhUmaFuncao = !(valorFuncao instanceof DeleguaFuncao || valorFuncao instanceof FuncaoPadrao);
 
     if (!valorFuncao || naoEhUmaFuncao) {
         return Promise.reject(
