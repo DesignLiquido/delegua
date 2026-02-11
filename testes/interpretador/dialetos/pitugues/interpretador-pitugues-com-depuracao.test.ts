@@ -90,7 +90,7 @@ describe('Interpretador Pituguês com Depuração', () => {
         await expect(interpretador.visitarExpressaoDeAtribuicao(expressao)).resolves.toBe('ok-atrib');
         expect(spy).toHaveBeenCalledWith(expressao);
     });
-    it('visitarExpressaoAcessoIndiceVariavel com TuplaN válida', async () => {
+    
                
     it.skip('visitarExpressaoAcessoIndiceVariavel com TuplaN válida', async () => {
         
@@ -246,4 +246,4 @@ describe('Interpretador Pituguês com Depuração', () => {
             expect(dummy.aceitar).not.toHaveBeenCalled();
         });
     });
-});
+    });
