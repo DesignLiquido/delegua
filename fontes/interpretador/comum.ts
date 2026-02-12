@@ -91,7 +91,7 @@ export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExe
 
     pilhaEscoposExecucao.definirVariavel(
         'todos',
-        new FuncaoPadrao(2, bibliotecaGlobal.todosEmCondicao)
+        new FuncaoPadrao(1, bibliotecaGlobal.todos)
     );
 
     pilhaEscoposExecucao.definirVariavel(
