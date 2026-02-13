@@ -1100,6 +1100,89 @@ describe('Interpretador (Pituguês)', () => {
                         expect(_saidas[1]).toBe('2');
                         expect(_saidas[2]).toBe('3');
                     });
+
+                    describe('Dicionários', () => {
+                        it('Iterando dicionários com duas variáveis usando o método itens()', async () => {
+                            const retornoLexador = lexador.mapear(
+                                [
+                                    'dicionarioLegal = { "a": 1, "b": 2, "c": 3 }',
+                                    'para cada chave, valor em dicionarioLegal.itens():',
+                                    '    escreva(chave, valor)'
+                                ],
+                                -1
+                            );
+
+                            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                                retornoLexador,
+                                -1
+                            );
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+                            expect(_saidas).toHaveLength(3);
+                            expect(_saidas[0]).toBe('a 1');
+                            expect(_saidas[1]).toBe('b 2');
+                            expect(_saidas[2]).toBe('c 3');
+                        });
+
+                        it('Iterando dicionários com duas variáveis', async () => {
+                            const retornoLexador = lexador.mapear(
+                                [
+                                    'dicionarioLegal = { "a": 1, "b": 2, "c": 3 }',
+                                    'para cada chave, valor em dicionarioLegal:',
+                                    '    escreva(chave, valor)'
+                                ],
+                                -1
+                            );
+
+                            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                                retornoLexador,
+                                -1
+                            );
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+                            expect(_saidas).toHaveLength(3);
+                            expect(_saidas[0]).toBe('a 1');
+                            expect(_saidas[1]).toBe('b 2');
+                            expect(_saidas[2]).toBe('c 3');
+                        });
+
+                        it('Iterando dicionários com uma variável', async () => {
+                            const retornoLexador = lexador.mapear(
+                                [
+                                    'dicionarioLegal = { "a": 1, "b": 2, "c": 3 }',
+                                    'para cada chaveValor em dicionarioLegal:',
+                                    '    escreva(chaveValor)'
+                                ],
+                                -1
+                            );
+
+                            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                                retornoLexador,
+                                -1
+                            );
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+                            expect(_saidas).toHaveLength(3);
+                            expect(_saidas[0]).toBe('("a", 1)');
+                            expect(_saidas[1]).toBe('("b", 2)');
+                            expect(_saidas[2]).toBe('("c", 3)');
+                        });
+                    });
                 });
 
                 it('Iterando texto', async () => {
