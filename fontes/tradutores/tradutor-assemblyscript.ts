@@ -7,7 +7,6 @@ import {
     Atribuir,
     Binario,
     Chamada,
-    ComentarioComoConstruto,
     Construto,
     DefinirValor,
     FuncaoConstruto,
@@ -64,7 +63,7 @@ export class TradutorAssemblyScript {
             case tiposDeSimbolos.BIT_NOT:
                 return '~';
             case tiposDeSimbolos.DIFERENTE:
-                return '!==';
+                return '!=';
             case tiposDeSimbolos.DIVISAO:
                 return '/';
             case tiposDeSimbolos.E:
@@ -74,7 +73,7 @@ export class TradutorAssemblyScript {
             case tiposDeSimbolos.IGUAL:
                 return '=';
             case tiposDeSimbolos.IGUAL_IGUAL:
-                return '===';
+                return '==';
             case tiposDeSimbolos.MAIOR:
                 return '>';
             case tiposDeSimbolos.MAIOR_IGUAL:
@@ -173,7 +172,7 @@ export class TradutorAssemblyScript {
     }
 
     traduzirDeclaracaoEscreva(declaracaoEscreva: Escreva): string {
-        let resultado = 'console.log(';
+        let resultado = 'trace(';
         for (const argumento of declaracaoEscreva.argumentos) {
             const valor = this.dicionarioConstrutos[argumento.constructor.name](argumento);
             resultado += valor + ', ';
@@ -202,7 +201,7 @@ export class TradutorAssemblyScript {
             case 'lógico':
                 return ': bool';
             case 'nulo':
-                return ': null';
+                throw new Error(`Tipo 'nulo' não é válido no AssemblyScript. Use 'Type | null' para tipos anuláveis.`);
             case 'inteiro[]':
             case 'real[]':
                 return ': f64[]';
@@ -212,7 +211,7 @@ export class TradutorAssemblyScript {
             case 'lógico[]':
                 return ': bool[]';
             default:
-                return ': any';
+                throw new Error(`Tipo não reconhecido ou não suportado no AssemblyScript: '${tipo}'. AssemblyScript requer anotações de tipo explícitas.`);
         }
     }
 
@@ -259,7 +258,8 @@ export class TradutorAssemblyScript {
     }
 
     traduzirDeclaracaoTente(declaracaoTente: Tente): string {
-        let resultado = 'try {\n';
+        let resultado = '/* AVISO: AssemblyScript não suporta try/catch/finally. Este código pode não funcionar como esperado. */\n';
+        resultado += 'try {\n';
         this.indentacao += 4;
         resultado += ' '.repeat(this.indentacao);
 
@@ -410,15 +410,27 @@ export class TradutorAssemblyScript {
     }
 
     traduzirDeclaracaoParaCada(declaracaoParaCada: ParaCada): string {
-        let resultado = `for (let ${declaracaoParaCada.variavelIteracao} of `;
+        // AssemblyScript não suporta for...of. Convertendo para loop baseado em índice.
+        if (declaracaoParaCada.variavelIteracao.constructor.name !== 'Variavel') {
+            throw new Error('Desestruturação em paraCada não é suportada no AssemblyScript. Use uma variável simples.');
+        }
+        
+        const nomeVariavel = (declaracaoParaCada.variavelIteracao as any).simbolo.lexema;
+        const nomeVetor = `__arr_${nomeVariavel}`;
+        let resultado = `const ${nomeVetor} = `;
         resultado +=
             this.dicionarioConstrutos[declaracaoParaCada.vetorOuDicionario.constructor.name](
                 declaracaoParaCada.vetorOuDicionario
-            ) + ') ';
-
+            ) + ';';
+        resultado += '\n';
+        resultado += ' '.repeat(this.indentacao);
+        resultado += `for (let __i_${nomeVariavel} = 0; __i_${nomeVariavel} < ${nomeVetor}.length; __i_${nomeVariavel}++) `;
+        
+        // Traduz o corpo diretamente - se for um Bloco, ele já terá as chaves
         resultado += this.dicionarioDeclaracoes[declaracaoParaCada.corpo.constructor.name](
             declaracaoParaCada.corpo
         );
+        
         return resultado;
     }
 
@@ -480,7 +492,7 @@ export class TradutorAssemblyScript {
     }
 
     traduzirDeclaracaoFalhar(falhar: Falhar) {
-        return `throw '${falhar.explicacao.valor}'`;
+        return `abort('${falhar.explicacao.valor}')`;
     }
 
     traduzirDeclaracaoFazer(declaracaoFazer: Fazer): string {
@@ -613,22 +625,15 @@ export class TradutorAssemblyScript {
     }
 
     traduzirConstrutoTipoDe(tipoDe: TipoDe): string {
-        let resultado = 'typeof ';
-
-        if (typeof tipoDe.valor === 'string') resultado += `'${tipoDe.valor}'`;
-        else if (tipoDe.valor instanceof Vetor)
-            resultado += this.traduzirConstrutoVetor(tipoDe.valor);
-        else resultado += this.dicionarioConstrutos[tipoDe.valor.constructor.name](tipoDe.valor);
-
-        return resultado;
+        throw new Error('O operador typeof não é suportado no AssemblyScript. Use verificações de tipo em tempo de compilação como instanceof ou is<T>() em vez disso.');
     }
 
     traduzirConstrutoLogico(logico: Logico): string {
-        let direita = this.dicionarioConstrutos[logico.direita.constructor.name](logico.direita);
-        let operador = this.traduzirSimboloOperador(logico.operador);
         let esquerda = this.dicionarioConstrutos[logico.esquerda.constructor.name](logico.esquerda);
+        let operador = this.traduzirSimboloOperador(logico.operador);
+        let direita = this.dicionarioConstrutos[logico.direita.constructor.name](logico.direita);
 
-        return `${direita} ${operador} ${esquerda}`;
+        return `${esquerda} ${operador} ${direita}`;
     }
 
     traduzirFuncaoConstruto(funcaoConstruto: FuncaoConstruto): string {
@@ -704,6 +709,13 @@ export class TradutorAssemblyScript {
     }
 
     traduzirConstrutoBinario(binario: Binario): string {
+        // Tratamento especial para exponenciação no AssemblyScript
+        if (binario.operador.tipo === tiposDeSimbolos.EXPONENCIACAO) {
+            const esquerda = this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda);
+            const direita = this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita);
+            return `Math.pow(${esquerda}, ${direita})`;
+        }
+
         let resultado = '';
         if (binario.esquerda.constructor.name === 'Agrupamento')
             resultado +=

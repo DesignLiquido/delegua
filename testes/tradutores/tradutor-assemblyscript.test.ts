@@ -2,7 +2,7 @@ import { Lexador, Simbolo } from "../../fontes/lexador";
 import { AvaliadorSintatico } from "../../fontes/avaliador-sintatico";
 import { TradutorAssemblyScript } from '../../fontes/tradutores/tradutor-assemblyscript';
 import { Bloco, Escreva, Se } from "../../fontes/declaracoes";
-import { Binario, Literal, Variavel } from "../../fontes/construtos";
+import { Binario, Literal, TipoDe, Variavel } from "../../fontes/construtos";
 
 import tiposDeSimbolos from '../../fontes/tipos-de-simbolos/delegua';
 
@@ -25,8 +25,8 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
             const resultado = tradutor.traduzir([se]);
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/if/i);
-            expect(resultado).toMatch(/a === 1/i);
-            expect(resultado).toMatch(/console\.log\(10\)/i);
+            expect(resultado).toMatch(/a == 1/i);
+            expect(resultado).toMatch(/trace\(10\)/i);
         });
     })
 
@@ -49,7 +49,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toBeTruthy();
-            expect(resultado).toMatch(/console\.log\('Olá, mundo!'\)/i);
+            expect(resultado).toMatch(/trace\('Olá, mundo!'\)/i);
         })
 
         describe('Variáveis', () => {
@@ -78,17 +78,16 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 expect(resultado).toBeTruthy();
                 expect(resultado).toMatch(/let a: string = 'teste'/i);
             })
-            it('var -> sem inicializador -> let', async () => {
+            it('var -> sem inicializador -> sem tipo explícito gera erro', async () => {
                 const retornoLexador = lexador.mapear([
                     'var a;'
                 ], -1)
 
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, 1);
 
-                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
-
-                expect(resultado).toBeTruthy();
-                expect(resultado).toMatch(/let a: any;/i);
+                expect(() => {
+                    tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                }).toThrow('não reconhecido');
             })
             it('constante -> const -> number -> f64', async () => {
                 const retornoLexador = lexador.mapear([
@@ -151,7 +150,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 expect(resultado).toMatch(/let a: f64 = 1.1/i);
             });
 
-            it('falhar - throw', async () => {
+            it('falhar - abort', async () => {
                 const retornoLexador = lexador.mapear(
                     [
                         'falhar \"erro inesperado!\"',
@@ -162,10 +161,10 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
 
                 const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
                 expect(resultado).toBeTruthy();
-                expect(resultado).toMatch(/throw 'erro inesperado!'/i);
+                expect(resultado).toMatch(/abort\('erro inesperado!'\)/i);
             });
 
-            it('tipo de - typeof', async () => {
+            it('tipo de - typeof (erro)', async () => {
                 const retornoLexador = lexador.mapear(
                     [
                         'escreva(tipo de 1)',
@@ -177,12 +176,9 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 );
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
-                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
-                expect(resultado).toBeTruthy();
-                expect(resultado).toMatch(/typeof 1/i);
-                expect(resultado).toMatch(/typeof \'2\'/i);
-                expect(resultado).toMatch(/typeof null/i);
-                expect(resultado).toMatch(/typeof \[1, 2, 3\]/i);
+                expect(() => {
+                    tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                }).toThrow('typeof não é suportado');
             });
 
             it('bit a bit', async () => {
@@ -201,10 +197,10 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
 
                 const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
                 expect(resultado).toBeTruthy();
-                expect(resultado).toMatch(/console\.log\(8 | 1\)/i);
-                expect(resultado).toMatch(/console\.log\(8 & 1\)/i);
-                expect(resultado).toMatch(/console\.log\(8 \^ 1\)/i);
-                expect(resultado).toMatch(/console\.log\(~2\)/i);
+                expect(resultado).toMatch(/trace\(8 \| 1\)/i);
+                expect(resultado).toMatch(/trace\(8 & 1\)/i);
+                expect(resultado).toMatch(/trace\(8 \^ 1\)/i);
+                expect(resultado).toMatch(/trace\(~2\)/i);
                 expect(resultado).toMatch(/let a: f64 = 3/i);
                 expect(resultado).toMatch(/let c: f64 = -a \+ 3/i);
             });
@@ -213,8 +209,8 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
         it('definindo função com variável', async () => {
             const retornoLexador = lexador.mapear(
                 [
-                    'var a = funcao(parametro1: inteiro, parametro2: inteiro) { escreva(\'Oi\')\nescreva(\'Olá\') \n retorna 123 }',
-                    'a(1, 2)'
+                    'funcao minhaFuncao(parametro1: inteiro, parametro2: inteiro): inteiro { escreva(\'Oi\')\nescreva(\'Olá\') \n retorna 123 }',
+                    'minhaFuncao(1, 2)'
                 ],
                 -1
             );
@@ -222,10 +218,11 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
-            expect(resultado).toMatch(/let a: any = function\(parametro1: f64, parametro2: f64\) {/i);
-            expect(resultado).toMatch(/console\.log\('Oi'\)/i);
-            expect(resultado).toMatch(/console\.log\('Olá'\)/i);
-            expect(resultado).toMatch(/a\(1, 2\)/i);
+            expect(resultado).toMatch(/function minhaFuncao\(parametro1, parametro2\)/i);
+            // TODO: Fase 2 - adicionar tipos aos parâmetros: expect(resultado).toMatch(/parametro1: f64, parametro2: f64/i);
+            expect(resultado).toMatch(/trace\('Oi'\)/i);
+            expect(resultado).toMatch(/trace\('Olá'\)/i);
+            expect(resultado).toMatch(/minhaFuncao\(1, 2\)/i);
         });
 
         it('Comentários', async () => {
@@ -241,6 +238,106 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
             expect(resultado).toContain('// Isto é um comentário');
+        });
+
+        describe('Fase 1: Correções Críticas', () => {
+            it('escreva -> trace (não console.log)', async () => {
+                const retornoLexador = lexador.mapear(['escreva("teste")'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('trace(');
+                expect(resultado).not.toContain('console.log');
+            });
+
+            it('operadores de igualdade -> == e != (não === e !==)', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var a: inteiro = 5',
+                    'var b: logico = a == 5',
+                    'var c: logico = a != 3'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('a == 5');
+                expect(resultado).toContain('a != 3');
+                expect(resultado).not.toContain('===');
+                expect(resultado).not.toContain('!==');
+            });
+
+            it('exponenciação -> Math.pow()', async () => {
+                const retornoLexador = lexador.mapear(['var resultado: inteiro = 2 ** 3'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('Math.pow(2, 3)');
+                expect(resultado).not.toContain('**');
+            });
+
+            it('ordem de operandos correta em expressões lógicas', async () => {
+                const retornoLexador = lexador.mapear(['var resultado: logico = 5 > 3 e 10 < 20'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                // Verifica que a ordem é esquerda && direita, não direita && esquerda
+                expect(resultado).toMatch(/5 > 3 && 10 < 20/);
+            });
+
+            it('falhar -> abort()', async () => {
+                const retornoLexador = lexador.mapear(['falhar "Erro ocorreu"'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('abort(');
+                expect(resultado).not.toContain('throw');
+            });
+
+            it('tente/pegue -> aviso sobre falta de suporte', async () => {
+                const retornoLexador = lexador.mapear([
+                    'tente {',
+                    '    escreva("teste")',
+                    '} pegue (erro) {',
+                    '    escreva("erro")',
+                    '}'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('AVISO: AssemblyScript não suporta try/catch/finally');
+            });
+
+            it('paraCada -> loop baseado em índice', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var numeros: inteiro[] = [1, 2, 3]',
+                    'para cada (numero em numeros) {',
+                    '    escreva(numero)',
+                    '}'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                // Verifica que não usa for...of
+                expect(resultado).not.toContain('for (let numero of');
+                // Verifica que usa loop baseado em índice
+                expect(resultado).toContain('__arr_numero');
+                expect(resultado).toContain('.length');
+            });
+
+            it('tipo nulo -> erro', () => {
+                expect(() => {
+                    tradutor.resolveTipoDeclaracaoVarEContante('nulo');
+                }).toThrow('nulo');
+            });
+
+            it('tipo desconhecido -> erro', () => {
+                expect(() => {
+                    tradutor.resolveTipoDeclaracaoVarEContante('tipo_inexistente');
+                }).toThrow('não reconhecido');
+            });
+
+            it('typeof -> erro', () => {
+                const tipoDe = new TipoDe(
+                    -1, 
+                    new Simbolo(tiposDeSimbolos.TIPO, 'tipoDe', null, 1, -1),
+                    new Variavel(-1, new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', null, 1, -1))
+                );
+                expect(() => {
+                    tradutor.traduzirConstrutoTipoDe(tipoDe);
+                }).toThrow('typeof não é suportado');
+            });
         });
     })
 })
