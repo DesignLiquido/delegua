@@ -1524,19 +1524,46 @@ export class AvaliadorSintaticoPitugues
     }
 
     async declaracaoPara(): Promise<ParaCada> {
-        try {
-            const simboloPara: SimboloInterface = this.simboloAnterior();
-            this.blocos += 1;
+        const simboloPara: SimboloInterface = this.simboloAnterior();
+        this.blocos += 1;
 
+        try {
             this.consumir(
                 tiposDeSimbolos.CADA,
                 `Esperado palavra reservada 'cada' após 'para'. Atual: ${this.simbolos[this.atual].lexema}.`
             );
 
-            const nomeVariavelIteracao = this.consumir(
+            const primeiraVariavel = this.consumir(
                 tiposDeSimbolos.IDENTIFICADOR,
                 "Esperado identificador de variável de iteração para instrução 'para cada'."
             );
+
+            let simboloSegundaVariavel: SimboloInterface = null;
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)) {
+                simboloSegundaVariavel = this.consumir(
+                    tiposDeSimbolos.IDENTIFICADOR,
+                    'Esperado identificador após a vírgula.'
+                );
+            }
+
+            let variavelIteracao: Variavel<string> | Dupla;
+            const v1 = new Variavel(
+                this.hashArquivo,
+                primeiraVariavel,
+                'qualquer'
+            );
+
+            if (simboloSegundaVariavel) {
+                const v2 = new Variavel(
+                    this.hashArquivo,
+                    simboloSegundaVariavel,
+                    'qualquer'
+                );
+
+                variavelIteracao = new Dupla(v1, v2);
+            } else {
+                variavelIteracao = v1;
+            }
 
             if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DE, tiposDeSimbolos.EM)) {
                 throw this.erro(
@@ -1545,40 +1572,69 @@ export class AvaliadorSintaticoPitugues
                 );
             }
 
-            const vetor = await this.expressao();
-            if (!vetor.hasOwnProperty('tipo')) {
-                throw this.erro(
-                    simboloPara,
-                    `Variável ou constante em 'para cada' não parece possuir um tipo iterável.`
-                );
-            }
+            const alvoIteracao = await this.expressao();
 
-            const tipoVetor = (vetor as any).tipo as string;
-            if (!tipoVetor.endsWith('[]') && !['qualquer', 'texto', 'vetor'].includes(tipoVetor)) {
-                throw this.erro(
-                    simboloPara,
-                    `Variável ou constante em 'para cada' não é iterável. Tipo resolvido: ${tipoVetor}.`
-                );
-            }
+            this.validarSeAlvoEIteravel(
+                simboloPara,
+                alvoIteracao,
+                !!simboloSegundaVariavel
+            );
 
             this.pilhaEscopos.definirInformacoesVariavel(
-                nomeVariavelIteracao.lexema,
-                new InformacaoElementoSintatico(nomeVariavelIteracao.lexema, tipoVetor.slice(0, -2))
+                primeiraVariavel.lexema,
+                new InformacaoElementoSintatico(primeiraVariavel.lexema, 'qualquer')
             );
+
+            if (simboloSegundaVariavel) {
+                this.pilhaEscopos.definirInformacoesVariavel(
+                    simboloSegundaVariavel.lexema,
+                    new InformacaoElementoSintatico(simboloSegundaVariavel.lexema, 'qualquer')
+                );
+            }
+
             // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
             const corpo: Bloco = await this.resolverDeclaracao() as Bloco;
 
             return new ParaCada(
                 this.hashArquivo,
                 Number(simboloPara.linha),
-                new Variavel(this.hashArquivo, nomeVariavelIteracao),
-                vetor,
+                variavelIteracao,
+                alvoIteracao,
                 corpo
             );
-        } catch (erro) {
-            throw erro;
         } finally {
             this.blocos -= 1;
+        }
+    }
+
+    /**
+     * Função auxiliar para validar se o alvo pode ser iterado.
+     */
+    private validarSeAlvoEIteravel(
+        simboloPara: SimboloInterface,
+        alvo: any,
+        temDuasVariaveis: boolean
+    ): void {
+        if (!alvo || !alvo.tipo) return;
+
+        const tipo = alvo.tipo;
+        const tiposValidos = ['qualquer', 'vetor', 'dicionário', 'texto'];
+        const eVetor = tipo.endsWith('[]') || tipo === 'vetor';
+
+        if (temDuasVariaveis) {
+            if (!eVetor && tipo !== 'dicionário' && tipo !== 'qualquer') {
+                throw this.erro(
+                    simboloPara,
+                    `Para iterar com duas variáveis, o objeto deve ser um dicionário ou lista. Tipo atual: ${tipo}.`
+                );
+            }
+        } else {
+            if (!eVetor && !tiposValidos.includes(tipo)) {
+                throw this.erro(
+                    simboloPara,
+                    `O objeto do tipo '${tipo}' não é iterável.`
+                );
+            }
         }
     }
 

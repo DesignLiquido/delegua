@@ -140,6 +140,59 @@ describe('Avaliador sintático (Pituguês)', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
                 });
+
+                describe('Iterando dicionários', () => {
+                    it('Iterando dicionários com método itens()', async () => {
+                        const retornoLexador = lexador.mapear([
+                            'dicionarioLegal = { "a": 1, "b": 2, "c": 3 }',
+                            'para cada chave, valor em dicionarioLegal.itens():',
+                            '    imprima(chave, valor)'
+                        ], -1);
+
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+
+                        expect(retornoAvaliadorSintatico).toBeTruthy();
+                        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                        expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                    });
+
+                    it('Iterando dicionários com duas variáveis', async () => {
+                        const retornoLexador = lexador.mapear([
+                            'dicionarioLegal = { "a": 1, "b": 2, "c": 3 }',
+                            'para cada chave, valor em dicionarioLegal:',
+                            '    imprima(chave, valor)'
+                        ], -1);
+
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+
+                        expect(retornoAvaliadorSintatico).toBeTruthy();
+                        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                        expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                    });
+
+                    it('Iterando dicionários com uma variável', async () => {
+                        const retornoLexador = lexador.mapear([
+                            'dicionarioLegal = { "a": 1, "b": 2, "c": 3 }',
+                            'para cada chaveValor em dicionarioLegal:',
+                            '    imprima(chaveValor)'
+                        ], -1);
+
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+
+                        expect(retornoAvaliadorSintatico).toBeTruthy();
+                        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                        expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                    });
+                });
             });
 
             it('Lista de Compreensão', async () => {
