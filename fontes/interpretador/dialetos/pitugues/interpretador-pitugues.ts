@@ -187,7 +187,17 @@ export class InterpretadorPitugues extends Interpretador {
         declaracao.posicaoAtual = 0;
 
         const valorResolvido = await this.avaliar(declaracao.vetorOuDicionario);
-        let listaParaIterar = this.prepararListaParaIteracao(valorResolvido, declaracao);
+        let listaParaIterar: any[];
+        try {
+            listaParaIterar = this.prepararListaParaIteracao(valorResolvido, declaracao);
+        } catch (erro: any) {
+            this.erros.push({
+                erroInterno: erro,
+                linha: declaracao.linha,
+                hashArquivo: declaracao.hashArquivo,
+            });
+            return Promise.reject(erro);
+        }
 
         while (!(retornoExecucao instanceof Quebra) && declaracao.posicaoAtual < listaParaIterar.length) {
             try {
