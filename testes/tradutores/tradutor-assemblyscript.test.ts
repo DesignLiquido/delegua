@@ -49,7 +49,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
             expect(resultado).toBeTruthy();
-            expect(resultado).toMatch(/trace\('Olá, mundo!'\)/i);
+            expect(resultado).toMatch(/trace\("Olá, mundo!"\)/i);
         })
 
         describe('Variáveis', () => {
@@ -76,7 +76,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado).toMatch(/let a: string = 'teste'/i);
+                expect(resultado).toMatch(/let a: string = "teste"/i);
             })
             it('var -> sem inicializador -> sem tipo explícito gera erro', async () => {
                 const retornoLexador = lexador.mapear([
@@ -111,7 +111,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado).toMatch(/const a: string = 'teste'/i);
+                expect(resultado).toMatch(/const a: string = "teste"/i);
             });
 
             it('var -> let com tipo iniciado -> inteiro -> i32', async () => {
@@ -135,7 +135,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado).toMatch(/let a: string = 'teste'/i);
+                expect(resultado).toMatch(/let a: string = "teste"/i);
             });
 
             it('var -> let com tipo iniciado -> real -> f64', async () => {
@@ -219,8 +219,8 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
             expect(resultado).toMatch(/function minhaFuncao\(parametro1: i32, parametro2: i32\): i32/i);
-            expect(resultado).toMatch(/trace\('Oi'\)/i);
-            expect(resultado).toMatch(/trace\('Olá'\)/i);
+            expect(resultado).toMatch(/trace\("Oi"\)/i);
+            expect(resultado).toMatch(/trace\("Olá"\)/i);
             expect(resultado).toMatch(/minhaFuncao\(1, 2\)/i);
         });
 
@@ -398,6 +398,111 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
                 expect(resultado).toContain('i32[]');
+            });
+
+            it('dicionário tipo -> Map<string, i32>', async () => {
+                const retornoLexador = lexador.mapear(['var d: dicionario = {}'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('Map<string, i32>');
+            });
+
+            it('dicionário literal com valores', async () => {
+                const retornoLexador = lexador.mapear(['var config = {"debug": 1, "port": 8080}'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('new Map<string, i32>()');
+                expect(resultado).toContain('m.set("debug", 1)');
+                expect(resultado).toContain('m.set("port", 8080)');
+            });
+        });
+
+        describe('Fase 3: Tipos de Coleção', () => {
+            it('dicionário vazio', async () => {
+                const retornoLexador = lexador.mapear(['var empty = {}'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('Map<string, i32>');
+            });
+
+            it('dicionário com múltiplas entradas', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var dados = {',
+                    '  "a": 10,',
+                    '  "b": 20,',
+                    '  "c": 30',
+                    '}'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('m.set("a", 10)');
+                expect(resultado).toContain('m.set("b", 20)');
+                expect(resultado).toContain('m.set("c", 30)');
+            });
+        });
+
+        describe('Fase 4: Tipos de Tupla', () => {
+            it('dupla - 2 elementos', async () => {
+                const retornoLexador = lexador.mapear(['var par = (1, 2)'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('[1, 2]');
+            });
+
+            it('trio - 3 elementos', async () => {
+                const retornoLexador = lexador.mapear(['var t = (1, 2, 3)'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('[1, 2, 3]');
+            });
+
+            it('quarteto - 4 elementos', async () => {
+                const retornoLexador = lexador.mapear(['var q = (10, 20, 30, 40)'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('[10, 20, 30, 40]');
+            });
+
+            it('quinteto - 5 elementos', async () => {
+                const retornoLexador = lexador.mapear(['var q5 = (1, 2, 3, 4, 5)'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('[1, 2, 3, 4, 5]');
+            });
+
+            it('sexteto - 6 elementos', async () => {
+                const retornoLexador = lexador.mapear(['var s6 = (1, 2, 3, 4, 5, 6)'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('[1, 2, 3, 4, 5, 6]');
+            });
+
+            it('septeto - 7 elementos', async () => {
+                const retornoLexador = lexador.mapear(['var s7 = (1, 2, 3, 4, 5, 6, 7)'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('[1, 2, 3, 4, 5, 6, 7]');
+            });
+
+            it('octeto - 8 elementos', async () => {
+                const retornoLexador = lexador.mapear(['var o8 = (1, 2, 3, 4, 5, 6, 7, 8)'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('[1, 2, 3, 4, 5, 6, 7, 8]');
+            });
+
+            it('noneto - 9 elementos', async () => {
+                const retornoLexador = lexador.mapear(['var n9 = (1, 2, 3, 4, 5, 6, 7, 8, 9)'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('[1, 2, 3, 4, 5, 6, 7, 8, 9]');
+            });
+
+            it('deceto - 10 elementos', async () => {
+                const retornoLexador = lexador.mapear(['var d10 = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]');
             });
         });
     })

@@ -8,15 +8,26 @@ import {
     Binario,
     Chamada,
     Construto,
+    Deceto,
+    Dicionario,
+    Dupla,
     DefinirValor,
     FuncaoConstruto,
     Isto,
     Leia,
     Literal,
     Logico,
+    Noneto,
+    Octeto,
+    Quarteto,
+    Quinteto,
     ReferenciaFuncao,
     Separador,
+    Sexteto,
+    Septeto,
     TipoDe,
+    Trio,
+    TuplaN,
     Unario,
     Variavel,
     Vetor,
@@ -184,7 +195,7 @@ export class TradutorAssemblyScript {
     }
 
     traduzirConstrutoLiteral(literal: Literal): string {
-        if (typeof literal.valor === 'string') return `'${literal.valor}'`;
+        if (typeof literal.valor === 'string') return `"${literal.valor}"`;
         return String(literal.valor);
     }
 
@@ -229,6 +240,29 @@ export class TradutorAssemblyScript {
             case 'logico[]':
             case 'lógico[]':
                 return ': bool[]';
+            case 'dicionario':
+            case 'dicionário':
+                return ': Map<string, i32>';
+            case 'dupla':
+                return ': i32[]';
+            case 'trio':
+                return ': i32[]';
+            case 'quarteto':
+                return ': i32[]';
+            case 'quinteto':
+                return ': i32[]';
+            case 'sexteto':
+                return ': i32[]';
+            case 'septeto':
+                return ': i32[]';
+            case 'octeto':
+                return ': i32[]';
+            case 'noneto':
+                return ': i32[]';
+            case 'deceto':
+                return ': i32[]';
+            case 'tupla':
+                return ': i32[]';
             default:
                 throw new Error(`Tipo não reconhecido ou não suportado no AssemblyScript: '${tipo}'. AssemblyScript requer anotações de tipo explícitas.`);
         }
@@ -701,6 +735,137 @@ export class TradutorAssemblyScript {
         return resultado;
     }
 
+    traduzirConstrutoDicionario(dicionario: Dicionario): string {
+        // AssemblyScript Maps são inicializados via construtor
+        // Map<K, V>() requer: new Map<string, ValueType>()
+        if (!dicionario.chaves.length) {
+            return 'new Map<string, i32>()';
+        }
+
+        // AssemblyScript não suporta literal syntax para Map, precisa usar constructor
+        // Gerar algo como: { let m = new Map<string, i32>(); m.set("key", value); ... return m; }
+        let resultado = '(() => { let m = new Map<string, i32>(); ';
+        
+        for (let i = 0; i < dicionario.chaves.length; i++) {
+            const chave = dicionario.chaves[i];
+            const valor = dicionario.valores[i];
+            
+            // A chave pode ser um Construto (como Literal) ou um valor simples
+            let chaveStr: string;
+            if (typeof chave === 'string') {
+                chaveStr = `"${chave}"`;
+            } else if (chave && chave.constructor && this.dicionarioConstrutos[chave.constructor.name]) {
+                // Se for um Construto, traduzi-lo
+                chaveStr = this.dicionarioConstrutos[chave.constructor.name](chave);
+            } else {
+                // Fallback: converter para string
+                chaveStr = `"${String(chave)}"`;
+            }
+            
+            resultado += `m.set(${chaveStr}, ${this.dicionarioConstrutos[valor.constructor.name](valor)}); `;
+        }
+        
+        resultado += 'return m; })()';
+        return resultado;
+    }
+
+    traduzirConstrutoDupla(dupla: Dupla): string {
+        const primeiro = this.dicionarioConstrutos[dupla.primeiro.constructor.name](dupla.primeiro);
+        const segundo = this.dicionarioConstrutos[dupla.segundo.constructor.name](dupla.segundo);
+        return `[${primeiro}, ${segundo}]`;
+    }
+
+    traduzirConstrutoTrio(trio: Trio): string {
+        const primeiro = this.dicionarioConstrutos[trio.primeiro.constructor.name](trio.primeiro);
+        const segundo = this.dicionarioConstrutos[trio.segundo.constructor.name](trio.segundo);
+        const terceiro = this.dicionarioConstrutos[trio.terceiro.constructor.name](trio.terceiro);
+        return `[${primeiro}, ${segundo}, ${terceiro}]`;
+    }
+
+    traduzirConstrutoQuarteto(quarteto: Quarteto): string {
+        const primeiro = this.dicionarioConstrutos[quarteto.primeiro.constructor.name](quarteto.primeiro);
+        const segundo = this.dicionarioConstrutos[quarteto.segundo.constructor.name](quarteto.segundo);
+        const terceiro = this.dicionarioConstrutos[quarteto.terceiro.constructor.name](quarteto.terceiro);
+        const quarto = this.dicionarioConstrutos[quarteto.quarto.constructor.name](quarteto.quarto);
+        return `[${primeiro}, ${segundo}, ${terceiro}, ${quarto}]`;
+    }
+
+    traduzirConstrutoQuinteto(quinteto: Quinteto): string {
+        const primeiro = this.dicionarioConstrutos[quinteto.primeiro.constructor.name](quinteto.primeiro);
+        const segundo = this.dicionarioConstrutos[quinteto.segundo.constructor.name](quinteto.segundo);
+        const terceiro = this.dicionarioConstrutos[quinteto.terceiro.constructor.name](quinteto.terceiro);
+        const quarto = this.dicionarioConstrutos[quinteto.quarto.constructor.name](quinteto.quarto);
+        const quinto = this.dicionarioConstrutos[quinteto.quinto.constructor.name](quinteto.quinto);
+        return `[${primeiro}, ${segundo}, ${terceiro}, ${quarto}, ${quinto}]`;
+    }
+
+    traduzirConstrutoSexteto(sexteto: Sexteto): string {
+        const primeiro = this.dicionarioConstrutos[sexteto.primeiro.constructor.name](sexteto.primeiro);
+        const segundo = this.dicionarioConstrutos[sexteto.segundo.constructor.name](sexteto.segundo);
+        const terceiro = this.dicionarioConstrutos[sexteto.terceiro.constructor.name](sexteto.terceiro);
+        const quarto = this.dicionarioConstrutos[sexteto.quarto.constructor.name](sexteto.quarto);
+        const quinto = this.dicionarioConstrutos[sexteto.quinto.constructor.name](sexteto.quinto);
+        const sexto = this.dicionarioConstrutos[sexteto.sexto.constructor.name](sexteto.sexto);
+        return `[${primeiro}, ${segundo}, ${terceiro}, ${quarto}, ${quinto}, ${sexto}]`;
+    }
+
+    traduzirConstrutoSepteto(septeto: Septeto): string {
+        const primeiro = this.dicionarioConstrutos[septeto.primeiro.constructor.name](septeto.primeiro);
+        const segundo = this.dicionarioConstrutos[septeto.segundo.constructor.name](septeto.segundo);
+        const terceiro = this.dicionarioConstrutos[septeto.terceiro.constructor.name](septeto.terceiro);
+        const quarto = this.dicionarioConstrutos[septeto.quarto.constructor.name](septeto.quarto);
+        const quinto = this.dicionarioConstrutos[septeto.quinto.constructor.name](septeto.quinto);
+        const sexto = this.dicionarioConstrutos[septeto.sexto.constructor.name](septeto.sexto);
+        const setimo = this.dicionarioConstrutos[septeto.setimo.constructor.name](septeto.setimo);
+        return `[${primeiro}, ${segundo}, ${terceiro}, ${quarto}, ${quinto}, ${sexto}, ${setimo}]`;
+    }
+
+    traduzirConstrutoOcteto(octeto: Octeto): string {
+        const primeiro = this.dicionarioConstrutos[octeto.primeiro.constructor.name](octeto.primeiro);
+        const segundo = this.dicionarioConstrutos[octeto.segundo.constructor.name](octeto.segundo);
+        const terceiro = this.dicionarioConstrutos[octeto.terceiro.constructor.name](octeto.terceiro);
+        const quarto = this.dicionarioConstrutos[octeto.quarto.constructor.name](octeto.quarto);
+        const quinto = this.dicionarioConstrutos[octeto.quinto.constructor.name](octeto.quinto);
+        const sexto = this.dicionarioConstrutos[octeto.sexto.constructor.name](octeto.sexto);
+        const setimo = this.dicionarioConstrutos[octeto.setimo.constructor.name](octeto.setimo);
+        const oitavo = this.dicionarioConstrutos[octeto.oitavo.constructor.name](octeto.oitavo);
+        return `[${primeiro}, ${segundo}, ${terceiro}, ${quarto}, ${quinto}, ${sexto}, ${setimo}, ${oitavo}]`;
+    }
+
+    traduzirConstrutoNoneto(noneto: Noneto): string {
+        const primeiro = this.dicionarioConstrutos[noneto.primeiro.constructor.name](noneto.primeiro);
+        const segundo = this.dicionarioConstrutos[noneto.segundo.constructor.name](noneto.segundo);
+        const terceiro = this.dicionarioConstrutos[noneto.terceiro.constructor.name](noneto.terceiro);
+        const quarto = this.dicionarioConstrutos[noneto.quarto.constructor.name](noneto.quarto);
+        const quinto = this.dicionarioConstrutos[noneto.quinto.constructor.name](noneto.quinto);
+        const sexto = this.dicionarioConstrutos[noneto.sexto.constructor.name](noneto.sexto);
+        const setimo = this.dicionarioConstrutos[noneto.setimo.constructor.name](noneto.setimo);
+        const oitavo = this.dicionarioConstrutos[noneto.oitavo.constructor.name](noneto.oitavo);
+        const nono = this.dicionarioConstrutos[noneto.nono.constructor.name](noneto.nono);
+        return `[${primeiro}, ${segundo}, ${terceiro}, ${quarto}, ${quinto}, ${sexto}, ${setimo}, ${oitavo}, ${nono}]`;
+    }
+
+    traduzirConstrutoDeceto(deceto: Deceto): string {
+        const primeiro = this.dicionarioConstrutos[deceto.primeiro.constructor.name](deceto.primeiro);
+        const segundo = this.dicionarioConstrutos[deceto.segundo.constructor.name](deceto.segundo);
+        const terceiro = this.dicionarioConstrutos[deceto.terceiro.constructor.name](deceto.terceiro);
+        const quarto = this.dicionarioConstrutos[deceto.quarto.constructor.name](deceto.quarto);
+        const quinto = this.dicionarioConstrutos[deceto.quinto.constructor.name](deceto.quinto);
+        const sexto = this.dicionarioConstrutos[deceto.sexto.constructor.name](deceto.sexto);
+        const setimo = this.dicionarioConstrutos[deceto.setimo.constructor.name](deceto.setimo);
+        const oitavo = this.dicionarioConstrutos[deceto.oitavo.constructor.name](deceto.oitavo);
+        const nono = this.dicionarioConstrutos[deceto.nono.constructor.name](deceto.nono);
+        const decimo = this.dicionarioConstrutos[deceto.decimo.constructor.name](deceto.decimo);
+        return `[${primeiro}, ${segundo}, ${terceiro}, ${quarto}, ${quinto}, ${sexto}, ${setimo}, ${oitavo}, ${nono}, ${decimo}]`;
+    }
+
+    traduzirConstrutoTuplaN(tuplaN: TuplaN): string {
+        const elementos = tuplaN.elementos.map(elemento =>
+            this.dicionarioConstrutos[elemento.constructor.name](elemento)
+        );
+        return `[${elementos.join(', ')}]`;
+    }
+
     traduzirConstrutoVariavel(variavel: Variavel): string {
         return variavel.simbolo.lexema;
     }
@@ -906,14 +1071,25 @@ export class TradutorAssemblyScript {
         Binario: this.traduzirConstrutoBinario.bind(this),
         Chamada: this.traduzirConstrutoChamada.bind(this),
         ComentarioComoConstruto: this.traduzirConstrutoComentario.bind(this),
+        Deceto: this.traduzirConstrutoDeceto.bind(this),
         DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
+        Dicionario: this.traduzirConstrutoDicionario.bind(this),
+        Dupla: this.traduzirConstrutoDupla.bind(this),
         FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
         Isto: () => 'this',
         Literal: this.traduzirConstrutoLiteral.bind(this),
         Logico: this.traduzirConstrutoLogico.bind(this),
+        Noneto: this.traduzirConstrutoNoneto.bind(this),
+        Octeto: this.traduzirConstrutoOcteto.bind(this),
+        Quarteto: this.traduzirConstrutoQuarteto.bind(this),
+        Quinteto: this.traduzirConstrutoQuinteto.bind(this),
         ReferenciaFuncao: this.traduzirConstrutoReferenciaFuncao.bind(this),
         Separador: this.traduzirConstrutoSeparador.bind(this),
+        Sexteto: this.traduzirConstrutoSexteto.bind(this),
+        Septeto: this.traduzirConstrutoSepteto.bind(this),
         TipoDe: this.traduzirConstrutoTipoDe.bind(this),
+        Trio: this.traduzirConstrutoTrio.bind(this),
+        TuplaN: this.traduzirConstrutoTuplaN.bind(this),
         Unario: this.traduzirConstrutoUnario.bind(this),
         Variavel: this.traduzirConstrutoVariavel.bind(this),
         Vetor: this.traduzirConstrutoVetor.bind(this),
