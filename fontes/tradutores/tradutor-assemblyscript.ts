@@ -1,6 +1,8 @@
 import {
     AcessoIndiceVariavel,
+    AcessoMetodo,
     AcessoMetodoOuPropriedade,
+    AcessoPropriedade,
     Agrupamento,
     ArgumentoReferenciaFuncao,
     AtribuicaoPorIndice,
@@ -12,6 +14,8 @@ import {
     Dicionario,
     Dupla,
     DefinirValor,
+    Elvis,
+    ExpressaoRegular,
     FuncaoConstruto,
     Isto,
     Leia,
@@ -25,6 +29,7 @@ import {
     Separador,
     Sexteto,
     Septeto,
+    SeTernario,
     TipoDe,
     Trio,
     TuplaN,
@@ -866,6 +871,35 @@ export class TradutorAssemblyScript {
         return `[${elementos.join(', ')}]`;
     }
 
+    traduzirConstrutoSeTernario(seTernario: SeTernario): string {
+        const condicao = this.dicionarioConstrutos[seTernario.condicao.constructor.name](seTernario.condicao);
+        const expressaoSe = this.dicionarioConstrutos[seTernario.expressaoSe.constructor.name](seTernario.expressaoSe);
+        const expressaoSenao = this.dicionarioConstrutos[seTernario.expressaoSenao.constructor.name](seTernario.expressaoSenao);
+        return `${condicao} ? ${expressaoSe} : ${expressaoSenao}`;
+    }
+
+    traduzirConstrutoElvis(elvis: Elvis): string {
+        const esquerda = this.dicionarioConstrutos[elvis.esquerda.constructor.name](elvis.esquerda);
+        const direita = this.dicionarioConstrutos[elvis.direita.constructor.name](elvis.direita);
+        // Elvis operator (?:) is equivalent to || in JavaScript for null-coalescing
+        return `${esquerda} || ${direita}`;
+    }
+
+    traduzirConstrutoAcessoPropriedade(acessoPropriedade: AcessoPropriedade): string {
+        const objeto = this.dicionarioConstrutos[acessoPropriedade.objeto.constructor.name](acessoPropriedade.objeto);
+        return `${objeto}.${acessoPropriedade.nomePropriedade}`;
+    }
+
+    traduzirConstrutoExpressaoRegular(expressaoRegular: ExpressaoRegular): string {
+        // AssemblyScript doesn't have native regex support like JavaScript
+        // Return the pattern as a string for now
+        const valor = expressaoRegular.valor;
+        if (typeof valor === 'string') {
+            return `"${valor}"`;
+        }
+        return String(valor);
+    }
+
     traduzirConstrutoVariavel(variavel: Variavel): string {
         return variavel.simbolo.lexema;
     }
@@ -1063,7 +1097,9 @@ export class TradutorAssemblyScript {
 
     dicionarioConstrutos = {
         AcessoIndiceVariavel: this.traduzirConstrutoAcessoIndiceVariavel.bind(this),
+        AcessoMetodo: this.traduzirConstrutoAcessoMetodo.bind(this),
         AcessoMetodoOuPropriedade: this.traduzirConstrutoAcessoMetodo.bind(this),
+        AcessoPropriedade: this.traduzirConstrutoAcessoPropriedade.bind(this),
         Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
         ArgumentoReferenciaFuncao: this.traduzirConstrutoArgumentoReferenciaFuncao.bind(this),
         AtribuicaoPorIndice: this.traduzirConstrutoAtribuicaoPorIndice.bind(this),
@@ -1075,6 +1111,8 @@ export class TradutorAssemblyScript {
         DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
         Dicionario: this.traduzirConstrutoDicionario.bind(this),
         Dupla: this.traduzirConstrutoDupla.bind(this),
+        Elvis: this.traduzirConstrutoElvis.bind(this),
+        ExpressaoRegular: this.traduzirConstrutoExpressaoRegular.bind(this),
         FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
         Isto: () => 'this',
         Literal: this.traduzirConstrutoLiteral.bind(this),
@@ -1085,6 +1123,7 @@ export class TradutorAssemblyScript {
         Quinteto: this.traduzirConstrutoQuinteto.bind(this),
         ReferenciaFuncao: this.traduzirConstrutoReferenciaFuncao.bind(this),
         Separador: this.traduzirConstrutoSeparador.bind(this),
+        SeTernario: this.traduzirConstrutoSeTernario.bind(this),
         Sexteto: this.traduzirConstrutoSexteto.bind(this),
         Septeto: this.traduzirConstrutoSepteto.bind(this),
         TipoDe: this.traduzirConstrutoTipoDe.bind(this),
