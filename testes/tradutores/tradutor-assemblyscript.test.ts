@@ -53,7 +53,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
         })
 
         describe('Variáveis', () => {
-            it('var -> let -> number -> f64', async () => {
+            it('var -> let -> inteiro -> i32', async () => {
                 const retornoLexador = lexador.mapear([
                     'var a: inteiro;',
                 ], -1)
@@ -63,7 +63,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado).toMatch(/let a: f64;/i);
+                expect(resultado).toMatch(/let a: i32;/i);
             })
 
             it('var -> let -> string -> string', async () => {
@@ -89,7 +89,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                     tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
                 }).toThrow('não reconhecido');
             })
-            it('constante -> const -> number -> f64', async () => {
+            it('constante -> const -> inteiro -> i32', async () => {
                 const retornoLexador = lexador.mapear([
                     'constante a: inteiro = 1'
                 ], -1)
@@ -99,7 +99,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado).toMatch(/const a: f64 = 1/i);
+                expect(resultado).toMatch(/const a: i32 = 1/i);
             })
             it('constante -> const -> string -> string', async () => {
                 const retornoLexador = lexador.mapear([
@@ -114,7 +114,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 expect(resultado).toMatch(/const a: string = 'teste'/i);
             });
 
-            it('var -> let com tipo iniciado -> number -> f64', async () => {
+            it('var -> let com tipo iniciado -> inteiro -> i32', async () => {
                 const retornoLexador = lexador.mapear([
                     'var a: inteiro = 1'
                 ], -1)
@@ -123,7 +123,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
                 expect(resultado).toBeTruthy();
-                expect(resultado).toMatch(/let a: f64 = 1/i);
+                expect(resultado).toMatch(/let a: i32 = 1/i);
             });
 
             it('var -> let com tipo iniciado -> string -> string', async () => {
@@ -189,7 +189,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                         'escreva(8 ^ 1)',
                         'escreva(~2)',
                         'var a: inteiro = 3',
-                        'var c = -a + 3'
+                        'var c: inteiro = -a + 3'
                     ],
                     -1
                 );
@@ -201,8 +201,8 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 expect(resultado).toMatch(/trace\(8 & 1\)/i);
                 expect(resultado).toMatch(/trace\(8 \^ 1\)/i);
                 expect(resultado).toMatch(/trace\(~2\)/i);
-                expect(resultado).toMatch(/let a: f64 = 3/i);
-                expect(resultado).toMatch(/let c: f64 = -a \+ 3/i);
+                expect(resultado).toMatch(/let a: i32 = 3/i);
+                expect(resultado).toMatch(/let c: i32 = -a \+ 3/i);
             });
         });
 
@@ -218,8 +218,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
 
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
-            expect(resultado).toMatch(/function minhaFuncao\(parametro1, parametro2\)/i);
-            // TODO: Fase 2 - adicionar tipos aos parâmetros: expect(resultado).toMatch(/parametro1: f64, parametro2: f64/i);
+            expect(resultado).toMatch(/function minhaFuncao\(parametro1: i32, parametro2: i32\): i32/i);
             expect(resultado).toMatch(/trace\('Oi'\)/i);
             expect(resultado).toMatch(/trace\('Olá'\)/i);
             expect(resultado).toMatch(/minhaFuncao\(1, 2\)/i);
@@ -309,10 +308,14 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 ], -1);
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                
+                // Debug: print the result to see what's happening
+                console.log('paraCada result:', resultado);
+                
                 // Verifica que não usa for...of
                 expect(resultado).not.toContain('for (let numero of');
-                // Verifica que usa loop baseado em índice
-                expect(resultado).toContain('__arr_numero');
+                // Verifica que tem o vetor temporário e loop baseado em índice
+                expect(resultado).toContain('const __arr_numero');
                 expect(resultado).toContain('.length');
             });
 
@@ -337,6 +340,64 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 expect(() => {
                     tradutor.traduzirConstrutoTipoDe(tipoDe);
                 }).toThrow('typeof não é suportado');
+            });
+        });
+
+        describe('Fase 2: Sistema de Tipos Completo', () => {
+            it('inteiro -> i32', async () => {
+                const retornoLexador = lexador.mapear(['var x: inteiro = 42'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('i32');
+                expect(resultado).not.toContain('f64');
+            });
+
+            it('real -> f64', async () => {
+                const retornoLexador = lexador.mapear(['var x: real = 3.14'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('f64');
+            });
+
+            it('função com parâmetros tipados', async () => {
+                const retornoLexador = lexador.mapear([
+                    'funcao soma(a: inteiro, b: inteiro): inteiro {',
+                    '    retorna a + b',
+                    '}'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toMatch(/function soma\(a: i32, b: i32\): i32/i);
+            });
+
+            it('função sem retorno -> void', async () => {
+                const retornoLexador = lexador.mapear([
+                    'funcao imprime(msg: texto) {',
+                    '    escreva(msg)',
+                    '}'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toMatch(/function imprime\(msg: string\): void/i);
+            });
+
+            it('tipo vazio explícito -> void', () => {
+                const resultado = tradutor.resolveTipoDeclaracaoVarEContante('vazio');
+                expect(resultado).toBe(': void');
+            });
+
+            it('longo -> i64', async () => {
+                const retornoLexador = lexador.mapear(['var grande: longo = 1000000'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('i64');
+            });
+
+            it('array de inteiros -> i32[]', async () => {
+                const retornoLexador = lexador.mapear(['var nums: inteiro[] = [1, 2, 3]'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('i32[]');
             });
         });
     })

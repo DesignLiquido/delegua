@@ -193,17 +193,36 @@ export class TradutorAssemblyScript {
             case 'texto':
                 return ': string';
             case 'inteiro':
+                return ': i32';
+            case 'longo':
+                return ': i64';
+            case 'inteiro_curto':
+            case 'inteiroCurto':
+                return ': i16';
+            case 'byte':
+                return ': i8';
             case 'numero':
             case 'número':
             case 'real':
                 return ': f64';
+            case 'real_curto':
+            case 'realCurto':
+                return ': f32';
             case 'logico':
             case 'lógico':
                 return ': bool';
+            case 'vazio':
+            case 'nada':
+                return ': void';
             case 'nulo':
                 throw new Error(`Tipo 'nulo' não é válido no AssemblyScript. Use 'Type | null' para tipos anuláveis.`);
             case 'inteiro[]':
+                return ': i32[]';
+            case 'longo[]':
+                return ': i64[]';
             case 'real[]':
+            case 'numero[]':
+            case 'número[]':
                 return ': f64[]';
             case 'texto[]':
                 return ': string[]';
@@ -475,20 +494,98 @@ export class TradutorAssemblyScript {
 
     traduzirDeclaracaoFuncao(declaracaoFuncao: FuncaoDeclaracao): string {
         let resultado = 'function ';
-        resultado += declaracaoFuncao.simbolo.lexema + ' (';
+        resultado += declaracaoFuncao.simbolo.lexema + '(';
 
+        // Adiciona parâmetros com tipos
         for (const parametro of declaracaoFuncao.funcao.parametros) {
-            resultado += parametro.nome.lexema + ', ';
+            resultado += parametro.nome.lexema;
+            
+            // Adiciona tipo do parâmetro se disponível
+            if (parametro.tipoDado) {
+                try {
+                    resultado += this.resolveTipoDeclaracaoVarEContante(parametro.tipoDado);
+                } catch (e) {
+                    // Se não conseguir resolver o tipo, lança erro mais específico
+                    throw new Error(`Parâmetro '${parametro.nome.lexema}' da função '${declaracaoFuncao.simbolo.lexema}' tem tipo não suportado: '${parametro.tipoDado}'`);
+                }
+            } else {
+                // AssemblyScript requer tipos explícitos em todos os parâmetros
+                throw new Error(`Parâmetro '${parametro.nome.lexema}' da função '${declaracaoFuncao.simbolo.lexema}' não tem tipo definido. AssemblyScript requer tipos explícitos.`);
+            }
+            
+            resultado += ', ';
         }
 
         if (declaracaoFuncao.funcao.parametros.length > 0) {
             resultado = resultado.slice(0, -2);
         }
 
-        resultado += ') ';
+        resultado += ')';
+        
+        // Adiciona tipo de retorno
+        const tipoRetorno = this.inferirTipoRetornoFuncao(declaracaoFuncao.funcao);
+        resultado += tipoRetorno;
+        
+        resultado += ' ';
 
         resultado += this.logicaComumBlocoEscopo(declaracaoFuncao.funcao.corpo);
         return resultado;
+    }
+    
+    inferirTipoRetornoFuncao(funcao: FuncaoConstruto): string {
+        // Se a função tem tipo de retorno explícito, usa ele
+        if (funcao.tipo && funcao.tipo !== 'qualquer') {
+            try {
+                return this.resolveTipoDeclaracaoVarEContante(funcao.tipo);
+            } catch (e) {
+                // Se não conseguir resolver, retorna void por padrão
+                return ': void';
+            }
+        }
+        
+        // Procura por declarações de retorno no corpo
+        const temRetorno = this.verificaSeTemRetornoArray(funcao.corpo);
+        
+        if (temRetorno) {
+            // Por enquanto, assumimos que se tem retorno mas sem tipo explícito,
+            // precisamos de mais informação. Retornamos void como fallback.
+            // TODO: Implementar inferência baseada no valor retornado
+            return ': void';
+        }
+        
+        return ': void';
+    }
+    
+    verificaSeTemRetornoArray(corpo: Declaracao[]): boolean {
+        if (!corpo) return false;
+        
+        for (const declaracao of corpo) {
+            if (declaracao.constructor.name === 'Retorna') {
+                return true;
+            }
+            // Verifica recursivamente em blocos aninhados
+            if ((declaracao as any).corpo) {
+                const corpoInterno = (declaracao as any).corpo;
+                if (Array.isArray(corpoInterno)) {
+                    if (this.verificaSeTemRetornoArray(corpoInterno)) {
+                        return true;
+                    }
+                } else if (corpoInterno.declaracoes) {
+                    // É um Bloco
+                    if (this.verificaSeTemRetornoArray(corpoInterno.declaracoes)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    verificaSeTemRetorno(corpo: Bloco): boolean {
+        if (!corpo || !corpo.declaracoes) return false;
+        
+        return this.verificaSeTemRetornoArray(corpo.declaracoes);
     }
 
     traduzirDeclaracaoFalhar(falhar: Falhar) {
