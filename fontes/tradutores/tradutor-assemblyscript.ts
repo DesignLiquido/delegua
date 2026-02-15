@@ -795,50 +795,48 @@ export class TradutorAssemblyScript {
             }
         }
         
-        // Procura por declarações de retorno no corpo
-        const temRetorno = this.verificaSeTemRetornoArray(funcao.corpo);
-        
-        if (temRetorno) {
-            // Por enquanto, assumimos que se tem retorno mas sem tipo explícito,
-            // precisamos de mais informação. Retornamos void como fallback.
-            // TODO: Implementar inferência baseada no valor retornado
-            return ': void';
+        // Procura por declarações de retorno no corpo e infere tipo a partir delas
+        const tipoInferido = this.inferirTipoDeRetorno(funcao.corpo);
+        if (tipoInferido) {
+            try {
+                return this.resolveTipoDeclaracaoVarEContante(tipoInferido);
+            } catch (e) {
+                return ': void';
+            }
         }
         
         return ': void';
     }
     
-    verificaSeTemRetornoArray(corpo: Declaracao[]): boolean {
-        if (!corpo) return false;
+    inferirTipoDeRetorno(corpo: Declaracao[]): string | null {
+        if (!corpo) return null;
         
         for (const declaracao of corpo) {
             if (declaracao.constructor.name === 'Retorna') {
-                return true;
+                const retorna = declaracao as any;
+                if (retorna.tipo && retorna.tipo !== 'vazio') {
+                    return retorna.tipo;
+                }
             }
             // Verifica recursivamente em blocos aninhados
             if ((declaracao as any).corpo) {
                 const corpoInterno = (declaracao as any).corpo;
                 if (Array.isArray(corpoInterno)) {
-                    if (this.verificaSeTemRetornoArray(corpoInterno)) {
-                        return true;
-                    }
+                    const tipo = this.inferirTipoDeRetorno(corpoInterno);
+                    if (tipo) return tipo;
                 } else if (corpoInterno.declaracoes) {
-                    // É um Bloco
-                    if (this.verificaSeTemRetornoArray(corpoInterno.declaracoes)) {
-                        return true;
-                    }
+                    const tipo = this.inferirTipoDeRetorno(corpoInterno.declaracoes);
+                    if (tipo) return tipo;
                 }
             }
         }
         
-        return false;
+        return null;
     }
     
-    verificaSeTemRetorno(corpo: Bloco): boolean {
-        if (!corpo || !corpo.declaracoes) return false;
-        
-        return this.verificaSeTemRetornoArray(corpo.declaracoes);
-    }
+
+    
+
 
     traduzirDeclaracaoFalhar(falhar: Falhar) {
         return `abort('${falhar.explicacao.valor}')`;
@@ -1272,19 +1270,29 @@ export class TradutorAssemblyScript {
         return resultado;
     }
 
-    // TODO: Eliminar o soft cast para `any`.
     traduzirConstrutoAtribuicaoPorIndice(AtribuicaoPorIndice: AtribuicaoPorIndice): string {
         let resultado = '';
 
-        resultado += (AtribuicaoPorIndice.objeto as any).simbolo.lexema + '[';
+        // Traduz o objeto (array ou coleção)
+        if (AtribuicaoPorIndice.objeto instanceof Variavel) {
+            resultado += (AtribuicaoPorIndice.objeto as Variavel).simbolo.lexema;
+        } else {
+            resultado += this.dicionarioConstrutos[AtribuicaoPorIndice.objeto.constructor.name](
+                AtribuicaoPorIndice.objeto
+            );
+        }
+        
+        // Adiciona o índice
+        resultado += '[';
         resultado +=
             this.dicionarioConstrutos[AtribuicaoPorIndice.indice.constructor.name](
                 AtribuicaoPorIndice.indice
             ) + ']';
         resultado += ' = ';
 
-        if ((AtribuicaoPorIndice?.valor as any).simbolo?.lexema) {
-            resultado += `${(AtribuicaoPorIndice.valor as any).simbolo.lexema}`;
+        // Traduz o valor a ser atribuído
+        if (AtribuicaoPorIndice.valor instanceof Variavel) {
+            resultado += (AtribuicaoPorIndice.valor as Variavel).simbolo.lexema;
         } else {
             resultado += this.dicionarioConstrutos[AtribuicaoPorIndice.valor.constructor.name](
                 AtribuicaoPorIndice.valor
