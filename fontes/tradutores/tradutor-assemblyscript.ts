@@ -117,6 +117,7 @@ export class TradutorAssemblyScript {
 
     traduzirFuncoesNativas(metodo: string): string {
         switch (metodo.toLowerCase()) {
+            // Array methods
             case 'adicionar':
             case 'empilhar':
                 return 'push';
@@ -125,6 +126,7 @@ export class TradutorAssemblyScript {
             case 'fatiar':
                 return 'slice';
             case 'inclui':
+            case 'incluido':
                 return 'includes';
             case 'inverter':
                 return 'reverse';
@@ -138,14 +140,125 @@ export class TradutorAssemblyScript {
                 return 'pop';
             case 'tamanho':
                 return 'length';
+            case 'indice':
+            case 'indiceode':
+                return 'indexOf';
+            // String methods
             case 'maiusculo':
                 return 'toUpperCase';
             case 'minusculo':
                 return 'toLowerCase';
             case 'substituir':
                 return 'replace';
+            case 'trimcomeco':
+                return 'trimStart';
+            case 'trimfim':
+                return 'trimEnd';
+            case 'trim':
+                return 'trim';
+            case 'comeca':
+                return 'startsWith';
+            case 'termina':
+                return 'endsWith';
+            case 'contém':
+            case 'contem':
+                return 'includes';
+            // Math constants and methods (would need Math. prefix in AS)
+            case 'abs':
+            case 'absoluto':
+                return 'Math.abs';
+            case 'ceil':
+            case 'teto':
+                return 'Math.ceil';
+            case 'floor':
+            case 'piso':
+                return 'Math.floor';
+            case 'round':
+            case 'arredondar':
+                return 'Math.round';
+            case 'sqrt':
+            case 'raizquadrada':
+                return 'Math.sqrt';
+            case 'pow':
+            case 'potencia':
+                return 'Math.pow';
+            case 'max':
+            case 'maximo':
+                return 'Math.max';
+            case 'min':
+            case 'minimo':
+                return 'Math.min';
+            case 'sin':
+            case 'seno':
+                return 'Math.sin';
+            case 'cos':
+            case 'cosseno':
+                return 'Math.cos';
+            case 'tan':
+            case 'tangente':
+                return 'Math.tan';
+            case 'pi':
+                return 'Math.PI';
+            case 'e':
+                return 'Math.E';
             default:
                 return metodo;
+        }
+    }
+
+    traduzirFuncaoNativaGlobal(nomeFuncao: string, argumentos: string[]): string | null {
+        switch (nomeFuncao.toLowerCase()) {
+            // Math functions
+            case 'aleatorio':
+                return `Math.random()`;
+            case 'aleatorioEntre':
+            case 'aleatorioente':
+                if (argumentos.length >= 2) {
+                    return `(Math.random() * (${argumentos[1]} - ${argumentos[0]}) + ${argumentos[0]})`;
+                }
+                return null;
+            case 'arredondar':
+                return argumentos.length > 0 ? `Math.round(${argumentos[0]})` : null;
+            case 'inteiro':
+                return argumentos.length > 0 ? `Math.trunc(${argumentos[0]})` : null;
+            case 'numero':
+                return argumentos.length > 0 ? `Number(${argumentos[0]})` : null;
+            case 'texto':
+                return argumentos.length > 0 ? `String(${argumentos[0]})` : null;
+            case 'longo':
+                return argumentos.length > 0 ? `parseInt(${argumentos[0]})` : null;
+            case 'real':
+                return argumentos.length > 0 ? `parseFloat(${argumentos[0]})` : null;
+            // Array functions
+            case 'tamanho':
+                return argumentos.length > 0 ? `(${argumentos[0]}).length` : null;
+            case 'intervalo':
+                // intervalo(inicio, fim, passo?) - returns array of numbers
+                if (argumentos.length >= 2) {
+                    if (argumentos.length >= 3) {
+                        return `Array.from({length: (${argumentos[1]} - ${argumentos[0]}) / ${argumentos[2]}}, (_, i) => ${argumentos[0]} + i * ${argumentos[2]})`;
+                    }
+                    return `Array.from({length: ${argumentos[1]} - ${argumentos[0]}}, (_, i) => ${argumentos[0]} + i)`;
+                }
+                return null;
+            case 'maximo':
+                return argumentos.length > 0 ? `Math.max(...${argumentos[0]})` : null;
+            case 'minimo':
+                return argumentos.length > 0 ? `Math.min(...${argumentos[0]})` : null;
+            // These need custom implementation or are too complex for Phase 5
+            case 'mapear':
+            case 'filtrarPor':
+            case 'reduzir':
+            case 'ordenar':
+            case 'encontrar':
+            case 'encontrarIndice':
+            case 'incluido':
+            case 'todos':
+            case 'algum':
+                // These would require closures/lambda support - not easily translated
+                return null;
+            default:
+                return null;
         }
     }
 
@@ -1061,6 +1174,19 @@ export class TradutorAssemblyScript {
 
     traduzirConstrutoChamada(chamada: Chamada): string {
         let resultado = '';
+
+        // Check if this is a native library function call
+        if (chamada.entidadeChamada instanceof Variavel) {
+            const nomeVariavel = (chamada.entidadeChamada as Variavel).simbolo.lexema;
+            const argumentosTexto = chamada.argumentos.map(arg => 
+                this.dicionarioConstrutos[arg.constructor.name](arg)
+            );
+            
+            const funcaoNativa = this.traduzirFuncaoNativaGlobal(nomeVariavel, argumentosTexto);
+            if (funcaoNativa) {
+                return funcaoNativa;
+            }
+        }
 
         const retorno = `${this.dicionarioConstrutos[chamada.entidadeChamada.constructor.name](
             chamada.entidadeChamada,
