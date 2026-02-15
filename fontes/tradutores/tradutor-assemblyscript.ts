@@ -697,10 +697,25 @@ export class TradutorAssemblyScript {
         resultado += ' '.repeat(this.indentacao);
         resultado += `for (let __i_${nomeVariavel} = 0; __i_${nomeVariavel} < ${nomeVetor}.length; __i_${nomeVariavel}++) `;
         
-        // Traduz o corpo diretamente - se for um Bloco, ele já terá as chaves
-        resultado += this.dicionarioDeclaracoes[declaracaoParaCada.corpo.constructor.name](
-            declaracaoParaCada.corpo
-        );
+        // Injeta a atribuição da variável de iteração no início do corpo do bloco
+        const corpoBloco = declaracaoParaCada.corpo as Bloco;
+        const declaracoesCorpo = corpoBloco.declaracoes || [];
+        let resultadoCorpo = '{\n';
+        this.indentacao += 4;
+        resultadoCorpo += ' '.repeat(this.indentacao) + `const ${nomeVariavel} = ${nomeVetor}[__i_${nomeVariavel}];\n`;
+        for (const declaracaoOuConstruto of declaracoesCorpo) {
+            resultadoCorpo += ' '.repeat(this.indentacao);
+            const nomeConstrutor = declaracaoOuConstruto.constructor.name;
+            if (this.dicionarioConstrutos.hasOwnProperty(nomeConstrutor)) {
+                resultadoCorpo += this.dicionarioConstrutos[nomeConstrutor](declaracaoOuConstruto);
+            } else {
+                resultadoCorpo += this.dicionarioDeclaracoes[nomeConstrutor](declaracaoOuConstruto);
+            }
+            resultadoCorpo += '\n';
+        }
+        this.indentacao -= 4;
+        resultadoCorpo += ' '.repeat(this.indentacao) + '}\n';
+        resultado += resultadoCorpo;
         
         return resultado;
     }

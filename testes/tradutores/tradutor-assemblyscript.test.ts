@@ -302,7 +302,7 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
             it('paraCada -> loop baseado em índice', async () => {
                 const retornoLexador = lexador.mapear([
                     'var numeros: inteiro[] = [1, 2, 3]',
-                    'para cada (numero em numeros) {',
+                    'para cada numero em numeros {',
                     '    escreva(numero)',
                     '}'
                 ], -1);
