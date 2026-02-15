@@ -38,14 +38,17 @@ import {
     Vetor,
 } from '../construtos';
 import {
+    Ajuda,
     Bloco,
     Classe,
     Comentario,
     Const,
+    ConstMultiplo,
     Declaracao,
     Enquanto,
     Escolha,
     Escreva,
+    EscrevaMesmaLinha,
     Expressao,
     Falhar,
     Fazer,
@@ -55,8 +58,11 @@ import {
     ParaCada,
     Retorna,
     Se,
+    TendoComo,
     Tente,
+    TextoDocumentacao,
     Var,
+    VarMultiplo,
 } from '../declaracoes';
 import { SimboloInterface } from '../interfaces';
 import { CaminhoEscolha } from '../interfaces/construtos';
@@ -355,6 +361,100 @@ export class TradutorAssemblyScript {
         }
 
         return resultado;
+    }
+
+    traduzirDeclaracaoVarMultiplo(declaracaoVarMultiplo: VarMultiplo): string {
+        const variaveis = declaracaoVarMultiplo.simbolos.map(s => s.lexema).join(', ');
+        let resultado = 'let ';
+        resultado += variaveis;
+        resultado += this.resolveTipoDeclaracaoVarEContante(declaracaoVarMultiplo.tipo);
+        if (!declaracaoVarMultiplo?.inicializador) resultado += ';';
+        else {
+            resultado += ' = ';
+            if (this.dicionarioConstrutos[declaracaoVarMultiplo.inicializador.constructor.name]) {
+                resultado += this.dicionarioConstrutos[
+                    declaracaoVarMultiplo.inicializador.constructor.name
+                ](declaracaoVarMultiplo.inicializador);
+            } else {
+                resultado += this.dicionarioDeclaracoes[
+                    declaracaoVarMultiplo.inicializador.constructor.name
+                ](declaracaoVarMultiplo.inicializador);
+            }
+            resultado += ';';
+        }
+        return resultado;
+    }
+
+    traduzirDeclaracaoConstMultiplo(declaracaoConstMultiplo: ConstMultiplo): string {
+        const constantes = declaracaoConstMultiplo.simbolos.map(s => s.lexema).join(', ');
+        let resultado = 'const ';
+        resultado += constantes;
+        resultado += this.resolveTipoDeclaracaoVarEContante(declaracaoConstMultiplo.tipo);
+        if (!declaracaoConstMultiplo?.inicializador) resultado += ';';
+        else {
+            resultado += ' = ';
+            if (this.dicionarioConstrutos[declaracaoConstMultiplo.inicializador.constructor.name]) {
+                resultado += this.dicionarioConstrutos[
+                    declaracaoConstMultiplo.inicializador.constructor.name
+                ](declaracaoConstMultiplo.inicializador);
+            } else {
+                resultado += this.dicionarioDeclaracoes[
+                    declaracaoConstMultiplo.inicializador.constructor.name
+                ](declaracaoConstMultiplo.inicializador);
+            }
+            resultado += ';';
+        }
+        return resultado;
+    }
+
+    traduzirDeclaracaoEscrevaMesmaLinha(declaracaoEscrevaMesmaLinha: EscrevaMesmaLinha): string {
+        let resultado = 'trace(';
+        for (const argumento of declaracaoEscrevaMesmaLinha.argumentos) {
+            const valor = this.dicionarioConstrutos[argumento.constructor.name](argumento);
+            resultado += valor + ', ';
+        }
+
+        resultado = resultado.slice(0, -2);
+        resultado += ')';
+        return resultado;
+    }
+
+    traduzirDeclaracaoTendoComo(declaracaoTendoComo: TendoComo): string {
+        // TendoComo is a resource management pattern (like try-with-resources in Java)
+        // AssemblyScript doesn't have built-in support, so we'll just treat it as a scope
+        let resultado = `// tendo ${declaracaoTendoComo.simboloVariavel.lexema} como recurso\n`;
+        resultado += ' '.repeat(this.indentacao);
+        resultado += `let ${declaracaoTendoComo.simboloVariavel.lexema} = `;
+        
+        if (this.dicionarioConstrutos[declaracaoTendoComo.inicializacaoVariavel.constructor.name]) {
+            resultado += this.dicionarioConstrutos[
+                declaracaoTendoComo.inicializacaoVariavel.constructor.name
+            ](declaracaoTendoComo.inicializacaoVariavel);
+        } else {
+            resultado += this.dicionarioDeclaracoes[
+                declaracaoTendoComo.inicializacaoVariavel.constructor.name
+            ](declaracaoTendoComo.inicializacaoVariavel);
+        }
+        
+        resultado += ';\n';
+        resultado += ' '.repeat(this.indentacao);
+        resultado += this.dicionarioDeclaracoes[declaracaoTendoComo.corpo.constructor.name](
+            declaracaoTendoComo.corpo
+        );
+        
+        return resultado;
+    }
+
+    traduzirDeclaracaoAjuda(declaracaoAjuda: Ajuda): string {
+        // Ajuda is a help/documentation statement
+        // In AssemblyScript, we'll just comment it out
+        return '// ajuda' + '\n';
+    }
+
+    traduzirDeclaracaoTextoDocumentacao(declaracaoTextoDoc: TextoDocumentacao): string {
+        // TextoDocumentacao is documentation text
+        // We'll convert it to a comment
+        return `/** ${declaracaoTextoDoc} */\n`;
     }
 
     logicaComumBlocoEscopo(declaracoes: Declaracao[]): string {
@@ -1135,6 +1235,7 @@ export class TradutorAssemblyScript {
     };
 
     dicionarioDeclaracoes = {
+        Ajuda: this.traduzirDeclaracaoAjuda.bind(this),
         Bloco: this.traduzirDeclaracaoBloco.bind(this),
         Enquanto: this.traduzirDeclaracaoEnquanto.bind(this),
         Comentario: this.traduzirConstrutoComentario.bind(this),
@@ -1154,8 +1255,13 @@ export class TradutorAssemblyScript {
         Classe: this.traduzirDeclaracaoClasse.bind(this),
         Tente: this.traduzirDeclaracaoTente.bind(this),
         Const: this.traduzirDeclaracaoConst.bind(this),
+        ConstMultiplo: this.traduzirDeclaracaoConstMultiplo.bind(this),
         Var: this.traduzirDeclaracaoVar.bind(this),
+        VarMultiplo: this.traduzirDeclaracaoVarMultiplo.bind(this),
         Escreva: this.traduzirDeclaracaoEscreva.bind(this),
+        EscrevaMesmaLinha: this.traduzirDeclaracaoEscrevaMesmaLinha.bind(this),
+        TendoComo: this.traduzirDeclaracaoTendoComo.bind(this),
+        TextoDocumentacao: this.traduzirDeclaracaoTextoDocumentacao.bind(this),
     };
 
     traduzir(declaracoes: Declaracao[]): string {
