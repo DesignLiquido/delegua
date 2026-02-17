@@ -201,6 +201,55 @@ describe('Interpretador (Pituguês)', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Vetor com elementos acessados por índice', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'vetor1 = [8, 2, 9, 5]',
+                        'vetor2 = [vetor1[0], vetor1[1]]',
+                        'escreva(vetor2)',
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('[8, 2]');
+                });
+
+                it('Vetor com elementos acessados por índice após laço enquanto', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'vetor1 = [8, 2, 9, 5]',
+                        'aux = 0',
+                        'i = 0',
+                        'enquanto i < 3:',
+                        '    se vetor1[i] > vetor1[i+1]:',
+                        '        aux = vetor1[i]',
+                        '        vetor1[i] = vetor1[i+1]',
+                        '        vetor1[i+1] = aux',
+                        '    i = i + 1',
+                        '',
+                        'vetor2 = [vetor1[0], vetor1[1]]',
+                        'escreva(vetor2)',
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('[2, 8]');
+                });
+
                 it('Dicionário', async () => {
                     const retornoLexador = lexador.mapear(["a = {'a': 1, 'b': 2}"], -1);
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
