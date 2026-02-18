@@ -5,6 +5,7 @@ export * from './descritor-tipo-classe';
 export * from './funcao-padrao';
 export * from './delegua-funcao';
 export * from './metodo-primitiva';
+export * from './metodo-polimorfico';
 export * from './modulo';
 export * from './objeto-delegua-classe';
 export * from './objeto-padrao';

@@ -1,6 +1,6 @@
 import { SimboloInterface } from '..';
 
-export interface ErroInterpretador {
+export interface ErroInterpretadorInterface {
     simbolo?: SimboloInterface;
     mensagem?: string;
     erroInterno?: any;

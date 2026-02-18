@@ -1565,7 +1565,7 @@ export class AvaliadorSintatico
         let expressao = await this.bitE();
 
         while (
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIT_OR, tiposDeSimbolos.BIT_XOR)
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIT_OR, tiposDeSimbolos.CIRCUMFLEXO)
         ) {
             const operador = this.simbolos[this.atual - 1];
             const direito = await this.bitE();
@@ -2567,6 +2567,14 @@ export class AvaliadorSintatico
             case Chamada:
                 const construtoChamada = expressaoInicializacao as Chamada;
                 switch (construtoChamada.entidadeChamada.constructor) {
+                    case AcessoMetodo:
+                        const entidadeChamadaAcessoMetodo =
+                            construtoChamada.entidadeChamada as AcessoMetodo;
+                        tipoInicializacao = entidadeChamadaAcessoMetodo.tipoRetornoMetodo.replace(
+                            '<T>',
+                            entidadeChamadaAcessoMetodo.objeto.tipo
+                        );
+                        break;
                     case Variavel:
                         const entidadeChamadaVariavel =
                             construtoChamada.entidadeChamada as Variavel;
@@ -2721,14 +2729,16 @@ export class AvaliadorSintatico
                                 entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema in
                                 tipoCorrespondente.metodos
                             ) {
-                                return tipoCorrespondente.metodos[
+                                const metodoCorrespondente = tipoCorrespondente.metodos[
                                     entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema
-                                ].tipo;
+                                ];
+                                return metodoCorrespondente.tipoRetorno || 'qualquer';
                             }
 
-                            return tipoCorrespondente.propriedades[
+                            const propriedadeCorrespondente = tipoCorrespondente.propriedades[
                                 entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema
-                            ].tipo;
+                            ];
+                            return propriedadeCorrespondente.tipo;
                         }
 
                         // Este caso ocorre quando a variável/constante é do tipo 'qualquer',
@@ -2893,6 +2903,7 @@ export class AvaliadorSintatico
         }
 
         for (let [indice, identificador] of identificadores.entries()) {
+            const tipoOriginal = tipo; // Preserva o tipo antes da inferência
             tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(
                 inicializadores[indice],
                 tipo
@@ -2917,7 +2928,8 @@ export class AvaliadorSintatico
                     inicializadores[indice],
                     tipo,
                     tipoExplicito,
-                    Array.from(this.pilhaDecoradores)
+                    Array.from(this.pilhaDecoradores),
+                    tipoOriginal // Passa o tipo original para o construtor
                 )
             );
         }
@@ -3175,7 +3187,9 @@ export class AvaliadorSintatico
         }
 
         if (tipoRetorno === 'vazio' && expressoesRetorna.length > 0) {
-            const retornosNaoVazios = expressoesRetorna.filter((e) => e.tipo !== 'vazio');
+            // Filtra retornos que têm tipo conhecido e diferente de 'vazio'.
+            // 'qualquer' é excluído pois o tipo não pode ser determinado em tempo de análise sintática.
+            const retornosNaoVazios = expressoesRetorna.filter((e) => e.tipo !== 'vazio' && e.tipo !== 'qualquer');
             if (retornosNaoVazios.length > 0) {
                 throw this.erro(
                     retornosNaoVazios[0].simboloChave,
@@ -3587,7 +3601,8 @@ export class AvaliadorSintatico
             'intervalo',
             new InformacaoElementoSintatico('intervalo', 'inteiro[]', true, [
                 new InformacaoElementoSintatico('valorInicial', 'qualquer'),
-                new InformacaoElementoSintatico('valorFinal', 'qualquer'),
+                new InformacaoElementoSintatico('valorFinal', 'qualquer', false),
+                new InformacaoElementoSintatico('valorPasso', 'qualquer', false),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(

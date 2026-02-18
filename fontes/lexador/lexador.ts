@@ -126,8 +126,13 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
 
     adicionarSimbolo(tipo: string, literal: any = null): void {
         const texto: string = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
+        const lexema = literal || texto;
+        const comprimentoLexema = typeof lexema === 'string' ? lexema.length : 0;
+        const comprimento = Math.max(comprimentoLexema, texto.length) || 1;
+        const colunaInicio = this.inicioSimbolo + 1;
+        const colunaFim = this.inicioSimbolo + comprimento;
         this.simbolos.push(
-            new Simbolo(tipo, literal || texto, literal, this.linha + 1, this.hashArquivo)
+            new Simbolo(tipo, lexema, literal, this.linha + 1, this.hashArquivo, colunaInicio, colunaFim)
         );
     }
 
@@ -481,7 +486,7 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
                 break;
 
             case '^':
-                this.adicionarSimbolo(tiposDeSimbolos.BIT_XOR);
+                this.adicionarSimbolo(tiposDeSimbolos.CIRCUMFLEXO);
                 this.avancar();
                 break;
 

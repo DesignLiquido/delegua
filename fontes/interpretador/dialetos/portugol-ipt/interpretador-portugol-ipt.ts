@@ -57,7 +57,7 @@ import {
     SimboloInterface,
     VariavelInterface,
 } from '../../../interfaces';
-import { ErroInterpretador } from '../../../interfaces/erros/erro-interpretador';
+import { ErroInterpretadorInterface } from '../../../interfaces/erros/erro-interpretador-interface';
 import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
 import { PilhaEscoposExecucaoInterface } from '../../../interfaces/pilha-escopos-execucao-interface';
 import { RetornoInterpretadorInterface } from '../../../interfaces/retornos';
@@ -78,7 +78,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
     interfaceEntradaSaida: any;
 
     declaracoes: Declaracao[];
-    erros: ErroInterpretador[];
+    erros: ErroInterpretadorInterface[];
 
     hashArquivoDeclaracaoAtual: number;
     linhaDeclaracaoAtual: number;

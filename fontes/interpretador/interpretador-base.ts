@@ -33,6 +33,7 @@ import {
     Chamavel,
     DescritorTipoClasse,
     DeleguaFuncao,
+    MetodoPolimorfico,
     ObjetoDeleguaClasse,
     DeleguaModulo,
     FuncaoPadrao,
@@ -73,8 +74,9 @@ import {
     Vetor,
     ListaCompreensao,
     Isto,
+    Binario,
 } from '../construtos';
-import { ErroInterpretador } from '../interfaces/erros/erro-interpretador';
+import { ErroInterpretadorInterface } from '../interfaces/erros/erro-interpretador-interface';
 import { RetornoInterpretadorInterface } from '../interfaces/retornos/retorno-interpretador-interface';
 import { EscopoExecucao } from '../interfaces/escopo-execucao';
 import { PilhaEscoposExecucao } from './pilha-escopos-execucao';
@@ -115,7 +117,7 @@ import primitivasVetor from '../bibliotecas/primitivas-vetor';
  */
 export class InterpretadorBase implements InterpretadorInterface {
     diretorioBase: string;
-    erros: ErroInterpretador[];
+    erros: ErroInterpretadorInterface[];
     declaracoes: Declaracao[];
     resultadoInterpretador: ResultadoParcialInterpretadorInterface[] = [];
     linhaDeclaracaoAtual: number;
@@ -146,6 +148,11 @@ export class InterpretadorBase implements InterpretadorInterface {
     microAvaliadorSintatico: MicroAvaliadorSintaticoBase = new MicroAvaliadorSintatico();
 
     regexInterpolacao = /\${(.*?)}/g;
+
+    // Número de iterações entre cada cessão de controle ao loop de eventos do JavaScript.
+    // Isso permite que laços de repetição longos ou infinitos não bloqueiem o loop de eventos.
+    private iteracoesParaCederControle = 1000;
+
     private tiposNumericos = [
         tipoDeDadosDelegua.INTEIRO,
         tipoDeDadosDelegua.LONGO,
@@ -153,6 +160,8 @@ export class InterpretadorBase implements InterpretadorInterface {
         tipoDeDadosDelegua.NÚMERO,
         tipoDeDadosDelegua.REAL,
     ];
+
+    lancarErroPorDivisaoPorZero = false;
 
     constructor(
         diretorioBase: string,
@@ -189,6 +198,23 @@ export class InterpretadorBase implements InterpretadorInterface {
             emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+    }
+
+    /**
+     * Cede o controle ao loop de eventos do JavaScript.
+     * Usado em laços de repetição para evitar bloqueio do loop de eventos
+     * em iterações longas ou infinitas.
+     */
+    protected async cederControle(iteracoes: number): Promise<void> {
+        if (iteracoes % this.iteracoesParaCederControle === 0) {
+            await new Promise<void>((resolve) => {
+                if (typeof setImmediate !== 'undefined') {
+                    setImmediate(resolve);
+                } else {
+                    setTimeout(resolve, 0);
+                }
+            });
+        }
     }
 
     visitarDeclaracaoTextoDocumentacao(declaracao: TextoDocumentacao): Promise<any> | void {
@@ -740,7 +766,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         );
     }
 
-    async visitarExpressaoBinaria(expressao: any): Promise<any> {
+    async visitarExpressaoBinaria(expressao: Binario): Promise<any> {
         const esquerda: VariavelInterface | any = await this.avaliar(expressao.esquerda);
         const direita: VariavelInterface | any = await this.avaliar(expressao.direita);
         const valorEsquerdo: any = this.resolverValor(esquerda);
@@ -835,6 +861,15 @@ export class InterpretadorBase implements InterpretadorInterface {
             case tiposDeSimbolos.DIVISAO:
             case tiposDeSimbolos.DIVISAO_IGUAL:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+
+                if (this.lancarErroPorDivisaoPorZero && Number(valorDireito) === 0) {
+                    throw new ErroEmTempoDeExecucao(
+                        expressao.operador,
+                        'Divisão por zero não é permitida.',
+                        expressao.operador.linha
+                    );
+                }
+
                 // SEMPRE retorna Number para precisão decimal (preferência do usuário)
                 // Mesmo se operandos forem BigInt, converte para Number
                 return Number(valorEsquerdo) / Number(valorDireito);
@@ -842,6 +877,15 @@ export class InterpretadorBase implements InterpretadorInterface {
             case tiposDeSimbolos.DIVISAO_INTEIRA:
             case tiposDeSimbolos.DIVISAO_INTEIRA_IGUAL:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+
+                if (this.lancarErroPorDivisaoPorZero && valorDireito === 0) {
+                    throw new ErroEmTempoDeExecucao(
+                        expressao.operador,
+                        'Divisão por zero não é permitida.',
+                        expressao.operador.linha
+                    );
+                }
+
                 // Retorna BigInt se qualquer operando for BigInt
                 if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
                     const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
@@ -932,6 +976,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                 return Number(valorEsquerdo) % Number(valorDireito);
 
             case tiposDeSimbolos.BIT_AND:
+                if (typeof valorEsquerdo === 'boolean' && typeof valorDireito === 'boolean') {
+                    return valorEsquerdo && valorDireito;
+                }
+
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 // Auto-promove para BigInt se qualquer operando for BigInt
                 if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
@@ -941,7 +989,11 @@ export class InterpretadorBase implements InterpretadorInterface {
                 }
                 return Number(valorEsquerdo) & Number(valorDireito);
 
-            case tiposDeSimbolos.BIT_XOR:
+            case tiposDeSimbolos.CIRCUMFLEXO:
+                if (typeof valorEsquerdo === 'boolean' && typeof valorDireito === 'boolean') {
+                    return valorEsquerdo !== valorDireito;
+                }
+
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 // Auto-promove para BigInt se qualquer operando for BigInt
                 if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
@@ -952,6 +1004,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                 return Number(valorEsquerdo) ^ Number(valorDireito);
 
             case tiposDeSimbolos.BIT_OR:
+                if (typeof valorEsquerdo === 'boolean' && typeof valorDireito === 'boolean') {
+                    return valorEsquerdo || valorDireito;
+                }
+
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 // Auto-promove para BigInt se qualquer operando for BigInt
                 if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
@@ -963,8 +1019,9 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             case tiposDeSimbolos.MENOR_MENOR:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                // Auto-promove para BigInt se qualquer operando for BigInt
-                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                // Auto-promove para BigInt (interno para longo) se qualquer operando for BigInt ou se deslocamento >= 32
+                const tamanhoDeslocamentoEsquerda = Number(valorDireito);
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint' || tamanhoDeslocamentoEsquerda >= 32) {
                     const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
                     const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
                     return esq << dir;
@@ -973,8 +1030,9 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             case tiposDeSimbolos.MAIOR_MAIOR:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                // Auto-promove para BigInt se qualquer operando for BigInt
-                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                // Auto-promove para BigInt (interno para longo) se qualquer operando for BigInt ou se deslocamento >= 32
+                const tamanhoDeslocamentoDireita = Number(valorDireito);
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint' || tamanhoDeslocamentoDireita >= 32) {
                     const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
                     const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
                     return esq >> dir;
@@ -1083,7 +1141,13 @@ export class InterpretadorBase implements InterpretadorInterface {
                 : entidadeChamada.length;
 
             // Completar os argumentos não preenchidos com valores indefinidos.
-            if (argumentos.length < aridade) {
+            // Para métodos polimórficos e classes com construtores polimórficos,
+            // a quantidade original de argumentos é necessária para o despacho
+            // correto da sobrecarga.
+            const ehPolimorfico = entidadeChamada instanceof MetodoPolimorfico ||
+                (entidadeChamada instanceof DescritorTipoClasse &&
+                    entidadeChamada.encontrarMetodo('construtor') instanceof MetodoPolimorfico);
+            if (!ehPolimorfico && argumentos.length < aridade) {
                 const diferenca = aridade - argumentos.length;
                 for (let i = 0; i < diferenca; i++) {
                     argumentos.push({
@@ -1114,7 +1178,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             // então precisamos testar o nome do construtor também.
             if (
                 entidadeChamada instanceof Chamavel ||
-                entidadeChamada.constructor.name === 'DeleguaFuncao'
+                entidadeChamada.constructor.name === 'DeleguaFuncao' ||
+                entidadeChamada.constructor.name === 'MetodoPolimorfico'
             ) {
                 const retornoEntidadeChamada = await entidadeChamada.chamar(this, argumentos);
                 return retornoEntidadeChamada;
@@ -1250,6 +1315,38 @@ export class InterpretadorBase implements InterpretadorInterface {
             }
         }
 
+        // E/OU como bitwise quando ambos operandos são numéricos
+        if ([tiposDeSimbolos.E, tiposDeSimbolos.OU].includes(expressao.operador.tipo)) {
+            const valorEsquerdo = this.resolverValor(esquerda);
+            if (typeof valorEsquerdo === 'number' || typeof valorEsquerdo === 'bigint') {
+                const direita = await this.avaliar(expressao.direita);
+                const valorDireito = this.resolverValor(direita);
+
+                if (typeof valorDireito === 'number' || typeof valorDireito === 'bigint') {
+                    if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                        const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
+                        const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                        return expressao.operador.tipo === tiposDeSimbolos.E ? (esq & dir) : (esq | dir);
+                    }
+
+                    return expressao.operador.tipo === tiposDeSimbolos.E
+                        ? (Number(valorEsquerdo) & Number(valorDireito))
+                        : (Number(valorEsquerdo) | Number(valorDireito));
+                }
+
+                // Demais casos sem diferença de tipos
+                if (expressao.operador.tipo === tiposDeSimbolos.OU) {
+                    if (this.eVerdadeiro(esquerda)) return esquerda;
+                    return direita;
+                }
+
+                if (expressao.operador.tipo === tiposDeSimbolos.E) {
+                    if (!this.eVerdadeiro(esquerda)) return esquerda;
+                    return direita;
+                }
+            }
+        }
+
         // se um estado for verdadeiro, retorna verdadeiro
         if (expressao.operador.tipo === tiposDeSimbolos.OU) {
             if (this.eVerdadeiro(esquerda)) return esquerda;
@@ -1273,6 +1370,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         let retornoExecucao: ResultadoParcialInterpretadorInterface;
+        let iteracoes = 0;
         while (!(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) {
             if (
                 declaracao.condicao !== null &&
@@ -1282,6 +1380,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             }
 
             try {
+                await this.cederControle(++iteracoes);
                 retornoExecucao = await this.executar(declaracao.corpo);
                 if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                     return null;
@@ -1331,11 +1430,13 @@ export class InterpretadorBase implements InterpretadorInterface {
             );
         }
 
+        let iteracoes = 0;
         while (
             !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
             declaracao.posicaoAtual < valorVetorResolvido.length
         ) {
             try {
+                await this.cederControle(++iteracoes);
                 if (declaracao.variavelIteracao instanceof Variavel) {
                     this.pilhaEscoposExecucao.definirVariavel(
                         declaracao.variavelIteracao.simbolo.lexema,
@@ -1416,11 +1517,13 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
         let retornoExecucao: ResultadoParcialInterpretadorInterface;
+        let iteracoes = 0;
         while (
             !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
             this.eVerdadeiro(await this.avaliar(declaracao.condicao))
         ) {
             try {
+                await this.cederControle(++iteracoes);
                 retornoExecucao = await this.executar(declaracao.corpo);
                 if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                     return null;
@@ -1488,8 +1591,10 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     async visitarDeclaracaoFazer(declaracao: Fazer): Promise<any> {
         let retornoExecucao: ResultadoParcialInterpretadorInterface;
+        let iteracoes = 0;
         do {
             try {
+                await this.cederControle(++iteracoes);
                 retornoExecucao = await this.executar(declaracao.caminhoFazer);
                 if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                     return null;
@@ -1991,7 +2096,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             this.pilhaEscoposExecucao.definirVariavel('super', superClasse);
         }
 
-        const metodos = {};
+        const metodos: { [nome: string]: DeleguaFuncao | DeleguaFuncao[] } = {};
         const definirMetodos = declaracao.metodos;
         for (let i = 0; i < declaracao.metodos.length; i++) {
             const metodoAtual = definirMetodos[i];
@@ -2002,7 +2107,15 @@ export class InterpretadorBase implements InterpretadorInterface {
                 undefined,
                 eInicializador
             );
-            metodos[metodoAtual.simbolo.lexema] = funcao;
+            const nomeMetodo = metodoAtual.simbolo.lexema;
+            if (metodos[nomeMetodo]) {
+                if (!Array.isArray(metodos[nomeMetodo])) {
+                    metodos[nomeMetodo] = [metodos[nomeMetodo] as DeleguaFuncao];
+                }
+                (metodos[nomeMetodo] as DeleguaFuncao[]).push(funcao);
+            } else {
+                metodos[nomeMetodo] = funcao;
+            }
         }
 
         const descritorTipoClasse: DescritorTipoClasse = new DescritorTipoClasse(
@@ -2191,7 +2304,8 @@ export class InterpretadorBase implements InterpretadorInterface {
         this.pilhaEscoposExecucao.definirVariavel(
             declaracao.simbolo.lexema,
             valorFinal,
-            tipoResolvido
+            tipoResolvido,
+            declaracao.tipoExplicito && declaracao.tipoOriginal !== 'qualquer'
         );
 
         // TODO: É relevante registrar uma declaração de variável no

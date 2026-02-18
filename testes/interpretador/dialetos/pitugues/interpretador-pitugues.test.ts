@@ -40,6 +40,105 @@ describe('Interpretador (Pituguês)', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Atribuição com anotação de tipo texto[]', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "t: texto[] = ['gggg', 'vvv']",
+                        'escreva(t)',
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe("['gggg', 'vvv']");
+                });
+
+                it('Atribuição com anotação de tipo inteiro', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'n: inteiro = 42',
+                        'escreva(n)',
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('42');
+                });
+
+                it('Variável sem tipo explícito aceita qualquer valor', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'y = "hello"',
+                        'y = 10',
+                        'escreva(y)',
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('10');
+                });
+
+                it('Reatribuição com mesmo tipo funciona normalmente', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'z: inteiro = 5',
+                        'z = 42',
+                        'escreva(z)',
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('42');
+                });
+
+                it('Tipos numéricos são compatíveis entre si', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'n: número = 10',
+                        'n = 3.14',
+                        'escreva(n)',
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 describe('Compreensão de listas', () => {
                     it('Trivial', async () => {
                         const retornoLexador = lexador.mapear(
@@ -160,6 +259,29 @@ describe('Interpretador (Pituguês)', () => {
                             const variavelFatia = interpretador.pilhaEscoposExecucao.obterVariavelPorNome('fatia');
 
                             expect(variavelFatia.valor).toEqual([1, 2, 3]);
+                        });
+
+                        it('Fatiamento com início, fim e passo definidos [início:fim:passo]', async () => {
+                            const retornoLexador = lexador.mapear([`
+                                numeros = [0, 1, 2, 3, 4, 5]
+                                fatia = numeros[1::2]
+                            `], -1);
+
+                            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                                retornoLexador,
+                                -1
+                            );
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+
+                            const variavelFatia = interpretador.pilhaEscoposExecucao.obterVariavelPorNome('fatia');
+
+                            expect(variavelFatia.valor).toEqual([1, 3, 5]);
                         });
 
                         it('Fatiamento sem fim definido [início:]', async () => {
@@ -3475,6 +3597,36 @@ describe('Interpretador (Pituguês)', () => {
         });
 
         describe('Cenários de falha', () => {
+            describe('Tipagem explícita', () => {
+                it('Erro ao atribuir número a variável do tipo texto', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'nome: texto = "Fernando"',
+                        'nome = 10',
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(1);
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe(
+                        "Variável 'nome' é do tipo 'texto' e não pode receber um valor do tipo 'número'."
+                    );
+                });
+
+                it('Erro ao atribuir texto a variável do tipo inteiro', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'idade: inteiro = 25',
+                        'idade = "vinte"',
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(1);
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe(
+                        "Variável 'idade' é do tipo 'inteiro' e não pode receber um valor do tipo 'texto'."
+                    );
+                });
+            });
+
             describe('Acesso a variáveis e objetos', () => {
                 it('Acesso a elementos de vetor', async () => {
                     const retornoLexador = lexador.mapear(['a = [1, 2, 3]\nescreva(a[4])'], -1);
@@ -4327,6 +4479,26 @@ describe('Interpretador (Pituguês)', () => {
 
                     expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
                 });
+            });
+
+            it('Lançando erro quando a divisão de um número é por zero', async () => {
+                const codigo = ["escreva(10 / 0)"];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                expect(retornoInterpretador.erros).toHaveLength(1);
+                expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe('Divisão por zero não é permitida.');
+            });
+
+            it('Lançando erro quando a divisão inteira de um número é por zero', async () => {
+                const codigo = ["escreva(10 // 0)"];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
+
+                expect(retornoInterpretador.erros).toHaveLength(1);
+                expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe('Divisão por zero não é permitida.');
             });
         });
 

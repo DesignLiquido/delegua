@@ -1,7 +1,7 @@
-import { ErroInterpretador } from '../erros/erro-interpretador';
+import { ErroInterpretadorInterface } from '../erros/erro-interpretador-interface';
 import { ResultadoParcialInterpretadorInterface } from '../resultado-parcial-interpretador-interface';
 
 export interface RetornoExecucaoInterface {
-    erros: Array<ErroInterpretador>;
+    erros: Array<ErroInterpretadorInterface>;
     resultado: Array<ResultadoParcialInterpretadorInterface>;
 }

@@ -587,47 +587,98 @@ export async function inteiro(
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
  * @param {VariavelInterface | number} valorInicial O valor inicial (inclusivo).
  * @param {VariavelInterface | number} valorFinal O valor final (exclusivo).
+ * @param {VariavelInterface | number} valorPasso O valor do passo.
  * @returns {Promise<number[]>} Um vetor com os números no intervalo.
  */
 export async function intervalo(
     interpretador: InterpretadorInterface,
     valorInicial: VariavelInterface | number,
-    valorFinal: VariavelInterface | number
+    valorFinal?: VariavelInterface | number,
+    valorPasso?: VariavelInterface | number,
 ): Promise<number[]> {
-    const inicio = interpretador.resolverValor(valorInicial);
-    const fim = interpretador.resolverValor(valorFinal);
+    const primeiroParam = interpretador.resolverValor(valorInicial);
+    const segundoParam = interpretador.resolverValor(valorFinal);
+    const terceiroParam = interpretador.resolverValor(valorPasso);
 
-    if (typeof inicio !== 'number' || typeof fim !== 'number') {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Os dois parâmetros devem ser do tipo número ou inteiro.'
-            )
-        );
+    let inicioInteiro: number;
+    let fimInteiro: number;
+    let passoInteiro: number = 1;
+
+    // intervalo(parada) - apenas um parâmetro
+    if (segundoParam === undefined || segundoParam === null) {
+        if (typeof primeiroParam !== 'number' || isNaN(primeiroParam)) {
+            return Promise.reject(
+                new ErroEmTempoDeExecucao(
+                    {
+                        hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                        linha: interpretador.linhaDeclaracaoAtual,
+                    } as SimboloInterface,
+                    'O parâmetro deve ser do tipo número ou inteiro.'
+                )
+            );
+        }
+
+        inicioInteiro = 0;
+        fimInteiro = Math.floor(primeiroParam);
     }
+    // intervalo(inicio, parada) ou intervalo(inicio, parada, passo)
+    else {
+        if (typeof primeiroParam !== 'number' || isNaN(primeiroParam) ||
+            typeof segundoParam !== 'number' || isNaN(segundoParam)) {
+            return Promise.reject(
+                new ErroEmTempoDeExecucao(
+                    {
+                        hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                        linha: interpretador.linhaDeclaracaoAtual,
+                    } as SimboloInterface,
+                    'Os parâmetros de início e fim devem ser do tipo número ou inteiro.'
+                )
+            );
+        }
 
-    if (isNaN(inicio) || isNaN(fim)) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Os dois parâmetros devem ser do tipo número ou inteiro.'
-            )
-        );
+        inicioInteiro = Math.floor(primeiroParam);
+        fimInteiro = Math.floor(segundoParam);
+
+        // Se há um terceiro parâmetro (passo)
+        if (terceiroParam !== undefined && terceiroParam !== null) {
+            if (typeof terceiroParam !== 'number' || isNaN(terceiroParam)) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        {
+                            hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                            linha: interpretador.linhaDeclaracaoAtual,
+                        } as SimboloInterface,
+                        'O parâmetro de passo deve ser do tipo número ou inteiro.'
+                    )
+                );
+            }
+
+            passoInteiro = Math.floor(terceiroParam);
+            if (passoInteiro === 0) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        {
+                            hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                            linha: interpretador.linhaDeclaracaoAtual,
+                        } as SimboloInterface,
+                        'O passo não pode ser zero.'
+                    )
+                );
+            }
+        }
     }
-
-    // Remove a parte decimal se houver
-    const inicioInteiro = Math.floor(inicio);
-    const fimInteiro = Math.floor(fim);
 
     const resultado = [];
-    for (let i = inicioInteiro; i < fimInteiro; i++) {
-        resultado.push(i);
+
+    if (passoInteiro > 0) {
+        for (let i = inicioInteiro; i < fimInteiro; i += passoInteiro) {
+            resultado.push(i);
+        }
+    } else {
+        // Parâmetro passo sendo um número negativo
+        for (let i = inicioInteiro; i > fimInteiro; i += passoInteiro) {
+            resultado.push(i);
+        }
     }
 
     return Promise.resolve(resultado);
@@ -1250,8 +1301,9 @@ export async function tamanho(interpretador: InterpretadorInterface, objeto: any
         const metodos = valorObjeto.metodos;
         let tamanho = 0;
 
-        if (metodos.inicializacao && metodos.inicializacao.eInicializador) {
-            tamanho = metodos.inicializacao.declaracao.parametros.length;
+        const metodoInicializacao = metodos.inicializacao;
+        if (metodoInicializacao && !Array.isArray(metodoInicializacao) && metodoInicializacao.eInicializador) {
+            tamanho = metodoInicializacao.declaracao.parametros.length;
         }
 
         return Promise.resolve(tamanho);

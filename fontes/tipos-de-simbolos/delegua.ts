@@ -4,7 +4,7 @@ export default {
     ARROBA: 'ARROBA',
     BIT_AND: 'BIT_AND',
     BIT_OR: 'BIT_OR',
-    BIT_XOR: 'BIT_XOR',
+    CIRCUMFLEXO: 'BIT_XOR',
     BIT_NOT: 'BIT_NOT',
     CADA: 'CADA',
     CASO: 'CASO',

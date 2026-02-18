@@ -291,6 +291,14 @@ export class AvaliadorSintaticoPitugues
             'Esperado nome de variável.'
         );
 
+        let tipo: string = 'qualquer';
+        let tipoExplicito: boolean = false;
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+            tipo = this.verificarDefinicaoTipoAtual();
+            tipoExplicito = true;
+            this.avancarEDevolverAnterior();
+        }
+
         this.consumir(tiposDeSimbolos.IGUAL, "Esperado '=' após identificador.");
 
         if (this.estaNoFinal()) {
@@ -301,14 +309,16 @@ export class AvaliadorSintaticoPitugues
         }
 
         const valor = await this.expressao();
-        const tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(valor, 'qualquer');
+        if (!tipoExplicito) {
+            tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(valor, 'qualquer');
+        }
 
         this.pilhaEscopos.definirInformacoesVariavel(
             identificador.lexema,
             new InformacaoElementoSintatico(identificador.lexema, tipo)
         );
 
-        return new Var(identificador, valor, tipo);
+        return new Var(identificador, valor, tipo, tipoExplicito);
     }
 
     private temPadraoMultiplaAtribuicao(): boolean {
@@ -898,22 +908,26 @@ export class AvaliadorSintaticoPitugues
 
                 expressao = new AcessoMetodoOuPropriedade(this.hashArquivo, expressao, nome);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
-                let ehFatiamento = false;
-                let indiceInicio: Construto | null = null;
-                let indiceFim: Construto | null = null;
+                const inicio = !this.verificarTipoSimboloAtual(tiposDeSimbolos.DOIS_PONTOS)
+                    ? await this.expressao()
+                    : null;
 
-                if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.DOIS_PONTOS)) {
-                    indiceInicio = await this.expressao();
-                }
+                let ehFatiamento = false;
+                let fim: Construto | null = null;
+                let passo: Construto | null = null;
 
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
                     ehFatiamento = true;
 
-                    // Se o próximo não é ':', nem ']', então é o índice fim
-                    if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.DOIS_PONTOS) &&
-                        !this.verificarTipoSimboloAtual(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                        indiceFim = await this.expressao();
-                    }
+                    if (
+                        !this.verificarTipoSimboloAtual(tiposDeSimbolos.DOIS_PONTOS)
+                        && !this.verificarTipoSimboloAtual(tiposDeSimbolos.COLCHETE_DIREITO)
+                    ) fim = await this.expressao();
+
+                    if (
+                        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)
+                        && !this.verificarTipoSimboloAtual(tiposDeSimbolos.COLCHETE_DIREITO)
+                    ) passo = await this.expressao();
                 }
 
                 const simboloFechamento = this.consumir(
@@ -925,15 +939,16 @@ export class AvaliadorSintaticoPitugues
                     expressao = new AcessoIntervaloVariavel(
                         this.hashArquivo,
                         expressao,
-                        indiceInicio,
-                        indiceFim,
+                        inicio,
+                        fim,
+                        passo,
                         simboloFechamento
                     )
                 } else {
                     expressao = new AcessoIndiceVariavel(
                         this.hashArquivo,
                         expressao,
-                        indiceInicio,
+                        inicio,
                         simboloFechamento
                     );
                 }
@@ -2153,6 +2168,10 @@ export class AvaliadorSintaticoPitugues
             if (proximoSimbolo && proximoSimbolo.tipo === tiposDeSimbolos.IGUAL) {
                 if (!this.variavelJaDeclarada(simboloAtual.lexema)) return this.declaracaoImplicitaVariaveis();
             }
+
+            if (proximoSimbolo && proximoSimbolo.tipo === tiposDeSimbolos.DOIS_PONTOS) {
+                return this.declaracaoImplicitaVariaveis();
+            }
         }
 
         switch (simboloAtual.tipo) {
@@ -2301,7 +2320,8 @@ export class AvaliadorSintaticoPitugues
             'intervalo',
             new InformacaoElementoSintatico('intervalo', 'inteiro[]', true, [
                 new InformacaoElementoSintatico('valorInicial', 'qualquer'),
-                new InformacaoElementoSintatico('valorFinal', 'qualquer'),
+                new InformacaoElementoSintatico('valorFinal', 'qualquer', false),
+                new InformacaoElementoSintatico('valorPasso', 'qualquer', false),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(

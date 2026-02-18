@@ -3,7 +3,34 @@ import { ErroEmTempoDeExecucao } from '../../excecoes';
 import { InterpretadorInterface, SimboloInterface } from '../../interfaces';
 import { Chamavel } from './chamavel';
 import { DeleguaFuncao } from './delegua-funcao';
+import { MetodoPolimorfico } from './metodo-polimorfico';
 import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
+
+const mapaDeNormalizacao: { [chave: string]: string } = {
+    'numero': 'número',
+    'logico': 'lógico',
+    'funcao': 'função',
+    'dicionario': 'dicionário',
+    'modulo': 'módulo',
+};
+
+function normalizarTipo(tipo: string | undefined): string {
+    if (!tipo || tipo === 'qualquer') return 'qualquer';
+    const tipoMinusculo = tipo.toLowerCase();
+    return mapaDeNormalizacao[tipoMinusculo] || tipoMinusculo;
+}
+
+function assinaturasIguais(a: DeleguaFuncao, b: DeleguaFuncao): boolean {
+    const paramsA = a.declaracao?.parametros || [];
+    const paramsB = b.declaracao?.parametros || [];
+    if (paramsA.length !== paramsB.length) return false;
+    for (let i = 0; i < paramsA.length; i++) {
+        if (normalizarTipo(paramsA[i].tipoDado) !== normalizarTipo(paramsB[i].tipoDado)) {
+            return false;
+        }
+    }
+    return true;
+}
 
 /**
  * Descritor de tipo de classe. Quando uma declaração de classe é visitada, o que
@@ -13,7 +40,7 @@ import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
 export class DescritorTipoClasse extends Chamavel {
     simboloOriginal: SimboloInterface;
     superClasse: DescritorTipoClasse;
-    metodos: { [nome: string]: DeleguaFuncao };
+    metodos: { [nome: string]: DeleguaFuncao | DeleguaFuncao[] };
     propriedades: PropriedadeClasse[];
     dialetoRequerExpansaoPropriedadesEspacoMemoria: boolean;
     dialetoRequerDeclaracaoPropriedades: boolean;
@@ -21,7 +48,7 @@ export class DescritorTipoClasse extends Chamavel {
     constructor(
         simboloOriginal?: SimboloInterface,
         superClasse?: DescritorTipoClasse,
-        metodos?: { [nome: string]: DeleguaFuncao },
+        metodos?: { [nome: string]: DeleguaFuncao | DeleguaFuncao[] },
         propriedades?: PropriedadeClasse[]
     ) {
         super();
@@ -32,16 +59,77 @@ export class DescritorTipoClasse extends Chamavel {
         this.dialetoRequerDeclaracaoPropriedades = false;
     }
 
-    encontrarMetodo(nome: string): DeleguaFuncao {
+    /**
+     * Mescla sobrecargas da classe atual com as da superclasse.
+     * Sobrecargas da subclasse com mesma assinatura substituem as da superclasse.
+     */
+    private mesclarComSuperclasse(
+        metodosAtuais: DeleguaFuncao[],
+        metodosSuperclasse: DeleguaFuncao[]
+    ): DeleguaFuncao[] {
+        const resultado = [...metodosAtuais];
+        for (const metodoSuper of metodosSuperclasse) {
+            const jaSobrescrito = metodosAtuais.some((m) => assinaturasIguais(m, metodoSuper));
+            if (!jaSobrescrito) {
+                resultado.push(metodoSuper);
+            }
+        }
+        return resultado;
+    }
+
+    private obterSobrecargasDaSuperclasse(nome: string): DeleguaFuncao[] {
+        if (!this.superClasse) return [];
+        const metodoSuper = this.superClasse.metodos.hasOwnProperty(nome)
+            ? this.superClasse.metodos[nome]
+            : undefined;
+
+        let sobrecargasSuper: DeleguaFuncao[] = [];
+        if (metodoSuper) {
+            sobrecargasSuper = Array.isArray(metodoSuper) ? metodoSuper : [metodoSuper];
+        }
+
+        // Recursivamente mesclar com a superclasse da superclasse
+        const sobrecargasAncestral = this.superClasse.obterSobrecargasDaSuperclasse(nome);
+        if (sobrecargasAncestral.length > 0) {
+            const resultado = [...sobrecargasSuper];
+            for (const metodoAnc of sobrecargasAncestral) {
+                const jaSobrescrito = resultado.some((m) => assinaturasIguais(m, metodoAnc));
+                if (!jaSobrescrito) {
+                    resultado.push(metodoAnc);
+                }
+            }
+            sobrecargasSuper = resultado;
+        }
+
+        return sobrecargasSuper;
+    }
+
+    encontrarMetodo(nome: string): DeleguaFuncao | MetodoPolimorfico {
+        let metodosAtuais: DeleguaFuncao[] = [];
+
         if (this.metodos.hasOwnProperty(nome)) {
-            return this.metodos[nome];
+            const metodo = this.metodos[nome];
+            metodosAtuais = Array.isArray(metodo) ? metodo : [metodo];
         }
 
-        if (this.superClasse !== null && this.superClasse !== undefined) {
-            return this.superClasse.encontrarMetodo(nome);
+        const metodosSuperclasse = this.obterSobrecargasDaSuperclasse(nome);
+
+        let todasSobrecargas: DeleguaFuncao[];
+        if (metodosAtuais.length > 0 && metodosSuperclasse.length > 0) {
+            todasSobrecargas = this.mesclarComSuperclasse(metodosAtuais, metodosSuperclasse);
+        } else if (metodosAtuais.length > 0) {
+            todasSobrecargas = metodosAtuais;
+        } else if (metodosSuperclasse.length > 0) {
+            todasSobrecargas = metodosSuperclasse;
+        } else {
+            return undefined;
         }
 
-        return undefined;
+        if (todasSobrecargas.length === 1) {
+            return todasSobrecargas[0];
+        }
+
+        return new MetodoPolimorfico(nome, todasSobrecargas);
     }
 
     encontrarPropriedade(nome: string): PropriedadeClasse {
@@ -92,6 +180,9 @@ export class DescritorTipoClasse extends Chamavel {
 
     aridade(): number {
         const inicializador = this.encontrarMetodo('construtor');
+        if (inicializador instanceof MetodoPolimorfico) {
+            return inicializador.aridade();
+        }
         return inicializador ? inicializador.aridade() : 0;
     }
 
@@ -103,8 +194,22 @@ export class DescritorTipoClasse extends Chamavel {
 
         const inicializador = this.encontrarMetodo('construtor');
         if (inicializador) {
-            const metodoConstrutor = inicializador.funcaoPorMetodoDeClasse(instancia);
-            await metodoConstrutor.chamar(visitante, argumentos);
+            if (inicializador instanceof MetodoPolimorfico) {
+                const construtorVinculado = inicializador.funcaoPorMetodoDeClasse(instancia);
+                await construtorVinculado.chamar(visitante, argumentos);
+            } else {
+                // Para construtor não polimórfico, completar os argumentos
+                // não preenchidos com valores indefinidos.
+                const aridadeConstrutor = inicializador.aridade();
+                if (argumentos.length < aridadeConstrutor) {
+                    const diferenca = aridadeConstrutor - argumentos.length;
+                    for (let i = 0; i < diferenca; i++) {
+                        argumentos.push({ nome: null, valor: null });
+                    }
+                }
+                const metodoConstrutor = inicializador.funcaoPorMetodoDeClasse(instancia);
+                await metodoConstrutor.chamar(visitante, argumentos);
+            }
         }
 
         return instancia;

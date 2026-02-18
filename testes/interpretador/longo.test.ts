@@ -46,6 +46,23 @@ describe('Tipo longo', () => {
             expect(_saidas[0]).toBe('30');  // Deve ser 30, não 60
         });
 
+        it('Issue #1057 - Cenário completo: encode com deslocamento de 64 bits', async () => {
+            const codigo = [
+                'funcao encode(x, y) {',
+                '    retorna (x << 32) | y',
+                '}',
+                'var num = encode(10, 20)',
+                'escreva((num & 0xFFFFFFFF) + ((num >> 32) & 0xFFFFFFFF))'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saidas).toHaveLength(1);
+            expect(_saidas[0]).toBe('30');  // Esperado: 10 + 20 = 30
+        });
+
         it('0xDEADBEEF cria longo com valor correto', async () => {
             const codigo = ['var x = 0xDEADBEEF', 'escreva(x)'];
             const retornoLexador = lexador.mapear(codigo, -1);
@@ -243,7 +260,7 @@ describe('Tipo longo', () => {
             expect(_saidas[0]).toBe('240');
         });
 
-        it('Left shift com longo - valores grandes', async () => {
+        it('Deslocamento à esquerda com longo - valores grandes', async () => {
             const codigo = ['escreva(longo(1) << longo(40))'];
             const retornoLexador = lexador.mapear(codigo, -1);
             const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
@@ -254,7 +271,7 @@ describe('Tipo longo', () => {
             expect(_saidas[0]).toBe('1099511627776');
         });
 
-        it('Right shift com longo', async () => {
+        it('Deslocamento à direita com longo', async () => {
             const codigo = ['escreva(longo(1024) >> longo(2))'];
             const retornoLexador = lexador.mapear(codigo, -1);
             const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);

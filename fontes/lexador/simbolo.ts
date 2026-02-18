@@ -6,13 +6,17 @@ export class Simbolo implements SimboloInterface {
     literal: any;
     linha: number;
     hashArquivo: number;
+    colunaInicio: number;
+    colunaFim: number;
 
-    constructor(tipo: string, lexema: string, literal: any, linha: number, hashArquivo: number) {
+    constructor(tipo: string, lexema: string, literal: any, linha: number, hashArquivo: number, colunaInicio: number = 0, colunaFim: number = 0) {
         this.tipo = tipo;
         this.lexema = lexema;
         this.literal = literal;
         this.linha = linha;
         this.hashArquivo = hashArquivo;
+        this.colunaInicio = colunaInicio;
+        this.colunaFim = colunaFim;
     }
 
     paraTexto(): string {

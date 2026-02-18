@@ -1005,6 +1005,48 @@ describe('Interpretador', () => {
                     expect(_saida).toBeTruthy();
                     expect(_saida).toBe('[0, 1, 2]');
                 });
+
+                it('Chamada a função nativa intervalo sem início definido', async () => {
+                    let _saida: string = '';
+
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'escreva(intervalo(10))'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saida = saida;
+                    };
+
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(_saida).toBeTruthy();
+                    expect(_saida).toBe('[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]');
+                });
+
+                it('Chamada a função nativa intervalo com passo definido', async () => {
+                    let _saida: string = '';
+
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'escreva(intervalo(0, 10, 2))'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saida = saida;
+                    };
+
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(_saida).toBeTruthy();
+                    expect(_saida).toBe('[0, 2, 4, 6, 8]');
+                });
             });
 
             describe('Conversões entre tipos', () => {
@@ -1302,6 +1344,54 @@ describe('Interpretador', () => {
             });
 
             describe('Operações lógicas', () => {
+                it('Operações lógicas - bitwise com variáveis lógicas (&, |, ^)', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'escreva(verdadeiro & falso)',
+                            'escreva(verdadeiro | falso)',
+                            'escreva(verdadeiro ^ falso)',
+                            'escreva(verdadeiro ^ verdadeiro)',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saidas.push(saida);
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(4);
+                    expect(_saidas[0]).toBe('falso');
+                    expect(_saidas[1]).toBe('verdadeiro');
+                    expect(_saidas[2]).toBe('verdadeiro');
+                    expect(_saidas[3]).toBe('falso');
+                });
+
+                it('Operações lógicas - e/ou como bitwise com números', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'escreva(1 e 3)', // 1 & 3 = 1
+                            'escreva(1 ou 2)', // 1 | 2 = 3
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saidas.push(saida);
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(2);
+                    expect(_saidas[0]).toBe('1');
+                    expect(_saidas[1]).toBe('3');
+                });
+
                 it('Operações lógicas - concatenação de texto', async () => {
                     const retornoLexador = lexador.mapear(
                         [
@@ -1892,6 +1982,50 @@ describe('Interpretador', () => {
                     expect(_saidas[0]).toBe("[12, 18, 24, 30, 36]");
                 });
 
+                it('enquanto verdadeiro com sustar (laço potencialmente infinito)', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var contador = 0',
+                            'enquanto verdadeiro {',
+                            '    contador++',
+                            '    se contador >= 5000 {',
+                            '        sustar',
+                            '    }',
+                            '}',
+                            'escreva(contador)',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('5000');
+                });
+
+                it('fazer ... enquanto verdadeiro com sustar (laço potencialmente infinito)', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var contador = 0',
+                            'fazer {',
+                            '    contador++',
+                            '    se contador >= 5000 {',
+                            '        sustar',
+                            '    }',
+                            '} enquanto verdadeiro',
+                            'escreva(contador)',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('5000');
+                });
+
                 describe('Para cada', () => {
                     it('para cada - trivial', async () => {
                         const saidasMensagens = ['Valor:  1', 'Valor:  2', 'Valor:  3'];
@@ -2462,6 +2596,353 @@ describe('Interpretador', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(_saidas).toHaveLength(1);
+                });
+
+                it('Semântica de referência - duas variáveis apontam para a mesma instância', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'classe Contador {',
+                            '  valor: numero',
+                            '  construtor() {',
+                            '    isto.valor = 0',
+                            '  }',
+                            '  incrementar() {',
+                            '    isto.valor += 1',
+                            '  }',
+                            '}',
+                            'var a = Contador()',
+                            'var b = a',
+                            'b.incrementar()',
+                            'escreva(a.valor)',
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('1');
+                });
+
+                it('Instância retornada de função preserva referência no montão', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'classe Pessoa {',
+                            '  nome: texto',
+                            '  construtor(nome) {',
+                            '    isto.nome = nome',
+                            '  }',
+                            '}',
+                            'funcao criarPessoa(nome) {',
+                            '  retorna Pessoa(nome)',
+                            '}',
+                            'var p = criarPessoa("Maria")',
+                            'escreva(p.nome)',
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('Maria');
+                });
+
+                it('Instância criada em escopo interno (se) e atribuída a variável externa permanece válida', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'classe Produto {',
+                            '  nome: texto',
+                            '  preco: numero',
+                            '  construtor(nome, preco) {',
+                            '    isto.nome = nome',
+                            '    isto.preco = preco',
+                            '  }',
+                            '}',
+                            'var produto',
+                            'se (verdadeiro) {',
+                            '  produto = Produto("Notebook", 2500)',
+                            '}',
+                            'escreva(produto.nome)',
+                            'escreva(produto.preco)',
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(2);
+                    expect(_saidas[0]).toBe('Notebook');
+                    expect(_saidas[1]).toBe('2500');
+                });
+
+                it('Instância criada em escopo interno (enquanto) e atribuída a variável externa permanece válida', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'classe Contador {',
+                            '  valor: numero',
+                            '  construtor(valorInicial) {',
+                            '    isto.valor = valorInicial',
+                            '  }',
+                            '}',
+                            'var contador',
+                            'var i = 0',
+                            'enquanto (i < 1) {',
+                            '  contador = Contador(10)',
+                            '  i = i + 1',
+                            '}',
+                            'escreva(contador.valor)',
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('10');
+                });
+            });
+
+            describe('Polimorfismo de métodos', () => {
+                it('Despacho por aridade - métodos com quantidades diferentes de parâmetros', async () => {
+                    const codigo = [
+                        'classe Calculadora {',
+                        '    somar(a: número) {',
+                        '        retorna a',
+                        '    }',
+                        '    somar(a: número, b: número) {',
+                        '        retorna a + b',
+                        '    }',
+                        '}',
+                        'var calc = Calculadora()',
+                        'escreva(calc.somar(5))',
+                        'escreva(calc.somar(3, 7))',
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(2);
+                    expect(_saidas[0]).toBe('5');
+                    expect(_saidas[1]).toBe('10');
+                });
+
+                it('Despacho por tipo - mesma aridade, tipos diferentes', async () => {
+                    const codigo = [
+                        'classe Impressora {',
+                        '    imprimir(valor: texto) {',
+                        '        escreva("Texto: " + valor)',
+                        '    }',
+                        '    imprimir(valor: número) {',
+                        '        escreva("Número: " + texto(valor))',
+                        '    }',
+                        '}',
+                        'var imp = Impressora()',
+                        'imp.imprimir("olá")',
+                        'imp.imprimir(42)',
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(2);
+                    expect(_saidas[0]).toBe('Texto: olá');
+                    expect(_saidas[1]).toBe('Número: 42');
+                });
+
+                it('Correspondência com curinga - parâmetro tipado tem prioridade sobre não-tipado', async () => {
+                    const codigo = [
+                        'classe Processador {',
+                        '    processar(valor: texto) {',
+                        '        escreva("texto: " + valor)',
+                        '    }',
+                        '    processar(valor) {',
+                        '        escreva("genérico: " + texto(valor))',
+                        '    }',
+                        '}',
+                        'var proc = Processador()',
+                        'proc.processar("teste")',
+                        'proc.processar(123)',
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(2);
+                    expect(_saidas[0]).toBe('texto: teste');
+                    expect(_saidas[1]).toBe('genérico: 123');
+                });
+
+                it('Compatibilidade numérica - inteiro compatível com número', async () => {
+                    const codigo = [
+                        'classe Conversor {',
+                        '    converter(valor: inteiro) {',
+                        '        escreva("inteiro: " + texto(valor))',
+                        '    }',
+                        '    converter(valor: texto) {',
+                        '        escreva("texto: " + valor)',
+                        '    }',
+                        '}',
+                        'var conv = Conversor()',
+                        'conv.converter(42)',
+                        'conv.converter("olá")',
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(2);
+                    expect(_saidas[0]).toBe('inteiro: 42');
+                    expect(_saidas[1]).toBe('texto: olá');
+                });
+
+                it('Sobrecarga de construtores', async () => {
+                    const codigo = [
+                        'classe Ponto {',
+                        '    x: número',
+                        '    y: número',
+                        '    construtor(x: número, y: número) {',
+                        '        isto.x = x',
+                        '        isto.y = y',
+                        '    }',
+                        '    construtor(valor: número) {',
+                        '        isto.x = valor',
+                        '        isto.y = valor',
+                        '    }',
+                        '}',
+                        'var p1 = Ponto(3, 4)',
+                        'var p2 = Ponto(5)',
+                        'escreva(p1.x)',
+                        'escreva(p1.y)',
+                        'escreva(p2.x)',
+                        'escreva(p2.y)',
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(4);
+                    expect(_saidas[0]).toBe('3');
+                    expect(_saidas[1]).toBe('4');
+                    expect(_saidas[2]).toBe('5');
+                    expect(_saidas[3]).toBe('5');
+                });
+
+                it('Herança com polimorfismo - subclasse adiciona sobrecargas a métodos herdados', async () => {
+                    const codigo = [
+                        'classe Base {',
+                        '    cumprimentar(nome: texto) {',
+                        '        escreva("Olá, " + nome)',
+                        '    }',
+                        '}',
+                        'classe Derivada herda Base {',
+                        '    cumprimentar(nome: texto, sobrenome: texto) {',
+                        '        escreva("Olá, " + nome + " " + sobrenome)',
+                        '    }',
+                        '}',
+                        'var d = Derivada()',
+                        'd.cumprimentar("João")',
+                        'd.cumprimentar("João", "Silva")',
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(2);
+                    expect(_saidas[0]).toBe('Olá, João');
+                    expect(_saidas[1]).toBe('Olá, João Silva');
+                });
+
+                it('Herança com sobrescrita de assinatura específica', async () => {
+                    const codigo = [
+                        'classe Base {',
+                        '    processar(valor: texto) {',
+                        '        escreva("base-texto: " + valor)',
+                        '    }',
+                        '    processar(valor: número) {',
+                        '        escreva("base-número: " + texto(valor))',
+                        '    }',
+                        '}',
+                        'classe Derivada herda Base {',
+                        '    processar(valor: texto) {',
+                        '        escreva("derivada-texto: " + valor)',
+                        '    }',
+                        '}',
+                        'var d = Derivada()',
+                        'd.processar("teste")',
+                        'd.processar(99)',
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(2);
+                    expect(_saidas[0]).toBe('derivada-texto: teste');
+                    expect(_saidas[1]).toBe('base-número: 99');
+                });
+
+                it('Método único - compatibilidade retroativa', async () => {
+                    const codigo = [
+                        'classe Simples {',
+                        '    saudar() {',
+                        '        escreva("Olá mundo")',
+                        '    }',
+                        '}',
+                        'var s = Simples()',
+                        's.saudar()',
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('Olá mundo');
+                });
+
+                it('Erro quando nenhuma sobrecarga corresponde', async () => {
+                    const codigo = [
+                        'classe Estrita {',
+                        '    executar(valor: texto) {',
+                        '        escreva(valor)',
+                        '    }',
+                        '    executar(a: número, b: número) {',
+                        '        escreva(a + b)',
+                        '    }',
+                        '}',
+                        'var est = Estrita()',
+                        'est.executar(verdadeiro)',
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(1);
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toContain('sobrecarga');
                 });
             });
 
@@ -3684,6 +4165,108 @@ describe('Interpretador', () => {
                         'Não é possível modificar uma tupla. As tuplas são estruturas de dados imutáveis.'
                     );
                 });
+            });
+        });
+
+        describe('Verificação de tipos em atribuição', () => {
+            it('Erro ao atribuir número a variável do tipo texto', async () => {
+                const codigo = [
+                    'var nome: texto = "Fernando"',
+                    'nome = 10',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(1);
+                expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe(
+                    "Variável 'nome' é do tipo 'texto' e não pode receber um valor do tipo 'número'."
+                );
+            });
+
+            it('Erro ao atribuir texto a variável do tipo inteiro', async () => {
+                const codigo = [
+                    'var idade: inteiro = 25',
+                    'idade = "vinte"',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(1);
+                expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe(
+                    "Variável 'idade' é do tipo 'inteiro' e não pode receber um valor do tipo 'texto'."
+                );
+            });
+
+            it('Erro ao atribuir texto a variável do tipo lógico', async () => {
+                const codigo = [
+                    'var ativo: lógico = verdadeiro',
+                    'ativo = "sim"',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(1);
+                expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe(
+                    "Variável 'ativo' é do tipo 'lógico' e não pode receber um valor do tipo 'texto'."
+                );
+            });
+
+            it('Variável com tipo qualquer aceita qualquer valor', async () => {
+                const codigo = [
+                    'var x: qualquer = "hello"',
+                    'x = 10',
+                    'escreva(x)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toBe('10');
+            });
+
+            it('Tipos numéricos são compatíveis entre si', async () => {
+                const codigo = [
+                    'var n: número = 10',
+                    'n = 3.14',
+                    'escreva(n)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
+            it('Variável sem tipo explícito aceita qualquer valor', async () => {
+                const codigo = [
+                    'var y = "hello"',
+                    'y = 10',
+                    'escreva(y)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toBe('10');
+            });
+
+            it('Reatribuição com mesmo tipo funciona normalmente', async () => {
+                const codigo = [
+                    'var z: inteiro = 5',
+                    'z = 42',
+                    'escreva(z)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toBe('42');
             });
         });
     });

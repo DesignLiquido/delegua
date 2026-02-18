@@ -66,6 +66,7 @@ import {
     TextoDocumentacao,
 } from '../declaracoes';
 import {
+    CorrecaoSugeridaInterface,
     DiagnosticoAnalisadorSemantico,
     DiagnosticoSeveridade,
     SimboloInterface,
@@ -116,6 +117,27 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
             hashArquivo: simbolo.hashArquivo,
             linha: simbolo.linha,
             severidade: DiagnosticoSeveridade.AVISO,
+        });
+    }
+
+    sugestao(
+        simbolo: SimboloInterface,
+        mensagem: string,
+        correcoes: CorrecaoSugeridaInterface[]
+    ): void {
+        if (this.diagnosticoJaExiste(simbolo, mensagem)) {
+            return;
+        }
+
+        this.diagnosticos.push({
+            simbolo: simbolo,
+            mensagem: mensagem,
+            hashArquivo: simbolo.hashArquivo,
+            linha: simbolo.linha,
+            severidade: DiagnosticoSeveridade.SUGESTAO,
+            colunaInicio: correcoes[0]?.colunaInicio,
+            colunaFim: correcoes[0]?.colunaFim,
+            correcoes: correcoes,
         });
     }
 

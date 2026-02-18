@@ -4,7 +4,6 @@ import {
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
     Agrupamento,
-    ArgumentoReferenciaFuncao,
     AtribuicaoPorIndice,
     Atribuir,
     Binario,
@@ -20,7 +19,6 @@ import {
     Literal,
     ParaCadaComoConstruto,
     ParaComoConstruto,
-    ReferenciaFuncao,
     Separador,
     TipoDe,
     Unario,
@@ -175,6 +173,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         if (objeto === null || objeto === undefined) return tipoDeDadosDelegua.NULO;
         if (typeof objeto === tipoDeDadosPrimitivos.BOOLEANO) {
             return objeto ? 'verdadeiro' : 'falso';
+        }
+
+        if (objeto instanceof ReferenciaMontao) {
+            objeto = this.resolverReferenciaMontao(objeto);
         }
 
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
@@ -610,8 +612,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         );
         await this.executar(declaracao.corpo);
 
-        if (retornoInicializacao instanceof ObjetoDeleguaClasse) {
-            const metodoFinalizar = retornoInicializacaoResolvido.classe.metodos['finalizar'];
+        if (retornoInicializacaoResolvido instanceof ObjetoDeleguaClasse) {
+            const metodoFinalizar = retornoInicializacaoResolvido.classe.encontrarMetodo('finalizar');
             if (metodoFinalizar) {
                 const chamavel = metodoFinalizar.funcaoPorMetodoDeClasse(
                     retornoInicializacaoResolvido
@@ -1278,6 +1280,20 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         if (objeto.constructor === Object) {
             objeto[expressao.nome.lexema] = valorResolvido;
         }
+    }
+
+    /**
+     * Instâncias de classes em Delégua são passadas por referência, portanto, são
+     * armazenadas no montão.
+     */
+    override async visitarExpressaoDeChamada(expressao: Chamada): Promise<any> {
+        const resultado = await super.visitarExpressaoDeChamada(expressao);
+        if (resultado instanceof ObjetoDeleguaClasse) {
+            const enderecoMontao = this.montao.adicionarReferencia(resultado);
+            this.pilhaEscoposExecucao.registrarReferenciaMontao(enderecoMontao);
+            return new ReferenciaMontao(enderecoMontao);
+        }
+        return resultado;
     }
 
     /**

@@ -61,7 +61,7 @@ import {
     SimboloInterface,
     VariavelInterface,
 } from '../../../interfaces';
-import { ErroInterpretador } from '../../../interfaces/erros/erro-interpretador';
+import { ErroInterpretadorInterface } from '../../../interfaces/erros/erro-interpretador-interface';
 import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
 import { RetornoInterpretadorInterface } from '../../../interfaces/retornos/retorno-interpretador-interface';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../../../quebras';
@@ -91,7 +91,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     diretorioBase: any;
     funcaoDeRetorno: Function;
     locais: Map<Construto, number>;
-    erros: ErroInterpretador[];
+    erros: ErroInterpretadorInterface[];
     pilhaEscoposExecucao: PilhaEscoposExecucao;
     interfaceEntradaSaida: any = null;
     hashArquivoDeclaracaoAtual: number;
@@ -487,8 +487,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         if (entidadeChamada instanceof DeleguaFuncao) {
             parametros = entidadeChamada.declaracao.parametros;
         } else if (entidadeChamada instanceof DescritorTipoClasse) {
-            parametros = entidadeChamada.metodos.inicializacao
-                ? entidadeChamada.metodos.inicializacao.declaracao.parametros
+            const metodoInit = entidadeChamada.metodos.inicializacao as DeleguaFuncao;
+            parametros = metodoInit
+                ? metodoInit.declaracao.parametros
                 : [];
         } else {
             parametros = [];
@@ -964,7 +965,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             this.pilhaEscoposExecucao.definirVariavel('super', superClasse);
         }
 
-        const metodos = {};
+        const metodos: { [nome: string]: DeleguaFuncao } = {};
         const definirMetodos = declaracao.metodos;
         for (let i = 0; i < declaracao.metodos.length; i++) {
             const metodoAtual = definirMetodos[i];

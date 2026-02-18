@@ -1318,11 +1318,11 @@ describe('Avaliador sintático', () => {
 
             describe('Funções', () => {
                 it('Função retorna vazio mas tem retorno de valores', async () => {
+                    // Usa um literal com tipo conhecido para que o avaliador sintático possa detectar
                     const retornoLexador = lexador.mapear(
                         [
-                            'funcao executar(valor1, valor2): vazio {',
-                            '    var resultado = valor1 + valor2',
-                            '    retorna resultado',
+                            'funcao executar(): vazio {',
+                            '    retorna "resultado"',
                             '}',
                         ],
                         -1

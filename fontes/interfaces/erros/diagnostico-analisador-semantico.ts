@@ -1,4 +1,5 @@
 import { SimboloInterface } from '../simbolo-interface';
+import { CorrecaoSugeridaInterface } from './correcao-sugerida-interface';
 
 export interface DiagnosticoAnalisadorSemantico {
     simbolo?: SimboloInterface;
@@ -6,6 +7,9 @@ export interface DiagnosticoAnalisadorSemantico {
     linha?: number;
     hashArquivo?: number;
     severidade: DiagnosticoSeveridade;
+    colunaInicio?: number;
+    colunaFim?: number;
+    correcoes?: CorrecaoSugeridaInterface[];
 }
 
 export enum DiagnosticoSeveridade {

@@ -196,7 +196,7 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
                 return '&&&';
             case tiposDeSimbolos.BIT_OR:
                 return '|||';
-            case tiposDeSimbolos.BIT_XOR:
+            case tiposDeSimbolos.CIRCUMFLEXO:
                 return '^^^';
             case tiposDeSimbolos.BIT_NOT:
                 return '~~~';
