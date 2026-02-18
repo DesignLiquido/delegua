@@ -586,9 +586,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         for (let i = 0; i < declaracao.caminhosSeSenao.length; i++) {
             const atual = declaracao.caminhosSeSenao[i];
 
-            // TODO: Qual seria o tipo certo aqui?
-            if (this.eVerdadeiro(await this.avaliar((atual as any).condicao))) {
-                return await this.executar((atual as any).caminho);
+            if (this.eVerdadeiro(await this.avaliar(atual.condicao))) {
+                return await this.executar(atual.caminho);
             }
         }
 
@@ -980,14 +979,6 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         }
 
         const deleguaClasse = new DescritorTipoClasse(declaracao.simbolo, superClasse, metodos);
-        // TODO: Depreciar na próxima versão.
-        deleguaClasse.dialetoRequerExpansaoPropriedadesEspacoMemoria = false;
-        deleguaClasse.dialetoRequerDeclaracaoPropriedades = false;
-
-        // TODO: Recolocar isso se for necessário.
-        /* if (superClasse !== null) {
-            this.ambiente = this.ambiente.enclosing;
-        } */
 
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, deleguaClasse);
         return null;
@@ -998,9 +989,13 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         const objeto = variavelObjeto?.valor;
         if (objeto instanceof ObjetoDeleguaClasse) {
             return objeto.obter(expressao.simbolo) || null;
-        } else if (objeto.constructor === Object) {
+        } 
+        
+        if (objeto.constructor === Object) {
             return objeto[expressao.simbolo.lexema] || null;
-        } else if (objeto instanceof DeleguaModulo) {
+        } 
+        
+        if (objeto instanceof DeleguaModulo) {
             return objeto[expressao.simbolo.lexema] || null;
         }
 

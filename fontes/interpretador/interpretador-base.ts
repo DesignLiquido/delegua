@@ -1500,8 +1500,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         for (let i = 0; i < declaracao.caminhosSeSenao.length; i++) {
-            // TODO: Qual o tipo de `atual`?
-            const atual = declaracao.caminhosSeSenao[i] as any;
+            const atual = declaracao.caminhosSeSenao[i];
 
             if (this.eVerdadeiro(await this.avaliar(atual.condicao))) {
                 return await this.executar(atual.caminho);
