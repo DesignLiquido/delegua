@@ -871,19 +871,18 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         return `${direita} ${operador} ${esquerda}`;
     }
 
-    // TODO: Eliminar o soft cast para `any`.
     traduzirExpressaoAtribuicaoPorIndice(AtribuicaoPorIndice: AtribuicaoPorIndice): string {
         let resultado = '';
 
-        resultado += (AtribuicaoPorIndice.objeto as any).simbolo.lexema + '[';
+        resultado += (AtribuicaoPorIndice.objeto as Variavel).simbolo.lexema + '[';
         resultado +=
             this.dicionarioConstrutos[AtribuicaoPorIndice.indice.constructor.name](
                 AtribuicaoPorIndice.indice
             ) + ']';
         resultado += ' = ';
 
-        if ((AtribuicaoPorIndice?.valor as any)?.simbolo?.lexema) {
-            resultado += `${(AtribuicaoPorIndice.valor as any).simbolo.lexema}`;
+        if (AtribuicaoPorIndice.valor instanceof Variavel) {
+            resultado += AtribuicaoPorIndice.valor.simbolo.lexema;
         } else {
             resultado += this.dicionarioConstrutos[AtribuicaoPorIndice.valor.constructor.name](
                 AtribuicaoPorIndice.valor
