@@ -934,32 +934,6 @@ export async function mapear(
     const valorVetor = interpretador.resolverValor(vetor);
     const valorFuncaoMapeamento = interpretador.resolverValor(funcaoMapeamento);
 
-    // TODO: As lógicas de validação abaixo deixam de fazer sentido com a validação de argumentos feita
-    // na avaliação sintática. Estudar remoção.
-    if (!Array.isArray(valorVetor)) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O primeiro parâmetro da função mapear() deve ser um vetor.'
-            )
-        );
-    }
-
-    if (valorFuncaoMapeamento.constructor !== DeleguaFuncao) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O segundo parâmetro da função mapear() deve ser uma função.'
-            )
-        );
-    }
-
     const resultados = [];
     for (let indice = 0; indice < valorVetor.length; ++indice) {
         const informacoesRetorno = await valorFuncaoMapeamento.chamar(interpretador, [
@@ -1223,32 +1197,6 @@ export async function paraCada(
     const valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor')
         ? funcaoFiltragem.valor
         : funcaoFiltragem;
-
-    // TODO: As lógicas de validação abaixo deixam de fazer sentido com a validação de argumentos feita
-    // na avaliação sintática. Estudar remoção.
-    if (!Array.isArray(valorVetor)) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O primeiro parâmetro da função paraCada() deve ser um vetor.'
-            )
-        );
-    }
-
-    if (valorFuncaoFiltragem.constructor !== DeleguaFuncao) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O segundo parâmetro da função paraCada() deve ser uma função.'
-            )
-        );
-    }
 
     for (let indice = 0; indice < valorVetor.length; ++indice) {
         await valorFuncaoFiltragem.chamar(interpretador, [valorVetor[indice]]);
@@ -1661,20 +1609,6 @@ export async function tupla(
 ): Promise<TuplaN> {
     const valorVetor: any[] = interpretador.resolverValor(vetor);
 
-    // TODO: As lógicas de validação abaixo deixam de fazer sentido com a validação de argumentos feita
-    // na avaliação sintática. Estudar remoção.
-    if (!Array.isArray(valorVetor)) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Argumento de função nativa `tupla` não parece ser um vetor.'
-            )
-        );
-    }
-
     const elementos = valorVetor.map(item =>
         new Literal(
             interpretador.hashArquivoDeclaracaoAtual,
@@ -1696,8 +1630,6 @@ export async function vetor(
 ): Promise<any[]> {
     const objetoTupla = interpretador.resolverValor(tupla);
 
-    // TODO: As lógicas de validação abaixo deixam de fazer sentido com a validação de argumentos feita
-    // na avaliação sintática. Estudar remoção.
     if (!(objetoTupla instanceof Tupla || objetoTupla instanceof TuplaN)) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
@@ -1716,18 +1648,19 @@ export async function vetor(
         resultado = objetoTupla.elementos;
     } else {
         const nomeClasse = objetoTupla.constructor.name;
-
-        if (mapaPropriedadesTuplas.hasOwnProperty(nomeClasse)) {
-            const props = mapaPropriedadesTuplas[nomeClasse];
+        const props = mapaPropriedadesTuplas[nomeClasse];
+        if (props) {
             resultado = props.map(prop => (objetoTupla as any)[prop]);
         } else if ((objetoTupla as any).elementos && Array.isArray((objetoTupla as any).elementos)) {
             resultado = (objetoTupla as any).elementos;
         }
     }
 
-    const resultadoFinal = resultado.map(item =>
-        (item && item.hasOwnProperty('valor')) ? item.valor : item
-    );
+    const resultadoFinal = new Array(resultado.length);
+    for (let i = 0; i < resultado.length; i++) {
+        const item = resultado[i];
+        resultadoFinal[i] = item && typeof item === 'object' && 'valor' in item ? item.valor : item;
+    }
 
-    return Promise.resolve(resultadoFinal);
+    return resultadoFinal;
 }

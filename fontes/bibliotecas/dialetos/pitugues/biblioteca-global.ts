@@ -7,12 +7,9 @@ import { InterpretadorInterface } from '../../../interfaces';
 import { DeleguaFuncao } from '../../../interpretador/estruturas';
 import {
     TuplaN,
-    Tupla,
     Literal
 } from '../../../construtos';
 import { RetornoQuebra } from '../../../quebras';
-
-import { inferirTipoVariavel } from '../../../inferenciador';
 
 /**
  * Compara dois valores (números ou vetores).
@@ -711,32 +708,6 @@ export async function mapear(
     const valorVetor = interpretador.resolverValor(vetor);
     const valorFuncaoMapeamento = interpretador.resolverValor(funcaoMapeamento);
 
-    // TODO: As lógicas de validação abaixo deixam de fazer sentido com a validação de argumentos feita
-    // na avaliação sintática. Estudar remoção.
-    if (!Array.isArray(valorVetor)) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O primeiro parâmetro da função mapear() deve ser um vetor.'
-            )
-        );
-    }
-
-    if (valorFuncaoMapeamento.constructor !== DeleguaFuncao) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O segundo parâmetro da função mapear() deve ser uma função.'
-            )
-        );
-    }
-
     const resultados = [];
     for (let indice = 0; indice < valorVetor.length; ++indice) {
         const informacoesRetorno = await valorFuncaoMapeamento.chamar(interpretador, [
@@ -996,36 +967,8 @@ export async function para_cada(
             )
         );
 
-    const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
-    const valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor')
-        ? funcaoFiltragem.valor
-        : funcaoFiltragem;
-
-    // TODO: As lógicas de validação abaixo deixam de fazer sentido com a validação de argumentos feita
-    // na avaliação sintática. Estudar remoção.
-    if (!Array.isArray(valorVetor)) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O primeiro parâmetro da função paraCada() deve ser um vetor.'
-            )
-        );
-    }
-
-    if (valorFuncaoFiltragem.constructor !== DeleguaFuncao) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O segundo parâmetro da função paraCada() deve ser uma função.'
-            )
-        );
-    }
+    const valorVetor = interpretador.resolverValor(vetor);
+    const valorFuncaoFiltragem = interpretador.resolverValor(funcaoFiltragem);
 
     for (let indice = 0; indice < valorVetor.length; ++indice) {
         await valorFuncaoFiltragem.chamar(interpretador, [valorVetor[indice]]);
@@ -1055,11 +998,8 @@ export async function primeiro_em_condicao(
             )
         );
 
-    const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
-
-    const valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor')
-        ? funcaoFiltragem.valor
-        : funcaoFiltragem;
+    const valorVetor = interpretador.resolverValor(vetor);
+    const valorFuncaoFiltragem = interpretador.resolverValor(funcaoFiltragem);
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
@@ -1440,8 +1380,6 @@ export async function tupla(
 ): Promise<TuplaN> {
     const valorVetor: any[] = interpretador.resolverValor(vetor);
 
-    // TODO: As lógicas de validação abaixo deixam de fazer sentido com a validação de argumentos feita
-    // na avaliação sintática. Estudar remoção.
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
@@ -1483,8 +1421,6 @@ export async function vetor(
 ): Promise<any[]> {
     const objetoTupla = interpretador.resolverValor(tupla);
 
-    // TODO: As lógicas de validação abaixo deixam de fazer sentido com a validação de argumentos feita
-    // na avaliação sintática. Estudar remoção.
     if (!(objetoTupla instanceof TuplaN)) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
