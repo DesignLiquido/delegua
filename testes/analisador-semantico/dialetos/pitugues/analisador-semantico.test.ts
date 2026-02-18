@@ -205,6 +205,22 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
             });
 
+            it('Chamada de função com variáveis declaradas como argumentos', async () => {
+                const retornoLexador = lexador.mapear([
+                    `funcao bhaskara(a, b, c):`,
+                    `    nada`,
+                    `a = 1`,
+                    `b = -1`,
+                    `c = -30`,
+                    `bhaskara(a, b, c)`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+
             it('Funções anônimas com mais de 255 parâmetros', async () => {
                 let acumulador = '';
                 for (let i = 1; i <= 256; i++) {

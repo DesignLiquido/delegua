@@ -318,10 +318,10 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
     }
 
     visitarExpressaoDeChamada(expressao: Chamada) {
+        // Garante que toda a árvore de argumentos seja validada e marcada como usada.
         for (const argumento of expressao.argumentos) {
-            if (argumento instanceof Variavel) {
-                this.gerenciadorEscopos.marcarComoUsada(argumento.simbolo.lexema);
-            }
+            this.marcarVariaveisUsadasEmExpressao(argumento);
+            this.verificarExpressao(argumento);
         }
 
         switch (expressao.entidadeChamada.constructor) {
