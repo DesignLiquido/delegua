@@ -69,6 +69,7 @@ import {
     CorrecaoSugeridaInterface,
     DiagnosticoAnalisadorSemantico,
     DiagnosticoSeveridade,
+    ParametroInterface,
     SimboloInterface,
 } from '../interfaces';
 import { AnalisadorSemanticoInterface } from '../interfaces/analisador-semantico-interface';
@@ -139,6 +140,125 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
             colunaFim: correcoes[0]?.colunaFim,
             correcoes: correcoes,
         });
+    }
+
+    protected comparacaoArgumentosContraParametrosFuncao(
+        simboloFuncao: SimboloInterface,
+        parametros: ParametroInterface[],
+        argumentos: Construto[]
+    ) {
+        if (parametros.length !== argumentos.length) {
+            this.erro(
+                simboloFuncao,
+                `Função '${simboloFuncao.lexema}' espera ${parametros.length} parâmetros. Atual: ${argumentos.length}.`
+            );
+        }
+
+        for (let [indice, parametro] of parametros.entries()) {
+            const argumento = argumentos[indice];
+            if (argumento) {
+                // Usando `obterTipoExpressao` para resolver adequadamente o tipo do argumento, 
+                // independentemente de ser um `Literal` (tipo já resolvido), `Variavel` (tipo inferido do
+                // escopo), `Binario`, `Agrupamento`, ou qualquer outro construto (retorna `null` quando
+                // o tipo não pode ser determinado em tempo de compilação).
+                const tipoArgumento = this.obterTipoExpressao(argumento);
+
+                // Validar apenas quando ambos os lados têm um tipo específico e determinável.
+                // Ignorar quando `tipoArgumento` é nulo (por exemplo, resultado de `Chamada`) ou `qualquer`,
+                // evitando falsos positivos para expressões cujo tipo é desconhecido em tempo de compilação.
+                if (tipoArgumento && tipoArgumento !== 'qualquer' && parametro.tipoDado) {
+                    if (parametro.tipoDado === 'texto' && tipoArgumento !== 'texto') {
+                        this.erro(
+                            simboloFuncao,
+                            `O valor passado para o parâmetro '${parametro.nome.lexema}' (${parametro.tipoDado}) é diferente do esperado pela função (${tipoArgumento}).`
+                        );
+                    } else if (['inteiro', 'número', 'real'].includes(parametro.tipoDado)) {
+                        // Delegua suporta conversões implícitas entre tipos numéricos, mas não
+                        // entre texto e número.
+                        if (!['inteiro', 'número', 'real'].includes(tipoArgumento)) {
+                            this.erro(
+                                simboloFuncao,
+                                `O valor passado para o parâmetro '${parametro.nome.lexema}' (${parametro.tipoDado}) é diferente do esperado pela função (${tipoArgumento}).`
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Obtém o tipo de uma expressão (pode ser Literal, Variavel, Binario, Leia, etc)
+     */
+    protected obterTipoExpressao(expressao: Construto): string | null {
+        if (expressao instanceof Literal) {
+            return expressao.tipo;
+        }
+
+        if (expressao instanceof Variavel) {
+            const variavel = this.gerenciadorEscopos.buscar(expressao.simbolo.lexema);
+            return variavel?.tipo || null;
+        }
+
+        if (expressao instanceof Binario) {
+            // Para binários, tentamos inferir o tipo baseado nos operandos
+            return this.inferirTipoBinario(expressao);
+        }
+
+        if (expressao instanceof Logico) {
+            // Operadores lógicos sempre retornam tipo lógico
+            return 'lógico';
+        }
+
+        if (expressao instanceof Agrupamento) {
+            return this.obterTipoExpressao(expressao.expressao);
+        }
+
+        if (expressao instanceof Leia) {
+            // leia() sempre retorna texto
+            return 'texto';
+        }
+
+        return null;
+    }
+
+    /**
+     * Infere o tipo de resultado de uma operação binária
+     */
+    protected inferirTipoBinario(binario: Binario): string | null {
+        const operadoresMatematicos = ['ADICAO', 'SUBTRACAO', 'MULTIPLICACAO', 'DIVISAO', 'MODULO'];
+        const operadoresComparacao = ['MAIOR', 'MAIOR_IGUAL', 'MENOR', 'MENOR_IGUAL', 'IGUAL', 'DIFERENTE'];
+
+        // Operadores de comparação sempre retornam lógico
+        if (operadoresComparacao.includes(binario.operador.tipo)) {
+            return 'lógico';
+        }
+
+        const tipoEsquerda = this.obterTipoExpressao(binario.esquerda);
+        const tipoDireita = this.obterTipoExpressao(binario.direita);
+
+        if (!tipoEsquerda || !tipoDireita) {
+            return null;
+        }
+        
+        if (operadoresMatematicos.includes(binario.operador.tipo)) {
+            const tiposNumericos = ['inteiro', 'número', 'real'];
+            if (tiposNumericos.includes(tipoEsquerda) && tiposNumericos.includes(tipoDireita)) {
+                // Se um dos lados é 'real', o resultado é 'real'
+                if (tipoEsquerda === 'real' || tipoDireita === 'real') {
+                    return 'real';
+                }
+
+                return 'número';
+            }
+            
+            // Concatenação de textos
+            if (tipoEsquerda === 'texto' || tipoDireita === 'texto') {
+                return 'texto';
+            }
+        }
+        
+        return 'qualquer';
     }
 
      /**
