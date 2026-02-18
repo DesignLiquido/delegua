@@ -1270,6 +1270,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
 
     async analisar(declaracoes: Declaracao[]): Promise<RetornoAnalisadorSemantico> {
         this.gerenciadorEscopos = new GerenciadorEscopos();
+        this.funcoes = {};
         this.atual = 0;
         this.diagnosticos = [];
 

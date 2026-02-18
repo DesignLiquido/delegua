@@ -1894,7 +1894,7 @@ export class AvaliadorSintaticoPitugues
      * @returns {ListaCompreensao} A lista de compreensão resolvida.
      */
     protected async resolverCompreensaoDeLista(retornoExpressao: Construto): Promise<ListaCompreensao> {
-        this.consumir(tiposDeSimbolos.PARA, "Esperado instrução 'para' após identificado.");
+        this.consumir(tiposDeSimbolos.PARA, "Esperado instrução 'para' após identificador.");
         this.consumir(tiposDeSimbolos.CADA, "Esperado instrução 'cada' após 'para'.");
 
         const simboloVariavelIteracao = this.consumir(

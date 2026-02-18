@@ -205,14 +205,19 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
             });
 
-            it('Chamada de função com variáveis declaradas como argumentos', async () => {
+
+            it('Chamada de função com variáveis declaradas como argumentos, sem espaços e com comentário', async () => {
                 const retornoLexador = lexador.mapear([
-                    `funcao bhaskara(a, b, c):`,
-                    `    nada`,
+                    `funcao bhaskara(a,b,c):`,
+                    `  nada`,
+                    ``,
+                    `# Insira os coeficientes depois da função`,
                     `a = 1`,
                     `b = -1`,
                     `c = -30`,
-                    `bhaskara(a, b, c)`,
+                    ``,
+                    ``,
+                    `bhaskara(a,b,c)`,
                 ], -1);
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
@@ -1089,6 +1094,39 @@ describe('Analisador semântico', () => {
 
             expect(retornoAnalisadorSemantico).toBeTruthy();
             expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+    });
+
+    describe('Cenários de reutilização de instância do analisador', () => {
+        it('Sucesso - mesma instância analisada duas vezes (simula comportamento de editor web)', async () => {
+            // Simula o comportamento do pitugues-web que reutiliza a mesma instância
+            // do AnalisadorSemanticoPitugues entre chamadas sucessivas de analisar()
+            const analisadorReutilizado = new AnalisadorSemanticoPitugues();
+
+            // Primeira análise: código simples
+            const retornoLexador1 = lexador.mapear([
+                `escreva('primeira analise')`,
+            ], -1);
+            const retornoAvaliadorSintatico1 = await avaliadorSintatico.analisar(retornoLexador1, -1);
+            await analisadorReutilizado.analisar(retornoAvaliadorSintatico1.declaracoes);
+
+            // Segunda análise: bhaskara com variáveis como argumentos - não deve mostrar erros
+            const retornoLexador2 = lexador.mapear([
+                `funcao bhaskara(a,b,c):`,
+                `  nada`,
+                ``,
+                `# Insira os coeficientes depois da função`,
+                `a = 1`,
+                `b = -1`,
+                `c = -30`,
+                ``,
+                `bhaskara(a,b,c)`,
+            ], -1);
+            const retornoAvaliadorSintatico2 = await avaliadorSintatico.analisar(retornoLexador2, -1);
+            const retornoAnalisadorSemantico2 = await analisadorReutilizado.analisar(retornoAvaliadorSintatico2.declaracoes);
+
+            expect(retornoAnalisadorSemantico2).toBeTruthy();
+            expect(retornoAnalisadorSemantico2.diagnosticos).toHaveLength(0);
         });
     });
 }
