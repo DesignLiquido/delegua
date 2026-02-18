@@ -117,17 +117,17 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         super.marcarVariaveisUsadasEmExpressao(expressao);
     }
 
-    verificarTipoAtribuido(declaracao) {
+    verificarTipoAtribuido(declaracao: Var | Const): void {
         if (declaracao.tipo) {
             if (['vetor', 'qualquer[]', 'inteiro[]', 'texto[]'].includes(declaracao.tipo)) {
                 if (declaracao.inicializador instanceof Vetor) {
                     const vetor = declaracao.inicializador as Vetor;
-                    const vetorSemSeparadores = vetor.valores.filter(
+                    const vetorSemSeparadores: Construto[] = vetor.valores.filter(
                         (v) => v.constructor !== Separador
                     );
 
                     if (declaracao.tipo === 'inteiro[]') {
-                        const apenasValores = vetorSemSeparadores.find(
+                        const apenasValores: Construto | undefined = vetorSemSeparadores.find(
                             (v) => typeof v?.valor !== 'number'
                         );
                         if (apenasValores) {
@@ -138,7 +138,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                         }
                     }
                     if (declaracao.tipo === 'texto[]') {
-                        const apenasValores = vetorSemSeparadores.find(
+                        const apenasValores: Construto | undefined = vetorSemSeparadores.find(
                             (v) => typeof v?.valor !== 'string'
                         );
                         if (apenasValores) {
@@ -241,23 +241,32 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         }
 
         for (let [indice, parametro] of parametros.entries()) {
-            // TODO: `argumento` pode ser Literal (tipo já resolvido) ou variável (tipo inferido em outra etapa).
-            const argumento = argumentos[indice] as any;
+            const argumento = argumentos[indice];
             if (argumento) {
-                if (parametro.tipoDado === 'texto' && argumento.tipo !== 'texto') {
-                    this.erro(
-                        simboloFuncao,
-                        `O valor passado para o parâmetro '${parametro.nome.lexema}' (${parametro.tipoDado}) é diferente do esperado pela função (${argumento.tipo}).`
-                    );
-                } else if (['inteiro', 'número', 'real'].includes(parametro.tipoDado)) {
-                    // Aqui, se houver diferença entre os tipos do parâmetro e do argumento, não há erro,
-                    // porque Delégua pode trabalhar com conversões implícitas.
-                    // Isso pode ou não mudar no futuro.
-                    if (!['inteiro', 'número', 'real'].includes(argumento.tipo)) {
+                // Usando `obterTipoExpressao` para resolver adequadamente o tipo do argumento, 
+                // independentemente de ser um `Literal` (tipo já resolvido), `Variavel` (tipo inferido do
+                // escopo), `Binario`, `Agrupamento`, ou qualquer outro construto (retorna `null` quando
+                // o tipo não pode ser determinado em tempo de compilação).
+                const tipoArgumento = this.obterTipoExpressao(argumento);
+
+                // Validar apenas quando ambos os lados têm um tipo específico e determinável.
+                // Ignorar quando `tipoArgumento` é nulo (por exemplo, resultado de `Chamada`) ou `qualquer`,
+                // evitando falsos positivos para expressões cujo tipo é desconhecido em tempo de compilação.
+                if (tipoArgumento && tipoArgumento !== 'qualquer' && parametro.tipoDado) {
+                    if (parametro.tipoDado === 'texto' && tipoArgumento !== 'texto') {
                         this.erro(
                             simboloFuncao,
-                            `O valor passado para o parâmetro '${parametro.nome.lexema}' (${parametro.tipoDado}) é diferente do esperado pela função (${argumento.tipo}).`
+                            `O valor passado para o parâmetro '${parametro.nome.lexema}' (${parametro.tipoDado}) é diferente do esperado pela função (${tipoArgumento}).`
                         );
+                    } else if (['inteiro', 'número', 'real'].includes(parametro.tipoDado)) {
+                        // Delegua suporta conversões implícitas entre tipos numéricos, mas não
+                        // entre texto e número.
+                        if (!['inteiro', 'número', 'real'].includes(tipoArgumento)) {
+                            this.erro(
+                                simboloFuncao,
+                                `O valor passado para o parâmetro '${parametro.nome.lexema}' (${parametro.tipoDado}) é diferente do esperado pela função (${tipoArgumento}).`
+                            );
+                        }
                     }
                 }
             }
@@ -269,8 +278,8 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         argumentos: Construto[]
     ) {
         const variavelCorrespondente: FuncaoConstruto =
-            // this.variaveis[argumentoReferenciaFuncao.simboloFuncao.lexema].valor;
             this.gerenciadorEscopos.buscar(argumentoReferenciaFuncao.simboloFuncao.lexema)?.valor;
+
         if (!variavelCorrespondente) {
             return;
         }
