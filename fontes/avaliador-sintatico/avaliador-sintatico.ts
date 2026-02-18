@@ -952,6 +952,63 @@ export class AvaliadorSintatico
         return tipoAcesso;
     }
 
+    /**
+     * Resolve um construto do tipo `Variavel`, `AcessoMetodoOuPropriedade` ou `AcessoIndiceVariavel` 
+     * para um `ElementoMontaoTipos` correspondente, caso exista.
+     * @param construto O construto.
+     * @returns O `ElementoMontaoTipos` correspondente ou `null` se não existir.
+     */
+    protected resolverElementoMontao(
+        construto: Construto
+    ): ElementoMontaoTipos | null {
+        switch (construto.constructor) {
+            case Variavel:
+                try {
+                    const nomeVariavel = (construto as Variavel).simbolo.lexema;
+                    const elementoMontao = this.pilhaEscopos.obterElementoMontaoTipos(nomeVariavel);
+                    if (elementoMontao.endereco) {
+                        const referenciaMontaoTipos = this.montaoTipos.obterReferencia(
+                            construto.hashArquivo,
+                            construto.linha,
+                            elementoMontao.endereco
+                        );
+
+                        if (referenciaMontaoTipos instanceof ElementoMontaoTipos) {
+                            return referenciaMontaoTipos;
+                        }
+
+                        return null;
+                    }
+
+                    return elementoMontao;
+                } catch {
+                    return null;
+                }
+            case AcessoMetodoOuPropriedade: {
+                const acesso = construto as AcessoMetodoOuPropriedade;
+                const elementoObjeto = this.resolverElementoMontao(acesso.objeto);
+                if (!elementoObjeto) {
+                    return null;
+                }
+
+                return elementoObjeto.subElementos[acesso.simbolo.lexema] || null;
+            }
+            case AcessoIndiceVariavel: {
+                const acessoIndice = construto as AcessoIndiceVariavel;
+                const elementoObjeto = this.resolverElementoMontao(
+                    acessoIndice.entidadeChamada
+                );
+                if (!elementoObjeto || !(acessoIndice.indice instanceof Literal)) {
+                    return null;
+                }
+
+                return elementoObjeto.subElementos[String(acessoIndice.indice.valor)] || null;
+            }
+            default:
+                return null;
+        }
+    }
+
     protected async resolverCadeiaChamadas(
         expressaoAnterior: Construto,
         tipoAnterior: string = 'qualquer'
@@ -976,18 +1033,13 @@ export class AvaliadorSintatico
                     expressaoAnterior.tipo === 'dicionário' &&
                     expressaoAnterior.constructor !== Dicionario
                 ) {
-                    // TODO: Achar algum caso em que aqui não seja variável.
-                    const nomeDicionario = (expressaoAnterior as Variavel).simbolo.lexema;
-                    const elementoDicionarioPilha =
-                        this.pilhaEscopos.obterElementoMontaoTipos(nomeDicionario);
-                    const referenciaMontaoTipos = this.montaoTipos.obterReferencia(
-                        expressaoAnterior.hashArquivo,
-                        expressaoAnterior.linha,
-                        elementoDicionarioPilha.endereco
-                    );
-
-                    if (nome.lexema in referenciaMontaoTipos.subElementos) {
-                        tipoInferido = referenciaMontaoTipos.subElementos[nome.lexema].tipo;
+                    const elementoMontaoTipos =
+                        this.resolverElementoMontao(expressaoAnterior);
+                    if (
+                        elementoMontaoTipos &&
+                        nome.lexema in elementoMontaoTipos.subElementos
+                    ) {
+                        tipoInferido = elementoMontaoTipos.subElementos[nome.lexema].tipo;
                     }
                 }
 
@@ -3743,3 +3795,4 @@ export class AvaliadorSintatico
         } as RetornoAvaliadorSintatico<Declaracao>;
     }
 }
+
