@@ -1321,6 +1321,25 @@ describe('Interpretador (Pituguês)', () => {
             });
 
             describe('Declaração e chamada de funções', () => {
+                it('Corpo de função com nada (equivalente ao pass do Python)', async () => {
+                    const codigo = [
+                        'funcao bhaskara(a, b, c):',
+                        '    nada',
+                        'bhaskara(1, 2, 3)',
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Trivial', async () => {
                     const codigo = ['funcao teste():', '    imprima("Teste")', 'teste()'];
                     const retornoLexador = lexador.mapear(codigo, -1);

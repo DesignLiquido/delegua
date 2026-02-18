@@ -1358,10 +1358,12 @@ export class AvaliadorSintaticoPitugues
 
         if (simboloAtual.linha === simboloAnterior.linha) {
             const declaracoesBloco = await this.resolverDeclaracaoForaDeBloco();
-            if (Array.isArray(declaracoesBloco)) {
-                declaracoes = declaracoes.concat(declaracoesBloco);
-            } else {
-                declaracoes.push(declaracoesBloco as Declaracao);
+            if (declaracoesBloco !== null) {
+                if (Array.isArray(declaracoesBloco)) {
+                    declaracoes = declaracoes.concat(declaracoesBloco);
+                } else {
+                    declaracoes.push(declaracoesBloco as Declaracao);
+                }
             }
         } else {
             // Situação 2: símbolo atual fica na próxima linha.
@@ -1390,10 +1392,12 @@ export class AvaliadorSintaticoPitugues
             const espacosIndentacaoBloco = espacosIndentacaoLinhaAtual;
             while (espacosIndentacaoLinhaAtual === espacosIndentacaoBloco) {
                 const retornoDeclaracao = await this.resolverDeclaracaoForaDeBloco();
-                if (Array.isArray(retornoDeclaracao)) {
-                    declaracoes = declaracoes.concat(retornoDeclaracao);
-                } else {
-                    declaracoes.push(retornoDeclaracao as Declaracao);
+                if (retornoDeclaracao !== null) {
+                    if (Array.isArray(retornoDeclaracao)) {
+                        declaracoes = declaracoes.concat(retornoDeclaracao);
+                    } else {
+                        declaracoes.push(retornoDeclaracao as Declaracao);
+                    }
                 }
 
                 simboloAtual = this.simboloAtual();
@@ -2238,6 +2242,9 @@ export class AvaliadorSintaticoPitugues
             case tiposDeSimbolos.CONTINUA:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoContinua();
+            case tiposDeSimbolos.NADA:
+                this.avancarEDevolverAnterior();
+                return null;
             case tiposDeSimbolos.DOIS_PONTOS:
                 this.avancarEDevolverAnterior();
                 const simboloInicioBloco: SimboloInterface = this.simboloAnterior();
