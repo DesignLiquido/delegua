@@ -50,10 +50,8 @@ import {
 } from '../../declaracoes';
 import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
-import { TipoDadosElementar } from '../../tipo-dados-elementar';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
-import { inferirTipoVariavel, tipoInferenciaParaTipoDadosElementar } from '../../inferenciador';
-import { TipoInferencia } from '../../inferenciador';
+import { inferirTipoVariavel, TipoInferencia } from '../../inferenciador';
 import { PilhaEscopos } from './../pilha-escopos';
 import { InformacaoEscopo } from './../informacao-escopo';
 import { InformacaoElementoSintatico } from '../../informacao-elemento-sintatico';
@@ -188,10 +186,10 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
 
             const tipoVetor = tiposVetores.find((tipo) => tipo === `${lexemaElementar}[]`);
             this.avancarEDevolverAnterior();
-            return tipoVetor as TipoDadosElementar;
+            return tipoVetor as TipoInferencia;
         }
 
-        return tipoElementarResolvido as TipoDadosElementar;
+        return tipoElementarResolvido as TipoInferencia;
     }
 
     protected async obterChaveDicionario(): Promise<Construto> {
@@ -420,14 +418,11 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.TEXTO:
                 const simboloNumeroTexto: SimboloInterface = this.avancarEDevolverAnterior();
                 const tipoInferido = inferirTipoVariavel(simboloNumeroTexto.literal);
-                const tipoDadosElementar = tipoInferenciaParaTipoDadosElementar(
-                    tipoInferido as TipoInferencia
-                );
                 return new Literal(
                     this.hashArquivo,
                     Number(simboloNumeroTexto.linha),
                     simboloNumeroTexto.literal,
-                    tipoDadosElementar
+                    tipoInferido as TipoInferencia
                 );
 
             case tiposDeSimbolos.PARENTESE_ESQUERDO:

@@ -77,12 +77,7 @@ import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
 import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
 
 import { Simbolo } from '../../lexador';
-import {
-    inferirTipoVariavel,
-    TipoInferencia,
-    tipoInferenciaParaTipoDadosElementar,
-} from '../../inferenciador';
-import { TipoDadosElementar } from '../../tipo-dados-elementar';
+import { inferirTipoVariavel, TipoInferencia } from '../../inferenciador';
 
 import { PilhaEscopos } from '../pilha-escopos';
 import { InformacaoEscopo } from '../informacao-escopo';
@@ -776,14 +771,11 @@ export class AvaliadorSintaticoPitugues
             case tiposDeSimbolos.TEXTO:
                 const simboloLiteral: SimboloInterface = this.avancarEDevolverAnterior();
                 const tipoInferido = inferirTipoVariavel(simboloLiteral.literal);
-                const tipoDadosElementar = tipoInferenciaParaTipoDadosElementar(
-                    tipoInferido as TipoInferencia
-                );
                 return new Literal(
                     this.hashArquivo,
                     Number(simboloLiteral.linha),
                     simboloLiteral.literal,
-                    tipoDadosElementar
+                    tipoInferido as TipoInferencia
                 );
             case tiposDeSimbolos.TIPO:
                 const simboloTipo = this.avancarEDevolverAnterior();
@@ -2001,10 +1993,10 @@ export class AvaliadorSintaticoPitugues
 
             const tipoVetor = tiposVetores.find((tipo) => tipo === `${lexemaElementar}[]`);
             this.avancarEDevolverAnterior();
-            return tipoVetor as TipoDadosElementar;
+            return tipoVetor as TipoInferencia;
         }
 
-        return tipoElementarResolvido as TipoDadosElementar;
+        return tipoElementarResolvido as TipoInferencia;
     }
 
     declaracaoTextoDeDocumentacao(): TextoDocumentacao | undefined {

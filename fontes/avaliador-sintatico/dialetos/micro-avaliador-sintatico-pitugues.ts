@@ -16,7 +16,7 @@ import { SimboloInterface } from '../../interfaces';
 import { RetornoAvaliadorSintatico, RetornoLexador } from '../../interfaces/retornos';
 import { MicroAvaliadorSintaticoBase } from '../micro-avaliador-sintatico-base';
 
-import { inferirTipoVariavel, TipoInferencia, tipoInferenciaParaTipoDadosElementar } from '../../inferenciador';
+import { inferirTipoVariavel, TipoInferencia } from '../../inferenciador';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/pitugues';
 
@@ -88,8 +88,7 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
             case tiposDeSimbolos.TEXTO:
                 const simboloNumeroTexto: SimboloInterface = this.avancarEDevolverAnterior();
                 const tipoInferido = inferirTipoVariavel(simboloNumeroTexto.literal);
-                const tiposDadosElementar = tipoInferenciaParaTipoDadosElementar(tipoInferido as TipoInferencia);
-                return new Literal(-1, Number(this.linha), simboloNumeroTexto.literal, tiposDadosElementar);
+                return new Literal(-1, Number(this.linha), simboloNumeroTexto.literal, tipoInferido as TipoInferencia);
 
             case tiposDeSimbolos.IDENTIFICADOR:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
