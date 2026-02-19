@@ -19,7 +19,8 @@ import {
     TipoDe,
     Variavel,
     Vetor,
-    TuplaN
+    TuplaN,
+    AcessoIndiceVariavel
 } from '../../construtos';
 import {
     Const,
@@ -314,16 +315,46 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    override visitarExpressaoDeAtribuicao(expressao: Atribuir) {
-        let simboloAlvo: SimboloInterface;
+    private resolverSimboloAlvoAtribuicao(alvo: Construto): SimboloInterface | undefined {
+        let atual: Construto | undefined = alvo;
 
-        switch (expressao.alvo.constructor) {
-            case Variavel:
-                const alvoVariavel = expressao.alvo as Variavel;
-                simboloAlvo = alvoVariavel.simbolo;
-                break;
-            default:
-                return Promise.resolve();
+        while (atual) {
+            if (atual instanceof Variavel) {
+                return atual.simbolo;
+            }
+
+            if (atual instanceof Agrupamento) {
+                atual = atual.expressao;
+                continue;
+            }
+
+            if (atual instanceof AcessoIndiceVariavel) {
+                atual = atual.entidadeChamada;
+                continue;
+            }
+
+            if (atual instanceof AcessoMetodo ||
+                atual instanceof AcessoMetodoOuPropriedade ||
+                atual instanceof AcessoPropriedade) {
+                atual = (atual as any).objeto;
+                continue;
+            }
+
+            const simbolo = (atual as any)?.simbolo;
+            if (simbolo?.lexema) {
+                return simbolo as SimboloInterface;
+            }
+
+            return undefined;
+        }
+
+        return undefined;
+    }
+
+    override visitarExpressaoDeAtribuicao(expressao: Atribuir) {
+        const simboloAlvo = this.resolverSimboloAlvoAtribuicao(expressao.alvo);
+        if (!simboloAlvo) {
+            return Promise.resolve();
         }
 
         // Marca variáveis usadas no valor da atribuição
@@ -358,17 +389,6 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
 
         // Marca como inicializada após atribuição
         this.gerenciadorEscopos.marcarComoInicializada(simboloAlvo.lexema, expressao.valor);
-
-        // TODO: Readaptar para trabalhar com `expressao.alvo` sendo um construto.
-        switch (expressao.alvo.constructor) {
-            case Variavel:
-                const alvoVariavel = expressao.alvo as Variavel;
-                simboloAlvo = alvoVariavel.simbolo;
-                break;
-            default:
-                // throw new Error(`Implementar atribuição para ${expressao.alvo.constructor}.`);
-                return Promise.resolve();
-        }
 
         let valor = this.gerenciadorEscopos.buscar(simboloAlvo.lexema);
         if (!valor) {
