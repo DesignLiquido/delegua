@@ -19,6 +19,7 @@ import {
     Vetor,
 } from '../construtos';
 import {
+    Classe,
     Const,
     Declaracao,
     Enquanto,
@@ -50,6 +51,7 @@ import { PilhaVariaveis } from './pilha-variaveis';
 export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     pilhaVariaveis: PilhaVariaveis;
     funcoes: { [nomeFuncao: string]: FuncaoHipoteticaInterface };
+    classesDeclararadas: Set<string>;
     atual: number;
     diagnosticos: DiagnosticoAnalisadorSemantico[];
 
@@ -58,6 +60,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         this.pilhaVariaveis = new PilhaVariaveis();
         this.gerenciadorEscopos = new GerenciadorEscopos();
         this.funcoes = {};
+        this.classesDeclararadas = new Set<string>();
         this.atual = 0;
         this.diagnosticos = [];
     }
@@ -1109,6 +1112,26 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
+    override visitarDeclaracaoClasse(declaracao: Classe): Promise<any> {
+        if (declaracao.superClasse) {
+            const nomeSuperclasse: string = declaracao.superClasse.simbolo.lexema;
+            if (nomeSuperclasse === declaracao.simbolo.lexema) {
+                this.erro(
+                    declaracao.superClasse.simbolo,
+                    `A classe '${declaracao.simbolo.lexema}' não pode herdar de si mesma.`
+                );
+            } else if (!this.classesDeclararadas.has(nomeSuperclasse)) {
+                this.erro(
+                    declaracao.superClasse.simbolo,
+                    `Superclasse '${nomeSuperclasse}' não foi declarada.`
+                );
+            }
+        }
+
+        this.classesDeclararadas.add(declaracao.simbolo.lexema);
+        return Promise.resolve();
+    }
+
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> {
         if (declaracao.funcao.tipo === undefined) {
             this.erro(declaracao.simbolo, `Declaração de retorno da função é inválido.`);
@@ -1217,6 +1240,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
 
     async analisar(declaracoes: Declaracao[]): Promise<RetornoAnalisadorSemantico> {
         this.gerenciadorEscopos = new GerenciadorEscopos();
+        this.classesDeclararadas = new Set<string>();
         this.atual = 0;
         this.diagnosticos = [];
 

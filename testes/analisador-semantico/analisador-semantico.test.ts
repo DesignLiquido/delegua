@@ -2049,4 +2049,74 @@ describe('Analisador semântico', () => {
             expect(sugestoes).toHaveLength(0);
         });
     });
+
+    describe('Declarações de classe', () => {
+        it('Herança válida - superclasse declarada antes da subclasse', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'classe Animal {',
+                    '    falar() {',
+                    '    }',
+                    '}',
+                    'classe Cachorro herda Animal {',
+                    '    latir() {',
+                    '    }',
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            const erros = retornoAnalisadorSemantico.diagnosticos.filter(
+                d => d.severidade === DiagnosticoSeveridade.ERRO
+            );
+            expect(erros).toHaveLength(0);
+        });
+
+        it('Auto-herança - classe que herda de si mesma gera erro', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'classe Ciclo herda Ciclo {',
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            const erros = retornoAnalisadorSemantico.diagnosticos.filter(
+                d => d.severidade === DiagnosticoSeveridade.ERRO
+            );
+            expect(erros).toHaveLength(1);
+            expect(erros[0].mensagem).toContain("não pode herdar de si mesma");
+        });
+
+        it('Superclasse não declarada - gera erro', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'classe Filho herda PaiInexistente {',
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            const erros = retornoAnalisadorSemantico.diagnosticos.filter(
+                d => d.severidade === DiagnosticoSeveridade.ERRO
+            );
+            expect(erros).toHaveLength(1);
+            expect(erros[0].mensagem).toContain("'PaiInexistente' não foi declarada");
+        });
+    });
 });

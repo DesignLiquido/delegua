@@ -3296,9 +3296,7 @@ export class AvaliadorSintatico
                 tiposDeSimbolos.IDENTIFICADOR,
                 'Esperado nome da Superclasse.'
             );
-            // TODO: Validar classes existentes?
             this.superclasseAtual = simboloSuperclasse.lexema;
-            // TODO: Colocar tipo aqui?
             superClasse = new Variavel(
                 this.hashArquivo,
                 this.simbolos[this.atual - 1],
