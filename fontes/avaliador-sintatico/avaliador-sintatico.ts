@@ -356,7 +356,7 @@ export class AvaliadorSintatico
             return new FazerComoConstruto(
                 simboloFazer.hashArquivo,
                 Number(simboloFazer.linha),
-                caminhoFazer as Bloco,
+                caminhoFazer,
                 condicaoEnquanto
             );
         } finally {
@@ -1940,8 +1940,7 @@ export class AvaliadorSintatico
 
     protected async logicaComumEnquanto() {
         const condicao = await this.expressao();
-        // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
-        const corpo: Bloco = await this.resolverDeclaracao() as Bloco;
+        const corpo: Bloco = await this.declaracaoBloco();
 
         return {
             condicao,
@@ -2090,7 +2089,7 @@ export class AvaliadorSintatico
     }
 
     protected async logicaComumFazer() {
-        const caminhoFazer = await this.resolverDeclaracao();
+        const caminhoFazer: Bloco = await this.declaracaoBloco();
         this.consumir(
             tiposDeSimbolos.ENQUANTO,
             "Esperado declaração do 'enquanto' após o escopo do 'fazer'."
@@ -2111,7 +2110,7 @@ export class AvaliadorSintatico
             return new Fazer(
                 simboloFazer.hashArquivo,
                 Number(simboloFazer.linha),
-                caminhoFazer as any, // TODO: Aqui pode ser um `Bloco`?
+                caminhoFazer,
                 condicaoEnquanto
             );
         } finally {
@@ -2263,8 +2262,7 @@ export class AvaliadorSintatico
             nomeVariavelValor.lexema,
             new InformacaoElementoSintatico(nomeVariavelValor.lexema, 'qualquer')
         );
-        // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
-        const corpo: Bloco = await this.resolverDeclaracao() as Bloco;
+        const corpo: Bloco = await this.declaracaoBloco();
 
         return {
             nomeVariavelChave,
@@ -2334,8 +2332,7 @@ export class AvaliadorSintatico
             nomeVariavelIteracao.lexema,
             new InformacaoElementoSintatico(nomeVariavelIteracao.lexema, tipoVariavelIteracao)
         );
-        // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
-        const corpo: Bloco = await this.resolverDeclaracao() as Bloco;
+        const corpo: Bloco = await this.declaracaoBloco();
 
         return {
             variavelIteracao,
@@ -2411,8 +2408,7 @@ export class AvaliadorSintatico
             );
         }
 
-        // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
-        const corpo: Bloco = await this.resolverDeclaracao() as Bloco;
+        const corpo: Bloco = await this.declaracaoBloco();
 
         return {
             inicializador,
@@ -3454,12 +3450,7 @@ export class AvaliadorSintatico
             case tiposDeSimbolos.AJUDA:
                 return await this.declaracaoAjuda();
             case tiposDeSimbolos.CHAVE_ESQUERDA:
-                const simboloInicioBloco: SimboloInterface = this.avancarEDevolverAnterior();
-                return new Bloco(
-                    simboloInicioBloco.hashArquivo,
-                    Number(simboloInicioBloco.linha),
-                    await this.blocoEscopo()
-                );
+                return await this.declaracaoBloco();
             case tiposDeSimbolos.COMENTARIO:
                 return this.declaracaoComentarioUmaLinha();
             case tiposDeSimbolos.CONSTANTE:
