@@ -2691,6 +2691,79 @@ export class AvaliadorSintatico
         return retornos;
     }
 
+    protected logicaComumInferenciaTiposAcessoMetodoOuPropriedade(entidadeChamada: AcessoMetodoOuPropriedade): string {
+        // Algumas coisas podem acontecer aqui.
+        // Uma delas é a variável/constante ser uma classe padrão.
+        // Isso ocorre quando a importação é feita de uma biblioteca Node.js.
+        // Nesse caso, o tipo de `entidadeChamada.objeto` começa com uma letra maiúscula.
+        if (
+            entidadeChamada.objeto.tipo &&
+            entidadeChamada.objeto.tipo.match(/^[A-Z]/)
+        ) {
+            const tipoCorrespondente =
+                this.tiposDefinidosPorBibliotecas[
+                entidadeChamada.objeto.tipo
+                ];
+            if (!tipoCorrespondente) {
+                throw new ErroAvaliadorSintatico(
+                    entidadeChamada.simbolo,
+                    `Tipo '${entidadeChamada.objeto.tipo}' não foi encontrado entre os tipos definidos por bibliotecas.`
+                );
+            }
+
+            if (
+                !(
+                    entidadeChamada.simbolo.lexema in
+                    tipoCorrespondente.metodos
+                ) &&
+                !(
+                    entidadeChamada.simbolo.lexema in
+                    tipoCorrespondente.propriedades
+                )
+            ) {
+                throw new ErroAvaliadorSintatico(
+                    entidadeChamada.simbolo,
+                    `Membro '${entidadeChamada.simbolo.lexema}' não existe no tipo '${entidadeChamada.objeto.tipo}'.`
+                );
+            }
+
+            if (
+                entidadeChamada.simbolo.lexema in
+                tipoCorrespondente.metodos
+            ) {
+                const metodoCorrespondente = tipoCorrespondente.metodos[
+                    entidadeChamada.simbolo.lexema
+                ];
+                return metodoCorrespondente.tipoRetorno || 'qualquer';
+            }
+
+            const propriedadeCorrespondente = tipoCorrespondente.propriedades[
+                entidadeChamada.simbolo.lexema
+            ];
+            return propriedadeCorrespondente.tipo;
+        }
+
+        // Este caso ocorre quando a variável/constante é do tipo 'qualquer',
+        // e a chamada normalmente é feita para uma primitiva.
+        // A inferência, portanto, ocorre pelo uso da primitiva.
+        for (const primitiva in this.primitivasConhecidas) {
+            if (
+                this.primitivasConhecidas[primitiva].hasOwnProperty(
+                    entidadeChamada.simbolo.lexema
+                )
+            ) {
+                return this.primitivasConhecidas[primitiva][
+                    entidadeChamada.simbolo.lexema
+                ].tipo;
+            }
+        }
+
+        throw new ErroAvaliadorSintatico(
+            entidadeChamada.simbolo,
+            `Primitiva '${entidadeChamada.simbolo.lexema}' não existe.`
+        );
+    }
+
     protected logicaComumInferenciaTiposVariaveisEConstantes(
         inicializador: Construto,
         tipo: string
@@ -2730,79 +2803,10 @@ export class AvaliadorSintatico
                             );
                         return tipoRetornoAcessoMetodoResolvido;
                     case AcessoMetodoOuPropriedade:
-                        const entidadeChamadaAcessoMetodoOuPropriedade =
-                            entidadeChamadaChamada as AcessoMetodoOuPropriedade;
-
-                        // Algumas coisas podem acontecer aqui.
-                        // Uma delas é a variável/constante ser uma classe padrão.
-                        // Isso ocorre quando a importação é feita de uma biblioteca Node.js.
-                        // Nesse caso, o tipo de `entidadeChamadaAcessoMetodoOuPropriedade.objeto` começa com uma letra maiúscula.
-                        if (
-                            entidadeChamadaAcessoMetodoOuPropriedade.objeto.tipo &&
-                            entidadeChamadaAcessoMetodoOuPropriedade.objeto.tipo.match(/^[A-Z]/)
-                        ) {
-                            const tipoCorrespondente =
-                                this.tiposDefinidosPorBibliotecas[
-                                entidadeChamadaAcessoMetodoOuPropriedade.objeto.tipo
-                                ];
-                            if (!tipoCorrespondente) {
-                                throw new ErroAvaliadorSintatico(
-                                    entidadeChamadaAcessoMetodoOuPropriedade.simbolo,
-                                    `Tipo '${entidadeChamadaAcessoMetodoOuPropriedade.objeto.tipo}' não foi encontrado entre os tipos definidos por bibliotecas.`
-                                );
-                            }
-
-                            if (
-                                !(
-                                    entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema in
-                                    tipoCorrespondente.metodos
-                                ) &&
-                                !(
-                                    entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema in
-                                    tipoCorrespondente.propriedades
-                                )
-                            ) {
-                                throw new ErroAvaliadorSintatico(
-                                    entidadeChamadaAcessoMetodoOuPropriedade.simbolo,
-                                    `Membro '${entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema}' não existe no tipo '${entidadeChamadaAcessoMetodoOuPropriedade.objeto.tipo}'.`
-                                );
-                            }
-
-                            if (
-                                entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema in
-                                tipoCorrespondente.metodos
-                            ) {
-                                const metodoCorrespondente = tipoCorrespondente.metodos[
-                                    entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema
-                                ];
-                                return metodoCorrespondente.tipoRetorno || 'qualquer';
-                            }
-
-                            const propriedadeCorrespondente = tipoCorrespondente.propriedades[
-                                entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema
-                            ];
-                            return propriedadeCorrespondente.tipo;
-                        }
-
-                        // Este caso ocorre quando a variável/constante é do tipo 'qualquer',
-                        // e a chamada normalmente é feita para uma primitiva.
-                        // A inferência, portanto, ocorre pelo uso da primitiva.
-                        for (const primitiva in this.primitivasConhecidas) {
-                            if (
-                                this.primitivasConhecidas[primitiva].hasOwnProperty(
-                                    entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema
-                                )
-                            ) {
-                                return this.primitivasConhecidas[primitiva][
-                                    entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema
-                                ].tipo;
-                            }
-                        }
-
-                        throw new ErroAvaliadorSintatico(
-                            entidadeChamadaAcessoMetodoOuPropriedade.simbolo,
-                            `Primitiva '${entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema}' não existe.`
+                        return this.logicaComumInferenciaTiposAcessoMetodoOuPropriedade(
+                            entidadeChamadaChamada as AcessoMetodoOuPropriedade
                         );
+
                     case AcessoPropriedade:
                         const entidadeChamadaAcessoPropriedade =
                             entidadeChamadaChamada as AcessoPropriedade;
