@@ -1,7 +1,7 @@
 import { Lexador } from '../../fontes/lexador';
 import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
 import { Ajuda, Bloco, Classe, Const, Escreva, Expressao, FuncaoDeclaracao, Importar, ParaCada, Retorna, TendoComo, Tente, Var } from '../../fontes/declaracoes';
-import { Binario, Chamada, Elvis, FuncaoConstruto, Leia, Literal, Logico, SeTernario, Variavel } from '../../fontes/construtos';
+import { Binario, Chamada, Elvis, FuncaoConstruto, Leia, ListaCompreensao, Literal, Logico, SeTernario, Variavel } from '../../fontes/construtos';
 
 describe('Avaliador sintático', () => {
     describe('analisar()', () => {
@@ -1950,6 +1950,53 @@ describe('Avaliador sintático', () => {
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+            });
+
+            describe('Compreensão de listas', () => {
+                it('Infere tipo texto[] quando expressão de retorno é literal de texto', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var lista = [1, 2, 3]',
+                            'var resultado = ["olá" para cada x em lista]',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    const listaCompreensao = (retornoAvaliadorSintatico.declaracoes[1] as Var).inicializador as ListaCompreensao;
+                    expect(listaCompreensao.tipo).toBe('texto[]');
+                });
+
+                it('Infere tipo número[] quando expressão de retorno é literal numérico', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var lista = ["a", "b", "c"]',
+                            'var resultado = [42 para cada x em lista]',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    const listaCompreensao = (retornoAvaliadorSintatico.declaracoes[1] as Var).inicializador as ListaCompreensao;
+                    expect(listaCompreensao.tipo).toBe('número[]');
+                });
+
+                it('Usa qualquer[] quando expressão de retorno é uma variável', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var lista = [1, 2, 3]',
+                            'var resultado = [x para cada x em lista]',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    const listaCompreensao = (retornoAvaliadorSintatico.declaracoes[1] as Var).inicializador as ListaCompreensao;
+                    expect(listaCompreensao.tipo).toBe('qualquer[]');
                 });
             });
         });

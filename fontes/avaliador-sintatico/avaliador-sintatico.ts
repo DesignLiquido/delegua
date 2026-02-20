@@ -505,7 +505,7 @@ export class AvaliadorSintatico
                     ),
                 ])
             ),
-            'qualquer[]' // TODO: Talvez um dia inferir o tipo aqui.
+            (retornoExpressao as any).tipo ? `${(retornoExpressao as any).tipo}[]` : 'qualquer[]'
         );
     }
 
