@@ -41,9 +41,9 @@ export class AcessoIntervaloVariavel<TTipoSimbolo extends string = string> imple
     }
 
     paraTexto(): string {
-        const inicio = this.indiceInicio ? this.indiceInicio.paraTexto() : 'sem-início';
-        const fim = this.indiceFim ? this.indiceFim.paraTexto() : 'sem-fim';
-        const passo = this.indicePasso ? this.indicePasso.paraTexto() : 'sem-passo';
+        const inicio = this.indiceInicio ? this.indiceInicio.paraTexto() : '(sem início)';
+        const fim = this.indiceFim ? this.indiceFim.paraTexto() : '(sem fim)';
+        const passo = this.indicePasso ? this.indicePasso.paraTexto() : '(sem passo)';
 
         return (
             `<acesso-índice-variável entidadeChamada=${this.entidadeChamada.paraTexto()} ` +

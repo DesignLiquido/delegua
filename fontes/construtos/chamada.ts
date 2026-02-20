@@ -28,8 +28,12 @@ export class Chamada implements Construto {
     }
 
     paraTexto(): string {
-        // TODO: Argumentos
-        return `<chamada entidadeChamada=${this.entidadeChamada.paraTexto()} />`;
+        let argumentos = '';
+        for (let indice = 0; indice < this.argumentos.length; indice++) {
+            argumentos += this.argumentos[indice].paraTexto();
+        }
+
+        return `<chamada entidadeChamada=${this.entidadeChamada.paraTexto()} argumentos=[${argumentos}] />`;
     }
 
     paraTextoSaida(): string {
