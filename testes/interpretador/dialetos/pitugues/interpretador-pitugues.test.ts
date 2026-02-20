@@ -139,6 +139,29 @@ describe('Interpretador (Pituguês)', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Função com nada', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'funcao bhaskara(a,b,c):',
+                        '   nada',
+                        '# Insira os coeficientes depois da função',
+                        'a = 1',
+                        'b = -1',
+                        'c = -30',
+                        'bhaskara(a,b,c)',
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 describe('Compreensão de listas', () => {
                     it('Trivial', async () => {
                         const retornoLexador = lexador.mapear(

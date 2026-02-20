@@ -50,7 +50,22 @@ export class InterpretadorPitugues extends Interpretador {
         return comum.visitarExpressaoTuplaN(this, expressao);
     }
 
-    async visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> {
+    override async visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> {
+        if (expressao.alvo.constructor === Variavel) {
+            const alvoVariavel = expressao.alvo as Variavel;
+            try {
+                this.pilhaEscoposExecucao.obterValorVariavel(alvoVariavel.simbolo);
+            } catch (e) {
+                // Em Pituguês, a variável não precisa ser declarada antes da atribuição.
+                let valor = await this.avaliar(expressao.valor);
+                if (valor && valor.hasOwnProperty('valorRetornado')) {
+                    valor = valor.valorRetornado;
+                }
+                const valorResolvido = this.resolverValor(valor);
+                this.pilhaEscoposExecucao.definirVariavel(alvoVariavel.simbolo.lexema, valorResolvido);
+                return valorResolvido;
+            }
+        }
         return super.visitarExpressaoDeAtribuicao(expressao);
     }
 
