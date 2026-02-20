@@ -1886,7 +1886,7 @@ export class AvaliadorSintatico
             const retornoDeclaracao = await this.resolverDeclaracaoForaDeBloco();
             if (Array.isArray(retornoDeclaracao)) {
                 declaracoes = declaracoes.concat(retornoDeclaracao);
-            } else {
+            } else if (retornoDeclaracao !== null) {
                 declaracoes.push(retornoDeclaracao as Declaracao);
             }
         }
@@ -3413,12 +3413,16 @@ export class AvaliadorSintatico
      * @returns Sempre retorna `void`.
      */
     protected sincronizar(): void {
-        this.avancarEDevolverAnterior();
+        this.avancarEDevolverAnterior(); // avança além do token com erro
 
         while (!this.estaNoFinal()) {
-            const tipoSimboloAtual: string = this.simbolos[this.atual - 1].tipo;
+            // Um ponto-e-vírgula já consumido indica fronteira limpa entre declarações.
+            if (this.simbolos[this.atual - 1].tipo === tiposDeSimbolos.PONTO_E_VIRGULA) return;
 
-            switch (tipoSimboloAtual) {
+            // Uma palavra-chave de início de declaração ou fecha-chave à frente:
+            // retorna SEM consumir o token, para que o chamador o analise normalmente.
+            switch (this.simbolos[this.atual].tipo) {
+                case tiposDeSimbolos.CHAVE_DIREITA:
                 case tiposDeSimbolos.CLASSE:
                 case tiposDeSimbolos.FUNCAO:
                 case tiposDeSimbolos.FUNÇÃO:

@@ -1858,6 +1858,41 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
                 });
+
+                it('Recuperação - duas declarações quebradas no nível superior acumulam dois erros', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var x = ;',
+                        'var y = ;',
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThanOrEqual(2);
+                });
+
+                it('Recuperação - declaração quebrada seguida de declaração válida no nível superior', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var x = ;',
+                        "escreva('recuperado')",
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThanOrEqual(1);
+                    expect(retornoAvaliadorSintatico.declaracoes.length).toBeGreaterThanOrEqual(1);
+                });
+
+                it('Recuperação - declaração quebrada dentro de bloco não impede análise das demais', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'funcao teste() {',
+                        '    var x = ;',
+                        "    escreva('ok')",
+                        '}',
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThanOrEqual(1);
+                    // A declaração de função deve ter sido recuperada
+                    expect(retornoAvaliadorSintatico.declaracoes.length).toBeGreaterThanOrEqual(1);
+                });
             });
 
             describe('Classes - casos extremos', () => {
