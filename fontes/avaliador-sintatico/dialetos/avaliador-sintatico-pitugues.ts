@@ -64,6 +64,7 @@ import {
     PropriedadeClasse,
     TextoDocumentacao,
     Para,
+    Importar,
 } from '../../declaracoes';
 
 import {
@@ -1771,6 +1772,61 @@ export class AvaliadorSintaticoPitugues
         return new ImportarComoConstruto(caminho as Literal);
     }
 
+    async declaracaoImportar(): Promise<Importar> {
+        const nomeModulo = this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            "Esperado nome do módulo após 'importar'."
+        );
+        const caminho = new Literal(
+            nomeModulo.hashArquivo,
+            Number(nomeModulo.linha),
+            nomeModulo.lexema
+        );
+        const declaracao = new Importar(caminho);
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COMO)) {
+            const alias = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                "Esperado identificador após 'como' em declaração de importação."
+            );
+            declaracao.simboloTudo = alias;
+        } else {
+            declaracao.simboloTudo = nomeModulo;
+        }
+
+        return Promise.resolve(declaracao);
+    }
+
+    async declaracaoImportarDe(): Promise<Importar> {
+        const nomeModulo = this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            "Esperado nome do módulo após 'de'."
+        );
+        const caminho = new Literal(
+            nomeModulo.hashArquivo,
+            Number(nomeModulo.linha),
+            nomeModulo.lexema
+        );
+
+        this.consumir(
+            tiposDeSimbolos.IMPORTAR,
+            "Esperado 'importar' após nome do módulo em declaração 'de ... importar'."
+        );
+
+        const elementosImportacao: SimboloInterface[] = [];
+        do {
+            const elemento = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                'Esperado identificador de elemento a ser importado.'
+            );
+            elementosImportacao.push(elemento);
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        const declaracao = new Importar(caminho);
+        declaracao.elementosImportacao = elementosImportacao;
+        return Promise.resolve(declaracao);
+    }
+
     async declaracaoTente(): Promise<Tente> {
         const simboloTente: SimboloInterface = this.simboloAnterior();
         this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após a declaração 'tente'.");
@@ -2336,6 +2392,26 @@ export class AvaliadorSintaticoPitugues
                 return this.declaracaoTente();
             case tiposDeSimbolos.TEXTO_MULTILINHAS:
                 return this.declaracaoTextoDeDocumentacao();
+            case tiposDeSimbolos.IMPORTAR: {
+                const proximo = this.simbolos[this.atual + 1];
+                if (proximo && proximo.tipo === tiposDeSimbolos.PARENTESE_ESQUERDO) {
+                    break;
+                }
+                this.avancarEDevolverAnterior();
+                return this.declaracaoImportar();
+            }
+            case tiposDeSimbolos.DE: {
+                const proximo = this.simbolos[this.atual + 1];
+                const aposProximo = this.simbolos[this.atual + 2];
+                if (
+                    proximo && proximo.tipo === tiposDeSimbolos.IDENTIFICADOR &&
+                    aposProximo && aposProximo.tipo === tiposDeSimbolos.IMPORTAR
+                ) {
+                    this.avancarEDevolverAnterior();
+                    return this.declaracaoImportarDe();
+                }
+                break;
+            }
         }
 
         return this.declaracaoExpressao();
