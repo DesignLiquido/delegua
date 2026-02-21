@@ -11,13 +11,17 @@ export class Classe extends Declaracao {
     propriedades: PropriedadeClasse[];
     decoradores: Decorador[];
     documentacao?: Declaracao;
+    abstrata: boolean;
+    implementa: SimboloInterface[];
 
     constructor(
         simbolo: SimboloInterface,
         superClasse: any,
         metodos: FuncaoDeclaracao[],
         propriedades: PropriedadeClasse[] = [],
-        decoradores: Decorador[] = []
+        decoradores: Decorador[] = [],
+        abstrata: boolean = false,
+        implementa: SimboloInterface[] = []
     ) {
         super(Number(simbolo.linha), simbolo.hashArquivo);
         this.simbolo = simbolo;
@@ -25,6 +29,8 @@ export class Classe extends Declaracao {
         this.metodos = metodos;
         this.propriedades = propriedades;
         this.decoradores = decoradores;
+        this.abstrata = abstrata;
+        this.implementa = implementa;
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {

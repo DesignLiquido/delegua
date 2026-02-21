@@ -59,6 +59,7 @@ import {
     Escreva,
     Fazer,
     FuncaoDeclaracao,
+    InterfaceDeclaracao,
     Para,
     ParaCada,
     Retorna,
@@ -297,6 +298,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
      * Outros ambientes implementam mecanismos mais sofisticados, como o modo de ajuda.
      * @param declaracao A declaração de ajuda.
      */
+    visitarDeclaracaoInterface(declaracao: InterfaceDeclaracao): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+
     async visitarDeclaracaoAjuda(declaracao: Ajuda): Promise<any> {
         return Promise.resolve(
             pontoEntradaAjuda(declaracao.funcao, declaracao.elemento)

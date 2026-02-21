@@ -12,12 +12,22 @@ export class FuncaoDeclaracao extends Declaracao {
     tipo: string;
     decoradores: Decorador[];
     id: string;
+    acesso: 'privado' | 'protegido' | 'publico';
+    estatico: boolean;
+    abstrato: boolean;
+    eObtenedor: boolean;
+    eDefinidor: boolean;
 
     constructor(
         simbolo: SimboloInterface,
         funcao: FuncaoConstruto,
         tipoRetorno: string = 'qualquer',
-        decoradores: Decorador[] = []
+        decoradores: Decorador[] = [],
+        acesso: 'privado' | 'protegido' | 'publico' = 'publico',
+        estatico: boolean = false,
+        abstrato: boolean = false,
+        eObtenedor: boolean = false,
+        eDefinidor: boolean = false
     ) {
         super(Number(simbolo.linha), simbolo.hashArquivo);
         this.id = uuidv4();
@@ -25,6 +35,11 @@ export class FuncaoDeclaracao extends Declaracao {
         this.funcao = funcao;
         this.tipo = tipoRetorno;
         this.decoradores = decoradores;
+        this.acesso = acesso;
+        this.estatico = estatico;
+        this.abstrato = abstrato;
+        this.eObtenedor = eObtenedor;
+        this.eDefinidor = eDefinidor;
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
