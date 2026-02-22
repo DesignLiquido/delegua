@@ -82,6 +82,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
 
     hashArquivoDeclaracaoAtual: number;
     linhaDeclaracaoAtual: number;
+    classeAtualEmExecucao: any = null;
 
     resultadoInterpretador: ResultadoParcialInterpretadorInterface[] = [];
 

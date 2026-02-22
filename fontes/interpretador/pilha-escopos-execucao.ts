@@ -65,6 +65,11 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
                 return Boolean(valor);
             case 'numero':
             case 'número':
+                // Não converter objetos (ex: instâncias de classe de sobrecarga de operador)
+                // para número, pois resultaria em NaN.
+                if (typeof valor === 'object' && valor !== null) {
+                    return valor;
+                }
                 return Number(valor);
             case 'texto':
                 return String(valor);

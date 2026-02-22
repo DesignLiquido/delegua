@@ -4429,5 +4429,642 @@ describe('Interpretador', () => {
                 expect(_saidas[0]).toBe('42');
             });
         });
+
+        describe('Membros estáticos', () => {
+            it('Propriedade estática pode ser lida e escrita pela classe diretamente', async () => {
+                const codigo = [
+                    'classe Caixa {',
+                    '    estatico cor: texto',
+                    '}',
+                    'Caixa.cor = "vermelho"',
+                    'escreva(Caixa.cor)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('vermelho');
+            });
+
+            it('Propriedade estática é compartilhada entre todas as instâncias', async () => {
+                const codigo = [
+                    'classe Contador {',
+                    '    estatico vezes: numero',
+                    '}',
+                    'Contador.vezes = 0',
+                    'Contador.vezes = Contador.vezes + 1',
+                    'Contador.vezes = Contador.vezes + 1',
+                    'escreva(Contador.vezes)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('2');
+            });
+
+            it('Método estático pode ser chamado pela classe sem instância', async () => {
+                const codigo = [
+                    'classe Matematica {',
+                    '    estatico quadrado(n) { retorna n * n }',
+                    '}',
+                    'escreva(Matematica.quadrado(5))',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('25');
+            });
+
+            it('[diagnóstico] Atribuição constante dentro do construtor', async () => {
+                const codigo = [
+                    'classe MinhaClasse {',
+                    '    estatico resultado: numero',
+                    '    construtor() {',
+                    '        MinhaClasse.resultado = 99',
+                    '    }',
+                    '}',
+                    'MinhaClasse.resultado = 0',
+                    'var x = MinhaClasse()',
+                    'escreva(MinhaClasse.resultado)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('99');
+            });
+
+            it('Propriedade estática atualizada dentro do construtor reflete na classe', async () => {
+                const codigo = [
+                    'classe Instancias {',
+                    '    estatico total: numero',
+                    '    construtor() {',
+                    '        Instancias.total = Instancias.total + 1',
+                    '    }',
+                    '}',
+                    'Instancias.total = 0',
+                    'var a = Instancias()',
+                    'var b = Instancias()',
+                    'escreva(Instancias.total)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('2');
+            });
+        });
+
+        describe('Acessores de propriedades', () => {
+            it('Obtenedor e definidor de instância funcionam com acesso por propriedade', async () => {
+                const codigo = [
+                    'classe Pessoa {',
+                    '    _nome: texto',
+                    '    definir nome(valor) {',
+                    '        isto._nome = valor',
+                    '    }',
+                    '    obter nome() {',
+                    '        retorna isto._nome',
+                    '    }',
+                    '}',
+                    'var p = Pessoa()',
+                    'p.nome = "Ada"',
+                    'escreva(p.nome)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('Ada');
+            });
+
+            it('Obtenedor e definidor estáticos funcionam com acesso pela classe', async () => {
+                const codigo = [
+                    'classe Config {',
+                    '    estatico _tema: texto',
+                    '    estatico definir tema(valor) {',
+                    '        Config._tema = valor',
+                    '    }',
+                    '    estatico obter tema() {',
+                    '        retorna Config._tema',
+                    '    }',
+                    '}',
+                    'Config.tema = "escuro"',
+                    'escreva(Config.tema)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('escuro');
+            });
+        });
+
+        describe('Classes abstratas', () => {
+            it('Classe abstrata não pode ser instanciada diretamente', async () => {
+                const codigo = [
+                    'classe abstrata Forma {',
+                    '    area() abstrato: numero',
+                    '}',
+                    'var f = Forma()',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(1);
+            });
+
+            it('Subclasse concreta implementa método abstrato e pode ser instanciada', async () => {
+                const codigo = [
+                    'classe abstrata Forma {',
+                    '    area() abstrato: numero',
+                    '}',
+                    'classe Circulo herda Forma {',
+                    '    raio: numero',
+                    '    construtor(r) { isto.raio = r }',
+                    '    area() { retorna 3 * isto.raio * isto.raio }',
+                    '}',
+                    'var c = Circulo(5)',
+                    'escreva(c.area())',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('75');
+            });
+
+            it('Subclasse que não implementa método abstrato gera erro ao ser definida', async () => {
+                const codigo = [
+                    'classe abstrata Forma {',
+                    '    area() abstrato: numero',
+                    '}',
+                    'classe Quadrado herda Forma {',
+                    '}',
+                    'var q = Quadrado()',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+            });
+
+            it('Classe abstrata pode ter métodos concretos herdados pela subclasse', async () => {
+                const codigo = [
+                    'classe abstrata Animal {',
+                    '    falar() abstrato: texto',
+                    '    descricao() { retorna "Sou um animal" }',
+                    '}',
+                    'classe Gato herda Animal {',
+                    '    falar() { retorna "miau" }',
+                    '}',
+                    'var g = Gato()',
+                    'escreva(g.falar())',
+                    'escreva(g.descricao())',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('miau');
+                expect(_saidas[1]).toBe('Sou um animal');
+            });
+        });
+
+        describe('Classe estática', () => {
+            it('Membros de classe estática são acessíveis diretamente pela classe', async () => {
+                const codigo = [
+                    'classe estática Config {',
+                    '    tema: texto',
+                    '    versao: numero',
+                    '}',
+                    'Config.tema = "escuro"',
+                    'Config.versao = 2',
+                    'escreva(Config.tema)',
+                    'escreva(Config.versao)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('escuro');
+                expect(_saidas[1]).toBe('2');
+            });
+
+            it('Classe estática não pode ser instanciada', async () => {
+                const codigo = [
+                    'classe estática Utilitario {',
+                    '    ajudar() { retorna "ajudando" }',
+                    '}',
+                    'var u = Utilitario()',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(1);
+            });
+        });
+
+        describe('Auto-propriedades', () => {
+            it('Auto-propriedade com obter e definir funciona como getter/setter automático', async () => {
+                const codigo = [
+                    'classe Pessoa {',
+                    '    nome: texto { obter; definir; }',
+                    '}',
+                    'var p = Pessoa()',
+                    'p.nome = "Ana"',
+                    'escreva(p.nome)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('Ana');
+            });
+
+            it('Auto-propriedade somente-leitura lança erro ao ser atribuída', async () => {
+                const codigo = [
+                    'classe Produto {',
+                    '    codigo: texto { obter; }',
+                    '}',
+                    'var p = Produto()',
+                    'p.codigo = "ABC"',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(1);
+            });
+
+            it('Getter e setter com corpo personalizado funcionam corretamente', async () => {
+                const codigo = [
+                    'classe Pessoa {',
+                    '    _nome: texto',
+                    '    nome: texto {',
+                    '        obter() {',
+                    '            retorna isto._nome',
+                    '        }',
+                    '        definir(valor) {',
+                    '            isto._nome = valor',
+                    '        }',
+                    '    }',
+                    '}',
+                    'var p = Pessoa()',
+                    'p.nome = "Ana"',
+                    'escreva(p.nome)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('Ana');
+            });
+        });
+
+        describe('Blocos de modificadores', () => {
+            it('Bloco privado agrupa membros privados', async () => {
+                const codigo = [
+                    'classe Banco {',
+                    '    privado {',
+                    '        saldo: numero',
+                    '    }',
+                    '    construtor(s) { isto.saldo = s }',
+                    '    obterSaldo() { retorna isto.saldo }',
+                    '}',
+                    'var b = Banco(500)',
+                    'escreva(b.obterSaldo())',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('500');
+            });
+
+            it('Acesso direto a membro em bloco privado lança erro', async () => {
+                const codigo = [
+                    'classe Cofre {',
+                    '    privado { segredo: texto }',
+                    '    construtor(s) { isto.segredo = s }',
+                    '}',
+                    'var c = Cofre("xpto")',
+                    'escreva(c.segredo)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(1);
+            });
+
+            it('Bloco estático torna membros estáticos por padrão', async () => {
+                const codigo = [
+                    'classe Contagem {',
+                    '    estático {',
+                    '        total: numero',
+                    '    }',
+                    '}',
+                    'Contagem.total = 42',
+                    'escreva(Contagem.total)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('42');
+            });
+        });
+
+        describe('Modificadores de acesso', () => {
+            it('Propriedade privada não pode ser acessada de fora da classe', async () => {
+                const codigo = [
+                    'classe ContaBancaria {',
+                    '    privado saldo: numero',
+                    '    construtor(inicial) { isto.saldo = inicial }',
+                    '}',
+                    'var c = ContaBancaria(1000)',
+                    'escreva(c.saldo)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+            });
+
+            it('Propriedade privada pode ser acessada por métodos da própria classe', async () => {
+                const codigo = [
+                    'classe ContaBancaria {',
+                    '    privado saldo: numero',
+                    '    construtor(inicial) { isto.saldo = inicial }',
+                    '    depositar(valor) { isto.saldo = isto.saldo + valor }',
+                    '    obterSaldo() { retorna isto.saldo }',
+                    '}',
+                    'var c = ContaBancaria(1000)',
+                    'c.depositar(500)',
+                    'escreva(c.obterSaldo())',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('1500');
+            });
+
+            it('Propriedade pública pode ser acessada de qualquer lugar', async () => {
+                const codigo = [
+                    'classe Ponto {',
+                    '    publico x: numero',
+                    '    publico y: numero',
+                    '    construtor(x, y) {',
+                    '        isto.x = x',
+                    '        isto.y = y',
+                    '    }',
+                    '}',
+                    'var p = Ponto(3, 4)',
+                    'escreva(p.x)',
+                    'escreva(p.y)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('3');
+                expect(_saidas[1]).toBe('4');
+            });
+
+            it('Propriedade privada não pode ser atribuída de fora da classe', async () => {
+                const codigo = [
+                    'classe Cofre {',
+                    '    privado segredo: texto',
+                    '    construtor() { isto.segredo = "abc" }',
+                    '}',
+                    'var co = Cofre()',
+                    'co.segredo = "hack"',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+            });
+        });
+
+        describe('Sobrecarga de operadores', () => {
+            it('Operador + sobrecarregado soma dois vetores 2D', async () => {
+                const codigo = [
+                    'classe Vetor2D {',
+                    '    x: numero',
+                    '    y: numero',
+                    '    construtor(x, y) {',
+                    '        isto.x = x',
+                    '        isto.y = y',
+                    '    }',
+                    '    operador+(outro) { retorna Vetor2D(isto.x + outro.x, isto.y + outro.y) }',
+                    '}',
+                    'var a = Vetor2D(1, 2)',
+                    'var b = Vetor2D(3, 4)',
+                    'var c = a + b',
+                    'escreva(c.x)',
+                    'escreva(c.y)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('4');
+                expect(_saidas[1]).toBe('6');
+            });
+
+            it('Operador == sobrecarregado compara dois objetos por valor', async () => {
+                const codigo = [
+                    'classe Ponto {',
+                    '    x: numero',
+                    '    y: numero',
+                    '    construtor(x, y) {',
+                    '        isto.x = x',
+                    '        isto.y = y',
+                    '    }',
+                    '    operador==(outro) { retorna isto.x == outro.x e isto.y == outro.y }',
+                    '}',
+                    'var p1 = Ponto(1, 2)',
+                    'var p2 = Ponto(1, 2)',
+                    'var p3 = Ponto(3, 4)',
+                    'escreva(p1 == p2)',
+                    'escreva(p1 == p3)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('verdadeiro');
+                expect(_saidas[1]).toBe('falso');
+            });
+
+            it('Operador * sobrecarregado multiplica um vetor por escalar', async () => {
+                const codigo = [
+                    'classe Vec {',
+                    '    v: numero',
+                    '    construtor(v) { isto.v = v }',
+                    '    operador*(escalar) { retorna Vec(isto.v * escalar) }',
+                    '}',
+                    'var v = Vec(5)',
+                    'var r = v * 3',
+                    'escreva(r.v)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('15');
+            });
+        });
+
+        describe('Interfaces', () => {
+            it('Classe que implementa interface corretamente executa sem erros', async () => {
+                const codigo = [
+                    'interface Imprimivel {',
+                    '    imprimir(): vazio',
+                    '}',
+                    'classe Relatorio implementa Imprimivel {',
+                    '    titulo: texto',
+                    '    construtor(t) { isto.titulo = t }',
+                    '    imprimir() { escreva(isto.titulo) }',
+                    '}',
+                    'var r = Relatorio("Vendas")',
+                    'r.imprimir()',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('Vendas');
+            });
+
+            it('Classe que não implementa método da interface gera erro de parse', async () => {
+                const codigo = [
+                    'interface Imprimivel {',
+                    '    imprimir(): vazio',
+                    '}',
+                    'classe Incompleta implementa Imprimivel {',
+                    '    titulo: texto',
+                    '}',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+            });
+
+            it('Classe pode implementar múltiplas interfaces', async () => {
+                const codigo = [
+                    'interface Imprimivel {',
+                    '    imprimir(): vazio',
+                    '}',
+                    'interface Nomeavel {',
+                    '    nome(): texto',
+                    '}',
+                    'classe Relatorio implementa Imprimivel, Nomeavel {',
+                    '    titulo: texto',
+                    '    construtor(t) { isto.titulo = t }',
+                    '    imprimir() { escreva(isto.titulo) }',
+                    '    nome() { retorna isto.titulo }',
+                    '}',
+                    'var r = Relatorio("Vendas")',
+                    'r.imprimir()',
+                    'escreva(r.nome())',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('Vendas');
+                expect(_saidas[1]).toBe('Vendas');
+            });
+
+            it('Interface pode declarar propriedades e método', async () => {
+                const codigo = [
+                    'interface Identificavel {',
+                    '    id: numero',
+                    '    identificar(): texto',
+                    '}',
+                    'classe Produto implementa Identificavel {',
+                    '    id: numero',
+                    '    nome: texto',
+                    '    construtor(i, n) { isto.id = i \n isto.nome = n }',
+                    '    identificar() { retorna isto.nome }',
+                    '}',
+                    'var p = Produto(1, "Caneta")',
+                    'escreva(p.identificar())',
+                    'escreva(p.id)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('Caneta');
+                expect(_saidas[1]).toBe('1');
+            });
+        });
     });
 });
+

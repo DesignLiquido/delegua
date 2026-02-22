@@ -8,6 +8,8 @@ export class PropriedadeClasse extends Declaracao {
     decoradores: Decorador[];
     acesso: 'privado' | 'protegido' | 'publico';
     estatico: boolean;
+    autoObter: boolean;
+    autoDefinir: boolean;
 
     constructor(
         nome: SimboloInterface,
@@ -22,6 +24,8 @@ export class PropriedadeClasse extends Declaracao {
         this.decoradores = decoradores;
         this.acesso = acesso;
         this.estatico = estatico;
+        this.autoObter = false;
+        this.autoDefinir = false;
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {

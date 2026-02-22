@@ -19,6 +19,8 @@ export const palavrasReservadasDelegua = {
     e: tiposDeSimbolos.E,
     em: tiposDeSimbolos.EM,
     enquanto: tiposDeSimbolos.ENQUANTO,
+    estatica: tiposDeSimbolos.ESTATICO,
+    estática: tiposDeSimbolos.ESTATICO,
     estatico: tiposDeSimbolos.ESTATICO,
     estático: tiposDeSimbolos.ESTATICO,
     escolha: tiposDeSimbolos.ESCOLHA,

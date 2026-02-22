@@ -171,7 +171,7 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
     }
 
     if (objeto.constructor === ObjetoDeleguaClasse) {
-        return (objeto as ObjetoDeleguaClasse).obter(expressao.simbolo);
+        return await (objeto as ObjetoDeleguaClasse).obter(expressao.simbolo, interpretador as any);
     }
 
     if (objeto instanceof TuplaN || objeto.constructor.name === 'TuplaN') {

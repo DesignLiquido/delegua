@@ -298,8 +298,9 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
      * Outros ambientes implementam mecanismos mais sofisticados, como o modo de ajuda.
      * @param declaracao A declaração de ajuda.
      */
-    visitarDeclaracaoInterface(declaracao: InterfaceDeclaracao): Promise<any> {
-        throw new Error('Método não implementado.');
+    visitarDeclaracaoInterface(_declaracao: InterfaceDeclaracao): Promise<any> {
+        // Interfaces não possuem comportamento em tempo de execução.
+        return Promise.resolve();
     }
 
     async visitarDeclaracaoAjuda(declaracao: Ajuda): Promise<any> {
@@ -898,8 +899,27 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
         const objeto = this.resolverValor(variavelObjeto, true);
 
+        let descritorTipoClasse: DescritorTipoClasse | null = null;
+        if (objeto instanceof DescritorTipoClasse) {
+            descritorTipoClasse = objeto as DescritorTipoClasse;
+        } else if (expressao.objeto instanceof Variavel) {
+            try {
+                const variavelClasse = this.procurarVariavel((expressao.objeto as Variavel).simbolo);
+                const valorClasse = this.resolverValor(variavelClasse, true);
+                if (valorClasse instanceof DescritorTipoClasse) {
+                    descritorTipoClasse = valorClasse as DescritorTipoClasse;
+                }
+            } catch {
+                // Ignora e continua fluxo padrão de resolução abaixo.
+            }
+        }
+
+        if (descritorTipoClasse) {
+            return await descritorTipoClasse.obterEstatico(expressao.simbolo.lexema, this);
+        }
+
         if (objeto.constructor === ObjetoDeleguaClasse) {
-            return (objeto as ObjetoDeleguaClasse).obter(expressao.simbolo);
+            return await (objeto as ObjetoDeleguaClasse).obter(expressao.simbolo, this);
         }
 
         if (objeto instanceof TuplaN || objeto.constructor.name === 'TuplaN') {
@@ -1244,7 +1264,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 const valor = await this.avaliar(expressao.valor);
                 if (objeto.constructor === ObjetoDeleguaClasse) {
                     const objetoDeleguaClasse = objeto as ObjetoDeleguaClasse;
-                    objetoDeleguaClasse.definir(alvoPropriedade.simbolo, valor);
+                    await objetoDeleguaClasse.definir(alvoPropriedade.simbolo, valor, this);
                 } else {
                     // Se cair aqui, provavelmente `objeto.constructor.name` é 'Object'.
                     objeto[alvoPropriedade.simbolo.lexema] = valor;
@@ -1265,6 +1285,28 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         const variavelObjeto = await this.avaliar(expressao.objeto);
         const objeto = this.resolverValor(variavelObjeto);
 
+        let descritorTipoClasse: DescritorTipoClasse | null = null;
+        if (objeto instanceof DescritorTipoClasse) {
+            descritorTipoClasse = objeto as DescritorTipoClasse;
+        } else if (expressao.objeto instanceof Variavel) {
+            try {
+                const variavelClasse = this.procurarVariavel((expressao.objeto as Variavel).simbolo);
+                const valorClasse = this.resolverValor(variavelClasse);
+                if (valorClasse instanceof DescritorTipoClasse) {
+                    descritorTipoClasse = valorClasse as DescritorTipoClasse;
+                }
+            } catch {
+                // Ignora e continua fluxo padrão de definição abaixo.
+            }
+        }
+
+        if (descritorTipoClasse) {
+            const valor = await this.avaliar(expressao.valor);
+            const valorResolvido = this.resolverValor(valor);
+            await descritorTipoClasse.definirEstatico(expressao.nome.lexema, valorResolvido, this);
+            return valorResolvido;
+        }
+
         if (objeto.constructor !== ObjetoDeleguaClasse && objeto.constructor !== Object) {
             return Promise.reject(
                 new ErroEmTempoDeExecucao(
@@ -1278,7 +1320,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         const valor = await this.avaliar(expressao.valor);
         const valorResolvido = this.resolverValor(valor);
         if (objeto.constructor === ObjetoDeleguaClasse) {
-            objeto.definir(expressao.nome, valorResolvido);
+            await objeto.definir(expressao.nome, valorResolvido, this);
             return valorResolvido;
         }
 

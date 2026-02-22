@@ -12,6 +12,7 @@ export class Classe extends Declaracao {
     decoradores: Decorador[];
     documentacao?: Declaracao;
     abstrata: boolean;
+    classeEstatica: boolean;
     implementa: SimboloInterface[];
 
     constructor(
@@ -21,6 +22,7 @@ export class Classe extends Declaracao {
         propriedades: PropriedadeClasse[] = [],
         decoradores: Decorador[] = [],
         abstrata: boolean = false,
+        classeEstatica: boolean = false,
         implementa: SimboloInterface[] = []
     ) {
         super(Number(simbolo.linha), simbolo.hashArquivo);
@@ -30,6 +32,7 @@ export class Classe extends Declaracao {
         this.propriedades = propriedades;
         this.decoradores = decoradores;
         this.abstrata = abstrata;
+        this.classeEstatica = classeEstatica;
         this.implementa = implementa;
     }
 

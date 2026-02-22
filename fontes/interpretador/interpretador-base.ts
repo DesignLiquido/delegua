@@ -19,6 +19,7 @@ import {
     FuncaoDeclaracao,
     Importar,
     InicioAlgoritmo,
+    InterfaceDeclaracao,
     Para,
     ParaCada,
     Retorna,
@@ -122,6 +123,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     resultadoInterpretador: ResultadoParcialInterpretadorInterface[] = [];
     linhaDeclaracaoAtual: number;
     hashArquivoDeclaracaoAtual: number;
+    classeAtualEmExecucao: any = null;
 
     // Esta variável indica que uma propriedade de um objeto
     // não precisa da palavra `isto` para ser acessada, ou seja,
@@ -771,6 +773,18 @@ export class InterpretadorBase implements InterpretadorInterface {
         const direita: VariavelInterface | any = await this.avaliar(expressao.direita);
         const valorEsquerdo: any = this.resolverValor(esquerda);
         const valorDireito: any = this.resolverValor(direita);
+
+        // Verificar sobrecarga de operador: se o operando esquerdo é uma instância de classe,
+        // procurar método `operador<símbolo>` (ex: `operador+`, `operador==`).
+        if (valorEsquerdo instanceof ObjetoDeleguaClasse) {
+            const nomeOperador = 'operador' + expressao.operador.lexema;
+            const metodoOperador = valorEsquerdo.classe.encontrarMetodo(nomeOperador);
+            if (metodoOperador) {
+                const metodoBound = metodoOperador.funcaoPorMetodoDeClasse(valorEsquerdo);
+                return await metodoBound.chamar(this, [{ nome: null, valor: valorDireito }]);
+            }
+        }
+
         const tipoEsquerdo: string = esquerda?.hasOwnProperty('tipo')
             ? esquerda.tipo
             : inferirTipoVariavel(esquerda);
@@ -1254,7 +1268,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 const valor = await this.avaliar(expressao.valor);
                 if (objeto.constructor === ObjetoDeleguaClasse) {
                     const objetoDeleguaClasse = objeto as ObjetoDeleguaClasse;
-                    objetoDeleguaClasse.definir(alvoPropriedade.simbolo, valor);
+                    await objetoDeleguaClasse.definir(alvoPropriedade.simbolo, valor, this);
                 }
                 break;
             default:
@@ -2047,7 +2061,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         const valor = await this.avaliar(expressao.valor);
         if (objeto.constructor === ObjetoDeleguaClasse) {
-            objeto.definir(expressao.nome, valor);
+            await objeto.definir(expressao.nome, valor, this);
             return valor;
         }
 
@@ -2096,24 +2110,81 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         const metodos: { [nome: string]: DeleguaFuncao | DeleguaFuncao[] } = {};
+        const metodosEstaticos: { [nome: string]: DeleguaFuncao | DeleguaFuncao[] } = {};
+        const obtenedores: { [nome: string]: DeleguaFuncao } = {};
+        const definidores: { [nome: string]: DeleguaFuncao } = {};
+        const obtenedoresEstaticos: { [nome: string]: DeleguaFuncao } = {};
+        const definidoresEstaticos: { [nome: string]: DeleguaFuncao } = {};
+        const metodosAbstratos: string[] = [];
+        const acessoMetodos: { [nome: string]: 'privado' | 'protegido' | 'publico' } = {};
+        const acessoPropriedades: { [nome: string]: 'privado' | 'protegido' | 'publico' } = {};
         const definirMetodos = declaracao.metodos;
         for (let i = 0; i < declaracao.metodos.length; i++) {
             const metodoAtual = definirMetodos[i];
-            const eInicializador = metodoAtual.simbolo.lexema === 'construtor';
+            const nomeMetodo = metodoAtual.simbolo.lexema;
+
+            // Registrar nível de acesso do método.
+            if (metodoAtual.acesso && metodoAtual.acesso !== 'publico') {
+                acessoMetodos[nomeMetodo] = metodoAtual.acesso;
+            }
+
+            // Métodos abstratos: registrar apenas o nome, não criar função executável.
+            if (metodoAtual.abstrato) {
+                metodosAbstratos.push(nomeMetodo);
+                continue;
+            }
+
+            const eInicializador = nomeMetodo === 'construtor';
             const funcao = new DeleguaFuncao(
-                metodoAtual.simbolo.lexema,
+                nomeMetodo,
                 metodoAtual.funcao,
                 undefined,
                 eInicializador
             );
-            const nomeMetodo = metodoAtual.simbolo.lexema;
-            if (metodos[nomeMetodo]) {
-                if (!Array.isArray(metodos[nomeMetodo])) {
-                    metodos[nomeMetodo] = [metodos[nomeMetodo] as DeleguaFuncao];
+
+            // Numa classe estática, todos os métodos (exceto construtor) são estáticos.
+            const ehEstatico = declaracao.classeEstatica
+                ? !eInicializador
+                : metodoAtual.estatico;
+
+            if (metodoAtual.eObtenedor) {
+                if (ehEstatico) {
+                    obtenedoresEstaticos[nomeMetodo] = funcao;
+                } else {
+                    obtenedores[nomeMetodo] = funcao;
                 }
-                (metodos[nomeMetodo] as DeleguaFuncao[]).push(funcao);
+                continue;
+            }
+
+            if (metodoAtual.eDefinidor) {
+                if (ehEstatico) {
+                    definidoresEstaticos[nomeMetodo] = funcao;
+                } else {
+                    definidores[nomeMetodo] = funcao;
+                }
+                continue;
+            }
+
+            const destino = ehEstatico && !eInicializador ? metodosEstaticos : metodos;
+            if (destino[nomeMetodo]) {
+                if (!Array.isArray(destino[nomeMetodo])) {
+                    destino[nomeMetodo] = [destino[nomeMetodo] as DeleguaFuncao];
+                }
+                (destino[nomeMetodo] as DeleguaFuncao[]).push(funcao);
             } else {
-                metodos[nomeMetodo] = funcao;
+                destino[nomeMetodo] = funcao;
+            }
+        }
+
+        // Registrar propriedades estáticas no mapa de membros estáticos e níveis de acesso.
+        // Numa classe estática, todas as propriedades são tratadas como estáticas.
+        const membrosEstaticos: { [nome: string]: any } = {};
+        for (const prop of declaracao.propriedades) {
+            if (prop.estatico || declaracao.classeEstatica) {
+                membrosEstaticos[prop.nome.lexema] = undefined;
+            }
+            if (prop.acesso && prop.acesso !== 'publico') {
+                acessoPropriedades[prop.nome.lexema] = prop.acesso;
             }
         }
 
@@ -2123,6 +2194,23 @@ export class InterpretadorBase implements InterpretadorInterface {
             metodos,
             declaracao.propriedades
         );
+        descritorTipoClasse.metodosEstaticos = metodosEstaticos;
+        descritorTipoClasse.membrosEstaticos = membrosEstaticos;
+        descritorTipoClasse.obtenedores = obtenedores;
+        descritorTipoClasse.definidores = definidores;
+        descritorTipoClasse.obtenedoresEstaticos = obtenedoresEstaticos;
+        descritorTipoClasse.definidoresEstaticos = definidoresEstaticos;
+        descritorTipoClasse.abstrata = declaracao.abstrata;
+        descritorTipoClasse.classeEstatica = declaracao.classeEstatica;
+        descritorTipoClasse.metodosAbstratos = metodosAbstratos;
+        descritorTipoClasse.acessoMetodos = acessoMetodos;
+        descritorTipoClasse.acessoPropriedades = acessoPropriedades;
+
+        // Verifica se a subclasse concreta implementa todos os métodos abstratos
+        // da superclasse abstrata.
+        if (!declaracao.abstrata && superClasse && superClasse.abstrata) {
+            superClasse.verificarImplementacaoAbstrata(descritorTipoClasse);
+        }
 
         // TODO: Até então, a única exceção a isso é Égua Clássico.
         // Por enquanto, tudo bem deixar isso aqui.
@@ -2130,6 +2218,17 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         this.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolo, descritorTipoClasse);
         return descritorTipoClasse;
+    }
+
+    /**
+     * Registra uma declaração de interface no ambiente de execução.
+     * Interfaces são verificadas em tempo de análise; em tempo de execução, apenas registramos
+     * o nome para possíveis verificações futuras (ex: `eInstanciaDe`).
+     */
+    async visitarDeclaracaoInterface(_declaracao: InterfaceDeclaracao): Promise<void> {
+        // Interfaces não possuem comportamento em tempo de execução.
+        // São contratos verificados em tempo de análise sintática.
+        return Promise.resolve();
     }
 
     /**
@@ -2159,7 +2258,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             objeto instanceof ObjetoDeleguaClasse ||
             objeto.constructor.name === 'ObjetoDeleguaClasse'
         ) {
-            const valor = objeto.obter(expressao.simbolo);
+            const valor = await objeto.obter(expressao.simbolo, this);
             if (valor === 0) return 0;
             return valor || null;
         }

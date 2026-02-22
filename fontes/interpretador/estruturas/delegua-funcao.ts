@@ -151,10 +151,22 @@ export class DeleguaFuncao extends Chamavel {
         // o interpretador).
         const interpretador = visitante as any;
         interpretador.proximoEscopo = 'funcao';
-        const retornoBloco: any = await interpretador.executarBloco(
-            this.declaracao.corpo,
-            ambiente
-        );
+
+        // Rastrear a classe atual em execução para verificação de acesso.
+        const classeAnteriorEmExecucao = interpretador.classeAtualEmExecucao;
+        if (this.instancia !== undefined) {
+            interpretador.classeAtualEmExecucao = this.instancia.classe;
+        }
+
+        let retornoBloco: any;
+        try {
+            retornoBloco = await interpretador.executarBloco(
+                this.declaracao.corpo,
+                ambiente
+            );
+        } finally {
+            interpretador.classeAtualEmExecucao = classeAnteriorEmExecucao;
+        }
 
         const referencias = this.declaracao.parametros
             .map((p, indice) => {
