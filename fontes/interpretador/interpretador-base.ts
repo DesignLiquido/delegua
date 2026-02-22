@@ -2221,7 +2221,9 @@ export class InterpretadorBase implements InterpretadorInterface {
         descritorTipoClasse.acessoPropriedades = acessoPropriedades;
 
         // Toda classe sem superclasse explícita herda implicitamente de `Objeto`.
-        if (!descritorTipoClasse.superClasse && descritorTipoClasse !== OBJETO_BASE) {
+        // Isso só deve acontecer quando OBJETO_BASE já estiver inicializado e a classe
+        // atual não for o próprio OBJETO_BASE, para evitar cadeias de herança recursivas.
+        if (!descritorTipoClasse.superClasse && OBJETO_BASE && descritorTipoClasse !== OBJETO_BASE) {
             descritorTipoClasse.superClasse = OBJETO_BASE;
         }
 
