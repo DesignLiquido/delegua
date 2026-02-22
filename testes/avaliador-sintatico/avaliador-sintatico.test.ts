@@ -54,6 +54,7 @@ describe('Avaliador sintático', () => {
     
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
     
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
 
