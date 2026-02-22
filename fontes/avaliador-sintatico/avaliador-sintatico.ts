@@ -3861,8 +3861,27 @@ export class AvaliadorSintatico
                 return await this.declaracaoBloco();
             case tiposDeSimbolos.COMENTARIO:
                 return this.declaracaoComentarioUmaLinha();
-            case tiposDeSimbolos.DOCUMENTARIO:
-                return this.declaracaoComentarioUmaLinha();
+            case tiposDeSimbolos.DOCUMENTARIO: {
+                const simboloDoc = this.avancarEDevolverAnterior();
+                // Se o próximo token for uma declaração de função com identificador,
+                // anexa o documentário como documentação da função.
+                if (
+                    (this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) ||
+                        this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNÇÃO)) &&
+                    this.verificarTipoProximoSimbolo(tiposDeSimbolos.IDENTIFICADOR)
+                ) {
+                    this.avancarEDevolverAnterior();
+                    const declaracaoFuncao = await this.funcao('funcao') as FuncaoDeclaracao;
+                    declaracaoFuncao.documentacao = new ComentarioComoConstruto(simboloDoc);
+                    return declaracaoFuncao;
+                }
+                return new Comentario(
+                    simboloDoc.hashArquivo,
+                    simboloDoc.linha,
+                    simboloDoc.literal,
+                    false
+                );
+            }
             case tiposDeSimbolos.CONSTANTE:
                 this.avancarEDevolverAnterior();
                 return await this.declaracaoDeConstantes();

@@ -1133,7 +1133,11 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             try {
                 const resultado = await this.avaliar(expressao.valor);
                 const valorAvaliado = this.resolverValor(resultado);
-                if (valorAvaliado instanceof DeleguaFuncao) {
+                if (
+                    valorAvaliado instanceof DeleguaFuncao ||
+                    valorAvaliado instanceof ObjetoDeleguaClasse ||
+                    valorAvaliado instanceof DescritorTipoClasse
+                ) {
                     return pontoEntradaAjuda(expressao.funcao, valorAvaliado);
                 }
             } catch {

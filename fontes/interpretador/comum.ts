@@ -2,6 +2,8 @@ import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execu
 
 import { FuncaoPadrao } from './estruturas/funcao-padrao';
 import { DeleguaFuncao } from './estruturas/delegua-funcao';
+import { DescritorTipoClasse } from './estruturas/descritor-tipo-classe';
+import { ObjetoDeleguaClasse } from './estruturas/objeto-delegua-classe';
 
 import * as bibliotecaGlobal from '../bibliotecas/biblioteca-global';
 import { Leia } from '../construtos';
@@ -138,10 +140,53 @@ export function obterTopicoAjuda(topico: any): string {
             }
             return `Função '${(topico as DeleguaFuncao).nome}' — sem documentação disponível.`;
 
+        case ObjetoDeleguaClasse:
+            return obterAjudaDescritor((topico as ObjetoDeleguaClasse).classe, false);
+
+        case DescritorTipoClasse:
+            return obterAjudaDescritor(topico as DescritorTipoClasse, true);
+
         default:
             console.log(topico);
             return `Desculpe, não há documentação disponível para o tópico solicitado no momento.`;
     }
+}
+
+function obterConteudoDoc(documentacao: { conteudo: any } | undefined): string {
+    if (!documentacao) return '';
+    return Array.isArray(documentacao.conteudo)
+        ? documentacao.conteudo.join('\n')
+        : String(documentacao.conteudo);
+}
+
+function obterAjudaDescritor(descritor: DescritorTipoClasse, estatico: boolean): string {
+    const nome = descritor.simboloOriginal?.lexema ?? 'Objeto';
+    const qualificador = estatico ? ' (estático)' : '';
+    const linhas: string[] = [`Classe ${nome}${qualificador}`];
+
+    const propriedadesVisiveis = descritor.propriedades.filter(
+        (p) => p.acesso === 'publico' && p.estatico === estatico
+    );
+    if (propriedadesVisiveis.length > 0) {
+        linhas.push('\nPropriedades:');
+        for (const prop of propriedadesVisiveis) {
+            const doc = obterConteudoDoc(prop.documentacao);
+            linhas.push(`  ${prop.nome.lexema}${doc ? ` — ${doc}` : ''}`);
+        }
+    }
+
+    const nomesMetodos = Object.keys(descritor.metodos);
+    if (nomesMetodos.length > 0) {
+        linhas.push('\nMétodos:');
+        for (const nomeMetodo of nomesMetodos) {
+            const metodo = descritor.metodos[nomeMetodo];
+            const funcao = Array.isArray(metodo) ? metodo[0] : metodo;
+            const doc = obterConteudoDoc(funcao.documentacao);
+            linhas.push(`  ${nomeMetodo}()${doc ? ` — ${doc}` : ''}`);
+        }
+    }
+
+    return linhas.join('\n');
 }
 
 function obterAjudaFuncaoPadrao(funcaoPadrao: FuncaoPadrao): string {

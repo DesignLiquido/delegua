@@ -5269,6 +5269,67 @@ describe('Interpretador', () => {
                 expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('Soma dois números.');
             });
+
+            it('documentário em função aninhada é retornado por ajuda()', async () => {
+                const codigo = [
+                    'funcao externa() {',
+                    '    /** Calcula o quadrado de um número. */',
+                    '    funcao quadrado(n) { retorna n * n }',
+                    '    escreva(ajuda(quadrado))',
+                    '}',
+                    'externa()',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('Calcula o quadrado de um número.');
+            });
+
+            it('ajuda(obj) exibe resumo da classe com métodos documentados', async () => {
+                const codigo = [
+                    'classe Veiculo {',
+                    '    /** Acelera o veículo. */',
+                    '    acelerar() { }',
+                    '    /** Para o veículo. */',
+                    '    frear() { }',
+                    '}',
+                    'var v = Veiculo()',
+                    'escreva(ajuda(v))',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toContain('Veiculo');
+                expect(_saidas[0]).toContain('acelerar()');
+                expect(_saidas[0]).toContain('Acelera o veículo.');
+                expect(_saidas[0]).toContain('frear()');
+                expect(_saidas[0]).toContain('Para o veículo.');
+            });
+
+            it('ajuda(Classe) exibe resumo da classe com métodos documentados', async () => {
+                const codigo = [
+                    'classe Motor {',
+                    '    /** Liga o motor. */',
+                    '    ligar() { }',
+                    '}',
+                    'escreva(ajuda(Motor))',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toContain('Motor');
+                expect(_saidas[0]).toContain('ligar()');
+                expect(_saidas[0]).toContain('Liga o motor.');
+            });
         });
     });
 });
