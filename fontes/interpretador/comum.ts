@@ -1,6 +1,7 @@
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
 
 import { FuncaoPadrao } from './estruturas/funcao-padrao';
+import { DeleguaFuncao } from './estruturas/delegua-funcao';
 
 import * as bibliotecaGlobal from '../bibliotecas/biblioteca-global';
 import { Leia } from '../construtos';
@@ -129,6 +130,13 @@ export function obterTopicoAjuda(topico: any): string {
 
         case FuncaoPadrao:
             return obterAjudaFuncaoPadrao(topico);
+
+        case DeleguaFuncao:
+            if ((topico as DeleguaFuncao).documentacao) {
+                const conteudo = (topico as DeleguaFuncao).documentacao.conteudo;
+                return Array.isArray(conteudo) ? conteudo.join('\n') : String(conteudo);
+            }
+            return `Função '${(topico as DeleguaFuncao).nome}' — sem documentação disponível.`;
 
         default:
             console.log(topico);

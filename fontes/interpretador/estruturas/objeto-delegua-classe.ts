@@ -174,7 +174,10 @@ export class ObjetoDeleguaClasse {
      * @returns {string} A representação do objeto como texto.
      */
     paraTexto(): string {
-        return '<objeto nome=' + this.classe.simboloOriginal.lexema + ' />';
+        const nome = this.classe.simboloOriginal?.lexema ?? 'Objeto';
+        const nomesMetodos = Object.keys(this.classe.metodos).join(', ');
+        const nomesPropriedades = Object.keys(this.propriedades).join(', ');
+        return `<[ ${nome} métodos=[${nomesMetodos}] propriedades=[${nomesPropriedades}] ]>`;
     }
 
     /**

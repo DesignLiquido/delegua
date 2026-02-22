@@ -5065,6 +5065,211 @@ describe('Interpretador', () => {
                 expect(_saidas[1]).toBe('1');
             });
         });
+
+        describe('Classe base Objeto', () => {
+            it('tipo() retorna o nome da classe', async () => {
+                const codigo = [
+                    'classe Animal { }',
+                    'classe Cachorro herda Animal { }',
+                    'var d = Cachorro()',
+                    'escreva(d.tipo())',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('Cachorro');
+            });
+
+            it('paraTexto() retorna representação legível do objeto', async () => {
+                const codigo = [
+                    'classe Carro { }',
+                    'var c = Carro()',
+                    'escreva(c.paraTexto())',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('<[ Carro métodos=[] propriedades=[] ]>');
+            });
+
+            it('eInstanciaDe() retorna verdadeiro para a própria classe', async () => {
+                const codigo = [
+                    'classe Carro { }',
+                    'var c = Carro()',
+                    'escreva(c.eInstanciaDe(Carro))',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('verdadeiro');
+            });
+
+            it('eInstanciaDe() retorna verdadeiro para superclasse', async () => {
+                const codigo = [
+                    'classe Animal { }',
+                    'classe Cachorro herda Animal { }',
+                    'var d = Cachorro()',
+                    'escreva(d.eInstanciaDe(Animal))',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('verdadeiro');
+            });
+
+            it('eInstanciaDe() retorna verdadeiro para Objeto', async () => {
+                const codigo = [
+                    'classe Carro { }',
+                    'var c = Carro()',
+                    'escreva(c.eInstanciaDe(Objeto))',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('verdadeiro');
+            });
+
+            it('eInstanciaDe() retorna falso para classe não relacionada', async () => {
+                const codigo = [
+                    'classe Carro { }',
+                    'classe Moto { }',
+                    'var c = Carro()',
+                    'escreva(c.eInstanciaDe(Moto))',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('falso');
+            });
+
+            it('respondeA() retorna verdadeiro para método existente', async () => {
+                const codigo = [
+                    'classe Carro {',
+                    '    acelerar() { escreva("vrum") }',
+                    '}',
+                    'var c = Carro()',
+                    'escreva(c.respondeA("acelerar"))',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('verdadeiro');
+            });
+
+            it('respondeA() retorna falso para método inexistente', async () => {
+                const codigo = [
+                    'classe Carro { }',
+                    'var c = Carro()',
+                    'escreva(c.respondeA("frear"))',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('falso');
+            });
+
+            it('paraTexto() pode ser sobrescrito na subclasse', async () => {
+                const codigo = [
+                    'classe Ponto {',
+                    '    x: numero',
+                    '    y: numero',
+                    '    construtor(x, y) {',
+                    '        isto.x = x',
+                    '        isto.y = y',
+                    '    }',
+                    '    paraTexto() {',
+                    '        retorna "(" + isto.x + ", " + isto.y + ")"',
+                    '    }',
+                    '}',
+                    'var p = Ponto(3, 4)',
+                    'escreva(p.paraTexto())',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('(3, 4)');
+            });
+        });
+
+        describe('Documentários', () => {
+            it('documentário em método de classe é retornado por ajuda()', async () => {
+                const codigo = [
+                    'classe Carro {',
+                    '    /** Freia o carro. */',
+                    '    frear() { }',
+                    '}',
+                    'var c = Carro()',
+                    'escreva(ajuda(c.frear))',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('Freia o carro.');
+            });
+
+            it('comentário comum /* */ não é documentário', async () => {
+                const codigo = [
+                    'classe Carro {',
+                    '    /* não é documentário */',
+                    '    frear() { }',
+                    '}',
+                    'var c = Carro()',
+                    'escreva(ajuda(c.frear))',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toContain('sem documentação disponível');
+            });
+
+            it('documentário em função de topo é retornado por ajuda()', async () => {
+                const codigo = [
+                    '/** Soma dois números. */',
+                    'funcao somar(a, b) { retorna a + b }',
+                    'escreva(ajuda(somar))',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('Soma dois números.');
+            });
+        });
     });
 });
 

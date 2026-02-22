@@ -4,7 +4,7 @@ import { EspacoMemoria } from '../espaco-memoria';
 import { InterpretadorInterface } from '../../interfaces';
 import { RetornoQuebra } from '../../quebras';
 import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
-import { FuncaoConstruto } from '../../construtos';
+import { ComentarioComoConstruto, FuncaoConstruto } from '../../construtos';
 import { ArgumentoInterface } from '../argumento-interface';
 import { PilhaEscoposExecucaoInterface } from '../../interfaces/pilha-escopos-execucao-interface';
 import { Retorna } from '../../declaracoes';
@@ -17,6 +17,7 @@ export class DeleguaFuncao extends Chamavel {
     declaracao: FuncaoConstruto;
     eInicializador: boolean;
     instancia: ObjetoDeleguaClasse;
+    documentacao?: ComentarioComoConstruto;
 
     constructor(
         nome: string,
@@ -198,6 +199,8 @@ export class DeleguaFuncao extends Chamavel {
     }
 
     funcaoPorMetodoDeClasse(instancia: ObjetoDeleguaClasse): DeleguaFuncao {
-        return new DeleguaFuncao(this.nome, this.declaracao, instancia, this.eInicializador);
+        const funcao = new DeleguaFuncao(this.nome, this.declaracao, instancia, this.eInicializador);
+        funcao.documentacao = this.documentacao;
+        return funcao;
     }
 }

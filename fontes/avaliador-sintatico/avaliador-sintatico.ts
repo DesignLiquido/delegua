@@ -3398,6 +3398,22 @@ export class AvaliadorSintatico
             ehEstaticoPadrao: boolean
         ): Promise<void> => {
             while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
+                // Pular comentários normais dentro do corpo da classe.
+                if (
+                    this.simbolos[this.atual].tipo === tiposDeSimbolos.COMENTARIO ||
+                    this.simbolos[this.atual].tipo === tiposDeSimbolos.LINHA_COMENTARIO
+                ) {
+                    this.avancarEDevolverAnterior();
+                    continue;
+                }
+
+                // Documentário (/** ... */)
+                let docAtual: ComentarioComoConstruto | null = null;
+                if (this.simbolos[this.atual].tipo === tiposDeSimbolos.DOCUMENTARIO) {
+                    const simboloDoc = this.avancarEDevolverAnterior();
+                    docAtual = new ComentarioComoConstruto(simboloDoc);
+                }
+
                 // Decorador
                 if (this.simbolos[this.atual].tipo === tiposDeSimbolos.ARROBA) {
                     await this.resolverDecoradores();
@@ -3493,6 +3509,7 @@ export class AvaliadorSintatico
                     const metodoOp = new FuncaoDeclaracao(simboloNomeMetodo, corpoFuncaoOp);
                     metodoOp.estatico = ehEstatico;
                     metodoOp.acesso = modificadorAcesso;
+                    metodoOp.documentacao = docAtual;
                     metodos.push(metodoOp);
                     this.pilhaDecoradores = [];
                     continue;
@@ -3544,6 +3561,7 @@ export class AvaliadorSintatico
                             metodoAbstrato.estatico = ehEstatico;
                             metodoAbstrato.abstrato = true;
                             metodoAbstrato.acesso = modificadorAcesso;
+                            metodoAbstrato.documentacao = docAtual;
                             metodos.push(metodoAbstrato);
                         } else {
                             // Método concreto: com corpo.
@@ -3578,6 +3596,7 @@ export class AvaliadorSintatico
                             metodo.eDefinidor = eDefinidor;
                             metodo.acesso = modificadorAcesso;
                             metodo.decoradores = Array.from(this.pilhaDecoradores);
+                            metodo.documentacao = docAtual;
                             metodos.push(metodo);
 
                             this.pilhaEscopos.definirInformacoesVariavel(
@@ -3604,6 +3623,7 @@ export class AvaliadorSintatico
                             modificadorAcesso,
                             ehEstatico
                         );
+                        prop.documentacao = docAtual;
 
                         // Auto-propriedade: `nome: tipo { obter; definir; }`
                         // Ou corpo personalizado: `nome: tipo { obter() { ... } definir(valor) { ... } }`
@@ -3759,13 +3779,22 @@ export class AvaliadorSintatico
                 await this.resolverDecoradores();
             }
 
+            // Documentário (/** ... */) antes de uma declaração de função.
+            let docTopLevel: ComentarioComoConstruto | null = null;
+            if (this.verificarTipoSimboloAtual(tiposDeSimbolos.DOCUMENTARIO)) {
+                const simboloDoc = this.avancarEDevolverAnterior();
+                docTopLevel = new ComentarioComoConstruto(simboloDoc);
+            }
+
             if (
                 (this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) ||
                     this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNÇÃO)) &&
                 this.verificarTipoProximoSimbolo(tiposDeSimbolos.IDENTIFICADOR)
             ) {
                 this.avancarEDevolverAnterior();
-                return await this.funcao('funcao');
+                const declaracaoFuncao = await this.funcao('funcao') as FuncaoDeclaracao;
+                declaracaoFuncao.documentacao = docTopLevel;
+                return declaracaoFuncao;
             }
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CLASSE)) {
@@ -3831,6 +3860,8 @@ export class AvaliadorSintatico
             case tiposDeSimbolos.CHAVE_ESQUERDA:
                 return await this.declaracaoBloco();
             case tiposDeSimbolos.COMENTARIO:
+                return this.declaracaoComentarioUmaLinha();
+            case tiposDeSimbolos.DOCUMENTARIO:
                 return this.declaracaoComentarioUmaLinha();
             case tiposDeSimbolos.CONSTANTE:
                 this.avancarEDevolverAnterior();
@@ -4106,6 +4137,12 @@ export class AvaliadorSintatico
             new InformacaoElementoSintatico('tupla', 'tupla', true, [
                 new InformacaoElementoSintatico('vetor', 'qualquer[]'),
             ])
+        );
+
+        // Classe base global `Objeto`, registrada pelo interpretador em tempo de execução.
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'Objeto',
+            new InformacaoElementoSintatico('Objeto', 'qualquer')
         );
 
         // TODO: Escrever algum tipo de validação aqui.

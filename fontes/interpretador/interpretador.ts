@@ -311,6 +311,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
     override visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> {
         const funcao = new DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
+        funcao.documentacao = declaracao.documentacao;
         // TODO: Depreciar essa abordagem a favor do uso por referências?
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
         this.pilhaEscoposExecucao.registrarReferenciaFuncao(declaracao.id, funcao);
@@ -1128,9 +1129,18 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
     }
 
     async visitarExpressaoAjuda(expressao: AjudaComoConstruto): Promise<any> {
-        return Promise.resolve(
-            pontoEntradaAjuda(expressao.funcao, expressao.valor)
-        );
+        if (expressao.funcao && expressao.valor && !(expressao.valor instanceof Leia)) {
+            try {
+                const resultado = await this.avaliar(expressao.valor);
+                const valorAvaliado = this.resolverValor(resultado);
+                if (valorAvaliado instanceof DeleguaFuncao) {
+                    return pontoEntradaAjuda(expressao.funcao, valorAvaliado);
+                }
+            } catch {
+                // Se a avaliação falhar, usa o comportamento padrão
+            }
+        }
+        return pontoEntradaAjuda(expressao.funcao, expressao.valor);
     } 
 
     override async visitarExpressaoAtribuicaoPorIndice(

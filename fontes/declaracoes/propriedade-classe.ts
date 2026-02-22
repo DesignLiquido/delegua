@@ -1,4 +1,4 @@
-import { Decorador } from '../construtos';
+import { ComentarioComoConstruto, Decorador } from '../construtos';
 import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
@@ -10,6 +10,7 @@ export class PropriedadeClasse extends Declaracao {
     estatico: boolean;
     autoObter: boolean;
     autoDefinir: boolean;
+    documentacao?: ComentarioComoConstruto;
 
     constructor(
         nome: SimboloInterface,

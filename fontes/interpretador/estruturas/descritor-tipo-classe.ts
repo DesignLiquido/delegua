@@ -261,18 +261,10 @@ export class DescritorTipoClasse extends Chamavel {
      * @returns {string} A representação da classe como texto.
      */
     paraTexto(): string {
-        let texto = `<descritor-tipo-classe nome=${this.simboloOriginal.lexema}`;
-        for (let propriedade of this.propriedades) {
-            texto += ` ${propriedade.nome.lexema}`;
-            if (propriedade.tipo) {
-                texto += `:${propriedade.tipo}`;
-            }
-
-            texto += ' ';
-        }
-
-        texto += ' />';
-        return texto;
+        const nome = this.simboloOriginal?.lexema ?? 'Objeto';
+        const nomesMetodos = Object.keys(this.metodos).join(', ');
+        const nomesPropriedades = this.propriedades.map(p => p.nome.lexema).join(', ');
+        return `<[ ${nome} estático métodos=[${nomesMetodos}] propriedades=[${nomesPropriedades}] ]>`;
     }
 
     /**

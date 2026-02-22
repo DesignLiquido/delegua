@@ -1,6 +1,6 @@
 import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
-import { Decorador, FuncaoConstruto } from '../construtos';
+import { ComentarioComoConstruto, Decorador, FuncaoConstruto } from '../construtos';
 import { uuidv4 } from '../geracao-identificadores';
 
 /**
@@ -17,6 +17,7 @@ export class FuncaoDeclaracao extends Declaracao {
     abstrato: boolean;
     eObtenedor: boolean;
     eDefinidor: boolean;
+    documentacao?: ComentarioComoConstruto;
 
     constructor(
         simbolo: SimboloInterface,

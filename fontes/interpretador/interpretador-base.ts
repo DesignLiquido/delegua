@@ -39,6 +39,7 @@ import {
     DeleguaModulo,
     FuncaoPadrao,
     ObjetoPadrao,
+    OBJETO_BASE,
 } from './estruturas';
 import {
     AcessoIndiceVariavel,
@@ -200,6 +201,9 @@ export class InterpretadorBase implements InterpretadorInterface {
             emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+
+        // Registrar a classe base `Objeto` no escopo global.
+        this.pilhaEscoposExecucao.definirVariavel('Objeto', OBJETO_BASE);
     }
 
     /**
@@ -2072,6 +2076,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> {
         const funcao = new DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
+        funcao.documentacao = declaracao.documentacao;
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
         this.pilhaEscoposExecucao.registrarReferenciaFuncao(declaracao.id, funcao);
 
@@ -2141,6 +2146,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 undefined,
                 eInicializador
             );
+            funcao.documentacao = metodoAtual.documentacao;
 
             // Numa classe estática, todos os métodos (exceto construtor) são estáticos.
             const ehEstatico = declaracao.classeEstatica
@@ -2205,6 +2211,11 @@ export class InterpretadorBase implements InterpretadorInterface {
         descritorTipoClasse.metodosAbstratos = metodosAbstratos;
         descritorTipoClasse.acessoMetodos = acessoMetodos;
         descritorTipoClasse.acessoPropriedades = acessoPropriedades;
+
+        // Toda classe sem superclasse explícita herda implicitamente de `Objeto`.
+        if (!descritorTipoClasse.superClasse && descritorTipoClasse !== OBJETO_BASE) {
+            descritorTipoClasse.superClasse = OBJETO_BASE;
+        }
 
         // Verifica se a subclasse concreta implementa todos os métodos abstratos
         // da superclasse abstrata.
