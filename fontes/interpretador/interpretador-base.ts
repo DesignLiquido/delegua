@@ -785,7 +785,15 @@ export class InterpretadorBase implements InterpretadorInterface {
             const metodoOperador = valorEsquerdo.classe.encontrarMetodo(nomeOperador);
             if (metodoOperador) {
                 const metodoBound = metodoOperador.funcaoPorMetodoDeClasse(valorEsquerdo);
-                return await metodoBound.chamar(this, [{ nome: null, valor: valorDireito }]);
+                const argumentoOperador: VariavelInterface | any =
+                    direita && Object.prototype.hasOwnProperty.call(direita, 'tipo')
+                        ? (direita as VariavelInterface)
+                        : {
+                              tipo: inferirTipoVariavel(valorDireito),
+                              valor: valorDireito,
+                              imutavel: false,
+                          };
+                return await metodoBound.chamar(this, [{ nome: null, valor: argumentoOperador }]);
             }
         }
 
