@@ -3694,7 +3694,20 @@ export class AvaliadorSintatico
                             this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após acessores da propriedade.");
                             // Corpo personalizado: getter/setter são métodos — não há backing field a declarar.
                             if (!temCorpoPersonalizado) {
-                                propriedades.push(prop);
+                                // Auto-propriedade: em tempo de execução é criado um campo de apoio com prefixo '_'.
+                                const nomePropriedadeBacking: SimboloInterface = {
+                                    ...nomePropriedade,
+                                    lexema: `_${String(nomePropriedade.lexema)}`,
+                                };
+                                const propBacking = new PropriedadeClasse(
+                                    nomePropriedadeBacking,
+                                    tipoPropriedade.lexema,
+                                    Array.from(this.pilhaDecoradores),
+                                    modificadorAcesso,
+                                    ehEstatico
+                                );
+                                propBacking.documentacao = docAtual;
+                                propriedades.push(propBacking);
                             }
                         } else {
                             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
