@@ -3692,22 +3692,11 @@ export class AvaliadorSintatico
                                 }
                             }
                             this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após acessores da propriedade.");
-                            // Corpo personalizado: getter/setter são métodos — não há backing field a declarar.
+                            // Corpo personalizado: obtenedor/definidor são métodos — não há campos base a declarar.
+                            // Para auto-propriedades, o campo base iniciado por '_' é criado em tempo de execução com base
+                            // nos indicadores autoObter/autoDefinir. O avaliador sintático usa o nome original ('nome').
                             if (!temCorpoPersonalizado) {
-                                // Auto-propriedade: em tempo de execução é criado um campo de apoio com prefixo '_'.
-                                const nomePropriedadeBacking: SimboloInterface = {
-                                    ...nomePropriedade,
-                                    lexema: `_${String(nomePropriedade.lexema)}`,
-                                };
-                                const propBacking = new PropriedadeClasse(
-                                    nomePropriedadeBacking,
-                                    tipoPropriedade.lexema,
-                                    Array.from(this.pilhaDecoradores),
-                                    modificadorAcesso,
-                                    ehEstatico
-                                );
-                                propBacking.documentacao = docAtual;
-                                propriedades.push(propBacking);
+                                propriedades.push(prop);
                             }
                         } else {
                             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
