@@ -41,9 +41,20 @@ export class DescritorTipoClasse extends Chamavel {
     simboloOriginal: SimboloInterface;
     superClasse: DescritorTipoClasse;
     metodos: { [nome: string]: DeleguaFuncao | DeleguaFuncao[] };
+    metodosEstaticos: { [nome: string]: DeleguaFuncao | DeleguaFuncao[] };
+    membrosEstaticos: { [nome: string]: any };
+    obtenedores: { [nome: string]: DeleguaFuncao };
+    definidores: { [nome: string]: DeleguaFuncao };
+    obtenedoresEstaticos: { [nome: string]: DeleguaFuncao };
+    definidoresEstaticos: { [nome: string]: DeleguaFuncao };
     propriedades: PropriedadeClasse[];
     dialetoRequerExpansaoPropriedadesEspacoMemoria: boolean;
     dialetoRequerDeclaracaoPropriedades: boolean;
+    abstrata: boolean;
+    classeEstatica: boolean;
+    metodosAbstratos: string[];
+    acessoMetodos: { [nome: string]: 'privado' | 'protegido' | 'publico' };
+    acessoPropriedades: { [nome: string]: 'privado' | 'protegido' | 'publico' };
 
     constructor(
         simboloOriginal?: SimboloInterface,
@@ -55,8 +66,102 @@ export class DescritorTipoClasse extends Chamavel {
         this.simboloOriginal = simboloOriginal;
         this.superClasse = superClasse;
         this.metodos = metodos || {};
+        this.metodosEstaticos = {};
+        this.membrosEstaticos = {};
+        this.obtenedores = {};
+        this.definidores = {};
+        this.obtenedoresEstaticos = {};
+        this.definidoresEstaticos = {};
         this.propriedades = propriedades || [];
         this.dialetoRequerDeclaracaoPropriedades = false;
+        this.abstrata = false;
+        this.classeEstatica = false;
+        this.metodosAbstratos = [];
+        this.acessoMetodos = {};
+        this.acessoPropriedades = {};
+    }
+
+    /**
+     * Verifica se todos os métodos abstratos da superclasse estão implementados
+     * na subclasse fornecida. Lança erro em tempo de execução se algum faltar.
+     */
+    verificarImplementacaoAbstrata(subclasse: DescritorTipoClasse): void {
+        for (const nomeAbstrato of this.metodosAbstratos) {
+            const implementado = subclasse.metodos.hasOwnProperty(nomeAbstrato);
+            if (!implementado) {
+                throw new ErroEmTempoDeExecucao(
+                    subclasse.simboloOriginal,
+                    `Classe '${subclasse.simboloOriginal?.lexema}' não implementa o método abstrato '${nomeAbstrato}' ` +
+                    `da classe '${this.simboloOriginal?.lexema}'.`
+                );
+            }
+        }
+    }
+
+    encontrarObtenedor(nome: string, estatico: boolean = false): DeleguaFuncao | undefined {
+        const mapa = estatico ? this.obtenedoresEstaticos : this.obtenedores;
+        if (Object.prototype.hasOwnProperty.call(mapa, nome)) {
+            return mapa[nome];
+        }
+
+        if (this.superClasse !== null && this.superClasse !== undefined) {
+            return this.superClasse.encontrarObtenedor(nome, estatico);
+        }
+
+        return undefined;
+    }
+
+    encontrarDefinidor(nome: string, estatico: boolean = false): DeleguaFuncao | undefined {
+        const mapa = estatico ? this.definidoresEstaticos : this.definidores;
+        if (Object.prototype.hasOwnProperty.call(mapa, nome)) {
+            return mapa[nome];
+        }
+
+        if (this.superClasse !== null && this.superClasse !== undefined) {
+            return this.superClasse.encontrarDefinidor(nome, estatico);
+        }
+
+        return undefined;
+    }
+
+    async obterEstatico(nome: string, visitante?: InterpretadorInterface): Promise<any> {
+        const obtenedor = this.encontrarObtenedor(nome, true);
+        if (obtenedor) {
+            if (!visitante) {
+                throw new ErroEmTempoDeExecucao(
+                    this.simboloOriginal,
+                    `Obtenedor estático '${nome}' requer contexto de execução.`
+                );
+            }
+            return await obtenedor.chamar(visitante, []);
+        }
+
+        if (Object.prototype.hasOwnProperty.call(this.metodosEstaticos, nome)) {
+            return this.metodosEstaticos[nome];
+        }
+        if (Object.prototype.hasOwnProperty.call(this.membrosEstaticos, nome)) {
+            return this.membrosEstaticos[nome];
+        }
+        throw new ErroEmTempoDeExecucao(
+            this.simboloOriginal,
+            `Membro estático '${nome}' não encontrado na classe '${this.simboloOriginal?.lexema}'.`
+        );
+    }
+
+    async definirEstatico(nome: string, valor: any, visitante?: InterpretadorInterface): Promise<void> {
+        const definidor = this.encontrarDefinidor(nome, true);
+        if (definidor) {
+            if (!visitante) {
+                throw new ErroEmTempoDeExecucao(
+                    this.simboloOriginal,
+                    `Definidor estático '${nome}' requer contexto de execução.`
+                );
+            }
+            await definidor.chamar(visitante, [{ nome: null, valor }]);
+            return;
+        }
+
+        this.membrosEstaticos[nome] = valor;
     }
 
     /**
@@ -156,18 +261,10 @@ export class DescritorTipoClasse extends Chamavel {
      * @returns {string} A representação da classe como texto.
      */
     paraTexto(): string {
-        let texto = `<descritor-tipo-classe nome=${this.simboloOriginal.lexema}`;
-        for (let propriedade of this.propriedades) {
-            texto += ` ${propriedade.nome.lexema}`;
-            if (propriedade.tipo) {
-                texto += `:${propriedade.tipo}`;
-            }
-
-            texto += ' ';
-        }
-
-        texto += ' />';
-        return texto;
+        const nome = this.simboloOriginal?.lexema ?? 'Objeto';
+        const nomesMetodos = Object.keys(this.metodos).join(', ');
+        const nomesPropriedades = this.propriedades.map(p => p.nome.lexema).join(', ');
+        return `<[ ${nome} estático métodos=[${nomesMetodos}] propriedades=[${nomesPropriedades}] ]>`;
     }
 
     /**
@@ -190,6 +287,20 @@ export class DescritorTipoClasse extends Chamavel {
         visitante: InterpretadorInterface,
         argumentos: any[]
     ): Promise<ObjetoDeleguaClasse> {
+        if (this.classeEstatica) {
+            throw new ErroEmTempoDeExecucao(
+                this.simboloOriginal,
+                `Não é possível instanciar a classe estática '${this.simboloOriginal?.lexema}'.`
+            );
+        }
+
+        if (this.abstrata) {
+            throw new ErroEmTempoDeExecucao(
+                this.simboloOriginal,
+                `Não é possível instanciar a classe abstrata '${this.simboloOriginal?.lexema}'.`
+            );
+        }
+
         const instancia = new ObjetoDeleguaClasse(this);
 
         const inicializador = this.encontrarMetodo('construtor');

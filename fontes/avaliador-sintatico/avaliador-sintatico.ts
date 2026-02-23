@@ -60,6 +60,7 @@ import {
 } from '../construtos/tuplas';
 import {
     Ajuda,
+    AssinaturaMetodo,
     Bloco,
     Classe,
     Comentario,
@@ -74,6 +75,7 @@ import {
     Fazer,
     FuncaoDeclaracao,
     Importar,
+    InterfaceDeclaracao,
     Para,
     ParaCada,
     PropriedadeClasse,
@@ -133,6 +135,7 @@ export class AvaliadorSintatico
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
     tiposDefinidosEmCodigo: { [nomeTipo: string]: Declaracao };
+    interfacesDeclaradas: { [nomeInterface: string]: InterfaceDeclaracao };
     tiposDefinidosPorBibliotecas: {
         [nomeTipo: string]: ClasseDeModulo;
     };
@@ -159,6 +162,7 @@ export class AvaliadorSintatico
         this.erros = [];
         this.performance = performance;
         this.tiposDefinidosEmCodigo = {};
+        this.interfacesDeclaradas = {};
         this.tiposDeFerramentasExternas = {};
         this.primitivasConhecidas = {};
         this.pilhaEscopos = new PilhaEscopos();
@@ -3287,11 +3291,72 @@ export class AvaliadorSintatico
         );
     }
 
+    /**
+     * Analisa uma declaração de interface.
+     * Interfaces definem contratos de métodos e propriedades que as classes devem implementar.
+     * A verificação é feita em tempo de análise (parse-time).
+     */
+    async declaracaoDeInterface(): Promise<InterfaceDeclaracao> {
+        const simbolo = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da interface.');
+        this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' antes do corpo da interface.");
+
+        const metodos: AssinaturaMetodo[] = [];
+        const propriedades: PropriedadeClasse[] = [];
+
+        while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+            if (this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA)) break;
+
+            const nomeMembro = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de método ou propriedade na interface.');
+
+            if (this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
+                // Assinatura de método: nome(params): tipoRetorno
+                this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após nome do método.");
+                let params: any[] = [];
+                if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+                    params = await this.logicaComumParametros();
+                }
+                this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
+                let tipoRetorno = 'qualquer';
+                if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+                    tipoRetorno = this.verificarDefinicaoTipoAtual();
+                    this.avancarEDevolverAnterior();
+                }
+                this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+                metodos.push(new AssinaturaMetodo(nomeMembro, params, tipoRetorno));
+            } else {
+                // Assinatura de propriedade: nome: tipo
+                this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após nome de propriedade na interface.");
+                const tipo = this.verificarDefinicaoTipoAtual();
+                this.avancarEDevolverAnterior();
+                this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+                propriedades.push(new PropriedadeClasse(nomeMembro, tipo));
+            }
+        }
+
+        this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após o corpo da interface.");
+        const declaracao = new InterfaceDeclaracao(simbolo, metodos, propriedades);
+        this.interfacesDeclaradas[simbolo.lexema] = declaracao;
+        return declaracao;
+    }
+
     override async declaracaoDeClasse(): Promise<Classe> {
+        // Modificadores opcionais no nível da classe: `abstrata` e/ou `estática`.
+        // Sintaxe: `classe abstrata NomeDaClasse` ou `classe estática NomeDaClasse`.
+        let ehAbstrata = false;
+        let ehEstatica = false;
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ABSTRATO)) ehAbstrata = true;
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESTATICO)) ehEstatica = true;
+        // Também permite a ordem invertida: `classe estática abstrata`
+        if (!ehAbstrata && this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ABSTRATO)) ehAbstrata = true;
+
         const simbolo: SimboloInterface = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
             'Esperado nome da classe.'
         );
+        // Pré-registro para permitir auto-referência no corpo da própria classe,
+        // como em `MinhaClasse.propriedadeEstatica` dentro de métodos.
+        this.tiposDefinidosEmCodigo[simbolo.lexema] = this.tiposDefinidosEmCodigo[simbolo.lexema] ?? ({} as any);
         const pilhaDecoradoresClasse = Array.from(this.pilhaDecoradores);
 
         let superClasse = null;
@@ -3308,64 +3373,390 @@ export class AvaliadorSintatico
             );
         }
 
+        // Verificar `implementa InterfaceA, InterfaceB`
+        const implementaInterfaces: SimboloInterface[] = [];
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IMPLEMENTA)) {
+            do {
+                implementaInterfaces.push(
+                    this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de interface após "implementa".')
+                );
+            } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+        }
+
         this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' antes do escopo da classe.");
 
         this.pilhaDecoradores = [];
         const metodos = [];
         const propriedades = [];
-        while (
-            !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) &&
-            !this.estaNoFinal()
-        ) {
-            // Se o símbolo atual é arroba, é um decorador.
-            // Caso contrário, verificamos o próximo símbolo.
-            if (this.simbolos[this.atual].tipo === tiposDeSimbolos.ARROBA) {
-                await this.resolverDecoradores();
-                continue;
-            }
 
-            // Se o próximo símbolo ao atual for um parênteses, é um método.
-            // Caso contrário, é uma propriedade.
-            const proximoSimbolo = this.simbolos[this.atual + 1];
-            switch (proximoSimbolo.tipo) {
-                case tiposDeSimbolos.PARENTESE_ESQUERDO:
-                    metodos.push(await this.funcao('método'));
-                    break;
-                case tiposDeSimbolos.DOIS_PONTOS:
-                    const nomePropriedade = this.consumir(
-                        tiposDeSimbolos.IDENTIFICADOR,
-                        'Esperado identificador para nome de propriedade.'
-                    );
-                    this.consumir(
-                        tiposDeSimbolos.DOIS_PONTOS,
-                        'Esperado dois-pontos após nome de propriedade.'
-                    );
-                    const tipoPropriedade = this.avancarEDevolverAnterior();
-                    this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-                    propriedades.push(
-                        new PropriedadeClasse(
+        /**
+         * Analisa membros do corpo da classe com um contexto de acesso e estático padrão.
+         * Suporta blocos de contexto aninhados: `estático { }`, `privado { }`, `protegido { }`, `publico { }`.
+         */
+        const compreenderMembros = async (
+            acessoPadrao: 'privado' | 'protegido' | 'publico',
+            ehEstaticoPadrao: boolean
+        ): Promise<void> => {
+            while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
+                // Pular comentários normais dentro do corpo da classe.
+                if (
+                    this.simbolos[this.atual].tipo === tiposDeSimbolos.COMENTARIO ||
+                    this.simbolos[this.atual].tipo === tiposDeSimbolos.LINHA_COMENTARIO
+                ) {
+                    this.avancarEDevolverAnterior();
+                    continue;
+                }
+
+                // Documentário (/** ... */)
+                let docAtual: ComentarioComoConstruto | null = null;
+                if (this.simbolos[this.atual].tipo === tiposDeSimbolos.DOCUMENTARIO) {
+                    const simboloDoc = this.avancarEDevolverAnterior();
+                    docAtual = new ComentarioComoConstruto(simboloDoc);
+                }
+
+                // Decorador
+                if (this.simbolos[this.atual].tipo === tiposDeSimbolos.ARROBA) {
+                    await this.resolverDecoradores();
+                    continue;
+                }
+
+                // Detecção de bloco de contexto: modificador seguido de '{'
+                const tipoAtual = this.simbolos[this.atual].tipo;
+                const tipoProximo = this.simbolos[this.atual + 1]?.tipo;
+                const ehBlocoAcesso = [tiposDeSimbolos.PRIVADO, tiposDeSimbolos.PROTEGIDO, tiposDeSimbolos.PUBLICO].includes(tipoAtual)
+                    && tipoProximo === tiposDeSimbolos.CHAVE_ESQUERDA;
+                const ehBlocoEstatico = tipoAtual === tiposDeSimbolos.ESTATICO
+                    && tipoProximo === tiposDeSimbolos.CHAVE_ESQUERDA;
+
+                if (ehBlocoAcesso) {
+                    const novoAcesso: 'privado' | 'protegido' | 'publico' =
+                        tipoAtual === tiposDeSimbolos.PRIVADO ? 'privado' :
+                        tipoAtual === tiposDeSimbolos.PROTEGIDO ? 'protegido' : 'publico';
+                    this.avancarEDevolverAnterior(); // consume modificador de acesso
+                    this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após modificador de acesso de bloco.");
+                    await compreenderMembros(novoAcesso, ehEstaticoPadrao);
+                    this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' para fechar bloco de modificador de acesso.");
+                    continue;
+                }
+
+                if (ehBlocoEstatico) {
+                    this.avancarEDevolverAnterior(); // consume 'estático'
+                    this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após 'estático'.");
+                    await compreenderMembros(acessoPadrao, true);
+                    this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' para fechar bloco estático.");
+                    continue;
+                }
+
+                // Modificador de acesso por membro (somente quando NÃO seguido de '{')
+                let modificadorAcesso: 'privado' | 'protegido' | 'publico' = acessoPadrao;
+                if (this.simbolos[this.atual].tipo === tiposDeSimbolos.PRIVADO) {
+                    this.avancarEDevolverAnterior();
+                    modificadorAcesso = 'privado';
+                } else if (this.simbolos[this.atual].tipo === tiposDeSimbolos.PROTEGIDO) {
+                    this.avancarEDevolverAnterior();
+                    modificadorAcesso = 'protegido';
+                } else if (this.simbolos[this.atual].tipo === tiposDeSimbolos.PUBLICO) {
+                    this.avancarEDevolverAnterior();
+                    modificadorAcesso = 'publico';
+                }
+
+                // Modificador estático por membro (somente quando NÃO seguido de '{')
+                let ehEstatico = ehEstaticoPadrao;
+                if (
+                    this.simbolos[this.atual].tipo === tiposDeSimbolos.ESTATICO &&
+                    this.simbolos[this.atual + 1]?.tipo !== tiposDeSimbolos.CHAVE_ESQUERDA
+                ) {
+                    this.avancarEDevolverAnterior();
+                    ehEstatico = true;
+                }
+
+                // Palavras-chave de acessor (obter/definir)
+                let eObtenedor = false;
+                let eDefinidor = false;
+                if (
+                    this.simbolos[this.atual].tipo === tiposDeSimbolos.IDENTIFICADOR &&
+                    ['obter', 'definir', 'obtenedor', 'definidor', 'get', 'set'].includes(
+                        String(this.simbolos[this.atual].lexema || '').toLowerCase()
+                    )
+                ) {
+                    const palavraAcessor = String(this.simbolos[this.atual].lexema || '').toLowerCase();
+                    this.avancarEDevolverAnterior();
+                    eObtenedor = palavraAcessor === 'obter' || palavraAcessor === 'obtenedor' || palavraAcessor === 'get';
+                    eDefinidor = palavraAcessor === 'definir' || palavraAcessor === 'definidor' || palavraAcessor === 'set';
+                }
+
+                // Método operador sobrecarregado: `operador+ (outro) { ... }`
+                if (this.simbolos[this.atual].tipo === tiposDeSimbolos.OPERADOR) {
+                    const simboloOperadorKeyword = this.avancarEDevolverAnterior();
+                    const simboloDoOperador = this.avancarEDevolverAnterior();
+                    const nomeMetodoOp = 'operador' + simboloDoOperador.lexema;
+                    const simboloNomeMetodo = {
+                        tipo: tiposDeSimbolos.IDENTIFICADOR,
+                        lexema: nomeMetodoOp,
+                        literal: null,
+                        linha: simboloOperadorKeyword.linha,
+                        hashArquivo: this.hashArquivo,
+                    } as SimboloInterface;
+                    this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após operador sobrecarregado.");
+                    let paramsOp: ParametroInterface[] = [];
+                    if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+                        paramsOp = await this.logicaComumParametros();
+                    }
+                    this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros do operador.");
+                    this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' antes do corpo do operador.");
+                    const corpoOp = await this.blocoEscopo();
+                    const corpoFuncaoOp = new FuncaoConstruto(this.hashArquivo, simboloNomeMetodo.linha, paramsOp, corpoOp);
+                    const metodoOp = new FuncaoDeclaracao(simboloNomeMetodo, corpoFuncaoOp);
+                    metodoOp.estatico = ehEstatico;
+                    metodoOp.acesso = modificadorAcesso;
+                    metodoOp.documentacao = docAtual;
+                    metodos.push(metodoOp);
+                    this.pilhaDecoradores = [];
+                    continue;
+                }
+
+                // Método ou propriedade, determinado pelo token seguinte ao nome
+                const proximoSimbolo = this.simbolos[this.atual + 1];
+                switch (proximoSimbolo?.tipo) {
+                    case tiposDeSimbolos.PARENTESE_ESQUERDO: {
+                        // Analisa: nome ( params ) [abstrato] [: tipoRetorno] { corpo }
+                        const nomeMetodo = this.avancarEDevolverAnterior();
+
+                        // Pré-registrar para suportar chamadas recursivas (igual a funcao()).
+                        this.pilhaEscopos.definirInformacoesVariavel(
+                            nomeMetodo.lexema,
+                            new InformacaoElementoSintatico(nomeMetodo.lexema, 'qualquer')
+                        );
+
+                        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após nome do método.");
+                        let params: ParametroInterface[] = [];
+                        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+                            params = await this.logicaComumParametros();
+                        }
+                        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros do método.");
+
+                        // O modificador `abstrato` vem APÓS o fechamento dos parâmetros.
+                        // Sintaxe: `area() abstrato: numero`
+                        let ehAbstrato = false;
+                        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ABSTRATO)) {
+                            ehAbstrato = true;
+                        }
+
+                        // Tipo de retorno opcional (igual a corpoDaFuncao())
+                        let tipoRetorno = 'qualquer';
+                        let definicaoExplicitaDeTipo = false;
+                        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+                            tipoRetorno = this.verificarDefinicaoTipoAtual();
+                            this.avancarEDevolverAnterior();
+                            definicaoExplicitaDeTipo = true;
+                        }
+
+                        if (ehAbstrato) {
+                            // Método abstrato: sem corpo
+                            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+                            const corpoVazio = new FuncaoConstruto(
+                                this.hashArquivo, nomeMetodo.linha, params, [], tipoRetorno
+                            );
+                            const metodoAbstrato = new FuncaoDeclaracao(nomeMetodo, corpoVazio, tipoRetorno);
+                            metodoAbstrato.estatico = ehEstatico;
+                            metodoAbstrato.abstrato = true;
+                            metodoAbstrato.acesso = modificadorAcesso;
+                            metodoAbstrato.documentacao = docAtual;
+                            metodos.push(metodoAbstrato);
+                        } else {
+                            // Método concreto: com corpo.
+                            // Inferência de tipo de retorno igual a corpoDaFuncao().
+                            this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' antes do corpo do método.");
+                            const corpo = await this.blocoEscopo();
+
+                            let expressoesRetorna: any[] = [];
+                            for (const declaracao of corpo) {
+                                expressoesRetorna = expressoesRetorna.concat(buscarRetornos(declaracao));
+                            }
+                            const tiposRetornos = new Set(
+                                expressoesRetorna.filter((e) => e.tipo !== 'qualquer').map((e) => e.tipo)
+                            );
+                            const retornaChamadoExplicitamente = tiposRetornos.size > 0;
+                            tiposRetornos.delete('qualquer');
+                            if (tipoRetorno === 'qualquer') {
+                                if (tiposRetornos.size > 0) {
+                                    tipoRetorno = tiposRetornos.values().next().value;
+                                } else if (!retornaChamadoExplicitamente && !definicaoExplicitaDeTipo) {
+                                    tipoRetorno = 'vazio';
+                                }
+                            }
+
+                            const corpoFuncao = new FuncaoConstruto(
+                                this.hashArquivo, nomeMetodo.linha, params, corpo, tipoRetorno
+                            );
+                            const tipoDaFuncao = `função<${tipoRetorno}>`;
+                            const metodo = new FuncaoDeclaracao(nomeMetodo, corpoFuncao, tipoDaFuncao);
+                            metodo.estatico = ehEstatico;
+                            metodo.eObtenedor = eObtenedor;
+                            metodo.eDefinidor = eDefinidor;
+                            metodo.acesso = modificadorAcesso;
+                            metodo.decoradores = Array.from(this.pilhaDecoradores);
+                            metodo.documentacao = docAtual;
+                            metodos.push(metodo);
+
+                            this.pilhaEscopos.definirInformacoesVariavel(
+                                nomeMetodo.lexema,
+                                new InformacaoElementoSintatico(nomeMetodo.lexema, tipoDaFuncao)
+                            );
+                            this.pilhaEscopos.registrarReferenciaFuncao(nomeMetodo.lexema, metodo);
+                        }
+                        this.pilhaDecoradores = [];
+                        break;
+                    }
+                    case tiposDeSimbolos.DOIS_PONTOS: {
+                        const nomePropriedade = this.consumir(
+                            tiposDeSimbolos.IDENTIFICADOR,
+                            'Esperado identificador para nome de propriedade.'
+                        );
+                        this.consumir(tiposDeSimbolos.DOIS_PONTOS, 'Esperado dois-pontos após nome de propriedade.');
+                        const tipoPropriedade = this.avancarEDevolverAnterior();
+
+                        const prop = new PropriedadeClasse(
                             nomePropriedade,
                             tipoPropriedade.lexema,
-                            Array.from(this.pilhaDecoradores)
-                        )
+                            Array.from(this.pilhaDecoradores),
+                            modificadorAcesso,
+                            ehEstatico
+                        );
+                        prop.documentacao = docAtual;
+
+                        // Auto-propriedade: `nome: tipo { obter; definir; }`
+                        // Ou corpo personalizado: `nome: tipo { obter() { ... } definir(valor) { ... } }`
+                        if (this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_ESQUERDA)) {
+                            this.avancarEDevolverAnterior(); // consume '{'
+                            let temCorpoPersonalizado = false;
+                            while (
+                                !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) &&
+                                !this.estaNoFinal()
+                            ) {
+                                const lexema = String(this.simbolos[this.atual].lexema || '').toLowerCase();
+                                if (lexema === 'obter' || lexema === 'definir') {
+                                    const ehObter = lexema === 'obter';
+                                    this.avancarEDevolverAnterior(); // consume 'obter' / 'definir'
+
+                                    if (this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
+                                        // Corpo personalizado: obter() { ... } / definir(valor) { ... }
+                                        temCorpoPersonalizado = true;
+                                        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após acessor.");
+                                        let paramsAcessor: ParametroInterface[] = [];
+                                        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+                                            paramsAcessor = await this.logicaComumParametros();
+                                        }
+                                        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros do acessor.");
+                                        this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' antes do corpo do acessor.");
+                                        const corpoAcessor = await this.blocoEscopo();
+
+                                        // Inferência de tipo de retorno
+                                        let tipoAcessor = 'qualquer';
+                                        let expressoesRetornaAcessor: any[] = [];
+                                        for (const declaracao of corpoAcessor) {
+                                            expressoesRetornaAcessor = expressoesRetornaAcessor.concat(buscarRetornos(declaracao));
+                                        }
+                                        const tiposRetornosAcessor = new Set(
+                                            expressoesRetornaAcessor.filter((e) => e.tipo !== 'qualquer').map((e) => e.tipo)
+                                        );
+                                        const retornaExplicitamenteAcessor = tiposRetornosAcessor.size > 0;
+                                        tiposRetornosAcessor.delete('qualquer');
+                                        if (tiposRetornosAcessor.size > 0) {
+                                            tipoAcessor = tiposRetornosAcessor.values().next().value;
+                                        } else if (!retornaExplicitamenteAcessor) {
+                                            tipoAcessor = 'vazio';
+                                        }
+
+                                        const corpoFuncaoAcessor = new FuncaoConstruto(
+                                            this.hashArquivo, nomePropriedade.linha, paramsAcessor, corpoAcessor, tipoAcessor
+                                        );
+                                        const tipoDaFuncaoAcessor = `função<${tipoAcessor}>`;
+                                        const metodoAcessor = new FuncaoDeclaracao(nomePropriedade, corpoFuncaoAcessor, tipoDaFuncaoAcessor);
+                                        metodoAcessor.estatico = ehEstatico;
+                                        metodoAcessor.acesso = modificadorAcesso;
+                                        metodoAcessor.eObtenedor = ehObter;
+                                        metodoAcessor.eDefinidor = !ehObter;
+                                        metodos.push(metodoAcessor);
+                                    } else {
+                                        // Forma trivial: obter; / definir;
+                                        if (ehObter) {
+                                            prop.autoObter = true;
+                                        } else {
+                                            prop.autoDefinir = true;
+                                        }
+                                        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+                                    }
+                                } else {
+                                    break;
+                                }
+                            }
+                            this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após acessores da propriedade.");
+                            // Corpo personalizado: obtenedor/definidor são métodos — não há campos base a declarar.
+                            // Para auto-propriedades, o campo base iniciado por '_' é criado em tempo de execução com base
+                            // nos indicadores autoObter/autoDefinir. O avaliador sintático usa o nome original ('nome').
+                            if (!temCorpoPersonalizado) {
+                                propriedades.push(prop);
+                            }
+                        } else {
+                            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+                            propriedades.push(prop);
+                        }
+
+                        this.pilhaDecoradores = [];
+                        break;
+                    }
+                    default:
+                        throw this.erro(
+                            this.simbolos[this.atual],
+                            'Esperado definição de método ou propriedade.'
+                        );
+                }
+            }
+        };
+
+        await compreenderMembros('publico', false);
+
+        this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após o escopo da classe.");
+
+        // Verificação em tempo de análise: classe deve implementar todos os contratos das interfaces.
+        for (const nomeInterface of implementaInterfaces) {
+            const interfaceDecl = this.interfacesDeclaradas[nomeInterface.lexema];
+            if (!interfaceDecl) {
+                this.erros.push(
+                    this.erro(nomeInterface, `Interface '${nomeInterface.lexema}' não foi declarada antes da classe '${simbolo.lexema}'.`)
+                );
+                continue;
+            }
+            for (const assinatura of interfaceDecl.metodos) {
+                const nomeMetodo = assinatura.nome.lexema;
+                const implementado = metodos.some((m) => m.simbolo.lexema === nomeMetodo);
+                if (!implementado) {
+                    this.erros.push(
+                        this.erro(simbolo, `Classe '${simbolo.lexema}' não implementa o método '${nomeMetodo}' exigido pela interface '${nomeInterface.lexema}'.`)
                     );
-                    this.pilhaDecoradores = [];
-                    break;
-                default:
-                    throw this.erro(
-                        this.simbolos[this.atual],
-                        'Esperado definição de método ou propriedade.'
+                }
+            }
+            for (const prop of interfaceDecl.propriedades) {
+                const nomeProp = prop.nome.lexema;
+                const implementada = propriedades.some((p) => p.nome.lexema === nomeProp);
+                if (!implementada) {
+                    this.erros.push(
+                        this.erro(simbolo, `Classe '${simbolo.lexema}' não declara a propriedade '${nomeProp}' exigida pela interface '${nomeInterface.lexema}'.`)
                     );
+                }
             }
         }
 
-        this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após o escopo da classe.");
         const definicaoClasse = new Classe(
             simbolo,
             superClasse,
             metodos,
             propriedades,
-            pilhaDecoradoresClasse
+            pilhaDecoradoresClasse,
+            ehAbstrata,
+            ehEstatica,
+            implementaInterfaces
         );
         this.tiposDefinidosEmCodigo[definicaoClasse.simbolo.lexema] = definicaoClasse;
         this.superclasseAtual = undefined;
@@ -3390,17 +3781,30 @@ export class AvaliadorSintatico
                 await this.resolverDecoradores();
             }
 
+            // Documentário (/** ... */) antes de uma declaração de função.
+            let docTopLevel: ComentarioComoConstruto | null = null;
+            if (this.verificarTipoSimboloAtual(tiposDeSimbolos.DOCUMENTARIO)) {
+                const simboloDoc = this.avancarEDevolverAnterior();
+                docTopLevel = new ComentarioComoConstruto(simboloDoc);
+            }
+
             if (
                 (this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) ||
                     this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNÇÃO)) &&
                 this.verificarTipoProximoSimbolo(tiposDeSimbolos.IDENTIFICADOR)
             ) {
                 this.avancarEDevolverAnterior();
-                return await this.funcao('funcao');
+                const declaracaoFuncao = await this.funcao('funcao') as FuncaoDeclaracao;
+                declaracaoFuncao.documentacao = docTopLevel;
+                return declaracaoFuncao;
             }
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CLASSE)) {
                 return await this.declaracaoDeClasse();
+            }
+
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTERFACE)) {
+                return await this.declaracaoDeInterface();
             }
 
             return await this.resolverDeclaracao();
@@ -3459,6 +3863,27 @@ export class AvaliadorSintatico
                 return await this.declaracaoBloco();
             case tiposDeSimbolos.COMENTARIO:
                 return this.declaracaoComentarioUmaLinha();
+            case tiposDeSimbolos.DOCUMENTARIO: {
+                const simboloDoc = this.avancarEDevolverAnterior();
+                // Se o próximo token for uma declaração de função com identificador,
+                // anexa o documentário como documentação da função.
+                if (
+                    (this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) ||
+                        this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNÇÃO)) &&
+                    this.verificarTipoProximoSimbolo(tiposDeSimbolos.IDENTIFICADOR)
+                ) {
+                    this.avancarEDevolverAnterior();
+                    const declaracaoFuncao = await this.funcao('funcao') as FuncaoDeclaracao;
+                    declaracaoFuncao.documentacao = new ComentarioComoConstruto(simboloDoc);
+                    return declaracaoFuncao;
+                }
+                return new Comentario(
+                    simboloDoc.hashArquivo,
+                    simboloDoc.linha,
+                    simboloDoc.literal,
+                    false
+                );
+            }
             case tiposDeSimbolos.CONSTANTE:
                 this.avancarEDevolverAnterior();
                 return await this.declaracaoDeConstantes();
@@ -3735,6 +4160,12 @@ export class AvaliadorSintatico
             ])
         );
 
+        // Classe base global `Objeto`, registrada pelo interpretador em tempo de execução.
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'Objeto',
+            new InformacaoElementoSintatico('Objeto', 'qualquer')
+        );
+
         // TODO: Escrever algum tipo de validação aqui.
         for (const tipos of Object.values(this.tiposDeFerramentasExternas)) {
             for (const [nomeTipo, tipo] of Object.entries(tipos)) {
@@ -3759,6 +4190,7 @@ export class AvaliadorSintatico
         this.simbolos = retornoLexador?.simbolos || [];
         this.pilhaDecoradores = [];
         this.tiposDefinidosEmCodigo = {};
+        this.interfacesDeclaradas = {};
         this.montaoTipos = new MontaoTipos();
         this.inicializarPilhaEscopos();
 

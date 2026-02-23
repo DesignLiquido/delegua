@@ -96,6 +96,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     interfaceEntradaSaida: any = null;
     hashArquivoDeclaracaoAtual: number;
     linhaDeclaracaoAtual: number;
+    classeAtualEmExecucao: any = null;
     emDeclaracaoTente: boolean = false;
 
     constructor(diretorioBase: string) {
@@ -929,7 +930,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
         const valor = await this.avaliar(expressao.valor);
         if (objeto instanceof ObjetoDeleguaClasse) {
-            objeto.definir(expressao.nome, valor);
+            await objeto.definir(expressao.nome, valor, this);
             return valor;
         } else if (objeto.constructor === Object) {
             objeto[expressao.simbolo.lexema] = valor;
@@ -988,7 +989,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         const variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
         const objeto = variavelObjeto?.valor;
         if (objeto instanceof ObjetoDeleguaClasse) {
-            return objeto.obter(expressao.simbolo) || null;
+            return (await objeto.obter(expressao.simbolo, this)) || null;
         } 
         
         if (objeto.constructor === Object) {

@@ -17,6 +17,7 @@ export * from './falhar';
 export * from './fazer';
 export * from './funcao';
 export * from './importar';
+export * from './interface';
 export * from './inicio-algoritmo';
 export * from './para';
 export * from './para-cada';

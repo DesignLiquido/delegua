@@ -1,7 +1,7 @@
 import { Lexador } from '../../fontes/lexador';
 import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
 import { Ajuda, Bloco, Classe, Const, Escreva, Expressao, FuncaoDeclaracao, Importar, ParaCada, Retorna, TendoComo, Tente, Var } from '../../fontes/declaracoes';
-import { Binario, Chamada, Elvis, FuncaoConstruto, Leia, ListaCompreensao, Literal, Logico, SeTernario, Variavel } from '../../fontes/construtos';
+import { Binario, Chamada, DefinirValor, Elvis, FuncaoConstruto, Leia, ListaCompreensao, Literal, Logico, SeTernario, Variavel } from '../../fontes/construtos';
 
 describe('Avaliador sintático', () => {
     describe('analisar()', () => {
@@ -124,6 +124,83 @@ describe('Avaliador sintático', () => {
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+
+                it('Propriedade estática não torna construtor estático', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'classe MinhaClasse {',
+                            '    estatico resultado: numero',
+                            '    construtor() {',
+                            '        MinhaClasse.resultado = 99',
+                            '    }',
+                            '}',
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+
+                    const declaracaoClasse = retornoAvaliadorSintatico.declaracoes[0] as Classe;
+                    expect(declaracaoClasse.propriedades).toHaveLength(1);
+                    expect(declaracaoClasse.propriedades[0].estatico).toBe(true);
+
+                    const construtor = declaracaoClasse.metodos.find((m) => m.simbolo.lexema === 'construtor');
+                    expect(construtor).toBeDefined();
+                    if (!construtor) {
+                        throw new Error('Construtor não encontrado.');
+                    }
+                    expect(construtor.estatico).toBe(false);
+
+                    const primeiraDeclaracaoCorpo = construtor.funcao.corpo[0] as Expressao;
+                    expect(primeiraDeclaracaoCorpo).toBeInstanceOf(Expressao);
+                    expect(primeiraDeclaracaoCorpo.expressao).toBeInstanceOf(DefinirValor);
+
+                    const definirValor = primeiraDeclaracaoCorpo.expressao as DefinirValor;
+                    expect(definirValor.objeto).toBeInstanceOf(Variavel);
+                    expect((definirValor.objeto as Variavel).simbolo.lexema).toBe('MinhaClasse');
+                });
+
+                it('Métodos obtenedor e definidor são marcados corretamente', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'classe Pessoa {',
+                            '    _nome: texto',
+                            '    nome: texto {',
+                            '        obter() {',
+                            '            retorna isto._nome',
+                            '        }',
+                            '        definir(valor) {',
+                            '            isto._nome = valor',
+                            '        }',
+                            '    }',
+                            '}',
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+
+                    const declaracaoClasse = retornoAvaliadorSintatico.declaracoes[0] as Classe;
+                    expect(declaracaoClasse.metodos).toHaveLength(2);
+
+                    const obtenedor = declaracaoClasse.metodos.find((m) => m.simbolo.lexema === 'nome' && m.eObtenedor);
+                    const definidor = declaracaoClasse.metodos.find((m) => m.simbolo.lexema === 'nome' && m.eDefinidor);
+
+                    expect(obtenedor).toBeDefined();
+                    if (!obtenedor) {
+                        throw new Error('Obtenedor não encontrado.');
+                    }
+                    expect(obtenedor.eDefinidor).toBe(false);
+                    expect(definidor).toBeDefined();
+                    if (!definidor) {
+                        throw new Error('Definidor não encontrado.');
+                    }
+                    expect(definidor.eObtenedor).toBe(false);
                 });
             });
 

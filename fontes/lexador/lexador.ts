@@ -165,6 +165,37 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
         }
     }
 
+    /**
+     * Lê um comentário documentário (iniciado com `/**`), agregando o conteúdo
+     * em um único token DOCUMENTARIO. Linhas com `*` inicial (convenção JSDoc)
+     * têm o asterisco removido.
+     */
+    comentarioDocumentario(): void {
+        // Cursor está no primeiro '*' de '/**'. Avança para pular o segundo '*'.
+        this.avancar();
+        let conteudo = '';
+        while (!this.eFinalDoCodigo()) {
+            this.avancar();
+            if (this.simboloAtual() === '*' && this.proximoSimbolo() === '/') {
+                // Fecha o documentário sem adicionar o '*' ao conteúdo.
+                this.avancar(); // pula '*'
+                this.avancar(); // pula '/'
+                break;
+            }
+            conteudo += this.codigo[this.linha].charAt(this.atual);
+        }
+        // Divide por '\0' (separador de linha), remove asteriscos iniciais e filtra vazios.
+        const conteudoLimpo = conteudo
+            .split('\0')
+            .map((l) => {
+                const trimmed = l.trim();
+                return trimmed.startsWith('*') ? trimmed.substring(1).trim() : trimmed;
+            })
+            .filter((l) => l.length > 0)
+            .join('\n');
+        this.adicionarSimbolo(tiposDeSimbolos.DOCUMENTARIO, conteudoLimpo || '');
+    }
+
     comentarioUmaLinha(): void {
         this.avancar();
         const linhaAtual = this.linha;
@@ -526,7 +557,11 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
                         this.comentarioUmaLinha();
                         break;
                     case '*':
-                        this.comentarioMultilinha();
+                        if (this.proximoSimbolo() === '*') {
+                            this.comentarioDocumentario();
+                        } else {
+                            this.comentarioMultilinha();
+                        }
                         break;
                     case '=':
                         this.adicionarSimbolo(tiposDeSimbolos.DIVISAO_IGUAL, '/=');
