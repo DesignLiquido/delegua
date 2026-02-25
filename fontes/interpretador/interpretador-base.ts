@@ -519,33 +519,54 @@ export class InterpretadorBase implements InterpretadorInterface {
     protected async resolverInterpolacoes(textoOriginal: string, linha: number): Promise<any[]> {
         const variaveis = textoOriginal.match(this.regexInterpolacao);
 
-        let resultadosAvaliacaoSintatica = variaveis.map((s) => {
-            const expressaoInterpolacao: string = s.replace(/[\$\{\}]*/gm, '');
+        return await Promise.all(
+            variaveis.map(async (s) => {
+                const expressaoInterpolacao: string = s.replace(/[\$\{\}]*/gm, '');
 
-            let microLexador = this.microLexador.mapear(expressaoInterpolacao);
-            const resultadoMicroAvaliadorSintatico = this.microAvaliadorSintatico.analisar(
-                microLexador,
-                linha
-            );
+                const microLexador = this.microLexador.mapear(expressaoInterpolacao);
+                let declaracoes: any[] = [];
+                try {
+                    const resultadoMicroAvaliadorSintatico = this.microAvaliadorSintatico.analisar(
+                        microLexador,
+                        linha
+                    );
 
-            return {
-                expressaoInterpolacao,
-                resultadoMicroAvaliadorSintatico,
-            };
-        });
+                    for (const erro of resultadoMicroAvaliadorSintatico.erros) {
+                        this.erros.push({
+                            erroInterno: erro,
+                            linha: erro.linha ?? linha,
+                            hashArquivo: erro.hashArquivo ?? -1,
+                        });
+                    }
 
-        // TODO: Verificar erros do `resultadosAvaliacaoSintatica`.
+                    declaracoes = resultadoMicroAvaliadorSintatico.declaracoes;
+                } catch (erroAvaliador: any) {
+                    this.erros.push({
+                        erroInterno: erroAvaliador,
+                        linha: erroAvaliador.linha ?? linha,
+                        hashArquivo: erroAvaliador.hashArquivo ?? -1,
+                    });
+                }
 
-        const resolucoesPromises = await Promise.all(
-            resultadosAvaliacaoSintatica
-                .flatMap((r) => r.resultadoMicroAvaliadorSintatico.declaracoes)
-                .map((d) => this.avaliar(d))
+                let valor = declaracoes.length > 0 ? await this.avaliar(declaracoes[0]) : '';
+
+                const instancia =
+                    valor instanceof ObjetoDeleguaClasse
+                        ? valor
+                        : valor?.valor instanceof ObjetoDeleguaClasse
+                        ? valor.valor
+                        : null;
+                if (instancia) {
+                    const metodoParaTexto = instancia.classe.encontrarMetodo('paraTexto');
+                    if (metodoParaTexto) {
+                        const funcaoBound = metodoParaTexto.funcaoPorMetodoDeClasse(instancia);
+                        valor = await funcaoBound.chamar(this, []);
+                    }
+                }
+
+                return { expressaoInterpolacao, valor };
+            })
         );
-
-        return resolucoesPromises.map((item, indice) => ({
-            expressaoInterpolacao: resultadosAvaliacaoSintatica[indice].expressaoInterpolacao,
-            valor: item,
-        }));
     }
 
     async visitarExpressaoLiteral(expressao: Literal): Promise<any> {
