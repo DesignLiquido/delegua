@@ -2143,4 +2143,135 @@ describe('Analisador semântico', () => {
             expect(erros[0].mensagem).toContain("'PaiInexistente' não foi declarada");
         });
     });
+
+    describe('Acesso a membros de classe', () => {
+        it('Acesso a propriedade privada fora da classe gera erro', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'classe ContaBancaria {',
+                    '    privado {',
+                    '        saldo: numero',
+                    '    }',
+                    '    construtor(inicial) { isto.saldo = inicial }',
+                    '}',
+                    'var c = ContaBancaria(1000)',
+                    'escreva(c.saldo)',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            const erros = retornoAnalisadorSemantico.diagnosticos.filter(
+                d => d.severidade === DiagnosticoSeveridade.ERRO
+            );
+            expect(erros).toHaveLength(1);
+            expect(erros[0].mensagem).toContain('privado');
+        });
+
+        it('Acesso a propriedade privada dentro da própria classe não gera erro', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'classe ContaBancaria {',
+                    '    privado {',
+                    '        saldo: numero',
+                    '    }',
+                    '    obterSaldo() { retorna isto.saldo }',
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            const erros = retornoAnalisadorSemantico.diagnosticos.filter(
+                d => d.severidade === DiagnosticoSeveridade.ERRO
+            );
+            expect(erros).toHaveLength(0);
+        });
+
+        it('Acesso a propriedade protegida fora da hierarquia gera erro', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'classe Animal {',
+                    '    protegido {',
+                    '        energia: numero',
+                    '    }',
+                    '}',
+                    'var a = Animal()',
+                    'escreva(a.energia)',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            const erros = retornoAnalisadorSemantico.diagnosticos.filter(
+                d => d.severidade === DiagnosticoSeveridade.ERRO
+            );
+            expect(erros).toHaveLength(1);
+            expect(erros[0].mensagem).toContain('protegido');
+        });
+
+        it('Acesso a propriedade protegida em subclasse não gera erro', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'classe Animal {',
+                    '    protegido {',
+                    '        energia: numero',
+                    '    }',
+                    '}',
+                    'classe Cachorro herda Animal {',
+                    '    verificar() { retorna isto.energia }',
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            const erros = retornoAnalisadorSemantico.diagnosticos.filter(
+                d => d.severidade === DiagnosticoSeveridade.ERRO
+            );
+            expect(erros).toHaveLength(0);
+        });
+
+        it('Acesso a método privado fora da classe gera erro', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'classe Servico {',
+                    '    privado {',
+                    '        conectar() { }',
+                    '    }',
+                    '}',
+                    'var s = Servico()',
+                    's.conectar()',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            const erros = retornoAnalisadorSemantico.diagnosticos.filter(
+                d => d.severidade === DiagnosticoSeveridade.ERRO
+            );
+            expect(erros).toHaveLength(1);
+            expect(erros[0].mensagem).toContain('privado');
+        });
+    });
 });

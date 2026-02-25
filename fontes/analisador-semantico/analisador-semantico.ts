@@ -54,6 +54,8 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     pilhaVariaveis: PilhaVariaveis;
     funcoes: { [nomeFuncao: string]: FuncaoHipoteticaInterface };
     classesDeclararadas: Set<string>;
+    classesRegistradas: Map<string, Classe>;
+    classeAtualEmAnalise: Classe | null;
     atual: number;
     diagnosticos: DiagnosticoAnalisadorSemantico[];
 
@@ -63,6 +65,8 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         this.gerenciadorEscopos = new GerenciadorEscopos();
         this.funcoes = {};
         this.classesDeclararadas = new Set<string>();
+        this.classesRegistradas = new Map<string, Classe>();
+        this.classeAtualEmAnalise = null;
         this.atual = 0;
         this.diagnosticos = [];
     }
@@ -264,7 +268,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         );
     }
 
-    visitarExpressaoDeChamada(expressao: Chamada) {
+    async visitarExpressaoDeChamada(expressao: Chamada) {
         for (const argumento of expressao.argumentos) {
             if (argumento instanceof Variavel) {
                 this.gerenciadorEscopos.marcarComoUsada(argumento.simbolo.lexema);
@@ -279,8 +283,10 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 break;
             case AcessoMetodoOuPropriedade:
                 // Marca o objeto como usado quando seus métodos/propriedades são acessados (ex: thor.corre())
+                // e verifica acesso a membros privados/protegidos
                 const entidadeChamadaAcessoMetodoOuPropriedade = expressao.entidadeChamada as AcessoMetodoOuPropriedade;
                 this.marcarVariaveisUsadasEmExpressao(entidadeChamadaAcessoMetodoOuPropriedade.objeto);
+                await expressao.entidadeChamada.aceitar(this);
                 break;
             case ArgumentoReferenciaFuncao:
                 const entidadeChamadaArgumentoReferenciaFuncao =
@@ -897,7 +903,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         }
     }
 
-    override visitarDeclaracaoEscreva(declaracao: Escreva) {
+    override async visitarDeclaracaoEscreva(declaracao: Escreva): Promise<any> {
         if (declaracao.argumentos.length === 0) {
             const { linha, hashArquivo } = declaracao;
             const simbolo: SimboloInterface<''> = {
@@ -917,7 +923,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             if (argumento instanceof Literal && argumento.tipo === 'texto') {
                 this.verificarInterpolacaoTexto(String(argumento.valor), argumento);
             }
-            
+
             if (argumento instanceof Variavel) {
                 const possivelVariavel = this.gerenciadorEscopos.buscar(argumento.simbolo.lexema);
                 const possivelFuncao = this.funcoes[argumento.simbolo.lexema];
@@ -936,6 +942,9 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                         `Variável '${argumento.simbolo.lexema}' não foi inicializada.`
                     );
                 }
+            } else if (!(argumento instanceof Literal)) {
+                // Para expressões complexas (ex: AcessoMetodoOuPropriedade), delega ao visitante
+                await argumento.aceitar(this);
             }
         }
 
@@ -1128,7 +1137,74 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    override visitarDeclaracaoClasse(declaracao: Classe): Promise<any> {
+    protected override obterTipoExpressao(expressao: Construto): string | null {
+        const tipoBase = super.obterTipoExpressao(expressao);
+        if (tipoBase) return tipoBase;
+
+        if (expressao instanceof Chamada && expressao.entidadeChamada instanceof Variavel) {
+            const nomeCallee = (expressao.entidadeChamada as Variavel).simbolo.lexema;
+            if (this.classesRegistradas.has(nomeCallee)) return nomeCallee;
+        }
+        return null;
+    }
+
+    private resolverTipoObjeto(objeto: Construto): string | null {
+        if (objeto instanceof Variavel) {
+            if (objeto.simbolo.lexema === 'isto' && this.classeAtualEmAnalise) {
+                return this.classeAtualEmAnalise.simbolo.lexema;
+            }
+            return this.gerenciadorEscopos.buscar(objeto.simbolo.lexema)?.tipo ?? null;
+        }
+        if (objeto instanceof Chamada && objeto.entidadeChamada instanceof Variavel) {
+            const nomeCallee = (objeto.entidadeChamada as Variavel).simbolo.lexema;
+            if (this.classesRegistradas.has(nomeCallee)) return nomeCallee;
+        }
+        return null;
+    }
+
+    private estaEmClasseOuSubclasse(nomeClasse: string): boolean {
+        let atual: Classe | null = this.classeAtualEmAnalise;
+        while (atual !== null) {
+            if (atual.simbolo.lexema === nomeClasse) return true;
+            if (!atual.superClasse) break;
+            atual = this.classesRegistradas.get(atual.superClasse.simbolo.lexema) ?? null;
+        }
+        return false;
+    }
+
+    override async visitarExpressaoAcessoMetodoOuPropriedade(
+        expressao: AcessoMetodoOuPropriedade
+    ): Promise<any> {
+        const nomeMembro = expressao.simbolo.lexema;
+        const tipoObjeto = this.resolverTipoObjeto(expressao.objeto);
+        if (!tipoObjeto) return;
+
+        const classeDef = this.classesRegistradas.get(tipoObjeto);
+        if (!classeDef) return;
+
+        const membro =
+            classeDef.metodos.find((m) => m.simbolo.lexema === nomeMembro) ??
+            classeDef.propriedades.find((p) => p.nome.lexema === nomeMembro);
+        if (!membro) return;
+
+        if (membro.acesso === 'privado') {
+            if (this.classeAtualEmAnalise?.simbolo.lexema !== tipoObjeto) {
+                this.erro(
+                    expressao.simbolo,
+                    `Membro '${nomeMembro}' é privado e não pode ser acessado fora da classe '${tipoObjeto}'.`
+                );
+            }
+        } else if (membro.acesso === 'protegido') {
+            if (!this.estaEmClasseOuSubclasse(tipoObjeto)) {
+                this.erro(
+                    expressao.simbolo,
+                    `Membro '${nomeMembro}' é protegido e não pode ser acessado fora da hierarquia da classe '${tipoObjeto}'.`
+                );
+            }
+        }
+    }
+
+    override async visitarDeclaracaoClasse(declaracao: Classe): Promise<any> {
         if (declaracao.superClasse) {
             const nomeSuperclasse: string = declaracao.superClasse.simbolo.lexema;
             if (nomeSuperclasse === declaracao.simbolo.lexema) {
@@ -1145,7 +1221,17 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         }
 
         this.classesDeclararadas.add(declaracao.simbolo.lexema);
-        return Promise.resolve();
+        this.classesRegistradas.set(declaracao.simbolo.lexema, declaracao);
+
+        // Visita corpos dos métodos com contexto de classe ativo
+        const classeAnterior = this.classeAtualEmAnalise;
+        this.classeAtualEmAnalise = declaracao;
+        for (const metodo of declaracao.metodos) {
+            for (const stmt of metodo.funcao.corpo) {
+                await stmt.aceitar(this);
+            }
+        }
+        this.classeAtualEmAnalise = classeAnterior;
     }
 
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> {
@@ -1257,6 +1343,8 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     async analisar(declaracoes: Declaracao[]): Promise<RetornoAnalisadorSemantico> {
         this.gerenciadorEscopos = new GerenciadorEscopos();
         this.classesDeclararadas = new Set<string>();
+        this.classesRegistradas = new Map<string, Classe>();
+        this.classeAtualEmAnalise = null;
         this.atual = 0;
         this.diagnosticos = [];
 
