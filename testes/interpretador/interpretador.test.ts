@@ -4848,7 +4848,9 @@ describe('Interpretador', () => {
             it('Propriedade privada não pode ser acessada de fora da classe', async () => {
                 const codigo = [
                     'classe ContaBancaria {',
-                    '    privado saldo: numero',
+                    '    privado {',
+                    '        saldo: numero',
+                    '    }',
                     '    construtor(inicial) { isto.saldo = inicial }',
                     '}',
                     'var c = ContaBancaria(1000)',
@@ -4864,7 +4866,9 @@ describe('Interpretador', () => {
             it('Propriedade privada pode ser acessada por métodos da própria classe', async () => {
                 const codigo = [
                     'classe ContaBancaria {',
-                    '    privado saldo: numero',
+                    '    privado {',
+                    '        saldo: numero',
+                    '    }',
                     '    construtor(inicial) { isto.saldo = inicial }',
                     '    depositar(valor) { isto.saldo = isto.saldo + valor }',
                     '    obterSaldo() { retorna isto.saldo }',
@@ -4885,8 +4889,8 @@ describe('Interpretador', () => {
             it('Propriedade pública pode ser acessada de qualquer lugar', async () => {
                 const codigo = [
                     'classe Ponto {',
-                    '    publico x: numero',
-                    '    publico y: numero',
+                    '    x: numero',
+                    '    y: numero',
                     '    construtor(x, y) {',
                     '        isto.x = x',
                     '        isto.y = y',
@@ -4909,7 +4913,9 @@ describe('Interpretador', () => {
             it('Propriedade privada não pode ser atribuída de fora da classe', async () => {
                 const codigo = [
                     'classe Cofre {',
-                    '    privado segredo: texto',
+                    '    privado {',
+                    '        segredo: texto',
+                    '    }',
                     '    construtor() { isto.segredo = "abc" }',
                     '}',
                     'var co = Cofre()',

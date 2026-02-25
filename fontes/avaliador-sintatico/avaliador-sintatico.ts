@@ -3424,7 +3424,7 @@ export class AvaliadorSintatico
                 // Detecção de bloco de contexto: modificador seguido de '{'
                 const tipoAtual = this.simbolos[this.atual].tipo;
                 const tipoProximo = this.simbolos[this.atual + 1]?.tipo;
-                const ehBlocoAcesso = [tiposDeSimbolos.PRIVADO, tiposDeSimbolos.PROTEGIDO, tiposDeSimbolos.PUBLICO].includes(tipoAtual)
+                const ehBlocoAcesso = [tiposDeSimbolos.PRIVADO, tiposDeSimbolos.PROTEGIDO].includes(tipoAtual)
                     && tipoProximo === tiposDeSimbolos.CHAVE_ESQUERDA;
                 const ehBlocoEstatico = tipoAtual === tiposDeSimbolos.ESTATICO
                     && tipoProximo === tiposDeSimbolos.CHAVE_ESQUERDA;
@@ -3432,9 +3432,8 @@ export class AvaliadorSintatico
                     && tipoProximo === tiposDeSimbolos.CHAVE_ESQUERDA;
 
                 if (ehBlocoAcesso) {
-                    const novoAcesso: 'privado' | 'protegido' | 'publico' =
-                        tipoAtual === tiposDeSimbolos.PRIVADO ? 'privado' :
-                        tipoAtual === tiposDeSimbolos.PROTEGIDO ? 'protegido' : 'publico';
+                    const novoAcesso: 'privado' | 'protegido' =
+                        tipoAtual === tiposDeSimbolos.PRIVADO ? 'privado' : 'protegido';
                     this.avancarEDevolverAnterior(); // consume modificador de acesso
                     this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após modificador de acesso de bloco.");
                     await compreenderMembros(novoAcesso, ehEstaticoPadrao, ehAbstratoPadrao);
@@ -3458,18 +3457,7 @@ export class AvaliadorSintatico
                     continue;
                 }
 
-                // Modificador de acesso por membro (somente quando NÃO seguido de '{')
-                let modificadorAcesso: 'privado' | 'protegido' | 'publico' = acessoPadrao;
-                if (this.simbolos[this.atual].tipo === tiposDeSimbolos.PRIVADO) {
-                    this.avancarEDevolverAnterior();
-                    modificadorAcesso = 'privado';
-                } else if (this.simbolos[this.atual].tipo === tiposDeSimbolos.PROTEGIDO) {
-                    this.avancarEDevolverAnterior();
-                    modificadorAcesso = 'protegido';
-                } else if (this.simbolos[this.atual].tipo === tiposDeSimbolos.PUBLICO) {
-                    this.avancarEDevolverAnterior();
-                    modificadorAcesso = 'publico';
-                }
+                const modificadorAcesso: 'privado' | 'protegido' | 'publico' = acessoPadrao;
 
                 const ehEstatico = ehEstaticoPadrao;
 
