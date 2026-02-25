@@ -130,7 +130,9 @@ describe('Avaliador sintático', () => {
                     const retornoLexador = lexador.mapear(
                         [
                             'classe MinhaClasse {',
-                            '    estatico resultado: numero',
+                            '    estatico {',
+                            '        resultado: numero',
+                            '    }',
                             '    construtor() {',
                             '        MinhaClasse.resultado = 99',
                             '    }',

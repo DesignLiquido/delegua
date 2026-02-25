@@ -4445,7 +4445,9 @@ describe('Interpretador', () => {
             it('Propriedade estática pode ser lida e escrita pela classe diretamente', async () => {
                 const codigo = [
                     'classe Caixa {',
-                    '    estatico cor: texto',
+                    '    estatico {',
+                    '        cor: texto',
+                    '    }',
                     '}',
                     'Caixa.cor = "vermelho"',
                     'escreva(Caixa.cor)',
@@ -4462,7 +4464,9 @@ describe('Interpretador', () => {
             it('Propriedade estática é compartilhada entre todas as instâncias', async () => {
                 const codigo = [
                     'classe Contador {',
-                    '    estatico vezes: numero',
+                    '    estatico {',
+                    '        vezes: numero',
+                    '    }',
                     '}',
                     'Contador.vezes = 0',
                     'Contador.vezes = Contador.vezes + 1',
@@ -4481,7 +4485,9 @@ describe('Interpretador', () => {
             it('Método estático pode ser chamado pela classe sem instância', async () => {
                 const codigo = [
                     'classe Matematica {',
-                    '    estatico quadrado(n) { retorna n * n }',
+                    '    estatico {',
+                    '        quadrado(n) { retorna n * n }',
+                    '    }',
                     '}',
                     'escreva(Matematica.quadrado(5))',
                 ];
@@ -4497,7 +4503,9 @@ describe('Interpretador', () => {
             it('[diagnóstico] Atribuição constante dentro do construtor', async () => {
                 const codigo = [
                     'classe MinhaClasse {',
-                    '    estatico resultado: numero',
+                    '    estatico {',
+                    '        resultado: numero',
+                    '    }',
                     '    construtor() {',
                     '        MinhaClasse.resultado = 99',
                     '    }',
@@ -4518,7 +4526,9 @@ describe('Interpretador', () => {
             it('Propriedade estática atualizada dentro do construtor reflete na classe', async () => {
                 const codigo = [
                     'classe Instancias {',
-                    '    estatico total: numero',
+                    '    estatico {',
+                    '        total: numero',
+                    '    }',
                     '    construtor() {',
                     '        Instancias.total = Instancias.total + 1',
                     '    }',
@@ -4543,11 +4553,13 @@ describe('Interpretador', () => {
                 const codigo = [
                     'classe Pessoa {',
                     '    _nome: texto',
-                    '    definir nome(valor) {',
-                    '        isto._nome = valor',
-                    '    }',
-                    '    obter nome() {',
-                    '        retorna isto._nome',
+                    '    nome: texto {',
+                    '        definir(valor) {',
+                    '            isto._nome = valor',
+                    '        }',
+                    '        obter() {',
+                    '            retorna isto._nome',
+                    '        }',
                     '    }',
                     '}',
                     'var p = Pessoa()',
@@ -4566,12 +4578,16 @@ describe('Interpretador', () => {
             it('Obtenedor e definidor estáticos funcionam com acesso pela classe', async () => {
                 const codigo = [
                     'classe Config {',
-                    '    estatico _tema: texto',
-                    '    estatico definir tema(valor) {',
-                    '        Config._tema = valor',
-                    '    }',
-                    '    estatico obter tema() {',
-                    '        retorna Config._tema',
+                    '    estatico {',
+                    '        _tema: texto',
+                    '        tema: texto {',
+                    '            definir(valor) {',
+                    '                Config._tema = valor',
+                    '            }',
+                    '            obter() {',
+                    '                retorna Config._tema',
+                    '            }',
+                    '        }',
                     '    }',
                     '}',
                     'Config.tema = "escuro"',

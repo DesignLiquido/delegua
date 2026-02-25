@@ -3460,30 +3460,7 @@ export class AvaliadorSintatico
                     modificadorAcesso = 'publico';
                 }
 
-                // Modificador estático por membro (somente quando NÃO seguido de '{')
-                let ehEstatico = ehEstaticoPadrao;
-                if (
-                    this.simbolos[this.atual].tipo === tiposDeSimbolos.ESTATICO &&
-                    this.simbolos[this.atual + 1]?.tipo !== tiposDeSimbolos.CHAVE_ESQUERDA
-                ) {
-                    this.avancarEDevolverAnterior();
-                    ehEstatico = true;
-                }
-
-                // Palavras-chave de acessor (obter/definir)
-                let eObtenedor = false;
-                let eDefinidor = false;
-                if (
-                    this.simbolos[this.atual].tipo === tiposDeSimbolos.IDENTIFICADOR &&
-                    ['obter', 'definir', 'obtenedor', 'definidor', 'get', 'set'].includes(
-                        String(this.simbolos[this.atual].lexema || '').toLowerCase()
-                    )
-                ) {
-                    const palavraAcessor = String(this.simbolos[this.atual].lexema || '').toLowerCase();
-                    this.avancarEDevolverAnterior();
-                    eObtenedor = palavraAcessor === 'obter' || palavraAcessor === 'obtenedor' || palavraAcessor === 'get';
-                    eDefinidor = palavraAcessor === 'definir' || palavraAcessor === 'definidor' || palavraAcessor === 'set';
-                }
+                const ehEstatico = ehEstaticoPadrao;
 
                 // Método operador sobrecarregado: `operador+ (outro) { ... }`
                 if (this.simbolos[this.atual].tipo === tiposDeSimbolos.OPERADOR) {
@@ -3592,8 +3569,6 @@ export class AvaliadorSintatico
                             const tipoDaFuncao = `função<${tipoRetorno}>`;
                             const metodo = new FuncaoDeclaracao(nomeMetodo, corpoFuncao, tipoDaFuncao);
                             metodo.estatico = ehEstatico;
-                            metodo.eObtenedor = eObtenedor;
-                            metodo.eDefinidor = eDefinidor;
                             metodo.acesso = modificadorAcesso;
                             metodo.decoradores = Array.from(this.pilhaDecoradores);
                             metodo.documentacao = docAtual;
