@@ -3,6 +3,7 @@ import {
     AcessoMetodoOuPropriedade,
     Agrupamento,
     ArgumentoReferenciaFuncao,
+    AjudaComoConstruto,
     Atribuir,
     Binario,
     Chamada,
@@ -19,6 +20,7 @@ import {
     Vetor,
 } from '../construtos';
 import {
+    Ajuda,
     Classe,
     Const,
     Declaracao,
@@ -424,6 +426,20 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
 
     async visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<any> {
         return await declaracao.expressao.aceitar(this);
+    }
+
+    visitarDeclaracaoAjuda(declaracao: Ajuda): Promise<any> {
+        if (declaracao.elemento) {
+            this.marcarVariaveisUsadasEmExpressao(declaracao.elemento);
+        }
+        return Promise.resolve();
+    }
+
+    visitarExpressaoAjuda(expressao: AjudaComoConstruto): Promise<any> {
+        if (expressao.valor) {
+            this.marcarVariaveisUsadasEmExpressao(expressao.valor);
+        }
+        return Promise.resolve();
     }
 
     override visitarDeclaracaoEscolha(declaracao: Escolha) {

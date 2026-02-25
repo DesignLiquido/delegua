@@ -7,6 +7,7 @@ import {
     AcessoPropriedade,
     ArgumentoReferenciaFuncao,
     Agrupamento,
+    AjudaComoConstruto,
     AtribuicaoPorIndice,
     AtribuicaoPorIndicesMatriz,
     Binario,
@@ -311,6 +312,13 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
         if (expressao instanceof AcessoIndiceVariavel) {
             this.marcarVariaveisUsadasEmExpressao(expressao.entidadeChamada);
             this.marcarVariaveisUsadasEmExpressao(expressao.indice);
+            return;
+        }
+
+        if (expressao instanceof AjudaComoConstruto) {
+            if (expressao.valor) {
+                this.marcarVariaveisUsadasEmExpressao(expressao.valor);
+            }
             return;
         }
 

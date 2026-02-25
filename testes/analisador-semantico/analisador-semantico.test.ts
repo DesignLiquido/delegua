@@ -1857,6 +1857,30 @@ describe('Analisador semântico', () => {
             expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toContain('nunca usada');
         });
 
+        it('Sucesso - variável usada como argumento de ajuda() não gera aviso de nunca usada', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'classe Veiculo {',
+                    '    /** Acelera o veículo. */',
+                    '    acelerar() { }',
+                    '}',
+                    'var v = Veiculo()',
+                    'escreva(ajuda(v))',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            const avisoVariavelNaoUsada = retornoAnalisadorSemantico.diagnosticos.find(
+                (d) => d.mensagem === "Variável 'v' foi declarada mas nunca usada."
+            );
+            expect(avisoVariavelNaoUsada).toBeUndefined();
+        });
+
         it('Erro - redeclaração de variável no mesmo escopo', async () => {
             const retornoLexador = lexador.mapear(['var duplicada = 1', 'var duplicada = 2'], -1);
             const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
