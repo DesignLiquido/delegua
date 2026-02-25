@@ -3391,11 +3391,12 @@ export class AvaliadorSintatico
 
         /**
          * Analisa membros do corpo da classe com um contexto de acesso e estático padrão.
-         * Suporta blocos de contexto aninhados: `estático { }`, `privado { }`, `protegido { }`, `publico { }`.
+         * Suporta blocos de contexto aninhados: `estático { }`, `abstrato { }`, `privado { }`, `protegido { }`, `publico { }`.
          */
         const compreenderMembros = async (
             acessoPadrao: 'privado' | 'protegido' | 'publico',
-            ehEstaticoPadrao: boolean
+            ehEstaticoPadrao: boolean,
+            ehAbstratoPadrao: boolean = false
         ): Promise<void> => {
             while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
                 // Pular comentários normais dentro do corpo da classe.
@@ -3427,6 +3428,8 @@ export class AvaliadorSintatico
                     && tipoProximo === tiposDeSimbolos.CHAVE_ESQUERDA;
                 const ehBlocoEstatico = tipoAtual === tiposDeSimbolos.ESTATICO
                     && tipoProximo === tiposDeSimbolos.CHAVE_ESQUERDA;
+                const ehBlocoAbstrato = tipoAtual === tiposDeSimbolos.ABSTRATO
+                    && tipoProximo === tiposDeSimbolos.CHAVE_ESQUERDA;
 
                 if (ehBlocoAcesso) {
                     const novoAcesso: 'privado' | 'protegido' | 'publico' =
@@ -3434,7 +3437,7 @@ export class AvaliadorSintatico
                         tipoAtual === tiposDeSimbolos.PROTEGIDO ? 'protegido' : 'publico';
                     this.avancarEDevolverAnterior(); // consume modificador de acesso
                     this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após modificador de acesso de bloco.");
-                    await compreenderMembros(novoAcesso, ehEstaticoPadrao);
+                    await compreenderMembros(novoAcesso, ehEstaticoPadrao, ehAbstratoPadrao);
                     this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' para fechar bloco de modificador de acesso.");
                     continue;
                 }
@@ -3442,8 +3445,16 @@ export class AvaliadorSintatico
                 if (ehBlocoEstatico) {
                     this.avancarEDevolverAnterior(); // consume 'estático'
                     this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após 'estático'.");
-                    await compreenderMembros(acessoPadrao, true);
+                    await compreenderMembros(acessoPadrao, true, ehAbstratoPadrao);
                     this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' para fechar bloco estático.");
+                    continue;
+                }
+
+                if (ehBlocoAbstrato) {
+                    this.avancarEDevolverAnterior(); // consume 'abstrato'
+                    this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após 'abstrato'.");
+                    await compreenderMembros(acessoPadrao, ehEstaticoPadrao, true);
+                    this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' para fechar bloco abstrato.");
                     continue;
                 }
 
@@ -3512,12 +3523,7 @@ export class AvaliadorSintatico
                         }
                         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros do método.");
 
-                        // O modificador `abstrato` vem APÓS o fechamento dos parâmetros.
-                        // Sintaxe: `area() abstrato: numero`
-                        let ehAbstrato = false;
-                        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ABSTRATO)) {
-                            ehAbstrato = true;
-                        }
+                        const ehAbstrato = ehAbstratoPadrao;
 
                         // Tipo de retorno opcional (igual a corpoDaFuncao())
                         let tipoRetorno = 'qualquer';

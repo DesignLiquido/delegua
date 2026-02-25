@@ -4607,7 +4607,9 @@ describe('Interpretador', () => {
             it('Classe abstrata não pode ser instanciada diretamente', async () => {
                 const codigo = [
                     'classe abstrata Forma {',
-                    '    area() abstrato: numero',
+                    '    abstrato {',
+                    '        area(): numero',
+                    '    }',
                     '}',
                     'var f = Forma()',
                 ];
@@ -4621,7 +4623,9 @@ describe('Interpretador', () => {
             it('Subclasse concreta implementa método abstrato e pode ser instanciada', async () => {
                 const codigo = [
                     'classe abstrata Forma {',
-                    '    area() abstrato: numero',
+                    '    abstrato {',
+                    '        area(): numero',
+                    '    }',
                     '}',
                     'classe Circulo herda Forma {',
                     '    raio: numero',
@@ -4643,7 +4647,9 @@ describe('Interpretador', () => {
             it('Subclasse que não implementa método abstrato gera erro ao ser definida', async () => {
                 const codigo = [
                     'classe abstrata Forma {',
-                    '    area() abstrato: numero',
+                    '    abstrato {',
+                    '        area(): numero',
+                    '    }',
                     '}',
                     'classe Quadrado herda Forma {',
                     '}',
@@ -4659,7 +4665,9 @@ describe('Interpretador', () => {
             it('Classe abstrata pode ter métodos concretos herdados pela subclasse', async () => {
                 const codigo = [
                     'classe abstrata Animal {',
-                    '    falar() abstrato: texto',
+                    '    abstrato {',
+                    '        falar(): texto',
+                    '    }',
                     '    descricao() { retorna "Sou um animal" }',
                     '}',
                     'classe Gato herda Animal {',
