@@ -72,7 +72,7 @@ MenosMenos:                        '--';
 Mais:                              '+';
 Menos:                             '-';
 BitNot:                            '~';
-Not:                               '!';
+Not:                               '!' | 'nao' | 'não';
 Multiplicacao:                     '*';
 Divisao:                           '/';
 DivisaoInteira:                    '\\';
@@ -92,8 +92,8 @@ NaoIgual:                          '!=';
 BitAnd:                            '&';
 BitXOr:                            '^';
 BitOr:                             '|';
-And:                               '&&';
-Or:                                '||';
+And:                               '&&' | 'e';
+Or:                                '||' | 'ou';
 MultiplicacaoAtribuicao:           '*=';
 DivisaoAtribuicao:                 '/=';
 DivisaoInteiraAtribuicao:          '\\=';
@@ -139,7 +139,7 @@ BigDecimalInteiroLiteral:       DecimalInteiroLiteral 'n';
 
 /// Palavras-chave
 
-Sustar:                          'sustar';
+Sustar:                          'sustar' | 'quebrar' | 'quebre';
 Do:                              'faca' | 'faça' | 'fazer';
 TipoDe:                          'tipo de';
 Caso:                            'caso';
@@ -147,10 +147,12 @@ Senao:                           'senao' | 'senão';
 Novo:                            'novo';
 Var:                             'var';
 Pegue:                           'pegue' | 'pegar';
+Cada:                            'cada';
+Contem:                          'contem' | 'contém';
 Finalmente:                      'finalmente';
 Retorna:                         'retorna' | 'retorne' | 'retornar';
 Vazio:                           'vazio';
-Continue:                        'continue' | 'continua';
+Continue:                        'continue' | 'continua' | 'continuar';
 Para:                            'para';
 Escolha:                         'escolha' | 'escolher';
 Enquanto:                        'enquanto';
@@ -165,6 +167,7 @@ Em:                              'em';
 Tente:                           'tente';
 Como:                            'como';
 De:                              'de';
+Tendo:                           'tendo';
 Classe:                         'classe';
 Enum:                           'enum';
 Herda:                          'herda';
@@ -172,21 +175,25 @@ Super:                          'super';
 Const:                          'const';
 Exportar:                       'exportar';
 Importar:                       'importar';
+Leia:                           'leia' | 'ler';
+Escreva:                        'escreva' | 'escrever';
+Extensao:                       'extensao' | 'extensão';
+Abstrato:                       'abstrato' | 'abstrata';
 
 /// Talvez uso futuro
 
 Acumular:                       'acumular';
 Aguardar:                       'aguardar' | 'aguarde';
 Assincrono:                     'assincrono' | 'assíncrono';
-Implementa:                     'implements' {this.IsStrictMode()}?;
+Implementa:                     'implementa' | ('implements' {this.IsStrictMode()}?);
 StrictLet:                      'let' {this.IsStrictMode()}?;
 NonStrictLet:                   'let' {!this.IsStrictMode()}?;
-Privado:                        'private' {this.IsStrictMode()}?;
-Publico:                        'public' {this.IsStrictMode()}?;
-Interface:                      'interface' {this.IsStrictMode()}?;
+Privado:                        'privado' | ('private' {this.IsStrictMode()}?);
+Publico:                        'publico' | 'público' | ('public' {this.IsStrictMode()}?);
+Interface:                      'interface';
 Pacote:                         'package' {this.IsStrictMode()}?;
-Protegido:                      'protected' {this.IsStrictMode()}?;
-Estatico:                       'static' {this.IsStrictMode()}?;
+Protegido:                      'protegido' | ('protected' {this.IsStrictMode()}?);
+Estatico:                       'estatico' | 'estatica' | 'estático' | 'estática' | ('static' {this.IsStrictMode()}?);
 
 /// Identificador Nomes and Identificadors
 
