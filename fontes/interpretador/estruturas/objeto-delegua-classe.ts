@@ -11,6 +11,15 @@ export class ObjetoDeleguaClasse {
     classe: DescritorTipoClasse;
     propriedades: { [nome: string]: any };
 
+    private valorPadraoParaTipo(tipo?: string): any {
+        switch (tipo) {
+            case 'numero': return 0;
+            case 'texto': return '';
+            case 'logico': return false;
+            default: return undefined;
+        }
+    }
+
     constructor(classe: DescritorTipoClasse) {
         this.classe = classe;
         this.propriedades = {};
@@ -18,9 +27,9 @@ export class ObjetoDeleguaClasse {
             for (let propriedade of this.classe.superClasse.propriedades) {
                 if (propriedade.estatico) continue;
                 if (propriedade.autoObter || propriedade.autoDefinir) {
-                    this.propriedades['_' + propriedade.nome.lexema] = undefined;
+                    this.propriedades['_' + propriedade.nome.lexema] = this.valorPadraoParaTipo(propriedade.tipo);
                 } else {
-                    this.propriedades[propriedade.nome.lexema] = undefined;
+                    this.propriedades[propriedade.nome.lexema] = this.valorPadraoParaTipo(propriedade.tipo);
                 }
             }
         }
@@ -28,9 +37,9 @@ export class ObjetoDeleguaClasse {
         for (let propriedade of classe.propriedades) {
             if (propriedade.estatico) continue;
             if (propriedade.autoObter || propriedade.autoDefinir) {
-                this.propriedades['_' + propriedade.nome.lexema] = undefined;
+                this.propriedades['_' + propriedade.nome.lexema] = this.valorPadraoParaTipo(propriedade.tipo);
             } else {
-                this.propriedades[propriedade.nome.lexema] = undefined;
+                this.propriedades[propriedade.nome.lexema] = this.valorPadraoParaTipo(propriedade.tipo);
             }
         }
     }

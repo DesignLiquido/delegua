@@ -2533,6 +2533,41 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Propriedade tipada em bloco protegido da superclasse é inicializada com valor padrão', async () => {
+                    const _saidas: string[] = [];
+                    const codigo = [
+                        'classe Animal {',
+                        '    protegido {',
+                        '        energia: numero',
+                        '    }',
+                        '}',
+                        'classe Cachorro herda Animal {',
+                        '    comer() {',
+                        '        isto.energia += 10',
+                        '    }',
+                        '    mostrarEnergia() {',
+                        '        escreva("Au Au ${isto.energia}")',
+                        '    }',
+                        '}',
+                        'var c = Cachorro()',
+                        'c.comer()',
+                        'c.mostrarEnergia()',
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saidas.push(saida);
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('Au Au 10');
+                });
+
                 it('Chamada de método com `super`, trivial', async () => {
                     const _saidas: string[] = [];
                     const codigo = [
