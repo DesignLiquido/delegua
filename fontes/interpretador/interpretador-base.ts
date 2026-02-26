@@ -14,6 +14,7 @@ import {
     Escreva,
     EscrevaMesmaLinha,
     Expressao,
+    Extensao,
     Falhar,
     Fazer,
     FuncaoDeclaracao,
@@ -146,6 +147,11 @@ export class InterpretadorBase implements InterpretadorInterface {
     emDeclaracaoTente: boolean = false;
 
     pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
+
+    // typeName → methodName → DeleguaFuncao
+    extensoesGlobais: Map<string, Map<string, DeleguaFuncao>> = new Map();
+    // hashArquivo → typeName → methodName → DeleguaFuncao
+    extensoesModulo: Map<number, Map<string, Map<string, DeleguaFuncao>>> = new Map();
 
     microLexador: MicroLexador = new MicroLexador();
     microAvaliadorSintatico: MicroAvaliadorSintaticoBase = new MicroAvaliadorSintatico();
@@ -2271,6 +2277,60 @@ export class InterpretadorBase implements InterpretadorInterface {
         // Interfaces não possuem comportamento em tempo de execução.
         // São contratos verificados em tempo de análise sintática.
         return Promise.resolve();
+    }
+
+    /**
+     * Procura um método de extensão nos registros de módulo e global,
+     * percorrendo os tipos na ordem indicada (específico antes de base).
+     */
+    encontrarMetodoExtensao(
+        tiposParaVerificar: string[],
+        nomeMetodo: string,
+        hashArquivo: number
+    ): DeleguaFuncao | undefined {
+        // Extensões module-scoped têm prioridade sobre as globais.
+        const extensoesDoModulo = this.extensoesModulo.get(hashArquivo);
+        if (extensoesDoModulo) {
+            for (const tipo of tiposParaVerificar) {
+                const metodo = extensoesDoModulo.get(tipo)?.get(nomeMetodo);
+                if (metodo) return metodo;
+            }
+        }
+        for (const tipo of tiposParaVerificar) {
+            const metodo = this.extensoesGlobais.get(tipo)?.get(nomeMetodo);
+            if (metodo) return metodo;
+        }
+        return undefined;
+    }
+
+    /**
+     * Registra os métodos de uma declaração de extensão nos registros
+     * de extensão do interpretador.
+     */
+    async visitarDeclaracaoExtensao(declaracao: Extensao): Promise<void> {
+        const tipoNome = declaracao.simboloTipo.lexema;
+
+        for (const metodoDeclarado of declaracao.metodos) {
+            const nomeMetodo = metodoDeclarado.simbolo.lexema;
+            const funcao = new DeleguaFuncao(nomeMetodo, metodoDeclarado.funcao);
+
+            if (declaracao.ehGlobal) {
+                if (!this.extensoesGlobais.has(tipoNome)) {
+                    this.extensoesGlobais.set(tipoNome, new Map());
+                }
+                this.extensoesGlobais.get(tipoNome).set(nomeMetodo, funcao);
+            } else {
+                const hash = declaracao.hashArquivo;
+                if (!this.extensoesModulo.has(hash)) {
+                    this.extensoesModulo.set(hash, new Map());
+                }
+                const mapa = this.extensoesModulo.get(hash);
+                if (!mapa.has(tipoNome)) {
+                    mapa.set(tipoNome, new Map());
+                }
+                mapa.get(tipoNome).set(nomeMetodo, funcao);
+            }
+        }
     }
 
     /**

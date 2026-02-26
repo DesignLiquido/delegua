@@ -31,6 +31,7 @@ export default {
     DOIS_PONTOS: 'DOIS_PONTOS',
     E: 'E',
     ELVIS: 'ELVIS',
+    EXTENSAO: 'EXTENSAO',
     EM: 'EM',
     ENQUANTO: 'ENQUANTO',
     EOF: 'EOF',

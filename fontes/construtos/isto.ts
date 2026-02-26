@@ -6,6 +6,7 @@ export class Isto<TTipoSimbolo extends string = string> implements Construto {
     hashArquivo: number;
 
     simboloChave: SimboloInterface<TTipoSimbolo>;
+    tipo: string = 'qualquer';
 
     constructor(hashArquivo: number, linha: number, simboloChave?: SimboloInterface<TTipoSimbolo>) {
         this.linha = linha;

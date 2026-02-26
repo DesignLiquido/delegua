@@ -16,13 +16,13 @@ export class DeleguaFuncao extends Chamavel {
     nome: string;
     declaracao: FuncaoConstruto;
     eInicializador: boolean;
-    instancia: ObjetoDeleguaClasse;
+    instancia: any;
     documentacao?: ComentarioComoConstruto;
 
     constructor(
         nome: string,
         declaracao: FuncaoConstruto,
-        instancia: ObjetoDeleguaClasse = undefined,
+        instancia: any = undefined,
         eInicializador = false
     ) {
         super();
@@ -143,7 +143,7 @@ export class DeleguaFuncao extends Chamavel {
         if (this.instancia !== undefined) {
             ambiente.valores['isto'] = {
                 valor: this.instancia,
-                tipo: 'objeto',
+                tipo: this.instancia instanceof ObjetoDeleguaClasse ? 'objeto' : tipoDeDados(this.instancia),
                 imutavel: false,
             };
         }
@@ -155,7 +155,7 @@ export class DeleguaFuncao extends Chamavel {
 
         // Rastrear a classe atual em execução para verificação de acesso.
         const classeAnteriorEmExecucao = interpretador.classeAtualEmExecucao;
-        if (this.instancia !== undefined) {
+        if (this.instancia instanceof ObjetoDeleguaClasse) {
             interpretador.classeAtualEmExecucao = this.instancia.classe;
         }
 
@@ -202,5 +202,29 @@ export class DeleguaFuncao extends Chamavel {
         const funcao = new DeleguaFuncao(this.nome, this.declaracao, instancia, this.eInicializador);
         funcao.documentacao = this.documentacao;
         return funcao;
+    }
+
+    funcaoPorExtensao(valor: any): DeleguaFuncao {
+        const funcao = new DeleguaFuncao(this.nome, this.declaracao, valor, false);
+        funcao.documentacao = this.documentacao;
+        return funcao;
+    }
+}
+
+/**
+ * Mapeia o tipo JS de um valor primitivo para o nome de tipo de Delégua.
+ */
+function tipoDeDados(valor: any): string {
+    if (Array.isArray(valor)) return 'vetor';
+    switch (typeof valor) {
+        case 'number':
+        case 'bigint':
+            return 'número';
+        case 'string':
+            return 'texto';
+        case 'boolean':
+            return 'lógico';
+        default:
+            return 'objeto';
     }
 }

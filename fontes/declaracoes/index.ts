@@ -8,6 +8,7 @@ export * from './const-multiplo';
 export * from './continua';
 export * from './declaracao';
 export * from './enquanto';
+export * from './extensao';
 export * from './escolha';
 export * from './escreva';
 export * from './escreva-mesma-linha';
