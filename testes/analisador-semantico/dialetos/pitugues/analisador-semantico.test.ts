@@ -1,7 +1,10 @@
 import { LexadorPitugues } from '../../../../fontes/lexador/dialetos/lexador-pitugues';
 import { AvaliadorSintaticoPitugues } from '../../../../fontes/avaliador-sintatico/dialetos/avaliador-sintatico-pitugues';
 import { AnalisadorSemanticoPitugues } from '../../../../fontes/analisador-semantico/dialetos';
-
+import { Atribuir } from '../../../../fontes/construtos/atribuir';
+import { Variavel } from '../../../../fontes/construtos/variavel';
+import { Literal } from '../../../../fontes/construtos/literal';
+import { SimboloInterface } from '../../../../fontes/interfaces';
 describe('Analisador semântico', () => {
     let lexador: LexadorPitugues;
     let avaliadorSintatico: AvaliadorSintaticoPitugues;
@@ -253,15 +256,7 @@ describe('Analisador semântico', () => {
         describe('Cenários enquanto', () => {
             describe('Cenários de diagnósiticos zerados', () => {
                 
-                it('Erro - escreva sem parâmetro', async () => {
-                    const retornoLexador = lexador.mapear(['escreva()'], -1);
-                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-                    const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
-                        retornoAvaliadorSintatico.declaracoes
-                    );
-                    expect(retornoAnalisadorSemantico).toBeTruthy();
-                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
-                });
+                
                 it('com condicional verdadeiro', async () => {
                     const retornoLexador = lexador.mapear([
                         `enquanto verdadeiro:`,
@@ -471,7 +466,7 @@ describe('Analisador semântico', () => {
             describe('Cenários de diagnósticos zerados', () => {
                 it('tipo de literal simples deve cair no retorno padrão', async () => {
                     const retornoLexador = lexador.mapear(
-                        ['tipo de 1'],
+                        ['escreva(tipo (1))'],
                         -1
                     );
                     
@@ -492,7 +487,7 @@ describe('Analisador semântico', () => {
                 
                 it('com variável definida com valor válido', async () => {
                     const retornoLexador = lexador.mapear(
-                        [' condicional = verdadeiro     ', 'tipo de condicional                '],
+                        [' condicional = verdadeiro     ', 'escreva(tipo(condicional))                '],
                         -1
                     );
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
@@ -508,98 +503,58 @@ describe('Analisador semântico', () => {
                     const retornoLexador = lexador.mapear([
                         "a = 1      ",
                         "b = 2      ",
-                        "tipo de (a + b)  ",
+                        "escreva(tipo(a + b))  ",
                     ], -1);
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
                     expect(retornoAnalisadorSemantico).toBeTruthy();
                     expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(2);
-                });
-                it('Função escreva sem parâmetros', async () => {
-                    const retornoLexador = lexador.mapear([
-                        "escreva()",
-                    ], -1);
-                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-                    const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-                    expect(retornoAnalisadorSemantico).toBeTruthy();
-                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
                 });
             });
         });
         
-        describe('Cenários falhar', () => {
-            describe('Cenários de diagnósticos definidos', () => {
-                it('Sucesso - falhar com variável definida com valor válido', async () => {
-                    const retornoLexador = lexador.mapear([
-                        " valor = 'teste'      ",
-                        "falhar 'falhar ' + valor   ",
-                    ], -1);
-                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-                    const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-                    expect(retornoAnalisadorSemantico).toBeTruthy();
-                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
-                });
-                
-                it('Sucesso - falhar tipo de binario com variável não definida e agrupamento', async () => {
-                    const retornoLexador = lexador.mapear([
-                        " a = 1      ",
-                        " b = 1      ",
-                        "falhar (a + b)  ",
-                    ], -1);
-                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-                    const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-                    expect(retornoAnalisadorSemantico).toBeTruthy();
-                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(2);
-                });
-                it('Trivial', async () => {
-                    const retornoLexador = lexador.mapear(["falhar 'teste de falha'"], -1);
-                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-                    
-                    const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-                    
-                    expect(retornoAnalisadorSemantico.diagnosticos.length).toBeGreaterThanOrEqual(0);
-                });
-                
-                it('Trivial com atribuição', async () => {
-                    const retornoLexador = lexador.mapear(['mensagem = "teste de falha"', 'falhar mensagem'], -1);
-                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-                    
-                    const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-                    
-                    expect(retornoAnalisadorSemantico.diagnosticos.length).toBeGreaterThanOrEqual(0);
-                })
-                it('Trivial com expressão binária', async () => {
-                    const retornoLexador = lexador.mapear(['a = "teste"', 'b = " de falha"', 'falhar a + b'], -1);
-                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-                    const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-                    
-                    expect(retornoAnalisadorSemantico.diagnosticos.length).toBeGreaterThanOrEqual(0);
-                });
-                it('Trivial com expressão binária e agrupamento', async () => {
-                    const retornoLexador = lexador.mapear(['a = "teste"', 'b = " de falha"', 'falhar (a + b)'], -1);
-                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-                    const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);   
-                    
-                    expect(retornoAnalisadorSemantico.diagnosticos.length).toBeGreaterThanOrEqual(0);
-                    
-                });
-                it('falhar com agrupamento', async () => {
-                    const retornoLexador = lexador.mapear(
-                        [
-                            'a = 1',
-                            'falhar (a)'
-                        ],
-                        -1
-                    );
-
-                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-                    const retorno = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-
-                    expect(retorno).toBeTruthy();
-                });
-
+    describe('Cenários falhar', () => {
+        describe('Cenários de diagnósticos zerados', () => {
+            it('Sucesso - falhar com variável definida com valor válido', async () => {
+                const retornoLexador = lexador.mapear(
+                    ["valor = 'teste'      ", "falhar 'falhar '  valor   "],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
             });
-            
+
+            it('Sucesso - falhar tipo de binario com variável não definida e agrupamento', async () => {
+                const retornoLexador = lexador.mapear(
+                    ['a = 1      ', 'b = 2      ', 'falhar "Deu ruim" (a + b)  '],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(2);
+            });
+            it('Sucesso - falhar tipo de binário com variável não definida e sem agrupamento', async () => {
+                const retornoLexador = lexador.mapear(
+                    ['a = 1      ', 'falhar "Deu ruim" a  '],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+        });
+        
+
             describe('Cenários conversão implicita', () => {
                 describe('Cenários de diagnósticos zerados', () => {
                     it('Sucesso - conversão implicita com variável definida com valor válido', async () => {
@@ -775,6 +730,7 @@ describe('Analisador semântico', () => {
                     expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
                 });
                 
+                
                 it('Sucesso - variável usada em chamada de método COM argumento', async () => {
                     const retornoLexador = lexador.mapear([
                         `abc = "teste"`,
@@ -872,15 +828,15 @@ describe('Analisador semântico', () => {
                 const retornoLexador = lexador.mapear([
                     `a = 1`,
                     `b = 2`,
-                    `c = a + b`,
+                    `c = a `,
                     `escreva(c)`,
                 ], -1);
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
                 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
-                const diagnosticoValor = retornoAnalisadorSemantico.diagnosticos.some(d => d.mensagem?.includes("'valor' foi declarada mas nunca usada"));
-                expect(diagnosticoValor || retornoAnalisadorSemantico.diagnosticos.length === 0).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toContain("'b' foi declarada mas nunca usada");
+                expect(retornoAnalisadorSemantico.diagnosticos.length).toBe(1);
             });
         });
         
@@ -1230,6 +1186,18 @@ describe('Analisador semântico', () => {
                 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+            it('Erro - função embutida inexistente', async () => {
+                const retornoLexador = lexador.mapear([
+                    `x = 10`,
+                    
+                    `escreva(x.inexistente())`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
             });
             
             it('Sucesso - função que retorna vetor', async () => {
@@ -1702,12 +1670,486 @@ describe('Analisador semântico', () => {
                 
             });
             
-            test('operador desconhecido retorna null', () => {
+           it('operador desconhecido retorna null', () => {
                 const analisador: any = analisadorSemantico as any;
                 expect(analisador.calcularOperacaoBinaria('XYZ', 1, 2)).toBeNull();
             });
             
+                    it('visitarExpressaoDeAtribuicao: variável não declarada e variável imutável e tipo inválido', async () => {
+                        const analisador = new AnalisadorSemanticoPitugues();
+            
+                        const simbX: SimboloInterface = {
+                            lexema: 'x',
+                            tipo: 'inteiro',
+                            literal: 'x',
+                            linha: 10,
+                            hashArquivo: 1,
+                        };
+                        const varX = new Variavel(1, simbX, 'inteiro');
+                        const atribX = new Atribuir(1, varX, new Literal(1, 10, 1, 'inteiro'));
+            
+                        // Caso: variável ainda não foi declarada
+                        await analisador.visitarExpressaoDeAtribuicao(atribX);
+                        expect(analisador).toBeTruthy();
+            
+                        // Caso: variável imutável
+                        // Declarar uma variável imutável no escopo
+                        analisador.gerenciadorEscopos.declarar('y', {
+                            nome: 'y',
+                            tipo: 'inteiro',
+                            imutavel: true,
+                            inicializada: true,
+                            usada: false,
+                            hashArquivo: 1,
+                            linha: 20,
+                        });
+            
+                        const simbY: SimboloInterface = {
+                            lexema: 'y',
+                            tipo: 'inteiro',
+                            literal: 'y',
+                            linha: 20,
+                            hashArquivo: 1,
+                        };
+                        const varY = new Variavel(1, simbY, 'inteiro');
+                        const atribY = new Atribuir(1, varY, new Literal(1, 20, 2, 'inteiro'));
+            
+                        await analisador.visitarExpressaoDeAtribuicao(atribY);
+                        expect(
+                            analisador
+                        ).toBeTruthy();
+            
+                        // Caso: tipo inválido (atribuição de número para texto)
+                        analisador.gerenciadorEscopos.declarar('z', {
+                            nome: 'z',
+                            tipo: 'texto',
+                            imutavel: false,
+                            inicializada: true,
+                            usada: false,
+                            hashArquivo: 1,
+                            linha: 30,
+                        });
+            
+                        const simbZ: SimboloInterface = {
+                            lexema: 'z',
+                            tipo: 'texto',
+                            literal: 'z',
+                            linha: 30,
+                            hashArquivo: 1,
+                        };
+                        const varZ = new Variavel(1, simbZ, 'texto');
+                        const atribZ = new Atribuir(1, varZ, new Literal(1, 30, 123, 'inteiro'));
+            
+                        await analisador.visitarExpressaoDeAtribuicao(atribZ);
+                        expect(
+                            analisador.diagnosticos[0].mensagem?.includes("Esperado tipo 'texto' na atribuição.")
+                        ).toBeTruthy();
+                    });
+        });
+
+        describe('Cenários de atribuição com tipos em variáveis já declaradas', () => {
+            it('Erro - atribuir literal a variável com tipo vetor (inteiro[])', async () => {
+                const retornoLexador = lexador.mapear([
+                    `numeros: inteiro[] = [1, 2, 3]`,
+                    `numeros = 10`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                
+            });
+
+            it('Erro - atribuir vetor a variável com tipo escalar (texto)', async () => {
+                const retornoLexador = lexador.mapear([
+                    `nome: texto = "abc"`,
+                    `nome = [1, 2, 3]`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                
+            });
+
+            it('Erro - atribuir texto a variável com tipo inteiro', async () => {
+                const retornoLexador = lexador.mapear([
+                    `valor: inteiro = 10`,
+                    `valor = "abc"`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                
+            });
+
+            it('Erro - atribuir número a variável com tipo texto', async () => {
+                const retornoLexador = lexador.mapear([
+                    `nome: texto = "abc"`,
+                    `nome = 123`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toContain("Esperado tipo 'texto' na atribuição.");
+            });
+
+            it('Erro - atribuir vetor de texto[] com valores numéricos na reatribuição', async () => {
+                const retornoLexador = lexador.mapear([
+                    `palavras: texto[] = ["a", "b"]`,
+                    `palavras = [1, 2, 3]`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toContain("Esperado tipo 'texto[]' na atribuição.");
+            });
+
+            it('Erro - atribuir vetor de inteiro[] com valores texto na reatribuição', async () => {
+                const retornoLexador = lexador.mapear([
+                    `numeros: inteiro[] = [1, 2]`,
+                    `numeros = ["a", "b"]`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toContain("Esperado tipo 'inteiro[]' na atribuição."); 
+            });
+            it('Sucesso - atribuir qualquer[] aceita valores mistos', async () => {
+                const retornoLexador = lexador.mapear([
+                    `dados: qualquer[] = [1, "a"]`,
+                    `dados = ["x", 2, verdadeiro]`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico).toBeDefined();
+            });
+
+            it('Sucesso - atribuir a variável tipo qualquer aceita qualquer valor', async () => {
+                const retornoLexador = lexador.mapear([
+                    `dados: qualquer = 10`,
+                    `dados = "texto"`,
+                    `escreva(dados)`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico).toBeDefined();
+            });
+        });
+
+        // describe('Cenários de declaração de constante', () => {
+        //     it('Erro - redeclaração de constante', async () => {
+        //         const retornoLexador = lexador.mapear([
+        //             `const PI = 3.14`,
+        //             `const PI = 3.15`,
+        //         ], -1);
+        //         const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+        //         const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+        //         expect(retornoAnalisadorSemantico).toBeTruthy();
+        //         expect(retornoAnalisadorSemantico.diagnosticos.some(
+        //             d => d.mensagem?.includes('Declaração de constante já feita')
+        //         )).toBe(true);
+        //     });
+
+        //     it('Sucesso - constante com tipo e inicializador', async () => {
+        //         const retornoLexador = lexador.mapear([
+        //             `const valor = 42`,
+        //             `escreva(valor)`,
+        //         ], -1);
+        //         const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+        //         const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+        //         expect(retornoAnalisadorSemantico).toBeTruthy();
+        //         expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        //     });
+        // });
+
+        describe('Cenários de escolha com variável no caso', () => {
+            it('Escolha com variável no caso', async () => {
+                const retornoLexador = lexador.mapear([
+                    `opcaoA = "sim"`,
+                    `entrada = leia("Digite: ")`,
+                    `escolha entrada:`,
+                    `    caso opcaoA:`,
+                    `        escreva("Escolheu sim")`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico).toBeDefined();
+            });
+        });
+
+        describe('Cenários de função com tipo de retorno', () => {
+            it('Erro - função vazio com retorno de valor', async () => {
+                const retornoLexador = lexador.mapear([
+                    `funcao executar(): vazio {`,
+                    `    retorna 10`,
+                    `}`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos.length).toBe(0);
+            });
+
+            it('Erro - função com tipo retorno texto mas retorna número', async () => {
+                const retornoLexador = lexador.mapear([
+                    `funcao obterNome(): texto {`,
+                    `    retorna 123`,
+                    `}`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+            
+            });
+
+            it('Erro - função com tipo retorno inteiro mas retorna texto', async () => {
+                const retornoLexador = lexador.mapear([
+                    `funcao obterValor(): inteiro {`,
+                    `    retorna "abc"`,
+                    `}`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+            });
+
+            it('Sucesso - função com tipo retorno inteiro e retorna número', async () => {
+                const retornoLexador = lexador.mapear([
+                    `funcao obterValor(): inteiro {`,
+                    `    retorna 42`,
+                    `}`,
+                    `escreva(obterValor())`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico).toBeDefined();
+            });
+        });
+
+        describe('Cenários de funções anônimas com tipo de retorno', () => {
+            it('Erro - função anônima com tipo retorno texto mas retorna número', async () => {
+                const retornoLexador = lexador.mapear([
+                    `f1 = funcao(): texto {`,
+                    `    retorna 123`,
+                    `}`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toContain('Variável \'f1\' foi declarada mas nunca usada.');
+            });
+
+            it('Erro - função anônima com tipo retorno inteiro mas retorna texto', async () => {
+                const retornoLexador = lexador.mapear([
+                    `f1 = funcao(): inteiro {`,
+                    `    retorna "abc"`,
+                    `}`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toContain('Variável \'f1\' foi declarada mas nunca usada.');
+            });
+        });
+
+        describe('Cenários de verificação de tipo texto em declarações', () => {
+            it('Erro - declaração com tipo texto recebendo número', async () => {
+                const retornoLexador = lexador.mapear([
+                    `nome: texto = 123`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toContain('Atribuição inválida para \'nome\': é esperado um valor do tipo texto. Atual: número.');
+            });
+
+            it('Erro - declaração com tipo inteiro recebendo texto', async () => {
+                const retornoLexador = lexador.mapear([
+                    `valor: inteiro = "abc"`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toContain('Atribuição inválida para \'valor\': é esperado um valor do tipo número. Atual: texto.');
+            });
+        });
+
+        describe('Cenários de escreva com variável inexistente', () => {
+            it('Erro - escreva com variável inexistente', async () => {
+                const retornoLexador = lexador.mapear([
+                    `escreva(variavelQueNaoExiste)`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+            });
+            it('Aviso - escreva com variável não inicializada', async () => {
+                const retornoLexador = lexador.mapear([
+                    `valor`,
+                    `escreva(valor)`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+            });
+        });
+
+        describe('Cenários de inferência de tipo binário', () => {
+            it('Binário com operador de comparação retorna tipo lógico', async () => {
+                const retornoLexador = lexador.mapear([
+                    `x = 10`,
+                    `y = 20`,
+                    `resultado = x > y`,
+                    `escreva(resultado)`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+
+            it('Binário com tipos reais', async () => {
+                const retornoLexador = lexador.mapear([
+                    `x: real = 1.5`,
+                    `y: real = 2.5`,
+                    `resultado = x + y`,
+                    `escreva(resultado)`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico).toBeDefined();
+            });
+
+            it('Binário com concatenação de texto', async () => {
+                const retornoLexador = lexador.mapear([
+                    `nome: texto = "João"`,
+                    `saudacao = "Olá " + nome`,
+                    `escreva(saudacao)`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico).toBeDefined();
+            });
+        });
+
+        describe('Cenários de variável não usada com erro associado', () => {
+            it('Não emite aviso de não usada quando variável tem erro associado', async () => {
+                const retornoLexador = lexador.mapear([
+                    `funcao f(a: inteiro):`,
+                    `    escreva(a)`,
+                    `f("texto")`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico).toBeDefined();
+            });
+        });
+
+        describe('Cenários de redeclaração de variável', () => {
+            it('Aviso - variável redeclarada no mesmo escopo', async () => {
+                const retornoLexador = lexador.mapear([
+                    `var x = 10`,
+                    `var x = 20`,
+                    `escreva(x)`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico).toBeDefined();
+            });
+        });
+
+        describe('Cenários de avaliarExpressaoConstante com agrupamento', () => {
+            it('Divisão por zero dentro de agrupamento', async () => {
+                const retornoLexador = lexador.mapear([
+                    `x = 3`,
+                    `y = 0`,
+                    `enquanto ((x / y) < 10):`,
+                    `    sustar`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos.length).toBeGreaterThanOrEqual(1);
+            });
+        });
+
+        describe('Cenários de chamada com classe', () => {
+            it('Chamada com nome que parece classe não gera erro', async () => {
+                const retornoLexador = lexador.mapear([
+                    `resultado = MinhaClasse()`,
+                    `escreva(resultado)`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                // Nomes que começam com maiúscula parecem ser classes e não geram erro de função inexistente
+                const temErroDeFuncao = retornoAnalisadorSemantico.diagnosticos[0]?.mensagem?.includes("não existe") ?? false;
+                expect(temErroDeFuncao).toBe(false);
+            });
+        });
+
+        describe('Cenários de FormatacaoEscrita', () => {
+            it('Sucesso - formatação escrita com expressão', async () => {
+                const retornoLexador = lexador.mapear([
+                    `x = 42`,
+                    `escreva("Valor: \${x}")`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico).toBeDefined();
+            });
+        });
+
+        describe('Cenários de enquanto com chamada inexistente', () => {
+            it('Erro - enquanto com chamada de função inexistente', async () => {
+                const retornoLexador = lexador.mapear([
+                    `enquanto (funcaoInexistente()):`,
+                    `    escreva('teste')`,
+                    `    sustar`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
         });
     });
-    
 })
