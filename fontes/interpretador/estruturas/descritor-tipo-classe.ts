@@ -143,8 +143,8 @@ export class DescritorTipoClasse extends Chamavel {
             return [cls];
         }
 
-        const mrosDePais = cls.superClasses.map((p) => DescritorTipoClasse.computarOReM(p));
-        const listas = [...mrosDePais.map((m) => [...m]), [...cls.superClasses]];
+        const oremsDePais = cls.superClasses.map((p) => DescritorTipoClasse.computarOReM(p));
+        const listas = [...oremsDePais.map((m) => [...m]), [...cls.superClasses]];
         return [cls, ...DescritorTipoClasse.mesclaC3(listas)];
     }
 

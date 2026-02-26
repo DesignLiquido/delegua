@@ -77,7 +77,7 @@ export class ObjetoDeleguaClasse {
                 );
             }
         } else if (acesso === 'protegido') {
-            const eAcessivel = classeAtual?.mro?.includes(declaradorClasse) ?? false;
+            const eAcessivel = classeAtual?.orem?.includes(declaradorClasse) ?? false;
             if (!eAcessivel) {
                 throw new ErroEmTempoDeExecucao(
                     simbolo,
