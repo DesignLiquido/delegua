@@ -184,6 +184,10 @@ export class AvaliadorSintatico
             return this.simbolos[this.atual].lexema;
         }
 
+        if (this.simbolos[this.atual].lexema in this.interfacesDeclaradas) {
+            return this.simbolos[this.atual].lexema;
+        }
+
         const lexemaElementar = this.simbolos[this.atual].lexema.toLowerCase();
         const tipoElementarResolvido = tipos.find((tipo) => tipo === lexemaElementar);
         if (!tipoElementarResolvido) {

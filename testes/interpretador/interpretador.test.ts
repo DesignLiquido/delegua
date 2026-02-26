@@ -5144,10 +5144,45 @@ describe('Interpretador', () => {
                     'classe Produto implementa Identificavel {',
                     '    id: numero',
                     '    nome: texto',
-                    '    construtor(i, n) { isto.id = i \n isto.nome = n }',
+                    '    construtor(i, n) { ',
+                    '        isto.id = i',
+                    '        isto.nome = n',
+                    '    }',
                     '    identificar() { retorna isto.nome }',
                     '}',
                     'var p = Produto(1, "Caneta")',
+                    'escreva(p.identificar())',
+                    'escreva(p.id)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('Caneta');
+                expect(_saidas[1]).toBe('1');
+            });
+
+            it('Variável pode ser anotada com tipo de interface', async () => {
+                const codigo = [
+                    'interface Identificavel {',
+                    '    id: numero',
+                    '    identificar(): texto',
+                    '}',
+                    'classe Produto implementa Identificavel {',
+                    '    id: numero',
+                    '    nome: texto',
+                    '    construtor(i, n) { ',
+                    '        isto.id = i',
+                    '        isto.nome = n',
+                    '    }',
+                    '    identificar() { retorna isto.nome }',
+                    '}',
+                    'var p: Identificavel = Produto(1, "Caneta")',
                     'escreva(p.identificar())',
                     'escreva(p.id)',
                 ];
