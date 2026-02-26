@@ -182,7 +182,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
         if (objeto instanceof Literal || objeto instanceof Tupla) return objeto.paraTextoSaida();
-        if (objeto instanceof ObjetoDeleguaClasse || objeto instanceof DeleguaFuncao)
+        if (objeto instanceof ObjetoDeleguaClasse || objeto instanceof DeleguaFuncao || objeto instanceof DescritorTipoClasse)
             return objeto.paraTexto();
 
         if (objeto instanceof RetornoQuebra) {

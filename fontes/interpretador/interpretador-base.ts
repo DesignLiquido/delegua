@@ -2127,26 +2127,41 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @returns Sempre retorna nulo, por ser requerido pelo contrato de visita.
      */
     async visitarDeclaracaoClasse(declaracao: Classe): Promise<DescritorTipoClasse> {
-        let superClasse = null;
-        if (declaracao.superClasse !== null && declaracao.superClasse !== undefined) {
-            const variavelSuperClasse: VariavelInterface = await this.avaliar(
-                declaracao.superClasse
-            );
-            superClasse = variavelSuperClasse.valor;
+        // Resolver cada superclasse listada em `herda A, B, ...`
+        const superClassesResolvidas: DescritorTipoClasse[] = [];
+        for (const superClasseVariavel of declaracao.superClasses) {
+            const variavelSuperClasse: VariavelInterface = await this.avaliar(superClasseVariavel);
+            const superClasse = variavelSuperClasse.valor;
             if (!(superClasse instanceof DescritorTipoClasse)) {
                 throw new ErroEmTempoDeExecucao(
-                    declaracao.superClasse.nome,
+                    superClasseVariavel.nome,
                     'Superclasse precisa ser uma classe.',
                     declaracao.linha
                 );
             }
+            superClassesResolvidas.push(superClasse);
+        }
+
+        // Resolver cada misturável listado em `mescla X, Y, ...`
+        const mesclaResolvidas: DescritorTipoClasse[] = [];
+        for (const mesclaVariavel of declaracao.mesclas) {
+            const variavelMisturavel: VariavelInterface = await this.avaliar(mesclaVariavel);
+            const misturável = variavelMisturavel.valor;
+            if (!(misturável instanceof DescritorTipoClasse)) {
+                throw new ErroEmTempoDeExecucao(
+                    mesclaVariavel.nome,
+                    'Misturável precisa ser uma classe.',
+                    declaracao.linha
+                );
+            }
+            mesclaResolvidas.push(misturável);
         }
 
         // TODO: Precisamos disso?
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, declaracao);
 
-        if (declaracao.superClasse !== null && declaracao.superClasse !== undefined) {
-            this.pilhaEscoposExecucao.definirVariavel('super', superClasse);
+        if (superClassesResolvidas.length > 0) {
+            this.pilhaEscoposExecucao.definirVariavel('super', superClassesResolvidas[0]);
         }
 
         const metodos: { [nome: string]: DeleguaFuncao | DeleguaFuncao[] } = {};
@@ -2231,7 +2246,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         const descritorTipoClasse: DescritorTipoClasse = new DescritorTipoClasse(
             declaracao.simbolo,
-            superClasse,
+            superClassesResolvidas,
             metodos,
             declaracao.propriedades
         );
@@ -2250,14 +2265,48 @@ export class InterpretadorBase implements InterpretadorInterface {
         // Toda classe sem superclasse explícita herda implicitamente de `Objeto`.
         // Isso só deve acontecer quando OBJETO_BASE já estiver inicializado e a classe
         // atual não for o próprio OBJETO_BASE, para evitar cadeias de herança recursivas.
-        if (!descritorTipoClasse.superClasse && OBJETO_BASE && descritorTipoClasse !== OBJETO_BASE) {
-            descritorTipoClasse.superClasse = OBJETO_BASE;
+        if (descritorTipoClasse.superClasses.length === 0 && OBJETO_BASE && descritorTipoClasse !== OBJETO_BASE) {
+            descritorTipoClasse.superClasses = [OBJETO_BASE];
+        }
+
+        // Calcular o OReM (linearização C3) após os pais estarem definidos.
+        descritorTipoClasse.orem = DescritorTipoClasse.computarOReM(descritorTipoClasse);
+
+        // Mesclar métodos e propriedades dos misturávels (primeiro misturável ganha se não definido na classe).
+        for (const misturável of mesclaResolvidas) {
+            for (const [nome, funcao] of Object.entries(misturável.metodos)) {
+                if (!descritorTipoClasse.metodos.hasOwnProperty(nome)) {
+                    descritorTipoClasse.metodos[nome] = funcao;
+                }
+            }
+            for (const [nome, funcao] of Object.entries(misturável.obtenedores)) {
+                if (!descritorTipoClasse.obtenedores.hasOwnProperty(nome)) {
+                    descritorTipoClasse.obtenedores[nome] = funcao;
+                }
+            }
+            for (const [nome, funcao] of Object.entries(misturável.definidores)) {
+                if (!descritorTipoClasse.definidores.hasOwnProperty(nome)) {
+                    descritorTipoClasse.definidores[nome] = funcao;
+                }
+            }
+            for (const prop of misturável.propriedades) {
+                const jaDeclarada = descritorTipoClasse.propriedades.some(
+                    (p) => p.nome.lexema === prop.nome.lexema
+                );
+                if (!jaDeclarada) {
+                    descritorTipoClasse.propriedades.push(prop);
+                }
+            }
         }
 
         // Verifica se a subclasse concreta implementa todos os métodos abstratos
-        // da superclasse abstrata.
-        if (!declaracao.abstrata && superClasse && superClasse.abstrata) {
-            superClasse.verificarImplementacaoAbstrata(descritorTipoClasse);
+        // da(s) superclasse(s) abstrata(s).
+        if (!declaracao.abstrata) {
+            for (const superClasse of superClassesResolvidas) {
+                if (superClasse.abstrata) {
+                    superClasse.verificarImplementacaoAbstrata(descritorTipoClasse);
+                }
+            }
         }
 
         // TODO: Até então, a única exceção a isso é Égua Clássico.
@@ -2728,7 +2777,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
         if (objeto instanceof Literal) return this.paraTexto(objeto.valor);
-        if (objeto instanceof ObjetoDeleguaClasse || objeto instanceof DeleguaFuncao)
+        if (objeto instanceof ObjetoDeleguaClasse || objeto instanceof DeleguaFuncao || objeto instanceof DescritorTipoClasse)
             return objeto.paraTexto();
 
         if (objeto instanceof RetornoQuebra) {

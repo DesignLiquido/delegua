@@ -284,8 +284,8 @@ propertyAtribuicao
     : nomePropriedade ':' expressaoUnica                                             # PropertyExpressaoAtribuicao
     | '[' expressaoUnica ']' ':' expressaoUnica                                      # ComputedPropertyExpressaoAtribuicao
     | Assincrono? '*'? nomePropriedade '(' listaFormalParametros?  ')'  corpoFuncao  # FunctionProperty
-    | obtenedor '(' ')' corpoFuncao                                                  # PropertyGetter
-    | definidor '(' parametroArgumentoFormal ')' corpoFuncao                         # PropertySetter
+    | obtenedor '(' ')' corpoFuncao                                                  # PropertyObtenedor
+    | definidor '(' parametroArgumentoFormal ')' corpoFuncao                         # PropertyDefinidor
     | TresPontos? expressaoUnica                                                     # PropertyShorthand
     ;
 

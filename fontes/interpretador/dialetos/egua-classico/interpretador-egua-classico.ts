@@ -980,6 +980,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         }
 
         const deleguaClasse = new DescritorTipoClasse(declaracao.simbolo, superClasse, metodos);
+        deleguaClasse.orem = DescritorTipoClasse.computarOReM(deleguaClasse);
 
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, deleguaClasse);
         return null;

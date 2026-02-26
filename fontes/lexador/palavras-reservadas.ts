@@ -40,6 +40,7 @@ export const palavrasReservadasDelegua = {
     função: tiposDeSimbolos.FUNÇÃO,
     herda: tiposDeSimbolos.HERDA,
     implementa: tiposDeSimbolos.IMPLEMENTA,
+    mescla: tiposDeSimbolos.MESCLA,
     importar: tiposDeSimbolos.IMPORTAR,
     importe: tiposDeSimbolos.IMPORTAR,
     interface: tiposDeSimbolos.INTERFACE,

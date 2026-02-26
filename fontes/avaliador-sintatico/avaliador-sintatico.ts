@@ -3410,18 +3410,23 @@ export class AvaliadorSintatico
         this.tiposDefinidosEmCodigo[simbolo.lexema] = this.tiposDefinidosEmCodigo[simbolo.lexema] ?? ({} as any);
         const pilhaDecoradoresClasse = Array.from(this.pilhaDecoradores);
 
-        let superClasse = null;
+        // Verificar `herda SuperclasseA, SuperclasseB`
+        const superClasses: Variavel[] = [];
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.HERDA)) {
-            const simboloSuperclasse = this.consumir(
-                tiposDeSimbolos.IDENTIFICADOR,
-                'Esperado nome da Superclasse.'
-            );
-            this.superclasseAtual = simboloSuperclasse.lexema;
-            superClasse = new Variavel(
-                this.hashArquivo,
-                this.simbolos[this.atual - 1],
-                simboloSuperclasse.lexema
-            );
+            do {
+                const simboloSuperclasse = this.consumir(
+                    tiposDeSimbolos.IDENTIFICADOR,
+                    'Esperado nome da Superclasse.'
+                );
+                if (superClasses.length === 0) {
+                    this.superclasseAtual = simboloSuperclasse.lexema;
+                }
+                superClasses.push(new Variavel(
+                    this.hashArquivo,
+                    this.simbolos[this.atual - 1],
+                    simboloSuperclasse.lexema
+                ));
+            } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         }
 
         // Verificar `implementa InterfaceA, InterfaceB`
@@ -3431,6 +3436,22 @@ export class AvaliadorSintatico
                 implementaInterfaces.push(
                     this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de interface após "implementa".')
                 );
+            } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+        }
+
+        // Verificar `mescla MisturávelA, MisturávelB`
+        const mesclas: Variavel[] = [];
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.MESCLA)) {
+            do {
+                const simboloMisturavel = this.consumir(
+                    tiposDeSimbolos.IDENTIFICADOR,
+                    'Esperado nome de classe após "mescla".'
+                );
+                mesclas.push(new Variavel(
+                    this.hashArquivo,
+                    this.simbolos[this.atual - 1],
+                    simboloMisturavel.lexema
+                ));
             } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         }
 
@@ -3776,13 +3797,14 @@ export class AvaliadorSintatico
 
         const definicaoClasse = new Classe(
             simbolo,
-            superClasse,
+            superClasses,
             metodos,
             propriedades,
             pilhaDecoradoresClasse,
             ehAbstrata,
             ehEstatica,
-            implementaInterfaces
+            implementaInterfaces,
+            mesclas
         );
         this.tiposDefinidosEmCodigo[definicaoClasse.simbolo.lexema] = definicaoClasse;
         this.superclasseAtual = undefined;

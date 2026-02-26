@@ -4784,7 +4784,7 @@ describe('Interpretador', () => {
         });
 
         describe('Auto-propriedades', () => {
-            it('Auto-propriedade com obter e definir funciona como getter/setter automático', async () => {
+            it('Auto-propriedade com obter e definir funciona como obtenedor/definidor automático', async () => {
                 const codigo = [
                     'classe Pessoa {',
                     '    nome: texto { obter; definir; }',
@@ -4817,7 +4817,7 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(1);
             });
 
-            it('Getter e setter com corpo personalizado funcionam corretamente', async () => {
+            it('Obtenedor e definidor com corpo personalizado funcionam corretamente', async () => {
                 const codigo = [
                     'classe Pessoa {',
                     '    _nome: texto',
@@ -5167,6 +5167,42 @@ describe('Interpretador', () => {
                 expect(_saidas[1]).toBe('1');
             });
 
+            it('Subclasse herda métodos e propriedades da superclasse sem interfaces', async () => {
+                const codigo = [
+                    'classe Veiculo {',
+                    '    marca: texto',
+                    '    construtor(m) { isto.marca = m }',
+                    '    descricao() { retorna isto.marca }',
+                    '}',
+                    'classe Anfibio {',
+                    '    modeloAsa: numero',
+                    '}',
+                    'classe HidroCarro herda Veiculo, Anfibio {',
+                    '    portas: numero',
+                    '    construtor(m, p) {',
+                    '        super(m)',
+                    '        isto.portas = p',
+                    '        isto.modeloAsa = 1',
+                    '    }',
+                    '    descricao() { retorna isto.marca + " " + isto.portas + " portas, modelo de asa " + isto.modeloAsa }',
+                    '}',
+                    'var c = HidroCarro("Toyota", 4)',
+                    'escreva(c.descricao())',
+                    'escreva(c.marca)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('Toyota 4 portas, modelo de asa 1');
+                expect(_saidas[1]).toBe('Toyota');
+            });
+
             it('Variável pode ser anotada com tipo de interface', async () => {
                 const codigo = [
                     'interface Identificavel {',
@@ -5197,6 +5233,134 @@ describe('Interpretador', () => {
                 expect(_saidas).toHaveLength(2);
                 expect(_saidas[0]).toBe('Caneta');
                 expect(_saidas[1]).toBe('1');
+            });
+        });
+
+        describe('Herança múltipla e misturávels', () => {
+            it('MRO: método do primeiro pai listado tem prioridade sobre o segundo', async () => {
+                const codigo = [
+                    'classe A {',
+                    '    saudar() { escreva("A") }',
+                    '}',
+                    'classe B {',
+                    '    saudar() { escreva("B") }',
+                    '}',
+                    'classe C herda A, B { }',
+                    'var c = C()',
+                    'c.saudar()',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('A');
+            });
+
+            it('mescla: métodos do misturável ficam disponíveis na instância', async () => {
+                const codigo = [
+                    'classe Logavel {',
+                    '    log() { escreva("log") }',
+                    '}',
+                    'classe Servico mescla Logavel {',
+                    '    executar() { escreva("executar") }',
+                    '}',
+                    'var s = Servico()',
+                    's.executar()',
+                    's.log()',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('executar');
+                expect(_saidas[1]).toBe('log');
+            });
+
+            it('mescla: método da classe tem prioridade sobre o do misturável', async () => {
+                const codigo = [
+                    'classe Logavel {',
+                    '    log() { escreva("misturável") }',
+                    '}',
+                    'classe Servico mescla Logavel {',
+                    '    log() { escreva("classe") }',
+                    '}',
+                    'var s = Servico()',
+                    's.log()',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('classe');
+            });
+
+            it('mescla: eInstanciaDe retorna falso para o misturável', async () => {
+                const codigo = [
+                    'classe Logavel { }',
+                    'classe Servico mescla Logavel { }',
+                    'var s = Servico()',
+                    'escreva(s.eInstanciaDe(Logavel))',
+                    'escreva(s.eInstanciaDe(Servico))',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('falso');
+                expect(_saidas[1]).toBe('verdadeiro');
+            });
+
+            it('mescla: propriedades do mixin são copiadas para a instância', async () => {
+                const codigo = [
+                    'classe Logavel {',
+                    '    nivel: texto',
+                    '    prefixo: texto',
+                    '}',
+                    'classe Servico mescla Logavel {',
+                    '    nome: texto',
+                    '    construtor(n) {',
+                    '        isto.nome = n',
+                    '        isto.nivel = "info"',
+                    '        isto.prefixo = "[SVC]"',
+                    '    }',
+                    '}',
+                    'var s = Servico("pagamento")',
+                    'escreva(s.nome)',
+                    'escreva(s.nivel)',
+                    'escreva(s.prefixo)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(3);
+                expect(_saidas[0]).toBe('pagamento');
+                expect(_saidas[1]).toBe('info');
+                expect(_saidas[2]).toBe('[SVC]');
             });
         });
 

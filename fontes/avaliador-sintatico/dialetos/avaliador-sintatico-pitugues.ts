@@ -2227,7 +2227,7 @@ export class AvaliadorSintaticoPitugues
         }
 
         this.superclasseAtual = undefined;
-        const definicaoClasse = new Classe(simbolo, superClasse, metodos, propriedades);
+        const definicaoClasse = new Classe(simbolo, superClasse ? [superClasse] : [], metodos, propriedades);
         if (possivelDocumentacao) {
             definicaoClasse.documentacao = possivelDocumentacao;
         }

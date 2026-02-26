@@ -23,8 +23,12 @@ export class ObjetoDeleguaClasse {
     constructor(classe: DescritorTipoClasse) {
         this.classe = classe;
         this.propriedades = {};
-        if (this.classe.superClasse) {
-            for (let propriedade of this.classe.superClasse.propriedades) {
+
+        // Inicializar propriedades herdadas do OReM (do mais genérico ao mais específico)
+        // para que ancestrais mais próximos sobrescrevam os mais distantes.
+        const ancestrais = classe.orem.slice(1).reverse();
+        for (const ancestral of ancestrais) {
+            for (const propriedade of ancestral.propriedades) {
                 if (propriedade.estatico) continue;
                 if (propriedade.autoObter || propriedade.autoDefinir) {
                     this.propriedades['_' + propriedade.nome.lexema] = this.valorPadraoParaTipo(propriedade.tipo);
@@ -34,7 +38,8 @@ export class ObjetoDeleguaClasse {
             }
         }
 
-        for (let propriedade of classe.propriedades) {
+        // Propriedades da própria classe (têm prioridade máxima no valor padrão)
+        for (const propriedade of classe.propriedades) {
             if (propriedade.estatico) continue;
             if (propriedade.autoObter || propriedade.autoDefinir) {
                 this.propriedades['_' + propriedade.nome.lexema] = this.valorPadraoParaTipo(propriedade.tipo);
@@ -49,18 +54,16 @@ export class ObjetoDeleguaClasse {
         simbolo: SimboloInterface,
         visitante?: InterpretadorInterface
     ): void {
-        // Percorre a hierarquia para encontrar a classe que declarou o membro com um modificador de acesso.
+        // Percorre o OReM para encontrar a classe que declarou o membro com um modificador de acesso.
         let declaradorClasse: DescritorTipoClasse | undefined = undefined;
         let acesso: 'privado' | 'protegido' | 'publico' | undefined = undefined;
-        let cls: DescritorTipoClasse = this.classe;
-        while (cls) {
+        for (const cls of this.classe.orem) {
             const acessoCls = cls.acessoPropriedades?.[nome] ?? cls.acessoMetodos?.[nome];
             if (acessoCls) {
                 acesso = acessoCls;
                 declaradorClasse = cls;
                 break;
             }
-            cls = cls.superClasse;
         }
 
         if (!acesso || acesso === 'publico') return;
@@ -74,12 +77,7 @@ export class ObjetoDeleguaClasse {
                 );
             }
         } else if (acesso === 'protegido') {
-            let clsAtual = classeAtual;
-            let eAcessivel = false;
-            while (clsAtual) {
-                if (clsAtual === declaradorClasse) { eAcessivel = true; break; }
-                clsAtual = clsAtual.superClasse;
-            }
+            const eAcessivel = classeAtual?.mro?.includes(declaradorClasse) ?? false;
             if (!eAcessivel) {
                 throw new ErroEmTempoDeExecucao(
                     simbolo,

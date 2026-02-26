@@ -1163,11 +1163,18 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     }
 
     private estaEmClasseOuSubclasse(nomeClasse: string): boolean {
-        let atual: Classe | null = this.classeAtualEmAnalise;
-        while (atual !== null) {
+        const visitados = new Set<string>();
+        const pilha: (Classe | null)[] = [this.classeAtualEmAnalise];
+        while (pilha.length > 0) {
+            const atual = pilha.pop();
+            if (!atual) continue;
+            if (visitados.has(atual.simbolo.lexema)) continue;
+            visitados.add(atual.simbolo.lexema);
             if (atual.simbolo.lexema === nomeClasse) return true;
-            if (!atual.superClasse) break;
-            atual = this.classesRegistradas.get(atual.superClasse.simbolo.lexema) ?? null;
+            for (const sc of atual.superClasses) {
+                const pai = this.classesRegistradas.get(sc.simbolo.lexema) ?? null;
+                if (pai) pilha.push(pai);
+            }
         }
         return false;
     }
@@ -1205,16 +1212,16 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     }
 
     override async visitarDeclaracaoClasse(declaracao: Classe): Promise<any> {
-        if (declaracao.superClasse) {
-            const nomeSuperclasse: string = declaracao.superClasse.simbolo.lexema;
+        for (const superClasseVariavel of declaracao.superClasses) {
+            const nomeSuperclasse: string = superClasseVariavel.simbolo.lexema;
             if (nomeSuperclasse === declaracao.simbolo.lexema) {
                 this.erro(
-                    declaracao.superClasse.simbolo,
+                    superClasseVariavel.simbolo,
                     `A classe '${declaracao.simbolo.lexema}' não pode herdar de si mesma.`
                 );
             } else if (!this.classesDeclararadas.has(nomeSuperclasse)) {
                 this.erro(
-                    declaracao.superClasse.simbolo,
+                    superClasseVariavel.simbolo,
                     `Superclasse '${nomeSuperclasse}' não foi declarada.`
                 );
             }

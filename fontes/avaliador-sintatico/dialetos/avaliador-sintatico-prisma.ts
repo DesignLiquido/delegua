@@ -1118,7 +1118,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após métodos da classe.");
 
         this.superclasseAtual = undefined;
-        const definicaoClasse = new Classe(simbolo, superClasse, metodos);
+        const definicaoClasse = new Classe(simbolo, superClasse ? [superClasse] : [], metodos);
         this.tiposDefinidosEmCodigo[definicaoClasse.simbolo.lexema] = definicaoClasse;
         return definicaoClasse;
     }
