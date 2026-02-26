@@ -4697,6 +4697,29 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
             });
 
+            it('Classe abstrata com bloco protegido pode ter propriedades de tipo vetor', async () => {
+                const codigo = [
+                    'classe abstrata Poligono {',
+                    '    protegido {',
+                    '        arestas: dupla[]',
+                    '    }',
+                    '}',
+                    'classe Triangulo herda Poligono {',
+                    '    construtor(a1, a2, a3) {',
+                    '        isto.arestas = [a1, a2, a3]',
+                    '    }',
+                    '}',
+                    'var tri = Triangulo((0, 0), (2, 4), (4, 4))',
+                    'escreva(tri.arestas[0])',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+            });
+
             it('Classe abstrata pode ter métodos concretos herdados pela subclasse', async () => {
                 const codigo = [
                     'classe abstrata Animal {',

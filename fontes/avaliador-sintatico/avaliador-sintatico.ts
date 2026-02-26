@@ -3631,10 +3631,16 @@ export class AvaliadorSintatico
                         );
                         this.consumir(tiposDeSimbolos.DOIS_PONTOS, 'Esperado dois-pontos após nome de propriedade.');
                         const tipoPropriedade = this.avancarEDevolverAnterior();
+                        let nomeTipoPropriedade = tipoPropriedade.lexema;
+                        if (this.verificarTipoSimboloAtual(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
+                            this.avancarEDevolverAnterior(); // consume '['
+                            this.consumir(tiposDeSimbolos.COLCHETE_DIREITO, "Esperado ']' após '[' na definição do tipo de propriedade.");
+                            nomeTipoPropriedade = `${nomeTipoPropriedade}[]`;
+                        }
 
                         const prop = new PropriedadeClasse(
                             nomePropriedade,
-                            tipoPropriedade.lexema,
+                            nomeTipoPropriedade,
                             Array.from(this.pilhaDecoradores),
                             modificadorAcesso,
                             ehEstatico

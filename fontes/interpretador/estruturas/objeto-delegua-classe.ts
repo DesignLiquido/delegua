@@ -49,28 +49,41 @@ export class ObjetoDeleguaClasse {
         simbolo: SimboloInterface,
         visitante?: InterpretadorInterface
     ): void {
-        const acesso = this.classe.acessoPropriedades?.[nome] ?? this.classe.acessoMetodos?.[nome];
+        // Percorre a hierarquia para encontrar a classe que declarou o membro com um modificador de acesso.
+        let declaradorClasse: DescritorTipoClasse | undefined = undefined;
+        let acesso: 'privado' | 'protegido' | 'publico' | undefined = undefined;
+        let cls: DescritorTipoClasse = this.classe;
+        while (cls) {
+            const acessoCls = cls.acessoPropriedades?.[nome] ?? cls.acessoMetodos?.[nome];
+            if (acessoCls) {
+                acesso = acessoCls;
+                declaradorClasse = cls;
+                break;
+            }
+            cls = cls.superClasse;
+        }
+
         if (!acesso || acesso === 'publico') return;
 
         const classeAtual = (visitante as any)?.classeAtualEmExecucao;
         if (acesso === 'privado') {
-            if (classeAtual !== this.classe) {
+            if (classeAtual !== declaradorClasse) {
                 throw new ErroEmTempoDeExecucao(
                     simbolo,
-                    `Membro '${nome}' é privado e não pode ser acessado fora da classe '${this.classe.simboloOriginal?.lexema}'.`
+                    `Membro '${nome}' é privado e não pode ser acessado fora da classe '${declaradorClasse.simboloOriginal?.lexema}'.`
                 );
             }
         } else if (acesso === 'protegido') {
-            let cls = classeAtual;
+            let clsAtual = classeAtual;
             let eAcessivel = false;
-            while (cls) {
-                if (cls === this.classe) { eAcessivel = true; break; }
-                cls = cls.superClasse;
+            while (clsAtual) {
+                if (clsAtual === declaradorClasse) { eAcessivel = true; break; }
+                clsAtual = clsAtual.superClasse;
             }
             if (!eAcessivel) {
                 throw new ErroEmTempoDeExecucao(
                     simbolo,
-                    `Membro '${nome}' é protegido e não pode ser acessado fora da hierarquia da classe '${this.classe.simboloOriginal?.lexema}'.`
+                    `Membro '${nome}' é protegido e não pode ser acessado fora da hierarquia da classe '${declaradorClasse.simboloOriginal?.lexema}'.`
                 );
             }
         }
