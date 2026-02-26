@@ -5201,6 +5201,41 @@ describe('Interpretador', () => {
                 expect(_saidas[0]).toBe('falso');
             });
 
+            it('éInstânciaDe() é equivalente a eInstanciaDe()', async () => {
+                const codigo = [
+                    'classe Animal { }',
+                    'classe Cachorro herda Animal { }',
+                    'var d = Cachorro()',
+                    'escreva(d.éInstânciaDe(Cachorro))',
+                    'escreva(d.éInstânciaDe(Animal))',
+                    'escreva(d.éInstânciaDe(Objeto))',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(3);
+                expect(_saidas[0]).toBe('verdadeiro');
+                expect(_saidas[1]).toBe('verdadeiro');
+                expect(_saidas[2]).toBe('verdadeiro');
+            });
+
+            it('métodos() é equivalente a metodos()', async () => {
+                const codigo = [
+                    'classe Carro {',
+                    '    acelerar() { }',
+                    '}',
+                    'var c = Carro()',
+                    'c.métodos()',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
             it('respondeA() retorna verdadeiro para método existente', async () => {
                 const codigo = [
                     'classe Carro {',
@@ -5284,6 +5319,243 @@ describe('Interpretador', () => {
                 expect(_saidas).toHaveLength(2);
                 expect(_saidas[0]).toBe('(3, 4)');
                 expect(_saidas[1]).toBe('(9, 4)');
+            });
+        });
+
+        describe('Formas acentuadas de métodos e funções nativas', () => {
+            describe('Métodos de texto', () => {
+                it('maiúsculo() é equivalente a maiusculo()', async () => {
+                    const codigo = [
+                        'var t = "olá mundo"',
+                        'escreva(t.maiúsculo())',
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('OLÁ MUNDO');
+                });
+
+                it('minúsculo() é equivalente a minusculo()', async () => {
+                    const codigo = [
+                        'var t = "OLÁ MUNDO"',
+                        'escreva(t.minúsculo())',
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('olá mundo');
+                });
+
+                it('tudoMaiúsculo() é equivalente a tudoMaiusculo()', async () => {
+                    const codigo = [
+                        'var t = "TUDO MAIÚSCULO"',
+                        'escreva(t.tudoMaiúsculo())',
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('verdadeiro');
+                });
+
+                it('tudoMinúsculo() é equivalente a tudoMinusculo()', async () => {
+                    const codigo = [
+                        'var t = "tudo minúsculo"',
+                        'escreva(t.tudoMinúsculo())',
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('verdadeiro');
+                });
+
+                it('apararInício() é equivalente a apararInicio()', async () => {
+                    const codigo = [
+                        'var t = "   olá"',
+                        'escreva(t.apararInício())',
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('olá');
+                });
+            });
+
+            describe('Métodos de vetor', () => {
+                it('removerÚltimo() é equivalente a removerUltimo()', async () => {
+                    const codigo = [
+                        'var v = [1, 2, 3]',
+                        'var ultimo = v.removerÚltimo()',
+                        'escreva(ultimo)',
+                        'escreva(v)',
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(2);
+                    expect(_saidas[0]).toBe('3');
+                    expect(_saidas[1]).toBe('[1, 2]');
+                });
+            });
+
+            describe('Funções globais', () => {
+                it('aleatório() é equivalente a aleatorio()', async () => {
+                    const codigo = [
+                        'var n = aleatório()',
+                        'escreva(n >= 0)',
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('verdadeiro');
+                });
+
+                it('aleatórioEntre() é equivalente a aleatorioEntre()', async () => {
+                    const codigo = [
+                        'var n = aleatórioEntre(1, 10)',
+                        'escreva(n >= 1)',
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('verdadeiro');
+                });
+
+                it('encontrarÍndice() é equivalente a encontrarIndice()', async () => {
+                    const codigo = [
+                        'var v = [10, 20, 30]',
+                        'escreva(encontrarÍndice(v, funcao(x) { retorna x == 10 }))',
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('0');
+                });
+
+                it('encontrarÚltimo() é equivalente a encontrarUltimo()', async () => {
+                    const codigo = [
+                        'var v = [1, 2, 3, 2]',
+                        'escreva(encontrarÚltimo(v, funcao(x) { retorna x == 2 }))',
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('2');
+                });
+
+                it('encontrarÚltimoÍndice() é equivalente a encontrarUltimoIndice()', async () => {
+                    const codigo = [
+                        'var v = [1, 2, 3, 2]',
+                        'escreva(encontrarÚltimoÍndice(v, funcao(x) { retorna x == 2 }))',
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('3');
+                });
+
+                it('incluído() é equivalente a incluido()', async () => {
+                    const codigo = [
+                        'var v = [1, 2, 3]',
+                        'escreva(incluído(v, 2))',
+                        'escreva(incluído(v, 5))',
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(2);
+                    expect(_saidas[0]).toBe('verdadeiro');
+                    expect(_saidas[1]).toBe('falso');
+                });
+
+                it('máximo() é equivalente a maximo()', async () => {
+                    const codigo = [
+                        'var v = [3, 1, 4, 1, 5, 9]',
+                        'escreva(máximo(v))',
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('9');
+                });
+
+                it('mínimo() é equivalente a minimo()', async () => {
+                    const codigo = [
+                        'var v = [3, 1, 4, 1, 5, 9]',
+                        'escreva(mínimo(v))',
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('1');
+                });
+
+                it('primeiroEmCondição() é equivalente a primeiroEmCondicao()', async () => {
+                    const codigo = [
+                        'var v = [4, 5, 6]',
+                        'escreva(primeiroEmCondição(v, funcao(x) { retorna x > 3 }))',
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('verdadeiro');
+                });
+
+                it('todosEmCondição() é equivalente a todosEmCondicao()', async () => {
+                    const codigo = [
+                        'var v = [2, 4, 6]',
+                        'escreva(todosEmCondição(v, funcao(x) { retorna x % 2 == 0 }))',
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('verdadeiro');
+                });
             });
         });
 

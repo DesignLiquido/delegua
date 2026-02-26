@@ -534,6 +534,28 @@ export default {
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'vetor.removerUltimo()',
     },
+    removerÚltimo: {
+        tipoRetorno: 'qualquer',
+        argumentos: [],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            vetor: Array<any>
+        ): Promise<any> => {
+            let elemento = vetor.pop();
+            return Promise.resolve(elemento);
+        },
+        assinaturaFormato: 'vetor.removerÚltimo()',
+        documentacao:
+            '# `vetor.removerÚltimo()` \n \n' +
+            'Remove o último elemento do vetor caso o elemento exista no vetor.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar vetor = [1, 2, 3]\n' +
+            'var ultimoElemento = vetor.removerÚltimo()\n' +
+            'escreva(ultimoElemento) // 3\n' +
+            'escreva(vetor) // [1, 2]\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'vetor.removerÚltimo()',
+    },
     somar: {
         tipoRetorno: 'qualquer',
         argumentos: [],

@@ -4120,8 +4120,19 @@ export class AvaliadorSintatico
             new InformacaoElementoSintatico('aleatorio', 'número')
         );
         this.pilhaEscopos.definirInformacoesVariavel(
+            'aleatório',
+            new InformacaoElementoSintatico('aleatório', 'número')
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
             'aleatorioEntre',
             new InformacaoElementoSintatico('aleatorioEntre', 'número', true, [
+                new InformacaoElementoSintatico('minimo', 'número'),
+                new InformacaoElementoSintatico('maximo', 'número'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'aleatórioEntre',
+            new InformacaoElementoSintatico('aleatórioEntre', 'número', true, [
                 new InformacaoElementoSintatico('minimo', 'número'),
                 new InformacaoElementoSintatico('maximo', 'número'),
             ])
@@ -4154,6 +4165,13 @@ export class AvaliadorSintatico
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
+            'encontrarÍndice',
+            new InformacaoElementoSintatico('encontrarÍndice', 'inteiro', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+                new InformacaoElementoSintatico('funcaoPesquisa', 'função'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
             'encontrarUltimo',
             new InformacaoElementoSintatico('encontrarUltimo', 'inteiro', true, [
                 new InformacaoElementoSintatico('vetor', 'qualquer[]'),
@@ -4161,8 +4179,22 @@ export class AvaliadorSintatico
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
+            'encontrarÚltimo',
+            new InformacaoElementoSintatico('encontrarÚltimo', 'inteiro', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+                new InformacaoElementoSintatico('funcaoPesquisa', 'função'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
             'encontrarUltimoIndice',
             new InformacaoElementoSintatico('encontrarUltimoIndice', 'inteiro', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+                new InformacaoElementoSintatico('funcaoPesquisa', 'função'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'encontrarÚltimoÍndice',
+            new InformacaoElementoSintatico('encontrarÚltimoÍndice', 'inteiro', true, [
                 new InformacaoElementoSintatico('vetor', 'qualquer[]'),
                 new InformacaoElementoSintatico('funcaoPesquisa', 'função'),
             ])
@@ -4177,6 +4209,13 @@ export class AvaliadorSintatico
         this.pilhaEscopos.definirInformacoesVariavel(
             'incluido',
             new InformacaoElementoSintatico('incluido', 'lógico', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+                new InformacaoElementoSintatico('valor', 'qualquer'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'incluído',
+            new InformacaoElementoSintatico('incluído', 'lógico', true, [
                 new InformacaoElementoSintatico('vetor', 'qualquer[]'),
                 new InformacaoElementoSintatico('valor', 'qualquer'),
             ])
@@ -4209,6 +4248,30 @@ export class AvaliadorSintatico
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
+            'maximo',
+            new InformacaoElementoSintatico('maximo', 'qualquer', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'máximo',
+            new InformacaoElementoSintatico('máximo', 'qualquer', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'minimo',
+            new InformacaoElementoSintatico('minimo', 'qualquer', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'mínimo',
+            new InformacaoElementoSintatico('mínimo', 'qualquer', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
             'numero',
             new InformacaoElementoSintatico('número', 'número', true, [
                 new InformacaoElementoSintatico('valorParaConverter', 'qualquer'),
@@ -4237,6 +4300,13 @@ export class AvaliadorSintatico
         this.pilhaEscopos.definirInformacoesVariavel(
             'primeiroEmCondicao',
             new InformacaoElementoSintatico('primeiroEmCondicao', 'qualquer', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+                new InformacaoElementoSintatico('funcaoFiltragem', 'função'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'primeiroEmCondição',
+            new InformacaoElementoSintatico('primeiroEmCondição', 'qualquer', true, [
                 new InformacaoElementoSintatico('vetor', 'qualquer[]'),
                 new InformacaoElementoSintatico('funcaoFiltragem', 'função'),
             ])
@@ -4276,6 +4346,13 @@ export class AvaliadorSintatico
         this.pilhaEscopos.definirInformacoesVariavel(
             'todosEmCondicao',
             new InformacaoElementoSintatico('todosEmCondicao', 'lógico', true, [
+                new InformacaoElementoSintatico('iteravel', 'qualquer'),
+                new InformacaoElementoSintatico('funcaoCondicional', 'função'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'todosEmCondição',
+            new InformacaoElementoSintatico('todosEmCondição', 'lógico', true, [
                 new InformacaoElementoSintatico('iteravel', 'qualquer'),
                 new InformacaoElementoSintatico('funcaoCondicional', 'função'),
             ])

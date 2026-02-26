@@ -27,23 +27,22 @@ function criarDescritorObjeto(): DescritorTipoClasse {
         return instancia === args[0];
     });
 
-    descritor.metodos['eInstanciaDe'] = new DeleguaFuncaoNativa(
-        'eInstanciaDe',
-        1,
-        (instancia, args) => {
-            if (!instancia) return false;
-            const classeAlvo = args[0];
-            if (!(classeAlvo instanceof DescritorTipoClasse)) return false;
-            let cls: DescritorTipoClasse = instancia.classe;
-            while (cls) {
-                if (cls === classeAlvo) return true;
-                cls = cls.superClasse;
-            }
-            return false;
+    const implementacaoEInstanciaDe = (instancia: any, args: any[]) => {
+        if (!instancia) return false;
+        const classeAlvo = args[0];
+        if (!(classeAlvo instanceof DescritorTipoClasse)) return false;
+        let cls: DescritorTipoClasse = instancia.classe;
+        while (cls) {
+            if (cls === classeAlvo) return true;
+            cls = cls.superClasse;
         }
-    );
+        return false;
+    };
 
-    descritor.metodos['metodos'] = new DeleguaFuncaoNativa('metodos', 0, (instancia) => {
+    descritor.metodos['eInstanciaDe'] = new DeleguaFuncaoNativa('eInstanciaDe', 1, implementacaoEInstanciaDe);
+    descritor.metodos['éInstânciaDe'] = new DeleguaFuncaoNativa('éInstânciaDe', 1, implementacaoEInstanciaDe);
+
+    const implementacaoMetodos = (instancia: any) => {
         if (!instancia) return [];
         const nomes: string[] = [];
         let cls: DescritorTipoClasse = instancia.classe;
@@ -54,7 +53,10 @@ function criarDescritorObjeto(): DescritorTipoClasse {
             cls = cls.superClasse;
         }
         return nomes;
-    });
+    };
+
+    descritor.metodos['metodos'] = new DeleguaFuncaoNativa('metodos', 0, implementacaoMetodos);
+    descritor.metodos['métodos'] = new DeleguaFuncaoNativa('métodos', 0, implementacaoMetodos);
 
     descritor.metodos['propriedades'] = new DeleguaFuncaoNativa('propriedades', 0, (instancia) => {
         if (!instancia) return [];

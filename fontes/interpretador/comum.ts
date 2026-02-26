@@ -13,9 +13,17 @@ export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExe
         'aleatorio',
         new FuncaoPadrao(1, bibliotecaGlobal.aleatorio)
     );
+    pilhaEscoposExecucao.definirVariavel(
+        'aleatório',
+        new FuncaoPadrao(1, bibliotecaGlobal.aleatorio)
+    );
 
     pilhaEscoposExecucao.definirVariavel(
         'aleatorioEntre',
+        new FuncaoPadrao(2, bibliotecaGlobal.aleatorioEntre)
+    );
+    pilhaEscoposExecucao.definirVariavel(
+        'aleatórioEntre',
         new FuncaoPadrao(2, bibliotecaGlobal.aleatorioEntre)
     );
 
@@ -34,14 +42,26 @@ export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExe
         'encontrarIndice',
         new FuncaoPadrao(2, bibliotecaGlobal.encontrarIndice)
     );
+    pilhaEscoposExecucao.definirVariavel(
+        'encontrarÍndice',
+        new FuncaoPadrao(2, bibliotecaGlobal.encontrarIndice)
+    );
 
     pilhaEscoposExecucao.definirVariavel(
         'encontrarUltimo',
         new FuncaoPadrao(2, bibliotecaGlobal.encontrarUltimo)
     );
+    pilhaEscoposExecucao.definirVariavel(
+        'encontrarÚltimo',
+        new FuncaoPadrao(2, bibliotecaGlobal.encontrarUltimo)
+    );
 
     pilhaEscoposExecucao.definirVariavel(
         'encontrarUltimoIndice',
+        new FuncaoPadrao(2, bibliotecaGlobal.encontrarUltimoIndice)
+    );
+    pilhaEscoposExecucao.definirVariavel(
+        'encontrarÚltimoÍndice',
         new FuncaoPadrao(2, bibliotecaGlobal.encontrarUltimoIndice)
     );
 
@@ -54,6 +74,10 @@ export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExe
         'incluido',
         new FuncaoPadrao(2, bibliotecaGlobal.incluido)
     );
+    pilhaEscoposExecucao.definirVariavel(
+        'incluído',
+        new FuncaoPadrao(2, bibliotecaGlobal.incluido)
+    );
 
     pilhaEscoposExecucao.definirVariavel('inteiro', new FuncaoPadrao(1, bibliotecaGlobal.inteiro));
 
@@ -64,8 +88,10 @@ export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExe
     pilhaEscoposExecucao.definirVariavel('mapear', new FuncaoPadrao(2, bibliotecaGlobal.mapear));
 
     pilhaEscoposExecucao.definirVariavel('maximo', new FuncaoPadrao(1, bibliotecaGlobal.maximo));
+    pilhaEscoposExecucao.definirVariavel('máximo', new FuncaoPadrao(1, bibliotecaGlobal.maximo));
 
     pilhaEscoposExecucao.definirVariavel('minimo', new FuncaoPadrao(1, bibliotecaGlobal.minimo));
+    pilhaEscoposExecucao.definirVariavel('mínimo', new FuncaoPadrao(1, bibliotecaGlobal.minimo));
 
     pilhaEscoposExecucao.definirVariavel('numero', new FuncaoPadrao(1, bibliotecaGlobal.numero));
     pilhaEscoposExecucao.definirVariavel('número', new FuncaoPadrao(1, bibliotecaGlobal.numero));
@@ -79,6 +105,10 @@ export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExe
 
     pilhaEscoposExecucao.definirVariavel(
         'primeiroEmCondicao',
+        new FuncaoPadrao(2, bibliotecaGlobal.primeiroEmCondicao)
+    );
+    pilhaEscoposExecucao.definirVariavel(
+        'primeiroEmCondição',
         new FuncaoPadrao(2, bibliotecaGlobal.primeiroEmCondicao)
     );
 
@@ -99,6 +129,10 @@ export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExe
 
     pilhaEscoposExecucao.definirVariavel(
         'todosEmCondicao',
+        new FuncaoPadrao(2, bibliotecaGlobal.todosEmCondicao)
+    );
+    pilhaEscoposExecucao.definirVariavel(
+        'todosEmCondição',
         new FuncaoPadrao(2, bibliotecaGlobal.todosEmCondicao)
     );
 
