@@ -1,6 +1,6 @@
 import { AvaliadorSintaticoPitugues } from "../../../../fontes/avaliador-sintatico/dialetos";
 import { Logico, Vetor } from "../../../../fontes/construtos";
-import { Escreva, Var } from "../../../../fontes/declaracoes";
+import { Escreva, Importar, Var } from "../../../../fontes/declaracoes";
 import { LexadorPitugues } from "../../../../fontes/lexador/dialetos";
 
 describe('Avaliador sintático (Pituguês)', () => {
@@ -139,6 +139,59 @@ describe('Avaliador sintático (Pituguês)', () => {
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                });
+
+                describe('Iterando dicionários', () => {
+                    it('Iterando dicionários com método itens()', async () => {
+                        const retornoLexador = lexador.mapear([
+                            'dicionarioLegal = { "a": 1, "b": 2, "c": 3 }',
+                            'para cada chave, valor em dicionarioLegal.itens():',
+                            '    imprima(chave, valor)'
+                        ], -1);
+
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+
+                        expect(retornoAvaliadorSintatico).toBeTruthy();
+                        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                        expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                    });
+
+                    it('Iterando dicionários com duas variáveis', async () => {
+                        const retornoLexador = lexador.mapear([
+                            'dicionarioLegal = { "a": 1, "b": 2, "c": 3 }',
+                            'para cada chave, valor em dicionarioLegal:',
+                            '    imprima(chave, valor)'
+                        ], -1);
+
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+
+                        expect(retornoAvaliadorSintatico).toBeTruthy();
+                        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                        expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                    });
+
+                    it('Iterando dicionários com uma variável', async () => {
+                        const retornoLexador = lexador.mapear([
+                            'dicionarioLegal = { "a": 1, "b": 2, "c": 3 }',
+                            'para cada chaveValor em dicionarioLegal:',
+                            '    imprima(chaveValor)'
+                        ], -1);
+
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+
+                        expect(retornoAvaliadorSintatico).toBeTruthy();
+                        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                        expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                    });
                 });
             });
 
@@ -638,6 +691,69 @@ describe('Avaliador sintático (Pituguês)', () => {
                     expect(dicionario.esSpread).toHaveLength(2);
                     expect(dicionario.esSpread[0]).toBe(false);
                     expect(dicionario.esSpread[1]).toBe(false);
+                });
+            });
+
+            describe('Importações', () => {
+                it('importar matematica (sem alias)', async () => {
+                    const retornoLexador = lexador.mapear(['importar matematica'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+
+                    const declaracao = retornoAvaliadorSintatico.declaracoes[0] as Importar;
+                    expect(declaracao).toBeInstanceOf(Importar);
+                    expect(declaracao.caminho.valor).toBe('matematica');
+                    expect(declaracao.simboloTudo).not.toBeNull();
+                    expect(declaracao.simboloTudo?.lexema).toBe('matematica');
+                    expect(declaracao.elementosImportacao).toHaveLength(0);
+                });
+
+                it('importar matematica como mat (com alias)', async () => {
+                    const retornoLexador = lexador.mapear(['importar matematica como mat'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+
+                    const declaracao = retornoAvaliadorSintatico.declaracoes[0] as Importar;
+                    expect(declaracao).toBeInstanceOf(Importar);
+                    expect(declaracao.caminho.valor).toBe('matematica');
+                    expect(declaracao.simboloTudo).not.toBeNull();
+                    expect(declaracao.simboloTudo?.lexema).toBe('mat');
+                    expect(declaracao.elementosImportacao).toHaveLength(0);
+                });
+
+                it('de matematica importar raiz_quadrada (importação seletiva)', async () => {
+                    const retornoLexador = lexador.mapear(['de matematica importar raiz_quadrada'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+
+                    const declaracao = retornoAvaliadorSintatico.declaracoes[0] as Importar;
+                    expect(declaracao).toBeInstanceOf(Importar);
+                    expect(declaracao.caminho.valor).toBe('matematica');
+                    expect(declaracao.simboloTudo).toBeNull();
+                    expect(declaracao.elementosImportacao).toHaveLength(1);
+                    expect(declaracao.elementosImportacao[0].lexema).toBe('raiz_quadrada');
+                });
+
+                it('de matematica importar raiz_quadrada, potencia (importação seletiva múltipla)', async () => {
+                    const retornoLexador = lexador.mapear(['de matematica importar raiz_quadrada, potencia'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+
+                    const declaracao = retornoAvaliadorSintatico.declaracoes[0] as Importar;
+                    expect(declaracao).toBeInstanceOf(Importar);
+                    expect(declaracao.caminho.valor).toBe('matematica');
+                    expect(declaracao.simboloTudo).toBeNull();
+                    expect(declaracao.elementosImportacao).toHaveLength(2);
+                    expect(declaracao.elementosImportacao[0].lexema).toBe('raiz_quadrada');
+                    expect(declaracao.elementosImportacao[1].lexema).toBe('potencia');
                 });
             });
         });

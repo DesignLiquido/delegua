@@ -126,14 +126,22 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
             case 'adicionar':
             case 'empilhar':
                 return `${objetoResolvido}.push(${textoArgumentos})`;
+            case 'concatenar':
+                return `${objetoResolvido}.concat(${argumentosResolvidos[0]})`;
+            case 'encaixar':
+                return `${objetoResolvido}.splice(${textoArgumentos})`;
             case 'fatiar':
-                return `${objetoResolvido}.slice(${argumentos[0]}, ${argumentos[1]})`;
+                return `${objetoResolvido}.slice(${textoArgumentos})`;
+            case 'filtrarPor':
+                return `${objetoResolvido}.filter(${this.traduzirFuncaoAnonimaParaLambda(argumentos[0])})`;
             case 'inclui':
                 return `${objetoResolvido}.includes(${argumentosResolvidos[0]})`;
             case 'inverter':
                 return `${objetoResolvido}.toReversed()`;
             case 'juntar':
-                return `${argumentosResolvidos[0]}.join(${objetoResolvido})`;
+                return argumentosResolvidos.length > 0
+                    ? `${objetoResolvido}.join(${argumentosResolvidos[0]})`
+                    : `${objetoResolvido}.join()`;
             case 'maiusculo':
                 return `${objetoResolvido}.toUpperCase()`;
             case 'mapear':
@@ -141,9 +149,11 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
             case 'minusculo':
                 return `${objetoResolvido}.toLowerCase()`;
             case 'ordenar':
-                return `${objetoResolvido}.sort()`;
+                return argumentosResolvidos.length > 0
+                    ? `${objetoResolvido}.sort(${argumentosResolvidos[0]})`
+                    : `${objetoResolvido}.sort()`;
             case 'remover':
-                return `delete ${objetoResolvido}[${argumentosResolvidos[0]}]`;
+                return `${objetoResolvido}.splice(${objetoResolvido}.indexOf(${argumentosResolvidos[0]}), 1)`;
             case 'removerPrimeiro':
                 return `${objetoResolvido}.shift()`;
             case 'removerUltimo':
@@ -707,9 +717,30 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         return resultado;
     }
 
-    // TODO: Talvez terminar (ou remover, sei lá).
     traduzirFuncaoAnonimaParaLambda(argumento: Construto): string {
-        return '';
+        if (argumento instanceof FuncaoConstruto) {
+            const params = argumento.parametros.map((p) => p.nome.lexema).join(', ');
+
+            // Retorno de um valor → retorno conciso
+            if (argumento.corpo.length === 1 && argumento.corpo[0] instanceof Retorna) {
+                const retorna = argumento.corpo[0] as Retorna;
+                const expr = this.dicionarioConstrutos[retorna.valor.constructor.name](retorna.valor);
+                return `(${params}) => ${expr}`;
+            }
+
+            // O JavaScript não tem suporte nativo para blocos de função anônimos, então usamos uma função de seta com corpo de bloco.
+            return `(${params}) => ${this.logicaComumBlocoEscopo(argumento.corpo)}`;
+        }
+
+        if (argumento instanceof Variavel) {
+            return argumento.simbolo.lexema;
+        }
+
+        if (argumento instanceof ReferenciaFuncao || argumento instanceof ArgumentoReferenciaFuncao) {
+            return argumento.simboloFuncao.lexema;
+        }
+
+        return this.dicionarioConstrutos[argumento.constructor.name]?.(argumento) ?? '';
     }
 
     traduzirExpressaoAcessoMetodoVetor(
@@ -726,37 +757,44 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
             argumentosResolvidos.push(argumentoResolvido);
         }
 
+        const textoArgumentos = argumentosResolvidos.join(', ');
+
         switch (nomeMetodo) {
             case 'adicionar':
             case 'empilhar':
-                let textoArgumentos = argumentosResolvidos.reduce(
-                    (atual, proximo) => (atual += proximo + ', '),
-                    ''
-                );
-                textoArgumentos = textoArgumentos.slice(0, -2);
                 return `${objetoResolvido}.push(${textoArgumentos})`;
+            case 'concatenar':
+                return `${objetoResolvido}.concat(${argumentosResolvidos[0]})`;
+            case 'encaixar':
+                return `${objetoResolvido}.splice(${textoArgumentos})`;
             case 'fatiar':
-                return `${objetoResolvido}[${argumentos[0]}:${argumentos[1]}]`;
+                return `${objetoResolvido}.slice(${textoArgumentos})`;
+            case 'filtrarPor':
+                return `${objetoResolvido}.filter(${this.traduzirFuncaoAnonimaParaLambda(argumentos[0])})`;
             case 'inclui':
-                return `${argumentos[0]} in ${objetoResolvido}`;
+                return `${objetoResolvido}.includes(${argumentosResolvidos[0]})`;
             case 'inverter':
-                return `reversed(${objetoResolvido})`;
+                return `${objetoResolvido}.toReversed()`;
             case 'juntar':
-                return `${argumentos[0]}.join(${objetoResolvido})`;
+                return argumentosResolvidos.length > 0
+                    ? `${objetoResolvido}.join(${argumentosResolvidos[0]})`
+                    : `${objetoResolvido}.join()`;
             case 'mapear':
-                return `list(map(${this.traduzirFuncaoAnonimaParaLambda(argumentos[0])}), ${objetoResolvido})`;
+                return `${objetoResolvido}.map(${this.traduzirFuncaoAnonimaParaLambda(argumentos[0])})`;
             case 'ordenar':
-                return `${objetoResolvido}.sort()`;
+                return argumentosResolvidos.length > 0
+                    ? `${objetoResolvido}.sort(${argumentosResolvidos[0]})`
+                    : `${objetoResolvido}.sort()`;
             case 'remover':
-                return `del ${objetoResolvido}[${argumentos[0]}]`;
+                return `${objetoResolvido}.splice(${objetoResolvido}.indexOf(${argumentosResolvidos[0]}), 1)`;
             case 'removerPrimeiro':
-                return `del ${objetoResolvido}[0]`;
+                return `${objetoResolvido}.shift()`;
             case 'removerUltimo':
-                return `del ${objetoResolvido}[-1]`;
+                return `${objetoResolvido}.pop()`;
             case 'somar':
-                return `sum(${objetoResolvido})`;
+                return `${objetoResolvido}.reduce((acumulador, valorAtual) => acumulador + valorAtual, 0)`;
             case 'tamanho':
-                return `len(${objetoResolvido})`;
+                return `${objetoResolvido}.length`;
         }
     }
 
@@ -833,19 +871,18 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         return `${direita} ${operador} ${esquerda}`;
     }
 
-    // TODO: Eliminar o soft cast para `any`.
     traduzirExpressaoAtribuicaoPorIndice(AtribuicaoPorIndice: AtribuicaoPorIndice): string {
         let resultado = '';
 
-        resultado += (AtribuicaoPorIndice.objeto as any).simbolo.lexema + '[';
+        resultado += (AtribuicaoPorIndice.objeto as Variavel).simbolo.lexema + '[';
         resultado +=
             this.dicionarioConstrutos[AtribuicaoPorIndice.indice.constructor.name](
                 AtribuicaoPorIndice.indice
             ) + ']';
         resultado += ' = ';
 
-        if ((AtribuicaoPorIndice?.valor as any)?.simbolo?.lexema) {
-            resultado += `${(AtribuicaoPorIndice.valor as any).simbolo.lexema}`;
+        if (AtribuicaoPorIndice.valor instanceof Variavel) {
+            resultado += AtribuicaoPorIndice.valor.simbolo.lexema;
         } else {
             resultado += this.dicionarioConstrutos[AtribuicaoPorIndice.valor.constructor.name](
                 AtribuicaoPorIndice.valor

@@ -3,6 +3,7 @@ import {
     AcessoMetodoOuPropriedade,
     Agrupamento,
     ArgumentoReferenciaFuncao,
+    AjudaComoConstruto,
     Atribuir,
     Binario,
     Chamada,
@@ -19,6 +20,8 @@ import {
     Vetor,
 } from '../construtos';
 import {
+    Ajuda,
+    Classe,
     Const,
     Declaracao,
     Enquanto,
@@ -50,6 +53,9 @@ import { PilhaVariaveis } from './pilha-variaveis';
 export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     pilhaVariaveis: PilhaVariaveis;
     funcoes: { [nomeFuncao: string]: FuncaoHipoteticaInterface };
+    classesDeclararadas: Set<string>;
+    classesRegistradas: Map<string, Classe>;
+    classeAtualEmAnalise: Classe | null;
     atual: number;
     diagnosticos: DiagnosticoAnalisadorSemantico[];
 
@@ -58,6 +64,9 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         this.pilhaVariaveis = new PilhaVariaveis();
         this.gerenciadorEscopos = new GerenciadorEscopos();
         this.funcoes = {};
+        this.classesDeclararadas = new Set<string>();
+        this.classesRegistradas = new Map<string, Classe>();
+        this.classeAtualEmAnalise = null;
         this.atual = 0;
         this.diagnosticos = [];
     }
@@ -259,7 +268,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         );
     }
 
-    visitarExpressaoDeChamada(expressao: Chamada) {
+    async visitarExpressaoDeChamada(expressao: Chamada) {
         for (const argumento of expressao.argumentos) {
             if (argumento instanceof Variavel) {
                 this.gerenciadorEscopos.marcarComoUsada(argumento.simbolo.lexema);
@@ -274,8 +283,10 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 break;
             case AcessoMetodoOuPropriedade:
                 // Marca o objeto como usado quando seus métodos/propriedades são acessados (ex: thor.corre())
+                // e verifica acesso a membros privados/protegidos
                 const entidadeChamadaAcessoMetodoOuPropriedade = expressao.entidadeChamada as AcessoMetodoOuPropriedade;
                 this.marcarVariaveisUsadasEmExpressao(entidadeChamadaAcessoMetodoOuPropriedade.objeto);
+                await expressao.entidadeChamada.aceitar(this);
                 break;
             case ArgumentoReferenciaFuncao:
                 const entidadeChamadaArgumentoReferenciaFuncao =
@@ -421,6 +432,20 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
 
     async visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<any> {
         return await declaracao.expressao.aceitar(this);
+    }
+
+    visitarDeclaracaoAjuda(declaracao: Ajuda): Promise<any> {
+        if (declaracao.elemento) {
+            this.marcarVariaveisUsadasEmExpressao(declaracao.elemento);
+        }
+        return Promise.resolve();
+    }
+
+    visitarExpressaoAjuda(expressao: AjudaComoConstruto): Promise<any> {
+        if (expressao.valor) {
+            this.marcarVariaveisUsadasEmExpressao(expressao.valor);
+        }
+        return Promise.resolve();
     }
 
     override visitarDeclaracaoEscolha(declaracao: Escolha) {
@@ -744,80 +769,6 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         }
     }
 
-    /**
-     * Obtém o tipo de uma expressão (pode ser Literal, Variavel, Binario, Leia, etc)
-     */
-    private obterTipoExpressao(expressao: Construto): string | null {
-        if (expressao instanceof Literal) {
-            return expressao.tipo;
-        }
-
-        if (expressao instanceof Variavel) {
-            const variavel = this.gerenciadorEscopos.buscar(expressao.simbolo.lexema);
-            return variavel?.tipo || null;
-        }
-
-        if (expressao instanceof Binario) {
-            // Para binários, tentamos inferir o tipo baseado nos operandos
-            return this.inferirTipoBinario(expressao);
-        }
-
-        if (expressao instanceof Logico) {
-            // Operadores lógicos sempre retornam tipo lógico
-            return 'lógico';
-        }
-
-        if (expressao instanceof Agrupamento) {
-            return this.obterTipoExpressao(expressao.expressao);
-        }
-
-        if (expressao instanceof Leia) {
-            // leia() sempre retorna texto
-            return 'texto';
-        }
-
-        return null;
-    }
-
-    /**
-     * Infere o tipo de resultado de uma operação binária
-     */
-    private inferirTipoBinario(binario: Binario): string | null {
-        const operadoresMatematicos = ['ADICAO', 'SUBTRACAO', 'MULTIPLICACAO', 'DIVISAO', 'MODULO'];
-        const operadoresComparacao = ['MAIOR', 'MAIOR_IGUAL', 'MENOR', 'MENOR_IGUAL', 'IGUAL', 'DIFERENTE'];
-
-        // Operadores de comparação sempre retornam lógico
-        if (operadoresComparacao.includes(binario.operador.tipo)) {
-            return 'lógico';
-        }
-
-        const tipoEsquerda = this.obterTipoExpressao(binario.esquerda);
-        const tipoDireita = this.obterTipoExpressao(binario.direita);
-
-        if (!tipoEsquerda || !tipoDireita) {
-            return null;
-        }
-        
-        if (operadoresMatematicos.includes(binario.operador.tipo)) {
-            const tiposNumericos = ['inteiro', 'número', 'real'];
-            if (tiposNumericos.includes(tipoEsquerda) && tiposNumericos.includes(tipoDireita)) {
-                // Se um dos lados é 'real', o resultado é 'real'
-                if (tipoEsquerda === 'real' || tipoDireita === 'real') {
-                    return 'real';
-                }
-
-                return 'número';
-            }
-            
-            // Concatenação de textos
-            if (tipoEsquerda === 'texto' || tipoDireita === 'texto') {
-                return 'texto';
-            }
-        }
-        
-        return 'qualquer';
-    }
-
     private verificarExistenciaConstruto(construto: Construto): void {
         if (construto instanceof Variavel) {
             if (!this.gerenciadorEscopos.buscar(construto.simbolo.lexema)) {
@@ -952,7 +903,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         }
     }
 
-    override visitarDeclaracaoEscreva(declaracao: Escreva) {
+    override async visitarDeclaracaoEscreva(declaracao: Escreva): Promise<any> {
         if (declaracao.argumentos.length === 0) {
             const { linha, hashArquivo } = declaracao;
             const simbolo: SimboloInterface<''> = {
@@ -972,7 +923,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             if (argumento instanceof Literal && argumento.tipo === 'texto') {
                 this.verificarInterpolacaoTexto(String(argumento.valor), argumento);
             }
-            
+
             if (argumento instanceof Variavel) {
                 const possivelVariavel = this.gerenciadorEscopos.buscar(argumento.simbolo.lexema);
                 const possivelFuncao = this.funcoes[argumento.simbolo.lexema];
@@ -991,6 +942,9 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                         `Variável '${argumento.simbolo.lexema}' não foi inicializada.`
                     );
                 }
+            } else if (!(argumento instanceof Literal)) {
+                // Para expressões complexas (ex: AcessoMetodoOuPropriedade), delega ao visitante
+                await argumento.aceitar(this);
             }
         }
 
@@ -1183,6 +1137,110 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
+    protected override obterTipoExpressao(expressao: Construto): string | null {
+        const tipoBase = super.obterTipoExpressao(expressao);
+        if (tipoBase) return tipoBase;
+
+        if (expressao instanceof Chamada && expressao.entidadeChamada instanceof Variavel) {
+            const nomeCallee = (expressao.entidadeChamada as Variavel).simbolo.lexema;
+            if (this.classesRegistradas.has(nomeCallee)) return nomeCallee;
+        }
+        return null;
+    }
+
+    private resolverTipoObjeto(objeto: Construto): string | null {
+        if (objeto instanceof Variavel) {
+            if (objeto.simbolo.lexema === 'isto' && this.classeAtualEmAnalise) {
+                return this.classeAtualEmAnalise.simbolo.lexema;
+            }
+            return this.gerenciadorEscopos.buscar(objeto.simbolo.lexema)?.tipo ?? null;
+        }
+        if (objeto instanceof Chamada && objeto.entidadeChamada instanceof Variavel) {
+            const nomeCallee = (objeto.entidadeChamada as Variavel).simbolo.lexema;
+            if (this.classesRegistradas.has(nomeCallee)) return nomeCallee;
+        }
+        return null;
+    }
+
+    private estaEmClasseOuSubclasse(nomeClasse: string): boolean {
+        const visitados = new Set<string>();
+        const pilha: (Classe | null)[] = [this.classeAtualEmAnalise];
+        while (pilha.length > 0) {
+            const atual = pilha.pop();
+            if (!atual) continue;
+            if (visitados.has(atual.simbolo.lexema)) continue;
+            visitados.add(atual.simbolo.lexema);
+            if (atual.simbolo.lexema === nomeClasse) return true;
+            for (const sc of atual.superClasses) {
+                const pai = this.classesRegistradas.get(sc.simbolo.lexema) ?? null;
+                if (pai) pilha.push(pai);
+            }
+        }
+        return false;
+    }
+
+    override async visitarExpressaoAcessoMetodoOuPropriedade(
+        expressao: AcessoMetodoOuPropriedade
+    ): Promise<any> {
+        const nomeMembro = expressao.simbolo.lexema;
+        const tipoObjeto = this.resolverTipoObjeto(expressao.objeto);
+        if (!tipoObjeto) return;
+
+        const classeDef = this.classesRegistradas.get(tipoObjeto);
+        if (!classeDef) return;
+
+        const membro =
+            classeDef.metodos.find((m) => m.simbolo.lexema === nomeMembro) ??
+            classeDef.propriedades.find((p) => p.nome.lexema === nomeMembro);
+        if (!membro) return;
+
+        if (membro.acesso === 'privado') {
+            if (this.classeAtualEmAnalise?.simbolo.lexema !== tipoObjeto) {
+                this.erro(
+                    expressao.simbolo,
+                    `Membro '${nomeMembro}' é privado e não pode ser acessado fora da classe '${tipoObjeto}'.`
+                );
+            }
+        } else if (membro.acesso === 'protegido') {
+            if (!this.estaEmClasseOuSubclasse(tipoObjeto)) {
+                this.erro(
+                    expressao.simbolo,
+                    `Membro '${nomeMembro}' é protegido e não pode ser acessado fora da hierarquia da classe '${tipoObjeto}'.`
+                );
+            }
+        }
+    }
+
+    override async visitarDeclaracaoClasse(declaracao: Classe): Promise<any> {
+        for (const superClasseVariavel of declaracao.superClasses) {
+            const nomeSuperclasse: string = superClasseVariavel.simbolo.lexema;
+            if (nomeSuperclasse === declaracao.simbolo.lexema) {
+                this.erro(
+                    superClasseVariavel.simbolo,
+                    `A classe '${declaracao.simbolo.lexema}' não pode herdar de si mesma.`
+                );
+            } else if (!this.classesDeclararadas.has(nomeSuperclasse)) {
+                this.erro(
+                    superClasseVariavel.simbolo,
+                    `Superclasse '${nomeSuperclasse}' não foi declarada.`
+                );
+            }
+        }
+
+        this.classesDeclararadas.add(declaracao.simbolo.lexema);
+        this.classesRegistradas.set(declaracao.simbolo.lexema, declaracao);
+
+        // Visita corpos dos métodos com contexto de classe ativo
+        const classeAnterior = this.classeAtualEmAnalise;
+        this.classeAtualEmAnalise = declaracao;
+        for (const metodo of declaracao.metodos) {
+            for (const stmt of metodo.funcao.corpo) {
+                await stmt.aceitar(this);
+            }
+        }
+        this.classeAtualEmAnalise = classeAnterior;
+    }
+
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> {
         if (declaracao.funcao.tipo === undefined) {
             this.erro(declaracao.simbolo, `Declaração de retorno da função é inválido.`);
@@ -1291,6 +1349,9 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
 
     async analisar(declaracoes: Declaracao[]): Promise<RetornoAnalisadorSemantico> {
         this.gerenciadorEscopos = new GerenciadorEscopos();
+        this.classesDeclararadas = new Set<string>();
+        this.classesRegistradas = new Map<string, Classe>();
+        this.classeAtualEmAnalise = null;
         this.atual = 0;
         this.diagnosticos = [];
 

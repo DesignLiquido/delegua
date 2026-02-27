@@ -7,14 +7,17 @@ import { AcessoMetodo,
     Literal,
     AtribuicaoPorIndice,
     AcessoIndiceVariavel,
-    Unario,
-    Chamada,
-    TipoDe
+    TipoDe,
+    Dupla,
+    Variavel
 } from "../../../construtos";
 import { Interpretador } from "../../interpretador";
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
 
 import * as comum from './comum';
+import { ParaCada } from "../../../declaracoes";
+import { inferirTipoVariavel } from "../../../inferenciador";
+import { ContinuarQuebra, Quebra, SustarQuebra } from "../../../quebras";
 
 export class InterpretadorPitugues extends Interpretador {
     constructor(
@@ -47,7 +50,22 @@ export class InterpretadorPitugues extends Interpretador {
         return comum.visitarExpressaoTuplaN(this, expressao);
     }
 
-    async visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> {
+    override async visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> {
+        if (expressao.alvo.constructor === Variavel) {
+            const alvoVariavel = expressao.alvo as Variavel;
+            try {
+                this.pilhaEscoposExecucao.obterValorVariavel(alvoVariavel.simbolo);
+            } catch (e) {
+                // Em Pituguês, a variável não precisa ser declarada antes da atribuição.
+                let valor = await this.avaliar(expressao.valor);
+                if (valor && valor.hasOwnProperty('valorRetornado')) {
+                    valor = valor.valorRetornado;
+                }
+                const valorResolvido = this.resolverValor(valor);
+                this.pilhaEscoposExecucao.definirVariavel(alvoVariavel.simbolo.lexema, valorResolvido);
+                return valorResolvido;
+            }
+        }
         return super.visitarExpressaoDeAtribuicao(expressao);
     }
 
@@ -99,5 +117,125 @@ export class InterpretadorPitugues extends Interpretador {
         if (typeof resultado === 'string') return resultado.replace('tipo de', 'tipo');
 
         return resultado;
+    }
+
+    /**
+     * Normaliza o valor resolvido para um array iterável.
+     * Converte dicionários em listas de Duplas e strings em listas de caracteres.
+     */
+    private prepararListaParaIteracao(valor: any, declaracao: ParaCada): any[] {
+        let valorFinal = this.resolverValor(valor);
+
+        const ehDicionario = declaracao.vetorOuDicionario.tipo === 'dicionário';
+        const ehObjetoPuro = valorFinal && typeof valorFinal === 'object' && !Array.isArray(valorFinal);
+
+        if (ehDicionario || ehObjetoPuro) {
+            return Object.entries(valorFinal).map(
+                ([chave, valor]) => new Dupla(
+                    new Literal(
+                        declaracao.hashArquivo,
+                        declaracao.linha,
+                        chave,
+                        'texto'
+                    ),
+                    new Literal(
+                        declaracao.hashArquivo,
+                        declaracao.linha,
+                        valor as any,
+                        inferirTipoVariavel(valor) as any
+                    )
+                )
+            );
+        }
+
+        if (typeof valorFinal === 'string') return valorFinal.split('');
+
+        if (!Array.isArray(valorFinal)) {
+            throw new Error("O objeto provido para 'para cada' não é iterável.");
+        }
+
+        return valorFinal;
+    }
+
+    /**
+     * Resolve a lógica de atribuição das variáveis no escopo.
+     * Suporta variáveis simples ou pares (Dupla).
+     */
+    private definirVariaveisIteracao(variavel: Variavel | Dupla, elemento: any): void {
+        if (variavel instanceof Variavel) {
+            this.pilhaEscoposExecucao.definirVariavel(
+                variavel.simbolo.lexema,
+                this.resolverValor(elemento)
+            );
+
+            return;
+        }
+
+        if (variavel instanceof Dupla) {
+            const var1 = variavel.primeiro as Variavel;
+            const var2 = variavel.segundo as Variavel;
+
+            let v1: any, v2: any;
+
+            if (elemento instanceof Dupla) {
+                v1 = this.resolverValor(elemento.primeiro);
+                v2 = this.resolverValor(elemento.segundo);
+            } else {
+                v1 = elemento[0];
+                v2 = elemento[1];
+            }
+
+            this.pilhaEscoposExecucao.definirVariavel(
+                var1.simbolo.lexema,
+                v1
+            );
+
+            this.pilhaEscoposExecucao.definirVariavel(
+                var2.simbolo.lexema,
+                v2
+            );
+        }
+    }
+
+    async visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
+        let retornoExecucao: any;
+        declaracao.posicaoAtual = 0;
+
+        const valorResolvido = await this.avaliar(declaracao.vetorOuDicionario);
+        let listaParaIterar: any[];
+        try {
+            listaParaIterar = this.prepararListaParaIteracao(valorResolvido, declaracao);
+        } catch (erro: any) {
+            this.erros.push({
+                erroInterno: erro,
+                linha: declaracao.linha,
+                hashArquivo: declaracao.hashArquivo,
+            });
+            return Promise.reject(erro);
+        }
+
+        while (!(retornoExecucao instanceof Quebra) && declaracao.posicaoAtual < listaParaIterar.length) {
+            try {
+                const elementoAtual = listaParaIterar[declaracao.posicaoAtual];
+
+                this.definirVariaveisIteracao(declaracao.variavelIteracao, elementoAtual);
+
+                retornoExecucao = await this.executar(declaracao.corpo);
+
+                if (retornoExecucao instanceof SustarQuebra) return null;
+                if (retornoExecucao instanceof ContinuarQuebra) retornoExecucao = null;
+
+                declaracao.posicaoAtual++;
+            } catch (erro: any) {
+                this.erros.push({
+                    erroInterno: erro,
+                    linha: declaracao.linha,
+                    hashArquivo: declaracao.hashArquivo,
+                });
+                return Promise.reject(erro);
+            }
+        }
+
+        return retornoExecucao;
     }
 }

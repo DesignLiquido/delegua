@@ -45,11 +45,7 @@ import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
 import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
 
-import {
-    inferirTipoVariavel,
-    TipoInferencia,
-    tipoInferenciaParaTipoDadosElementar,
-} from '../../inferenciador';
+import { inferirTipoVariavel, TipoInferencia } from '../../inferenciador';
 
 import { PilhaEscopos } from '../pilha-escopos';
 import { InformacaoEscopo } from '../informacao-escopo';
@@ -235,14 +231,11 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.TEXTO:
                 const simboloLiteral: SimboloInterface = this.avancarEDevolverAnterior();
                 const tipoInferido = inferirTipoVariavel(simboloLiteral.literal);
-                const tipoDadosElementar = tipoInferenciaParaTipoDadosElementar(
-                    tipoInferido as TipoInferencia
-                );
                 return new Literal(
                     this.hashArquivo,
                     Number(simboloLiteral.linha),
                     simboloLiteral.literal,
-                    tipoDadosElementar
+                    tipoInferido as TipoInferencia
                 );
             case tiposDeSimbolos.IDENTIFICADOR:
                 const simboloIdentificador = this.avancarEDevolverAnterior();
@@ -1125,7 +1118,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após métodos da classe.");
 
         this.superclasseAtual = undefined;
-        const definicaoClasse = new Classe(simbolo, superClasse, metodos);
+        const definicaoClasse = new Classe(simbolo, superClasse ? [superClasse] : [], metodos);
         this.tiposDefinidosEmCodigo[definicaoClasse.simbolo.lexema] = definicaoClasse;
         return definicaoClasse;
     }

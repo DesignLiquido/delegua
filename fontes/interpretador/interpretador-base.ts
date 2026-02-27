@@ -14,11 +14,13 @@ import {
     Escreva,
     EscrevaMesmaLinha,
     Expressao,
+    Extensao,
     Falhar,
     Fazer,
     FuncaoDeclaracao,
     Importar,
     InicioAlgoritmo,
+    InterfaceDeclaracao,
     Para,
     ParaCada,
     Retorna,
@@ -38,6 +40,7 @@ import {
     DeleguaModulo,
     FuncaoPadrao,
     ObjetoPadrao,
+    OBJETO_BASE,
 } from './estruturas';
 import {
     AcessoIndiceVariavel,
@@ -122,6 +125,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     resultadoInterpretador: ResultadoParcialInterpretadorInterface[] = [];
     linhaDeclaracaoAtual: number;
     hashArquivoDeclaracaoAtual: number;
+    classeAtualEmExecucao: any = null;
 
     // Esta variável indica que uma propriedade de um objeto
     // não precisa da palavra `isto` para ser acessada, ou seja,
@@ -143,6 +147,11 @@ export class InterpretadorBase implements InterpretadorInterface {
     emDeclaracaoTente: boolean = false;
 
     pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
+
+    // typeName → methodName → DeleguaFuncao
+    extensoesGlobais: Map<string, Map<string, DeleguaFuncao>> = new Map();
+    // hashArquivo → typeName → methodName → DeleguaFuncao
+    extensoesModulo: Map<number, Map<string, Map<string, DeleguaFuncao>>> = new Map();
 
     microLexador: MicroLexador = new MicroLexador();
     microAvaliadorSintatico: MicroAvaliadorSintaticoBase = new MicroAvaliadorSintatico();
@@ -198,6 +207,9 @@ export class InterpretadorBase implements InterpretadorInterface {
             emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+
+        // Registrar a classe base `Objeto` no escopo global.
+        this.pilhaEscoposExecucao.definirVariavel('Objeto', OBJETO_BASE);
     }
 
     /**
@@ -513,33 +525,54 @@ export class InterpretadorBase implements InterpretadorInterface {
     protected async resolverInterpolacoes(textoOriginal: string, linha: number): Promise<any[]> {
         const variaveis = textoOriginal.match(this.regexInterpolacao);
 
-        let resultadosAvaliacaoSintatica = variaveis.map((s) => {
-            const expressaoInterpolacao: string = s.replace(/[\$\{\}]*/gm, '');
+        return await Promise.all(
+            variaveis.map(async (s) => {
+                const expressaoInterpolacao: string = s.replace(/[\$\{\}]*/gm, '');
 
-            let microLexador = this.microLexador.mapear(expressaoInterpolacao);
-            const resultadoMicroAvaliadorSintatico = this.microAvaliadorSintatico.analisar(
-                microLexador,
-                linha
-            );
+                const microLexador = this.microLexador.mapear(expressaoInterpolacao);
+                let declaracoes: any[] = [];
+                try {
+                    const resultadoMicroAvaliadorSintatico = this.microAvaliadorSintatico.analisar(
+                        microLexador,
+                        linha
+                    );
 
-            return {
-                expressaoInterpolacao,
-                resultadoMicroAvaliadorSintatico,
-            };
-        });
+                    for (const erro of resultadoMicroAvaliadorSintatico.erros) {
+                        this.erros.push({
+                            erroInterno: erro,
+                            linha: erro.linha ?? linha,
+                            hashArquivo: erro.hashArquivo ?? -1,
+                        });
+                    }
 
-        // TODO: Verificar erros do `resultadosAvaliacaoSintatica`.
+                    declaracoes = resultadoMicroAvaliadorSintatico.declaracoes;
+                } catch (erroAvaliador: any) {
+                    this.erros.push({
+                        erroInterno: erroAvaliador,
+                        linha: erroAvaliador.linha ?? linha,
+                        hashArquivo: erroAvaliador.hashArquivo ?? -1,
+                    });
+                }
 
-        const resolucoesPromises = await Promise.all(
-            resultadosAvaliacaoSintatica
-                .flatMap((r) => r.resultadoMicroAvaliadorSintatico.declaracoes)
-                .map((d) => this.avaliar(d))
+                let valor = declaracoes.length > 0 ? await this.avaliar(declaracoes[0]) : '';
+
+                const instancia =
+                    valor instanceof ObjetoDeleguaClasse
+                        ? valor
+                        : valor?.valor instanceof ObjetoDeleguaClasse
+                        ? valor.valor
+                        : null;
+                if (instancia) {
+                    const metodoParaTexto = instancia.classe.encontrarMetodo('paraTexto');
+                    if (metodoParaTexto) {
+                        const funcaoBound = metodoParaTexto.funcaoPorMetodoDeClasse(instancia);
+                        valor = await funcaoBound.chamar(this, []);
+                    }
+                }
+
+                return { expressaoInterpolacao, valor };
+            })
         );
-
-        return resolucoesPromises.map((item, indice) => ({
-            expressaoInterpolacao: resultadosAvaliacaoSintatica[indice].expressaoInterpolacao,
-            valor: item,
-        }));
     }
 
     async visitarExpressaoLiteral(expressao: Literal): Promise<any> {
@@ -771,6 +804,26 @@ export class InterpretadorBase implements InterpretadorInterface {
         const direita: VariavelInterface | any = await this.avaliar(expressao.direita);
         const valorEsquerdo: any = this.resolverValor(esquerda);
         const valorDireito: any = this.resolverValor(direita);
+
+        // Verificar sobrecarga de operador: se o operando esquerdo é uma instância de classe,
+        // procurar método `operador<símbolo>` (ex: `operador+`, `operador==`).
+        if (valorEsquerdo instanceof ObjetoDeleguaClasse) {
+            const nomeOperador = 'operador' + expressao.operador.lexema;
+            const metodoOperador = valorEsquerdo.classe.encontrarMetodo(nomeOperador);
+            if (metodoOperador) {
+                const metodoBound = metodoOperador.funcaoPorMetodoDeClasse(valorEsquerdo);
+                const argumentoOperador: VariavelInterface | any =
+                    direita && Object.prototype.hasOwnProperty.call(direita, 'tipo')
+                        ? (direita as VariavelInterface)
+                        : {
+                              tipo: inferirTipoVariavel(valorDireito),
+                              valor: valorDireito,
+                              imutavel: false,
+                          };
+                return await metodoBound.chamar(this, [{ nome: null, valor: argumentoOperador }]);
+            }
+        }
+
         const tipoEsquerdo: string = esquerda?.hasOwnProperty('tipo')
             ? esquerda.tipo
             : inferirTipoVariavel(esquerda);
@@ -1254,7 +1307,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 const valor = await this.avaliar(expressao.valor);
                 if (objeto.constructor === ObjetoDeleguaClasse) {
                     const objetoDeleguaClasse = objeto as ObjetoDeleguaClasse;
-                    objetoDeleguaClasse.definir(alvoPropriedade.simbolo, valor);
+                    await objetoDeleguaClasse.definir(alvoPropriedade.simbolo, valor, this);
                 }
                 break;
             default:
@@ -1500,8 +1553,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         for (let i = 0; i < declaracao.caminhosSeSenao.length; i++) {
-            // TODO: Qual o tipo de `atual`?
-            const atual = declaracao.caminhosSeSenao[i] as any;
+            const atual = declaracao.caminhosSeSenao[i];
 
             if (this.eVerdadeiro(await this.avaliar(atual.condicao))) {
                 return await this.executar(atual.caminho);
@@ -2048,7 +2100,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         const valor = await this.avaliar(expressao.valor);
         if (objeto.constructor === ObjetoDeleguaClasse) {
-            objeto.definir(expressao.nome, valor);
+            await objeto.definir(expressao.nome, valor, this);
             return valor;
         }
 
@@ -2059,6 +2111,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> {
         const funcao = new DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
+        funcao.documentacao = declaracao.documentacao;
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
         this.pilhaEscoposExecucao.registrarReferenciaFuncao(declaracao.id, funcao);
 
@@ -2074,56 +2127,187 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @returns Sempre retorna nulo, por ser requerido pelo contrato de visita.
      */
     async visitarDeclaracaoClasse(declaracao: Classe): Promise<DescritorTipoClasse> {
-        let superClasse = null;
-        if (declaracao.superClasse !== null && declaracao.superClasse !== undefined) {
-            const variavelSuperClasse: VariavelInterface = await this.avaliar(
-                declaracao.superClasse
-            );
-            superClasse = variavelSuperClasse.valor;
+        // Resolver cada superclasse listada em `herda A, B, ...`
+        const superClassesResolvidas: DescritorTipoClasse[] = [];
+        for (const superClasseVariavel of declaracao.superClasses) {
+            const variavelSuperClasse: VariavelInterface = await this.avaliar(superClasseVariavel);
+            const superClasse = variavelSuperClasse.valor;
             if (!(superClasse instanceof DescritorTipoClasse)) {
                 throw new ErroEmTempoDeExecucao(
-                    declaracao.superClasse.nome,
+                    superClasseVariavel.nome,
                     'Superclasse precisa ser uma classe.',
                     declaracao.linha
                 );
             }
+            superClassesResolvidas.push(superClasse);
+        }
+
+        // Resolver cada misturável listado em `mescla X, Y, ...`
+        const mesclaResolvidas: DescritorTipoClasse[] = [];
+        for (const mesclaVariavel of declaracao.mesclas) {
+            const variavelMisturavel: VariavelInterface = await this.avaliar(mesclaVariavel);
+            const misturável = variavelMisturavel.valor;
+            if (!(misturável instanceof DescritorTipoClasse)) {
+                throw new ErroEmTempoDeExecucao(
+                    mesclaVariavel.nome,
+                    'Misturável precisa ser uma classe.',
+                    declaracao.linha
+                );
+            }
+            mesclaResolvidas.push(misturável);
         }
 
         // TODO: Precisamos disso?
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, declaracao);
 
-        if (declaracao.superClasse !== null && declaracao.superClasse !== undefined) {
-            this.pilhaEscoposExecucao.definirVariavel('super', superClasse);
+        if (superClassesResolvidas.length > 0) {
+            this.pilhaEscoposExecucao.definirVariavel('super', superClassesResolvidas[0]);
         }
 
         const metodos: { [nome: string]: DeleguaFuncao | DeleguaFuncao[] } = {};
+        const metodosEstaticos: { [nome: string]: DeleguaFuncao | DeleguaFuncao[] } = {};
+        const obtenedores: { [nome: string]: DeleguaFuncao } = {};
+        const definidores: { [nome: string]: DeleguaFuncao } = {};
+        const obtenedoresEstaticos: { [nome: string]: DeleguaFuncao } = {};
+        const definidoresEstaticos: { [nome: string]: DeleguaFuncao } = {};
+        const metodosAbstratos: string[] = [];
+        const acessoMetodos: { [nome: string]: 'privado' | 'protegido' | 'publico' } = {};
+        const acessoPropriedades: { [nome: string]: 'privado' | 'protegido' | 'publico' } = {};
         const definirMetodos = declaracao.metodos;
         for (let i = 0; i < declaracao.metodos.length; i++) {
             const metodoAtual = definirMetodos[i];
-            const eInicializador = metodoAtual.simbolo.lexema === 'construtor';
+            const nomeMetodo = metodoAtual.simbolo.lexema;
+
+            // Registrar nível de acesso do método.
+            if (metodoAtual.acesso && metodoAtual.acesso !== 'publico') {
+                acessoMetodos[nomeMetodo] = metodoAtual.acesso;
+            }
+
+            // Métodos abstratos: registrar apenas o nome, não criar função executável.
+            if (metodoAtual.abstrato) {
+                metodosAbstratos.push(nomeMetodo);
+                continue;
+            }
+
+            const eInicializador = nomeMetodo === 'construtor';
             const funcao = new DeleguaFuncao(
-                metodoAtual.simbolo.lexema,
+                nomeMetodo,
                 metodoAtual.funcao,
                 undefined,
                 eInicializador
             );
-            const nomeMetodo = metodoAtual.simbolo.lexema;
-            if (metodos[nomeMetodo]) {
-                if (!Array.isArray(metodos[nomeMetodo])) {
-                    metodos[nomeMetodo] = [metodos[nomeMetodo] as DeleguaFuncao];
+            funcao.documentacao = metodoAtual.documentacao;
+
+            // Numa classe estática, todos os métodos (exceto construtor) são estáticos.
+            const ehEstatico = declaracao.classeEstatica
+                ? !eInicializador
+                : metodoAtual.estatico;
+
+            if (metodoAtual.eObtenedor) {
+                if (ehEstatico) {
+                    obtenedoresEstaticos[nomeMetodo] = funcao;
+                } else {
+                    obtenedores[nomeMetodo] = funcao;
                 }
-                (metodos[nomeMetodo] as DeleguaFuncao[]).push(funcao);
+                continue;
+            }
+
+            if (metodoAtual.eDefinidor) {
+                if (ehEstatico) {
+                    definidoresEstaticos[nomeMetodo] = funcao;
+                } else {
+                    definidores[nomeMetodo] = funcao;
+                }
+                continue;
+            }
+
+            const destino = ehEstatico && !eInicializador ? metodosEstaticos : metodos;
+            if (destino[nomeMetodo]) {
+                if (!Array.isArray(destino[nomeMetodo])) {
+                    destino[nomeMetodo] = [destino[nomeMetodo] as DeleguaFuncao];
+                }
+                (destino[nomeMetodo] as DeleguaFuncao[]).push(funcao);
             } else {
-                metodos[nomeMetodo] = funcao;
+                destino[nomeMetodo] = funcao;
+            }
+        }
+
+        // Registrar propriedades estáticas no mapa de membros estáticos e níveis de acesso.
+        // Numa classe estática, todas as propriedades são tratadas como estáticas.
+        const membrosEstaticos: { [nome: string]: any } = {};
+        for (const prop of declaracao.propriedades) {
+            if (prop.estatico || declaracao.classeEstatica) {
+                membrosEstaticos[prop.nome.lexema] = undefined;
+            }
+            if (prop.acesso && prop.acesso !== 'publico') {
+                acessoPropriedades[prop.nome.lexema] = prop.acesso;
             }
         }
 
         const descritorTipoClasse: DescritorTipoClasse = new DescritorTipoClasse(
             declaracao.simbolo,
-            superClasse,
+            superClassesResolvidas,
             metodos,
             declaracao.propriedades
         );
+        descritorTipoClasse.metodosEstaticos = metodosEstaticos;
+        descritorTipoClasse.membrosEstaticos = membrosEstaticos;
+        descritorTipoClasse.obtenedores = obtenedores;
+        descritorTipoClasse.definidores = definidores;
+        descritorTipoClasse.obtenedoresEstaticos = obtenedoresEstaticos;
+        descritorTipoClasse.definidoresEstaticos = definidoresEstaticos;
+        descritorTipoClasse.abstrata = declaracao.abstrata;
+        descritorTipoClasse.classeEstatica = declaracao.classeEstatica;
+        descritorTipoClasse.metodosAbstratos = metodosAbstratos;
+        descritorTipoClasse.acessoMetodos = acessoMetodos;
+        descritorTipoClasse.acessoPropriedades = acessoPropriedades;
+
+        // Toda classe sem superclasse explícita herda implicitamente de `Objeto`.
+        // Isso só deve acontecer quando OBJETO_BASE já estiver inicializado e a classe
+        // atual não for o próprio OBJETO_BASE, para evitar cadeias de herança recursivas.
+        if (descritorTipoClasse.superClasses.length === 0 && OBJETO_BASE && descritorTipoClasse !== OBJETO_BASE) {
+            descritorTipoClasse.superClasses = [OBJETO_BASE];
+        }
+
+        // Calcular o OReM (linearização C3) após os pais estarem definidos.
+        descritorTipoClasse.orem = DescritorTipoClasse.computarOReM(descritorTipoClasse);
+
+        // Mesclar métodos e propriedades dos misturávels (primeiro misturável ganha se não definido na classe).
+        for (const misturável of mesclaResolvidas) {
+            for (const [nome, funcao] of Object.entries(misturável.metodos)) {
+                if (!descritorTipoClasse.metodos.hasOwnProperty(nome)) {
+                    descritorTipoClasse.metodos[nome] = funcao;
+                }
+            }
+            for (const [nome, funcao] of Object.entries(misturável.obtenedores)) {
+                if (!descritorTipoClasse.obtenedores.hasOwnProperty(nome)) {
+                    descritorTipoClasse.obtenedores[nome] = funcao;
+                }
+            }
+            for (const [nome, funcao] of Object.entries(misturável.definidores)) {
+                if (!descritorTipoClasse.definidores.hasOwnProperty(nome)) {
+                    descritorTipoClasse.definidores[nome] = funcao;
+                }
+            }
+            for (const prop of misturável.propriedades) {
+                const jaDeclarada = descritorTipoClasse.propriedades.some(
+                    (p) => p.nome.lexema === prop.nome.lexema
+                );
+                if (!jaDeclarada) {
+                    descritorTipoClasse.propriedades.push(prop);
+                }
+            }
+        }
+
+        // Verifica se a subclasse concreta implementa todos os métodos abstratos
+        // da(s) superclasse(s) abstrata(s).
+        if (!declaracao.abstrata) {
+            for (const superClasse of superClassesResolvidas) {
+                if (superClasse.abstrata) {
+                    superClasse.verificarImplementacaoAbstrata(descritorTipoClasse);
+                }
+            }
+        }
 
         // TODO: Até então, a única exceção a isso é Égua Clássico.
         // Por enquanto, tudo bem deixar isso aqui.
@@ -2131,6 +2315,71 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         this.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolo, descritorTipoClasse);
         return descritorTipoClasse;
+    }
+
+    /**
+     * Registra uma declaração de interface no ambiente de execução.
+     * Interfaces são verificadas em tempo de análise; em tempo de execução, apenas registramos
+     * o nome para possíveis verificações futuras (ex: `eInstanciaDe`).
+     */
+    async visitarDeclaracaoInterface(_declaracao: InterfaceDeclaracao): Promise<void> {
+        // Interfaces não possuem comportamento em tempo de execução.
+        // São contratos verificados em tempo de análise sintática.
+        return Promise.resolve();
+    }
+
+    /**
+     * Procura um método de extensão nos registros de módulo e global,
+     * percorrendo os tipos na ordem indicada (específico antes de base).
+     */
+    encontrarMetodoExtensao(
+        tiposParaVerificar: string[],
+        nomeMetodo: string,
+        hashArquivo: number
+    ): DeleguaFuncao | undefined {
+        // Extensões module-scoped têm prioridade sobre as globais.
+        const extensoesDoModulo = this.extensoesModulo.get(hashArquivo);
+        if (extensoesDoModulo) {
+            for (const tipo of tiposParaVerificar) {
+                const metodo = extensoesDoModulo.get(tipo)?.get(nomeMetodo);
+                if (metodo) return metodo;
+            }
+        }
+        for (const tipo of tiposParaVerificar) {
+            const metodo = this.extensoesGlobais.get(tipo)?.get(nomeMetodo);
+            if (metodo) return metodo;
+        }
+        return undefined;
+    }
+
+    /**
+     * Registra os métodos de uma declaração de extensão nos registros
+     * de extensão do interpretador.
+     */
+    async visitarDeclaracaoExtensao(declaracao: Extensao): Promise<void> {
+        const tipoNome = declaracao.simboloTipo.lexema;
+
+        for (const metodoDeclarado of declaracao.metodos) {
+            const nomeMetodo = metodoDeclarado.simbolo.lexema;
+            const funcao = new DeleguaFuncao(nomeMetodo, metodoDeclarado.funcao);
+
+            if (declaracao.ehGlobal) {
+                if (!this.extensoesGlobais.has(tipoNome)) {
+                    this.extensoesGlobais.set(tipoNome, new Map());
+                }
+                this.extensoesGlobais.get(tipoNome).set(nomeMetodo, funcao);
+            } else {
+                const hash = declaracao.hashArquivo;
+                if (!this.extensoesModulo.has(hash)) {
+                    this.extensoesModulo.set(hash, new Map());
+                }
+                const mapa = this.extensoesModulo.get(hash);
+                if (!mapa.has(tipoNome)) {
+                    mapa.set(tipoNome, new Map());
+                }
+                mapa.get(tipoNome).set(nomeMetodo, funcao);
+            }
+        }
     }
 
     /**
@@ -2160,7 +2409,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             objeto instanceof ObjetoDeleguaClasse ||
             objeto.constructor.name === 'ObjetoDeleguaClasse'
         ) {
-            const valor = objeto.obter(expressao.simbolo);
+            const valor = await objeto.obter(expressao.simbolo, this);
             if (valor === 0) return 0;
             return valor || null;
         }
@@ -2528,7 +2777,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
         if (objeto instanceof Literal) return this.paraTexto(objeto.valor);
-        if (objeto instanceof ObjetoDeleguaClasse || objeto instanceof DeleguaFuncao)
+        if (objeto instanceof ObjetoDeleguaClasse || objeto instanceof DeleguaFuncao || objeto instanceof DescritorTipoClasse)
             return objeto.paraTexto();
 
         if (objeto instanceof RetornoQuebra) {

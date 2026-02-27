@@ -36,8 +36,21 @@ export class FuncaoConstruto implements Construto {
     }
 
     paraTexto(): string {
-        // TODO: Corpo.
-        return `<construto-função parâmetros=${this.parametros} tipoRetorno=${this.tipo} tipoExplícito=${this.tipoExplicito ? 'Sim' : 'Não'} />`;
+        let parametros = '';
+        for (let indice = 0; indice < this.parametros.length; indice++) {
+            const parametro = this.parametros[indice];
+            parametros += `${parametro.nome.lexema}:${parametro.tipoDado}`;
+            if (indice < this.parametros.length - 1) {
+                parametros += ',';
+            }
+        }
+
+        let corpo = '';
+        for (let indice = 0; indice < this.corpo.length; indice++) {
+            corpo += this.corpo[indice].paraTexto();
+        }
+
+        return `<construto-função parâmetros=[${parametros}] corpo=[${corpo}] tipoRetorno=${this.tipo} tipoExplícito=${this.tipoExplicito ? 'Sim' : 'Não'} />`;
     }
 
     paraTextoSaida(): string {

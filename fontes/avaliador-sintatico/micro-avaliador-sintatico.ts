@@ -5,6 +5,7 @@ import {
     Binario,
     Chamada,
     Construto,
+    Dicionario,
     Elvis,
     Literal,
     Logico,
@@ -27,8 +28,7 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         const simboloAtual = this.simbolos[this.atual];
         let valores = [];
         switch (simboloAtual.tipo) {
-            // TODO: Verificar se vamos usar isso.
-            /* case tiposDeSimbolos.CHAVE_ESQUERDA:
+            case tiposDeSimbolos.CHAVE_ESQUERDA:
                 this.avancarEDevolverAnterior();
                 const chaves = [];
                 valores = [];
@@ -38,9 +38,9 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
                 }
 
                 while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA)) {
-                    const chave = this.atribuir();
+                    const chave = this.declaracao();
                     this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' entre chave e valor.");
-                    const valor = this.atribuir();
+                    const valor = this.declaracao();
 
                     chaves.push(chave);
                     valores.push(valor);
@@ -50,9 +50,8 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
                     }
                 }
 
-                return new Dicionario(-1, Number(this.linha), chaves, valores); */
+                return new Dicionario(-1, Number(this.linha), chaves, valores);
 
-            // TODO: Verificar se vamos usar isso.
             case tiposDeSimbolos.COLCHETE_ESQUERDO:
                 this.avancarEDevolverAnterior();
                 valores = [];

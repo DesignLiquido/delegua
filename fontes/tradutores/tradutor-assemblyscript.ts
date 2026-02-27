@@ -1,36 +1,54 @@
 import {
     AcessoIndiceVariavel,
+    AcessoMetodo,
     AcessoMetodoOuPropriedade,
+    AcessoPropriedade,
     Agrupamento,
     ArgumentoReferenciaFuncao,
     AtribuicaoPorIndice,
     Atribuir,
     Binario,
     Chamada,
-    ComentarioComoConstruto,
     Construto,
+    Deceto,
+    Dicionario,
+    Dupla,
     DefinirValor,
+    Elvis,
+    ExpressaoRegular,
     FuncaoConstruto,
     Isto,
     Leia,
     Literal,
     Logico,
+    Noneto,
+    Octeto,
+    Quarteto,
+    Quinteto,
     ReferenciaFuncao,
     Separador,
+    Sexteto,
+    Septeto,
+    SeTernario,
     TipoDe,
+    Trio,
+    TuplaN,
     Unario,
     Variavel,
     Vetor,
 } from '../construtos';
 import {
+    Ajuda,
     Bloco,
     Classe,
     Comentario,
     Const,
+    ConstMultiplo,
     Declaracao,
     Enquanto,
     Escolha,
     Escreva,
+    EscrevaMesmaLinha,
     Expressao,
     Falhar,
     Fazer,
@@ -40,8 +58,11 @@ import {
     ParaCada,
     Retorna,
     Se,
+    TendoComo,
     Tente,
+    TextoDocumentacao,
     Var,
+    VarMultiplo,
 } from '../declaracoes';
 import { SimboloInterface } from '../interfaces';
 import { CaminhoEscolha } from '../interfaces/construtos';
@@ -64,7 +85,7 @@ export class TradutorAssemblyScript {
             case tiposDeSimbolos.BIT_NOT:
                 return '~';
             case tiposDeSimbolos.DIFERENTE:
-                return '!==';
+                return '!=';
             case tiposDeSimbolos.DIVISAO:
                 return '/';
             case tiposDeSimbolos.E:
@@ -74,7 +95,7 @@ export class TradutorAssemblyScript {
             case tiposDeSimbolos.IGUAL:
                 return '=';
             case tiposDeSimbolos.IGUAL_IGUAL:
-                return '===';
+                return '==';
             case tiposDeSimbolos.MAIOR:
                 return '>';
             case tiposDeSimbolos.MAIOR_IGUAL:
@@ -96,6 +117,7 @@ export class TradutorAssemblyScript {
 
     traduzirFuncoesNativas(metodo: string): string {
         switch (metodo.toLowerCase()) {
+            // Array methods
             case 'adicionar':
             case 'empilhar':
                 return 'push';
@@ -104,6 +126,7 @@ export class TradutorAssemblyScript {
             case 'fatiar':
                 return 'slice';
             case 'inclui':
+            case 'incluido':
                 return 'includes';
             case 'inverter':
                 return 'reverse';
@@ -117,14 +140,125 @@ export class TradutorAssemblyScript {
                 return 'pop';
             case 'tamanho':
                 return 'length';
+            case 'indice':
+            case 'indiceode':
+                return 'indexOf';
+            // String methods
             case 'maiusculo':
                 return 'toUpperCase';
             case 'minusculo':
                 return 'toLowerCase';
             case 'substituir':
                 return 'replace';
+            case 'trimcomeco':
+                return 'trimStart';
+            case 'trimfim':
+                return 'trimEnd';
+            case 'trim':
+                return 'trim';
+            case 'comeca':
+                return 'startsWith';
+            case 'termina':
+                return 'endsWith';
+            case 'contém':
+            case 'contem':
+                return 'includes';
+            // Math constants and methods (would need Math. prefix in AS)
+            case 'abs':
+            case 'absoluto':
+                return 'Math.abs';
+            case 'ceil':
+            case 'teto':
+                return 'Math.ceil';
+            case 'floor':
+            case 'piso':
+                return 'Math.floor';
+            case 'round':
+            case 'arredondar':
+                return 'Math.round';
+            case 'sqrt':
+            case 'raizquadrada':
+                return 'Math.sqrt';
+            case 'pow':
+            case 'potencia':
+                return 'Math.pow';
+            case 'max':
+            case 'maximo':
+                return 'Math.max';
+            case 'min':
+            case 'minimo':
+                return 'Math.min';
+            case 'sin':
+            case 'seno':
+                return 'Math.sin';
+            case 'cos':
+            case 'cosseno':
+                return 'Math.cos';
+            case 'tan':
+            case 'tangente':
+                return 'Math.tan';
+            case 'pi':
+                return 'Math.PI';
+            case 'e':
+                return 'Math.E';
             default:
                 return metodo;
+        }
+    }
+
+    traduzirFuncaoNativaGlobal(nomeFuncao: string, argumentos: string[]): string | null {
+        switch (nomeFuncao.toLowerCase()) {
+            // Math functions
+            case 'aleatorio':
+                return `Math.random()`;
+            case 'aleatorioEntre':
+            case 'aleatorioente':
+                if (argumentos.length >= 2) {
+                    return `(Math.random() * (${argumentos[1]} - ${argumentos[0]}) + ${argumentos[0]})`;
+                }
+                return null;
+            case 'arredondar':
+                return argumentos.length > 0 ? `Math.round(${argumentos[0]})` : null;
+            case 'inteiro':
+                return argumentos.length > 0 ? `Math.trunc(${argumentos[0]})` : null;
+            case 'numero':
+                return argumentos.length > 0 ? `Number(${argumentos[0]})` : null;
+            case 'texto':
+                return argumentos.length > 0 ? `String(${argumentos[0]})` : null;
+            case 'longo':
+                return argumentos.length > 0 ? `parseInt(${argumentos[0]})` : null;
+            case 'real':
+                return argumentos.length > 0 ? `parseFloat(${argumentos[0]})` : null;
+            // Array functions
+            case 'tamanho':
+                return argumentos.length > 0 ? `(${argumentos[0]}).length` : null;
+            case 'intervalo':
+                // intervalo(inicio, fim, passo?) - returns array of numbers
+                if (argumentos.length >= 2) {
+                    if (argumentos.length >= 3) {
+                        return `Array.from({length: (${argumentos[1]} - ${argumentos[0]}) / ${argumentos[2]}}, (_, i) => ${argumentos[0]} + i * ${argumentos[2]})`;
+                    }
+                    return `Array.from({length: ${argumentos[1]} - ${argumentos[0]}}, (_, i) => ${argumentos[0]} + i)`;
+                }
+                return null;
+            case 'maximo':
+                return argumentos.length > 0 ? `Math.max(...${argumentos[0]})` : null;
+            case 'minimo':
+                return argumentos.length > 0 ? `Math.min(...${argumentos[0]})` : null;
+            // These need custom implementation or are too complex for Phase 5
+            case 'mapear':
+            case 'filtrarPor':
+            case 'reduzir':
+            case 'ordenar':
+            case 'encontrar':
+            case 'encontrarIndice':
+            case 'incluido':
+            case 'todos':
+            case 'algum':
+                // These would require closures/lambda support - not easily translated
+                return null;
+            default:
+                return null;
         }
     }
 
@@ -173,7 +307,7 @@ export class TradutorAssemblyScript {
     }
 
     traduzirDeclaracaoEscreva(declaracaoEscreva: Escreva): string {
-        let resultado = 'console.log(';
+        let resultado = 'trace(';
         for (const argumento of declaracaoEscreva.argumentos) {
             const valor = this.dicionarioConstrutos[argumento.constructor.name](argumento);
             resultado += valor + ', ';
@@ -185,7 +319,7 @@ export class TradutorAssemblyScript {
     }
 
     traduzirConstrutoLiteral(literal: Literal): string {
-        if (typeof literal.valor === 'string') return `'${literal.valor}'`;
+        if (typeof literal.valor === 'string') return `"${literal.valor}"`;
         return String(literal.valor);
     }
 
@@ -194,25 +328,67 @@ export class TradutorAssemblyScript {
             case 'texto':
                 return ': string';
             case 'inteiro':
+                return ': i32';
+            case 'longo':
+                return ': i64';
+            case 'inteiro_curto':
+            case 'inteiroCurto':
+                return ': i16';
+            case 'byte':
+                return ': i8';
             case 'numero':
             case 'número':
             case 'real':
                 return ': f64';
+            case 'real_curto':
+            case 'realCurto':
+                return ': f32';
             case 'logico':
             case 'lógico':
                 return ': bool';
+            case 'vazio':
+            case 'nada':
+                return ': void';
             case 'nulo':
-                return ': null';
+                throw new Error(`Tipo 'nulo' não é válido no AssemblyScript. Use 'Type | null' para tipos anuláveis.`);
             case 'inteiro[]':
+                return ': i32[]';
+            case 'longo[]':
+                return ': i64[]';
             case 'real[]':
+            case 'numero[]':
+            case 'número[]':
                 return ': f64[]';
             case 'texto[]':
                 return ': string[]';
             case 'logico[]':
             case 'lógico[]':
                 return ': bool[]';
+            case 'dicionario':
+            case 'dicionário':
+                return ': Map<string, i32>';
+            case 'dupla':
+                return ': i32[]';
+            case 'trio':
+                return ': i32[]';
+            case 'quarteto':
+                return ': i32[]';
+            case 'quinteto':
+                return ': i32[]';
+            case 'sexteto':
+                return ': i32[]';
+            case 'septeto':
+                return ': i32[]';
+            case 'octeto':
+                return ': i32[]';
+            case 'noneto':
+                return ': i32[]';
+            case 'deceto':
+                return ': i32[]';
+            case 'tupla':
+                return ': i32[]';
             default:
-                return ': any';
+                throw new Error(`Tipo não reconhecido ou não suportado no AssemblyScript: '${tipo}'. AssemblyScript requer anotações de tipo explícitas.`);
         }
     }
 
@@ -259,7 +435,8 @@ export class TradutorAssemblyScript {
     }
 
     traduzirDeclaracaoTente(declaracaoTente: Tente): string {
-        let resultado = 'try {\n';
+        let resultado = '/* AVISO: AssemblyScript não suporta try/catch/finally. Este código pode não funcionar como esperado. */\n';
+        resultado += 'try {\n';
         this.indentacao += 4;
         resultado += ' '.repeat(this.indentacao);
 
@@ -297,6 +474,100 @@ export class TradutorAssemblyScript {
         }
 
         return resultado;
+    }
+
+    traduzirDeclaracaoVarMultiplo(declaracaoVarMultiplo: VarMultiplo): string {
+        const variaveis = declaracaoVarMultiplo.simbolos.map(s => s.lexema).join(', ');
+        let resultado = 'let ';
+        resultado += variaveis;
+        resultado += this.resolveTipoDeclaracaoVarEContante(declaracaoVarMultiplo.tipo);
+        if (!declaracaoVarMultiplo?.inicializador) resultado += ';';
+        else {
+            resultado += ' = ';
+            if (this.dicionarioConstrutos[declaracaoVarMultiplo.inicializador.constructor.name]) {
+                resultado += this.dicionarioConstrutos[
+                    declaracaoVarMultiplo.inicializador.constructor.name
+                ](declaracaoVarMultiplo.inicializador);
+            } else {
+                resultado += this.dicionarioDeclaracoes[
+                    declaracaoVarMultiplo.inicializador.constructor.name
+                ](declaracaoVarMultiplo.inicializador);
+            }
+            resultado += ';';
+        }
+        return resultado;
+    }
+
+    traduzirDeclaracaoConstMultiplo(declaracaoConstMultiplo: ConstMultiplo): string {
+        const constantes = declaracaoConstMultiplo.simbolos.map(s => s.lexema).join(', ');
+        let resultado = 'const ';
+        resultado += constantes;
+        resultado += this.resolveTipoDeclaracaoVarEContante(declaracaoConstMultiplo.tipo);
+        if (!declaracaoConstMultiplo?.inicializador) resultado += ';';
+        else {
+            resultado += ' = ';
+            if (this.dicionarioConstrutos[declaracaoConstMultiplo.inicializador.constructor.name]) {
+                resultado += this.dicionarioConstrutos[
+                    declaracaoConstMultiplo.inicializador.constructor.name
+                ](declaracaoConstMultiplo.inicializador);
+            } else {
+                resultado += this.dicionarioDeclaracoes[
+                    declaracaoConstMultiplo.inicializador.constructor.name
+                ](declaracaoConstMultiplo.inicializador);
+            }
+            resultado += ';';
+        }
+        return resultado;
+    }
+
+    traduzirDeclaracaoEscrevaMesmaLinha(declaracaoEscrevaMesmaLinha: EscrevaMesmaLinha): string {
+        let resultado = 'trace(';
+        for (const argumento of declaracaoEscrevaMesmaLinha.argumentos) {
+            const valor = this.dicionarioConstrutos[argumento.constructor.name](argumento);
+            resultado += valor + ', ';
+        }
+
+        resultado = resultado.slice(0, -2);
+        resultado += ')';
+        return resultado;
+    }
+
+    traduzirDeclaracaoTendoComo(declaracaoTendoComo: TendoComo): string {
+        // TendoComo is a resource management pattern (like try-with-resources in Java)
+        // AssemblyScript doesn't have built-in support, so we'll just treat it as a scope
+        let resultado = `// tendo ${declaracaoTendoComo.simboloVariavel.lexema} como recurso\n`;
+        resultado += ' '.repeat(this.indentacao);
+        resultado += `let ${declaracaoTendoComo.simboloVariavel.lexema} = `;
+        
+        if (this.dicionarioConstrutos[declaracaoTendoComo.inicializacaoVariavel.constructor.name]) {
+            resultado += this.dicionarioConstrutos[
+                declaracaoTendoComo.inicializacaoVariavel.constructor.name
+            ](declaracaoTendoComo.inicializacaoVariavel);
+        } else {
+            resultado += this.dicionarioDeclaracoes[
+                declaracaoTendoComo.inicializacaoVariavel.constructor.name
+            ](declaracaoTendoComo.inicializacaoVariavel);
+        }
+        
+        resultado += ';\n';
+        resultado += ' '.repeat(this.indentacao);
+        resultado += this.dicionarioDeclaracoes[declaracaoTendoComo.corpo.constructor.name](
+            declaracaoTendoComo.corpo
+        );
+        
+        return resultado;
+    }
+
+    traduzirDeclaracaoAjuda(declaracaoAjuda: Ajuda): string {
+        // Ajuda is a help/documentation statement
+        // In AssemblyScript, we'll just comment it out
+        return '// ajuda' + '\n';
+    }
+
+    traduzirDeclaracaoTextoDocumentacao(declaracaoTextoDoc: TextoDocumentacao): string {
+        // TextoDocumentacao is documentation text
+        // We'll convert it to a comment
+        return `/** ${declaracaoTextoDoc} */\n`;
     }
 
     logicaComumBlocoEscopo(declaracoes: Declaracao[]): string {
@@ -410,15 +681,42 @@ export class TradutorAssemblyScript {
     }
 
     traduzirDeclaracaoParaCada(declaracaoParaCada: ParaCada): string {
-        let resultado = `for (let ${declaracaoParaCada.variavelIteracao} of `;
+        // AssemblyScript não suporta for...of. Convertendo para loop baseado em índice.
+        if (declaracaoParaCada.variavelIteracao.constructor.name !== 'Variavel') {
+            throw new Error('Desestruturação em paraCada não é suportada no AssemblyScript. Use uma variável simples.');
+        }
+        
+        const nomeVariavel = (declaracaoParaCada.variavelIteracao as any).simbolo.lexema;
+        const nomeVetor = `__arr_${nomeVariavel}`;
+        let resultado = `const ${nomeVetor} = `;
         resultado +=
             this.dicionarioConstrutos[declaracaoParaCada.vetorOuDicionario.constructor.name](
                 declaracaoParaCada.vetorOuDicionario
-            ) + ') ';
-
-        resultado += this.dicionarioDeclaracoes[declaracaoParaCada.corpo.constructor.name](
-            declaracaoParaCada.corpo
-        );
+            ) + ';';
+        resultado += '\n';
+        resultado += ' '.repeat(this.indentacao);
+        resultado += `for (let __i_${nomeVariavel} = 0; __i_${nomeVariavel} < ${nomeVetor}.length; __i_${nomeVariavel}++) `;
+        
+        // Injeta a atribuição da variável de iteração no início do corpo do bloco
+        const corpoBloco = declaracaoParaCada.corpo as Bloco;
+        const declaracoesCorpo = corpoBloco.declaracoes || [];
+        let resultadoCorpo = '{\n';
+        this.indentacao += 4;
+        resultadoCorpo += ' '.repeat(this.indentacao) + `const ${nomeVariavel} = ${nomeVetor}[__i_${nomeVariavel}];\n`;
+        for (const declaracaoOuConstruto of declaracoesCorpo) {
+            resultadoCorpo += ' '.repeat(this.indentacao);
+            const nomeConstrutor = declaracaoOuConstruto.constructor.name;
+            if (this.dicionarioConstrutos.hasOwnProperty(nomeConstrutor)) {
+                resultadoCorpo += this.dicionarioConstrutos[nomeConstrutor](declaracaoOuConstruto);
+            } else {
+                resultadoCorpo += this.dicionarioDeclaracoes[nomeConstrutor](declaracaoOuConstruto);
+            }
+            resultadoCorpo += '\n';
+        }
+        this.indentacao -= 4;
+        resultadoCorpo += ' '.repeat(this.indentacao) + '}\n';
+        resultado += resultadoCorpo;
+        
         return resultado;
     }
 
@@ -463,24 +761,100 @@ export class TradutorAssemblyScript {
 
     traduzirDeclaracaoFuncao(declaracaoFuncao: FuncaoDeclaracao): string {
         let resultado = 'function ';
-        resultado += declaracaoFuncao.simbolo.lexema + ' (';
+        resultado += declaracaoFuncao.simbolo.lexema + '(';
 
+        // Adiciona parâmetros com tipos
         for (const parametro of declaracaoFuncao.funcao.parametros) {
-            resultado += parametro.nome.lexema + ', ';
+            resultado += parametro.nome.lexema;
+            
+            // Adiciona tipo do parâmetro se disponível
+            if (parametro.tipoDado) {
+                try {
+                    resultado += this.resolveTipoDeclaracaoVarEContante(parametro.tipoDado);
+                } catch (e) {
+                    // Se não conseguir resolver o tipo, lança erro mais específico
+                    throw new Error(`Parâmetro '${parametro.nome.lexema}' da função '${declaracaoFuncao.simbolo.lexema}' tem tipo não suportado: '${parametro.tipoDado}'`);
+                }
+            } else {
+                // AssemblyScript requer tipos explícitos em todos os parâmetros
+                throw new Error(`Parâmetro '${parametro.nome.lexema}' da função '${declaracaoFuncao.simbolo.lexema}' não tem tipo definido. AssemblyScript requer tipos explícitos.`);
+            }
+            
+            resultado += ', ';
         }
 
         if (declaracaoFuncao.funcao.parametros.length > 0) {
             resultado = resultado.slice(0, -2);
         }
 
-        resultado += ') ';
+        resultado += ')';
+        
+        // Adiciona tipo de retorno
+        const tipoRetorno = this.inferirTipoRetornoFuncao(declaracaoFuncao.funcao);
+        resultado += tipoRetorno;
+        
+        resultado += ' ';
 
         resultado += this.logicaComumBlocoEscopo(declaracaoFuncao.funcao.corpo);
         return resultado;
     }
+    
+    inferirTipoRetornoFuncao(funcao: FuncaoConstruto): string {
+        // Se a função tem tipo de retorno explícito, usa ele
+        if (funcao.tipo && funcao.tipo !== 'qualquer') {
+            try {
+                return this.resolveTipoDeclaracaoVarEContante(funcao.tipo);
+            } catch (e) {
+                // Se não conseguir resolver, retorna void por padrão
+                return ': void';
+            }
+        }
+        
+        // Procura por declarações de retorno no corpo e infere tipo a partir delas
+        const tipoInferido = this.inferirTipoDeRetorno(funcao.corpo);
+        if (tipoInferido) {
+            try {
+                return this.resolveTipoDeclaracaoVarEContante(tipoInferido);
+            } catch (e) {
+                return ': void';
+            }
+        }
+        
+        return ': void';
+    }
+    
+    inferirTipoDeRetorno(corpo: Declaracao[]): string | null {
+        if (!corpo) return null;
+        
+        for (const declaracao of corpo) {
+            if (declaracao.constructor.name === 'Retorna') {
+                const retorna = declaracao as any;
+                if (retorna.tipo && retorna.tipo !== 'vazio') {
+                    return retorna.tipo;
+                }
+            }
+            // Verifica recursivamente em blocos aninhados
+            if ((declaracao as any).corpo) {
+                const corpoInterno = (declaracao as any).corpo;
+                if (Array.isArray(corpoInterno)) {
+                    const tipo = this.inferirTipoDeRetorno(corpoInterno);
+                    if (tipo) return tipo;
+                } else if (corpoInterno.declaracoes) {
+                    const tipo = this.inferirTipoDeRetorno(corpoInterno.declaracoes);
+                    if (tipo) return tipo;
+                }
+            }
+        }
+        
+        return null;
+    }
+    
+
+    
+
 
     traduzirDeclaracaoFalhar(falhar: Falhar) {
-        return `throw '${falhar.explicacao.valor}'`;
+        return `abort('${falhar.explicacao.valor}')`;
     }
 
     traduzirDeclaracaoFazer(declaracaoFazer: Fazer): string {
@@ -592,6 +966,166 @@ export class TradutorAssemblyScript {
         return resultado;
     }
 
+    traduzirConstrutoDicionario(dicionario: Dicionario): string {
+        // AssemblyScript Maps são inicializados via construtor
+        // Map<K, V>() requer: new Map<string, ValueType>()
+        if (!dicionario.chaves.length) {
+            return 'new Map<string, i32>()';
+        }
+
+        // AssemblyScript não suporta literal syntax para Map, precisa usar constructor
+        // Gerar algo como: { let m = new Map<string, i32>(); m.set("key", value); ... return m; }
+        let resultado = '(() => { let m = new Map<string, i32>(); ';
+        
+        for (let i = 0; i < dicionario.chaves.length; i++) {
+            const chave = dicionario.chaves[i];
+            const valor = dicionario.valores[i];
+            
+            // A chave pode ser um Construto (como Literal) ou um valor simples
+            let chaveStr: string;
+            if (typeof chave === 'string') {
+                chaveStr = `"${chave}"`;
+            } else if (chave && chave.constructor && this.dicionarioConstrutos[chave.constructor.name]) {
+                // Se for um Construto, traduzi-lo
+                chaveStr = this.dicionarioConstrutos[chave.constructor.name](chave);
+            } else {
+                // Fallback: converter para string
+                chaveStr = `"${String(chave)}"`;
+            }
+            
+            resultado += `m.set(${chaveStr}, ${this.dicionarioConstrutos[valor.constructor.name](valor)}); `;
+        }
+        
+        resultado += 'return m; })()';
+        return resultado;
+    }
+
+    traduzirConstrutoDupla(dupla: Dupla): string {
+        const primeiro = this.dicionarioConstrutos[dupla.primeiro.constructor.name](dupla.primeiro);
+        const segundo = this.dicionarioConstrutos[dupla.segundo.constructor.name](dupla.segundo);
+        return `[${primeiro}, ${segundo}]`;
+    }
+
+    traduzirConstrutoTrio(trio: Trio): string {
+        const primeiro = this.dicionarioConstrutos[trio.primeiro.constructor.name](trio.primeiro);
+        const segundo = this.dicionarioConstrutos[trio.segundo.constructor.name](trio.segundo);
+        const terceiro = this.dicionarioConstrutos[trio.terceiro.constructor.name](trio.terceiro);
+        return `[${primeiro}, ${segundo}, ${terceiro}]`;
+    }
+
+    traduzirConstrutoQuarteto(quarteto: Quarteto): string {
+        const primeiro = this.dicionarioConstrutos[quarteto.primeiro.constructor.name](quarteto.primeiro);
+        const segundo = this.dicionarioConstrutos[quarteto.segundo.constructor.name](quarteto.segundo);
+        const terceiro = this.dicionarioConstrutos[quarteto.terceiro.constructor.name](quarteto.terceiro);
+        const quarto = this.dicionarioConstrutos[quarteto.quarto.constructor.name](quarteto.quarto);
+        return `[${primeiro}, ${segundo}, ${terceiro}, ${quarto}]`;
+    }
+
+    traduzirConstrutoQuinteto(quinteto: Quinteto): string {
+        const primeiro = this.dicionarioConstrutos[quinteto.primeiro.constructor.name](quinteto.primeiro);
+        const segundo = this.dicionarioConstrutos[quinteto.segundo.constructor.name](quinteto.segundo);
+        const terceiro = this.dicionarioConstrutos[quinteto.terceiro.constructor.name](quinteto.terceiro);
+        const quarto = this.dicionarioConstrutos[quinteto.quarto.constructor.name](quinteto.quarto);
+        const quinto = this.dicionarioConstrutos[quinteto.quinto.constructor.name](quinteto.quinto);
+        return `[${primeiro}, ${segundo}, ${terceiro}, ${quarto}, ${quinto}]`;
+    }
+
+    traduzirConstrutoSexteto(sexteto: Sexteto): string {
+        const primeiro = this.dicionarioConstrutos[sexteto.primeiro.constructor.name](sexteto.primeiro);
+        const segundo = this.dicionarioConstrutos[sexteto.segundo.constructor.name](sexteto.segundo);
+        const terceiro = this.dicionarioConstrutos[sexteto.terceiro.constructor.name](sexteto.terceiro);
+        const quarto = this.dicionarioConstrutos[sexteto.quarto.constructor.name](sexteto.quarto);
+        const quinto = this.dicionarioConstrutos[sexteto.quinto.constructor.name](sexteto.quinto);
+        const sexto = this.dicionarioConstrutos[sexteto.sexto.constructor.name](sexteto.sexto);
+        return `[${primeiro}, ${segundo}, ${terceiro}, ${quarto}, ${quinto}, ${sexto}]`;
+    }
+
+    traduzirConstrutoSepteto(septeto: Septeto): string {
+        const primeiro = this.dicionarioConstrutos[septeto.primeiro.constructor.name](septeto.primeiro);
+        const segundo = this.dicionarioConstrutos[septeto.segundo.constructor.name](septeto.segundo);
+        const terceiro = this.dicionarioConstrutos[septeto.terceiro.constructor.name](septeto.terceiro);
+        const quarto = this.dicionarioConstrutos[septeto.quarto.constructor.name](septeto.quarto);
+        const quinto = this.dicionarioConstrutos[septeto.quinto.constructor.name](septeto.quinto);
+        const sexto = this.dicionarioConstrutos[septeto.sexto.constructor.name](septeto.sexto);
+        const setimo = this.dicionarioConstrutos[septeto.setimo.constructor.name](septeto.setimo);
+        return `[${primeiro}, ${segundo}, ${terceiro}, ${quarto}, ${quinto}, ${sexto}, ${setimo}]`;
+    }
+
+    traduzirConstrutoOcteto(octeto: Octeto): string {
+        const primeiro = this.dicionarioConstrutos[octeto.primeiro.constructor.name](octeto.primeiro);
+        const segundo = this.dicionarioConstrutos[octeto.segundo.constructor.name](octeto.segundo);
+        const terceiro = this.dicionarioConstrutos[octeto.terceiro.constructor.name](octeto.terceiro);
+        const quarto = this.dicionarioConstrutos[octeto.quarto.constructor.name](octeto.quarto);
+        const quinto = this.dicionarioConstrutos[octeto.quinto.constructor.name](octeto.quinto);
+        const sexto = this.dicionarioConstrutos[octeto.sexto.constructor.name](octeto.sexto);
+        const setimo = this.dicionarioConstrutos[octeto.setimo.constructor.name](octeto.setimo);
+        const oitavo = this.dicionarioConstrutos[octeto.oitavo.constructor.name](octeto.oitavo);
+        return `[${primeiro}, ${segundo}, ${terceiro}, ${quarto}, ${quinto}, ${sexto}, ${setimo}, ${oitavo}]`;
+    }
+
+    traduzirConstrutoNoneto(noneto: Noneto): string {
+        const primeiro = this.dicionarioConstrutos[noneto.primeiro.constructor.name](noneto.primeiro);
+        const segundo = this.dicionarioConstrutos[noneto.segundo.constructor.name](noneto.segundo);
+        const terceiro = this.dicionarioConstrutos[noneto.terceiro.constructor.name](noneto.terceiro);
+        const quarto = this.dicionarioConstrutos[noneto.quarto.constructor.name](noneto.quarto);
+        const quinto = this.dicionarioConstrutos[noneto.quinto.constructor.name](noneto.quinto);
+        const sexto = this.dicionarioConstrutos[noneto.sexto.constructor.name](noneto.sexto);
+        const setimo = this.dicionarioConstrutos[noneto.setimo.constructor.name](noneto.setimo);
+        const oitavo = this.dicionarioConstrutos[noneto.oitavo.constructor.name](noneto.oitavo);
+        const nono = this.dicionarioConstrutos[noneto.nono.constructor.name](noneto.nono);
+        return `[${primeiro}, ${segundo}, ${terceiro}, ${quarto}, ${quinto}, ${sexto}, ${setimo}, ${oitavo}, ${nono}]`;
+    }
+
+    traduzirConstrutoDeceto(deceto: Deceto): string {
+        const primeiro = this.dicionarioConstrutos[deceto.primeiro.constructor.name](deceto.primeiro);
+        const segundo = this.dicionarioConstrutos[deceto.segundo.constructor.name](deceto.segundo);
+        const terceiro = this.dicionarioConstrutos[deceto.terceiro.constructor.name](deceto.terceiro);
+        const quarto = this.dicionarioConstrutos[deceto.quarto.constructor.name](deceto.quarto);
+        const quinto = this.dicionarioConstrutos[deceto.quinto.constructor.name](deceto.quinto);
+        const sexto = this.dicionarioConstrutos[deceto.sexto.constructor.name](deceto.sexto);
+        const setimo = this.dicionarioConstrutos[deceto.setimo.constructor.name](deceto.setimo);
+        const oitavo = this.dicionarioConstrutos[deceto.oitavo.constructor.name](deceto.oitavo);
+        const nono = this.dicionarioConstrutos[deceto.nono.constructor.name](deceto.nono);
+        const decimo = this.dicionarioConstrutos[deceto.decimo.constructor.name](deceto.decimo);
+        return `[${primeiro}, ${segundo}, ${terceiro}, ${quarto}, ${quinto}, ${sexto}, ${setimo}, ${oitavo}, ${nono}, ${decimo}]`;
+    }
+
+    traduzirConstrutoTuplaN(tuplaN: TuplaN): string {
+        const elementos = tuplaN.elementos.map(elemento =>
+            this.dicionarioConstrutos[elemento.constructor.name](elemento)
+        );
+        return `[${elementos.join(', ')}]`;
+    }
+
+    traduzirConstrutoSeTernario(seTernario: SeTernario): string {
+        const condicao = this.dicionarioConstrutos[seTernario.condicao.constructor.name](seTernario.condicao);
+        const expressaoSe = this.dicionarioConstrutos[seTernario.expressaoSe.constructor.name](seTernario.expressaoSe);
+        const expressaoSenao = this.dicionarioConstrutos[seTernario.expressaoSenao.constructor.name](seTernario.expressaoSenao);
+        return `${condicao} ? ${expressaoSe} : ${expressaoSenao}`;
+    }
+
+    traduzirConstrutoElvis(elvis: Elvis): string {
+        const esquerda = this.dicionarioConstrutos[elvis.esquerda.constructor.name](elvis.esquerda);
+        const direita = this.dicionarioConstrutos[elvis.direita.constructor.name](elvis.direita);
+        // Elvis operator (?:) is equivalent to || in JavaScript for null-coalescing
+        return `${esquerda} || ${direita}`;
+    }
+
+    traduzirConstrutoAcessoPropriedade(acessoPropriedade: AcessoPropriedade): string {
+        const objeto = this.dicionarioConstrutos[acessoPropriedade.objeto.constructor.name](acessoPropriedade.objeto);
+        return `${objeto}.${acessoPropriedade.nomePropriedade}`;
+    }
+
+    traduzirConstrutoExpressaoRegular(expressaoRegular: ExpressaoRegular): string {
+        // AssemblyScript doesn't have native regex support like JavaScript
+        // Return the pattern as a string for now
+        const valor = expressaoRegular.valor;
+        if (typeof valor === 'string') {
+            return `"${valor}"`;
+        }
+        return String(valor);
+    }
+
     traduzirConstrutoVariavel(variavel: Variavel): string {
         return variavel.simbolo.lexema;
     }
@@ -613,22 +1147,15 @@ export class TradutorAssemblyScript {
     }
 
     traduzirConstrutoTipoDe(tipoDe: TipoDe): string {
-        let resultado = 'typeof ';
-
-        if (typeof tipoDe.valor === 'string') resultado += `'${tipoDe.valor}'`;
-        else if (tipoDe.valor instanceof Vetor)
-            resultado += this.traduzirConstrutoVetor(tipoDe.valor);
-        else resultado += this.dicionarioConstrutos[tipoDe.valor.constructor.name](tipoDe.valor);
-
-        return resultado;
+        throw new Error('O operador typeof não é suportado no AssemblyScript. Use verificações de tipo em tempo de compilação como instanceof ou is<T>() em vez disso.');
     }
 
     traduzirConstrutoLogico(logico: Logico): string {
-        let direita = this.dicionarioConstrutos[logico.direita.constructor.name](logico.direita);
-        let operador = this.traduzirSimboloOperador(logico.operador);
         let esquerda = this.dicionarioConstrutos[logico.esquerda.constructor.name](logico.esquerda);
+        let operador = this.traduzirSimboloOperador(logico.operador);
+        let direita = this.dicionarioConstrutos[logico.direita.constructor.name](logico.direita);
 
-        return `${direita} ${operador} ${esquerda}`;
+        return `${esquerda} ${operador} ${direita}`;
     }
 
     traduzirFuncaoConstruto(funcaoConstruto: FuncaoConstruto): string {
@@ -660,6 +1187,19 @@ export class TradutorAssemblyScript {
 
     traduzirConstrutoChamada(chamada: Chamada): string {
         let resultado = '';
+
+        // Check if this is a native library function call
+        if (chamada.entidadeChamada instanceof Variavel) {
+            const nomeVariavel = (chamada.entidadeChamada as Variavel).simbolo.lexema;
+            const argumentosTexto = chamada.argumentos.map(arg => 
+                this.dicionarioConstrutos[arg.constructor.name](arg)
+            );
+            
+            const funcaoNativa = this.traduzirFuncaoNativaGlobal(nomeVariavel, argumentosTexto);
+            if (funcaoNativa) {
+                return funcaoNativa;
+            }
+        }
 
         const retorno = `${this.dicionarioConstrutos[chamada.entidadeChamada.constructor.name](
             chamada.entidadeChamada,
@@ -704,6 +1244,13 @@ export class TradutorAssemblyScript {
     }
 
     traduzirConstrutoBinario(binario: Binario): string {
+        // Tratamento especial para exponenciação no AssemblyScript
+        if (binario.operador.tipo === tiposDeSimbolos.EXPONENCIACAO) {
+            const esquerda = this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda);
+            const direita = this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita);
+            return `Math.pow(${esquerda}, ${direita})`;
+        }
+
         let resultado = '';
         if (binario.esquerda.constructor.name === 'Agrupamento')
             resultado +=
@@ -738,19 +1285,29 @@ export class TradutorAssemblyScript {
         return resultado;
     }
 
-    // TODO: Eliminar o soft cast para `any`.
     traduzirConstrutoAtribuicaoPorIndice(AtribuicaoPorIndice: AtribuicaoPorIndice): string {
         let resultado = '';
 
-        resultado += (AtribuicaoPorIndice.objeto as any).simbolo.lexema + '[';
+        // Traduz o objeto (array ou coleção)
+        if (AtribuicaoPorIndice.objeto instanceof Variavel) {
+            resultado += (AtribuicaoPorIndice.objeto as Variavel).simbolo.lexema;
+        } else {
+            resultado += this.dicionarioConstrutos[AtribuicaoPorIndice.objeto.constructor.name](
+                AtribuicaoPorIndice.objeto
+            );
+        }
+        
+        // Adiciona o índice
+        resultado += '[';
         resultado +=
             this.dicionarioConstrutos[AtribuicaoPorIndice.indice.constructor.name](
                 AtribuicaoPorIndice.indice
             ) + ']';
         resultado += ' = ';
 
-        if ((AtribuicaoPorIndice?.valor as any).simbolo?.lexema) {
-            resultado += `${(AtribuicaoPorIndice.valor as any).simbolo.lexema}`;
+        // Traduz o valor a ser atribuído
+        if (AtribuicaoPorIndice.valor instanceof Variavel) {
+            resultado += (AtribuicaoPorIndice.valor as Variavel).simbolo.lexema;
         } else {
             resultado += this.dicionarioConstrutos[AtribuicaoPorIndice.valor.constructor.name](
                 AtribuicaoPorIndice.valor
@@ -789,7 +1346,9 @@ export class TradutorAssemblyScript {
 
     dicionarioConstrutos = {
         AcessoIndiceVariavel: this.traduzirConstrutoAcessoIndiceVariavel.bind(this),
+        AcessoMetodo: this.traduzirConstrutoAcessoMetodo.bind(this),
         AcessoMetodoOuPropriedade: this.traduzirConstrutoAcessoMetodo.bind(this),
+        AcessoPropriedade: this.traduzirConstrutoAcessoPropriedade.bind(this),
         Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
         ArgumentoReferenciaFuncao: this.traduzirConstrutoArgumentoReferenciaFuncao.bind(this),
         AtribuicaoPorIndice: this.traduzirConstrutoAtribuicaoPorIndice.bind(this),
@@ -797,20 +1356,35 @@ export class TradutorAssemblyScript {
         Binario: this.traduzirConstrutoBinario.bind(this),
         Chamada: this.traduzirConstrutoChamada.bind(this),
         ComentarioComoConstruto: this.traduzirConstrutoComentario.bind(this),
+        Deceto: this.traduzirConstrutoDeceto.bind(this),
         DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
+        Dicionario: this.traduzirConstrutoDicionario.bind(this),
+        Dupla: this.traduzirConstrutoDupla.bind(this),
+        Elvis: this.traduzirConstrutoElvis.bind(this),
+        ExpressaoRegular: this.traduzirConstrutoExpressaoRegular.bind(this),
         FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
         Isto: () => 'this',
         Literal: this.traduzirConstrutoLiteral.bind(this),
         Logico: this.traduzirConstrutoLogico.bind(this),
+        Noneto: this.traduzirConstrutoNoneto.bind(this),
+        Octeto: this.traduzirConstrutoOcteto.bind(this),
+        Quarteto: this.traduzirConstrutoQuarteto.bind(this),
+        Quinteto: this.traduzirConstrutoQuinteto.bind(this),
         ReferenciaFuncao: this.traduzirConstrutoReferenciaFuncao.bind(this),
         Separador: this.traduzirConstrutoSeparador.bind(this),
+        SeTernario: this.traduzirConstrutoSeTernario.bind(this),
+        Sexteto: this.traduzirConstrutoSexteto.bind(this),
+        Septeto: this.traduzirConstrutoSepteto.bind(this),
         TipoDe: this.traduzirConstrutoTipoDe.bind(this),
+        Trio: this.traduzirConstrutoTrio.bind(this),
+        TuplaN: this.traduzirConstrutoTuplaN.bind(this),
         Unario: this.traduzirConstrutoUnario.bind(this),
         Variavel: this.traduzirConstrutoVariavel.bind(this),
         Vetor: this.traduzirConstrutoVetor.bind(this),
     };
 
     dicionarioDeclaracoes = {
+        Ajuda: this.traduzirDeclaracaoAjuda.bind(this),
         Bloco: this.traduzirDeclaracaoBloco.bind(this),
         Enquanto: this.traduzirDeclaracaoEnquanto.bind(this),
         Comentario: this.traduzirConstrutoComentario.bind(this),
@@ -830,8 +1404,13 @@ export class TradutorAssemblyScript {
         Classe: this.traduzirDeclaracaoClasse.bind(this),
         Tente: this.traduzirDeclaracaoTente.bind(this),
         Const: this.traduzirDeclaracaoConst.bind(this),
+        ConstMultiplo: this.traduzirDeclaracaoConstMultiplo.bind(this),
         Var: this.traduzirDeclaracaoVar.bind(this),
+        VarMultiplo: this.traduzirDeclaracaoVarMultiplo.bind(this),
         Escreva: this.traduzirDeclaracaoEscreva.bind(this),
+        EscrevaMesmaLinha: this.traduzirDeclaracaoEscrevaMesmaLinha.bind(this),
+        TendoComo: this.traduzirDeclaracaoTendoComo.bind(this),
+        TextoDocumentacao: this.traduzirDeclaracaoTextoDocumentacao.bind(this),
     };
 
     traduzir(declaracoes: Declaracao[]): string {

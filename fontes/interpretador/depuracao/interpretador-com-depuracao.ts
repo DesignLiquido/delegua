@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import { Declaracao, Enquanto, Escreva, Para, Retorna, Tente } from '../../declaracoes';
+import { Declaracao, Enquanto, Escreva, Fazer, Para, Retorna, Tente } from '../../declaracoes';
 import { PontoParada } from '../../depuracao';
 import { ComandoDepurador, InterpretadorComDepuracaoInterface } from '../../interfaces';
 import { TipoEscopoExecucao } from '../../interfaces/escopo-execucao';
@@ -126,6 +126,10 @@ export class InterpretadorComDepuracao
 
     override async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
         return await comum.visitarDeclaracaoPara(this, declaracao);
+    }
+
+    override async visitarDeclaracaoFazer(declaracao: Fazer): Promise<any> {
+        return await comum.visitarDeclaracaoFazer(this, declaracao);
     }
 
     /**

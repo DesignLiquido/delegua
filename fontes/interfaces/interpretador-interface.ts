@@ -15,6 +15,8 @@ export interface InterpretadorInterface extends VisitanteComumInterface {
     interfaceEntradaSaida: any;
     hashArquivoDeclaracaoAtual: number;
     linhaDeclaracaoAtual: number;
+    /** Descritor da classe cujo método está sendo executado no momento. Nulo se fora de método de classe. */
+    classeAtualEmExecucao: any;
 
     eVerdadeiro(objeto: any): boolean;
     avaliar(expressao: Construto | Declaracao): any;

@@ -26,6 +26,7 @@ export const palavrasReservadasPitugues = {
     isto: tiposDeSimbolos.ISTO,
     entrada: tiposDeSimbolos.LEIA,
     leia: tiposDeSimbolos.LEIA,
+    nada: tiposDeSimbolos.NADA,
     nao: tiposDeSimbolos.NAO,
     não: tiposDeSimbolos.NAO,
     nulo: tiposDeSimbolos.NULO,

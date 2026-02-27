@@ -1,6 +1,9 @@
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
 
 import { FuncaoPadrao } from './estruturas/funcao-padrao';
+import { DeleguaFuncao } from './estruturas/delegua-funcao';
+import { DescritorTipoClasse } from './estruturas/descritor-tipo-classe';
+import { ObjetoDeleguaClasse } from './estruturas/objeto-delegua-classe';
 
 import * as bibliotecaGlobal from '../bibliotecas/biblioteca-global';
 import { Leia } from '../construtos';
@@ -10,9 +13,17 @@ export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExe
         'aleatorio',
         new FuncaoPadrao(1, bibliotecaGlobal.aleatorio)
     );
+    pilhaEscoposExecucao.definirVariavel(
+        'aleatório',
+        new FuncaoPadrao(1, bibliotecaGlobal.aleatorio)
+    );
 
     pilhaEscoposExecucao.definirVariavel(
         'aleatorioEntre',
+        new FuncaoPadrao(2, bibliotecaGlobal.aleatorioEntre)
+    );
+    pilhaEscoposExecucao.definirVariavel(
+        'aleatórioEntre',
         new FuncaoPadrao(2, bibliotecaGlobal.aleatorioEntre)
     );
 
@@ -31,14 +42,26 @@ export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExe
         'encontrarIndice',
         new FuncaoPadrao(2, bibliotecaGlobal.encontrarIndice)
     );
+    pilhaEscoposExecucao.definirVariavel(
+        'encontrarÍndice',
+        new FuncaoPadrao(2, bibliotecaGlobal.encontrarIndice)
+    );
 
     pilhaEscoposExecucao.definirVariavel(
         'encontrarUltimo',
         new FuncaoPadrao(2, bibliotecaGlobal.encontrarUltimo)
     );
+    pilhaEscoposExecucao.definirVariavel(
+        'encontrarÚltimo',
+        new FuncaoPadrao(2, bibliotecaGlobal.encontrarUltimo)
+    );
 
     pilhaEscoposExecucao.definirVariavel(
         'encontrarUltimoIndice',
+        new FuncaoPadrao(2, bibliotecaGlobal.encontrarUltimoIndice)
+    );
+    pilhaEscoposExecucao.definirVariavel(
+        'encontrarÚltimoÍndice',
         new FuncaoPadrao(2, bibliotecaGlobal.encontrarUltimoIndice)
     );
 
@@ -51,6 +74,10 @@ export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExe
         'incluido',
         new FuncaoPadrao(2, bibliotecaGlobal.incluido)
     );
+    pilhaEscoposExecucao.definirVariavel(
+        'incluído',
+        new FuncaoPadrao(2, bibliotecaGlobal.incluido)
+    );
 
     pilhaEscoposExecucao.definirVariavel('inteiro', new FuncaoPadrao(1, bibliotecaGlobal.inteiro));
 
@@ -61,8 +88,10 @@ export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExe
     pilhaEscoposExecucao.definirVariavel('mapear', new FuncaoPadrao(2, bibliotecaGlobal.mapear));
 
     pilhaEscoposExecucao.definirVariavel('maximo', new FuncaoPadrao(1, bibliotecaGlobal.maximo));
+    pilhaEscoposExecucao.definirVariavel('máximo', new FuncaoPadrao(1, bibliotecaGlobal.maximo));
 
     pilhaEscoposExecucao.definirVariavel('minimo', new FuncaoPadrao(1, bibliotecaGlobal.minimo));
+    pilhaEscoposExecucao.definirVariavel('mínimo', new FuncaoPadrao(1, bibliotecaGlobal.minimo));
 
     pilhaEscoposExecucao.definirVariavel('numero', new FuncaoPadrao(1, bibliotecaGlobal.numero));
     pilhaEscoposExecucao.definirVariavel('número', new FuncaoPadrao(1, bibliotecaGlobal.numero));
@@ -78,6 +107,10 @@ export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExe
         'primeiroEmCondicao',
         new FuncaoPadrao(2, bibliotecaGlobal.primeiroEmCondicao)
     );
+    pilhaEscoposExecucao.definirVariavel(
+        'primeiroEmCondição',
+        new FuncaoPadrao(2, bibliotecaGlobal.primeiroEmCondicao)
+    );
 
     pilhaEscoposExecucao.definirVariavel('real', new FuncaoPadrao(1, bibliotecaGlobal.real));
 
@@ -91,11 +124,15 @@ export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExe
 
     pilhaEscoposExecucao.definirVariavel(
         'todos',
-        new FuncaoPadrao(2, bibliotecaGlobal.todosEmCondicao)
+        new FuncaoPadrao(1, bibliotecaGlobal.todos)
     );
 
     pilhaEscoposExecucao.definirVariavel(
         'todosEmCondicao',
+        new FuncaoPadrao(2, bibliotecaGlobal.todosEmCondicao)
+    );
+    pilhaEscoposExecucao.definirVariavel(
+        'todosEmCondição',
         new FuncaoPadrao(2, bibliotecaGlobal.todosEmCondicao)
     );
 
@@ -130,10 +167,60 @@ export function obterTopicoAjuda(topico: any): string {
         case FuncaoPadrao:
             return obterAjudaFuncaoPadrao(topico);
 
+        case DeleguaFuncao:
+            if ((topico as DeleguaFuncao).documentacao) {
+                const conteudo = (topico as DeleguaFuncao).documentacao.conteudo;
+                return Array.isArray(conteudo) ? conteudo.join('\n') : String(conteudo);
+            }
+            return `Função '${(topico as DeleguaFuncao).nome}' — sem documentação disponível.`;
+
+        case ObjetoDeleguaClasse:
+            return obterAjudaDescritor((topico as ObjetoDeleguaClasse).classe, false);
+
+        case DescritorTipoClasse:
+            return obterAjudaDescritor(topico as DescritorTipoClasse, true);
+
         default:
             console.log(topico);
             return `Desculpe, não há documentação disponível para o tópico solicitado no momento.`;
     }
+}
+
+function obterConteudoDoc(documentacao: { conteudo: any } | undefined): string {
+    if (!documentacao) return '';
+    return Array.isArray(documentacao.conteudo)
+        ? documentacao.conteudo.join('\n')
+        : String(documentacao.conteudo);
+}
+
+function obterAjudaDescritor(descritor: DescritorTipoClasse, estatico: boolean): string {
+    const nome = descritor.simboloOriginal?.lexema ?? 'Objeto';
+    const qualificador = estatico ? ' (estático)' : '';
+    const linhas: string[] = [`Classe ${nome}${qualificador}`];
+
+    const propriedadesVisiveis = descritor.propriedades.filter(
+        (p) => p.acesso === 'publico' && p.estatico === estatico
+    );
+    if (propriedadesVisiveis.length > 0) {
+        linhas.push('\nPropriedades:');
+        for (const prop of propriedadesVisiveis) {
+            const doc = obterConteudoDoc(prop.documentacao);
+            linhas.push(`  ${prop.nome.lexema}${doc ? ` — ${doc}` : ''}`);
+        }
+    }
+
+    const nomesMetodos = Object.keys(descritor.metodos);
+    if (nomesMetodos.length > 0) {
+        linhas.push('\nMétodos:');
+        for (const nomeMetodo of nomesMetodos) {
+            const metodo = descritor.metodos[nomeMetodo];
+            const funcao = Array.isArray(metodo) ? metodo[0] : metodo;
+            const doc = obterConteudoDoc(funcao.documentacao);
+            linhas.push(`  ${nomeMetodo}()${doc ? ` — ${doc}` : ''}`);
+        }
+    }
+
+    return linhas.join('\n');
 }
 
 function obterAjudaFuncaoPadrao(funcaoPadrao: FuncaoPadrao): string {

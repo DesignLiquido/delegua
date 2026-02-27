@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 import { Binario, Chamada, Construto, Leia, Literal } from '../../construtos';
-import { Bloco, Declaracao, Enquanto, Escreva, Expressao, Para, Retorna, Tente } from '../../declaracoes';
+import { Bloco, Declaracao, Enquanto, Escreva, Expressao, Fazer, Para, Retorna, Tente } from '../../declaracoes';
 import {
     InterpretadorComDepuracaoInterface,
     ResultadoParcialInterpretadorInterface,
@@ -184,6 +184,7 @@ export async function visitarDeclaracaoEnquanto(
             while (
                 !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
                 !interpretador.pontoDeParadaAtivo &&
+                interpretador.comando !== 'pausar' &&
                 interpretador.eVerdadeiro(await interpretador.avaliar(declaracao.condicao))
             ) {
                 escopoAtual.emLacoRepeticao = true;
@@ -285,7 +286,8 @@ export async function visitarDeclaracaoPara(
             let iteracoes = 0;
             while (
                 !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
-                !interpretador.pontoDeParadaAtivo
+                !interpretador.pontoDeParadaAtivo &&
+                interpretador.comando !== 'pausar'
             ) {
                 if (
                     cloneDeclaracao.condicao !== null &&
@@ -316,6 +318,36 @@ export async function visitarDeclaracaoPara(
             // escopoAtual.emLacoRepeticao = false;
             return retornoExecucao;
     }
+}
+
+export async function visitarDeclaracaoFazer(
+    interpretador: InterpretadorComDepuracaoInterface,
+    declaracao: Fazer
+): Promise<any> {
+    let retornoExecucao: any;
+    let iteracoes = 0;
+    do {
+        try {
+            await cederControle(++iteracoes);
+            retornoExecucao = await interpretador.executar(declaracao.caminhoFazer);
+            if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
+                return null;
+            }
+
+            if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) {
+                retornoExecucao = null;
+            }
+        } catch (erro: any) {
+            return Promise.reject(erro);
+        }
+    } while (
+        !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
+        !interpretador.pontoDeParadaAtivo &&
+        interpretador.comando !== 'pausar' &&
+        interpretador.eVerdadeiro(await interpretador.avaliar(declaracao.condicaoEnquanto))
+    );
+
+    return retornoExecucao;
 }
 
 /**

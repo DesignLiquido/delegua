@@ -19,7 +19,8 @@ import {
     TipoDe,
     Variavel,
     Vetor,
-    TuplaN
+    TuplaN,
+    AcessoIndiceVariavel
 } from '../../construtos';
 import {
     Const,
@@ -117,17 +118,17 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         super.marcarVariaveisUsadasEmExpressao(expressao);
     }
 
-    verificarTipoAtribuido(declaracao) {
+    verificarTipoAtribuido(declaracao: Var | Const): void {
         if (declaracao.tipo) {
             if (['vetor', 'qualquer[]', 'inteiro[]', 'texto[]'].includes(declaracao.tipo)) {
                 if (declaracao.inicializador instanceof Vetor) {
                     const vetor = declaracao.inicializador as Vetor;
-                    const vetorSemSeparadores = vetor.valores.filter(
+                    const vetorSemSeparadores: Construto[] = vetor.valores.filter(
                         (v) => v.constructor !== Separador
                     );
 
                     if (declaracao.tipo === 'inteiro[]') {
-                        const apenasValores = vetorSemSeparadores.find(
+                        const apenasValores: Construto | undefined = vetorSemSeparadores.find(
                             (v) => typeof v?.valor !== 'number'
                         );
                         if (apenasValores) {
@@ -138,7 +139,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                         }
                     }
                     if (declaracao.tipo === 'texto[]') {
-                        const apenasValores = vetorSemSeparadores.find(
+                        const apenasValores: Construto | undefined = vetorSemSeparadores.find(
                             (v) => typeof v?.valor !== 'string'
                         );
                         if (apenasValores) {
@@ -228,49 +229,13 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    protected comparacaoArgumentosContraParametrosFuncao(
-        simboloFuncao: SimboloInterface,
-        parametros: ParametroInterface[],
-        argumentos: Construto[]
-    ) {
-        if (parametros.length !== argumentos.length) {
-            this.erro(
-                simboloFuncao,
-                `Função '${simboloFuncao.lexema}' espera ${parametros.length} parâmetros. Atual: ${argumentos.length}.`
-            );
-        }
-
-        for (let [indice, parametro] of parametros.entries()) {
-            // TODO: `argumento` pode ser Literal (tipo já resolvido) ou variável (tipo inferido em outra etapa).
-            const argumento = argumentos[indice] as any;
-            if (argumento) {
-                if (parametro.tipoDado === 'texto' && argumento.tipo !== 'texto') {
-                    this.erro(
-                        simboloFuncao,
-                        `O valor passado para o parâmetro '${parametro.nome.lexema}' (${parametro.tipoDado}) é diferente do esperado pela função (${argumento.tipo}).`
-                    );
-                } else if (['inteiro', 'número', 'real'].includes(parametro.tipoDado)) {
-                    // Aqui, se houver diferença entre os tipos do parâmetro e do argumento, não há erro,
-                    // porque Delégua pode trabalhar com conversões implícitas.
-                    // Isso pode ou não mudar no futuro.
-                    if (!['inteiro', 'número', 'real'].includes(argumento.tipo)) {
-                        this.erro(
-                            simboloFuncao,
-                            `O valor passado para o parâmetro '${parametro.nome.lexema}' (${parametro.tipoDado}) é diferente do esperado pela função (${argumento.tipo}).`
-                        );
-                    }
-                }
-            }
-        }
-    }
-
     visitarChamadaPorArgumentoReferenciaFuncao(
         argumentoReferenciaFuncao: ArgumentoReferenciaFuncao,
         argumentos: Construto[]
     ) {
         const variavelCorrespondente: FuncaoConstruto =
-            // this.variaveis[argumentoReferenciaFuncao.simboloFuncao.lexema].valor;
             this.gerenciadorEscopos.buscar(argumentoReferenciaFuncao.simboloFuncao.lexema)?.valor;
+
         if (!variavelCorrespondente) {
             return;
         }
@@ -318,10 +283,10 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
     }
 
     visitarExpressaoDeChamada(expressao: Chamada) {
+        // Garante que toda a árvore de argumentos seja validada e marcada como usada.
         for (const argumento of expressao.argumentos) {
-            if (argumento instanceof Variavel) {
-                this.gerenciadorEscopos.marcarComoUsada(argumento.simbolo.lexema);
-            }
+            this.marcarVariaveisUsadasEmExpressao(argumento);
+            this.verificarExpressao(argumento);
         }
 
         switch (expressao.entidadeChamada.constructor) {
@@ -350,16 +315,46 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    override visitarExpressaoDeAtribuicao(expressao: Atribuir) {
-        let simboloAlvo: SimboloInterface;
+    private resolverSimboloAlvoAtribuicao(alvo: Construto): SimboloInterface | undefined {
+        let atual: Construto | undefined = alvo;
 
-        switch (expressao.alvo.constructor) {
-            case Variavel:
-                const alvoVariavel = expressao.alvo as Variavel;
-                simboloAlvo = alvoVariavel.simbolo;
-                break;
-            default:
-                return Promise.resolve();
+        while (atual) {
+            if (atual instanceof Variavel) {
+                return atual.simbolo;
+            }
+
+            if (atual instanceof Agrupamento) {
+                atual = atual.expressao;
+                continue;
+            }
+
+            if (atual instanceof AcessoIndiceVariavel) {
+                atual = atual.entidadeChamada;
+                continue;
+            }
+
+            if (atual instanceof AcessoMetodo ||
+                atual instanceof AcessoMetodoOuPropriedade ||
+                atual instanceof AcessoPropriedade) {
+                atual = (atual as any).objeto;
+                continue;
+            }
+
+            const simbolo = (atual as any)?.simbolo;
+            if (simbolo?.lexema) {
+                return simbolo as SimboloInterface;
+            }
+
+            return undefined;
+        }
+
+        return undefined;
+    }
+
+    override visitarExpressaoDeAtribuicao(expressao: Atribuir) {
+        const simboloAlvo = this.resolverSimboloAlvoAtribuicao(expressao.alvo);
+        if (!simboloAlvo) {
+            return Promise.resolve();
         }
 
         // Marca variáveis usadas no valor da atribuição
@@ -394,17 +389,6 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
 
         // Marca como inicializada após atribuição
         this.gerenciadorEscopos.marcarComoInicializada(simboloAlvo.lexema, expressao.valor);
-
-        // TODO: Readaptar para trabalhar com `expressao.alvo` sendo um construto.
-        switch (expressao.alvo.constructor) {
-            case Variavel:
-                const alvoVariavel = expressao.alvo as Variavel;
-                simboloAlvo = alvoVariavel.simbolo;
-                break;
-            default:
-                // throw new Error(`Implementar atribuição para ${expressao.alvo.constructor}.`);
-                return Promise.resolve();
-        }
 
         let valor = this.gerenciadorEscopos.buscar(simboloAlvo.lexema);
         if (!valor) {
@@ -711,7 +695,6 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         return null;
     }
 
-
     /**
      * Calcula o resultado de uma operação binária em tempo de compilação
      */
@@ -751,7 +734,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
     /**
      * Obtém o tipo de uma expressão (pode ser Literal, Variavel, ou Binario)
      */
-    private obterTipoExpressao(expressao: Construto): string | null {
+    override obterTipoExpressao(expressao: Construto): string | null {
         if (expressao instanceof Literal) {
             return expressao.tipo;
         }
@@ -776,7 +759,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
     /**
      * Infere o tipo de resultado de uma operação binária
      */
-    private inferirTipoBinario(binario: Binario): string | null {
+    protected inferirTipoBinario(binario: Binario): string | null {
         const tipoEsquerda = this.obterTipoExpressao(binario.esquerda);
         const tipoDireita = this.obterTipoExpressao(binario.direita);
 
@@ -1270,6 +1253,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
 
     async analisar(declaracoes: Declaracao[]): Promise<RetornoAnalisadorSemantico> {
         this.gerenciadorEscopos = new GerenciadorEscopos();
+        this.funcoes = {};
         this.atual = 0;
         this.diagnosticos = [];
 

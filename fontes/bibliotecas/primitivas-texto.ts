@@ -537,4 +537,93 @@ export default {
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'texto.tudoMinusculo()',
     },
+    apararInício: {
+        tipoRetorno: 'texto',
+        argumentos: [],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            texto: string
+        ): Promise<string> => Promise.resolve(texto.trimStart()),
+        assinaturaFormato: 'texto.apararInício()',
+        documentacao:
+            '# `texto.apararInício()` \n \n' +
+            'Remover espaços em branco no início e no fim de um texto.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "   meu texto com espaços no início e no fim       "\n' +
+            'escreva("|" + t.apararInício() + "|") // "|meu texto com espaços no início e no fim       |"\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.apararInício()',
+    },
+    maiúsculo: {
+        tipoRetorno: 'texto',
+        argumentos: [],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            texto: string
+        ): Promise<string> => Promise.resolve(texto.toUpperCase()),
+        assinaturaFormato: 'texto.maiúsculo()',
+        documentacao:
+            '# `texto.maiúsculo()` \n \n' +
+            'Converte todos os caracteres alfabéticos para suas respectivas formas em maiúsculo.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "tudo em minúsculo"\n' +
+            'escreva(t.maiúsculo()) // "TUDO EM MINÚSCULO"\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.maiúsculo()',
+    },
+    minúsculo: {
+        tipoRetorno: 'texto',
+        argumentos: [],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            texto: string
+        ): Promise<string> => Promise.resolve(texto.toLowerCase()),
+        assinaturaFormato: 'texto.minúsculo()',
+        documentacao:
+            '# `texto.minúsculo()` \n \n' +
+            'Converte todos os caracteres alfabéticos para suas respectivas formas em minúsculo.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "TUDO EM MAIÚSCULO"\n' +
+            'escreva(t.minúsculo()) // "tudo em maiúsculo"\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.minúsculo()',
+    },
+    tudoMaiúsculo: {
+        tipoRetorno: 'lógico',
+        argumentos: [],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            texto: string
+        ): Promise<boolean> => Promise.resolve(texto === texto.toUpperCase()),
+        assinaturaFormato: 'texto.tudoMaiúsculo()',
+        documentacao:
+            '# `texto.tudoMaiúsculo()` \n\n' +
+            'Devolve verdadeiro se todos os caracteres alfabéticos do texto estão em maiúsculo, e falso em caso contrário.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t1 = "TUDO EM MAIÚSCULO"\n' +
+            'var t2 = "Tudo em Maiúsculo"\n' +
+            't1.tudoMaiúsculo() // verdadeiro\n' +
+            't2.tudoMaiúsculo() // falso\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.tudoMaiúsculo()',
+    },
+    tudoMinúsculo: {
+        tipoRetorno: 'lógico',
+        argumentos: [],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            texto: string
+        ): Promise<boolean> => Promise.resolve(texto === texto.toLowerCase()),
+        assinaturaFormato: 'texto.tudoMinúsculo()',
+        documentacao:
+            '# `texto.tudoMinúsculo()` \n\n' +
+            'Devolve verdadeiro se todos os caracteres alfabéticos do texto estão em minúsculo, e falso em caso contrário.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t1 = "tudo em minúsculo"\n' +
+            'var t2 = "Tudo em Minúsculo"\n' +
+            't1.tudoMinúsculo() // verdadeiro\n' +
+            't2.tudoMinúsculo() // falso\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.tudoMinúsculo()',
+    },
 } as { [nome: string]: PrimitivaInterface };

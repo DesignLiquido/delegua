@@ -139,6 +139,29 @@ describe('Interpretador (Pituguês)', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Função com nada', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'funcao bhaskara(a,b,c):',
+                        '   nada',
+                        '# Insira os coeficientes depois da função',
+                        'a = 1',
+                        'b = -1',
+                        'c = -30',
+                        'bhaskara(a,b,c)',
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 describe('Compreensão de listas', () => {
                     it('Trivial', async () => {
                         const retornoLexador = lexador.mapear(
@@ -199,6 +222,55 @@ describe('Interpretador (Pituguês)', () => {
                     );
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Vetor com elementos acessados por índice', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'vetor1 = [8, 2, 9, 5]',
+                        'vetor2 = [vetor1[0], vetor1[1]]',
+                        'escreva(vetor2)',
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('[8, 2]');
+                });
+
+                it('Vetor com elementos acessados por índice após laço enquanto', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'vetor1 = [8, 2, 9, 5]',
+                        'aux = 0',
+                        'i = 0',
+                        'enquanto i < 3:',
+                        '    se vetor1[i] > vetor1[i+1]:',
+                        '        aux = vetor1[i]',
+                        '        vetor1[i] = vetor1[i+1]',
+                        '        vetor1[i+1] = aux',
+                        '    i = i + 1',
+                        '',
+                        'vetor2 = [vetor1[0], vetor1[1]]',
+                        'escreva(vetor2)',
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('[2, 8]');
                 });
 
                 it('Dicionário', async () => {
@@ -1100,6 +1172,89 @@ describe('Interpretador (Pituguês)', () => {
                         expect(_saidas[1]).toBe('2');
                         expect(_saidas[2]).toBe('3');
                     });
+
+                    describe('Dicionários', () => {
+                        it('Iterando dicionários com duas variáveis usando o método itens()', async () => {
+                            const retornoLexador = lexador.mapear(
+                                [
+                                    'dicionarioLegal = { "a": 1, "b": 2, "c": 3 }',
+                                    'para cada chave, valor em dicionarioLegal.itens():',
+                                    '    escreva(chave, valor)'
+                                ],
+                                -1
+                            );
+
+                            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                                retornoLexador,
+                                -1
+                            );
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+                            expect(_saidas).toHaveLength(3);
+                            expect(_saidas[0]).toBe('a 1');
+                            expect(_saidas[1]).toBe('b 2');
+                            expect(_saidas[2]).toBe('c 3');
+                        });
+
+                        it('Iterando dicionários com duas variáveis', async () => {
+                            const retornoLexador = lexador.mapear(
+                                [
+                                    'dicionarioLegal = { "a": 1, "b": 2, "c": 3 }',
+                                    'para cada chave, valor em dicionarioLegal:',
+                                    '    escreva(chave, valor)'
+                                ],
+                                -1
+                            );
+
+                            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                                retornoLexador,
+                                -1
+                            );
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+                            expect(_saidas).toHaveLength(3);
+                            expect(_saidas[0]).toBe('a 1');
+                            expect(_saidas[1]).toBe('b 2');
+                            expect(_saidas[2]).toBe('c 3');
+                        });
+
+                        it('Iterando dicionários com uma variável', async () => {
+                            const retornoLexador = lexador.mapear(
+                                [
+                                    'dicionarioLegal = { "a": 1, "b": 2, "c": 3 }',
+                                    'para cada chaveValor em dicionarioLegal:',
+                                    '    escreva(chaveValor)'
+                                ],
+                                -1
+                            );
+
+                            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                                retornoLexador,
+                                -1
+                            );
+
+                            const retornoInterpretador = await interpretador.interpretar(
+                                retornoAvaliadorSintatico.declaracoes,
+                                true
+                            );
+
+                            expect(retornoInterpretador.erros).toHaveLength(0);
+                            expect(_saidas).toHaveLength(3);
+                            expect(_saidas[0]).toBe('("a", 1)');
+                            expect(_saidas[1]).toBe('("b", 2)');
+                            expect(_saidas[2]).toBe('("c", 3)');
+                        });
+                    });
                 });
 
                 it('Iterando texto', async () => {
@@ -1189,6 +1344,25 @@ describe('Interpretador (Pituguês)', () => {
             });
 
             describe('Declaração e chamada de funções', () => {
+                it('Corpo de função com nada (equivalente ao pass do Python)', async () => {
+                    const codigo = [
+                        'funcao bhaskara(a, b, c):',
+                        '    nada',
+                        'bhaskara(1, 2, 3)',
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Trivial', async () => {
                     const codigo = ['funcao teste():', '    imprima("Teste")', 'teste()'];
                     const retornoLexador = lexador.mapear(codigo, -1);
@@ -3465,6 +3639,142 @@ describe('Interpretador (Pituguês)', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(_saidas[0]).toBe('1.234,5');
+            describe('todos()', () => {
+                it('Chama a função nativa "todos()" com iterável de dados Truly', async () => {
+                    let _saida: string = '';
+
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'listaDeNumeros = [1, "Pituguês", verdadeiro]',
+                            'escreva(todos(listaDeNumeros))'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saida = saida;
+                    };
+
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(_saida).toBeTruthy();
+                    expect(_saida).toBe('verdadeiro');
+                });
+
+                it('Chama a função nativa "todos()" com um objeto', async () => {
+                    let _saida: string = '';
+
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'objetoLegal = { 1: "a", 2: "b", 3: "c" }',
+                            'escreva(todos(objetoLegal))'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saida = saida;
+                    };
+
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(_saida).toBeTruthy();
+                    expect(_saida).toBe('verdadeiro');
+                });
+
+                it('Chama a função nativa "todos()" com um dicionário', async () => {
+                    let _saida: string = '';
+
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'objetoLegal = { 1: "a", 2: "b", 3: "c" }',
+                            'escreva(todos(objetoLegal))'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saida = saida;
+                    };
+
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(_saida).toBeTruthy();
+                    expect(_saida).toBe('verdadeiro');
+                });
+
+                it('Chama a função nativa "todos()" com iterável de dados Falsy', async () => {
+                    let _saida: string = '';
+
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'listaDeNumeros = [0, "", nulo, falso]',
+                            'escreva(todos(listaDeNumeros))'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saida = saida;
+                    };
+
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(_saida).toBeTruthy();
+                    expect(_saida).toBe('falso');
+                });
+            });
+
+            describe('todosEmCondicao()', () => {
+                it('Chama a função nativa "todosEmCondicao()" para verificar se os elementos do array são par.', async () => {
+                    let _saida: string = '';
+
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'listaDeNumeros = [1, 2, 3, 4, 5]',
+                            'funcao eh_par(valor):',
+                            '    retorna valor % 2 == 0',
+                            'escreva(todosEmCondicao(listaDeNumeros, eh_par))'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saida = saida;
+                    };
+
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(_saida).toBe('falso');
+                });
+
+                it('Chama a função nativa "todosEmCondicao()" para verificar se todos os nomes começam com "V"', async () => {
+                    let _saida: string = '';
+
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'listaDeNomes = ["Victor", "Verônica", "Vanessa"]',
+                            'funcao verificar_nomes(nome):',
+                            '    retorna nome[0] == "V"',
+                            'escreva(todosEmCondicao(listaDeNomes, verificar_nomes))'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saida = saida;
+                    };
+
+                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(_saida).toBeTruthy();
+                    expect(_saida).toBe('verdadeiro');
                 });
             });
         });
@@ -4499,6 +4809,46 @@ describe('Interpretador (Pituguês)', () => {
 
                 expect(retornoInterpretador.erros).toHaveLength(1);
                 expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe('Divisão por zero não é permitida.');
+            });
+
+            describe('todos()', () => {
+                it('Chama a função nativa "todos()" passando dados que não são iteráveis', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'listaDeNumeros = 67',
+                            'escreva(todos(listaDeNumeros))'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toContain(
+                        'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
+                    );
+                });
+            });
+
+            describe('todosEmCondicao()', () => {
+                it('Chama a função nativa "todosEmCondicao()" passando dados que não são iteráveis', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'listaDeNumeros = 67',
+                            'funcao eh_par(valor):',
+                            '    retorna valor % 2 == 0',
+                            'escreva(todosEmCondicao(listaDeNumeros, eh_par))'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toContain(
+                        'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
+                    );
+                });
             });
         });
 

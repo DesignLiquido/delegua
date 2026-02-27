@@ -67,6 +67,8 @@ comando
 //    | comandoExportar
     | comandoVazio_
     | declaracaoClasse
+    | declaracaoInterface
+    | declaracaoExtensao
     | expressaoComando
     | comandoSe
     | comandoIteracao
@@ -137,6 +139,8 @@ exportDeBlock
 declaracao
     : comandoVariavel
     | declaracaoClasse
+    | declaracaoInterface
+    | declaracaoExtensao
     | declaracaoFuncao
     ;
 
@@ -167,6 +171,12 @@ comandoIteracao
     | Para '(' (expressaoSequencia | variavelDeclaracaoList)? ';' expressaoSequencia? ';' expressaoSequencia? ')' comando       # ParaComando
     | Para '(' (expressaoUnica | variavelDeclaracaoList) Em expressaoSequencia ')' comando                                      # ParaEmComando
     | Para Aguardar? '(' (expressaoUnica | variavelDeclaracaoList) identificador{this.p("of")}? expressaoSequencia ')' comando  # ParaOfComando
+    | Para Cada alvoParaCada (Em | De) expressaoSequencia comando                                                                # ParaCadaComando
+    ;
+
+alvoParaCada
+    : identificador
+    | '{' identificador (',' identificador)? '}'
     ;
 
 varModificador  // let, const - ECMAScript 6
@@ -232,17 +242,42 @@ declaracaoFuncao
     ;
 
 declaracaoClasse
-    : Classe identificador fimDaClasse
+    : Classe Abstrato? Estatico? identificador fimDaClasse
+    ;
+
+declaracaoInterface
+    : Interface identificador '{' interfaceElemento* '}'
+    ;
+
+declaracaoExtensao
+    : Extensao identificador? De identificadorNome '{' extensaoElemento* '}'
     ;
 
 fimDaClasse
-    : (Herda expressaoUnica)? '{' classElement* '}'
+    : (classeHeranca classeImplementacoes? | classeImplementacoes classeHeranca?)? '{' classElement* '}'
+    ;
+
+classeHeranca
+    : Herda expressaoUnica (',' expressaoUnica)*
+    ;
+
+classeImplementacoes
+    : Implementa identificador (',' identificador)*
     ;
 
 classElement
-    : (Estatico | {this.n("static")}? identificador | Assincrono)* (definicaoMetodo | designavel '=' objetoLiteral ';')
+    : (Publico | Privado | Protegido | Estatico | {this.n("static")}? identificador | Assincrono)* (definicaoMetodo | designavel '=' objetoLiteral ';')
     | comandoVazio_
     | '#'? nomePropriedade '=' expressaoUnica
+    ;
+
+interfaceElemento
+    : identificador '(' listaFormalParametros? ')' (':' identificadorNome)? PontoEVirgula?
+    | identificador ':' identificadorNome PontoEVirgula?
+    ;
+
+extensaoElemento
+    : identificador '(' listaFormalParametros? ')' (':' identificadorNome)? corpoFuncao
     ;
 
 definicaoMetodo
@@ -261,7 +296,7 @@ parametroArgumentoFormal
     ;
 
 ultimoArgumentoParametroFormal              // ECMAScript 6: Rest Parameter
-    : TresPontos expressaoUnica
+    : (TresPontos | '*') expressaoUnica
     ;
 
 corpoFuncao
@@ -284,8 +319,8 @@ propertyAtribuicao
     : nomePropriedade ':' expressaoUnica                                             # PropertyExpressaoAtribuicao
     | '[' expressaoUnica ']' ':' expressaoUnica                                      # ComputedPropertyExpressaoAtribuicao
     | Assincrono? '*'? nomePropriedade '(' listaFormalParametros?  ')'  corpoFuncao  # FunctionProperty
-    | obtenedor '(' ')' corpoFuncao                                                  # PropertyGetter
-    | definidor '(' parametroArgumentoFormal ')' corpoFuncao                         # PropertySetter
+    | obtenedor '(' ')' corpoFuncao                                                  # PropertyObtenedor
+    | definidor '(' parametroArgumentoFormal ')' corpoFuncao                         # PropertyDefinidor
     | TresPontos? expressaoUnica                                                     # PropertyShorthand
     ;
 
@@ -311,6 +346,7 @@ expressaoSequencia
 expressaoUnica
     : funcaoAnonima                                                     # FunctionExpressao
     | Classe identificador? fimDaClasse                                 # ClasseExpressao
+    | Para Cada alvoParaCada (Em | De) expressaoSequencia bloco         # ParaCadaExpressao
     | expressaoUnica '?.' expressaoUnica                                # OptionalChainExpressao
     | expressaoUnica '?.'? '[' expressaoSequencia ']'                   # MemberEmdexExpressao
     | expressaoUnica '?'? '.' '#'? identificadorNome                    # MemberDotExpressao
@@ -329,7 +365,7 @@ expressaoUnica
     | '+' expressaoUnica                                                # UnaryMaisExpressao
     | '-' expressaoUnica                                                # UnaryMenosExpressao
     | '~' expressaoUnica                                                # BitNotExpressao
-    | '!' expressaoUnica                                                # NotExpressao
+    | Not expressaoUnica                                                # NotExpressao
     | Aguardar expressaoUnica                                           # AguardarExpressao
     | <assoc=right> expressaoUnica '**' expressaoUnica                  # PotenciaExpressao
     | expressaoUnica ('*' | '/' | '%') expressaoUnica                   # MultiplicativeExpressao
@@ -337,13 +373,15 @@ expressaoUnica
     | expressaoUnica '?:' expressaoUnica                                # CoalesceExpressao
     | expressaoUnica ('<<' | '>>' | '>>>') expressaoUnica               # BitShiftExpressao
     | expressaoUnica ('<' | '>' | '<=' | '>=') expressaoUnica           # RelationalExpressao
+    | expressaoUnica Contem expressaoUnica                              # ContemExpressao
+    | expressaoUnica Not Contem expressaoUnica                          # NaoContemExpressao
     | expressaoUnica Em expressaoUnica                                  # EmExpressao
     | expressaoUnica ('==' | '!=') expressaoUnica                       # EqualityExpressao
     | expressaoUnica '&' expressaoUnica                                 # BitAndExpressao
     | expressaoUnica '^' expressaoUnica                                 # BitXOrExpressao
     | expressaoUnica '|' expressaoUnica                                 # BitOrExpressao
-    | expressaoUnica '&&' expressaoUnica                                # LogicalAndExpressao
-    | expressaoUnica '||' expressaoUnica                                # LogicalOrExpressao
+    | expressaoUnica And expressaoUnica                                 # LogicalAndExpressao
+    | expressaoUnica Or expressaoUnica                                  # LogicalOrExpressao
     | expressaoUnica '?' expressaoUnica ':' expressaoUnica              # TernaryExpressao
     | <assoc=right> expressaoUnica '=' expressaoUnica                   # AtribuicaoExpressao
     | <assoc=right> expressaoUnica operadorAtribuicao expressaoUnica    # AtribuicaoOperadorExpressao
@@ -468,6 +506,8 @@ palavraChave
     | Novo
     | Var
     | Pegue
+    | Cada
+    | Contem
     | Finalmente
     | Retorna
     | Vazio
@@ -484,6 +524,11 @@ palavraChave
     | Excluir
     | Em
     | Tente
+    | Tendo
+    | Leia
+    | Escreva
+    | Extensao
+    | Abstrato
 
     | Classe
     | Enum

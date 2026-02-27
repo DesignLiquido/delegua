@@ -1228,6 +1228,129 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toContain('// Exibe o resultado da divisão');
         });
 
+        describe('Métodos de vetor', () => {
+            it('vetor.inclui() -> array.includes()', async () => {
+                const retornoLexador = lexador.mapear(
+                    ['var v = [1, 2, 3]', 'v.inclui(2)'],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/v\.includes\(2\)/i);
+            });
+
+            it('vetor.fatiar() -> array.slice()', async () => {
+                const retornoLexador = lexador.mapear(
+                    ['var v = [1, 2, 3, 4, 5]', 'v.fatiar(1, 3)'],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/v\.slice\(1, 3\)/i);
+            });
+
+            it('vetor.juntar() -> array.join()', async () => {
+                const retornoLexador = lexador.mapear(
+                    ['var v = [1, 2, 3]', "v.juntar('-')"],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/v\.join\('-'\)/i);
+            });
+
+            it('vetor.somar() -> array.reduce()', async () => {
+                const retornoLexador = lexador.mapear(
+                    ['var v = [1, 2, 3]', 'v.somar()'],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/v\.reduce\(/i);
+            });
+
+            it('vetor.ordenar() -> array.sort()', async () => {
+                const retornoLexador = lexador.mapear(
+                    ['var v = [3, 1, 2]', 'v.ordenar()'],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/v\.sort\(\)/i);
+            });
+
+            it('vetor.remover() -> array.splice(indexOf())', async () => {
+                const retornoLexador = lexador.mapear(
+                    ['var v = [1, 2, 3]', 'v.remover(2)'],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/v\.splice\(v\.indexOf\(2\), 1\)/i);
+            });
+
+            it('vetor.concatenar() -> array.concat()', async () => {
+                const retornoLexador = lexador.mapear(
+                    ['var v = [1, 2]', 'v.concatenar([3, 4])'],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/v\.concat\(\[3, 4\]\)/i);
+            });
+
+            it('vetor.encaixar() -> array.splice()', async () => {
+                const retornoLexador = lexador.mapear(
+                    ['var v = [1, 2, 3]', 'v.encaixar(1, 1)'],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/v\.splice\(1, 1\)/i);
+            });
+
+            it('vetor.mapear() com funcao anonima -> array.map() com arrow function', async () => {
+                const retornoLexador = lexador.mapear(
+                    ['var v = [1, 2, 3]', 'v.mapear(funcao(x) { retorna x * 2 })'],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/v\.map\(\(x\) => x \* 2\)/i);
+            });
+
+            it('vetor.filtrarPor() com funcao anonima -> array.filter() com arrow function', async () => {
+                const retornoLexador = lexador.mapear(
+                    ['var v = [1, 2, 3]', 'v.filtrarPor(funcao(x) { retorna x > 1 })'],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/v\.filter\(\(x\) => x > 1\)/i);
+            });
+
+            it('vetor.mapear() com referencia de funcao -> array.map() com nome', async () => {
+                const retornoLexador = lexador.mapear(
+                    ['funcao dobrar(x) { retorna x * 2 }', 'var v = [1, 2, 3]', 'v.mapear(dobrar)'],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toBeTruthy();
+                expect(resultado).toMatch(/v\.map\(dobrar\)/i);
+            });
+        });
+
         describe('Casos mais complexos', () => {
             it('MergeSort', async () => {
                 const retornoLexador = lexador.mapear(

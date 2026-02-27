@@ -1,5 +1,6 @@
 import { Binario, Chamada, Construto, FuncaoConstruto, Leia, Logico, TuplaN, Unario } from '../construtos';
 import {
+    Bloco,
     Classe,
     Continua,
     Declaracao,
@@ -115,6 +116,18 @@ export abstract class AvaliadorSintaticoBase
     protected abstract expressaoLeia(): Promise<Leia>;
     protected abstract primario(): Promise<Construto>;
     protected abstract resolverDeclaracaoForaDeBloco(): Promise<Declaracao | Declaracao[]>;
+
+    protected async declaracaoBloco(): Promise<Bloco> {
+        const simboloInicioBloco: SimboloInterface = this.consumir(
+            tiposDeSimbolos.CHAVE_ESQUERDA,
+            "Esperado '{' para abertura de bloco."
+        );
+        return new Bloco(
+            simboloInicioBloco.hashArquivo,
+            Number(simboloInicioBloco.linha),
+            await this.blocoEscopo()
+        );
+    }
 
     protected async finalizarChamada(entidadeChamada: Construto): Promise<Chamada> {
         const argumentos: Array<Construto> = [];

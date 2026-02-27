@@ -196,6 +196,28 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
             });
             
+
+
+            it('Chamada de função com variáveis declaradas como argumentos, sem espaços e com comentário', async () => {
+                const retornoLexador = lexador.mapear([
+                    `funcao bhaskara(a,b,c):`,
+                    `  nada`,
+                    ``,
+                    `# Insira os coeficientes depois da função`,
+                    `a = 1`,
+                    `b = -1`,
+                    `c = -30`,
+                    ``,
+                    ``,
+                    `bhaskara(a,b,c)`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+
             it('Funções anônimas com mais de 255 parâmetros', async () => {
                 let acumulador = '';
                 for (let i = 1; i <= 256; i++) {
@@ -2153,3 +2175,135 @@ describe('Analisador semântico', () => {
         });
     });
 })
+
+    describe('Cenários de verificação de tipos de argumentos em chamadas de função', () => {
+        it('Sucesso - variável com tipo compatível passada para parâmetro tipado (Variavel → tipo do escopo)', async () => {
+            // Testa o bug anterior: Variavel.tipo é sempre 'qualquer' na AST, mas o tipo real
+            // deve ser buscado no escopo via obterTipoExpressao().
+            const retornoLexador = lexador.mapear([
+                `funcao saudar(nome: texto):`,
+                `    escreva(nome)`,
+                `minha_variavel = 'João'`,
+                `saudar(minha_variavel)`,
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+
+        it('Erro - literal numérico incompatível passado para parâmetro texto (Literal)', async () => {
+            // Literal.tipo é resolvido em tempo de parse, então a verificação funciona diretamente.
+            // Notas: para atribuições estilo Pituguês (x = 42), o tipo no escopo fica 'qualquer';
+            // apenas variáveis 'var'/'const' com inicializador têm o tipo inferido no escopo.
+            const retornoLexador = lexador.mapear([
+                `funcao saudar(nome: texto):`,
+                `    escreva(nome)`,
+                `saudar(42)`,
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos.some(d =>
+                d.mensagem?.includes("parâmetro 'nome'") && d.mensagem?.includes('texto')
+            )).toBe(true);
+        });
+
+        it('Sucesso - expressão binária numérica passada para parâmetro numérico (Binario)', async () => {
+            const retornoLexador = lexador.mapear([
+                `funcao dobrar(n: inteiro):`,
+                `    escreva(n)`,
+                `a = 3`,
+                `b = 4`,
+                `dobrar(a + b)`,
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+
+        it('Erro - expressão binária numérica passada para parâmetro texto (Binario)', async () => {
+            const retornoLexador = lexador.mapear([
+                `funcao imprimir(msg: texto):`,
+                `    escreva(msg)`,
+                `a = 3`,
+                `b = 4`,
+                `imprimir(a + b)`,
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos.some(d =>
+                d.mensagem?.includes("parâmetro 'msg'") && d.mensagem?.includes('texto')
+            )).toBe(true);
+        });
+
+        it('Sucesso - agrupamento passado como argumento não gera falso positivo (Agrupamento)', async () => {
+            const retornoLexador = lexador.mapear([
+                `funcao imprimir(msg: texto):`,
+                `    escreva(msg)`,
+                `val = 'olá'`,
+                `imprimir((val))`,
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+
+        it('Sucesso - chamada de função como argumento não gera falso positivo (Chamada)', async () => {
+            const retornoLexador = lexador.mapear([
+                `funcao obterTexto():`,
+                `    retorna 'resultado'`,
+                `funcao imprimir(msg: texto):`,
+                `    escreva(msg)`,
+                `imprimir(obterTexto())`,
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+    });
+
+    describe('Cenários de reutilização de instância do analisador', () => {
+        it('Sucesso - mesma instância analisada duas vezes (simula comportamento de editor web)', async () => {
+            // Simula o comportamento do pitugues-web que reutiliza a mesma instância
+            // do AnalisadorSemanticoPitugues entre chamadas sucessivas de analisar()
+            const analisadorReutilizado = new AnalisadorSemanticoPitugues();
+
+            // Primeira análise: código simples
+            const retornoLexador1 = lexador.mapear([
+                `escreva('primeira analise')`,
+            ], -1);
+            const retornoAvaliadorSintatico1 = await avaliadorSintatico.analisar(retornoLexador1, -1);
+            await analisadorReutilizado.analisar(retornoAvaliadorSintatico1.declaracoes);
+
+            // Segunda análise: bhaskara com variáveis como argumentos - não deve mostrar erros
+            const retornoLexador2 = lexador.mapear([
+                `funcao bhaskara(a,b,c):`,
+                `  nada`,
+                ``,
+                `# Insira os coeficientes depois da função`,
+                `a = 1`,
+                `b = -1`,
+                `c = -30`,
+                ``,
+                `bhaskara(a,b,c)`,
+            ], -1);
+            const retornoAvaliadorSintatico2 = await avaliadorSintatico.analisar(retornoLexador2, -1);
+            const retornoAnalisadorSemantico2 = await analisadorReutilizado.analisar(retornoAvaliadorSintatico2.declaracoes);
+
+            expect(retornoAnalisadorSemantico2).toBeTruthy();
+            expect(retornoAnalisadorSemantico2.diagnosticos).toHaveLength(0);
+        });
+    });
+}
+)

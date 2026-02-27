@@ -938,7 +938,7 @@ export class AvaliadorSintaticoEguaClassico
 
         this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após o escopo da classe.");
         this.superclasseAtual = undefined;
-        return new Classe(nome, superClasse, metodos);
+        return new Classe(nome, superClasse ? [superClasse] : [], metodos);
     }
 
     resolverDeclaracaoForaDeBloco(): Declaracao {
