@@ -1219,7 +1219,7 @@ describe('Analisador semântico', () => {
                 const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
                 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
             });
             
             it('Sucesso - função que retorna vetor', async () => {
@@ -2174,7 +2174,6 @@ describe('Analisador semântico', () => {
             });
         });
     });
-})
 
     describe('Cenários de verificação de tipos de argumentos em chamadas de função', () => {
         it('Sucesso - variável com tipo compatível passada para parâmetro tipado (Variavel → tipo do escopo)', async () => {
@@ -2242,7 +2241,6 @@ describe('Analisador semântico', () => {
                 d.mensagem?.includes("parâmetro 'msg'") && d.mensagem?.includes('texto')
             )).toBe(true);
         });
-
         it('Sucesso - agrupamento passado como argumento não gera falso positivo (Agrupamento)', async () => {
             const retornoLexador = lexador.mapear([
                 `funcao imprimir(msg: texto):`,

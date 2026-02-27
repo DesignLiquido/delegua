@@ -3639,6 +3639,7 @@ describe('Interpretador (Pituguês)', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(_saidas[0]).toBe('1.234,5');
+                });
             describe('todos()', () => {
                 it('Chama a função nativa "todos()" com iterável de dados Truly', async () => {
                     let _saida: string = '';
@@ -4884,3 +4885,4 @@ describe('Interpretador (Pituguês)', () => {
         });
     });
 });
+})

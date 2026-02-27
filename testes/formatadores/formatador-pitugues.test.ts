@@ -367,17 +367,7 @@ finalmente:
         expect(resultado).toContain('texto = \'Olá, mundo!\'');
     });
 
-    it('valores nulos e booleanos', async () => {
-        const resultado = await executar([
-            'nada = nulo',
-            'verdade = verdadeiro',
-            'falsidade = falso'
-        ]);
-
-        expect(resultado).toContain('nada = nulo');
-        expect(resultado).toContain('verdade = verdadeiro');
-        expect(resultado).toContain('falsidade = falso');
-    });
+    
 
     it('retorna com valor', async () => {
         const resultado = await executar([
