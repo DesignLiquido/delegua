@@ -627,3 +627,83 @@ export default {
         exemploCodigo: 'texto.tudoMinúsculo()',
     },
 } as { [nome: string]: PrimitivaInterface };
+
+
+tipoRetorno: 'texto',
+        argumentos: [
+            new InformacaoElementoSintatico(
+                'inicio',
+                'inteiro',
+                true,
+                [],
+                'A posição de início do texto a ser extraído.'
+            ),
+            new InformacaoElementoSintatico(
+                'fim',
+                'inteiro',
+                true,
+                [],
+                'A posição de fim do texto a ser extraído.'
+            ),
+        ],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
+            texto: string,
+            inicio: number,
+            fim: number
+        ): Promise<string> => Promise.resolve(texto.substring(inicio, fim)),
+        assinaturaFormato: 'texto.subtexto(inicio: inteiro, fim: inteiro)',
+        documentacao:
+            '# `texto.subtexto(inicio, fim)` \n \n' +
+            'Extrai uma parte do texto entre as posições `inicio` e `fim`.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "Pitugues"\n' +
+            't.subtexto(0, 4) // "Pitu"\n' +
+            't.subtexto(4, 8) // "gues"\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.subtexto(inicio, fim)',
+    },
+    encontre_ultimo: {
+        tipoRetorno: 'numero',
+        argumentos: [
+            new InformacaoElementoSintatico(
+                'procurar',
+                'texto',
+                true,
+                [],
+                'A substring a ser pesquisada.'
+            ),
+            new InformacaoElementoSintatico(
+                'posicaoInicial',
+                'numero',
+                false,
+                [],
+                '(Opcional) A posição no texto de onde a busca deve começar (da direita para a esquerda).'
+            ),
+        ],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            nomePrimitiva: string,
+            texto: string,
+            procurar: string,
+            posicaoInicial?: number
+        ): Promise<number> => {
+            if (posicaoInicial !== undefined) {
+                return Promise.resolve(texto.lastIndexOf(procurar, posicaoInicial));
+            }
+            return Promise.resolve(texto.lastIndexOf(procurar));
+        },
+        assinaturaFormato: 'texto.encontre_ultimo(procurar: texto, posicaoInicial?: numero)',
+        documentacao:
+            '# `texto.encontre_ultimo(procurar, posicaoInicial?)` \n \n' +
+            'Retorna o índice da última ocorrência da substring `procurar` no texto, ou -1 se não encontrada.' +
+            ' A busca é feita da direita para a esquerda, começando opcionalmente de `posicaoInicial`.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "um dois três dois"\n' +
+            'escreva(t.encontre_ultimo("dois")) // 10\n' +
+            'escreva(t.encontre_ultimo("dois", 5)) // 3\n' +
+            'escreva(t.encontre_ultimo("quatro")) // -1\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.encontre_ultimo("substring", posicaoInicial?)',
+    },
