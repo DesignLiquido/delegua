@@ -1515,7 +1515,100 @@ describe('Interpretador (Pituguês)', () => {
                         expect(_saidas[0]).toBe("[['a', 1], ['b', 2], ['c', 3]]");
                     });
                 });
-            });
+                describe('chaves', () => {
+                    it('Trivial', async () => {
+                        const codigo = [
+                            "d = {'a': 1, 'b': 2, 'c': 3}",
+                            'escreva(d.chaves())',
+                        ];
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe("['a', 'b', 'c']");
+                    });
+                });
+                describe('remover', () => {
+                    it('Trivial', async () => {
+                        const codigo = [
+                            "d = {'a': 1, 'b': 2, 'c': 3}",
+                            "d.remover('b')",
+                            'escreva(d)',
+                        ];
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('{"a":1,"c":3}');
+                    })
+                });
+                describe('valores', () => {
+                    it('Trivial', async () => {
+                        const codigo = [
+                            "d = {'a': 1, 'b': 2, 'c': 3}",
+                            'escreva(d.valores())',
+                        ];
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('[1, 2, 3]');
+                    })
+                });
+                describe('contém e contem', () => {
+                    it('Trivial', async () => {
+                        const codigo = [
+                            "d = {'a': 1, 'b': 2, 'c': 3}",
+                            'escreva(d contém "a")',
+                        ];
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                            retornoLexador, -1
+                        );
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('verdadeiro');
+                    })
+                    it('Retornando falso quando a chave não existe', async () => {
+                        const codigo = [
+                            "d = {'x': 10, 'y': 20}",
+                            'escreva(d contém "z")',
+                        ];
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                            retornoLexador, -1
+                        );
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('falso');
+                    });
+                });
+                });
 
             describe('Desempacotamento de dicionários com **', () => {
                 describe('Casos de sucesso', () => {
@@ -3426,6 +3519,127 @@ describe('Interpretador (Pituguês)', () => {
                 expect(_saidas[3]).toBe('dicionário');
             });
 
+            describe('Primitivas de número - formatar()', () => {
+                it('Trivial', async () => {
+                    const codigo = [
+                        'valor = 1234.56',
+                        'escreva(valor.formatar())'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('1.234,56');
+                });
+
+                it('Apenas parte inteira', async () => {
+                    const codigo = [
+                        'valor = 1234',
+                        'escreva(valor.formatar())'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('1.234,00');
+                });
+
+                it('Apenas parte decimal', async () => {
+                    const codigo = [
+                        'valor = 0.56',
+                        'escreva(valor.formatar())'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('0,56');
+                });
+
+                it('Com casas decimais personalizadas', async () => {
+                    const codigo = [
+                        'valor = 1234.56789',
+                        'opcoes = { "maximoCasasDecimais": 3 }',
+                        'escreva(valor.formatar(opcoes))'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('1.234,568');
+                });
+
+                it('Com casas decimais igual a zero', async () => {
+                    const codigo = [
+                        'valor = 1234.56',
+                        'opcoes = { "casasDecimais": 0 }',
+                        'escreva(valor.formatar(opcoes))'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('1.234,56');
+                });
+                
+                it('Número zero', async () => {
+                    const codigo = [
+                        'valor = 0',
+                        'escreva(valor.formatar())'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('0,00');
+                });
+
+                it('Número muito pequeno', async () => {
+                    const codigo = [
+                        'valor = 0.001',
+                        'escreva(valor.formatar())'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('0,00');
+                });
+
+                it('Número muito grande', async () => {
+                    const codigo = [
+                        'valor = 999999999.99',
+                        'escreva(valor.formatar())'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('999.999.999,99');
+                });
+
+                
+                it('Com casasDecimais e maximoCasasDecimais diferentes', async () => {
+                    const codigo = [
+                        'valor = 1234.5',
+                        'opcoes = { "casasDecimais": 1, "maximoCasasDecimais": 4 }',
+                        'escreva(valor.formatar(opcoes))'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('1.234,5');
+                });
             describe('todos()', () => {
                 it('Chama a função nativa "todos()" com iterável de dados Truly', async () => {
                     let _saida: string = '';
@@ -4671,3 +4885,4 @@ describe('Interpretador (Pituguês)', () => {
         });
     });
 });
+})
