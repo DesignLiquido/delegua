@@ -5971,6 +5971,91 @@ describe('Interpretador', () => {
                 expect(_saidas[0]).toContain('Liga o motor.');
             });
         });
+
+        describe('Decorador envelope', () => {
+            it('Função de decorador envolve a função decorada (nome diferente)', async () => {
+                const codigo = [
+                    'função de decorador cronometrar(f) {',
+                    '    retorna funcao() {',
+                    '        escreva("antes")',
+                    '        f()',
+                    '        escreva("depois")',
+                    '    }',
+                    '}',
+                    '@cronometrar',
+                    'função minhaFuncao() {',
+                    '    escreva("executando")',
+                    '}',
+                    'minhaFuncao()',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toEqual(['antes', 'executando', 'depois']);
+            });
+
+            it('Decorador envolve a função decorada', async () => {
+                const codigo = [
+                    'função de decorador meuDecorador(f) {',
+                    '    retorna funcao() {',
+                    '        escreva("antes")',
+                    '        f()',
+                    '        escreva("depois")',
+                    '    }',
+                    '}',
+                    '@meuDecorador',
+                    'função minhaFuncao() {',
+                    '    escreva("executando")',
+                    '}',
+                    'minhaFuncao()',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toEqual(['antes', 'executando', 'depois']);
+            });
+
+            it('Decoradores empilhados são aplicados de dentro para fora', async () => {
+                const codigo = [
+                    'função de decorador primeiroDecorador(f) {',
+                    '    retorna funcao() {',
+                    '        escreva("primeiro antes")',
+                    '        f()',
+                    '        escreva("primeiro depois")',
+                    '    }',
+                    '}',
+                    'função de decorador segundoDecorador(g) {',
+                    '    retorna funcao() {',
+                    '        escreva("segundo antes")',
+                    '        g()',
+                    '        escreva("segundo depois")',
+                    '    }',
+                    '}',
+                    '@primeiroDecorador',
+                    '@segundoDecorador',
+                    'função minhaFuncao() {',
+                    '    escreva("executando")',
+                    '}',
+                    'minhaFuncao()',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toEqual([
+                    'primeiro antes',
+                    'segundo antes',
+                    'executando',
+                    'segundo depois',
+                    'primeiro depois',
+                ]);
+            });
+        });
     });
 });
 

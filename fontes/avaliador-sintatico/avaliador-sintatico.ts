@@ -4175,14 +4175,33 @@ export class AvaliadorSintatico
             }
 
             if (
-                (this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) ||
-                    this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNÇÃO)) &&
-                this.verificarTipoProximoSimbolo(tiposDeSimbolos.IDENTIFICADOR)
+                this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) ||
+                this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNÇÃO)
             ) {
-                this.avancarEDevolverAnterior();
-                const declaracaoFuncao = (await this.funcao('funcao')) as FuncaoDeclaracao;
-                declaracaoFuncao.documentacao = docTopLevel;
-                return declaracaoFuncao;
+                if (this.verificarTipoProximoSimbolo(tiposDeSimbolos.DE)) {
+                    this.avancarEDevolverAnterior(); // `função`
+                    this.avancarEDevolverAnterior(); // `de`
+                    const simboloDecorador = this.consumir(
+                        tiposDeSimbolos.IDENTIFICADOR,
+                        "Esperado 'decorador' após 'função de'."
+                    );
+
+                    if (simboloDecorador.lexema !== 'decorador') {
+                        throw this.erro(simboloDecorador, "Esperado 'decorador' após 'função de'.");
+                    }
+
+                    const declaracaoFuncao = (await this.funcao('funcao')) as FuncaoDeclaracao;
+                    declaracaoFuncao.eFuncaoDeDecorador = true;
+                    declaracaoFuncao.documentacao = docTopLevel;
+                    return declaracaoFuncao;
+                }
+
+                if (this.verificarTipoProximoSimbolo(tiposDeSimbolos.IDENTIFICADOR)) {
+                    this.avancarEDevolverAnterior();
+                    const declaracaoFuncao = (await this.funcao('funcao')) as FuncaoDeclaracao;
+                    declaracaoFuncao.documentacao = docTopLevel;
+                    return declaracaoFuncao;
+                }
             }
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CLASSE)) {

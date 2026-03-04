@@ -2213,15 +2213,12 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
     }
 
-    visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> {
-        const funcao = new DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
+    async visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> {
+        const funcao: any = new DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
         funcao.documentacao = declaracao.documentacao;
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
         this.pilhaEscoposExecucao.registrarReferenciaFuncao(declaracao.id, funcao);
-
-        return Promise.resolve({
-            declaracao: funcao,
-        });
+        return { declaracao: funcao };
     }
 
     /**

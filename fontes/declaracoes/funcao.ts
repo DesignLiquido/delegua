@@ -17,6 +17,7 @@ export class FuncaoDeclaracao extends Declaracao {
     abstrato: boolean;
     eObtenedor: boolean;
     eDefinidor: boolean;
+    eFuncaoDeDecorador: boolean;
     documentacao?: ComentarioComoConstruto;
 
     constructor(
@@ -28,7 +29,8 @@ export class FuncaoDeclaracao extends Declaracao {
         estatico: boolean = false,
         abstrato: boolean = false,
         eObtenedor: boolean = false,
-        eDefinidor: boolean = false
+        eDefinidor: boolean = false,
+        eFuncaoDeDecorador: boolean = false
     ) {
         super(Number(simbolo.linha), simbolo.hashArquivo);
         this.id = uuidv4();
@@ -41,6 +43,7 @@ export class FuncaoDeclaracao extends Declaracao {
         this.abstrato = abstrato;
         this.eObtenedor = eObtenedor;
         this.eDefinidor = eDefinidor;
+        this.eFuncaoDeDecorador = eFuncaoDeDecorador;
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {

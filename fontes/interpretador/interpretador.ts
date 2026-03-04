@@ -308,16 +308,27 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         return Promise.resolve(pontoEntradaAjuda(declaracao.funcao, declaracao.elemento));
     }
 
-    override visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> {
-        const funcao = new DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
+    override async visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> {
+        let funcao: any = new DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
         funcao.documentacao = declaracao.documentacao;
+
+        if (declaracao.decoradores && declaracao.decoradores.length > 0) {
+            for (const decorador of [...declaracao.decoradores].reverse()) {
+                const nomeDecorador = decorador.nome.slice(1);
+                const variavelDecoradora = this.pilhaEscoposExecucao.obterVariavelPorNome(nomeDecorador);
+                const funcaoDecoradora: DeleguaFuncao = variavelDecoradora.valor;
+                const resultado = await funcaoDecoradora.chamar(this, [{ nome: null, valor: funcao }]);
+                funcao = this.resolverValorRecursivo(resultado);
+            }
+        }
+
         // TODO: Depreciar essa abordagem a favor do uso por referências?
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
         this.pilhaEscoposExecucao.registrarReferenciaFuncao(declaracao.id, funcao);
 
         return Promise.resolve({
-            tipo: `função<${funcao.declaracao.tipo || 'qualquer'}>`,
-            tipoExplicito: funcao.declaracao.tipoExplicito,
+            tipo: `função<${funcao.declaracao?.tipo || 'qualquer'}>`,
+            tipoExplicito: funcao.declaracao?.tipoExplicito,
             declaracao: funcao,
         });
     }
