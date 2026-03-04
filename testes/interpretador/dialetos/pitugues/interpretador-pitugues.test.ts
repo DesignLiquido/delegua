@@ -37,7 +37,28 @@ describe('Interpretador (Pituguês)', () => {
                         retornoAvaliadorSintatico.declaracoes
                     );
 
-                    expect(retornoInterpretador.erros).toHaveLength(0);
+                     expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Teste do exemplo de código presente no artigo sobre o Interpretador', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'letra = "b"',
+                        'se letra == "a":',
+                        '    escreva("Letra A")',
+                        'senao:',
+                        '    escreva("Não é letra A")'
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
                 it('Atribuição com anotação de tipo texto[]', async () => {
