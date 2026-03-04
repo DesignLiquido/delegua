@@ -3586,7 +3586,7 @@ describe('Interpretador (Pituguês)', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(_saidas[0]).toBe('1.234,56');
                 });
-                
+
                 it('Número zero', async () => {
                     const codigo = [
                         'valor = 0',
@@ -3626,7 +3626,7 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas[0]).toBe('999.999.999,99');
                 });
 
-                
+
                 it('Com casasDecimais e maximoCasasDecimais diferentes', async () => {
                     const codigo = [
                         'valor = 1234.5',
@@ -3905,6 +3905,26 @@ describe('Interpretador (Pituguês)', () => {
             expect(retornoInterpretador.erros).toHaveLength(0);
             expect(_saidas).toHaveLength(1);
             expect(_saidas[0]).toBe('Meu nome é Maria e eu tenho 30 anos.');
+        });
+
+        it('Suporta decimal iniciado por ponto em nova linha', async () => {
+            const codigo = [
+                'numeroLegal = 1',
+                '.50 + 2',
+                'escreva(numeroLegal)'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                retornoLexador,
+                -1
+            );
+            const retornoInterpretador = await interpretador.interpretar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saidas).toHaveLength(1);
+            expect(_saidas[0]).toBe('1');
         });
 
         describe('Cenários de falha', () => {
