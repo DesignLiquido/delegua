@@ -34,7 +34,7 @@ describe('Lexador (Pituguês)', () => {
                     ])
                 );
             });
-    
+
             it('Sucesso - imprima', () => {
                 const resultado = lexador.mapear(
                     ["imprima('Você está aprendendo sobre o Lexador do Pituguês!')"],
@@ -51,7 +51,7 @@ describe('Lexador (Pituguês)', () => {
                         expect.objectContaining({ tipo: 'PARENTESE_DIREITO' }),
                     ])
                 );
-            });            
+            });
 
             it('Operação Matemática (soma e igualdade)', () => {
                 const resultado = lexador.mapear(['2 + 3 == 5'], -1);
@@ -266,6 +266,17 @@ describe('Lexador (Pituguês)', () => {
                 const resultado = lexador.mapear(codigo, -1);
 
                 expect(resultado.simbolos[2].literal).toBe('L1\nL2\tTab');
+            });
+
+            it('Suporta decimal iniciado por ponto em nova linha', async () => {
+                const codigo = [
+                    'numeroLegal = 1',
+                    '.50 + 2',
+                    'escreva(numeroLegal)'
+                ];
+                const resultado = lexador.mapear(codigo, -1);
+
+                expect(resultado.erros).toHaveLength(0);
             });
         });
 
