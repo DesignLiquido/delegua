@@ -52,5 +52,43 @@ describe('Primitivas de número', () => {
             const resultado = await primitivasNumero.formatar.implementacao(interpretador, 1234.56789, { maximoCasasDecimais: 3 });
             expect(resultado).toStrictEqual('1.234,568');
         });
+        it('Com casas decimais igual a zero', async () => {
+            const resultado = await primitivasNumero.formatar.implementacao(interpretador, 1234.56, { casasDecimais: 0 } );
+            expect(resultado).toStrictEqual('1.234,56');
+        });
+            
+        it('Número zero', async () => {
+            const resultado = await primitivasNumero.formatar.implementacao(interpretador, 0);
+            expect(resultado).toStrictEqual('0,00');
+        });
+
+        it('Número muito pequeno', async () => {
+            const resultado = await primitivasNumero.formatar.implementacao(interpretador, 0.001);
+            expect(resultado).toStrictEqual('0,00');
+        });
+
+        it('Número muito grande', async () => {
+            const resultado = await primitivasNumero.formatar.implementacao(interpretador, 999999999.99);
+            expect(resultado).toStrictEqual('999.999.999,99');
+        });
+        
+
+        it('Com casasDecimais definido como 0', async () => {
+            const resultado = await primitivasNumero.formatar.implementacao(
+                interpretador, 
+                1234.56, 
+                { casasDecimais: 0 }
+            );
+            expect(resultado).toStrictEqual('1.234,56');
+        });
+
+        it('Com casasDecimais e maximoCasasDecimais diferentes', async () => {
+            const resultado = await primitivasNumero.formatar.implementacao(
+                interpretador, 
+                1234.5, 
+                { casasDecimais: 1, maximoCasasDecimais: 4 }
+            );
+            expect(resultado).toStrictEqual('1.234,5');
+        });
     });
 });
