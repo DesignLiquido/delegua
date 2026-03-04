@@ -250,7 +250,8 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     visitarChamadaPorVariavel(entidadeChamadaVariavel: Variavel, argumentos: Construto[]) {
         const variavel = entidadeChamadaVariavel as Variavel;
         const funcaoChamada =
-            this.gerenciadorEscopos.buscar(variavel.simbolo.lexema) || this.funcoes[variavel.simbolo.lexema];
+            this.gerenciadorEscopos.buscar(variavel.simbolo.lexema) ||
+            this.funcoes[variavel.simbolo.lexema];
 
         if (!funcaoChamada) {
             this.erro(
@@ -284,8 +285,11 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             case AcessoMetodoOuPropriedade:
                 // Marca o objeto como usado quando seus métodos/propriedades são acessados (ex: thor.corre())
                 // e verifica acesso a membros privados/protegidos
-                const entidadeChamadaAcessoMetodoOuPropriedade = expressao.entidadeChamada as AcessoMetodoOuPropriedade;
-                this.marcarVariaveisUsadasEmExpressao(entidadeChamadaAcessoMetodoOuPropriedade.objeto);
+                const entidadeChamadaAcessoMetodoOuPropriedade =
+                    expressao.entidadeChamada as AcessoMetodoOuPropriedade;
+                this.marcarVariaveisUsadasEmExpressao(
+                    entidadeChamadaAcessoMetodoOuPropriedade.objeto
+                );
                 await expressao.entidadeChamada.aceitar(this);
                 break;
             case ArgumentoReferenciaFuncao:
@@ -315,7 +319,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
 
     visitarExpressaoDeAtribuicao(expressao: Atribuir) {
         let simboloAlvo: SimboloInterface;
-        
+
         switch (expressao.alvo.constructor) {
             case Variavel:
                 const alvoVariavel = expressao.alvo as Variavel;
@@ -326,7 +330,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         }
 
         const variavel = this.gerenciadorEscopos.buscar(simboloAlvo.lexema);
-        
+
         if (!variavel) {
             this.erro(
                 simboloAlvo,
@@ -336,10 +340,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         }
 
         if (variavel.imutavel) {
-            this.erro(
-                simboloAlvo,
-                `Constante '${simboloAlvo.lexema}' não pode ser modificada.`
-            );
+            this.erro(simboloAlvo, `Constante '${simboloAlvo.lexema}' não pode ser modificada.`);
             return Promise.resolve();
         }
 
@@ -473,7 +474,9 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                     case Variavel:
                         const condicaoVariavel = condicao as Variavel;
                         this.verificarVariavel(condicaoVariavel);
-                        const variavelHipotetica = this.gerenciadorEscopos.buscar(condicaoVariavel.simbolo.lexema);
+                        const variavelHipotetica = this.gerenciadorEscopos.buscar(
+                            condicaoVariavel.simbolo.lexema
+                        );
                         if (variavelHipotetica && typeof variavelHipotetica.valor !== tipo) {
                             this.erro(
                                 condicaoVariavel.simbolo,
@@ -576,7 +579,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
 
     private verificarVariavel(variavel: Variavel): Promise<void> {
         const variavelEscopo = this.gerenciadorEscopos.buscar(variavel.simbolo.lexema);
-        
+
         if (!variavelEscopo) {
             this.erro(
                 variavel.simbolo,
@@ -616,7 +619,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         }
 
         const operadoresMatematicos = ['ADICAO', 'SUBTRACAO', 'MULTIPLICACAO', 'DIVISAO', 'MODULO'];
-        
+
         if (operadoresMatematicos.includes(binario.operador.tipo)) {
             this.verificarTiposOperandos(binario);
         }
@@ -641,18 +644,24 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
 
             if (operadoresAritmeticos.includes(binario.operador.tipo)) {
                 const ladoProblematico = tipoEsquerda === 'texto' ? 'esquerdo' : 'direito';
-                const expressaoProblematica = tipoEsquerda === 'texto' ? binario.esquerda : binario.direita;
+                const expressaoProblematica =
+                    tipoEsquerda === 'texto' ? binario.esquerda : binario.direita;
 
                 // Verifica se a expressão problemática é um Leia ou uma variável inicializada com Leia
                 let mensagemAdicional = '';
                 if (expressaoProblematica instanceof Leia) {
-                    mensagemAdicional = " Função 'leia()' retorna texto. Use 'inteiro(leia(...))' ou 'real(leia(...))' para converter.";
+                    mensagemAdicional =
+                        " Função 'leia()' retorna texto. Use 'inteiro(leia(...))' ou 'real(leia(...))' para converter.";
                 } else if (expressaoProblematica instanceof Variavel) {
-                    const variavel = this.gerenciadorEscopos.buscar((expressaoProblematica as Variavel).simbolo.lexema);
+                    const variavel = this.gerenciadorEscopos.buscar(
+                        (expressaoProblematica as Variavel).simbolo.lexema
+                    );
                     if (variavel && variavel.valor instanceof Leia) {
-                        mensagemAdicional = " A variável foi inicializada com 'leia()' que retorna texto. Use 'inteiro(leia(...))' ou 'real(leia(...))' para converter.";
+                        mensagemAdicional =
+                            " A variável foi inicializada com 'leia()' que retorna texto. Use 'inteiro(leia(...))' ou 'real(leia(...))' para converter.";
                     } else {
-                        mensagemAdicional = " Use 'inteiro(...)' ou 'real(...)' para converter texto em número.";
+                        mensagemAdicional =
+                            " Use 'inteiro(...)' ou 'real(...)' para converter texto em número.";
                     }
                 }
 
@@ -666,8 +675,8 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
 
         if (tipoEsquerda && tipoDireita && tipoEsquerda !== tipoDireita) {
             // Verificar se são tipos numéricos compatíveis
-            const ambosNumericos = tiposNumericos.includes(tipoEsquerda) &&
-                                tiposNumericos.includes(tipoDireita);
+            const ambosNumericos =
+                tiposNumericos.includes(tipoEsquerda) && tiposNumericos.includes(tipoDireita);
 
             if (!ambosNumericos) {
                 this.aviso(
@@ -683,7 +692,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
      */
     private verificarDivisaoPorZero(binario: Binario): void {
         const valorDireita = this.avaliarExpressaoConstante(binario.direita);
-        
+
         if (valorDireita === 0) {
             this.erro(binario.operador, `Divisão por zero.`);
         }
@@ -697,41 +706,40 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         if (expressao instanceof Literal) {
             return expressao.valor;
         }
-        
+
         if (expressao instanceof Variavel) {
             const variavel = this.gerenciadorEscopos.buscar(expressao.simbolo.lexema);
-            
+
             if (!variavel) {
                 return null;
             }
-            
+
             if (variavel.imutavel && variavel.inicializada) {
                 return variavel.valor;
             }
-            
+
             if (variavel.inicializada && variavel.valor !== undefined) {
                 return variavel.valor;
             }
-            
+
             return null;
         }
-        
+
         if (expressao instanceof Binario) {
             const esquerda = this.avaliarExpressaoConstante(expressao.esquerda);
             const direita = this.avaliarExpressaoConstante(expressao.direita);
-            
+
             if (esquerda !== null && direita !== null) {
                 return this.calcularOperacaoBinaria(expressao.operador.tipo, esquerda, direita);
             }
         }
-        
+
         if (expressao instanceof Agrupamento) {
             return this.avaliarExpressaoConstante(expressao.expressao);
         }
-        
+
         return null;
     }
-
 
     /**
      * Calcula o resultado de uma operação binária em tempo de compilação
@@ -801,16 +809,26 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 const nomeFuncao = entidadeChamadaVariavel.simbolo.lexema;
 
                 // Lista de funções built-in que não precisam ser declaradas
-                const funcoesBuiltIn = ['inteiro', 'real', 'número', 'texto', 'leia', 'escreva', 'tipo'];
+                const funcoesBuiltIn = [
+                    'inteiro',
+                    'real',
+                    'número',
+                    'texto',
+                    'leia',
+                    'escreva',
+                    'tipo',
+                ];
 
                 // Classes/construtores geralmente começam com letra maiúscula
                 const pareceSerClasse = nomeFuncao[0] === nomeFuncao[0].toUpperCase();
 
                 // Só verifica se a função existe se não for built-in e não parecer ser classe
-                if (!funcoesBuiltIn.includes(nomeFuncao) &&
+                if (
+                    !funcoesBuiltIn.includes(nomeFuncao) &&
                     !pareceSerClasse &&
                     !this.funcoes[nomeFuncao] &&
-                    !this.gerenciadorEscopos.buscar(nomeFuncao)) {
+                    !this.gerenciadorEscopos.buscar(nomeFuncao)
+                ) {
                     this.erro(
                         entidadeChamadaVariavel.simbolo,
                         `Chamada da função '${nomeFuncao}' não existe.`
@@ -863,14 +881,14 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         // Regex para encontrar ${identificador}
         const regexInterpolacao = /\$\{([a-zA-Z_][a-zA-Z0-9_]*)\}/g;
         let match;
-        
+
         while ((match = regexInterpolacao.exec(texto)) !== null) {
             const nomeVariavel = match[1];
-            
+
             // Verifica se a variável existe
             const variavel = this.gerenciadorEscopos.buscar(nomeVariavel);
             const funcao = this.funcoes[nomeVariavel];
-            
+
             if (!variavel && !funcao) {
                 this.erro(
                     {
@@ -878,14 +896,14 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                         tipo: 'IDENTIFICADOR',
                         linha: literal.linha,
                         hashArquivo: literal.hashArquivo,
-                        literal: null
+                        literal: null,
                     } as SimboloInterface,
                     `Variável ou função '${nomeVariavel}' usada em interpolação não existe.`
                 );
             } else if (variavel) {
                 // Marca como usada
                 this.gerenciadorEscopos.marcarComoUsada(nomeVariavel);
-                
+
                 // Verifica se foi inicializada
                 if (!variavel.inicializada) {
                     this.aviso(
@@ -894,7 +912,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                             tipo: 'IDENTIFICADOR',
                             linha: literal.linha,
                             hashArquivo: literal.hashArquivo,
-                            literal: null
+                            literal: null,
                         } as SimboloInterface,
                         `Variável '${nomeVariavel}' usada em interpolação pode não ter sido inicializada.`
                     );
@@ -967,21 +985,18 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         if (constanteCorrespondente) {
             this.erro(declaracao.simbolo, 'Declaração de constante já feita.');
             return Promise.resolve();
-        } 
+        }
 
-        this.gerenciadorEscopos.declarar(
-            declaracao.simbolo.lexema,
-            {
-                nome: declaracao.simbolo.lexema,
-                tipo: declaracao.tipo || 'qualquer',
-                imutavel: true,
-                valor: declaracao.inicializador?.valor,
-                inicializada: true,
-                usada: false,
-                hashArquivo: declaracao.simbolo.hashArquivo,
-                linha: declaracao.simbolo.linha
-            }
-        );
+        this.gerenciadorEscopos.declarar(declaracao.simbolo.lexema, {
+            nome: declaracao.simbolo.lexema,
+            tipo: declaracao.tipo || 'qualquer',
+            imutavel: true,
+            valor: declaracao.inicializador?.valor,
+            inicializada: true,
+            usada: false,
+            hashArquivo: declaracao.simbolo.hashArquivo,
+            linha: declaracao.simbolo.linha,
+        });
 
         // TODO: Verificar inicializador.
 
@@ -1033,7 +1048,10 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                                             `Esperado retorno do tipo '${tipoRetornoFuncao}' dentro da função.`
                                         );
                                     }
-                                    if (tipoValor === 'number' && !['inteiro', 'real', 'número'].includes(tipoRetornoFuncao)) {
+                                    if (
+                                        tipoValor === 'number' &&
+                                        !['inteiro', 'real', 'número'].includes(tipoRetornoFuncao)
+                                    ) {
                                         this.erro(
                                             declaracao.simbolo,
                                             `Esperado retorno do tipo '${tipoRetornoFuncao}' dentro da função.`
@@ -1063,21 +1081,23 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         }
 
         // Sugestão de tipo melhor quando 'qualquer' é usado explicitamente
-        if (declaracao.tipoExplicito && declaracao.tipoOriginal === 'qualquer' && declaracao.inicializador) {
+        if (
+            declaracao.tipoExplicito &&
+            declaracao.tipoOriginal === 'qualquer' &&
+            declaracao.inicializador
+        ) {
             const tipoMelhor = this.obterTipoExpressao(declaracao.inicializador);
             if (tipoMelhor && tipoMelhor !== 'qualquer') {
-                this.sugestao(
-                    declaracao.simbolo,
-                    'Um tipo melhor pode ser inferido.',
-                    [{
+                this.sugestao(declaracao.simbolo, 'Um tipo melhor pode ser inferido.', [
+                    {
                         titulo: `Alterar tipo para '${tipoMelhor}'`,
                         textoOriginal: 'qualquer',
                         textoSubstituto: tipoMelhor,
                         linha: declaracao.simbolo.linha,
                         colunaInicio: declaracao.simbolo.colunaInicio,
                         colunaFim: declaracao.simbolo.colunaFim,
-                    }]
-                );
+                    },
+                ]);
             }
         }
 
@@ -1086,10 +1106,11 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             tipo: tipoInferido || 'qualquer',
             imutavel: false,
             valor: valorInicializador,
-            inicializada: declaracao.inicializador !== null && declaracao.inicializador !== undefined,
+            inicializada:
+                declaracao.inicializador !== null && declaracao.inicializador !== undefined,
             usada: false,
             hashArquivo: declaracao.simbolo.hashArquivo,
-            linha: declaracao.simbolo.linha
+            linha: declaracao.simbolo.linha,
         };
 
         const declaradaComSucesso = this.gerenciadorEscopos.declarar(
@@ -1101,7 +1122,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             const variavelExistente = this.gerenciadorEscopos.buscarNoEscopoAtual(
                 declaracao.simbolo.lexema
             );
-            
+
             this.aviso(
                 declaracao.simbolo,
                 `Variável '${declaracao.simbolo.lexema}' já foi declarada na linha ${variavelExistente?.linha}.`
@@ -1121,7 +1142,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 this.marcarVariaveisUsadasEmExpressao(expressao);
             } */
         }
-        
+
         return Promise.resolve();
     }
 
@@ -1133,7 +1154,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         if (expressao instanceof Variavel) {
             return this.verificarVariavel(expressao);
         }
-        
+
         return Promise.resolve();
     }
 
@@ -1256,7 +1277,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 const todosOsCaminhosRetornam = this.todosOsCaminhosRetornam(
                     declaracao.funcao.corpo
                 );
-                
+
                 if (!todosOsCaminhosRetornam) {
                     this.erro(
                         declaracao.simbolo,
@@ -1264,18 +1285,23 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                     );
                 }
             }
-            
+
             const retornos = declaracao.funcao.corpo.flatMap((c) => buscarRetornos(c));
             // Filtra retornos com tipo 'qualquer' (não determinado em tempo de análise sintática)
             const retornosComTipoIndeterminado = retornos.filter(
-                (retorno) => retorno.valor !== null &&
-                             retorno.valor !== undefined &&
-                             retorno.tipo === 'qualquer'
+                (retorno) =>
+                    retorno.valor !== null &&
+                    retorno.valor !== undefined &&
+                    retorno.tipo === 'qualquer'
             );
 
             // Se a função é 'vazio' e há retornos com tipo indeterminado,
             // tenta inferir o tipo e fornece mensagem útil ao desenvolvedor
-            if (tipoRetornoFuncao === 'vazio' && declaracao.funcao.tipoExplicito && retornosComTipoIndeterminado.length > 0) {
+            if (
+                tipoRetornoFuncao === 'vazio' &&
+                declaracao.funcao.tipoExplicito &&
+                retornosComTipoIndeterminado.length > 0
+            ) {
                 const retornoComValor = retornosComTipoIndeterminado[0];
                 const tipoInferido = this.obterTipoExpressao(retornoComValor.valor);
 
@@ -1302,7 +1328,10 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                                 `Esperado retorno do tipo '${tipoRetornoFuncao}' dentro da função.`
                             );
                         }
-                        if (tipoValor === 'number' && !['inteiro', 'real', 'número'].includes(tipoRetornoFuncao)) {
+                        if (
+                            tipoValor === 'number' &&
+                            !['inteiro', 'real', 'número'].includes(tipoRetornoFuncao)
+                        ) {
                             this.erro(
                                 declaracao.simbolo,
                                 `Esperado retorno do tipo '${tipoRetornoFuncao}' dentro da função.`
@@ -1322,25 +1351,26 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
 
     verificarVariaveisNaoUsadas(): void {
         const naoUsadas = this.gerenciadorEscopos.obterVariaveisNaoUsadas();
-        
+
         for (let variavel of naoUsadas) {
             // Verifica se já existe um erro associado à variável.
             const temErro = this.diagnosticos.some(
-                d => d.severidade === DiagnosticoSeveridade.ERRO && 
+                (d) =>
+                    d.severidade === DiagnosticoSeveridade.ERRO &&
                     d.simbolo.lexema === variavel.nome
             );
-            
+
             // Se a variável já tem um erro associado, não emitir aviso de não usada.
             if (temErro) {
                 continue;
             }
-            
+
             this.aviso(
                 {
                     lexema: variavel.nome,
                     linha: variavel.linha,
                     tipo: variavel.tipo,
-                    hashArquivo: variavel.hashArquivo
+                    hashArquivo: variavel.hashArquivo,
                 } as SimboloInterface,
                 `Variável '${variavel.nome}' foi declarada mas nunca usada.`
             );

@@ -1,5 +1,14 @@
 import { Construto, FuncaoConstruto, Leia, Literal } from '../../construtos';
-import { Escreva, Declaracao, Se, Enquanto, Para, Escolha, Fazer, Expressao } from '../../declaracoes';
+import {
+    Escreva,
+    Declaracao,
+    Se,
+    Enquanto,
+    Para,
+    Escolha,
+    Fazer,
+    Expressao,
+} from '../../declaracoes';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 import { SimboloInterface } from '../../interfaces';
@@ -20,11 +29,13 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
         const simboloAtual = this.simbolos[this.atual];
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NUMERO, tiposDeSimbolos.TEXTO)) {
             const simboloAnterior: SimboloInterface = this.simbolos[this.atual - 1];
-            return Promise.resolve(new Literal(
-                this.hashArquivo,
-                Number(simboloAnterior.linha),
-                simboloAnterior.literal
-            ));
+            return Promise.resolve(
+                new Literal(
+                    this.hashArquivo,
+                    Number(simboloAnterior.linha),
+                    simboloAnterior.literal
+                )
+            );
         }
 
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
@@ -191,7 +202,7 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
 
         const declaracoes: Declaracao[] = [];
         while (!this.estaNoFinal()) {
-            declaracoes.push(await this.resolverDeclaracaoForaDeBloco() as Declaracao);
+            declaracoes.push((await this.resolverDeclaracaoForaDeBloco()) as Declaracao);
         }
 
         return {

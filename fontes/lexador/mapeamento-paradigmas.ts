@@ -128,7 +128,10 @@ export const palavrasNeutras: Record<string, string> = {
  * Retorna um mapa de lexema para paradigma.
  * Útil para verificar rapidamente se uma palavra pertence a um paradigma.
  */
-export function obterMapaLexemaParaParadigma(): Map<string, 'imperativo' | 'infinitivo' | 'neutro'> {
+export function obterMapaLexemaParaParadigma(): Map<
+    string,
+    'imperativo' | 'infinitivo' | 'neutro'
+> {
     const mapa = new Map<string, 'imperativo' | 'infinitivo' | 'neutro'>();
 
     // Adiciona palavras neutras
@@ -159,7 +162,10 @@ export function obterMapaLexemaParaParadigma(): Map<string, 'imperativo' | 'infi
  * @param paradigmaAlvo O paradigma desejado
  * @returns A forma alternativa ou undefined se não houver conversão
  */
-export function obterFormaAlternativa(lexema: string, paradigmaAlvo: 'imperativo' | 'infinitivo'): string | undefined {
+export function obterFormaAlternativa(
+    lexema: string,
+    paradigmaAlvo: 'imperativo' | 'infinitivo'
+): string | undefined {
     const lexemaLower = lexema.toLowerCase();
 
     // Encontra o grupo que contém este lexema

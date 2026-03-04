@@ -17,22 +17,58 @@ import {
     Sexteto,
     Trio,
     Tupla,
-    TuplaN
+    TuplaN,
 } from '../construtos';
 
 import { RetornoQuebra } from '../quebras';
 import { inferirTipoVariavel } from '../inferenciador';
 
-const configTuplas: { [key: string]: { Classe: any, props: string[] } } = {
-    'Dupla': { Classe: Dupla, props: ['primeiro', 'segundo'] },
-    'Trio': { Classe: Trio, props: ['primeiro', 'segundo', 'terceiro'] },
-    'Quarteto': { Classe: Quarteto, props: ['primeiro', 'segundo', 'terceiro', 'quarto'] },
-    'Quinteto': { Classe: Quinteto, props: ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto'] },
-    'Sexteto': { Classe: Sexteto, props: [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto'] },
-    'Septeto': { Classe: Septeto, props: [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo' ] },
-    'Octeto': { Classe: Octeto, props: [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo' ] },
-    'Noneto': { Classe: Noneto, props: [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo', 'nono' ] },
-    'Deceto': { Classe: Deceto, props: [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo', 'nono', 'decimo' ] },
+const configTuplas: { [key: string]: { Classe: any; props: string[] } } = {
+    Dupla: { Classe: Dupla, props: ['primeiro', 'segundo'] },
+    Trio: { Classe: Trio, props: ['primeiro', 'segundo', 'terceiro'] },
+    Quarteto: { Classe: Quarteto, props: ['primeiro', 'segundo', 'terceiro', 'quarto'] },
+    Quinteto: { Classe: Quinteto, props: ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto'] },
+    Sexteto: {
+        Classe: Sexteto,
+        props: ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto'],
+    },
+    Septeto: {
+        Classe: Septeto,
+        props: ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo'],
+    },
+    Octeto: {
+        Classe: Octeto,
+        props: ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo'],
+    },
+    Noneto: {
+        Classe: Noneto,
+        props: [
+            'primeiro',
+            'segundo',
+            'terceiro',
+            'quarto',
+            'quinto',
+            'sexto',
+            'setimo',
+            'oitavo',
+            'nono',
+        ],
+    },
+    Deceto: {
+        Classe: Deceto,
+        props: [
+            'primeiro',
+            'segundo',
+            'terceiro',
+            'quarto',
+            'quinto',
+            'sexto',
+            'setimo',
+            'oitavo',
+            'nono',
+            'decimo',
+        ],
+    },
 };
 
 const mapaConstrutoresTupla: { [tamanho: number]: any } = {
@@ -44,19 +80,40 @@ const mapaConstrutoresTupla: { [tamanho: number]: any } = {
     7: Septeto,
     8: Octeto,
     9: Noneto,
-    10: Deceto
+    10: Deceto,
 };
 
 const mapaPropriedadesTuplas: { [nomeClasse: string]: string[] } = {
-    'Dupla': ['primeiro', 'segundo'],
-    'Trio': ['primeiro', 'segundo', 'terceiro'],
-    'Quarteto': ['primeiro', 'segundo', 'terceiro', 'quarto'],
-    'Quinteto': [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto' ],
-    'Sexteto': [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto' ],
-    'Septeto': [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo' ],
-    'Octeto': [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo' ],
-    'Noneto': [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo', 'nono' ],
-    'Deceto': [ 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo', 'nono', 'decimo' ],
+    Dupla: ['primeiro', 'segundo'],
+    Trio: ['primeiro', 'segundo', 'terceiro'],
+    Quarteto: ['primeiro', 'segundo', 'terceiro', 'quarto'],
+    Quinteto: ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto'],
+    Sexteto: ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto'],
+    Septeto: ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo'],
+    Octeto: ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo'],
+    Noneto: [
+        'primeiro',
+        'segundo',
+        'terceiro',
+        'quarto',
+        'quinto',
+        'sexto',
+        'setimo',
+        'oitavo',
+        'nono',
+    ],
+    Deceto: [
+        'primeiro',
+        'segundo',
+        'terceiro',
+        'quarto',
+        'quinto',
+        'sexto',
+        'setimo',
+        'oitavo',
+        'nono',
+        'decimo',
+    ],
 };
 
 /**
@@ -240,13 +297,13 @@ export async function arredondar(
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 null,
-                "Erro: arredondar() deve receber um número.",
+                'Erro: arredondar() deve receber um número.',
                 interpretador.linhaDeclaracaoAtual
             )
         );
     }
 
-    if (typeof numero !== "number") {
+    if (typeof numero !== 'number') {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 null,
@@ -260,7 +317,7 @@ export async function arredondar(
     const resultado = Math.round(valorNumero * fator) / fator;
 
     return Promise.resolve(resultado);
-};
+}
 
 /**
  * Clona profundamente uma variável ou constante em Delégua.
@@ -342,11 +399,7 @@ export async function clonar(
                 elementosClonados.push(clonarProfundo(valorAtual.elementos[i]));
             }
 
-            return new TuplaN(
-                valorAtual.hashArquivo,
-                valorAtual.linha,
-                elementosClonados
-            );
+            return new TuplaN(valorAtual.hashArquivo, valorAtual.linha, elementosClonados);
         }
 
         // Tuplas com até 10 elementos
@@ -817,7 +870,7 @@ export async function intervalo(
     interpretador: InterpretadorInterface,
     valorInicial: VariavelInterface | number,
     valorFinal?: VariavelInterface | number,
-    valorPasso?: VariavelInterface | number,
+    valorPasso?: VariavelInterface | number
 ): Promise<number[]> {
     const primeiroParam = interpretador.resolverValor(valorInicial);
     const segundoParam = interpretador.resolverValor(valorFinal);
@@ -846,8 +899,12 @@ export async function intervalo(
     }
     // intervalo(inicio, parada) ou intervalo(inicio, parada, passo)
     else {
-        if (typeof primeiroParam !== 'number' || isNaN(primeiroParam) ||
-            typeof segundoParam !== 'number' || isNaN(segundoParam)) {
+        if (
+            typeof primeiroParam !== 'number' ||
+            isNaN(primeiroParam) ||
+            typeof segundoParam !== 'number' ||
+            isNaN(segundoParam)
+        ) {
             return Promise.reject(
                 new ErroEmTempoDeExecucao(
                     {
@@ -1406,7 +1463,7 @@ export async function somar(
             );
         }
 
-        somaDosElementos += elemento
+        somaDosElementos += elemento;
     }
 
     return Promise.resolve(somaDosElementos);
@@ -1457,13 +1514,21 @@ export async function tamanho(interpretador: InterpretadorInterface, objeto: any
         let tamanho = 0;
 
         const metodoInicializacao = metodos.inicializacao;
-        if (metodoInicializacao && !Array.isArray(metodoInicializacao) && metodoInicializacao.eInicializador) {
+        if (
+            metodoInicializacao &&
+            !Array.isArray(metodoInicializacao) &&
+            metodoInicializacao.eInicializador
+        ) {
             tamanho = metodoInicializacao.declaracao.parametros.length;
         } else if (Array.isArray(metodoInicializacao)) {
             // Em caso de construtores sobrecarregados, `metodos.inicializacao` pode ser um array.
             // Usamos o maior número de parâmetros entre as sobrecargas que são inicializadores.
             for (const inicializador of metodoInicializacao) {
-                if (inicializador && inicializador.eInicializador && inicializador.declaracao?.parametros) {
+                if (
+                    inicializador &&
+                    inicializador.eInicializador &&
+                    inicializador.declaracao?.parametros
+                ) {
                     const aridade = inicializador.declaracao.parametros.length;
                     if (aridade > tamanho) {
                         tamanho = aridade;
@@ -1504,7 +1569,8 @@ export async function todos(
     iteravel: VariavelInterface | any
 ): Promise<boolean> {
     const valorIteravel = interpretador.resolverValor(iteravel);
-    const ehObjetoOuDicionario = valorIteravel && typeof valorIteravel === 'object' && !Array.isArray(valorIteravel);
+    const ehObjetoOuDicionario =
+        valorIteravel && typeof valorIteravel === 'object' && !Array.isArray(valorIteravel);
     const ehIteravelNativo = valorIteravel && typeof valorIteravel[Symbol.iterator] === 'function';
 
     if (!ehIteravelNativo && !ehObjetoOuDicionario) {
@@ -1551,7 +1617,8 @@ export async function todosEmCondicao(
 
     const valorIteravel = interpretador.resolverValor(iteravel);
 
-    const ehObjetoOuDicionario = valorIteravel && typeof valorIteravel === 'object' && !Array.isArray(valorIteravel);
+    const ehObjetoOuDicionario =
+        valorIteravel && typeof valorIteravel === 'object' && !Array.isArray(valorIteravel);
     const ehIteravelNativo = valorIteravel && typeof valorIteravel[Symbol.iterator] === 'function';
 
     if (!ehIteravelNativo && !ehObjetoOuDicionario) {
@@ -1569,8 +1636,7 @@ export async function todosEmCondicao(
     const valorFuncao = interpretador.resolverValor(funcaoCondicional);
 
     const ehFuncaoValida =
-        valorFuncao instanceof DeleguaFuncao ||
-        valorFuncao instanceof FuncaoPadrao;
+        valorFuncao instanceof DeleguaFuncao || valorFuncao instanceof FuncaoPadrao;
 
     if (!ehFuncaoValida) {
         return Promise.reject(
@@ -1609,12 +1675,13 @@ export async function tupla(
 ): Promise<TuplaN> {
     const valorVetor: any[] = interpretador.resolverValor(vetor);
 
-    const elementos = valorVetor.map(item =>
-        new Literal(
-            interpretador.hashArquivoDeclaracaoAtual,
-            interpretador.linhaDeclaracaoAtual,
-            interpretador.resolverValor(item)
-        )
+    const elementos = valorVetor.map(
+        (item) =>
+            new Literal(
+                interpretador.hashArquivoDeclaracaoAtual,
+                interpretador.linhaDeclaracaoAtual,
+                interpretador.resolverValor(item)
+            )
     );
 
     return new TuplaN(
@@ -1650,8 +1717,11 @@ export async function vetor(
         const nomeClasse = objetoTupla.constructor.name;
         const props = mapaPropriedadesTuplas[nomeClasse];
         if (props) {
-            resultado = props.map(prop => (objetoTupla as any)[prop]);
-        } else if ((objetoTupla as any).elementos && Array.isArray((objetoTupla as any).elementos)) {
+            resultado = props.map((prop) => (objetoTupla as any)[prop]);
+        } else if (
+            (objetoTupla as any).elementos &&
+            Array.isArray((objetoTupla as any).elementos)
+        ) {
             resultado = (objetoTupla as any).elementos;
         }
     }

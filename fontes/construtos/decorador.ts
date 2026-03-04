@@ -37,7 +37,9 @@ export class Decorador implements Construto {
 
             const valor = this.atributos[chave];
             const valorTexto =
-                valor && typeof valor === 'object' && typeof valor.paraTexto === 'function' ? valor.paraTexto() : valor;
+                valor && typeof valor === 'object' && typeof valor.paraTexto === 'function'
+                    ? valor.paraTexto()
+                    : valor;
 
             atributos += `${chave}=${valorTexto} `;
         }

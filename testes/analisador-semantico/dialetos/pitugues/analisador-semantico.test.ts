@@ -1867,34 +1867,6 @@ describe('Analisador semântico', () => {
             });
         });
 
-        // describe('Cenários de declaração de constante', () => {
-        //     it('Erro - redeclaração de constante', async () => {
-        //         const retornoLexador = lexador.mapear([
-        //             `const PI = 3.14`,
-        //             `const PI = 3.15`,
-        //         ], -1);
-        //         const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-        //         const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-                
-        //         expect(retornoAnalisadorSemantico).toBeTruthy();
-        //         expect(retornoAnalisadorSemantico.diagnosticos.some(
-        //             d => d.mensagem?.includes('Declaração de constante já feita')
-        //         )).toBe(true);
-        //     });
-
-        //     it('Sucesso - constante com tipo e inicializador', async () => {
-        //         const retornoLexador = lexador.mapear([
-        //             `const valor = 42`,
-        //             `escreva(valor)`,
-        //         ], -1);
-        //         const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-        //         const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-                
-        //         expect(retornoAnalisadorSemantico).toBeTruthy();
-        //         expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
-        //     });
-        // });
-
         describe('Cenários de escolha com variável no caso', () => {
             it('Escolha com variável no caso', async () => {
                 const retornoLexador = lexador.mapear([

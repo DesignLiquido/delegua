@@ -33,7 +33,7 @@ export const palavrasReservadasDelegua = {
     falso: tiposDeSimbolos.FALSO,
     faca: tiposDeSimbolos.FAZER,
     fazer: tiposDeSimbolos.FAZER,
-    'faça': tiposDeSimbolos.FAZER,
+    faça: tiposDeSimbolos.FAZER,
     finalmente: tiposDeSimbolos.FINALMENTE,
     fixo: tiposDeSimbolos.CONSTANTE,
     funcao: tiposDeSimbolos.FUNCAO,
@@ -79,7 +79,7 @@ export const palavrasReservadasDelegua = {
     var: tiposDeSimbolos.VARIAVEL,
     variavel: tiposDeSimbolos.VARIAVEL,
     variável: tiposDeSimbolos.VARIAVEL,
-    verdadeiro: tiposDeSimbolos.VERDADEIRO
+    verdadeiro: tiposDeSimbolos.VERDADEIRO,
 };
 
 export const palavrasReservadasMicroGramatica = {

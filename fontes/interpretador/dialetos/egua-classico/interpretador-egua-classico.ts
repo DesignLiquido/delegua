@@ -126,7 +126,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     /* istanbul ignore next */
-    visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> | void {
+    visitarExpressaoAcessoIntervaloVariavel(
+        expressao: AcessoIntervaloVariavel
+    ): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
@@ -489,9 +491,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             parametros = entidadeChamada.declaracao.parametros;
         } else if (entidadeChamada instanceof DescritorTipoClasse) {
             const metodoInit = entidadeChamada.metodos.inicializacao as DeleguaFuncao;
-            parametros = metodoInit
-                ? metodoInit.declaracao.parametros
-                : [];
+            parametros = metodoInit ? metodoInit.declaracao.parametros : [];
         } else {
             parametros = [];
         }
@@ -991,12 +991,12 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         const objeto = variavelObjeto?.valor;
         if (objeto instanceof ObjetoDeleguaClasse) {
             return (await objeto.obter(expressao.simbolo, this)) || null;
-        } 
-        
+        }
+
         if (objeto.constructor === Object) {
             return objeto[expressao.simbolo.lexema] || null;
-        } 
-        
+        }
+
         if (objeto instanceof DeleguaModulo) {
             return objeto[expressao.simbolo.lexema] || null;
         }

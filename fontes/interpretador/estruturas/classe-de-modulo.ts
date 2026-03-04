@@ -3,11 +3,11 @@ import { Chamavel } from './chamavel';
 export type MetodoDeClasseDeModulo = {
     tipoRetorno: string;
     argumentos: { nome: string; tipo: string }[];
-}
+};
 
 export type PropriedadeDeClasseDeModulo = {
     tipo: string;
-}
+};
 
 /**
  * Uma classe de módulo não é muito diferente de uma `ClassePadrao`, com o adicional

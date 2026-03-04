@@ -1,6 +1,6 @@
-import { Construto } from "../construtos";
-import { VisitanteDeleguaInterface } from "../interfaces";
-import { Declaracao } from "./declaracao";
+import { Construto } from '../construtos';
+import { VisitanteDeleguaInterface } from '../interfaces';
+import { Declaracao } from './declaracao';
 
 /**
  * A declaração de ajuda (`ajuda()` em Delégua) exibe na saída padrão uma documentação sobre como

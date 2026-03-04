@@ -5,10 +5,7 @@ export default {
     absoluto: {
         tipoRetorno: 'número',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            valor: number
-        ): Promise<number> => {
+        implementacao: (interpretador: InterpretadorInterface, valor: number): Promise<number> => {
             return Promise.resolve(Math.abs(valor));
         },
         assinaturaFormato: 'número.absoluto()',
@@ -25,10 +22,7 @@ export default {
     arredondarParaBaixo: {
         tipoRetorno: 'número',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            valor: number
-        ): Promise<number> => {
+        implementacao: (interpretador: InterpretadorInterface, valor: number): Promise<number> => {
             return Promise.resolve(Math.floor(valor));
         },
         assinaturaFormato: 'número.arredondarParaBaixo()',
@@ -45,10 +39,7 @@ export default {
     arredondarParaCima: {
         tipoRetorno: 'número',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            valor: number
-        ): Promise<number> => {
+        implementacao: (interpretador: InterpretadorInterface, valor: number): Promise<number> => {
             return Promise.resolve(Math.ceil(valor));
         },
         assinaturaFormato: 'número.arredondarParaCima()',

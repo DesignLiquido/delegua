@@ -7,11 +7,11 @@ import { MetodoPolimorfico } from './metodo-polimorfico';
 import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
 
 const mapaDeNormalizacao: { [chave: string]: string } = {
-    'numero': 'número',
-    'logico': 'lógico',
-    'funcao': 'função',
-    'dicionario': 'dicionário',
-    'modulo': 'módulo',
+    numero: 'número',
+    logico: 'lógico',
+    funcao: 'função',
+    dicionario: 'dicionário',
+    modulo: 'módulo',
 };
 
 function normalizarTipo(tipo: string | undefined): string {
@@ -40,7 +40,7 @@ function assinaturasIguais(a: DeleguaFuncao, b: DeleguaFuncao): boolean {
 export class DescritorTipoClasse extends Chamavel {
     simboloOriginal: SimboloInterface;
     superClasses: DescritorTipoClasse[];
-    /** OReM (Ordem de Resolução de Métodos, ou _Method Resolution Order_) calculado via C3. 
+    /** OReM (Ordem de Resolução de Métodos, ou _Method Resolution Order_) calculado via C3.
      * Inclui a própria classe como primeiro elemento. */
     orem: DescritorTipoClasse[];
     metodos: { [nome: string]: DeleguaFuncao | DeleguaFuncao[] };
@@ -161,7 +161,7 @@ export class DescritorTipoClasse extends Chamavel {
                 throw new ErroEmTempoDeExecucao(
                     subclasse.simboloOriginal,
                     `Classe '${subclasse.simboloOriginal?.lexema}' não implementa o método abstrato '${nomeAbstrato}' ` +
-                    `da classe '${this.simboloOriginal?.lexema}'.`
+                        `da classe '${this.simboloOriginal?.lexema}'.`
                 );
             }
         }
@@ -227,7 +227,11 @@ export class DescritorTipoClasse extends Chamavel {
         );
     }
 
-    async definirEstatico(nome: string, valor: any, visitante?: InterpretadorInterface): Promise<void> {
+    async definirEstatico(
+        nome: string,
+        valor: any,
+        visitante?: InterpretadorInterface
+    ): Promise<void> {
         const definidor = this.encontrarDefinidor(nome, true);
         if (definidor) {
             if (!visitante) {
@@ -337,7 +341,7 @@ export class DescritorTipoClasse extends Chamavel {
     paraTexto(): string {
         const nome = this.simboloOriginal?.lexema ?? 'Objeto';
         const nomesMetodos = Object.keys(this.metodos).join(', ');
-        const nomesPropriedades = this.propriedades.map(p => p.nome.lexema).join(', ');
+        const nomesPropriedades = this.propriedades.map((p) => p.nome.lexema).join(', ');
         return `<[ ${nome} estático métodos=[${nomesMetodos}] propriedades=[${nomesPropriedades}] ]>`;
     }
 

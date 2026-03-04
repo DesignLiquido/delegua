@@ -17,7 +17,7 @@ import {
     Vetor,
     Leia,
     AcessoIntervaloVariavel,
-    TuplaN
+    TuplaN,
 } from '../construtos';
 
 import {
@@ -76,25 +76,61 @@ export class FormatadorPitugues implements VisitanteComumInterface {
     }
 
     // Métodos obrigatórios da interface, não usados no Pituguês.
-    visitarDeclaracaoCabecalhoPrograma(): Promise<any> { return Promise.resolve(); }
-    visitarDeclaracaoConstMultiplo(): Promise<any> { return Promise.resolve(); }
-    visitarDeclaracaoEscrevaMesmaLinha(): Promise<any> { return Promise.resolve(); }
-    visitarDeclaracaoInicioAlgoritmo(): Promise<any> { return Promise.resolve(); }
-    visitarDeclaracaoTendoComo(): Promise<any> { return Promise.resolve(); }
-    visitarDeclaracaoVarMultiplo(): Promise<any> { return Promise.resolve(); }
+    visitarDeclaracaoCabecalhoPrograma(): Promise<any> {
+        return Promise.resolve();
+    }
+    visitarDeclaracaoConstMultiplo(): Promise<any> {
+        return Promise.resolve();
+    }
+    visitarDeclaracaoEscrevaMesmaLinha(): Promise<any> {
+        return Promise.resolve();
+    }
+    visitarDeclaracaoInicioAlgoritmo(): Promise<any> {
+        return Promise.resolve();
+    }
+    visitarDeclaracaoTendoComo(): Promise<any> {
+        return Promise.resolve();
+    }
+    visitarDeclaracaoVarMultiplo(): Promise<any> {
+        return Promise.resolve();
+    }
 
-    visitarExpressaoAcessoElementoMatriz(): Promise<any> { return Promise.resolve(); }
-    visitarExpressaoAcessoMetodo(): Promise<any> { return Promise.resolve(); }
-    visitarExpressaoAcessoPropriedade(): Promise<any> { return Promise.resolve(); }
-    visitarExpressaoArgumentoReferenciaFuncao(): Promise<any> { return Promise.resolve(); }
-    visitarExpressaoAtribuicaoPorIndicesMatriz(): Promise<any> { return Promise.resolve(); }
-    visitarExpressaoComentario(): Promise<any> { return Promise.resolve(); }
-    visitarExpressaoExpressaoRegular(): Promise<any> { return Promise.resolve(); }
-    visitarExpressaoFimPara(): Promise<any> { return Promise.resolve(); }
-    visitarExpressaoFormatacaoEscrita(): Promise<any> { return Promise.resolve(); }
-    visitarExpressaoReferenciaFuncao(): Promise<any> { return Promise.resolve(); }
-    visitarExpressaoSeparador(): Promise<any> { return Promise.resolve(); }
-    visitarExpressaoTupla(): Promise<any> { return Promise.resolve(); }
+    visitarExpressaoAcessoElementoMatriz(): Promise<any> {
+        return Promise.resolve();
+    }
+    visitarExpressaoAcessoMetodo(): Promise<any> {
+        return Promise.resolve();
+    }
+    visitarExpressaoAcessoPropriedade(): Promise<any> {
+        return Promise.resolve();
+    }
+    visitarExpressaoArgumentoReferenciaFuncao(): Promise<any> {
+        return Promise.resolve();
+    }
+    visitarExpressaoAtribuicaoPorIndicesMatriz(): Promise<any> {
+        return Promise.resolve();
+    }
+    visitarExpressaoComentario(): Promise<any> {
+        return Promise.resolve();
+    }
+    visitarExpressaoExpressaoRegular(): Promise<any> {
+        return Promise.resolve();
+    }
+    visitarExpressaoFimPara(): Promise<any> {
+        return Promise.resolve();
+    }
+    visitarExpressaoFormatacaoEscrita(): Promise<any> {
+        return Promise.resolve();
+    }
+    visitarExpressaoReferenciaFuncao(): Promise<any> {
+        return Promise.resolve();
+    }
+    visitarExpressaoSeparador(): Promise<any> {
+        return Promise.resolve();
+    }
+    visitarExpressaoTupla(): Promise<any> {
+        return Promise.resolve();
+    }
 
     async visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> {
         this.códigoFormatado += '(';
@@ -109,9 +145,9 @@ export class FormatadorPitugues implements VisitanteComumInterface {
         this.códigoFormatado += ')';
     }
 
-    async visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<any> { 
+    async visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<any> {
         this.códigoFormatado += this.indentar();
-        this.códigoFormatado += await declaracao.expressao.aceitar(this) + `\n`;
+        this.códigoFormatado += (await declaracao.expressao.aceitar(this)) + `\n`;
     }
 
     async visitarDeclaracaoClasse(declaração: Classe): Promise<any> {
@@ -267,7 +303,7 @@ export class FormatadorPitugues implements VisitanteComumInterface {
         this.adicionarLinha(`enquanto ${await declaração.condicaoEnquanto.aceitar(this)}`);
     }
 
-    async visitarDeclaracaoParaCada(declaração: ParaCada): Promise<any> { 
+    async visitarDeclaracaoParaCada(declaração: ParaCada): Promise<any> {
         const variavelIteracao = await declaração.variavelIteracao.aceitar(this);
         const vetorOuDicionario = await declaração.vetorOuDicionario.aceitar(this);
         this.adicionarLinha(`para cada ${variavelIteracao} de ${vetorOuDicionario}:`);
@@ -291,7 +327,10 @@ export class FormatadorPitugues implements VisitanteComumInterface {
         if (declaração.caminhoPegue) {
             this.adicionarLinha('pegue como erro:');
             this.aumentarIndentação();
-            const declaracoes = declaração.caminhoPegue instanceof FuncaoConstruto ? declaração.caminhoPegue.corpo : declaração.caminhoPegue as Declaracao[];
+            const declaracoes =
+                declaração.caminhoPegue instanceof FuncaoConstruto
+                    ? declaração.caminhoPegue.corpo
+                    : (declaração.caminhoPegue as Declaracao[]);
             for (const instrução of declaracoes) {
                 await instrução.aceitar(this);
             }
@@ -307,7 +346,9 @@ export class FormatadorPitugues implements VisitanteComumInterface {
     }
 
     async visitarDeclaracaoEscreva(declaração: Escreva): Promise<any> {
-        this.códigoFormatado += this.indentar() + `${declaração.simboloEscreva ? declaração.simboloEscreva.lexema : 'imprima'}(`;
+        this.códigoFormatado +=
+            this.indentar() +
+            `${declaração.simboloEscreva ? declaração.simboloEscreva.lexema : 'imprima'}(`;
         for (let i = 0; i < declaração.argumentos.length; i++) {
             this.códigoFormatado += await declaração.argumentos[i].aceitar(this);
             if (i < declaração.argumentos.length - 1) this.códigoFormatado += ', ';
@@ -392,9 +433,12 @@ export class FormatadorPitugues implements VisitanteComumInterface {
     }
 
     async visitarExpressaoUnaria(expressão: Unario): Promise<any> {
-        const operador = expressão.operador.tipo === tiposDeSimbolos.SUBTRACAO ? '-'
-                       : expressão.operador.tipo === tiposDeSimbolos.NEGACAO ? 'não '
-                       : '';
+        const operador =
+            expressão.operador.tipo === tiposDeSimbolos.SUBTRACAO
+                ? '-'
+                : expressão.operador.tipo === tiposDeSimbolos.NEGACAO
+                  ? 'não '
+                  : '';
         const operando = await expressão.operando.aceitar(this);
         return expressão.incidenciaOperador === 'ANTES'
             ? `${operador}${operando}`
@@ -403,7 +447,7 @@ export class FormatadorPitugues implements VisitanteComumInterface {
 
     async visitarExpressaoDeChamada(expressão: Chamada): Promise<any> {
         const função = await expressão.entidadeChamada.aceitar(this);
-        const argumentos = await Promise.all(expressão.argumentos.map(a => a.aceitar(this)));
+        const argumentos = await Promise.all(expressão.argumentos.map((a) => a.aceitar(this)));
         return `${função}(${argumentos.join(', ')})`;
     }
 
@@ -416,7 +460,7 @@ export class FormatadorPitugues implements VisitanteComumInterface {
     }
 
     async visitarExpressaoVetor(expressão: Vetor): Promise<any> {
-        const valores = await Promise.all(expressão.valores.map(v => v.aceitar(this)));
+        const valores = await Promise.all(expressão.valores.map((v) => v.aceitar(this)));
         return `[${valores.join(', ')}]`;
     }
 
@@ -444,14 +488,18 @@ export class FormatadorPitugues implements VisitanteComumInterface {
         return `${objeto}[${índice}] = ${valor}`;
     }
 
-    async visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> {
+    async visitarExpressaoAcessoIntervaloVariavel(
+        expressao: AcessoIntervaloVariavel
+    ): Promise<any> {
         const inicio = await expressao.indiceInicio.aceitar(this);
         const fim = await expressao.indiceFim.aceitar(this);
         const entidade = await expressao.entidadeChamada.aceitar(this);
         return `${entidade}[${inicio}:${fim}]`;
     }
 
-    async visitarExpressaoAcessoMetodoOuPropriedade(expressão: AcessoMetodoOuPropriedade): Promise<any> {
+    async visitarExpressaoAcessoMetodoOuPropriedade(
+        expressão: AcessoMetodoOuPropriedade
+    ): Promise<any> {
         const objeto = await expressão.objeto.aceitar(this);
         return `${objeto}.${expressão.simbolo.lexema}`;
     }
@@ -463,28 +511,31 @@ export class FormatadorPitugues implements VisitanteComumInterface {
     }
 
     async visitarExpressaoFuncaoConstruto(expressão: FuncaoConstruto): Promise<any> {
-        const parâmetros = expressão.parametros.map(p => {
-            const tipo = p.tipoDado ? `: ${p.tipoDado}` : '';
-            return p.nome.lexema + tipo;
-        }).join(', ');
+        const parâmetros = expressão.parametros
+            .map((p) => {
+                const tipo = p.tipoDado ? `: ${p.tipoDado}` : '';
+                return p.nome.lexema + tipo;
+            })
+            .join(', ');
 
         let funçãoStr = `função(${parâmetros || ''}):\n`;
 
         this.aumentarIndentação();
         for (const instrução of expressão.corpo) {
             const linha = await instrução.aceitar(this);
-            if (linha) {  // Only add if it returns something
+            if (linha) {
+                // Only add if it returns something
                 funçãoStr += this.indentar() + linha;
                 if (!linha.endsWith('\n')) funçãoStr += '\n';
             }
         }
         this.diminuirIndentação();
-        
+
         return funçãoStr.trimEnd();
     }
 
     async visitarExpressaoLeia(expressão: Leia): Promise<any> {
-        const argumentos = await Promise.all(expressão.argumentos.map(a => a.aceitar(this)));
+        const argumentos = await Promise.all(expressão.argumentos.map((a) => a.aceitar(this)));
         return argumentos.length > 0 ? `input(${argumentos.join(', ')})` : 'input()';
     }
 

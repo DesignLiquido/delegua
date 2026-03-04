@@ -45,7 +45,8 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
 
     private tiposCompativeis(tipoVariavel: string, tipoValor: string): boolean {
         if (tipoVariavel === tipoValor) return true;
-        if (tiposNumericos.includes(tipoVariavel) && tiposNumericos.includes(tipoValor as string)) return true;
+        if (tiposNumericos.includes(tipoVariavel) && tiposNumericos.includes(tipoValor as string))
+            return true;
         return false;
     }
 

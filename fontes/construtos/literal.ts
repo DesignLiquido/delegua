@@ -39,7 +39,7 @@ export class Literal implements Construto {
         if (this.tipo === 'texto') {
             return `"${this.valor}"`;
         }
-        
+
         return `${this.valor}`;
     }
 }

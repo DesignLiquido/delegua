@@ -19,7 +19,7 @@ export class FuncaoConstruto implements Construto {
         corpo: Declaracao[],
         tipoRetorno?: string,
         tipoExplicito?: boolean,
-        documentacao?: Declaracao,
+        documentacao?: Declaracao
     ) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;

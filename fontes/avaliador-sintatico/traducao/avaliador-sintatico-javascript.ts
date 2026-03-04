@@ -24,13 +24,10 @@ import { AvaliadorSintaticoInterface } from '../../interfaces';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
 
-export class AvaliadorSintaticoJavaScript
-    implements
-        AvaliadorSintaticoInterface<
-            Statement | Directive | ModuleDeclaration,
-            Statement | Directive | ModuleDeclaration
-        >
-{
+export class AvaliadorSintaticoJavaScript implements AvaliadorSintaticoInterface<
+    Statement | Directive | ModuleDeclaration,
+    Statement | Directive | ModuleDeclaration
+> {
     simbolos: (Statement | Directive | ModuleDeclaration)[];
     erros: ErroAvaliadorSintatico[];
     atual: number;

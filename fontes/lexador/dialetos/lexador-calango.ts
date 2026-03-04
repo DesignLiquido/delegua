@@ -88,7 +88,9 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
         const comprimento = Math.max(texto.length, 1);
         const colunaInicio = this.inicioSimbolo + 1;
         const colunaFim = this.inicioSimbolo + comprimento;
-        this.simbolos.push(new Simbolo(tipo, texto, literal, this.linha, -1, colunaInicio, colunaFim));
+        this.simbolos.push(
+            new Simbolo(tipo, texto, literal, this.linha, -1, colunaInicio, colunaFim)
+        );
     }
 
     simboloAtual(): string {

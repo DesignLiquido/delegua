@@ -1,4 +1,13 @@
-import { Binario, Chamada, Construto, FuncaoConstruto, Leia, Logico, TuplaN, Unario } from '../construtos';
+import {
+    Binario,
+    Chamada,
+    Construto,
+    FuncaoConstruto,
+    Leia,
+    Logico,
+    TuplaN,
+    Unario,
+} from '../construtos';
 import {
     Bloco,
     Classe,
@@ -27,9 +36,10 @@ import tiposDeSimbolos from '../tipos-de-simbolos/comum';
  * entre todos os outros Avaliadores Sintáticos. Depende de um dicionário
  * de tipos de símbolos comuns entre todos os dialetos.
  */
-export abstract class AvaliadorSintaticoBase
-    implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao>
-{
+export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterface<
+    SimboloInterface,
+    Declaracao
+> {
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
 
@@ -318,7 +328,7 @@ export abstract class AvaliadorSintaticoBase
             `Esperado nome ${tipo}.`
         );
 
-        const corpo = await this.corpoDaFuncao(tipo)
+        const corpo = await this.corpoDaFuncao(tipo);
         return new FuncaoDeclaracao(nomeFuncao, corpo);
     }
 

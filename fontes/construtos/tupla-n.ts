@@ -1,6 +1,6 @@
-import { Tupla } from "./tupla";
-import { Construto } from "./construto";
-import { VisitanteComumInterface } from "../interfaces";
+import { Tupla } from './tupla';
+import { Construto } from './construto';
+import { VisitanteComumInterface } from '../interfaces';
 
 export class TuplaN extends Tupla {
     elementos: Construto[];
@@ -18,12 +18,14 @@ export class TuplaN extends Tupla {
     }
 
     paraTexto(): string {
-        const elementosTexto = this.elementos.map(elemento => elemento.paraTexto()).join(', ');
+        const elementosTexto = this.elementos.map((elemento) => elemento.paraTexto()).join(', ');
         return `(${elementosTexto})`;
     }
 
     paraTextoSaida(): string {
-        const elementosTexto = this.elementos.map(elemento => elemento.paraTextoSaida()).join(', ');
+        const elementosTexto = this.elementos
+            .map((elemento) => elemento.paraTextoSaida())
+            .join(', ');
         return `(${elementosTexto})`;
     }
 }

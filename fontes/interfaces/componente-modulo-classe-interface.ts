@@ -1,7 +1,7 @@
 export interface ComponenteModuloClasseInterface {
-    implementacao: any,
+    implementacao: any;
     propriedades?: {
-        [nomePropriedade: string]: any,
-        metodos?: { [nomeMetodo: string]: any }
-    }
+        [nomePropriedade: string]: any;
+        metodos?: { [nomeMetodo: string]: any };
+    };
 }

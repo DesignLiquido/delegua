@@ -11,7 +11,11 @@ export class AssinaturaMetodo {
     parametros: ParametroInterface[];
     tipoRetorno?: string;
 
-    constructor(nome: SimboloInterface, parametros: ParametroInterface[] = [], tipoRetorno?: string) {
+    constructor(
+        nome: SimboloInterface,
+        parametros: ParametroInterface[] = [],
+        tipoRetorno?: string
+    ) {
         this.nome = nome;
         this.parametros = parametros;
         this.tipoRetorno = tipoRetorno;

@@ -1,4 +1,5 @@
-import { AcessoMetodo,
+import {
+    AcessoMetodo,
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
     AcessoIntervaloVariavel,
@@ -9,15 +10,15 @@ import { AcessoMetodo,
     AcessoIndiceVariavel,
     TipoDe,
     Dupla,
-    Variavel
-} from "../../../construtos";
-import { Interpretador } from "../../interpretador";
+    Variavel,
+} from '../../../construtos';
+import { Interpretador } from '../../interpretador';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
 
 import * as comum from './comum';
-import { ParaCada } from "../../../declaracoes";
-import { inferirTipoVariavel } from "../../../inferenciador";
-import { ContinuarQuebra, Quebra, SustarQuebra } from "../../../quebras";
+import { ParaCada } from '../../../declaracoes';
+import { inferirTipoVariavel } from '../../../inferenciador';
+import { ContinuarQuebra, Quebra, SustarQuebra } from '../../../quebras';
 
 export class InterpretadorPitugues extends Interpretador {
     constructor(
@@ -34,7 +35,9 @@ export class InterpretadorPitugues extends Interpretador {
         return comum.visitarExpressaoAcessoMetodo(this, expressao);
     }
 
-    override async visitarExpressaoAcessoMetodoOuPropriedade(expressao: AcessoMetodoOuPropriedade): Promise<any> {
+    override async visitarExpressaoAcessoMetodoOuPropriedade(
+        expressao: AcessoMetodoOuPropriedade
+    ): Promise<any> {
         return comum.visitarExpressaoAcessoMetodoOuPropriedade(this, expressao);
     }
 
@@ -42,7 +45,9 @@ export class InterpretadorPitugues extends Interpretador {
         return comum.visitarExpressaoAcessoPropriedade(this, expressao);
     }
 
-    override async visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> {
+    override async visitarExpressaoAcessoIntervaloVariavel(
+        expressao: AcessoIntervaloVariavel
+    ): Promise<any> {
         return comum.visitarExpressaoAcessoIntervaloVariavel(this, expressao);
     }
 
@@ -62,18 +67,23 @@ export class InterpretadorPitugues extends Interpretador {
                     valor = valor.valorRetornado;
                 }
                 const valorResolvido = this.resolverValor(valor);
-                this.pilhaEscoposExecucao.definirVariavel(alvoVariavel.simbolo.lexema, valorResolvido);
+                this.pilhaEscoposExecucao.definirVariavel(
+                    alvoVariavel.simbolo.lexema,
+                    valorResolvido
+                );
                 return valorResolvido;
             }
         }
         return super.visitarExpressaoDeAtribuicao(expressao);
     }
 
-    override async visitarExpressaoAtribuicaoPorIndice(expressao: AtribuicaoPorIndice): Promise<any> {
+    override async visitarExpressaoAtribuicaoPorIndice(
+        expressao: AtribuicaoPorIndice
+    ): Promise<any> {
         const objeto = await this.avaliar(expressao.objeto);
         const objetoResolvido = this.resolverValor(objeto);
 
-        if (objetoResolvido instanceof TuplaN || (objetoResolvido.tipo === 'tupla')) {
+        if (objetoResolvido instanceof TuplaN || objetoResolvido.tipo === 'tupla') {
             throw new ErroEmTempoDeExecucao(
                 (expressao.objeto as any).simbolo,
                 'Não é possível modificar uma tupla. As tuplas são estruturas de dados imutáveis.',
@@ -84,7 +94,9 @@ export class InterpretadorPitugues extends Interpretador {
         return super.visitarExpressaoAtribuicaoPorIndice(expressao);
     }
 
-    override async visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel): Promise<any> {
+    override async visitarExpressaoAcessoIndiceVariavel(
+        expressao: AcessoIndiceVariavel
+    ): Promise<any> {
         const objeto = await this.avaliar(expressao.entidadeChamada);
         const indice = await this.avaliar(expressao.indice);
         let valorIndice = this.resolverValor(indice);
@@ -92,7 +104,11 @@ export class InterpretadorPitugues extends Interpretador {
 
         if (objetoResolvido instanceof TuplaN) {
             if (!Number.isInteger(valorIndice)) {
-                throw new ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Índice deve ser inteiro.', expressao.linha);
+                throw new ErroEmTempoDeExecucao(
+                    expressao.simboloFechamento,
+                    'Índice deve ser inteiro.',
+                    expressao.linha
+                );
             }
 
             if (valorIndice < 0 && objetoResolvido.elementos.length !== 0) {
@@ -100,7 +116,11 @@ export class InterpretadorPitugues extends Interpretador {
             }
 
             if (valorIndice < 0 || valorIndice >= objetoResolvido.elementos.length) {
-                 throw new ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Índice fora do intervalo.', expressao.linha);
+                throw new ErroEmTempoDeExecucao(
+                    expressao.simboloFechamento,
+                    'Índice fora do intervalo.',
+                    expressao.linha
+                );
             }
 
             const elemento = objetoResolvido.elementos[valorIndice];
@@ -127,24 +147,21 @@ export class InterpretadorPitugues extends Interpretador {
         let valorFinal = this.resolverValor(valor);
 
         const ehDicionario = declaracao.vetorOuDicionario.tipo === 'dicionário';
-        const ehObjetoPuro = valorFinal && typeof valorFinal === 'object' && !Array.isArray(valorFinal);
+        const ehObjetoPuro =
+            valorFinal && typeof valorFinal === 'object' && !Array.isArray(valorFinal);
 
         if (ehDicionario || ehObjetoPuro) {
             return Object.entries(valorFinal).map(
-                ([chave, valor]) => new Dupla(
-                    new Literal(
-                        declaracao.hashArquivo,
-                        declaracao.linha,
-                        chave,
-                        'texto'
-                    ),
-                    new Literal(
-                        declaracao.hashArquivo,
-                        declaracao.linha,
-                        valor as any,
-                        inferirTipoVariavel(valor) as any
+                ([chave, valor]) =>
+                    new Dupla(
+                        new Literal(declaracao.hashArquivo, declaracao.linha, chave, 'texto'),
+                        new Literal(
+                            declaracao.hashArquivo,
+                            declaracao.linha,
+                            valor as any,
+                            inferirTipoVariavel(valor) as any
+                        )
                     )
-                )
             );
         }
 
@@ -185,15 +202,9 @@ export class InterpretadorPitugues extends Interpretador {
                 v2 = elemento[1];
             }
 
-            this.pilhaEscoposExecucao.definirVariavel(
-                var1.simbolo.lexema,
-                v1
-            );
+            this.pilhaEscoposExecucao.definirVariavel(var1.simbolo.lexema, v1);
 
-            this.pilhaEscoposExecucao.definirVariavel(
-                var2.simbolo.lexema,
-                v2
-            );
+            this.pilhaEscoposExecucao.definirVariavel(var2.simbolo.lexema, v2);
         }
     }
 
@@ -214,7 +225,10 @@ export class InterpretadorPitugues extends Interpretador {
             return Promise.reject(erro);
         }
 
-        while (!(retornoExecucao instanceof Quebra) && declaracao.posicaoAtual < listaParaIterar.length) {
+        while (
+            !(retornoExecucao instanceof Quebra) &&
+            declaracao.posicaoAtual < listaParaIterar.length
+        ) {
             try {
                 const elementoAtual = listaParaIterar[declaracao.posicaoAtual];
 

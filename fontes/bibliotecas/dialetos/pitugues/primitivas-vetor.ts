@@ -103,11 +103,14 @@ export default {
 
             const elemento = args[0];
             const valorProcurado = interpretador.resolverValor(elemento);
-            const total = vetor.filter(item => interpretador.resolverValor(item) === valorProcurado).length;
+            const total = vetor.filter(
+                (item) => interpretador.resolverValor(item) === valorProcurado
+            ).length;
             return Promise.resolve(total);
         },
         assinaturaFormato: 'vetor.contar(elemento)',
-        documentacao: '# `vetor.contar(elemento)`\n\nRetorna quantas vezes o elemento aparece no vetor.',
+        documentacao:
+            '# `vetor.contar(elemento)`\n\nRetorna quantas vezes o elemento aparece no vetor.',
         exemploCodigo: 'vetor.contar(elemento)',
     },
     empilhar: {
@@ -187,7 +190,8 @@ export default {
             return Promise.resolve(vetor);
         },
         assinaturaFormato: 'vetor.estender(...iteravel: qualquer[])',
-        documentacao: '# `vetor.estender(iteravel)`\n\nAdiciona elementos de um vetor ou chaves de um dicionário ao final do vetor atual.',
+        documentacao:
+            '# `vetor.estender(iteravel)`\n\nAdiciona elementos de um vetor ou chaves de um dicionário ao final do vetor atual.',
         exemploCodigo: 'vetor.estender([1, 2])',
     },
     fatiar: {
@@ -232,13 +236,7 @@ export default {
     filtrar_por: {
         tipoRetorno: 'qualquer[]',
         argumentos: [
-            new InformacaoElementoSintatico(
-                'funcao',
-                'função',
-                true,
-                [],
-                'A função de filtragem.'
-            ),
+            new InformacaoElementoSintatico('funcao', 'função', true, [], 'A função de filtragem.'),
         ],
         implementacao: async (
             interpretador: InterpretadorInterface,
@@ -298,7 +296,7 @@ export default {
             'escreva(v.inclui(2)) // verdadeiro\n' +
             'escreva(v.inclui(4)) // falso\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'vetor.inclui(elemento)'
+        exemploCodigo: 'vetor.inclui(elemento)',
     },
     indice: {
         tipoRetorno: 'numero',
@@ -318,18 +316,16 @@ export default {
         ): Promise<any> => {
             if (elemento === undefined) {
                 return Promise.reject(
-                    new ErroEmTempoDeExecucao(
-                        null,
-                        '',
-                        interpretador.linhaDeclaracaoAtual
-                    )
+                    new ErroEmTempoDeExecucao(null, '', interpretador.linhaDeclaracaoAtual)
                 );
             }
 
             if (elemento === 'nulo') return Promise.reject(-1);
 
             const valorProcurado = interpretador.resolverValor(elemento);
-            const index = vetor.findIndex(item => interpretador.resolverValor(item) === valorProcurado);
+            const index = vetor.findIndex(
+                (item) => interpretador.resolverValor(item) === valorProcurado
+            );
             return Promise.resolve(index);
         },
         assinaturaFormato: 'vetor.indice(elemento: qualquer)',
@@ -343,7 +339,7 @@ export default {
             'escreva(v.indice("banana")) // 1\n' +
             'escreva(v.indice("abacaxi")) // -1\n' +
             '```',
-        exemploCodigo: 'vetor.indice(elemento)'
+        exemploCodigo: 'vetor.indice(elemento)',
     },
     inserir: {
         tipoRetorno: 'qualquer[]',
@@ -361,7 +357,7 @@ export default {
                 true,
                 [],
                 'O elemento a ser inserido.'
-            )
+            ),
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
@@ -414,15 +410,13 @@ export default {
             'v.inserir(2, 3) \n' +
             'escreva(v) // "[1, 2, 3, 4, 5]"\n' +
             '```',
-        exemploCodigo: 'vetor.inserir(indice, elemento)'
+        exemploCodigo: 'vetor.inserir(indice, elemento)',
     },
     inverter: {
         tipoRetorno: 'qualquer[]',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            vetor: Array<any>
-        ): Promise<any> => Promise.resolve(vetor.reverse()),
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> =>
+            Promise.resolve(vetor.reverse()),
         assinaturaFormato: 'vetor.inverter()',
         documentacao:
             '# `vetor.inverter()` \n \n' +
@@ -457,8 +451,7 @@ export default {
             '\n\n```pitugues\nvar v = [1, 2, 3]\n' +
             'escreva(v.juntar(":")) // "1:2:3"\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'vetor.juntar()\n' +
-            'vetor.juntar(<separador>)',
+        exemploCodigo: 'vetor.juntar()\n' + 'vetor.juntar(<separador>)',
     },
     limpar: {
         tipoRetorno: 'qualquer[]',
@@ -471,7 +464,8 @@ export default {
             return Promise.resolve();
         },
         assinaturaFormato: 'vetor.limpar()',
-        documentacao: '# `vetor.limpar()`\n\nRemove todos os elementos do vetor original, deixando-o vazio.',
+        documentacao:
+            '# `vetor.limpar()`\n\nRemove todos os elementos do vetor original, deixando-o vazio.',
         exemploCodigo: 'vetor.limpar()',
     },
     mapear: {
@@ -576,11 +570,8 @@ export default {
     paraTupla: {
         tipoRetorno: 'tupla',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            vetor: Array<any>
-        ): Promise<any> => {
-            const elementos = vetor.map(item => {
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> => {
+            const elementos = vetor.map((item) => {
                 return new Literal(
                     interpretador.hashArquivoDeclaracaoAtual,
                     interpretador.linhaDeclaracaoAtual,
@@ -589,16 +580,17 @@ export default {
                 );
             });
 
-            return Promise.resolve(new TuplaN(
-                interpretador.hashArquivoDeclaracaoAtual,
-                interpretador.linhaDeclaracaoAtual,
-                elementos
-            ));
+            return Promise.resolve(
+                new TuplaN(
+                    interpretador.hashArquivoDeclaracaoAtual,
+                    interpretador.linhaDeclaracaoAtual,
+                    elementos
+                )
+            );
         },
         assinaturaFormato: 'vetor.paraTupla()',
         documentacao:
-            '# `vetor.paraTupla()` \n \n' +
-            'Converte o vetor atual em uma tupla imutável.',
+            '# `vetor.paraTupla()` \n \n' + 'Converte o vetor atual em uma tupla imutável.',
         exemploCodigo: 'vetor.paraTupla()',
     },
     remover: {
@@ -635,10 +627,7 @@ export default {
     remover_primeiro: {
         tipoRetorno: 'qualquer',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            vetor: Array<any>
-        ): Promise<any> => {
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> => {
             let elemento = vetor.shift();
             return Promise.resolve(elemento);
         },
@@ -657,10 +646,7 @@ export default {
     remover_ultimo: {
         tipoRetorno: 'qualquer',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            vetor: Array<any>
-        ): Promise<any> => {
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> => {
             let elemento = vetor.pop();
             return Promise.resolve(elemento);
         },
@@ -703,10 +689,8 @@ export default {
     tamanho: {
         tipoRetorno: 'número',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            vetor: Array<any>
-        ): Promise<any> => Promise.resolve(vetor.length),
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> =>
+            Promise.resolve(vetor.length),
         assinaturaFormato: 'vetor.tamanho()',
         documentacao:
             '# `vetor.tamanho()` \n \n' +

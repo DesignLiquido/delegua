@@ -5,10 +5,7 @@ import { DescritorTipoClasse } from '../../../interpretador/estruturas/descritor
 import { SimboloInterface, VariavelInterface } from '../../../interfaces';
 import { InterpretadorInterface } from '../../../interfaces';
 import { DeleguaFuncao } from '../../../interpretador/estruturas';
-import {
-    TuplaN,
-    Literal
-} from '../../../construtos';
+import { TuplaN, Literal } from '../../../construtos';
 import { RetornoQuebra } from '../../../quebras';
 
 /**
@@ -192,13 +189,13 @@ export async function arredondar(
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 null,
-                "Erro: arredondar() deve receber um número.",
+                'Erro: arredondar() deve receber um número.',
                 interpretador.linhaDeclaracaoAtual
             )
         );
     }
 
-    if (typeof numero !== "number") {
+    if (typeof numero !== 'number') {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 null,
@@ -212,7 +209,7 @@ export async function arredondar(
     const resultado = Math.round(valorNumero * fator) / fator;
 
     return Promise.resolve(resultado);
-};
+}
 
 /**
  * Encontra o primeiro elemento de um vetor cuja função de pesquisa retorne
@@ -591,7 +588,7 @@ export async function intervalo(
     interpretador: InterpretadorInterface,
     valorInicial: VariavelInterface | number,
     valorFinal?: VariavelInterface | number,
-    valorPasso?: VariavelInterface | number,
+    valorPasso?: VariavelInterface | number
 ): Promise<number[]> {
     const primeiroParam = interpretador.resolverValor(valorInicial);
     const segundoParam = interpretador.resolverValor(valorFinal);
@@ -620,8 +617,12 @@ export async function intervalo(
     }
     // intervalo(inicio, parada) ou intervalo(inicio, parada, passo)
     else {
-        if (typeof primeiroParam !== 'number' || isNaN(primeiroParam) ||
-            typeof segundoParam !== 'number' || isNaN(segundoParam)) {
+        if (
+            typeof primeiroParam !== 'number' ||
+            isNaN(primeiroParam) ||
+            typeof segundoParam !== 'number' ||
+            isNaN(segundoParam)
+        ) {
             return Promise.reject(
                 new ErroEmTempoDeExecucao(
                     {
@@ -1112,7 +1113,10 @@ export async function reduzir(
     }
 
     // Se não houver valor inicial e vetor vazio, não é possível reduzir
-    if ((valorPadrao === null || valorPadrao === undefined) && (!Array.isArray(valorVetor) || valorVetor.length === 0)) {
+    if (
+        (valorPadrao === null || valorPadrao === undefined) &&
+        (!Array.isArray(valorVetor) || valorVetor.length === 0)
+    ) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 {
@@ -1191,7 +1195,7 @@ export async function somar(
             );
         }
 
-        somaDosElementos += elemento
+        somaDosElementos += elemento;
     }
 
     return Promise.resolve(somaDosElementos);
@@ -1242,7 +1246,11 @@ export async function tamanho(interpretador: InterpretadorInterface, objeto: any
         let tamanho = 0;
 
         const metodoInicializacao = metodos.inicializacao;
-        if (metodoInicializacao && !Array.isArray(metodoInicializacao) && metodoInicializacao.eInicializador) {
+        if (
+            metodoInicializacao &&
+            !Array.isArray(metodoInicializacao) &&
+            metodoInicializacao.eInicializador
+        ) {
             tamanho = metodoInicializacao.declaracao.parametros.length;
         }
 
@@ -1278,7 +1286,8 @@ export async function todos(
     iteravel: VariavelInterface | any
 ): Promise<boolean> {
     const valorIteravel = interpretador.resolverValor(iteravel);
-    const ehObjetoOuDicionario = valorIteravel && typeof valorIteravel === 'object' && !Array.isArray(valorIteravel);
+    const ehObjetoOuDicionario =
+        valorIteravel && typeof valorIteravel === 'object' && !Array.isArray(valorIteravel);
     const ehIteravelNativo = valorIteravel && typeof valorIteravel[Symbol.iterator] === 'function';
 
     if (!ehIteravelNativo && !ehObjetoOuDicionario) {
@@ -1325,7 +1334,8 @@ export async function todos_em_condicao(
 
     const valorIteravel = interpretador.resolverValor(iteravel);
 
-    const ehObjetoOuDicionario = valorIteravel && typeof valorIteravel === 'object' && !Array.isArray(valorIteravel);
+    const ehObjetoOuDicionario =
+        valorIteravel && typeof valorIteravel === 'object' && !Array.isArray(valorIteravel);
     const ehIteravelNativo = valorIteravel && typeof valorIteravel[Symbol.iterator] === 'function';
 
     if (!ehIteravelNativo && !ehObjetoOuDicionario) {
@@ -1341,7 +1351,9 @@ export async function todos_em_condicao(
     }
 
     const valorFuncao = interpretador.resolverValor(funcaoCondicional);
-    const naoEhUmaFuncao = !(valorFuncao instanceof DeleguaFuncao || valorFuncao instanceof FuncaoPadrao);
+    const naoEhUmaFuncao = !(
+        valorFuncao instanceof DeleguaFuncao || valorFuncao instanceof FuncaoPadrao
+    );
 
     if (!valorFuncao || naoEhUmaFuncao) {
         return Promise.reject(
@@ -1392,7 +1404,7 @@ export async function tupla(
         );
     }
 
-    const elementos = valorVetor.map(item => {
+    const elementos = valorVetor.map((item) => {
         const valorResolvido = interpretador.resolverValor(item);
 
         const literal = new Literal(
@@ -1433,7 +1445,9 @@ export async function vetor(
         );
     }
 
-    const resultado = objetoTupla.elementos.map((elemento: any) => interpretador.resolverValor(elemento));
+    const resultado = objetoTupla.elementos.map((elemento: any) =>
+        interpretador.resolverValor(elemento)
+    );
 
     return Promise.resolve(resultado);
 }

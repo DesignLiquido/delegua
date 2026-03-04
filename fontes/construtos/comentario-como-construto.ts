@@ -15,7 +15,9 @@ export class ComentarioComoConstruto implements Construto {
         this.linha = simboloComentario.linha;
         this.hashArquivo = simboloComentario.hashArquivo;
         this.conteudo = simboloComentario.lexema || simboloComentario.literal || '';
-        this.multilinha = ['COMENTARIO_MULTILINHA', 'DOCUMENTARIO'].includes(simboloComentario.tipo);
+        this.multilinha = ['COMENTARIO_MULTILINHA', 'DOCUMENTARIO'].includes(
+            simboloComentario.tipo
+        );
     }
 
     aceitar(visitante: VisitanteComumInterface): Promise<any> {

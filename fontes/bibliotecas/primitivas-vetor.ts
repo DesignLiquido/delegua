@@ -13,7 +13,7 @@ import {
     Octeto,
     Noneto,
     Deceto,
-    TuplaN
+    TuplaN,
 } from '../construtos';
 import { ErroEmTempoDeExecucao } from '../excecoes';
 
@@ -26,7 +26,7 @@ const mapaConstrutoresTupla: { [tamanho: number]: any } = {
     7: Septeto,
     8: Octeto,
     9: Noneto,
-    10: Deceto
+    10: Deceto,
 };
 
 export default {
@@ -274,10 +274,8 @@ export default {
     inverter: {
         tipoRetorno: 'qualquer[]',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            vetor: Array<any>
-        ): Promise<any> => Promise.resolve(vetor.reverse()),
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> =>
+            Promise.resolve(vetor.reverse()),
         assinaturaFormato: 'vetor.inverter()',
         documentacao:
             '# `vetor.inverter()` \n \n' +
@@ -416,10 +414,7 @@ export default {
     paraTupla: {
         tipoRetorno: 'tupla',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            vetor: Array<any>
-        ): Promise<any> => {
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> => {
             if (vetor.length < 2) {
                 return Promise.reject(
                     new ErroEmTempoDeExecucao(
@@ -432,12 +427,13 @@ export default {
                 );
             }
 
-            const criarLiteral = (item: any) => new Literal(
-                interpretador.hashArquivoDeclaracaoAtual,
-                interpretador.linhaDeclaracaoAtual,
-                item,
-                inferirTipoVariavel(item) as any
-            );
+            const criarLiteral = (item: any) =>
+                new Literal(
+                    interpretador.hashArquivoDeclaracaoAtual,
+                    interpretador.linhaDeclaracaoAtual,
+                    item,
+                    inferirTipoVariavel(item) as any
+                );
 
             if (mapaConstrutoresTupla.hasOwnProperty(vetor.length)) {
                 const Construtor = mapaConstrutoresTupla[vetor.length];
@@ -447,11 +443,13 @@ export default {
 
             const elementos = vetor.map(criarLiteral);
 
-            return Promise.resolve(new TuplaN(
-                interpretador.hashArquivoDeclaracaoAtual,
-                interpretador.linhaDeclaracaoAtual,
-                elementos
-            ));
+            return Promise.resolve(
+                new TuplaN(
+                    interpretador.hashArquivoDeclaracaoAtual,
+                    interpretador.linhaDeclaracaoAtual,
+                    elementos
+                )
+            );
         },
         assinaturaFormato: 'vetor.paraTupla()',
         documentacao:
@@ -493,10 +491,7 @@ export default {
     removerPrimeiro: {
         tipoRetorno: 'qualquer',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            vetor: Array<any>
-        ): Promise<any> => {
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> => {
             let elemento = vetor.shift();
             return Promise.resolve(elemento);
         },
@@ -515,10 +510,7 @@ export default {
     removerUltimo: {
         tipoRetorno: 'qualquer',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            vetor: Array<any>
-        ): Promise<any> => {
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> => {
             let elemento = vetor.pop();
             return Promise.resolve(elemento);
         },
@@ -537,10 +529,7 @@ export default {
     removerÚltimo: {
         tipoRetorno: 'qualquer',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            vetor: Array<any>
-        ): Promise<any> => {
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> => {
             let elemento = vetor.pop();
             return Promise.resolve(elemento);
         },
@@ -583,10 +572,8 @@ export default {
     tamanho: {
         tipoRetorno: 'número',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            vetor: Array<any>
-        ): Promise<any> => Promise.resolve(vetor.length),
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> =>
+            Promise.resolve(vetor.length),
         assinaturaFormato: 'vetor.tamanho()',
         documentacao:
             '# `vetor.tamanho()` \n \n' +

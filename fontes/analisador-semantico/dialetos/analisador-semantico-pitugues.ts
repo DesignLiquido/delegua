@@ -20,7 +20,7 @@ import {
     Variavel,
     Vetor,
     TuplaN,
-    AcessoIndiceVariavel
+    AcessoIndiceVariavel,
 } from '../../construtos';
 import {
     Const,
@@ -107,9 +107,11 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
             return;
         }
 
-        if (expressao instanceof AcessoMetodo ||
+        if (
+            expressao instanceof AcessoMetodo ||
             expressao instanceof AcessoMetodoOuPropriedade ||
-            expressao instanceof AcessoPropriedade) {
+            expressao instanceof AcessoPropriedade
+        ) {
             this.marcarVariaveisUsadasEmExpressao((expressao as any).objeto);
             return;
         }
@@ -233,8 +235,9 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         argumentoReferenciaFuncao: ArgumentoReferenciaFuncao,
         argumentos: Construto[]
     ) {
-        const variavelCorrespondente: FuncaoConstruto =
-            this.gerenciadorEscopos.buscar(argumentoReferenciaFuncao.simboloFuncao.lexema)?.valor;
+        const variavelCorrespondente: FuncaoConstruto = this.gerenciadorEscopos.buscar(
+            argumentoReferenciaFuncao.simboloFuncao.lexema
+        )?.valor;
 
         if (!variavelCorrespondente) {
             return;
@@ -264,7 +267,8 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
     visitarChamadaPorVariavel(entidadeChamadaVariavel: Variavel, argumentos: Construto[]) {
         const variavel = entidadeChamadaVariavel as Variavel;
         const funcaoChamada =
-            this.gerenciadorEscopos.buscar(variavel.simbolo.lexema) || this.funcoes[variavel.simbolo.lexema];
+            this.gerenciadorEscopos.buscar(variavel.simbolo.lexema) ||
+            this.funcoes[variavel.simbolo.lexema];
 
         if (!funcaoChamada) {
             this.erro(
@@ -333,9 +337,11 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                 continue;
             }
 
-            if (atual instanceof AcessoMetodo ||
+            if (
+                atual instanceof AcessoMetodo ||
                 atual instanceof AcessoMetodoOuPropriedade ||
-                atual instanceof AcessoPropriedade) {
+                atual instanceof AcessoPropriedade
+            ) {
                 atual = (atual as any).objeto;
                 continue;
             }
@@ -371,19 +377,16 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                 valorInicializador = expressao.valor;
             }
 
-            this.gerenciadorEscopos.declarar(
-                simboloAlvo.lexema,
-                {
-                    nome: simboloAlvo.lexema,
-                    tipo: 'qualquer',
-                    imutavel: false,
-                    valor: valorInicializador,
-                    inicializada: true,
-                    usada: false,
-                    hashArquivo: simboloAlvo.hashArquivo,
-                    linha: simboloAlvo.linha
-                }
-            );
+            this.gerenciadorEscopos.declarar(simboloAlvo.lexema, {
+                nome: simboloAlvo.lexema,
+                tipo: 'qualquer',
+                imutavel: false,
+                valor: valorInicializador,
+                inicializada: true,
+                usada: false,
+                hashArquivo: simboloAlvo.hashArquivo,
+                linha: simboloAlvo.linha,
+            });
             return Promise.resolve();
         }
 
@@ -452,7 +455,6 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                 }
             }
         }
-
     }
 
     override async visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<any> {
@@ -484,7 +486,9 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                     case Variavel:
                         const condicaoVariavel = condicao as Variavel;
                         this.verificarVariavel(condicaoVariavel);
-                        const variavelHipotetica = this.gerenciadorEscopos.buscar(condicaoVariavel.simbolo.lexema);
+                        const variavelHipotetica = this.gerenciadorEscopos.buscar(
+                            condicaoVariavel.simbolo.lexema
+                        );
                         if (variavelHipotetica && typeof variavelHipotetica.valor !== tipo) {
                             this.erro(
                                 condicaoVariavel.simbolo,
@@ -629,8 +633,8 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         if (tipoEsquerda && tipoDireita && tipoEsquerda !== tipoDireita) {
             // Verificar se são tipos numéricos compatíveis
             const tiposNumericos = ['inteiro', 'número', 'real'];
-            const ambosNumericos = tiposNumericos.includes(tipoEsquerda) &&
-                                tiposNumericos.includes(tipoDireita);
+            const ambosNumericos =
+                tiposNumericos.includes(tipoEsquerda) && tiposNumericos.includes(tipoDireita);
 
             if (!ambosNumericos) {
                 this.aviso(
@@ -768,7 +772,14 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         }
 
         const operadoresMatematicos = ['ADICAO', 'SUBTRACAO', 'MULTIPLICACAO', 'DIVISAO', 'MODULO'];
-        const operadoresComparacao = ['MAIOR', 'MAIOR_IGUAL', 'MENOR', 'MENOR_IGUAL', 'IGUAL', 'DIFERENTE'];
+        const operadoresComparacao = [
+            'MAIOR',
+            'MAIOR_IGUAL',
+            'MENOR',
+            'MENOR_IGUAL',
+            'IGUAL',
+            'DIFERENTE',
+        ];
 
         if (operadoresComparacao.includes(binario.operador.tipo)) {
             return 'lógico';
@@ -825,14 +836,24 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                 let entidadeChamadaVariavel = chamada.entidadeChamada as Variavel;
                 const nomeFuncao = entidadeChamadaVariavel.simbolo.lexema;
 
-                const funcoesBuiltIn = ['inteiro', 'real', 'número', 'texto', 'leia', 'escreva', 'tipo'];
+                const funcoesBuiltIn = [
+                    'inteiro',
+                    'real',
+                    'número',
+                    'texto',
+                    'leia',
+                    'escreva',
+                    'tipo',
+                ];
 
                 const pareceSerClasse = nomeFuncao[0] === nomeFuncao[0].toUpperCase();
 
-                if (!funcoesBuiltIn.includes(nomeFuncao) &&
+                if (
+                    !funcoesBuiltIn.includes(nomeFuncao) &&
                     !pareceSerClasse &&
                     !this.funcoes[nomeFuncao] &&
-                    !this.gerenciadorEscopos.buscar(nomeFuncao)) {
+                    !this.gerenciadorEscopos.buscar(nomeFuncao)
+                ) {
                     this.erro(
                         entidadeChamadaVariavel.simbolo,
                         `Chamada da função '${nomeFuncao}' não existe.`
@@ -873,7 +894,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                         tipo: 'IDENTIFICADOR',
                         linha: literal.linha,
                         hashArquivo: literal.hashArquivo,
-                        literal: null
+                        literal: null,
                     } as SimboloInterface,
                     `Variável ou função '${nomeVariavel}' usada em interpolação não existe.`
                 );
@@ -889,7 +910,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                             tipo: 'IDENTIFICADOR',
                             linha: literal.linha,
                             hashArquivo: literal.hashArquivo,
-                            literal: null
+                            literal: null,
                         } as SimboloInterface,
                         `Variável '${nomeVariavel}' usada em interpolação pode não ter sido inicializada.`
                     );
@@ -960,19 +981,16 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
             return Promise.resolve();
         }
 
-        this.gerenciadorEscopos.declarar(
-            declaracao.simbolo.lexema,
-            {
-                nome: declaracao.simbolo.lexema,
-                tipo: declaracao.tipo || 'qualquer',
-                imutavel: true,
-                valor: declaracao.inicializador?.valor,
-                inicializada: true,
-                usada: false,
-                hashArquivo: declaracao.simbolo.hashArquivo,
-                linha: declaracao.simbolo.linha
-            }
-        );
+        this.gerenciadorEscopos.declarar(declaracao.simbolo.lexema, {
+            nome: declaracao.simbolo.lexema,
+            tipo: declaracao.tipo || 'qualquer',
+            imutavel: true,
+            valor: declaracao.inicializador?.valor,
+            inicializada: true,
+            usada: false,
+            hashArquivo: declaracao.simbolo.hashArquivo,
+            linha: declaracao.simbolo.linha,
+        });
 
         // TODO: Verificar inicializador.
 
@@ -1022,7 +1040,10 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                                             `Esperado retorno do tipo '${tipoRetornoFuncao}' dentro da função.`
                                         );
                                     }
-                                    if (tipoValor === 'number' && !['inteiro', 'real', 'número'].includes(tipoRetornoFuncao)) {
+                                    if (
+                                        tipoValor === 'number' &&
+                                        !['inteiro', 'real', 'número'].includes(tipoRetornoFuncao)
+                                    ) {
                                         this.erro(
                                             declaracao.simbolo,
                                             `Esperado retorno do tipo '${tipoRetornoFuncao}' dentro da função.`
@@ -1052,21 +1073,23 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
             tipoInferido = this.obterTipoExpressao(declaracao.inicializador);
         }
 
-        if (declaracao.tipoExplicito && declaracao.tipoOriginal === 'qualquer' && declaracao.inicializador) {
+        if (
+            declaracao.tipoExplicito &&
+            declaracao.tipoOriginal === 'qualquer' &&
+            declaracao.inicializador
+        ) {
             const tipoMelhor = this.obterTipoExpressao(declaracao.inicializador);
             if (tipoMelhor && tipoMelhor !== 'qualquer') {
-                this.sugestao(
-                    declaracao.simbolo,
-                    'Um tipo melhor pode ser inferido.',
-                    [{
+                this.sugestao(declaracao.simbolo, 'Um tipo melhor pode ser inferido.', [
+                    {
                         titulo: `Alterar tipo para '${tipoMelhor}'`,
                         textoOriginal: 'qualquer',
                         textoSubstituto: tipoMelhor,
                         linha: declaracao.simbolo.linha,
                         colunaInicio: declaracao.simbolo.colunaInicio,
                         colunaFim: declaracao.simbolo.colunaFim,
-                    }]
-                );
+                    },
+                ]);
             }
         }
 
@@ -1075,10 +1098,11 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
             tipo: tipoInferido || 'qualquer',
             imutavel: false,
             valor: valorInicializador,
-            inicializada: declaracao.inicializador !== null && declaracao.inicializador !== undefined,
+            inicializada:
+                declaracao.inicializador !== null && declaracao.inicializador !== undefined,
             usada: false,
             hashArquivo: declaracao.simbolo.hashArquivo,
-            linha: declaracao.simbolo.linha
+            linha: declaracao.simbolo.linha,
         };
 
         const declaradaComSucesso = this.gerenciadorEscopos.declarar(
@@ -1126,7 +1150,9 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    override async visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> {
+    override async visitarExpressaoAcessoIntervaloVariavel(
+        expressao: AcessoIntervaloVariavel
+    ): Promise<any> {
         const expressaoIntervalo = expressao as any;
 
         await expressaoIntervalo.objeto.aceitar(this);
@@ -1172,14 +1198,19 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
             const retornos = declaracao.funcao.corpo.flatMap((c) => buscarRetornos(c));
             // Filtra retornos com tipo 'qualquer' (não determinado em tempo de análise sintática)
             const retornosComTipoIndeterminado = retornos.filter(
-                (retorno) => retorno.valor !== null &&
-                             retorno.valor !== undefined &&
-                             retorno.tipo === 'qualquer'
+                (retorno) =>
+                    retorno.valor !== null &&
+                    retorno.valor !== undefined &&
+                    retorno.tipo === 'qualquer'
             );
 
             // Se a função é 'vazio' e há retornos com tipo indeterminado,
             // tenta inferir o tipo e fornece mensagem útil ao desenvolvedor
-            if (tipoRetornoFuncao === 'vazio' && declaracao.funcao.tipoExplicito && retornosComTipoIndeterminado.length > 0) {
+            if (
+                tipoRetornoFuncao === 'vazio' &&
+                declaracao.funcao.tipoExplicito &&
+                retornosComTipoIndeterminado.length > 0
+            ) {
                 const retornoComValor = retornosComTipoIndeterminado[0];
                 const tipoInferido = this.obterTipoExpressao(retornoComValor.valor);
 
@@ -1206,7 +1237,10 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                                 `Esperado retorno do tipo '${tipoRetornoFuncao}' dentro da função.`
                             );
                         }
-                        if (tipoValor === 'number' && !['inteiro', 'real', 'número'].includes(tipoRetornoFuncao)) {
+                        if (
+                            tipoValor === 'number' &&
+                            !['inteiro', 'real', 'número'].includes(tipoRetornoFuncao)
+                        ) {
                             this.erro(
                                 declaracao.simbolo,
                                 `Esperado retorno do tipo '${tipoRetornoFuncao}' dentro da função.`
@@ -1230,7 +1264,8 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         for (let variavel of naoUsadas) {
             // Verifica se já existe um erro associado à variável.
             const temErro = this.diagnosticos.some(
-                d => d.severidade === DiagnosticoSeveridade.ERRO &&
+                (d) =>
+                    d.severidade === DiagnosticoSeveridade.ERRO &&
                     d.simbolo.lexema === variavel.nome
             );
 
@@ -1244,7 +1279,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                     lexema: variavel.nome,
                     linha: variavel.linha,
                     tipo: variavel.tipo,
-                    hashArquivo: variavel.hashArquivo
+                    hashArquivo: variavel.hashArquivo,
                 } as SimboloInterface,
                 `Variável '${variavel.nome}' foi declarada mas nunca usada.`
             );

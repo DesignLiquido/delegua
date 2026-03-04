@@ -92,69 +92,66 @@ describe('Interpretador Pituguês com Depuração', () => {
     });
     
                
-    it.skip('visitarExpressaoAcessoIndiceVariavel com TuplaN válida', async () => {
-        
+    it('visitarExpressaoAcessoIndiceVariavel com TuplaN válida', async () => {
+
         const lit1 = new Literal(1, 1, 'valor1', 'texto');
         const lit2 = new Literal(1, 2, 'valor2', 'texto');
-        const tupla = new TuplaN(1, 6);
-        
+        const tupla = new TuplaN(1, 1, [lit1, lit2]);
+
         jest.spyOn(interpretador, 'avaliar')
         .mockResolvedValueOnce(tupla)
         .mockResolvedValueOnce(0);
-        
-        
+
         jest.spyOn(interpretador, 'resolverValor')
-        .mockReturnValueOnce(tupla)
-        .mockReturnValueOnce(0);
-        
-        
+        .mockReturnValueOnce(0)
+        .mockReturnValueOnce(tupla);
+
         const expressao = {
             linha: 1,
             paraTexto: () => '<expressao>',
-            entidade: tupla,
+            entidadeChamada: tupla,
             indice: 0
         } as any as AcessoIndiceVariavel;
         const resultado = await interpretador.visitarExpressaoAcessoIndiceVariavel(expressao);
         expect(resultado).toBe('valor1');
     });
     
-    it.skip('visitarExpressaoAcessoIndiceVariavel com índice inválido (não inteiro)', async () => {
-        
-        
-        const tupla = new TuplaN(1, [new Literal(1, 1, 'x', 'texto')]);
-        
+    it('visitarExpressaoAcessoIndiceVariavel com índice inválido (não inteiro)', async () => {
+
+        const tupla = new TuplaN(1, 1, [new Literal(1, 1, 'x', 'texto')]);
+
         jest.spyOn(interpretador, 'avaliar')
         .mockResolvedValueOnce(tupla)
         .mockResolvedValueOnce(1.5);
-        
+
         jest.spyOn(interpretador, 'resolverValor')
-        .mockReturnValueOnce(tupla)
-        .mockReturnValueOnce(1.5);
-        
+        .mockReturnValueOnce(1.5)
+        .mockReturnValueOnce(tupla);
+
         const entidade = { linha: 1, paraTexto: () => '<e>' } as any;
         const indice = { linha: 1, paraTexto: () => '<i>' } as any;
         const simbolo = { lexema: ']', linha: 1 } as any;
         const expressao = new AcessoIndiceVariavel(1, entidade, indice, simbolo);
-        
+
         await expect(interpretador.visitarExpressaoAcessoIndiceVariavel(expressao)).rejects.toThrow('Índice deve ser inteiro.');
     });
-    it.skip('visitarExpressaoAcessoIndiceVariavel com índice fora do intervalo', async () => {
-        
-        const tupla = new TuplaN(1, [new Literal(1, 1, 'x', 'texto')]);
-        
+    it('visitarExpressaoAcessoIndiceVariavel com índice fora do intervalo', async () => {
+
+        const tupla = new TuplaN(1, 1, [new Literal(1, 1, 'x', 'texto')]);
+
         jest.spyOn(interpretador, 'avaliar')
         .mockResolvedValueOnce(tupla)
         .mockResolvedValueOnce(5);
-        
+
         jest.spyOn(interpretador, 'resolverValor')
-        .mockReturnValueOnce(tupla)
-        .mockReturnValueOnce(5);
-        
+        .mockReturnValueOnce(5)
+        .mockReturnValueOnce(tupla);
+
         const entidade = { linha: 1, paraTexto: () => '<e>' } as any;
         const indice = { linha: 1, paraTexto: () => '<i>' } as any;
         const simbolo = { lexema: ']', linha: 1 } as any;
         const expressao = new AcessoIndiceVariavel(1, entidade, indice, simbolo);
-        
+
         await expect(interpretador.visitarExpressaoAcessoIndiceVariavel(expressao)).rejects.toThrow('Índice fora do intervalo.');
     });
     

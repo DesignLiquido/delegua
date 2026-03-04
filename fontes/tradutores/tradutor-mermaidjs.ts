@@ -64,7 +64,13 @@ import {
     VarMultiplo,
 } from '../declaracoes';
 import { CaminhoEscolha, TradutorInterface, VisitanteComumInterface } from '../interfaces';
-import { ArestaFluxograma, SubgrafoClasse, SubgrafoFuncao, SubgrafoMetodo, VerticeFluxograma } from './mermaid';
+import {
+    ArestaFluxograma,
+    SubgrafoClasse,
+    SubgrafoFuncao,
+    SubgrafoMetodo,
+    VerticeFluxograma,
+} from './mermaid';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
@@ -96,7 +102,7 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao>, Visitan
     async visitarDeclaracaoClasse(declaracao: Classe): Promise<VerticeFluxograma[]> {
         const nomeClasse = declaracao.simbolo.lexema;
         const superClasse = declaracao.superClasse
-            ? (declaracao.superClasse.simbolo?.lexema || declaracao.superClasse.nome?.lexema)
+            ? declaracao.superClasse.simbolo?.lexema || declaracao.superClasse.nome?.lexema
             : undefined;
         const linha = declaracao.linha;
 
@@ -108,7 +114,13 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao>, Visitan
         const arestaFinal = new ArestaFluxograma(declaracao, textoFim);
 
         // Cria o subgrafo da classe
-        const subgrafo = new SubgrafoClasse(nomeClasse, linha, arestaInicial, arestaFinal, superClasse);
+        const subgrafo = new SubgrafoClasse(
+            nomeClasse,
+            linha,
+            arestaInicial,
+            arestaFinal,
+            superClasse
+        );
 
         // Salva o estado anterior
         const anterioresAntes = [...this.anteriores];
@@ -122,7 +134,10 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao>, Visitan
 
                 // Cria arestas de entrada e saída para o método
                 const textoInicioMetodo = `Metodo${nomeMetodo}${nomeClasse}Inicio[Início: ${nomeMetodo}()]`;
-                const arestaInicialMetodo = new ArestaFluxograma(metodoDeclaracao, textoInicioMetodo);
+                const arestaInicialMetodo = new ArestaFluxograma(
+                    metodoDeclaracao,
+                    textoInicioMetodo
+                );
 
                 const textoFimMetodo = `Metodo${nomeMetodo}${nomeClasse}Fim[Fim: ${nomeMetodo}()]`;
                 const arestaFinalMetodo = new ArestaFluxograma(metodoDeclaracao, textoFimMetodo);
@@ -150,7 +165,9 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao>, Visitan
                 // Conecta o último vértice do corpo ao fim do método
                 if (this.anteriores.length > 0) {
                     for (const anterior of this.anteriores) {
-                        subgrafoMetodo.vertices.push(new VerticeFluxograma(anterior, arestaFinalMetodo));
+                        subgrafoMetodo.vertices.push(
+                            new VerticeFluxograma(anterior, arestaFinalMetodo)
+                        );
                     }
                 }
 
@@ -215,7 +232,9 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao>, Visitan
         return Promise.resolve(vertices);
     }
 
-    async visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<VerticeFluxograma[]> {
+    async visitarDeclaracaoDefinicaoFuncao(
+        declaracao: FuncaoDeclaracao
+    ): Promise<VerticeFluxograma[]> {
         const nomeFuncao = declaracao.simbolo.lexema;
         const linha = declaracao.linha;
 
@@ -466,9 +485,8 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao>, Visitan
         const verticesEntao: VerticeFluxograma[] = await declaracao.caminhoEntao.aceitar(this);
         vertices = vertices.concat(verticesEntao);
 
-        const ultimaArestaEntao = verticesEntao.length > 0
-            ? verticesEntao[verticesEntao.length - 1].destino
-            : aresta;
+        const ultimaArestaEntao =
+            verticesEntao.length > 0 ? verticesEntao[verticesEntao.length - 1].destino : aresta;
 
         if (declaracao.caminhoSenao) {
             this.anteriores = [];
@@ -532,9 +550,8 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao>, Visitan
         }
         vertices = vertices.concat(verticesTente);
 
-        const ultimaArestaTente = verticesTente.length > 0
-            ? verticesTente[verticesTente.length - 1].destino
-            : aresta;
+        const ultimaArestaTente =
+            verticesTente.length > 0 ? verticesTente[verticesTente.length - 1].destino : aresta;
 
         const anterioresAposTente: ArestaFluxograma[] = [];
 
@@ -557,9 +574,10 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao>, Visitan
             }
             vertices = vertices.concat(verticesPegue);
 
-            const ultimaArestaPegue = verticesPegue.length > 0
-                ? verticesPegue[verticesPegue.length - 1].destino
-                : arestaPegue;
+            const ultimaArestaPegue =
+                verticesPegue.length > 0
+                    ? verticesPegue[verticesPegue.length - 1].destino
+                    : arestaPegue;
 
             anterioresAposTente.push(ultimaArestaPegue);
         }
@@ -581,9 +599,10 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao>, Visitan
             }
             vertices = vertices.concat(verticesSenao);
 
-            const ultimaArestaSenao = verticesSenao.length > 0
-                ? verticesSenao[verticesSenao.length - 1].destino
-                : arestaSenao;
+            const ultimaArestaSenao =
+                verticesSenao.length > 0
+                    ? verticesSenao[verticesSenao.length - 1].destino
+                    : arestaSenao;
 
             anterioresAposTente.push(ultimaArestaSenao);
         } else {
@@ -645,7 +664,9 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao>, Visitan
         return Promise.resolve(`no índice ${textoIndice}`);
     }
 
-    visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> | void {
+    visitarExpressaoAcessoIntervaloVariavel(
+        expressao: AcessoIntervaloVariavel
+    ): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
@@ -657,7 +678,9 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao>, Visitan
         return Promise.resolve(`método ${expressao.nomeMetodo}`);
     }
 
-    async visitarExpressaoAcessoMetodoOuPropriedade(expressao: AcessoMetodoOuPropriedade): Promise<string> {
+    async visitarExpressaoAcessoMetodoOuPropriedade(
+        expressao: AcessoMetodoOuPropriedade
+    ): Promise<string> {
         return Promise.resolve(`método ou propriedade ${expressao.simbolo.lexema}`);
     }
 
@@ -669,7 +692,9 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao>, Visitan
         return await expressao.expressao.aceitar(this);
     }
 
-    async visitarExpressaoArgumentoReferenciaFuncao(expressao: ArgumentoReferenciaFuncao): Promise<string> {
+    async visitarExpressaoArgumentoReferenciaFuncao(
+        expressao: ArgumentoReferenciaFuncao
+    ): Promise<string> {
         const nomeFuncao = expressao.simboloFuncao.lexema;
         return Promise.resolve(`referência à função ${nomeFuncao}`);
     }
@@ -681,7 +706,9 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao>, Visitan
         return Promise.resolve(`${textoObjeto} no índice ${textoIndice} recebe: ${textoValor}`);
     }
 
-    visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: AtribuicaoPorIndicesMatriz): Promise<any> | void {
+    visitarExpressaoAtribuicaoPorIndicesMatriz(
+        expressao: AtribuicaoPorIndicesMatriz
+    ): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
@@ -698,15 +725,21 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao>, Visitan
             case tiposDeSimbolos.DIVISAO:
                 return Promise.resolve(`dividir ${operandoEsquerdo} por ${operandoDireito}`);
             case tiposDeSimbolos.MODULO:
-                return Promise.resolve(`resto de ${operandoEsquerdo} dividido por ${operandoDireito}`);
+                return Promise.resolve(
+                    `resto de ${operandoEsquerdo} dividido por ${operandoDireito}`
+                );
             case tiposDeSimbolos.MENOR:
                 return Promise.resolve(`${operandoEsquerdo} for menor que ${operandoDireito}`);
             case tiposDeSimbolos.MENOR_IGUAL:
-                return Promise.resolve(`${operandoEsquerdo} for menor ou igual a ${operandoDireito}`);
+                return Promise.resolve(
+                    `${operandoEsquerdo} for menor ou igual a ${operandoDireito}`
+                );
             case tiposDeSimbolos.MAIOR:
                 return Promise.resolve(`${operandoEsquerdo} for maior que ${operandoDireito}`);
             case tiposDeSimbolos.MAIOR_IGUAL:
-                return Promise.resolve(`${operandoEsquerdo} for maior ou igual a ${operandoDireito}`);
+                return Promise.resolve(
+                    `${operandoEsquerdo} for maior ou igual a ${operandoDireito}`
+                );
             case tiposDeSimbolos.IGUAL_IGUAL:
                 return Promise.resolve(`${operandoEsquerdo} for igual a ${operandoDireito}`);
             case tiposDeSimbolos.DIFERENTE:
@@ -768,7 +801,7 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao>, Visitan
         let texto = 'função anônima';
 
         if (expressao.parametros && expressao.parametros.length > 0) {
-            const parametros = expressao.parametros.map(p => p.nome.lexema).join(', ');
+            const parametros = expressao.parametros.map((p) => p.nome.lexema).join(', ');
             texto += `(${parametros})`;
         } else {
             texto += '()';
@@ -942,7 +975,7 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao>, Visitan
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
-    
+
     async visitarExpressaoUnaria(expressao: Unario): Promise<string> {
         const textoOperando = await expressao.operando.aceitar(this);
         let textoOperador = '';
@@ -975,7 +1008,10 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao>, Visitan
      * Traduz uma declaração de Expressao que contém uma chamada de função,
      * criando os vértices necessários para conectar ao subgrafo da função.
      */
-    async traduzirChamadaFuncao(declaracaoExpressao: Expressao, chamada: Chamada): Promise<VerticeFluxograma[]> {
+    async traduzirChamadaFuncao(
+        declaracaoExpressao: Expressao,
+        chamada: Chamada
+    ): Promise<VerticeFluxograma[]> {
         // Verifica se é uma chamada a uma função conhecida
         if (chamada.entidadeChamada.constructor === Variavel) {
             const variavel = chamada.entidadeChamada as Variavel;

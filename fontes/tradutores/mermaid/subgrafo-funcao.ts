@@ -1,5 +1,5 @@
-import { ArestaFluxograma } from "./aresta-fluxograma";
-import { VerticeFluxograma } from "./vertice-fluxograma";
+import { ArestaFluxograma } from './aresta-fluxograma';
+import { VerticeFluxograma } from './vertice-fluxograma';
 
 export class SubgrafoFuncao {
     nomeClasse: string;
@@ -8,7 +8,12 @@ export class SubgrafoFuncao {
     arestaInicial: ArestaFluxograma;
     arestaFinal: ArestaFluxograma;
 
-    constructor(nomeClasse: string, linhaDeclaracao: number, arestaInicial: ArestaFluxograma, arestaFinal: ArestaFluxograma) {
+    constructor(
+        nomeClasse: string,
+        linhaDeclaracao: number,
+        arestaInicial: ArestaFluxograma,
+        arestaFinal: ArestaFluxograma
+    ) {
         this.nomeClasse = nomeClasse;
         this.linhaDeclaracao = linhaDeclaracao;
         this.vertices = [];
