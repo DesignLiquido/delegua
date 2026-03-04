@@ -18,17 +18,17 @@ const contem_comum = (nome: string) => {
             valor: object,
             chave: any
         ): Promise<boolean> => Promise.resolve(chave in valor),
-        assinaturaFormato: `dicionário contem(chave: qualquer)`,
+        assinaturaFormato: `dicionário.${nome}(chave: qualquer)`,
         documentacao:
-            `# \`dicionário contem(chave)\`\n\n` +
+            `# \`dicionário.${nome}(chave)\`\n\n` +
             'Retorna verdadeiro se o elemento passado como parâmetro existe como chave do dicionário. Devolve falso em caso contrário.\n' +
             '\n\n ## Exemplo de Código\n' +
             '\n\n```pitugues\n' +
             'var d = {"a": 1, "b": 2, "c": 3}\n' +
-            `escreva(d contem "a") // verdadeiro\n` +
-            `escreva(d contem "f") // falso\n\`\`\`` +
+            `escreva(d.${nome}("a")) // verdadeiro\n` +
+            `escreva(d.${nome}("f")) // falso\n\`\`\`` +
             '\n\n## Formas de uso\n',
-        exemploCodigo: 'dicionário contem "minhaChave"',
+        exemploCodigo: 'dicionário.contem("minhaChave")',
     };
 };
 
