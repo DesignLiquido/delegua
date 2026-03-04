@@ -756,6 +756,32 @@ describe('Avaliador sintático (Pituguês)', () => {
                     expect(declaracao.elementosImportacao[1].lexema).toBe('potencia');
                 });
             });
+
+            it('Deve exigir o corpo do escopo e lançar erro se o fim de arquivo for alcançado', async () => {
+                const codigo = [`
+                    se verdadeiro:
+                `];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliador = await avaliadorSintatico.analisar(
+                    retornoLexador, -1
+                );
+
+                expect(retornoAvaliador.erros).toHaveLength(1);
+                expect(retornoAvaliador.erros[0].message).toBe('Esperado corpo do escopo após a declaração.');
+            });
+
+            it('Deve exigir o identificador da função e barrar falha silenciosa no final do arquivo', async () => {
+                const codigo = [`
+                    funcao
+                `];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliador = await avaliadorSintatico.analisar(
+                    retornoLexador, -1
+                );
+
+                expect(retornoAvaliador.erros).toHaveLength(1);
+                expect(retornoAvaliador.erros[0].message).toBe('Esperado nome da função.');
+            });
         });
     });
 });
