@@ -18,7 +18,7 @@ export class MicroLexadorPitugues {
     inicioSimbolo: number;
     atual: number;
     codigo: string;
-    
+
     // Aceita apenas interpolações no formato ${identificador} (equivalente a "f-string")
     regexInterpolacao: RegExp = /\$\{[a-zA-Z_][a-zA-Z0-9_]*\}/g;
     eDigito(caractere: string): boolean {

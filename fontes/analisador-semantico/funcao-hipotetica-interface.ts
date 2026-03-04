@@ -1,4 +1,4 @@
-import { FuncaoConstruto } from "../construtos";
+import { FuncaoConstruto } from '../construtos';
 
 export interface FuncaoHipoteticaInterface {
     valor: FuncaoConstruto;

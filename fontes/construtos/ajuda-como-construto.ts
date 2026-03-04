@@ -1,5 +1,5 @@
-import { VisitanteDeleguaInterface } from "../interfaces";
-import { Construto } from "./construto";
+import { VisitanteDeleguaInterface } from '../interfaces';
+import { Construto } from './construto';
 
 /**
  * Ajuda pode ser declaração ou construto. Para construto, o comportamento é
@@ -34,6 +34,6 @@ export class AjudaComoConstruto implements Construto {
     }
 
     paraTextoSaida(): string {
-        throw new Error("Method not implemented.");
-    }    
+        throw new Error('Method not implemented.');
+    }
 }

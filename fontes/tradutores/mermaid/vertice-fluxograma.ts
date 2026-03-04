@@ -1,4 +1,4 @@
-import { ArestaFluxograma } from "./aresta-fluxograma";
+import { ArestaFluxograma } from './aresta-fluxograma';
 
 export class VerticeFluxograma {
     origem: ArestaFluxograma;

@@ -36,10 +36,7 @@ export default {
     chaves: {
         tipoRetorno: 'texto[]',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            valor: object
-        ): Promise<any> => {
+        implementacao: (interpretador: InterpretadorInterface, valor: object): Promise<any> => {
             return Promise.resolve(Object.keys(valor));
         },
         assinaturaFormato: 'dicionário.chaves()',
@@ -58,10 +55,7 @@ export default {
     itens: {
         tipoRetorno: '(texto|qualquer)[][]',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            valor: object
-        ): Promise<any> => {
+        implementacao: (interpretador: InterpretadorInterface, valor: object): Promise<any> => {
             const pares = Object.entries(valor).map(([chave, valor]) => {
                 return [chave, valor];
             });
@@ -94,10 +88,7 @@ export default {
     valores: {
         tipoRetorno: '<T>[]',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            valor: object
-        ): Promise<any> => {
+        implementacao: (interpretador: InterpretadorInterface, valor: object): Promise<any> => {
             return Promise.resolve(Object.values(valor));
         },
     },

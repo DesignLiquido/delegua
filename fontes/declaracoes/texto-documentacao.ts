@@ -7,11 +7,7 @@ import { Declaracao } from './declaracao';
 export class TextoDocumentacao extends Declaracao {
     conteudo: string | string[];
 
-    constructor(
-        hashArquivo: number,
-        linha: number,
-        conteudo: string | string[]
-    ) {
+    constructor(hashArquivo: number, linha: number, conteudo: string | string[]) {
         super(linha, hashArquivo);
         this.conteudo = conteudo;
     }

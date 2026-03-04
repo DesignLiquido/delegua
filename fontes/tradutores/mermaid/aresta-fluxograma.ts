@@ -1,4 +1,4 @@
-import { Declaracao } from "../../declaracoes";
+import { Declaracao } from '../../declaracoes';
 
 export class ArestaFluxograma {
     declaracao: Declaracao;

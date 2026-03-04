@@ -28,9 +28,9 @@ import { TradutorInterface } from '../interfaces';
 /**
  * Esse tradutor traduz de JavaScript para Delégua.
  */
-export class TradutorReversoJavaScript
-    implements TradutorInterface<Statement | Directive | ModuleDeclaration>
-{
+export class TradutorReversoJavaScript implements TradutorInterface<
+    Statement | Directive | ModuleDeclaration
+> {
     indentacao: number = 0;
 
     constructor() {

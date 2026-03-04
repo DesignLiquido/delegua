@@ -8,9 +8,9 @@ import { Directive, ModuleDeclaration, Statement } from 'estree';
  * Este lexador existe apenas para abstrair o Esprima em
  * outras dependências, como `delegua-node`.
  */
-export class LexadorJavaScript
-    implements LexadorInterface<Statement | Directive | ModuleDeclaration>
-{
+export class LexadorJavaScript implements LexadorInterface<
+    Statement | Directive | ModuleDeclaration
+> {
     simbolos: SimboloInterface[];
     codigo: string | string[];
     inicioSimbolo: number;

@@ -44,7 +44,11 @@ import {
 } from '../construtos';
 import { AvaliadorSintaticoInterface, ParametroInterface, SimboloInterface } from '../interfaces';
 
-import { CorrecaoImplementacaoInterface, ErroAvaliadorSintatico, MembroInterfaceFaltando } from './erro-avaliador-sintatico';
+import {
+    CorrecaoImplementacaoInterface,
+    ErroAvaliadorSintatico,
+    MembroInterfaceFaltando,
+} from './erro-avaliador-sintatico';
 
 import {
     Deceto,
@@ -131,7 +135,8 @@ type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolo
  */
 export class AvaliadorSintatico
     extends AvaliadorSintaticoBase
-    implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao> {
+    implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao>
+{
     pilhaDecoradores: Decorador[];
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
@@ -226,15 +231,28 @@ export class AvaliadorSintatico
     protected async construtoAjuda(): Promise<AjudaComoConstruto> {
         const simboloAjuda = this.avancarEDevolverAnterior();
 
-        if (this.estaNoFinal() || this.simbolos[this.atual].tipo !== tiposDeSimbolos.PARENTESE_ESQUERDO) {
-            return new AjudaComoConstruto(simboloAjuda.hashArquivo, simboloAjuda.linha, undefined, false);
+        if (
+            this.estaNoFinal() ||
+            this.simbolos[this.atual].tipo !== tiposDeSimbolos.PARENTESE_ESQUERDO
+        ) {
+            return new AjudaComoConstruto(
+                simboloAjuda.hashArquivo,
+                simboloAjuda.linha,
+                undefined,
+                false
+            );
         }
 
         this.avancarEDevolverAnterior(); // parêntese esquerdo
 
         if (this.simbolos[this.atual].tipo === tiposDeSimbolos.PARENTESE_DIREITO) {
             this.avancarEDevolverAnterior();
-            return new AjudaComoConstruto(simboloAjuda.hashArquivo, simboloAjuda.linha, undefined, true);
+            return new AjudaComoConstruto(
+                simboloAjuda.hashArquivo,
+                simboloAjuda.linha,
+                undefined,
+                true
+            );
         }
 
         this.emAjuda = true;
@@ -293,7 +311,9 @@ export class AvaliadorSintatico
         }
     }
 
-    protected async construtoDicionario(simboloChaveEsquerda: SimboloInterface): Promise<Dicionario> {
+    protected async construtoDicionario(
+        simboloChaveEsquerda: SimboloInterface
+    ): Promise<Dicionario> {
         this.avancarEDevolverAnterior();
         const chaves = [];
         const valores = [];
@@ -401,7 +421,9 @@ export class AvaliadorSintatico
         );
     }
 
-    protected async paraCadaComoConstruto(simboloPara: SimboloInterface): Promise<ParaCadaComoConstruto> {
+    protected async paraCadaComoConstruto(
+        simboloPara: SimboloInterface
+    ): Promise<ParaCadaComoConstruto> {
         if (this.verificarTipoSimboloAtual(tiposDeSimbolos.IDENTIFICADOR)) {
             return await this.paraCadaComoConstrutoVetor(simboloPara);
         }
@@ -452,7 +474,9 @@ export class AvaliadorSintatico
      * Resolve uma lista de compreensão.
      * @returns {ListaCompreensao} A lista de compreensão resolvida.
      */
-    protected async resolverCompreensaoDeLista(retornoExpressao: Construto): Promise<ListaCompreensao> {
+    protected async resolverCompreensaoDeLista(
+        retornoExpressao: Construto
+    ): Promise<ListaCompreensao> {
         this.consumir(tiposDeSimbolos.PARA, "Esperado instrução 'para' após identificador.");
         this.consumir(tiposDeSimbolos.CADA, "Esperado instrução 'cada' após 'para'.");
 
@@ -624,7 +648,7 @@ export class AvaliadorSintatico
                         (l) =>
                             l.linha === linhaAtual && l.tipo === tiposDeSimbolos.EXPRESSAO_REGULAR
                     ).length %
-                    2 ===
+                        2 ===
                     0;
                 if (eParExpressaoRegular) {
                     this.avancarEDevolverAnterior();
@@ -744,7 +768,10 @@ export class AvaliadorSintatico
                 }
                 const expressao = await this.tupla();
                 if (expressao instanceof TuplaN) {
-                    this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após itens da tupla.");
+                    this.consumir(
+                        tiposDeSimbolos.PARENTESE_DIREITO,
+                        "Esperado ')' após itens da tupla."
+                    );
                     return expressao;
                 }
                 this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
@@ -795,117 +822,119 @@ export class AvaliadorSintatico
 
                 if (construto.constructor === AcessoMetodoOuPropriedade) {
                     const construtoTipado = construto as AcessoMetodoOuPropriedade;
-                    const acessoMetodoConhecido = this.resolverAcessoMetodoConhecido(construtoTipado);
+                    const acessoMetodoConhecido =
+                        this.resolverAcessoMetodoConhecido(construtoTipado);
                     if (acessoMetodoConhecido) {
                         construto = acessoMetodoConhecido;
                     } else {
                         switch (construtoTipado.tipo) {
-                        case tipoDeDadosDelegua.DICIONARIO:
-                        case tipoDeDadosDelegua.DICIONÁRIO:
-                            if (!(construtoTipado.simbolo.lexema in primitivasDicionario)) {
-                                throw this.erro(
-                                    construtoTipado.simbolo,
-                                    `${construtoTipado.simbolo.lexema} não é uma primitiva de dicionário.`
-                                );
-                            }
-
-                            const primitivaDicionarioSelecionada =
-                                primitivasDicionario[construtoTipado.simbolo.lexema];
-                            construto = new AcessoMetodo(
-                                construtoTipado.hashArquivo,
-                                construtoTipado.objeto,
-                                construtoTipado.simbolo.lexema,
-                                primitivaDicionarioSelecionada.tipoRetorno
-                            );
-                            break;
-                        case tipoDeDadosDelegua.INTEIRO:
-                        case tipoDeDadosDelegua.NUMERO:
-                        case tipoDeDadosDelegua.NÚMERO:
-                            if (!(construtoTipado.simbolo.lexema in primitivasNumero)) {
-                                throw this.erro(
-                                    construtoTipado.simbolo,
-                                    `${construtoTipado.simbolo.lexema} não é uma primitiva de número.`
-                                );
-                            }
-
-                            const primitivaNumeroSelecionada =
-                                primitivasNumero[construtoTipado.simbolo.lexema];
-                            construto = new AcessoMetodo(
-                                construtoTipado.hashArquivo,
-                                construtoTipado.objeto,
-                                construtoTipado.simbolo.lexema,
-                                primitivaNumeroSelecionada.tipoRetorno
-                            );
-                            break;
-                        case tipoDeDadosDelegua.TEXTO:
-                            if (!(construtoTipado.simbolo.lexema in primitivasTexto)) {
-                                throw this.erro(
-                                    construtoTipado.simbolo,
-                                    `${construtoTipado.simbolo.lexema} não é uma primitiva de texto.`
-                                );
-                            }
-
-                            const primitivaTextoSelecionada =
-                                primitivasTexto[construtoTipado.simbolo.lexema];
-                            construto = new AcessoMetodo(
-                                construtoTipado.hashArquivo,
-                                construtoTipado.objeto,
-                                construtoTipado.simbolo.lexema,
-                                primitivaTextoSelecionada.tipoRetorno
-                            );
-                            break;
-                        case tipoDeDadosDelegua.VETOR:
-                        case tipoDeDadosDelegua.VETOR_NUMERO:
-                        case tipoDeDadosDelegua.VETOR_NÚMERO:
-                        case tipoDeDadosDelegua.VETOR_TEXTO:
-                            if (!(construtoTipado.simbolo.lexema in primitivasVetor)) {
-                                throw this.erro(
-                                    construtoTipado.simbolo,
-                                    `${construtoTipado.simbolo.lexema} não é uma primitiva de vetor.`
-                                );
-                            }
-
-                            const primitivaVetorSelecionada =
-                                primitivasVetor[construtoTipado.simbolo.lexema];
-                            construto = new AcessoMetodo(
-                                construtoTipado.hashArquivo,
-                                construtoTipado.objeto,
-                                construtoTipado.simbolo.lexema,
-                                primitivaVetorSelecionada.tipoRetorno
-                            );
-                            break;
-                        default:
-                            if (construtoTipado.tipo in this.tiposDefinidosEmCodigo) {
-                                const tipoCorrespondente = this.tiposDefinidosEmCodigo[
-                                    construtoTipado.tipo
-                                ] as Classe;
-
-                                const possivelMetodo = tipoCorrespondente.metodos.filter(
-                                    (m) => m.simbolo.lexema === construtoTipado.simbolo.lexema
-                                );
-                                if (possivelMetodo.length > 0) {
-                                    construto = new AcessoMetodo(
-                                        construtoTipado.hashArquivo,
-                                        construtoTipado.objeto,
-                                        construtoTipado.simbolo.lexema,
-                                        possivelMetodo[0].tipo
+                            case tipoDeDadosDelegua.DICIONARIO:
+                            case tipoDeDadosDelegua.DICIONÁRIO:
+                                if (!(construtoTipado.simbolo.lexema in primitivasDicionario)) {
+                                    throw this.erro(
+                                        construtoTipado.simbolo,
+                                        `${construtoTipado.simbolo.lexema} não é uma primitiva de dicionário.`
                                     );
-                                    break;
                                 }
 
-                                const possivelPropriedade = tipoCorrespondente.propriedades.filter(
-                                    (p) => p.nome.lexema === construtoTipado.simbolo.lexema
+                                const primitivaDicionarioSelecionada =
+                                    primitivasDicionario[construtoTipado.simbolo.lexema];
+                                construto = new AcessoMetodo(
+                                    construtoTipado.hashArquivo,
+                                    construtoTipado.objeto,
+                                    construtoTipado.simbolo.lexema,
+                                    primitivaDicionarioSelecionada.tipoRetorno
                                 );
-                                if (possivelPropriedade.length > 0) {
-                                    construto = new AcessoPropriedade(
-                                        construtoTipado.hashArquivo,
-                                        construtoTipado.objeto,
-                                        construtoTipado.simbolo.lexema,
-                                        possivelPropriedade[0].tipo
+                                break;
+                            case tipoDeDadosDelegua.INTEIRO:
+                            case tipoDeDadosDelegua.NUMERO:
+                            case tipoDeDadosDelegua.NÚMERO:
+                                if (!(construtoTipado.simbolo.lexema in primitivasNumero)) {
+                                    throw this.erro(
+                                        construtoTipado.simbolo,
+                                        `${construtoTipado.simbolo.lexema} não é uma primitiva de número.`
                                     );
-                                    break;
                                 }
-                            }
+
+                                const primitivaNumeroSelecionada =
+                                    primitivasNumero[construtoTipado.simbolo.lexema];
+                                construto = new AcessoMetodo(
+                                    construtoTipado.hashArquivo,
+                                    construtoTipado.objeto,
+                                    construtoTipado.simbolo.lexema,
+                                    primitivaNumeroSelecionada.tipoRetorno
+                                );
+                                break;
+                            case tipoDeDadosDelegua.TEXTO:
+                                if (!(construtoTipado.simbolo.lexema in primitivasTexto)) {
+                                    throw this.erro(
+                                        construtoTipado.simbolo,
+                                        `${construtoTipado.simbolo.lexema} não é uma primitiva de texto.`
+                                    );
+                                }
+
+                                const primitivaTextoSelecionada =
+                                    primitivasTexto[construtoTipado.simbolo.lexema];
+                                construto = new AcessoMetodo(
+                                    construtoTipado.hashArquivo,
+                                    construtoTipado.objeto,
+                                    construtoTipado.simbolo.lexema,
+                                    primitivaTextoSelecionada.tipoRetorno
+                                );
+                                break;
+                            case tipoDeDadosDelegua.VETOR:
+                            case tipoDeDadosDelegua.VETOR_NUMERO:
+                            case tipoDeDadosDelegua.VETOR_NÚMERO:
+                            case tipoDeDadosDelegua.VETOR_TEXTO:
+                                if (!(construtoTipado.simbolo.lexema in primitivasVetor)) {
+                                    throw this.erro(
+                                        construtoTipado.simbolo,
+                                        `${construtoTipado.simbolo.lexema} não é uma primitiva de vetor.`
+                                    );
+                                }
+
+                                const primitivaVetorSelecionada =
+                                    primitivasVetor[construtoTipado.simbolo.lexema];
+                                construto = new AcessoMetodo(
+                                    construtoTipado.hashArquivo,
+                                    construtoTipado.objeto,
+                                    construtoTipado.simbolo.lexema,
+                                    primitivaVetorSelecionada.tipoRetorno
+                                );
+                                break;
+                            default:
+                                if (construtoTipado.tipo in this.tiposDefinidosEmCodigo) {
+                                    const tipoCorrespondente = this.tiposDefinidosEmCodigo[
+                                        construtoTipado.tipo
+                                    ] as Classe;
+
+                                    const possivelMetodo = tipoCorrespondente.metodos.filter(
+                                        (m) => m.simbolo.lexema === construtoTipado.simbolo.lexema
+                                    );
+                                    if (possivelMetodo.length > 0) {
+                                        construto = new AcessoMetodo(
+                                            construtoTipado.hashArquivo,
+                                            construtoTipado.objeto,
+                                            construtoTipado.simbolo.lexema,
+                                            possivelMetodo[0].tipo
+                                        );
+                                        break;
+                                    }
+
+                                    const possivelPropriedade =
+                                        tipoCorrespondente.propriedades.filter(
+                                            (p) => p.nome.lexema === construtoTipado.simbolo.lexema
+                                        );
+                                    if (possivelPropriedade.length > 0) {
+                                        construto = new AcessoPropriedade(
+                                            construtoTipado.hashArquivo,
+                                            construtoTipado.objeto,
+                                            construtoTipado.simbolo.lexema,
+                                            possivelPropriedade[0].tipo
+                                        );
+                                        break;
+                                    }
+                                }
                         }
                     }
                 }
@@ -944,7 +973,12 @@ export class AvaliadorSintatico
             tipoIdentificadorCorrespondente = 'qualquer';
         }
 
-        if (!tipoIdentificadorCorrespondente.endsWith('[]') && !['dicionário', 'qualquer', 'texto', 'tupla', 'vetor'].includes(tipoIdentificadorCorrespondente)) {
+        if (
+            !tipoIdentificadorCorrespondente.endsWith('[]') &&
+            !['dicionário', 'qualquer', 'texto', 'tupla', 'vetor'].includes(
+                tipoIdentificadorCorrespondente
+            )
+        ) {
             throw this.erro(
                 this.simbolos[this.atual],
                 `Tipo ${tipoIdentificadorCorrespondente} não suporta acesso por índice.`
@@ -962,14 +996,12 @@ export class AvaliadorSintatico
     }
 
     /**
-     * Resolve um construto do tipo `Variavel`, `AcessoMetodoOuPropriedade` ou `AcessoIndiceVariavel` 
+     * Resolve um construto do tipo `Variavel`, `AcessoMetodoOuPropriedade` ou `AcessoIndiceVariavel`
      * para um `ElementoMontaoTipos` correspondente, caso exista.
      * @param construto O construto.
      * @returns O `ElementoMontaoTipos` correspondente ou `null` se não existir.
      */
-    protected resolverElementoMontao(
-        construto: Construto
-    ): ElementoMontaoTipos | null {
+    protected resolverElementoMontao(construto: Construto): ElementoMontaoTipos | null {
         switch (construto.constructor) {
             case Variavel:
                 try {
@@ -1004,9 +1036,7 @@ export class AvaliadorSintatico
             }
             case AcessoIndiceVariavel: {
                 const acessoIndice = construto as AcessoIndiceVariavel;
-                const elementoObjeto = this.resolverElementoMontao(
-                    acessoIndice.entidadeChamada
-                );
+                const elementoObjeto = this.resolverElementoMontao(acessoIndice.entidadeChamada);
                 if (!elementoObjeto || !(acessoIndice.indice instanceof Literal)) {
                     return null;
                 }
@@ -1033,7 +1063,7 @@ export class AvaliadorSintatico
                 return await this.resolverCadeiaChamadas(chamada);
             case tiposDeSimbolos.PONTO:
                 this.avancarEDevolverAnterior();
-                this.verificarSeSimboloAtualEIgualA()
+                this.verificarSeSimboloAtualEIgualA();
                 const nome = this.avancarEDevolverAnterior();
 
                 let tipoInferido = expressaoAnterior.tipo;
@@ -1042,12 +1072,8 @@ export class AvaliadorSintatico
                     expressaoAnterior.tipo === 'dicionário' &&
                     expressaoAnterior.constructor !== Dicionario
                 ) {
-                    const elementoMontaoTipos =
-                        this.resolverElementoMontao(expressaoAnterior);
-                    if (
-                        elementoMontaoTipos &&
-                        nome.lexema in elementoMontaoTipos.subElementos
-                    ) {
+                    const elementoMontaoTipos = this.resolverElementoMontao(expressaoAnterior);
+                    if (elementoMontaoTipos && nome.lexema in elementoMontaoTipos.subElementos) {
                         tipoInferido = elementoMontaoTipos.subElementos[nome.lexema].tipo;
                     }
                 }
@@ -1060,9 +1086,7 @@ export class AvaliadorSintatico
                 );
                 return await this.resolverCadeiaChamadas(acesso, tipoInferido);
             case tiposDeSimbolos.COLCHETE_ESQUERDO:
-                const tipoAcesso = this.resolverTipoAcessoIndiceVariavel(
-                    expressaoAnterior
-                );
+                const tipoAcesso = this.resolverTipoAcessoIndiceVariavel(expressaoAnterior);
 
                 this.avancarEDevolverAnterior();
                 const indice = await this.expressao();
@@ -1125,7 +1149,8 @@ export class AvaliadorSintatico
             case tipoDeDadosDelegua.NUMERO:
             case tipoDeDadosDelegua.NÚMERO:
                 if (construtoTipado.simbolo.lexema in primitivasNumero) {
-                    const primitivaNumeroSelecionada = primitivasNumero[construtoTipado.simbolo.lexema];
+                    const primitivaNumeroSelecionada =
+                        primitivasNumero[construtoTipado.simbolo.lexema];
                     return new AcessoMetodo(
                         construtoTipado.hashArquivo,
                         construtoTipado.objeto,
@@ -1159,7 +1184,8 @@ export class AvaliadorSintatico
 
             case tipoDeDadosDelegua.TEXTO:
                 if (construtoTipado.simbolo.lexema in primitivasTexto) {
-                    const primitivaTextoSelecionada = primitivasTexto[construtoTipado.simbolo.lexema];
+                    const primitivaTextoSelecionada =
+                        primitivasTexto[construtoTipado.simbolo.lexema];
                     return new AcessoMetodo(
                         construtoTipado.hashArquivo,
                         construtoTipado.objeto,
@@ -1174,7 +1200,8 @@ export class AvaliadorSintatico
             case tipoDeDadosDelegua.VETOR_NÚMERO:
             case tipoDeDadosDelegua.VETOR_TEXTO:
                 if (construtoTipado.simbolo.lexema in primitivasVetor) {
-                    const primitivaVetorSelecionada = primitivasVetor[construtoTipado.simbolo.lexema];
+                    const primitivaVetorSelecionada =
+                        primitivasVetor[construtoTipado.simbolo.lexema];
                     return new AcessoMetodo(
                         construtoTipado.hashArquivo,
                         construtoTipado.objeto,
@@ -1285,13 +1312,13 @@ export class AvaliadorSintatico
 
             const tipoArgumentoUtilizado =
                 argumentoUtilizado.tipo.startsWith('funcao') ||
-                    argumentoUtilizado.tipo.startsWith('função') ||
-                    argumentoUtilizado instanceof FuncaoConstruto
+                argumentoUtilizado.tipo.startsWith('função') ||
+                argumentoUtilizado instanceof FuncaoConstruto
                     ? 'função'
                     : argumentoUtilizado.tipo;
             const tipoArgumentoEntidadeChamada =
                 argumentoEntidadeChamada.tipo.startsWith('funcao') ||
-                    argumentoEntidadeChamada.tipo.startsWith('função')
+                argumentoEntidadeChamada.tipo.startsWith('função')
                     ? 'função'
                     : argumentoEntidadeChamada.tipo;
 
@@ -1358,7 +1385,7 @@ export class AvaliadorSintatico
             ) {
                 var informacoesPrimitiva =
                     this.primitivasConhecidas[tipoPrimitiva][
-                    entidadeChamadaResolvidaVariavel.simbolo.lexema
+                        entidadeChamadaResolvidaVariavel.simbolo.lexema
                     ];
                 const erros = this.validarArgumentosEntidadeChamada(
                     informacoesPrimitiva.subElementos as InformacaoElementoSintatico[],
@@ -1488,7 +1515,11 @@ export class AvaliadorSintatico
         if (construto instanceof Unario) {
             const operando = construto.operando;
             // Verifica se o operando é um vetor
-            if (operando instanceof Vetor || operando.tipo === 'vetor' || operando.tipo.endsWith('[]')) {
+            if (
+                operando instanceof Vetor ||
+                operando.tipo === 'vetor' ||
+                operando.tipo.endsWith('[]')
+            ) {
                 return true;
             }
             // Verifica recursivamente para casos como !![]
@@ -1499,7 +1530,11 @@ export class AvaliadorSintatico
         return false;
     }
 
-    protected verificacaoOperacoesBinariasIlegais(esquerdo: Construto, direito: Construto, operador: SimboloInterface) {
+    protected verificacaoOperacoesBinariasIlegais(
+        esquerdo: Construto,
+        direito: Construto,
+        operador: SimboloInterface
+    ) {
         // Bloquear operações aritméticas com operações unárias em vetores (padrão de ofuscação tipo !![] * 1)
         if (this.verificarOperacaoUnariaEmVetor(esquerdo)) {
             throw this.erro(
@@ -1731,11 +1766,20 @@ export class AvaliadorSintatico
     override async em(): Promise<Construto> {
         let expressao = await this.comparacaoIgualdade();
 
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EM, tiposDeSimbolos.CONTEM, tiposDeSimbolos.NAO)) {
+        while (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.EM,
+                tiposDeSimbolos.CONTEM,
+                tiposDeSimbolos.NAO
+            )
+        ) {
             let operador = this.simbolos[this.atual - 1];
             let negado = false;
             if (operador.tipo === tiposDeSimbolos.NAO) {
-                operador = this.consumir(tiposDeSimbolos.CONTEM, `Esperado palavra reservada 'contém' ou 'contem' após palavra reservada ${operador.lexema}.`);
+                operador = this.consumir(
+                    tiposDeSimbolos.CONTEM,
+                    `Esperado palavra reservada 'contém' ou 'contem' após palavra reservada ${operador.lexema}.`
+                );
                 negado = true;
             }
 
@@ -1859,7 +1903,12 @@ export class AvaliadorSintatico
                 undefined,
                 expressao.operador
             );
-        } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL, tiposDeSimbolos.SETA_ESQUERDA)) {
+        } else if (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.IGUAL,
+                tiposDeSimbolos.SETA_ESQUERDA
+            )
+        ) {
             const igual = this.simbolos[this.atual - 1];
             const valor = await this.seTernario();
 
@@ -2520,7 +2569,7 @@ export class AvaliadorSintatico
     override async declaracaoSe(): Promise<Se> {
         const condicao = await this.expressao();
 
-        const caminhoEntao: Declaracao = await this.resolverDeclaracao() as Declaracao;
+        const caminhoEntao: Declaracao = (await this.resolverDeclaracao()) as Declaracao;
 
         let caminhoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO, tiposDeSimbolos.SENÃO)) {
@@ -2635,7 +2684,10 @@ export class AvaliadorSintatico
                     atributos[parametro.nome.lexema] = parametro.valorPadrao;
                 }
 
-                this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após nome de decorador.");
+                this.consumir(
+                    tiposDeSimbolos.PARENTESE_DIREITO,
+                    "Esperado ')' após nome de decorador."
+                );
             }
 
             this.pilhaDecoradores.push(
@@ -2717,7 +2769,12 @@ export class AvaliadorSintatico
             'Esperado chave direita para concluir relação de variáveis a serem desestruturadas.'
         );
 
-        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL, tiposDeSimbolos.SETA_ESQUERDA)) {
+        if (
+            !this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.IGUAL,
+                tiposDeSimbolos.SETA_ESQUERDA
+            )
+        ) {
             throw this.erro(
                 this.simbolos[this.atual],
                 'Esperado igual ou seta esquerda após relação de propriedades da desestruturação.'
@@ -2746,19 +2803,16 @@ export class AvaliadorSintatico
         return retornos;
     }
 
-    protected logicaComumInferenciaTiposAcessoMetodoOuPropriedade(entidadeChamada: AcessoMetodoOuPropriedade): string {
+    protected logicaComumInferenciaTiposAcessoMetodoOuPropriedade(
+        entidadeChamada: AcessoMetodoOuPropriedade
+    ): string {
         // Algumas coisas podem acontecer aqui.
         // Uma delas é a variável/constante ser uma classe padrão.
         // Isso ocorre quando a importação é feita de uma biblioteca Node.js.
         // Nesse caso, o tipo de `entidadeChamada.objeto` começa com uma letra maiúscula.
-        if (
-            entidadeChamada.objeto.tipo &&
-            entidadeChamada.objeto.tipo.match(/^[A-Z]/)
-        ) {
+        if (entidadeChamada.objeto.tipo && entidadeChamada.objeto.tipo.match(/^[A-Z]/)) {
             const tipoCorrespondente =
-                this.tiposDefinidosPorBibliotecas[
-                entidadeChamada.objeto.tipo
-                ];
+                this.tiposDefinidosPorBibliotecas[entidadeChamada.objeto.tipo];
             if (!tipoCorrespondente) {
                 throw new ErroAvaliadorSintatico(
                     entidadeChamada.simbolo,
@@ -2767,14 +2821,8 @@ export class AvaliadorSintatico
             }
 
             if (
-                !(
-                    entidadeChamada.simbolo.lexema in
-                    tipoCorrespondente.metodos
-                ) &&
-                !(
-                    entidadeChamada.simbolo.lexema in
-                    tipoCorrespondente.propriedades
-                )
+                !(entidadeChamada.simbolo.lexema in tipoCorrespondente.metodos) &&
+                !(entidadeChamada.simbolo.lexema in tipoCorrespondente.propriedades)
             ) {
                 throw new ErroAvaliadorSintatico(
                     entidadeChamada.simbolo,
@@ -2782,19 +2830,14 @@ export class AvaliadorSintatico
                 );
             }
 
-            if (
-                entidadeChamada.simbolo.lexema in
-                tipoCorrespondente.metodos
-            ) {
-                const metodoCorrespondente = tipoCorrespondente.metodos[
-                    entidadeChamada.simbolo.lexema
-                ];
+            if (entidadeChamada.simbolo.lexema in tipoCorrespondente.metodos) {
+                const metodoCorrespondente =
+                    tipoCorrespondente.metodos[entidadeChamada.simbolo.lexema];
                 return metodoCorrespondente.tipoRetorno || 'qualquer';
             }
 
-            const propriedadeCorrespondente = tipoCorrespondente.propriedades[
-                entidadeChamada.simbolo.lexema
-            ];
+            const propriedadeCorrespondente =
+                tipoCorrespondente.propriedades[entidadeChamada.simbolo.lexema];
             return propriedadeCorrespondente.tipo;
         }
 
@@ -2803,13 +2846,9 @@ export class AvaliadorSintatico
         // A inferência, portanto, ocorre pelo uso da primitiva.
         for (const primitiva in this.primitivasConhecidas) {
             if (
-                this.primitivasConhecidas[primitiva].hasOwnProperty(
-                    entidadeChamada.simbolo.lexema
-                )
+                this.primitivasConhecidas[primitiva].hasOwnProperty(entidadeChamada.simbolo.lexema)
             ) {
-                return this.primitivasConhecidas[primitiva][
-                    entidadeChamada.simbolo.lexema
-                ].tipo;
+                return this.primitivasConhecidas[primitiva][entidadeChamada.simbolo.lexema].tipo;
             }
         }
 
@@ -2969,7 +3008,12 @@ export class AvaliadorSintatico
             this.avancarEDevolverAnterior();
         }
 
-        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL, tiposDeSimbolos.SETA_ESQUERDA)) {
+        if (
+            !this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.IGUAL,
+                tiposDeSimbolos.SETA_ESQUERDA
+            )
+        ) {
             // Inicialização de variáveis sem valor.
             for (let identificador of identificadores.values()) {
                 this.pilhaEscopos.definirInformacoesVariavel(
@@ -3055,7 +3099,12 @@ export class AvaliadorSintatico
             'Esperado chave direita para concluir relação de variáveis a serem desestruturadas.'
         );
 
-        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL, tiposDeSimbolos.SETA_ESQUERDA)) {
+        if (
+            !this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.IGUAL,
+                tiposDeSimbolos.SETA_ESQUERDA
+            )
+        ) {
             throw this.erro(
                 this.simbolos[this.atual],
                 'Esperado igual ou seta esquerda após relação de propriedades da desestruturação.'
@@ -3108,7 +3157,12 @@ export class AvaliadorSintatico
             this.avancarEDevolverAnterior();
         }
 
-        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL, tiposDeSimbolos.SETA_ESQUERDA)) {
+        if (
+            !this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.IGUAL,
+                tiposDeSimbolos.SETA_ESQUERDA
+            )
+        ) {
             throw this.erro(
                 this.simbolos[this.atual],
                 "Esperado '=' ou '<-' após identificador em instrução 'constante'."
@@ -3291,7 +3345,9 @@ export class AvaliadorSintatico
         if (tipoRetorno === 'vazio' && expressoesRetorna.length > 0) {
             // Filtra retornos que têm tipo conhecido e diferente de 'vazio'.
             // 'qualquer' é excluído pois o tipo não pode ser determinado em tempo de análise sintática.
-            const retornosNaoVazios = expressoesRetorna.filter((e) => e.tipo !== 'vazio' && e.tipo !== 'qualquer');
+            const retornosNaoVazios = expressoesRetorna.filter(
+                (e) => e.tipo !== 'vazio' && e.tipo !== 'qualquer'
+            );
             if (retornosNaoVazios.length > 0) {
                 throw this.erro(
                     retornosNaoVazios[0].simboloChave,
@@ -3354,15 +3410,24 @@ export class AvaliadorSintatico
         const metodos: AssinaturaMetodo[] = [];
         const propriedades: PropriedadeClasse[] = [];
 
-        while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
+        while (
+            !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) &&
+            !this.estaNoFinal()
+        ) {
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
             if (this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA)) break;
 
-            const nomeMembro = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de método ou propriedade na interface.');
+            const nomeMembro = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                'Esperado nome de método ou propriedade na interface.'
+            );
 
             if (this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
                 // Assinatura de método: nome(params): tipoRetorno
-                this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após nome do método.");
+                this.consumir(
+                    tiposDeSimbolos.PARENTESE_ESQUERDO,
+                    "Esperado '(' após nome do método."
+                );
                 let params: any[] = [];
                 if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
                     params = await this.logicaComumParametros();
@@ -3377,7 +3442,10 @@ export class AvaliadorSintatico
                 metodos.push(new AssinaturaMetodo(nomeMembro, params, tipoRetorno));
             } else {
                 // Assinatura de propriedade: nome: tipo
-                this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após nome de propriedade na interface.");
+                this.consumir(
+                    tiposDeSimbolos.DOIS_PONTOS,
+                    "Esperado ':' após nome de propriedade na interface."
+                );
                 const tipo = this.verificarDefinicaoTipoAtual();
                 this.avancarEDevolverAnterior();
                 this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
@@ -3399,7 +3467,8 @@ export class AvaliadorSintatico
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ABSTRATO)) ehAbstrata = true;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESTATICO)) ehEstatica = true;
         // Também permite a ordem invertida: `classe estática abstrata`
-        if (!ehAbstrata && this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ABSTRATO)) ehAbstrata = true;
+        if (!ehAbstrata && this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ABSTRATO))
+            ehAbstrata = true;
 
         const simbolo: SimboloInterface = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
@@ -3407,7 +3476,8 @@ export class AvaliadorSintatico
         );
         // Pré-registro para permitir auto-referência no corpo da própria classe,
         // como em `MinhaClasse.propriedadeEstatica` dentro de métodos.
-        this.tiposDefinidosEmCodigo[simbolo.lexema] = this.tiposDefinidosEmCodigo[simbolo.lexema] ?? ({} as any);
+        this.tiposDefinidosEmCodigo[simbolo.lexema] =
+            this.tiposDefinidosEmCodigo[simbolo.lexema] ?? ({} as any);
         const pilhaDecoradoresClasse = Array.from(this.pilhaDecoradores);
 
         // Verificar `herda SuperclasseA, SuperclasseB`
@@ -3421,11 +3491,13 @@ export class AvaliadorSintatico
                 if (superClasses.length === 0) {
                     this.superclasseAtual = simboloSuperclasse.lexema;
                 }
-                superClasses.push(new Variavel(
-                    this.hashArquivo,
-                    this.simbolos[this.atual - 1],
-                    simboloSuperclasse.lexema
-                ));
+                superClasses.push(
+                    new Variavel(
+                        this.hashArquivo,
+                        this.simbolos[this.atual - 1],
+                        simboloSuperclasse.lexema
+                    )
+                );
             } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         }
 
@@ -3434,7 +3506,10 @@ export class AvaliadorSintatico
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IMPLEMENTA)) {
             do {
                 implementaInterfaces.push(
-                    this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de interface após "implementa".')
+                    this.consumir(
+                        tiposDeSimbolos.IDENTIFICADOR,
+                        'Esperado nome de interface após "implementa".'
+                    )
                 );
             } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         }
@@ -3447,11 +3522,13 @@ export class AvaliadorSintatico
                     tiposDeSimbolos.IDENTIFICADOR,
                     'Esperado nome de classe após "mescla".'
                 );
-                mesclas.push(new Variavel(
-                    this.hashArquivo,
-                    this.simbolos[this.atual - 1],
-                    simboloMisturavel.lexema
-                ));
+                mesclas.push(
+                    new Variavel(
+                        this.hashArquivo,
+                        this.simbolos[this.atual - 1],
+                        simboloMisturavel.lexema
+                    )
+                );
             } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
         }
 
@@ -3470,7 +3547,10 @@ export class AvaliadorSintatico
             ehEstaticoPadrao: boolean,
             ehAbstratoPadrao: boolean = false
         ): Promise<void> => {
-            while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
+            while (
+                !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) &&
+                !this.estaNoFinal()
+            ) {
                 // Pular comentários normais dentro do corpo da classe.
                 if (
                     this.simbolos[this.atual].tipo === tiposDeSimbolos.COMENTARIO ||
@@ -3496,20 +3576,29 @@ export class AvaliadorSintatico
                 // Detecção de bloco de contexto: modificador seguido de '{'
                 const tipoAtual = this.simbolos[this.atual].tipo;
                 const tipoProximo = this.simbolos[this.atual + 1]?.tipo;
-                const ehBlocoAcesso = [tiposDeSimbolos.PRIVADO, tiposDeSimbolos.PROTEGIDO].includes(tipoAtual)
-                    && tipoProximo === tiposDeSimbolos.CHAVE_ESQUERDA;
-                const ehBlocoEstatico = tipoAtual === tiposDeSimbolos.ESTATICO
-                    && tipoProximo === tiposDeSimbolos.CHAVE_ESQUERDA;
-                const ehBlocoAbstrato = tipoAtual === tiposDeSimbolos.ABSTRATO
-                    && tipoProximo === tiposDeSimbolos.CHAVE_ESQUERDA;
+                const ehBlocoAcesso =
+                    [tiposDeSimbolos.PRIVADO, tiposDeSimbolos.PROTEGIDO].includes(tipoAtual) &&
+                    tipoProximo === tiposDeSimbolos.CHAVE_ESQUERDA;
+                const ehBlocoEstatico =
+                    tipoAtual === tiposDeSimbolos.ESTATICO &&
+                    tipoProximo === tiposDeSimbolos.CHAVE_ESQUERDA;
+                const ehBlocoAbstrato =
+                    tipoAtual === tiposDeSimbolos.ABSTRATO &&
+                    tipoProximo === tiposDeSimbolos.CHAVE_ESQUERDA;
 
                 if (ehBlocoAcesso) {
                     const novoAcesso: 'privado' | 'protegido' =
                         tipoAtual === tiposDeSimbolos.PRIVADO ? 'privado' : 'protegido';
                     this.avancarEDevolverAnterior(); // consume modificador de acesso
-                    this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após modificador de acesso de bloco.");
+                    this.consumir(
+                        tiposDeSimbolos.CHAVE_ESQUERDA,
+                        "Esperado '{' após modificador de acesso de bloco."
+                    );
                     await compreenderMembros(novoAcesso, ehEstaticoPadrao, ehAbstratoPadrao);
-                    this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' para fechar bloco de modificador de acesso.");
+                    this.consumir(
+                        tiposDeSimbolos.CHAVE_DIREITA,
+                        "Esperado '}' para fechar bloco de modificador de acesso."
+                    );
                     continue;
                 }
 
@@ -3517,7 +3606,10 @@ export class AvaliadorSintatico
                     this.avancarEDevolverAnterior(); // consume 'estático'
                     this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após 'estático'.");
                     await compreenderMembros(acessoPadrao, true, ehAbstratoPadrao);
-                    this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' para fechar bloco estático.");
+                    this.consumir(
+                        tiposDeSimbolos.CHAVE_DIREITA,
+                        "Esperado '}' para fechar bloco estático."
+                    );
                     continue;
                 }
 
@@ -3525,7 +3617,10 @@ export class AvaliadorSintatico
                     this.avancarEDevolverAnterior(); // consume 'abstrato'
                     this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após 'abstrato'.");
                     await compreenderMembros(acessoPadrao, ehEstaticoPadrao, true);
-                    this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' para fechar bloco abstrato.");
+                    this.consumir(
+                        tiposDeSimbolos.CHAVE_DIREITA,
+                        "Esperado '}' para fechar bloco abstrato."
+                    );
                     continue;
                 }
 
@@ -3545,15 +3640,29 @@ export class AvaliadorSintatico
                         linha: simboloOperadorKeyword.linha,
                         hashArquivo: this.hashArquivo,
                     } as SimboloInterface;
-                    this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após operador sobrecarregado.");
+                    this.consumir(
+                        tiposDeSimbolos.PARENTESE_ESQUERDO,
+                        "Esperado '(' após operador sobrecarregado."
+                    );
                     let paramsOp: ParametroInterface[] = [];
                     if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
                         paramsOp = await this.logicaComumParametros();
                     }
-                    this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros do operador.");
-                    this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' antes do corpo do operador.");
+                    this.consumir(
+                        tiposDeSimbolos.PARENTESE_DIREITO,
+                        "Esperado ')' após parâmetros do operador."
+                    );
+                    this.consumir(
+                        tiposDeSimbolos.CHAVE_ESQUERDA,
+                        "Esperado '{' antes do corpo do operador."
+                    );
                     const corpoOp = await this.blocoEscopo();
-                    const corpoFuncaoOp = new FuncaoConstruto(this.hashArquivo, simboloNomeMetodo.linha, paramsOp, corpoOp);
+                    const corpoFuncaoOp = new FuncaoConstruto(
+                        this.hashArquivo,
+                        simboloNomeMetodo.linha,
+                        paramsOp,
+                        corpoOp
+                    );
                     const metodoOp = new FuncaoDeclaracao(simboloNomeMetodo, corpoFuncaoOp);
                     metodoOp.estatico = ehEstatico;
                     metodoOp.acesso = modificadorAcesso;
@@ -3576,12 +3685,18 @@ export class AvaliadorSintatico
                             new InformacaoElementoSintatico(nomeMetodo.lexema, 'qualquer')
                         );
 
-                        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após nome do método.");
+                        this.consumir(
+                            tiposDeSimbolos.PARENTESE_ESQUERDO,
+                            "Esperado '(' após nome do método."
+                        );
                         let params: ParametroInterface[] = [];
                         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
                             params = await this.logicaComumParametros();
                         }
-                        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros do método.");
+                        this.consumir(
+                            tiposDeSimbolos.PARENTESE_DIREITO,
+                            "Esperado ')' após parâmetros do método."
+                        );
 
                         const ehAbstrato = ehAbstratoPadrao;
 
@@ -3598,9 +3713,17 @@ export class AvaliadorSintatico
                             // Método abstrato: sem corpo
                             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
                             const corpoVazio = new FuncaoConstruto(
-                                this.hashArquivo, nomeMetodo.linha, params, [], tipoRetorno
+                                this.hashArquivo,
+                                nomeMetodo.linha,
+                                params,
+                                [],
+                                tipoRetorno
                             );
-                            const metodoAbstrato = new FuncaoDeclaracao(nomeMetodo, corpoVazio, tipoRetorno);
+                            const metodoAbstrato = new FuncaoDeclaracao(
+                                nomeMetodo,
+                                corpoVazio,
+                                tipoRetorno
+                            );
                             metodoAbstrato.estatico = ehEstatico;
                             metodoAbstrato.abstrato = true;
                             metodoAbstrato.acesso = modificadorAcesso;
@@ -3609,31 +3732,49 @@ export class AvaliadorSintatico
                         } else {
                             // Método concreto: com corpo.
                             // Inferência de tipo de retorno igual a corpoDaFuncao().
-                            this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' antes do corpo do método.");
+                            this.consumir(
+                                tiposDeSimbolos.CHAVE_ESQUERDA,
+                                "Esperado '{' antes do corpo do método."
+                            );
                             const corpo = await this.blocoEscopo();
 
                             let expressoesRetorna: any[] = [];
                             for (const declaracao of corpo) {
-                                expressoesRetorna = expressoesRetorna.concat(buscarRetornos(declaracao));
+                                expressoesRetorna = expressoesRetorna.concat(
+                                    buscarRetornos(declaracao)
+                                );
                             }
                             const tiposRetornos = new Set(
-                                expressoesRetorna.filter((e) => e.tipo !== 'qualquer').map((e) => e.tipo)
+                                expressoesRetorna
+                                    .filter((e) => e.tipo !== 'qualquer')
+                                    .map((e) => e.tipo)
                             );
                             const retornaChamadoExplicitamente = tiposRetornos.size > 0;
                             tiposRetornos.delete('qualquer');
                             if (tipoRetorno === 'qualquer') {
                                 if (tiposRetornos.size > 0) {
                                     tipoRetorno = tiposRetornos.values().next().value;
-                                } else if (!retornaChamadoExplicitamente && !definicaoExplicitaDeTipo) {
+                                } else if (
+                                    !retornaChamadoExplicitamente &&
+                                    !definicaoExplicitaDeTipo
+                                ) {
                                     tipoRetorno = 'vazio';
                                 }
                             }
 
                             const corpoFuncao = new FuncaoConstruto(
-                                this.hashArquivo, nomeMetodo.linha, params, corpo, tipoRetorno
+                                this.hashArquivo,
+                                nomeMetodo.linha,
+                                params,
+                                corpo,
+                                tipoRetorno
                             );
                             const tipoDaFuncao = `função<${tipoRetorno}>`;
-                            const metodo = new FuncaoDeclaracao(nomeMetodo, corpoFuncao, tipoDaFuncao);
+                            const metodo = new FuncaoDeclaracao(
+                                nomeMetodo,
+                                corpoFuncao,
+                                tipoDaFuncao
+                            );
                             metodo.estatico = ehEstatico;
                             metodo.acesso = modificadorAcesso;
                             metodo.decoradores = Array.from(this.pilhaDecoradores);
@@ -3654,12 +3795,18 @@ export class AvaliadorSintatico
                             tiposDeSimbolos.IDENTIFICADOR,
                             'Esperado identificador para nome de propriedade.'
                         );
-                        this.consumir(tiposDeSimbolos.DOIS_PONTOS, 'Esperado dois-pontos após nome de propriedade.');
+                        this.consumir(
+                            tiposDeSimbolos.DOIS_PONTOS,
+                            'Esperado dois-pontos após nome de propriedade.'
+                        );
                         const tipoPropriedade = this.avancarEDevolverAnterior();
                         let nomeTipoPropriedade = tipoPropriedade.lexema;
                         if (this.verificarTipoSimboloAtual(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
                             this.avancarEDevolverAnterior(); // consume '['
-                            this.consumir(tiposDeSimbolos.COLCHETE_DIREITO, "Esperado ']' após '[' na definição do tipo de propriedade.");
+                            this.consumir(
+                                tiposDeSimbolos.COLCHETE_DIREITO,
+                                "Esperado ']' após '[' na definição do tipo de propriedade."
+                            );
                             nomeTipoPropriedade = `${nomeTipoPropriedade}[]`;
                         }
 
@@ -3681,45 +3828,80 @@ export class AvaliadorSintatico
                                 !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) &&
                                 !this.estaNoFinal()
                             ) {
-                                const lexema = String(this.simbolos[this.atual].lexema || '').toLowerCase();
+                                const lexema = String(
+                                    this.simbolos[this.atual].lexema || ''
+                                ).toLowerCase();
                                 if (lexema === 'obter' || lexema === 'definir') {
                                     const ehObter = lexema === 'obter';
                                     this.avancarEDevolverAnterior(); // consume 'obter' / 'definir'
 
-                                    if (this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
+                                    if (
+                                        this.verificarTipoSimboloAtual(
+                                            tiposDeSimbolos.PARENTESE_ESQUERDO
+                                        )
+                                    ) {
                                         // Corpo personalizado: obter() { ... } / definir(valor) { ... }
                                         temCorpoPersonalizado = true;
-                                        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após acessor.");
+                                        this.consumir(
+                                            tiposDeSimbolos.PARENTESE_ESQUERDO,
+                                            "Esperado '(' após acessor."
+                                        );
                                         let paramsAcessor: ParametroInterface[] = [];
-                                        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+                                        if (
+                                            !this.verificarTipoSimboloAtual(
+                                                tiposDeSimbolos.PARENTESE_DIREITO
+                                            )
+                                        ) {
                                             paramsAcessor = await this.logicaComumParametros();
                                         }
-                                        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros do acessor.");
-                                        this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' antes do corpo do acessor.");
+                                        this.consumir(
+                                            tiposDeSimbolos.PARENTESE_DIREITO,
+                                            "Esperado ')' após parâmetros do acessor."
+                                        );
+                                        this.consumir(
+                                            tiposDeSimbolos.CHAVE_ESQUERDA,
+                                            "Esperado '{' antes do corpo do acessor."
+                                        );
                                         const corpoAcessor = await this.blocoEscopo();
 
                                         // Inferência de tipo de retorno
                                         let tipoAcessor = 'qualquer';
                                         let expressoesRetornaAcessor: any[] = [];
                                         for (const declaracao of corpoAcessor) {
-                                            expressoesRetornaAcessor = expressoesRetornaAcessor.concat(buscarRetornos(declaracao));
+                                            expressoesRetornaAcessor =
+                                                expressoesRetornaAcessor.concat(
+                                                    buscarRetornos(declaracao)
+                                                );
                                         }
                                         const tiposRetornosAcessor = new Set(
-                                            expressoesRetornaAcessor.filter((e) => e.tipo !== 'qualquer').map((e) => e.tipo)
+                                            expressoesRetornaAcessor
+                                                .filter((e) => e.tipo !== 'qualquer')
+                                                .map((e) => e.tipo)
                                         );
-                                        const retornaExplicitamenteAcessor = tiposRetornosAcessor.size > 0;
+                                        const retornaExplicitamenteAcessor =
+                                            tiposRetornosAcessor.size > 0;
                                         tiposRetornosAcessor.delete('qualquer');
                                         if (tiposRetornosAcessor.size > 0) {
-                                            tipoAcessor = tiposRetornosAcessor.values().next().value;
+                                            tipoAcessor = tiposRetornosAcessor
+                                                .values()
+                                                .next().value;
                                         } else if (!retornaExplicitamenteAcessor) {
                                             tipoAcessor = 'vazio';
                                         }
 
                                         const corpoFuncaoAcessor = new FuncaoConstruto(
-                                            this.hashArquivo, nomePropriedade.linha, paramsAcessor, corpoAcessor, tipoAcessor
+                                            this.hashArquivo,
+                                            nomePropriedade.linha,
+                                            paramsAcessor,
+                                            corpoAcessor,
+                                            tipoAcessor
                                         );
                                         const tipoDaFuncaoAcessor = `função<${tipoAcessor}>`;
-                                        const metodoAcessor = new FuncaoDeclaracao(nomePropriedade, corpoFuncaoAcessor, tipoDaFuncaoAcessor);
+                                        const metodoAcessor = new FuncaoDeclaracao(
+                                            nomePropriedade,
+                                            corpoFuncaoAcessor,
+                                            tipoDaFuncaoAcessor
+                                        );
                                         metodoAcessor.estatico = ehEstatico;
                                         metodoAcessor.acesso = modificadorAcesso;
                                         metodoAcessor.eObtenedor = ehObter;
@@ -3732,13 +3914,18 @@ export class AvaliadorSintatico
                                         } else {
                                             prop.autoDefinir = true;
                                         }
-                                        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+                                        this.verificarSeSimboloAtualEIgualA(
+                                            tiposDeSimbolos.PONTO_E_VIRGULA
+                                        );
                                     }
                                 } else {
                                     break;
                                 }
                             }
-                            this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após acessores da propriedade.");
+                            this.consumir(
+                                tiposDeSimbolos.CHAVE_DIREITA,
+                                "Esperado '}' após acessores da propriedade."
+                            );
                             // Corpo personalizado: obtenedor/definidor são métodos — não há campos base a declarar.
                             // Para auto-propriedades, o campo base iniciado por '_' é criado em tempo de execução com base
                             // nos indicadores autoObter/autoDefinir. O avaliador sintático usa o nome original ('nome').
@@ -3772,7 +3959,10 @@ export class AvaliadorSintatico
             const interfaceDecl = this.interfacesDeclaradas[nomeInterface.lexema];
             if (!interfaceDecl) {
                 this.erros.push(
-                    this.erro(nomeInterface, `Interface '${nomeInterface.lexema}' não foi declarada antes da classe '${simbolo.lexema}'.`)
+                    this.erro(
+                        nomeInterface,
+                        `Interface '${nomeInterface.lexema}' não foi declarada antes da classe '${simbolo.lexema}'.`
+                    )
                 );
                 continue;
             }
@@ -3870,7 +4060,10 @@ export class AvaliadorSintatico
             this.primitivasConhecidas[nomeTipo] = {};
         }
 
-        while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
+        while (
+            !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) &&
+            !this.estaNoFinal()
+        ) {
             // Pular comentários dentro do corpo da extensão.
             if (
                 this.simbolos[this.atual].tipo === tiposDeSimbolos.COMENTARIO ||
@@ -3883,7 +4076,10 @@ export class AvaliadorSintatico
             // Apenas métodos são suportados em extensões.
             const proximoSimbolo = this.simbolos[this.atual + 1];
             if (proximoSimbolo?.tipo !== tiposDeSimbolos.PARENTESE_ESQUERDO) {
-                throw this.erro(this.simbolos[this.atual], 'Esperado declaração de método na extensão.');
+                throw this.erro(
+                    this.simbolos[this.atual],
+                    'Esperado declaração de método na extensão.'
+                );
             }
 
             const nomeMetodo = this.avancarEDevolverAnterior();
@@ -3892,7 +4088,10 @@ export class AvaliadorSintatico
             if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
                 params = await this.logicaComumParametros();
             }
-            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros do método.");
+            this.consumir(
+                tiposDeSimbolos.PARENTESE_DIREITO,
+                "Esperado ')' após parâmetros do método."
+            );
 
             let tipoRetorno = 'qualquer';
             let definicaoExplicitaDeTipo = false;
@@ -3923,7 +4122,11 @@ export class AvaliadorSintatico
             }
 
             const corpoFuncao = new FuncaoConstruto(
-                this.hashArquivo, nomeMetodo.linha, params, corpo, tipoRetorno
+                this.hashArquivo,
+                nomeMetodo.linha,
+                params,
+                corpo,
+                tipoRetorno
             );
             const tipoDaFuncao = `função<${tipoRetorno}>`;
             const metodo = new FuncaoDeclaracao(nomeMetodo, corpoFuncao, tipoDaFuncao);
@@ -3938,12 +4141,8 @@ export class AvaliadorSintatico
                     )
             );
 
-            this.primitivasConhecidas[nomeTipo][nomeMetodo.lexema] = new InformacaoElementoSintatico(
-                nomeMetodo.lexema,
-                tipoRetorno,
-                true,
-                argumentos
-            );
+            this.primitivasConhecidas[nomeTipo][nomeMetodo.lexema] =
+                new InformacaoElementoSintatico(nomeMetodo.lexema, tipoRetorno, true, argumentos);
         }
 
         this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' ao final da extensão.");
@@ -3981,7 +4180,7 @@ export class AvaliadorSintatico
                 this.verificarTipoProximoSimbolo(tiposDeSimbolos.IDENTIFICADOR)
             ) {
                 this.avancarEDevolverAnterior();
-                const declaracaoFuncao = await this.funcao('funcao') as FuncaoDeclaracao;
+                const declaracaoFuncao = (await this.funcao('funcao')) as FuncaoDeclaracao;
                 declaracaoFuncao.documentacao = docTopLevel;
                 return declaracaoFuncao;
             }
@@ -4064,7 +4263,7 @@ export class AvaliadorSintatico
                     this.verificarTipoProximoSimbolo(tiposDeSimbolos.IDENTIFICADOR)
                 ) {
                     this.avancarEDevolverAnterior();
-                    const declaracaoFuncao = await this.funcao('funcao') as FuncaoDeclaracao;
+                    const declaracaoFuncao = (await this.funcao('funcao')) as FuncaoDeclaracao;
                     declaracaoFuncao.documentacao = new ComentarioComoConstruto(simboloDoc);
                     return declaracaoFuncao;
                 }
@@ -4149,7 +4348,10 @@ export class AvaliadorSintatico
     async declaracaoAjuda(): Promise<Ajuda> {
         const simboloAjuda = this.avancarEDevolverAnterior();
 
-        if (this.estaNoFinal() || this.simbolos[this.atual].tipo !== tiposDeSimbolos.PARENTESE_ESQUERDO) {
+        if (
+            this.estaNoFinal() ||
+            this.simbolos[this.atual].tipo !== tiposDeSimbolos.PARENTESE_ESQUERDO
+        ) {
             return new Ajuda(simboloAjuda.hashArquivo, simboloAjuda.linha, undefined, false);
         }
 
@@ -4404,7 +4606,7 @@ export class AvaliadorSintatico
         this.pilhaEscopos.definirInformacoesVariavel(
             'todos',
             new InformacaoElementoSintatico('todos', 'lógico', true, [
-                new InformacaoElementoSintatico('iteravel', 'qualquer')
+                new InformacaoElementoSintatico('iteravel', 'qualquer'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
@@ -4487,4 +4689,3 @@ export class AvaliadorSintatico
         } as RetornoAvaliadorSintatico<Declaracao>;
     }
 }
-

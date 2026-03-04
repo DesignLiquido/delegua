@@ -7,9 +7,9 @@ import {
     AtribuicaoPorIndice,
     Atribuir,
     Literal,
-    AcessoIndiceVariavel
-} from "../../../construtos";
-import { InterpretadorComDepuracao } from "../../depuracao";
+    AcessoIndiceVariavel,
+} from '../../../construtos';
+import { InterpretadorComDepuracao } from '../../depuracao';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
 
 import * as comum from './comum';
@@ -19,7 +19,9 @@ export class InterpretadorPituguesComDepuracao extends InterpretadorComDepuracao
         return comum.visitarExpressaoAcessoMetodo(this, expressao);
     }
 
-    override async visitarExpressaoAcessoMetodoOuPropriedade(expressao: AcessoMetodoOuPropriedade): Promise<any> {
+    override async visitarExpressaoAcessoMetodoOuPropriedade(
+        expressao: AcessoMetodoOuPropriedade
+    ): Promise<any> {
         return comum.visitarExpressaoAcessoMetodoOuPropriedade(this, expressao);
     }
 
@@ -27,7 +29,9 @@ export class InterpretadorPituguesComDepuracao extends InterpretadorComDepuracao
         return comum.visitarExpressaoAcessoPropriedade(this, expressao);
     }
 
-    override async visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> {
+    override async visitarExpressaoAcessoIntervaloVariavel(
+        expressao: AcessoIntervaloVariavel
+    ): Promise<any> {
         return comum.visitarExpressaoAcessoIntervaloVariavel(this, expressao);
     }
 
@@ -39,11 +43,13 @@ export class InterpretadorPituguesComDepuracao extends InterpretadorComDepuracao
         return super.visitarExpressaoDeAtribuicao(expressao);
     }
 
-    override async visitarExpressaoAtribuicaoPorIndice(expressao: AtribuicaoPorIndice): Promise<any> {
+    override async visitarExpressaoAtribuicaoPorIndice(
+        expressao: AtribuicaoPorIndice
+    ): Promise<any> {
         const objeto = await this.avaliar(expressao.objeto);
         const objetoResolvido = this.resolverValor(objeto);
 
-        if (objetoResolvido instanceof TuplaN || (objetoResolvido.tipo === 'tupla')) {
+        if (objetoResolvido instanceof TuplaN || objetoResolvido.tipo === 'tupla') {
             throw new ErroEmTempoDeExecucao(
                 (expressao.objeto as any).simbolo,
                 'Não é possível modificar uma tupla. As tuplas são estruturas de dados imutáveis.',
@@ -54,7 +60,9 @@ export class InterpretadorPituguesComDepuracao extends InterpretadorComDepuracao
         return super.visitarExpressaoAtribuicaoPorIndice(expressao);
     }
 
-    override async visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel): Promise<any> {
+    override async visitarExpressaoAcessoIndiceVariavel(
+        expressao: AcessoIndiceVariavel
+    ): Promise<any> {
         const objeto = await this.avaliar(expressao.entidadeChamada);
         const indice = await this.avaliar(expressao.indice);
         const valorIndice = this.resolverValor(indice);
@@ -62,11 +70,19 @@ export class InterpretadorPituguesComDepuracao extends InterpretadorComDepuracao
 
         if (objetoResolvido instanceof TuplaN) {
             if (!Number.isInteger(valorIndice)) {
-                throw new ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Índice deve ser inteiro.', expressao.linha);
+                throw new ErroEmTempoDeExecucao(
+                    expressao.simboloFechamento,
+                    'Índice deve ser inteiro.',
+                    expressao.linha
+                );
             }
 
             if (valorIndice < 0 || valorIndice >= objetoResolvido.elementos.length) {
-                 throw new ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Índice fora do intervalo.', expressao.linha);
+                throw new ErroEmTempoDeExecucao(
+                    expressao.simboloFechamento,
+                    'Índice fora do intervalo.',
+                    expressao.linha
+                );
             }
 
             const elemento = objetoResolvido.elementos[valorIndice];

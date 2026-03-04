@@ -143,7 +143,10 @@ export class DeleguaFuncao extends Chamavel {
         if (this.instancia !== undefined) {
             ambiente.valores['isto'] = {
                 valor: this.instancia,
-                tipo: this.instancia instanceof ObjetoDeleguaClasse ? 'objeto' : tipoDeDados(this.instancia),
+                tipo:
+                    this.instancia instanceof ObjetoDeleguaClasse
+                        ? 'objeto'
+                        : tipoDeDados(this.instancia),
                 imutavel: false,
             };
         }
@@ -161,10 +164,7 @@ export class DeleguaFuncao extends Chamavel {
 
         let retornoBloco: any;
         try {
-            retornoBloco = await interpretador.executarBloco(
-                this.declaracao.corpo,
-                ambiente
-            );
+            retornoBloco = await interpretador.executarBloco(this.declaracao.corpo, ambiente);
         } finally {
             interpretador.classeAtualEmExecucao = classeAnteriorEmExecucao;
         }
@@ -199,7 +199,12 @@ export class DeleguaFuncao extends Chamavel {
     }
 
     funcaoPorMetodoDeClasse(instancia: ObjetoDeleguaClasse): DeleguaFuncao {
-        const funcao = new DeleguaFuncao(this.nome, this.declaracao, instancia, this.eInicializador);
+        const funcao = new DeleguaFuncao(
+            this.nome,
+            this.declaracao,
+            instancia,
+            this.eInicializador
+        );
         funcao.documentacao = this.documentacao;
         return funcao;
     }

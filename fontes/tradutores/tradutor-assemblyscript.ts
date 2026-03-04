@@ -350,7 +350,9 @@ export class TradutorAssemblyScript {
             case 'nada':
                 return ': void';
             case 'nulo':
-                throw new Error(`Tipo 'nulo' não é válido no AssemblyScript. Use 'Type | null' para tipos anuláveis.`);
+                throw new Error(
+                    `Tipo 'nulo' não é válido no AssemblyScript. Use 'Type | null' para tipos anuláveis.`
+                );
             case 'inteiro[]':
                 return ': i32[]';
             case 'longo[]':
@@ -388,7 +390,9 @@ export class TradutorAssemblyScript {
             case 'tupla':
                 return ': i32[]';
             default:
-                throw new Error(`Tipo não reconhecido ou não suportado no AssemblyScript: '${tipo}'. AssemblyScript requer anotações de tipo explícitas.`);
+                throw new Error(
+                    `Tipo não reconhecido ou não suportado no AssemblyScript: '${tipo}'. AssemblyScript requer anotações de tipo explícitas.`
+                );
         }
     }
 
@@ -435,7 +439,8 @@ export class TradutorAssemblyScript {
     }
 
     traduzirDeclaracaoTente(declaracaoTente: Tente): string {
-        let resultado = '/* AVISO: AssemblyScript não suporta try/catch/finally. Este código pode não funcionar como esperado. */\n';
+        let resultado =
+            '/* AVISO: AssemblyScript não suporta try/catch/finally. Este código pode não funcionar como esperado. */\n';
         resultado += 'try {\n';
         this.indentacao += 4;
         resultado += ' '.repeat(this.indentacao);
@@ -477,7 +482,7 @@ export class TradutorAssemblyScript {
     }
 
     traduzirDeclaracaoVarMultiplo(declaracaoVarMultiplo: VarMultiplo): string {
-        const variaveis = declaracaoVarMultiplo.simbolos.map(s => s.lexema).join(', ');
+        const variaveis = declaracaoVarMultiplo.simbolos.map((s) => s.lexema).join(', ');
         let resultado = 'let ';
         resultado += variaveis;
         resultado += this.resolveTipoDeclaracaoVarEContante(declaracaoVarMultiplo.tipo);
@@ -499,7 +504,7 @@ export class TradutorAssemblyScript {
     }
 
     traduzirDeclaracaoConstMultiplo(declaracaoConstMultiplo: ConstMultiplo): string {
-        const constantes = declaracaoConstMultiplo.simbolos.map(s => s.lexema).join(', ');
+        const constantes = declaracaoConstMultiplo.simbolos.map((s) => s.lexema).join(', ');
         let resultado = 'const ';
         resultado += constantes;
         resultado += this.resolveTipoDeclaracaoVarEContante(declaracaoConstMultiplo.tipo);
@@ -538,7 +543,7 @@ export class TradutorAssemblyScript {
         let resultado = `// tendo ${declaracaoTendoComo.simboloVariavel.lexema} como recurso\n`;
         resultado += ' '.repeat(this.indentacao);
         resultado += `let ${declaracaoTendoComo.simboloVariavel.lexema} = `;
-        
+
         if (this.dicionarioConstrutos[declaracaoTendoComo.inicializacaoVariavel.constructor.name]) {
             resultado += this.dicionarioConstrutos[
                 declaracaoTendoComo.inicializacaoVariavel.constructor.name
@@ -548,13 +553,13 @@ export class TradutorAssemblyScript {
                 declaracaoTendoComo.inicializacaoVariavel.constructor.name
             ](declaracaoTendoComo.inicializacaoVariavel);
         }
-        
+
         resultado += ';\n';
         resultado += ' '.repeat(this.indentacao);
         resultado += this.dicionarioDeclaracoes[declaracaoTendoComo.corpo.constructor.name](
             declaracaoTendoComo.corpo
         );
-        
+
         return resultado;
     }
 
@@ -683,9 +688,11 @@ export class TradutorAssemblyScript {
     traduzirDeclaracaoParaCada(declaracaoParaCada: ParaCada): string {
         // AssemblyScript não suporta for...of. Convertendo para loop baseado em índice.
         if (declaracaoParaCada.variavelIteracao.constructor.name !== 'Variavel') {
-            throw new Error('Desestruturação em paraCada não é suportada no AssemblyScript. Use uma variável simples.');
+            throw new Error(
+                'Desestruturação em paraCada não é suportada no AssemblyScript. Use uma variável simples.'
+            );
         }
-        
+
         const nomeVariavel = (declaracaoParaCada.variavelIteracao as any).simbolo.lexema;
         const nomeVetor = `__arr_${nomeVariavel}`;
         let resultado = `const ${nomeVetor} = `;
@@ -696,13 +703,15 @@ export class TradutorAssemblyScript {
         resultado += '\n';
         resultado += ' '.repeat(this.indentacao);
         resultado += `for (let __i_${nomeVariavel} = 0; __i_${nomeVariavel} < ${nomeVetor}.length; __i_${nomeVariavel}++) `;
-        
+
         // Injeta a atribuição da variável de iteração no início do corpo do bloco
         const corpoBloco = declaracaoParaCada.corpo as Bloco;
         const declaracoesCorpo = corpoBloco.declaracoes || [];
         let resultadoCorpo = '{\n';
         this.indentacao += 4;
-        resultadoCorpo += ' '.repeat(this.indentacao) + `const ${nomeVariavel} = ${nomeVetor}[__i_${nomeVariavel}];\n`;
+        resultadoCorpo +=
+            ' '.repeat(this.indentacao) +
+            `const ${nomeVariavel} = ${nomeVetor}[__i_${nomeVariavel}];\n`;
         for (const declaracaoOuConstruto of declaracoesCorpo) {
             resultadoCorpo += ' '.repeat(this.indentacao);
             const nomeConstrutor = declaracaoOuConstruto.constructor.name;
@@ -716,7 +725,7 @@ export class TradutorAssemblyScript {
         this.indentacao -= 4;
         resultadoCorpo += ' '.repeat(this.indentacao) + '}\n';
         resultado += resultadoCorpo;
-        
+
         return resultado;
     }
 
@@ -766,20 +775,24 @@ export class TradutorAssemblyScript {
         // Adiciona parâmetros com tipos
         for (const parametro of declaracaoFuncao.funcao.parametros) {
             resultado += parametro.nome.lexema;
-            
+
             // Adiciona tipo do parâmetro se disponível
             if (parametro.tipoDado) {
                 try {
                     resultado += this.resolveTipoDeclaracaoVarEContante(parametro.tipoDado);
                 } catch (e) {
                     // Se não conseguir resolver o tipo, lança erro mais específico
-                    throw new Error(`Parâmetro '${parametro.nome.lexema}' da função '${declaracaoFuncao.simbolo.lexema}' tem tipo não suportado: '${parametro.tipoDado}'`);
+                    throw new Error(
+                        `Parâmetro '${parametro.nome.lexema}' da função '${declaracaoFuncao.simbolo.lexema}' tem tipo não suportado: '${parametro.tipoDado}'`
+                    );
                 }
             } else {
                 // AssemblyScript requer tipos explícitos em todos os parâmetros
-                throw new Error(`Parâmetro '${parametro.nome.lexema}' da função '${declaracaoFuncao.simbolo.lexema}' não tem tipo definido. AssemblyScript requer tipos explícitos.`);
+                throw new Error(
+                    `Parâmetro '${parametro.nome.lexema}' da função '${declaracaoFuncao.simbolo.lexema}' não tem tipo definido. AssemblyScript requer tipos explícitos.`
+                );
             }
-            
+
             resultado += ', ';
         }
 
@@ -788,17 +801,17 @@ export class TradutorAssemblyScript {
         }
 
         resultado += ')';
-        
+
         // Adiciona tipo de retorno
         const tipoRetorno = this.inferirTipoRetornoFuncao(declaracaoFuncao.funcao);
         resultado += tipoRetorno;
-        
+
         resultado += ' ';
 
         resultado += this.logicaComumBlocoEscopo(declaracaoFuncao.funcao.corpo);
         return resultado;
     }
-    
+
     inferirTipoRetornoFuncao(funcao: FuncaoConstruto): string {
         // Se a função tem tipo de retorno explícito, usa ele
         if (funcao.tipo && funcao.tipo !== 'qualquer') {
@@ -809,7 +822,7 @@ export class TradutorAssemblyScript {
                 return ': void';
             }
         }
-        
+
         // Procura por declarações de retorno no corpo e infere tipo a partir delas
         const tipoInferido = this.inferirTipoDeRetorno(funcao.corpo);
         if (tipoInferido) {
@@ -819,13 +832,13 @@ export class TradutorAssemblyScript {
                 return ': void';
             }
         }
-        
+
         return ': void';
     }
-    
+
     inferirTipoDeRetorno(corpo: Declaracao[]): string | null {
         if (!corpo) return null;
-        
+
         for (const declaracao of corpo) {
             if (declaracao.constructor.name === 'Retorna') {
                 const retorna = declaracao as any;
@@ -845,13 +858,9 @@ export class TradutorAssemblyScript {
                 }
             }
         }
-        
+
         return null;
     }
-    
-
-    
-
 
     traduzirDeclaracaoFalhar(falhar: Falhar) {
         return `abort('${falhar.explicacao.valor}')`;
@@ -976,26 +985,30 @@ export class TradutorAssemblyScript {
         // AssemblyScript não suporta literal syntax para Map, precisa usar constructor
         // Gerar algo como: { let m = new Map<string, i32>(); m.set("key", value); ... return m; }
         let resultado = '(() => { let m = new Map<string, i32>(); ';
-        
+
         for (let i = 0; i < dicionario.chaves.length; i++) {
             const chave = dicionario.chaves[i];
             const valor = dicionario.valores[i];
-            
+
             // A chave pode ser um Construto (como Literal) ou um valor simples
             let chaveStr: string;
             if (typeof chave === 'string') {
                 chaveStr = `"${chave}"`;
-            } else if (chave && chave.constructor && this.dicionarioConstrutos[chave.constructor.name]) {
+            } else if (
+                chave &&
+                chave.constructor &&
+                this.dicionarioConstrutos[chave.constructor.name]
+            ) {
                 // Se for um Construto, traduzi-lo
                 chaveStr = this.dicionarioConstrutos[chave.constructor.name](chave);
             } else {
                 // Fallback: converter para string
                 chaveStr = `"${String(chave)}"`;
             }
-            
+
             resultado += `m.set(${chaveStr}, ${this.dicionarioConstrutos[valor.constructor.name](valor)}); `;
         }
-        
+
         resultado += 'return m; })()';
         return resultado;
     }
@@ -1014,26 +1027,44 @@ export class TradutorAssemblyScript {
     }
 
     traduzirConstrutoQuarteto(quarteto: Quarteto): string {
-        const primeiro = this.dicionarioConstrutos[quarteto.primeiro.constructor.name](quarteto.primeiro);
-        const segundo = this.dicionarioConstrutos[quarteto.segundo.constructor.name](quarteto.segundo);
-        const terceiro = this.dicionarioConstrutos[quarteto.terceiro.constructor.name](quarteto.terceiro);
+        const primeiro = this.dicionarioConstrutos[quarteto.primeiro.constructor.name](
+            quarteto.primeiro
+        );
+        const segundo = this.dicionarioConstrutos[quarteto.segundo.constructor.name](
+            quarteto.segundo
+        );
+        const terceiro = this.dicionarioConstrutos[quarteto.terceiro.constructor.name](
+            quarteto.terceiro
+        );
         const quarto = this.dicionarioConstrutos[quarteto.quarto.constructor.name](quarteto.quarto);
         return `[${primeiro}, ${segundo}, ${terceiro}, ${quarto}]`;
     }
 
     traduzirConstrutoQuinteto(quinteto: Quinteto): string {
-        const primeiro = this.dicionarioConstrutos[quinteto.primeiro.constructor.name](quinteto.primeiro);
-        const segundo = this.dicionarioConstrutos[quinteto.segundo.constructor.name](quinteto.segundo);
-        const terceiro = this.dicionarioConstrutos[quinteto.terceiro.constructor.name](quinteto.terceiro);
+        const primeiro = this.dicionarioConstrutos[quinteto.primeiro.constructor.name](
+            quinteto.primeiro
+        );
+        const segundo = this.dicionarioConstrutos[quinteto.segundo.constructor.name](
+            quinteto.segundo
+        );
+        const terceiro = this.dicionarioConstrutos[quinteto.terceiro.constructor.name](
+            quinteto.terceiro
+        );
         const quarto = this.dicionarioConstrutos[quinteto.quarto.constructor.name](quinteto.quarto);
         const quinto = this.dicionarioConstrutos[quinteto.quinto.constructor.name](quinteto.quinto);
         return `[${primeiro}, ${segundo}, ${terceiro}, ${quarto}, ${quinto}]`;
     }
 
     traduzirConstrutoSexteto(sexteto: Sexteto): string {
-        const primeiro = this.dicionarioConstrutos[sexteto.primeiro.constructor.name](sexteto.primeiro);
-        const segundo = this.dicionarioConstrutos[sexteto.segundo.constructor.name](sexteto.segundo);
-        const terceiro = this.dicionarioConstrutos[sexteto.terceiro.constructor.name](sexteto.terceiro);
+        const primeiro = this.dicionarioConstrutos[sexteto.primeiro.constructor.name](
+            sexteto.primeiro
+        );
+        const segundo = this.dicionarioConstrutos[sexteto.segundo.constructor.name](
+            sexteto.segundo
+        );
+        const terceiro = this.dicionarioConstrutos[sexteto.terceiro.constructor.name](
+            sexteto.terceiro
+        );
         const quarto = this.dicionarioConstrutos[sexteto.quarto.constructor.name](sexteto.quarto);
         const quinto = this.dicionarioConstrutos[sexteto.quinto.constructor.name](sexteto.quinto);
         const sexto = this.dicionarioConstrutos[sexteto.sexto.constructor.name](sexteto.sexto);
@@ -1041,9 +1072,15 @@ export class TradutorAssemblyScript {
     }
 
     traduzirConstrutoSepteto(septeto: Septeto): string {
-        const primeiro = this.dicionarioConstrutos[septeto.primeiro.constructor.name](septeto.primeiro);
-        const segundo = this.dicionarioConstrutos[septeto.segundo.constructor.name](septeto.segundo);
-        const terceiro = this.dicionarioConstrutos[septeto.terceiro.constructor.name](septeto.terceiro);
+        const primeiro = this.dicionarioConstrutos[septeto.primeiro.constructor.name](
+            septeto.primeiro
+        );
+        const segundo = this.dicionarioConstrutos[septeto.segundo.constructor.name](
+            septeto.segundo
+        );
+        const terceiro = this.dicionarioConstrutos[septeto.terceiro.constructor.name](
+            septeto.terceiro
+        );
         const quarto = this.dicionarioConstrutos[septeto.quarto.constructor.name](septeto.quarto);
         const quinto = this.dicionarioConstrutos[septeto.quinto.constructor.name](septeto.quinto);
         const sexto = this.dicionarioConstrutos[septeto.sexto.constructor.name](septeto.sexto);
@@ -1052,9 +1089,13 @@ export class TradutorAssemblyScript {
     }
 
     traduzirConstrutoOcteto(octeto: Octeto): string {
-        const primeiro = this.dicionarioConstrutos[octeto.primeiro.constructor.name](octeto.primeiro);
+        const primeiro = this.dicionarioConstrutos[octeto.primeiro.constructor.name](
+            octeto.primeiro
+        );
         const segundo = this.dicionarioConstrutos[octeto.segundo.constructor.name](octeto.segundo);
-        const terceiro = this.dicionarioConstrutos[octeto.terceiro.constructor.name](octeto.terceiro);
+        const terceiro = this.dicionarioConstrutos[octeto.terceiro.constructor.name](
+            octeto.terceiro
+        );
         const quarto = this.dicionarioConstrutos[octeto.quarto.constructor.name](octeto.quarto);
         const quinto = this.dicionarioConstrutos[octeto.quinto.constructor.name](octeto.quinto);
         const sexto = this.dicionarioConstrutos[octeto.sexto.constructor.name](octeto.sexto);
@@ -1064,9 +1105,13 @@ export class TradutorAssemblyScript {
     }
 
     traduzirConstrutoNoneto(noneto: Noneto): string {
-        const primeiro = this.dicionarioConstrutos[noneto.primeiro.constructor.name](noneto.primeiro);
+        const primeiro = this.dicionarioConstrutos[noneto.primeiro.constructor.name](
+            noneto.primeiro
+        );
         const segundo = this.dicionarioConstrutos[noneto.segundo.constructor.name](noneto.segundo);
-        const terceiro = this.dicionarioConstrutos[noneto.terceiro.constructor.name](noneto.terceiro);
+        const terceiro = this.dicionarioConstrutos[noneto.terceiro.constructor.name](
+            noneto.terceiro
+        );
         const quarto = this.dicionarioConstrutos[noneto.quarto.constructor.name](noneto.quarto);
         const quinto = this.dicionarioConstrutos[noneto.quinto.constructor.name](noneto.quinto);
         const sexto = this.dicionarioConstrutos[noneto.sexto.constructor.name](noneto.sexto);
@@ -1077,9 +1122,13 @@ export class TradutorAssemblyScript {
     }
 
     traduzirConstrutoDeceto(deceto: Deceto): string {
-        const primeiro = this.dicionarioConstrutos[deceto.primeiro.constructor.name](deceto.primeiro);
+        const primeiro = this.dicionarioConstrutos[deceto.primeiro.constructor.name](
+            deceto.primeiro
+        );
         const segundo = this.dicionarioConstrutos[deceto.segundo.constructor.name](deceto.segundo);
-        const terceiro = this.dicionarioConstrutos[deceto.terceiro.constructor.name](deceto.terceiro);
+        const terceiro = this.dicionarioConstrutos[deceto.terceiro.constructor.name](
+            deceto.terceiro
+        );
         const quarto = this.dicionarioConstrutos[deceto.quarto.constructor.name](deceto.quarto);
         const quinto = this.dicionarioConstrutos[deceto.quinto.constructor.name](deceto.quinto);
         const sexto = this.dicionarioConstrutos[deceto.sexto.constructor.name](deceto.sexto);
@@ -1091,16 +1140,22 @@ export class TradutorAssemblyScript {
     }
 
     traduzirConstrutoTuplaN(tuplaN: TuplaN): string {
-        const elementos = tuplaN.elementos.map(elemento =>
+        const elementos = tuplaN.elementos.map((elemento) =>
             this.dicionarioConstrutos[elemento.constructor.name](elemento)
         );
         return `[${elementos.join(', ')}]`;
     }
 
     traduzirConstrutoSeTernario(seTernario: SeTernario): string {
-        const condicao = this.dicionarioConstrutos[seTernario.condicao.constructor.name](seTernario.condicao);
-        const expressaoSe = this.dicionarioConstrutos[seTernario.expressaoSe.constructor.name](seTernario.expressaoSe);
-        const expressaoSenao = this.dicionarioConstrutos[seTernario.expressaoSenao.constructor.name](seTernario.expressaoSenao);
+        const condicao = this.dicionarioConstrutos[seTernario.condicao.constructor.name](
+            seTernario.condicao
+        );
+        const expressaoSe = this.dicionarioConstrutos[seTernario.expressaoSe.constructor.name](
+            seTernario.expressaoSe
+        );
+        const expressaoSenao = this.dicionarioConstrutos[
+            seTernario.expressaoSenao.constructor.name
+        ](seTernario.expressaoSenao);
         return `${condicao} ? ${expressaoSe} : ${expressaoSenao}`;
     }
 
@@ -1112,7 +1167,9 @@ export class TradutorAssemblyScript {
     }
 
     traduzirConstrutoAcessoPropriedade(acessoPropriedade: AcessoPropriedade): string {
-        const objeto = this.dicionarioConstrutos[acessoPropriedade.objeto.constructor.name](acessoPropriedade.objeto);
+        const objeto = this.dicionarioConstrutos[acessoPropriedade.objeto.constructor.name](
+            acessoPropriedade.objeto
+        );
         return `${objeto}.${acessoPropriedade.nomePropriedade}`;
     }
 
@@ -1147,7 +1204,9 @@ export class TradutorAssemblyScript {
     }
 
     traduzirConstrutoTipoDe(tipoDe: TipoDe): string {
-        throw new Error('O operador typeof não é suportado no AssemblyScript. Use verificações de tipo em tempo de compilação como instanceof ou is<T>() em vez disso.');
+        throw new Error(
+            'O operador typeof não é suportado no AssemblyScript. Use verificações de tipo em tempo de compilação como instanceof ou is<T>() em vez disso.'
+        );
     }
 
     traduzirConstrutoLogico(logico: Logico): string {
@@ -1191,10 +1250,10 @@ export class TradutorAssemblyScript {
         // Check if this is a native library function call
         if (chamada.entidadeChamada instanceof Variavel) {
             const nomeVariavel = (chamada.entidadeChamada as Variavel).simbolo.lexema;
-            const argumentosTexto = chamada.argumentos.map(arg => 
+            const argumentosTexto = chamada.argumentos.map((arg) =>
                 this.dicionarioConstrutos[arg.constructor.name](arg)
             );
-            
+
             const funcaoNativa = this.traduzirFuncaoNativaGlobal(nomeVariavel, argumentosTexto);
             if (funcaoNativa) {
                 return funcaoNativa;
@@ -1246,8 +1305,12 @@ export class TradutorAssemblyScript {
     traduzirConstrutoBinario(binario: Binario): string {
         // Tratamento especial para exponenciação no AssemblyScript
         if (binario.operador.tipo === tiposDeSimbolos.EXPONENCIACAO) {
-            const esquerda = this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda);
-            const direita = this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita);
+            const esquerda = this.dicionarioConstrutos[binario.esquerda.constructor.name](
+                binario.esquerda
+            );
+            const direita = this.dicionarioConstrutos[binario.direita.constructor.name](
+                binario.direita
+            );
             return `Math.pow(${esquerda}, ${direita})`;
         }
 
@@ -1296,7 +1359,7 @@ export class TradutorAssemblyScript {
                 AtribuicaoPorIndice.objeto
             );
         }
-        
+
         // Adiciona o índice
         resultado += '[';
         resultado +=

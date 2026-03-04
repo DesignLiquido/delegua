@@ -196,7 +196,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         const funcao = argumento as FuncaoConstruto;
 
         // Extrai os nomes dos parâmetros
-        const parametros = funcao.parametros.map(param => param.nome.lexema).join(', ');
+        const parametros = funcao.parametros.map((param) => param.nome.lexema).join(', ');
 
         // Python lambdas suportam apenas uma expressão
         // Assumimos que a função tem um corpo simples com uma declaração de retorno
@@ -208,7 +208,9 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
             if (primeiraDeclaracao.constructor.name === 'Retorna') {
                 const retorna = primeiraDeclaracao as Retorna;
                 if (retorna.valor) {
-                    expressao = this.dicionarioConstrutos[retorna.valor.constructor.name](retorna.valor);
+                    expressao = this.dicionarioConstrutos[retorna.valor.constructor.name](
+                        retorna.valor
+                    );
                 }
             }
         }

@@ -19,9 +19,9 @@ export class TradutorCalango {
     };
 
     traduzirConstrutoFormatacaoEscrita(formatacaoEscrita: FormatacaoEscrita) {
-        const avaliacaoExpressao = this.dicionarioConstrutos[formatacaoEscrita.expressao.constructor.name](
-                formatacaoEscrita.expressao
-            );
+        const avaliacaoExpressao = this.dicionarioConstrutos[
+            formatacaoEscrita.expressao.constructor.name
+        ](formatacaoEscrita.expressao);
         return `${avaliacaoExpressao}`;
     }
 
@@ -33,9 +33,7 @@ export class TradutorCalango {
     traduzirDeclaracaoEscreva(declaracaoEscreva: Escreva): string {
         let resultado = 'escreva(';
         for (const argumento of declaracaoEscreva.argumentos) {
-            const valor = this.dicionarioConstrutos[argumento.constructor.name](
-                argumento
-            );
+            const valor = this.dicionarioConstrutos[argumento.constructor.name](argumento);
             resultado += valor + ', ';
         }
 
@@ -47,9 +45,7 @@ export class TradutorCalango {
     traduzirDeclaracaoEscrevaMesmaLinha(declaracaoEscreva: EscrevaMesmaLinha): string {
         let resultado = 'escreva(';
         for (const argumento of declaracaoEscreva.argumentos) {
-            const valor = this.dicionarioConstrutos[argumento.constructor.name](
-                argumento
-            );
+            const valor = this.dicionarioConstrutos[argumento.constructor.name](argumento);
             resultado += valor + ', ';
         }
 

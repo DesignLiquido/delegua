@@ -8,10 +8,8 @@ export default {
     aparar: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            texto: string
-        ): Promise<string> => Promise.resolve(texto.trim()),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
+            Promise.resolve(texto.trim()),
         assinaturaFormato: 'texto.aparar()',
         documentacao:
             '# `texto.aparar()` \n \n' +
@@ -25,10 +23,8 @@ export default {
     aparar_fim: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            texto: string
-        ): Promise<string> => Promise.resolve(texto.trimEnd()),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
+            Promise.resolve(texto.trimEnd()),
         assinaturaFormato: 'texto.aparar_fim()',
         documentacao:
             '# `texto.aparar_fim()` \n \n' +
@@ -42,10 +38,8 @@ export default {
     aparar_inicio: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            texto: string
-        ): Promise<string> => Promise.resolve(texto.trimStart()),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
+            Promise.resolve(texto.trimStart()),
         assinaturaFormato: 'texto.aparar_inicio()',
         documentacao:
             '# `texto.aparar_inicio()` \n \n' +
@@ -269,7 +263,7 @@ export default {
         implementacao: (
             interpretador: InterpretadorInterface,
             mascara: string,
-            elemento: any,
+            elemento: any
         ): Promise<string> => {
             const valor = interpretador.resolverValor(elemento);
             const matchMascara = mascara.match(/\{:(.*?)\}/);
@@ -297,7 +291,8 @@ export default {
             return Promise.resolve(mascara.replace(/\{.*?\}/, String(valor)));
         },
         assinaturaFormato: 'texto.formatar(elemento: qualquer)',
-        documentacao: '# `texto.formatar(valor)` \n\n Formata um valor com base na máscara de texto.',
+        documentacao:
+            '# `texto.formatar(valor)` \n\n Formata um valor com base na máscara de texto.',
         exemploCodigo: '"{:.2f}".formatar(1.2345)',
     },
     inclui: {
@@ -330,10 +325,7 @@ export default {
     inverter: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            texto: string
-        ): Promise<string> =>
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
             Promise.resolve(
                 texto.split('').reduce((texto, caracter) => (texto = caracter + texto), '')
             ),
@@ -350,10 +342,8 @@ export default {
     maiusculo: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            texto: string
-        ): Promise<string> => Promise.resolve(texto.toUpperCase()),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
+            Promise.resolve(texto.toUpperCase()),
         assinaturaFormato: 'texto.maiusculo()',
         documentacao:
             '# `texto.maiusculo()` \n \n' +
@@ -367,10 +357,8 @@ export default {
     minusculo: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            texto: string
-        ): Promise<string> => Promise.resolve(texto.toLowerCase()),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
+            Promise.resolve(texto.toLowerCase()),
         assinaturaFormato: 'texto.minusculo()',
         documentacao:
             '# `texto.minusculo()` \n \n' +
@@ -484,10 +472,8 @@ export default {
     tamanho: {
         tipoRetorno: 'inteiro',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            texto: string
-        ): Promise<number> => Promise.resolve(texto.length),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<number> =>
+            Promise.resolve(texto.length),
         assinaturaFormato: 'texto.tamanho()',
         documentacao:
             '# `texto.tamanho()` \n\n' +
@@ -529,10 +515,8 @@ export default {
     tudo_maiusculo: {
         tipoRetorno: 'lógico',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            texto: string
-        ): Promise<boolean> => Promise.resolve(texto === texto.toUpperCase()),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<boolean> =>
+            Promise.resolve(texto === texto.toUpperCase()),
         assinaturaFormato: 'texto.tudo_maiusculo()',
         documentacao:
             '# `texto.tudo_maiusculo()` \n\n' +
@@ -548,10 +532,8 @@ export default {
     tudo_minusculo: {
         tipoRetorno: 'lógico',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            texto: string
-        ): Promise<boolean> => Promise.resolve(texto === texto.toLowerCase()),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<boolean> =>
+            Promise.resolve(texto === texto.toLowerCase()),
         assinaturaFormato: 'texto.tudo_minusculo()',
         documentacao:
             '# `texto.tudo_minusculo()` \n\n' +

@@ -123,7 +123,17 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
         const comprimento = Math.max(texto.length, 1);
         const colunaInicio = this.inicioSimbolo + 1;
         const colunaFim = this.inicioSimbolo + comprimento;
-        this.simbolos.push(new Simbolo(tipo, texto, literal, linha || this.linha + 1, this.hashArquivo, colunaInicio, colunaFim));
+        this.simbolos.push(
+            new Simbolo(
+                tipo,
+                texto,
+                literal,
+                linha || this.linha + 1,
+                this.hashArquivo,
+                colunaInicio,
+                colunaFim
+            )
+        );
     }
 
     simboloAtual(): string {
@@ -242,7 +252,11 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
             this.atual
         );
 
-        if (textoCompleto.length === 0 && !this.eFinalDoCodigo() && this.codigo[this.linha].charAt(this.atual + 1) === delimitador) {
+        if (
+            textoCompleto.length === 0 &&
+            !this.eFinalDoCodigo() &&
+            this.codigo[this.linha].charAt(this.atual + 1) === delimitador
+        ) {
             this.avancar(); // Avança para o próximo delimitador
             this.analisarTextoMultilinha(delimitador);
             return;

@@ -1,7 +1,17 @@
 import _ from 'lodash';
 
 import { Binario, Chamada, Construto, Leia, Literal } from '../../construtos';
-import { Bloco, Declaracao, Enquanto, Escreva, Expressao, Fazer, Para, Retorna, Tente } from '../../declaracoes';
+import {
+    Bloco,
+    Declaracao,
+    Enquanto,
+    Escreva,
+    Expressao,
+    Fazer,
+    Para,
+    Retorna,
+    Tente,
+} from '../../declaracoes';
 import {
     InterpretadorComDepuracaoInterface,
     ResultadoParcialInterpretadorInterface,
@@ -400,8 +410,11 @@ export async function visitarDeclaracaoTente(
         // Só executa finally se:
         // 1. Existe um bloco finally
         // 2. Não há um novo escopo criado OU não estamos em modo de passo/adentrar
-        if (declaracao.caminhoFinalmente !== null &&
-            (!novoEscopoCriado || (interpretador.comando !== 'proximo' && interpretador.comando !== 'adentrarEscopo'))) {
+        if (
+            declaracao.caminhoFinalmente !== null &&
+            (!novoEscopoCriado ||
+                (interpretador.comando !== 'proximo' && interpretador.comando !== 'adentrarEscopo'))
+        ) {
             valorRetorno = await interpretador.executarBloco(declaracao.caminhoFinalmente);
         }
         (interpretador as any).emDeclaracaoTente = false;
@@ -523,7 +536,7 @@ export async function visitarExpressaoBinaria(
         const expressaoTemp = {
             ...expressao,
             esquerda: { valor: valorEsquerdo, tipo: tipoEsquerdo },
-            direita: { valor: valorDireito, tipo: tipoDireito }
+            direita: { valor: valorDireito, tipo: tipoDireito },
         };
 
         // Não podemos chamar o ancestral diretamente porque ele vai tentar avaliar novamente
@@ -674,10 +687,9 @@ async function executarOperacaoBinaria(
         case tiposDeSimbolos.MULTIPLICACAO:
         case tiposDeSimbolos.MULTIPLICACAO_IGUAL:
             if (
-                tipoDeDadosDelegua && (
-                    tipoEsquerdo === tipoDeDadosDelegua.TEXTO ||
-                    tipoDireito === tipoDeDadosDelegua.TEXTO
-                )
+                tipoDeDadosDelegua &&
+                (tipoEsquerdo === tipoDeDadosDelegua.TEXTO ||
+                    tipoDireito === tipoDeDadosDelegua.TEXTO)
             ) {
                 if (
                     tipoEsquerdo === tipoDeDadosDelegua.TEXTO &&
@@ -869,17 +881,26 @@ async function executarUmPassoNoEscopo(interpretador: InterpretadorComDepuracaoI
         // - Há um ponto de parada ativo (de escopo interno)
         // - Estamos em um laço de repetição (o laço gerencia a iteração)
         // - Entramos em um novo escopo (precisamos executar o novo escopo antes de avançar)
-        if (!interpretador.pontoDeParadaAtivo && !ultimoEscopo.emLacoRepeticao && !entroEmNovoEscopo) {
+        if (
+            !interpretador.pontoDeParadaAtivo &&
+            !ultimoEscopo.emLacoRepeticao &&
+            !entroEmNovoEscopo
+        ) {
             ultimoEscopo.declaracaoAtual++;
         }
 
         // Após executar e avançar, verifica se há ponto de parada na PRÓXIMA declaração
-        if (!interpretador.pontoDeParadaAtivo &&
-            ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length) {
+        if (
+            !interpretador.pontoDeParadaAtivo &&
+            ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length
+        ) {
             const proximaDeclaracao = ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual];
             interpretador.linhaDeclaracaoAtual = proximaDeclaracao.linha;
             interpretador.hashArquivoDeclaracaoAtual = proximaDeclaracao.hashArquivo;
-            interpretador.pontoDeParadaAtivo = verificarPontoParada(interpretador, proximaDeclaracao);
+            interpretador.pontoDeParadaAtivo = verificarPontoParada(
+                interpretador,
+                proximaDeclaracao
+            );
 
             if (interpretador.pontoDeParadaAtivo) {
                 interpretador.avisoPontoParadaAtivado();
@@ -903,8 +924,10 @@ async function executarUmPassoNoEscopo(interpretador: InterpretadorComDepuracaoI
                     const escopoAtual = interpretador.pilhaEscoposExecucao.topoDaPilha();
                     // Só incrementa se ainda há declarações para executar neste escopo
                     // e não estamos em um laço de repetição
-                    if (!escopoAtual.emLacoRepeticao &&
-                        escopoAtual.declaracaoAtual < escopoAtual.declaracoes.length) {
+                    if (
+                        !escopoAtual.emLacoRepeticao &&
+                        escopoAtual.declaracaoAtual < escopoAtual.declaracoes.length
+                    ) {
                         escopoAtual.declaracaoAtual++;
                     }
                 }

@@ -46,7 +46,10 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
                     valores.push(valor);
 
                     if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.CHAVE_DIREITA) {
-                        this.consumir(tiposDeSimbolos.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
+                        this.consumir(
+                            tiposDeSimbolos.VIRGULA,
+                            'Esperado vírgula antes da próxima expressão.'
+                        );
                     }
                 }
 

@@ -724,7 +724,9 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
             // Retorno de um valor → retorno conciso
             if (argumento.corpo.length === 1 && argumento.corpo[0] instanceof Retorna) {
                 const retorna = argumento.corpo[0] as Retorna;
-                const expr = this.dicionarioConstrutos[retorna.valor.constructor.name](retorna.valor);
+                const expr = this.dicionarioConstrutos[retorna.valor.constructor.name](
+                    retorna.valor
+                );
                 return `(${params}) => ${expr}`;
             }
 
@@ -736,7 +738,10 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
             return argumento.simbolo.lexema;
         }
 
-        if (argumento instanceof ReferenciaFuncao || argumento instanceof ArgumentoReferenciaFuncao) {
+        if (
+            argumento instanceof ReferenciaFuncao ||
+            argumento instanceof ArgumentoReferenciaFuncao
+        ) {
             return argumento.simboloFuncao.lexema;
         }
 

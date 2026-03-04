@@ -32,10 +32,15 @@ export class Atribuir<TTipoSimbolo extends string = string> implements Construto
             const tipoAlvo = alvoComoVariavel?.tipo;
             const alvoSuportaIndice =
                 alvo instanceof Variavel &&
-                (tipoAlvo === 'vetor' || tipoAlvo === 'dicionário' || tipoAlvo === 'qualquer' || tipoAlvo?.endsWith('[]'));
+                (tipoAlvo === 'vetor' ||
+                    tipoAlvo === 'dicionário' ||
+                    tipoAlvo === 'qualquer' ||
+                    tipoAlvo?.endsWith('[]'));
 
             if (!alvoSuportaIndice) {
-                throw new Error("`indice` só pode ser informado quando o alvo for uma variável de vetor ou dicionário.");
+                throw new Error(
+                    '`indice` só pode ser informado quando o alvo for uma variável de vetor ou dicionário.'
+                );
             }
 
             this.indice = indice;

@@ -9,11 +9,11 @@ import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
 const tiposNumericos = ['inteiro', 'número', 'real', 'longo'];
 
 const mapaDeNormalizacao: { [chave: string]: string } = {
-    'numero': 'número',
-    'logico': 'lógico',
-    'funcao': 'função',
-    'dicionario': 'dicionário',
-    'modulo': 'módulo',
+    numero: 'número',
+    logico: 'lógico',
+    funcao: 'função',
+    dicionario: 'dicionário',
+    modulo: 'módulo',
 };
 
 function normalizarTipo(tipo: string | undefined): string {
@@ -105,12 +105,17 @@ export class MetodoPolimorfico extends Chamavel {
                     break;
                 }
 
-                let valorArgumento = argumentos[i] && argumentos[i].hasOwnProperty('valor')
-                    ? argumentos[i].valor
-                    : argumentos[i];
+                let valorArgumento =
+                    argumentos[i] && argumentos[i].hasOwnProperty('valor')
+                        ? argumentos[i].valor
+                        : argumentos[i];
                 // Se o valor é uma VariavelInterface, extrair o valor real
-                if (valorArgumento && typeof valorArgumento === 'object'
-                    && valorArgumento.hasOwnProperty('valor') && valorArgumento.hasOwnProperty('tipo')) {
+                if (
+                    valorArgumento &&
+                    typeof valorArgumento === 'object' &&
+                    valorArgumento.hasOwnProperty('valor') &&
+                    valorArgumento.hasOwnProperty('tipo')
+                ) {
                     valorArgumento = valorArgumento.valor;
                 }
                 const tipoArgumento = inferirTipoVariavel(valorArgumento) as string;
@@ -134,8 +139,12 @@ export class MetodoPolimorfico extends Chamavel {
         if (!melhorSobrecarga) {
             const tiposArgs = argumentos.map((a) => {
                 let val = a && a.hasOwnProperty('valor') ? a.valor : a;
-                if (val && typeof val === 'object'
-                    && val.hasOwnProperty('valor') && val.hasOwnProperty('tipo')) {
+                if (
+                    val &&
+                    typeof val === 'object' &&
+                    val.hasOwnProperty('valor') &&
+                    val.hasOwnProperty('tipo')
+                ) {
                     val = val.valor;
                 }
                 return normalizarTipo(inferirTipoVariavel(val) as string);
@@ -150,7 +159,7 @@ export class MetodoPolimorfico extends Chamavel {
             throw new ErroEmTempoDeExecucao(
                 null,
                 `Nenhuma sobrecarga do método "${this.nome}" corresponde aos argumentos fornecidos (${tiposArgs.join(', ')}). ` +
-                `Sobrecargas disponíveis: ${assinaturas.join('; ')}.`
+                    `Sobrecargas disponíveis: ${assinaturas.join('; ')}.`
             );
         }
 
@@ -183,8 +192,8 @@ export class MetodoPolimorfico extends Chamavel {
     }
 
     funcaoPorMetodoDeClasse(instancia: ObjetoDeleguaClasse): MetodoPolimorfico {
-        const sobrecargasVinculadas = this.sobrecargas.map(
-            (s) => s.funcaoPorMetodoDeClasse(instancia)
+        const sobrecargasVinculadas = this.sobrecargas.map((s) =>
+            s.funcaoPorMetodoDeClasse(instancia)
         );
         return new MetodoPolimorfico(this.nome, sobrecargasVinculadas, instancia);
     }

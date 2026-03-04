@@ -10,7 +10,13 @@ export class Dicionario implements Construto {
     tipo: 'dicionário';
     esSpread: boolean[];
 
-    constructor(hashArquivo: number, linha: number, chaves: any[], valores: Construto[], esSpread?: boolean[]) {
+    constructor(
+        hashArquivo: number,
+        linha: number,
+        chaves: any[],
+        valores: Construto[],
+        esSpread?: boolean[]
+    ) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
 

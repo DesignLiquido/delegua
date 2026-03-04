@@ -39,8 +39,16 @@ function criarDescritorObjeto(): DescritorTipoClasse {
         return false;
     };
 
-    descritor.metodos['eInstanciaDe'] = new DeleguaFuncaoNativa('eInstanciaDe', 1, implementacaoEInstanciaDe);
-    descritor.metodos['éInstânciaDe'] = new DeleguaFuncaoNativa('éInstânciaDe', 1, implementacaoEInstanciaDe);
+    descritor.metodos['eInstanciaDe'] = new DeleguaFuncaoNativa(
+        'eInstanciaDe',
+        1,
+        implementacaoEInstanciaDe
+    );
+    descritor.metodos['éInstânciaDe'] = new DeleguaFuncaoNativa(
+        'éInstânciaDe',
+        1,
+        implementacaoEInstanciaDe
+    );
 
     const implementacaoMetodos = (instancia: any) => {
         if (!instancia) return [];

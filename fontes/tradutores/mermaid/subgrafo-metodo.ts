@@ -1,5 +1,5 @@
-import { ArestaFluxograma } from "./aresta-fluxograma";
-import { VerticeFluxograma } from "./vertice-fluxograma";
+import { ArestaFluxograma } from './aresta-fluxograma';
+import { VerticeFluxograma } from './vertice-fluxograma';
 
 export class SubgrafoMetodo {
     nomeMetodo: string;

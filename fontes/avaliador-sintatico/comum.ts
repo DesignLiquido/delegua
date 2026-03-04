@@ -1,10 +1,6 @@
 import { Bloco, Declaracao, Retorna, Se } from '../declaracoes';
 import { InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
-import {
-    AvaliadorSintaticoInterface,
-    PrimitivaInterface,
-    SimboloInterface,
-} from '../interfaces';
+import { AvaliadorSintaticoInterface, PrimitivaInterface, SimboloInterface } from '../interfaces';
 
 function* buscarRetornosEmBloco(construtoBloco: Bloco): Generator<Retorna> {
     for (const declaracao of construtoBloco.declaracoes) {
@@ -77,7 +73,9 @@ export function logicaDescobertaRetornoFuncao(
     if (tipoRetorno === 'vazio' && expressoesRetorna.length > 0) {
         // Filtra retornos que têm tipo conhecido e diferente de 'vazio'.
         // 'qualquer' é excluído pois o tipo não pode ser determinado em tempo de análise sintática.
-        const retornosNaoVazios = expressoesRetorna.filter((e) => e.tipo !== 'vazio' && e.tipo !== 'qualquer');
+        const retornosNaoVazios = expressoesRetorna.filter(
+            (e) => e.tipo !== 'vazio' && e.tipo !== 'qualquer'
+        );
         if (retornosNaoVazios.length > 0) {
             throw avaliadorSintatico.erro(
                 retornosNaoVazios[0].simboloChave,
@@ -91,7 +89,9 @@ export function logicaDescobertaRetornoFuncao(
     );
     let retornaChamadoExplicitamente = tiposRetornos.size > 0;
     // Verifica se há retornos com valores (incluindo retornos 'qualquer')
-    let temRetornosComValor = expressoesRetorna.some((e) => e.valor !== null && e.valor !== undefined);
+    let temRetornosComValor = expressoesRetorna.some(
+        (e) => e.valor !== null && e.valor !== undefined
+    );
 
     if (tiposRetornos.size > 1 && tipoRetorno !== 'qualquer') {
         let tiposEncontrados = Array.from(tiposRetornos).reduce(

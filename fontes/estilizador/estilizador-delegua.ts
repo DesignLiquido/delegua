@@ -222,7 +222,13 @@ export class EstilizadorDelegua implements EstilizadorComumInterface {
      * Verifica se um objeto é uma Declaração.
      */
     private ehDeclaracao(obj: any): obj is Declaracao {
-        return obj && typeof obj === 'object' && 'paraTexto' in obj && 'linha' in obj && 'hashArquivo' in obj;
+        return (
+            obj &&
+            typeof obj === 'object' &&
+            'paraTexto' in obj &&
+            'linha' in obj &&
+            'hashArquivo' in obj
+        );
     }
 
     /**

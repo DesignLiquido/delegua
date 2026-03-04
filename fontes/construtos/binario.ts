@@ -59,10 +59,7 @@ export class Binario<TTipoSimbolo extends string = string> implements Construto 
             return 'lógico';
         }
 
-        if (
-            this.esquerda.tipo === 'texto' ||
-            this.direita.tipo === 'texto'
-        ) {
+        if (this.esquerda.tipo === 'texto' || this.direita.tipo === 'texto') {
             return 'texto';
         }
 

@@ -11,43 +11,53 @@ export const implementacaoParticao = (
     ...args: any[]
 ): Promise<any> => {
     if (args.length > 0) {
-        return Promise.reject(new ErroEmTempoDeExecucao(
-            null,
-            `A função "partição" aceita apenas um argumento.`,
-            interpretador.linhaDeclaracaoAtual
-        ));
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                null,
+                `A função "partição" aceita apenas um argumento.`,
+                interpretador.linhaDeclaracaoAtual
+            )
+        );
     }
 
     if (typeof texto !== 'string') {
-        return Promise.reject(new ErroEmTempoDeExecucao(
-            null,
-            `A função "partição" só pode ser chamada em textos.`,
-            interpretador.linhaDeclaracaoAtual
-        ));
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                null,
+                `A função "partição" só pode ser chamada em textos.`,
+                interpretador.linhaDeclaracaoAtual
+            )
+        );
     }
 
     if (separador === undefined) {
-        return Promise.reject(new ErroEmTempoDeExecucao(
-            null,
-            `A função "partição" requer um argumento separador.`,
-            interpretador.linhaDeclaracaoAtual
-        ));
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                null,
+                `A função "partição" requer um argumento separador.`,
+                interpretador.linhaDeclaracaoAtual
+            )
+        );
     }
 
     if (typeof separador !== 'string') {
-        return Promise.reject(new ErroEmTempoDeExecucao(
-            null,
-            'O separador deve ser do tipo texto.',
-            interpretador.linhaDeclaracaoAtual
-        ));
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                null,
+                'O separador deve ser do tipo texto.',
+                interpretador.linhaDeclaracaoAtual
+            )
+        );
     }
 
     if (separador === '') {
-        return Promise.reject(new ErroEmTempoDeExecucao(
-            null,
-            'O separador não pode ser uma string vazia.',
-            interpretador.linhaDeclaracaoAtual
-        ));
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                null,
+                'O separador não pode ser uma string vazia.',
+                interpretador.linhaDeclaracaoAtual
+            )
+        );
     }
 
     const indice = texto.indexOf(separador);
@@ -61,12 +71,15 @@ export const implementacaoParticao = (
         partes = [antes, separador, depois];
     }
 
-    const elementos: Construto[] = partes.map(p => new Literal(
-        interpretador.hashArquivoDeclaracaoAtual,
-        interpretador.linhaDeclaracaoAtual,
-        p,
-        'texto'
-    ));
+    const elementos: Construto[] = partes.map(
+        (p) =>
+            new Literal(
+                interpretador.hashArquivoDeclaracaoAtual,
+                interpretador.linhaDeclaracaoAtual,
+                p,
+                'texto'
+            )
+    );
 
     const tupla = new TuplaN(
         interpretador.hashArquivoDeclaracaoAtual,
@@ -81,10 +94,8 @@ export default {
     aparar: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            texto: string
-        ): Promise<string> => Promise.resolve(texto.trim()),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
+            Promise.resolve(texto.trim()),
         assinaturaFormato: 'texto.aparar()',
         documentacao:
             '# `texto.aparar()` \n \n' +
@@ -98,10 +109,8 @@ export default {
     apararFim: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            texto: string
-        ): Promise<string> => Promise.resolve(texto.trimEnd()),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
+            Promise.resolve(texto.trimEnd()),
         assinaturaFormato: 'texto.apararFim()',
         documentacao:
             '# `texto.apararFim()` \n \n' +
@@ -115,10 +124,8 @@ export default {
     apararInicio: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            texto: string
-        ): Promise<string> => Promise.resolve(texto.trimStart()),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
+            Promise.resolve(texto.trimStart()),
         assinaturaFormato: 'texto.apararInicio()',
         documentacao:
             '# `texto.apararInicio()` \n \n' +
@@ -303,10 +310,7 @@ export default {
     inverter: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            texto: string
-        ): Promise<string> =>
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
             Promise.resolve(
                 texto.split('').reduce((texto, caracter) => (texto = caracter + texto), '')
             ),
@@ -323,10 +327,8 @@ export default {
     maiusculo: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            texto: string
-        ): Promise<string> => Promise.resolve(texto.toUpperCase()),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
+            Promise.resolve(texto.toUpperCase()),
         assinaturaFormato: 'texto.maiusculo()',
         documentacao:
             '# `texto.maiusculo()` \n \n' +
@@ -340,10 +342,8 @@ export default {
     minusculo: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            texto: string
-        ): Promise<string> => Promise.resolve(texto.toLowerCase()),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
+            Promise.resolve(texto.toLowerCase()),
         assinaturaFormato: 'texto.minusculo()',
         documentacao:
             '# `texto.minusculo()` \n \n' +
@@ -457,10 +457,8 @@ export default {
     tamanho: {
         tipoRetorno: 'inteiro',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            texto: string
-        ): Promise<number> => Promise.resolve(texto.length),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<number> =>
+            Promise.resolve(texto.length),
         assinaturaFormato: 'texto.tamanho()',
         documentacao:
             '# `texto.tamanho()` \n\n' +
@@ -502,10 +500,8 @@ export default {
     tudoMaiusculo: {
         tipoRetorno: 'lógico',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            texto: string
-        ): Promise<boolean> => Promise.resolve(texto === texto.toUpperCase()),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<boolean> =>
+            Promise.resolve(texto === texto.toUpperCase()),
         assinaturaFormato: 'texto.tudoMaiusculo()',
         documentacao:
             '# `texto.tudoMaiusculo()` \n\n' +
@@ -521,10 +517,8 @@ export default {
     tudoMinusculo: {
         tipoRetorno: 'lógico',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            texto: string
-        ): Promise<boolean> => Promise.resolve(texto === texto.toLowerCase()),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<boolean> =>
+            Promise.resolve(texto === texto.toLowerCase()),
         assinaturaFormato: 'texto.tudoMinusculo()',
         documentacao:
             '# `texto.tudoMinusculo()` \n\n' +
@@ -540,10 +534,8 @@ export default {
     apararInício: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            texto: string
-        ): Promise<string> => Promise.resolve(texto.trimStart()),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
+            Promise.resolve(texto.trimStart()),
         assinaturaFormato: 'texto.apararInício()',
         documentacao:
             '# `texto.apararInício()` \n \n' +
@@ -557,10 +549,8 @@ export default {
     maiúsculo: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            texto: string
-        ): Promise<string> => Promise.resolve(texto.toUpperCase()),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
+            Promise.resolve(texto.toUpperCase()),
         assinaturaFormato: 'texto.maiúsculo()',
         documentacao:
             '# `texto.maiúsculo()` \n \n' +
@@ -574,10 +564,8 @@ export default {
     minúsculo: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            texto: string
-        ): Promise<string> => Promise.resolve(texto.toLowerCase()),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
+            Promise.resolve(texto.toLowerCase()),
         assinaturaFormato: 'texto.minúsculo()',
         documentacao:
             '# `texto.minúsculo()` \n \n' +
@@ -591,10 +579,8 @@ export default {
     tudoMaiúsculo: {
         tipoRetorno: 'lógico',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            texto: string
-        ): Promise<boolean> => Promise.resolve(texto === texto.toUpperCase()),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<boolean> =>
+            Promise.resolve(texto === texto.toUpperCase()),
         assinaturaFormato: 'texto.tudoMaiúsculo()',
         documentacao:
             '# `texto.tudoMaiúsculo()` \n\n' +
@@ -610,10 +596,8 @@ export default {
     tudoMinúsculo: {
         tipoRetorno: 'lógico',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            texto: string
-        ): Promise<boolean> => Promise.resolve(texto === texto.toLowerCase()),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<boolean> =>
+            Promise.resolve(texto === texto.toLowerCase()),
         assinaturaFormato: 'texto.tudoMinúsculo()',
         documentacao:
             '# `texto.tudoMinúsculo()` \n\n' +

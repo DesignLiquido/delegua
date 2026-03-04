@@ -306,12 +306,9 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         }
     }
 
-    override async resolverDeclaracaoForaDeBloco():
-        Promise<Declaracao
-        | Declaracao[]
-        | Construto
-        | Construto[]
-        | any> {
+    override async resolverDeclaracaoForaDeBloco(): Promise<
+        Declaracao | Declaracao[] | Construto | Construto[] | any
+    > {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.ESCREVA:

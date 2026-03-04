@@ -54,9 +54,10 @@ import tiposDeSimbolos from '../../tipos-de-simbolos/egua-classico';
  *
  * Esta implementação tenta seguir à risca o que está atualmente em https://github.com/eguatech/egua/blob/master/src/parser.js.
  */
-export class AvaliadorSintaticoEguaClassico
-    implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao>
-{
+export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterface<
+    SimboloInterface,
+    Declaracao
+> {
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
 
@@ -302,9 +303,9 @@ export class AvaliadorSintaticoEguaClassico
     }
 
     /**
-     * A exponenciacão de Égua [é implementada com resolução à esquerda](https://github.com/eguadev/egua/blob/main/src/parser.js#L230). 
+     * A exponenciacão de Égua [é implementada com resolução à esquerda](https://github.com/eguadev/egua/blob/main/src/parser.js#L230).
      * Por isso esse dialeto resolve `direito` chamando `unario()`, e não `exponenciacao()` como os demais.
-     * @returns {Binario} A expressão binária na forma do construto `Binario`. 
+     * @returns {Binario} A expressão binária na forma do construto `Binario`.
      */
     exponenciacao(): Construto {
         let expressao = this.unario();

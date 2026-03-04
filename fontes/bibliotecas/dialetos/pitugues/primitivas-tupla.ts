@@ -6,10 +6,7 @@ export default {
     paraVetor: {
         tipoRetorno: 'vetor',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            tupla: TuplaN
-        ): Promise<any> => {
+        implementacao: (interpretador: InterpretadorInterface, tupla: TuplaN): Promise<any> => {
             const objetoTupla = interpretador.resolverValor(tupla);
 
             if (!(objetoTupla instanceof TuplaN)) {
@@ -22,16 +19,14 @@ export default {
                 );
             }
 
-            const valoresPuros = objetoTupla.elementos.map(elemento =>
+            const valoresPuros = objetoTupla.elementos.map((elemento) =>
                 interpretador.resolverValor(elemento)
             );
 
             return Promise.resolve(valoresPuros);
         },
         assinaturaFormato: 'tupla.paraVetor()',
-        documentacao:
-            '# `tupla.paraVetor()` \n \n' +
-            'Converte a tupla atual em um array.',
+        documentacao: '# `tupla.paraVetor()` \n \n' + 'Converte a tupla atual em um array.',
         exemploCodigo: 'tupla.paraVetor()',
-    }
+    },
 } as { [nome: string]: PrimitivaInterface };

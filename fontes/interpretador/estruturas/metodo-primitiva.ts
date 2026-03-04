@@ -18,7 +18,13 @@ export class MetodoPrimitiva extends Chamavel {
     nomeMetodo: string;
     tipo: string = 'qualquer';
 
-    constructor(nome: string, primitiva: any, metodo: Function, nomeMetodo: string, tipo: string = 'qualquer') {
+    constructor(
+        nome: string,
+        primitiva: any,
+        metodo: Function,
+        nomeMetodo: string,
+        tipo: string = 'qualquer'
+    ) {
         super();
         this.nome = nome;
         this.primitiva = primitiva;

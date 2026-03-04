@@ -268,7 +268,7 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
 
         // Procurar pelo construtor
         const construtor = declaracao.metodos.find(
-            m => m.simbolo.lexema === 'construtor' || m.simbolo.lexema === 'inicializar'
+            (m) => m.simbolo.lexema === 'construtor' || m.simbolo.lexema === 'inicializar'
         );
 
         if (!construtor) {
@@ -281,7 +281,7 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
         }
 
         // Converter para atoms do Elixir
-        return Array.from(campos).map(c => `:${this.converterIdentificador(c)}`);
+        return Array.from(campos).map((c) => `:${this.converterIdentificador(c)}`);
     }
 
     /**
@@ -322,7 +322,10 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
     /**
      * Traduz um método de classe para função de módulo
      */
-    protected async traduzirMetodoClasse(metodo: FuncaoDeclaracao, nomeModulo: string): Promise<string> {
+    protected async traduzirMetodoClasse(
+        metodo: FuncaoDeclaracao,
+        nomeModulo: string
+    ): Promise<string> {
         const nomeMetodo = this.converterIdentificador(metodo.simbolo.lexema);
         let resultado = this.adicionarIndentacao();
 
@@ -330,7 +333,7 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
         if (metodo.simbolo.lexema === 'construtor' || metodo.simbolo.lexema === 'inicializar') {
             resultado += `def new(`;
 
-            const parametros = metodo.funcao.parametros.map(p =>
+            const parametros = metodo.funcao.parametros.map((p) =>
                 this.converterIdentificador(p.nome.lexema)
             );
             resultado += parametros.join(', ');
@@ -341,7 +344,10 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
             resultado += `%${nomeModulo}{`;
 
             // Extrair inicializações do construtor
-            const inicializacoes = await this.extrairInicializacoesStruct(metodo.funcao.corpo, nomeModulo);
+            const inicializacoes = await this.extrairInicializacoesStruct(
+                metodo.funcao.corpo,
+                nomeModulo
+            );
             resultado += inicializacoes;
             resultado += '}\n';
 
@@ -355,7 +361,7 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
             this.nomeParametroStruct = nomeParametroStruct;
 
             const parametros = [nomeParametroStruct].concat(
-                metodo.funcao.parametros.map(p => this.converterIdentificador(p.nome.lexema))
+                metodo.funcao.parametros.map((p) => this.converterIdentificador(p.nome.lexema))
             );
             resultado += parametros.join(', ');
             resultado += ') do\n';
@@ -464,7 +470,7 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
         resultado += `def ${nomeFuncao}(`;
 
         // Parâmetros
-        const parametros = declaracao.funcao.parametros.map(p =>
+        const parametros = declaracao.funcao.parametros.map((p) =>
             this.converterIdentificador(p.nome.lexema)
         );
         resultado += parametros.join(', ');
@@ -762,7 +768,9 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
         return Promise.resolve(`Enum.at(${objeto}, ${indice})`);
     }
 
-    visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> | void {
+    visitarExpressaoAcessoIntervaloVariavel(
+        expressao: AcessoIntervaloVariavel
+    ): Promise<any> | void {
         throw new Error('Método não implementado: visitarExpressaoAcessoIntervaloVariavel');
     }
 
@@ -782,7 +790,11 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
     /**
      * Mapeia métodos built-in de Delégua para Elixir
      */
-    protected mapearMetodoBuiltIn(metodo: string, objeto: string, argumentos: string[]): string | null {
+    protected mapearMetodoBuiltIn(
+        metodo: string,
+        objeto: string,
+        argumentos: string[]
+    ): string | null {
         switch (metodo) {
             // Array/List methods
             case 'adicionar':
@@ -801,7 +813,9 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
             case 'ordenar':
                 return `Enum.sort(${objeto})`;
             case 'juntar':
-                return argumentos.length > 0 ? `Enum.join(${objeto}, ${argumentos[0]})` : `Enum.join(${objeto})`;
+                return argumentos.length > 0
+                    ? `Enum.join(${objeto}, ${argumentos[0]})`
+                    : `Enum.join(${objeto})`;
             case 'fatiar':
                 if (argumentos.length >= 2) {
                     return `Enum.slice(${objeto}, ${argumentos[0]}, ${argumentos[1]})`;
@@ -845,7 +859,9 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
         return objetoStr;
     }
 
-    async visitarExpressaoAcessoMetodoOuPropriedade(expressao: AcessoMetodoOuPropriedade): Promise<string> {
+    async visitarExpressaoAcessoMetodoOuPropriedade(
+        expressao: AcessoMetodoOuPropriedade
+    ): Promise<string> {
         const objeto = await expressao.objeto.aceitar(this);
         const simbolo = this.converterIdentificador(expressao.simbolo.lexema);
 
@@ -866,7 +882,9 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
         return Promise.resolve(`(${conteudo})`);
     }
 
-    visitarExpressaoArgumentoReferenciaFuncao(expressao: ArgumentoReferenciaFuncao): Promise<any> | void {
+    visitarExpressaoArgumentoReferenciaFuncao(
+        expressao: ArgumentoReferenciaFuncao
+    ): Promise<any> | void {
         throw new Error('Método não implementado: visitarExpressaoArgumentoReferenciaFuncao');
     }
 
@@ -874,7 +892,9 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
         throw new Error('Método não implementado: visitarExpressaoAtribuicaoPorIndice');
     }
 
-    visitarExpressaoAtribuicaoPorIndicesMatriz(expressao: AtribuicaoPorIndicesMatriz): Promise<any> | void {
+    visitarExpressaoAtribuicaoPorIndicesMatriz(
+        expressao: AtribuicaoPorIndicesMatriz
+    ): Promise<any> | void {
         throw new Error('Método não implementado: visitarExpressaoAtribuicaoPorIndicesMatriz');
     }
 
@@ -922,7 +942,9 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
             const nomeEntidade = (expressao.entidadeChamada as any).simbolo.lexema;
             if (this.modulosConhecidos.has(this.converterNomeModulo(nomeEntidade))) {
                 // Chamada de construtor de módulo
-                return Promise.resolve(`${this.converterNomeModulo(nomeEntidade)}.new(${argumentos.join(', ')})`);
+                return Promise.resolve(
+                    `${this.converterNomeModulo(nomeEntidade)}.new(${argumentos.join(', ')})`
+                );
             }
         }
 
@@ -939,7 +961,9 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
             }
 
             // Método de módulo/struct - passar o struct como primeiro argumento
-            return Promise.resolve(`${this.obterNomeModulo(objeto)}.${metodo}(${objeto}${argumentos.length > 0 ? ', ' + argumentos.join(', ') : ''})`);
+            return Promise.resolve(
+                `${this.obterNomeModulo(objeto)}.${metodo}(${objeto}${argumentos.length > 0 ? ', ' + argumentos.join(', ') : ''})`
+            );
         }
 
         if (expressao.entidadeChamada.constructor.name === 'AcessoMetodoOuPropriedade') {
@@ -954,7 +978,9 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
             }
 
             // Método de módulo/struct
-            return Promise.resolve(`${this.obterNomeModulo(objeto)}.${simbolo}(${objeto}${argumentos.length > 0 ? ', ' + argumentos.join(', ') : ''})`);
+            return Promise.resolve(
+                `${this.obterNomeModulo(objeto)}.${simbolo}(${objeto}${argumentos.length > 0 ? ', ' + argumentos.join(', ') : ''})`
+            );
         }
 
         // Chamada normal de função
@@ -970,7 +996,7 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
         let resultado = 'fn ';
 
         // Parâmetros
-        const parametros = expressao.parametros.map(p =>
+        const parametros = expressao.parametros.map((p) =>
             this.converterIdentificador(p.nome.lexema)
         );
         resultado += parametros.join(', ');

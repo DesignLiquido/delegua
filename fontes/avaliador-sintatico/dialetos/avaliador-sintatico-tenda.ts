@@ -31,7 +31,18 @@ import { ParametroInterface, SimboloInterface } from '../../interfaces';
 
 import { ErroAvaliadorSintatico } from './../erro-avaliador-sintatico';
 
-import { Deceto, Dupla, Noneto, Octeto, Quarteto, Quinteto, SeletorTuplas, Septeto, Sexteto, Trio } from '../../construtos/tuplas';
+import {
+    Deceto,
+    Dupla,
+    Noneto,
+    Octeto,
+    Quarteto,
+    Quinteto,
+    SeletorTuplas,
+    Septeto,
+    Sexteto,
+    Trio,
+} from '../../construtos/tuplas';
 import {
     Bloco,
     Comentario,
@@ -236,7 +247,9 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         }
     }
 
-    protected async construtoDicionario(simboloChaveEsquerda: SimboloInterface): Promise<Dicionario> {
+    protected async construtoDicionario(
+        simboloChaveEsquerda: SimboloInterface
+    ): Promise<Dicionario> {
         this.avancarEDevolverAnterior();
         const chaves = [];
         const valores = [];
@@ -723,7 +736,9 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         return entidadeChamada;
     }
 
-    protected async declaracaoDeFuncao(identificador: SimboloInterface<string>): Promise<FuncaoDeclaracao> {
+    protected async declaracaoDeFuncao(
+        identificador: SimboloInterface<string>
+    ): Promise<FuncaoDeclaracao> {
         // Se houver chamadas recursivas à função, precisamos definir um tipo
         // para ela. Vai ser atualizado após avaliação do corpo da função.
         this.pilhaEscopos.definirInformacoesVariavel(
@@ -1357,7 +1372,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
 
         this.consumir(tiposDeSimbolos.ENTÃO, "Esperado 'então' após a condição.");
 
-        const caminhoEntao = await this.resolverDeclaracao() as Bloco;
+        const caminhoEntao = (await this.resolverDeclaracao()) as Bloco;
 
         let caminhoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENÃO)) {

@@ -1,9 +1,9 @@
 import { VariavelInterface } from '../interfaces';
 import { PilhaInterface } from '../interfaces';
 
-export class PilhaVariaveis
-    implements PilhaInterface<{ [nomeVariavel: string]: VariavelInterface }>
-{
+export class PilhaVariaveis implements PilhaInterface<{
+    [nomeVariavel: string]: VariavelInterface;
+}> {
     pilha: { [nomeVariavel: string]: VariavelInterface }[];
 
     constructor() {

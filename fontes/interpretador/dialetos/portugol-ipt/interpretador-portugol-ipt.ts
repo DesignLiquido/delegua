@@ -111,14 +111,16 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
     }
-    
+
     /* istanbul ignore next */
     visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
     /* istanbul ignore next */
-    visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> | void {
+    visitarExpressaoAcessoIntervaloVariavel(
+        expressao: AcessoIntervaloVariavel
+    ): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 

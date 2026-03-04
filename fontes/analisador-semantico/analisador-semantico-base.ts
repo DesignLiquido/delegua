@@ -34,7 +34,7 @@ import {
     Constante,
     Construto,
     AcessoIntervaloVariavel,
-    TuplaN
+    TuplaN,
 } from '../construtos';
 import {
     Declaracao,
@@ -88,7 +88,8 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
 
     protected diagnosticoJaExiste(simbolo: SimboloInterface, mensagem: string): boolean {
         return this.diagnosticos.some(
-            d => d.linha === simbolo.linha &&
+            (d) =>
+                d.linha === simbolo.linha &&
                 d.mensagem === mensagem &&
                 d.simbolo.lexema === simbolo.lexema
         );
@@ -158,7 +159,7 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
         for (let [indice, parametro] of parametros.entries()) {
             const argumento = argumentos[indice];
             if (argumento) {
-                // Usando `obterTipoExpressao` para resolver adequadamente o tipo do argumento, 
+                // Usando `obterTipoExpressao` para resolver adequadamente o tipo do argumento,
                 // independentemente de ser um `Literal` (tipo já resolvido), `Variavel` (tipo inferido do
                 // escopo), `Binario`, `Agrupamento`, ou qualquer outro construto (retorna `null` quando
                 // o tipo não pode ser determinado em tempo de compilação).
@@ -228,7 +229,14 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
      */
     protected inferirTipoBinario(binario: Binario): string | null {
         const operadoresMatematicos = ['ADICAO', 'SUBTRACAO', 'MULTIPLICACAO', 'DIVISAO', 'MODULO'];
-        const operadoresComparacao = ['MAIOR', 'MAIOR_IGUAL', 'MENOR', 'MENOR_IGUAL', 'IGUAL', 'DIFERENTE'];
+        const operadoresComparacao = [
+            'MAIOR',
+            'MAIOR_IGUAL',
+            'MENOR',
+            'MENOR_IGUAL',
+            'IGUAL',
+            'DIFERENTE',
+        ];
 
         // Operadores de comparação sempre retornam lógico
         if (operadoresComparacao.includes(binario.operador.tipo)) {
@@ -241,7 +249,7 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
         if (!tipoEsquerda || !tipoDireita) {
             return null;
         }
-        
+
         if (operadoresMatematicos.includes(binario.operador.tipo)) {
             const tiposNumericos = ['inteiro', 'número', 'real'];
             if (tiposNumericos.includes(tipoEsquerda) && tiposNumericos.includes(tipoDireita)) {
@@ -252,17 +260,17 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
 
                 return 'número';
             }
-            
+
             // Concatenação de textos
             if (tipoEsquerda === 'texto' || tipoDireita === 'texto') {
                 return 'texto';
             }
         }
-        
+
         return 'qualquer';
     }
 
-     /**
+    /**
      * Marca as variáveis usadas em uma expressão.
      */
     protected marcarVariaveisUsadasEmExpressao(expressao: Construto): void {
@@ -291,9 +299,11 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
             return;
         }
 
-        if (expressao instanceof AcessoMetodo ||
+        if (
+            expressao instanceof AcessoMetodo ||
             expressao instanceof AcessoMetodoOuPropriedade ||
-            expressao instanceof AcessoPropriedade) {
+            expressao instanceof AcessoPropriedade
+        ) {
             this.marcarVariaveisUsadasEmExpressao((expressao as any).objeto);
             return;
         }
@@ -368,14 +378,17 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
             return false;
         }
 
-        if (caminhoSenaoResolvido instanceof Se && (caminhoSenaoResolvido.caminhoEntao as Bloco).declaracoes?.length === 1) {
-            const senaoSeRetorna = this.verificarSeRetorna(
-                caminhoSenaoResolvido as Se
-            );
+        if (
+            caminhoSenaoResolvido instanceof Se &&
+            (caminhoSenaoResolvido.caminhoEntao as Bloco).declaracoes?.length === 1
+        ) {
+            const senaoSeRetorna = this.verificarSeRetorna(caminhoSenaoResolvido as Se);
             return entaoRetorna && senaoSeRetorna;
         }
 
-        const senaoRetorna = this.verificarBlocoRetorna((declaracaoSe.caminhoSenao as Bloco).declaracoes);
+        const senaoRetorna = this.verificarBlocoRetorna(
+            (declaracaoSe.caminhoSenao as Bloco).declaracoes
+        );
         return entaoRetorna && senaoRetorna;
     }
 
@@ -403,7 +416,9 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
         return Promise.resolve();
     }
 
-    visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> | void {
+    visitarExpressaoAcessoIntervaloVariavel(
+        expressao: AcessoIntervaloVariavel
+    ): Promise<any> | void {
         return Promise.resolve();
     }
 

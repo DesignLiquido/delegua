@@ -144,4 +144,3 @@ export function inferirTipoVariavel(variavel: any): TipoInferencia | TipoNativoS
             return 'símbolo';
     }
 }
-

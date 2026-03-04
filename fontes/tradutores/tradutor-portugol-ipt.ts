@@ -63,7 +63,10 @@ export class TradutorPortugolIpt {
         this.avaliadorSintatico = new AvaliadorSintaticoPortugolIpt();
 
         const retornoLexador = this.lexador.mapear(codigo.split('\n'), -1);
-        const retornoAvaliadorSintatico = await this.avaliadorSintatico.analisar(retornoLexador, -1);
+        const retornoAvaliadorSintatico = await this.avaliadorSintatico.analisar(
+            retornoLexador,
+            -1
+        );
 
         for (const declaracao of retornoAvaliadorSintatico.declaracoes) {
             resultado += `${this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao)} \n`;

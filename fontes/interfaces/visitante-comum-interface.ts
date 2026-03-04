@@ -87,7 +87,9 @@ export interface VisitanteComumInterface {
     visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any> | void;
     visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> | void;
     visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel): Promise<any> | void;
-    visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> | void;
+    visitarExpressaoAcessoIntervaloVariavel(
+        expressao: AcessoIntervaloVariavel
+    ): Promise<any> | void;
     visitarExpressaoAcessoElementoMatriz(expressao: AcessoElementoMatriz): Promise<any> | void;
     visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> | void;
     visitarExpressaoAcessoMetodoOuPropriedade(
