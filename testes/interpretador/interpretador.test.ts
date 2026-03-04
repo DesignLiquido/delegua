@@ -5104,6 +5104,48 @@ describe('Interpretador', () => {
                 expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
             });
 
+            it('Erros de interface trazem correcaoSugerida com membros faltando e linha final da classe', async () => {
+                const codigo = [
+                    'interface NomeDaInterface {',       // linha 1
+                    '    nomePropriedade: inteiro',      // linha 2
+                    '    nomeMetodo(param: inteiro): inteiro', // linha 3
+                    '}',                                 // linha 4
+                    'classe NomeDaClasse implementa NomeDaInterface {', // linha 5
+                    '}',                                 // linha 6
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(2);
+
+                const erros = retornoAvaliadorSintatico.erros;
+                for (const erro of erros) {
+                    expect(erro.correcaoSugerida).toBeDefined();
+                    const correcao = erro.correcaoSugerida!;
+                    expect(correcao.tipo).toBe('implementar-interface');
+                    expect(correcao.nomeInterface).toBe('NomeDaInterface');
+                    expect(correcao.nomeClasse).toBe('NomeDaClasse');
+                    expect(correcao.membrosFaltando).toHaveLength(2);
+                    expect(correcao.linhaFinalClasse).toBe(6);
+                }
+
+                const correcao = erros[0].correcaoSugerida!;
+                const propriedade = correcao.membrosFaltando.find((m) => m.tipo === 'propriedade');
+                const metodo = correcao.membrosFaltando.find((m) => m.tipo === 'metodo');
+
+                expect(propriedade).toBeDefined();
+                expect(propriedade!.nome).toBe('nomePropriedade');
+                expect(propriedade!.tipoPropriedade).toBe('inteiro');
+
+                expect(metodo).toBeDefined();
+                expect(metodo!.nome).toBe('nomeMetodo');
+                expect(metodo!.tipoRetorno).toBe('inteiro');
+                expect(metodo!.parametros).toHaveLength(1);
+                const parametro = metodo!.parametros![0]!;
+                expect(parametro.nome).toBe('param');
+                expect(parametro.tipoDado).toBe('inteiro');
+            });
+
             it('Classe pode implementar múltiplas interfaces', async () => {
                 const codigo = [
                     'interface Imprimivel {',

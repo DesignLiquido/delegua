@@ -44,7 +44,7 @@ import {
 } from '../construtos';
 import { AvaliadorSintaticoInterface, ParametroInterface, SimboloInterface } from '../interfaces';
 
-import { ErroAvaliadorSintatico } from './erro-avaliador-sintatico';
+import { CorrecaoImplementacaoInterface, ErroAvaliadorSintatico, MembroInterfaceFaltando } from './erro-avaliador-sintatico';
 
 import {
     Deceto,
@@ -3767,6 +3767,7 @@ export class AvaliadorSintatico
         this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após o escopo da classe.");
 
         // Verificação em tempo de análise: classe deve implementar todos os contratos das interfaces.
+        const linhaFinalClasse = this.simbolos[this.atual - 1].linha;
         for (const nomeInterface of implementaInterfaces) {
             const interfaceDecl = this.interfacesDeclaradas[nomeInterface.lexema];
             if (!interfaceDecl) {
@@ -3775,22 +3776,53 @@ export class AvaliadorSintatico
                 );
                 continue;
             }
+
+            const membrosFaltando: MembroInterfaceFaltando[] = [];
+
             for (const assinatura of interfaceDecl.metodos) {
                 const nomeMetodo = assinatura.nome.lexema;
                 const implementado = metodos.some((m) => m.simbolo.lexema === nomeMetodo);
                 if (!implementado) {
-                    this.erros.push(
-                        this.erro(simbolo, `Classe '${simbolo.lexema}' não implementa o método '${nomeMetodo}' exigido pela interface '${nomeInterface.lexema}'.`)
-                    );
+                    membrosFaltando.push({
+                        tipo: 'metodo',
+                        nome: nomeMetodo,
+                        parametros: assinatura.parametros.map((p) => ({
+                            nome: p.nome.lexema,
+                            tipoDado: p.tipoDado,
+                        })),
+                        tipoRetorno: assinatura.tipoRetorno,
+                    });
                 }
             }
+
             for (const prop of interfaceDecl.propriedades) {
                 const nomeProp = prop.nome.lexema;
                 const implementada = propriedades.some((p) => p.nome.lexema === nomeProp);
                 if (!implementada) {
-                    this.erros.push(
-                        this.erro(simbolo, `Classe '${simbolo.lexema}' não declara a propriedade '${nomeProp}' exigida pela interface '${nomeInterface.lexema}'.`)
-                    );
+                    membrosFaltando.push({
+                        tipo: 'propriedade',
+                        nome: nomeProp,
+                        tipoPropriedade: prop.tipo,
+                    });
+                }
+            }
+
+            if (membrosFaltando.length > 0) {
+                const correcaoSugerida: CorrecaoImplementacaoInterface = {
+                    tipo: 'implementar-interface',
+                    nomeInterface: nomeInterface.lexema,
+                    nomeClasse: simbolo.lexema,
+                    membrosFaltando,
+                    linhaFinalClasse,
+                };
+                for (const membro of membrosFaltando) {
+                    const mensagem =
+                        membro.tipo === 'metodo'
+                            ? `Classe '${simbolo.lexema}' não implementa o método '${membro.nome}' exigido pela interface '${nomeInterface.lexema}'.`
+                            : `Classe '${simbolo.lexema}' não declara a propriedade '${membro.nome}' exigida pela interface '${nomeInterface.lexema}'.`;
+                    const erro = this.erro(simbolo, mensagem);
+                    erro.correcaoSugerida = correcaoSugerida;
+                    this.erros.push(erro);
                 }
             }
         }
