@@ -668,9 +668,17 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         }
     }
 
-    erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico {
-        const excecao = new ErroAvaliadorSintatico(simbolo, mensagemDeErro);
+    erro(
+        simbolo: SimboloInterface,
+        mensagemDeErro: string
+    ): ErroAvaliadorSintatico {
+        const simboloParaErro = simbolo || this.simboloAnterior();
+        const excecao = new ErroAvaliadorSintatico(
+            simboloParaErro,
+            mensagemDeErro
+        );
         this.erros.push(excecao);
+
         return excecao;
     }
 
@@ -685,7 +693,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
     }
 
     verificarTipoProximoSimbolo(tipo: string): boolean {
-        if (this.estaNoFinal()) return false;
+        if (this.atual + 1 >= this.simbolos.length) return false;
         return this.simbolos[this.atual + 1].tipo === tipo;
     }
 
@@ -1440,60 +1448,48 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         let simboloAtual = this.simboloAtual();
         const simboloAnterior = this.simboloAnterior();
 
-        // Situação 1: não tem bloco de escopo.
-        //
-        // Exemplo: `se verdadeiro: escreva('Alguma coisa')`.
-        // Neste caso, linha do símbolo atual é igual à linha do símbolo anterior.
+        if (!simboloAtual) {
+            throw this.erro(
+                simboloAnterior,
+                'Esperado corpo do escopo após a declaração.'
+            );
+        }
 
+        // Declaração na mesma linha (ex: 'se verdadeiro: escreva("Oi")')
         if (simboloAtual.linha === simboloAnterior.linha) {
-            const declaracoesBloco = await this.resolverDeclaracaoForaDeBloco();
-            if (declaracoesBloco !== null) {
-                if (Array.isArray(declaracoesBloco)) {
-                    declaracoes = declaracoes.concat(declaracoesBloco);
-                } else {
-                    declaracoes.push(declaracoesBloco as Declaracao);
-                }
-            }
+            const retorno = await this.resolverDeclaracaoForaDeBloco();
+            if (retorno !== null) declaracoes = declaracoes.concat(retorno);
         } else {
-            // Situação 2: símbolo atual fica na próxima linha.
-            //
-            // Verifica-se o número de espaços à esquerda da linha através dos pragmas.
-            // Se número de espaços da linha do símbolo atual é menor ou igual ao número de espaços
-            // da linha anterior, e bloco ainda não começou, é uma situação de erro.
-            let espacosIndentacaoLinhaAtual =
-                this.localizacoes[simboloAtual.linha].espacosIndentacao;
-            const espacosIndentacaoLinhaAnterior =
-                this.localizacoes[simboloAnterior.linha].espacosIndentacao;
+            // Bloco de múltiplas linhas baseado em indentação
+            let espacosAtual = this
+                .localizacoes[simboloAtual.linha]
+                .espacosIndentacao;
+            const espacosAnterior = this
+                .localizacoes[simboloAnterior.linha]
+                .espacosIndentacao;
 
-            if (espacosIndentacaoLinhaAtual <= espacosIndentacaoLinhaAnterior) {
+            if (espacosAtual <= espacosAnterior) {
                 throw this.erro(
                     simboloAtual,
                     `Indentação inconsistente na linha ${simboloAtual.linha}. ` +
-                        `Esperado: >= ${espacosIndentacaoLinhaAnterior}. ` +
-                        `Atual: ${espacosIndentacaoLinhaAtual}`
+                        `Esperado: >= ${espacosAnterior}. ` +
+                        `Atual: ${espacosAtual}`
                 );
             }
 
-            // Indentação ok, é um bloco de escopo.
-            // Inclui todas as declarações cujas linhas tenham o mesmo número de espaços
-            // de indentação do bloco.
-            // Se `simboloAtual` for definido em algum momento como indefinido,
-            // Significa que o código acabou, então o bloco também acabou.
-            const espacosIndentacaoBloco = espacosIndentacaoLinhaAtual;
-            while (espacosIndentacaoLinhaAtual === espacosIndentacaoBloco) {
-                const retornoDeclaracao = await this.resolverDeclaracaoForaDeBloco();
-                if (retornoDeclaracao !== null) {
-                    if (Array.isArray(retornoDeclaracao)) {
-                        declaracoes = declaracoes.concat(retornoDeclaracao);
-                    } else {
-                        declaracoes.push(retornoDeclaracao as Declaracao);
-                    }
-                }
+            const indentacaoBloco = espacosAtual;
+
+            // Consome as declarações enquanto a indentação for estritamente igual à do bloco
+            while (simboloAtual && espacosAtual === indentacaoBloco) {
+                const retorno = await this.resolverDeclaracaoForaDeBloco();
+                if (retorno !== null) declaracoes = declaracoes.concat(retorno);
 
                 simboloAtual = this.simboloAtual();
-                if (!simboloAtual) break;
-                espacosIndentacaoLinhaAtual =
-                    this.localizacoes[simboloAtual.linha].espacosIndentacao;
+                if (simboloAtual) {
+                    espacosAtual = this
+                        .localizacoes[simboloAtual.linha]
+                        .espacosIndentacao;
+                }
             }
         }
 
@@ -2337,12 +2333,11 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
     async resolverDeclaracaoForaDeBloco(): Promise<Declaracao | Declaracao[]> {
         try {
             if (
-                (this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) ||
-                    this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNÇÃO)) &&
-                this.verificarTipoProximoSimbolo(tiposDeSimbolos.IDENTIFICADOR)
+                this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) ||
+                this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNÇÃO)
             ) {
                 this.avancarEDevolverAnterior();
-                return await this.funcao('funcao');
+                return await this.funcao('da função');
             }
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CLASSE))
