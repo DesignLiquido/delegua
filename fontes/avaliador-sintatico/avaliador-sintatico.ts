@@ -4273,7 +4273,7 @@ export class AvaliadorSintatico
             case tiposDeSimbolos.COMENTARIO:
                 return this.declaracaoComentarioUmaLinha();
             case tiposDeSimbolos.DOCUMENTARIO: {
-                const simboloDoc = this.avancarEDevolverAnterior();
+                const simboloDocumentario = this.avancarEDevolverAnterior();
                 // Se o próximo token for uma declaração de função com identificador,
                 // anexa o documentário como documentação da função.
                 if (
@@ -4283,13 +4283,14 @@ export class AvaliadorSintatico
                 ) {
                     this.avancarEDevolverAnterior();
                     const declaracaoFuncao = (await this.funcao('funcao')) as FuncaoDeclaracao;
-                    declaracaoFuncao.documentacao = new ComentarioComoConstruto(simboloDoc);
+                    declaracaoFuncao.documentacao = new ComentarioComoConstruto(simboloDocumentario);
                     return declaracaoFuncao;
                 }
+
                 return new Comentario(
-                    simboloDoc.hashArquivo,
-                    simboloDoc.linha,
-                    simboloDoc.literal,
+                    simboloDocumentario.hashArquivo,
+                    simboloDocumentario.linha,
+                    simboloDocumentario.literal,
                     false
                 );
             }
