@@ -21,9 +21,9 @@ describe('AnalisadorDocumentario', () => {
         });
     });
 
-    describe('@parametro / @param', () => {
+    describe('@parametro / @parâmetro / @param', () => {
         it('analisa @parametro com tipo', () => {
-            const resultado = analisarDocumentario('@parametro {inteiro} n O número.');
+            const resultado = analisarDocumentario('@parâmetro {inteiro} n O número.');
             expect(resultado.parametros).toHaveLength(1);
             expect(resultado.parametros[0]).toEqual({
                 nome: 'n',
@@ -42,7 +42,7 @@ describe('AnalisadorDocumentario', () => {
             });
         });
 
-        it('analisa @param (alias em inglês) com tipo', () => {
+        it('analisa @param (abreviação) com tipo', () => {
             const resultado = analisarDocumentario('@param {texto} s A string.');
             expect(resultado.parametros).toHaveLength(1);
             expect(resultado.parametros[0]).toEqual({
@@ -53,7 +53,7 @@ describe('AnalisadorDocumentario', () => {
         });
 
         it('analisa múltiplos @parametro', () => {
-            const conteudo = '@parametro {inteiro} a O primeiro.\n@parametro {inteiro} b O segundo.';
+            const conteudo = '@parametro {inteiro} a O primeiro.\n@parâmetro {inteiro} b O segundo.';
             const resultado = analisarDocumentario(conteudo);
             expect(resultado.parametros).toHaveLength(2);
             expect(resultado.parametros[0].nome).toBe('a');
@@ -70,7 +70,7 @@ describe('AnalisadorDocumentario', () => {
         });
     });
 
-    describe('@retorna / @returns', () => {
+    describe('@retorna', () => {
         it('analisa @retorna com tipo', () => {
             const resultado = analisarDocumentario('@retorna {lógico} Verdadeiro se encontrado.');
             expect(resultado.retorna).toEqual({
@@ -87,19 +87,13 @@ describe('AnalisadorDocumentario', () => {
             });
         });
 
-        it('analisa @returns (alias em inglês)', () => {
-            const resultado = analisarDocumentario('@returns {inteiro} O resultado.');
-            expect(resultado.retorna?.tipo).toBe('inteiro');
-            expect(resultado.retorna?.descricao).toBe('O resultado.');
-        });
-
         it('retorna undefined quando não há @retorna', () => {
             const resultado = analisarDocumentario('Apenas descrição.');
             expect(resultado.retorna).toBeUndefined();
         });
     });
 
-    describe('@exemplo / @example', () => {
+    describe('@exemplo', () => {
         it('analisa @exemplo em uma única linha', () => {
             const resultado = analisarDocumentario('@exemplo escreva(f())');
             expect(resultado.exemplo).toBe('escreva(f())');
@@ -109,11 +103,6 @@ describe('AnalisadorDocumentario', () => {
             const conteudo = '@exemplo\nescreva(soma(1, 2))\nescreva(soma(3, 4))';
             const resultado = analisarDocumentario(conteudo);
             expect(resultado.exemplo).toBe('escreva(soma(1, 2))\nescreva(soma(3, 4))');
-        });
-
-        it('analisa @example (alias em inglês)', () => {
-            const resultado = analisarDocumentario('@example f(1)');
-            expect(resultado.exemplo).toBe('f(1)');
         });
 
         it('retorna undefined quando não há @exemplo', () => {
