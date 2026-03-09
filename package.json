@@ -55,10 +55,6 @@
             "url": "https://github.com/maitecr"
         },
         {
-            "name": "Maitê Capistrano Refosco",
-            "url": "https://github.com/maitecr"
-        },
-        {
             "name": "Aristides da Costa",
             "url": "https://github.com/Aristidescosta"
         },
@@ -69,6 +65,10 @@
         {
             "name": "Henrique Oliveira",
             "url": "https://github.com/hernique33comiitei"
+        },
+        {
+            "name": "Victor Francelino",
+            "url": "https://github.com/VictorFrancelino"
         }
     ],
     "license": "MIT",
