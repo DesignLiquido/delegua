@@ -14,7 +14,6 @@ import {
     Literal,
     Logico,
     ReferenciaFuncao,
-    Separador,
     TipoDe,
     Variavel,
     Vetor,
@@ -76,9 +75,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             if (['vetor', 'qualquer[]', 'inteiro[]', 'texto[]'].includes(declaracao.tipo)) {
                 if (declaracao.inicializador instanceof Vetor) {
                     const vetor = declaracao.inicializador as Vetor;
-                    const vetorSemSeparadores = vetor.valores.filter(
-                        (v) => v.constructor !== Separador
-                    );
+                    const vetorSemSeparadores = vetor.elementos;
 
                     if (declaracao.tipo === 'inteiro[]') {
                         const apenasValores = vetorSemSeparadores.find(
@@ -401,9 +398,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 }
             }
             if (expressao.valor instanceof Vetor) {
-                let valoresSemSeparador = (expressao.valor as Vetor).valores.filter(
-                    (v) => v.constructor !== Separador
-                );
+                let valoresSemSeparador = (expressao.valor as Vetor).elementos;
                 if (!['qualquer[]'].includes(valor.tipo)) {
                     if (valor.tipo === 'texto[]') {
                         if (!valoresSemSeparador.every((v) => typeof v.valor === 'string')) {

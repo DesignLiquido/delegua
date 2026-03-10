@@ -4,7 +4,6 @@ import { Construto } from './construto';
 export class Vetor implements Construto {
     linha: number;
     hashArquivo: number;
-    tamanho: number;
     tipo?: string;
 
     valores: Construto[];
@@ -13,19 +12,25 @@ export class Vetor implements Construto {
         hashArquivo: number,
         linha: number,
         valores: Construto[],
-        tamanho?: number,
+        _tamanho?: number,
         tipo?: string
     ) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
         this.tipo = tipo;
-
         this.valores = valores;
-        if (tamanho) {
-            this.tamanho = tamanho;
-        } else {
-            this.tamanho = this.valores.length;
-        }
+    }
+
+    /**
+     * Retorna apenas os elementos de dados do vetor, excluindo nós sintáticos
+     * (Separador, comentários) que podem aparecer entre os elementos.
+     */
+    get elementos(): Construto[] {
+        return this.valores.filter((v) => v.constructor.name !== 'Separador');
+    }
+
+    get tamanho(): number {
+        return this.elementos.length;
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {
