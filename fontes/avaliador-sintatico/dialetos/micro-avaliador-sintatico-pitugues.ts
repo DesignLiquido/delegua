@@ -74,7 +74,7 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
                 }
 
                 const tipoVetor = inferirTipoVariavel(valores);
-                return new Vetor(-1, Number(this.linha), valores, valores.length, tipoVetor);
+                return new Vetor(-1, Number(this.linha), valores, tipoVetor);
 
             case tiposDeSimbolos.FALSO:
                 this.avancarEDevolverAnterior();

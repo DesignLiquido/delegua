@@ -561,7 +561,6 @@ export class AvaliadorSintatico
                         this.hashArquivo,
                         Number(simboloAtual.linha),
                         [],
-                        0,
                         'qualquer[]'
                     );
                 }
@@ -633,7 +632,6 @@ export class AvaliadorSintatico
                     this.hashArquivo,
                     Number(simboloAtual.linha),
                     valores,
-                    valores.length,
                     tipoVetor
                 );
 

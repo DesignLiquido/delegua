@@ -612,7 +612,6 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                     identificador.hashArquivo,
                     identificador.linha,
                     valoresResto,
-                    valoresResto.length,
                     tipoInferido
                 );
                 tipo = tipoInferido;
@@ -787,7 +786,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             case tiposDeSimbolos.COLCHETE_ESQUERDO:
                 this.avancarEDevolverAnterior();
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                    return new Vetor(this.hashArquivo, simboloAtual.linha, [], 0, 'qualquer[]');
+                    return new Vetor(this.hashArquivo, simboloAtual.linha, [], 'qualquer[]');
                 }
 
                 // Ao resolver a expressão aqui, identificadores dentro da expressão de compreensão
@@ -818,7 +817,6 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                     this.hashArquivo,
                     simboloAtual.linha,
                     valoresVetor,
-                    valoresVetor.length,
                     tipoVetor
                 );
 

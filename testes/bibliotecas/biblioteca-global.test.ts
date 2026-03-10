@@ -1,6 +1,8 @@
 import { AvaliadorSintatico } from "../../fontes/avaliador-sintatico";
-import { Interpretador, InterpretadorBase } from "../../fontes/interpretador";
+import { minimo, maximo, intervalo } from "../../fontes/bibliotecas/biblioteca-global";
+import { Interpretador} from "../../fontes/interpretador";
 import { Lexador } from "../../fontes/lexador";
+import { criarInterpretadorMock } from "../_mocks/interpretador.mock";
 
 describe('Biblioteca Global', () => {
     let lexador: Lexador;
@@ -33,6 +35,7 @@ describe('Biblioteca Global', () => {
 
             expect(retornoInterpretador.erros).toHaveLength(0);
         });
+        
     });
 
     describe('algum()', () => {
@@ -313,6 +316,89 @@ describe('Biblioteca Global', () => {
             expect(_saida).toBe("1,4");
         });
     });
+        describe('maximo', () => {
+            it('Deve retornar o maior número de um vetor simples', async () => {
+                const interpretador = criarInterpretadorMock();
+                const resultado = await maximo(interpretador, [1, 10, 5, -2]);
+                expect(resultado).toBe(10);
+            });
+    
+            it('Deve retornar o maior vetor lexicograficamente (vetor de vetores)', async () => {
+                const interpretador = criarInterpretadorMock();
+                // [1, 3] é maior que [1, 2]
+                const resultado = await maximo(interpretador, [[1, 2], [1, 3]]);
+                expect(resultado).toEqual([1, 3]);
+            });
+    
+            it('Deve funcionar com números negativos e decimais', async () => {
+                const interpretador = criarInterpretadorMock();
+                const resultado = await maximo(interpretador, [-10.5, -5.2, -20.0]);
+                expect(resultado).toBe(-5.2);
+            });
+    
+            it('Deve rejeitar se o parâmetro não for um vetor', async () => {
+                const interpretador = criarInterpretadorMock();
+                await expect(maximo(interpretador, 123 as any)).rejects.toMatchObject({
+                    mensagem: 'Parâmetro inválido. O parâmetro da função maximo() deve ser um vetor.',
+                });
+            });
+    
+            it('Deve rejeitar vetor vazio', async () => {
+                const interpretador = criarInterpretadorMock();
+                await expect(maximo(interpretador, [])).rejects.toMatchObject({
+                    mensagem: 'Parâmetro inválido. O vetor não pode estar vazio.',
+                });
+            });
+    
+            it('Deve rejeitar tipos misturados incompatíveis (número vs vetor)', async () => {
+                const interpretador = criarInterpretadorMock();
+                await expect(maximo(interpretador, [1, [2]])).rejects.toMatchObject({
+                    mensagem: 'Não é possível comparar elementos de tipos diferentes dentro do vetor (ex: números com vetores).',
+                });
+            });
+        });
+    
+        describe('minimo', () => {
+            it('Deve retornar o menor número de um vetor simples', async () => {
+                const interpretador = criarInterpretadorMock();
+                const resultado = await minimo(interpretador, [10, 2, 20]);
+                expect(resultado).toBe(2);
+            });
+    
+            it('Deve retornar o menor vetor lexicograficamente', async () => {
+                const interpretador = criarInterpretadorMock();
+                // [0, 5] é menor que [1, 0]
+                const resultado = await minimo(interpretador, [[1, 0], [0, 5]]);
+                expect(resultado).toEqual([0, 5]);
+            });
+    
+            it('Deve funcionar com um único elemento', async () => {
+                const interpretador = criarInterpretadorMock();
+                const resultado = await minimo(interpretador, [42]);
+                expect(resultado).toBe(42);
+            });
+    
+            it('Deve rejeitar se o parâmetro for nulo', async () => {
+                const interpretador = criarInterpretadorMock();
+                await expect(minimo(interpretador, null as any)).rejects.toMatchObject({
+                    mensagem: 'Parâmetro inválido. O parâmetro da função minimo() não pode ser nulo.',
+                });
+            });
+    
+            it('Deve rejeitar vetor vazio', async () => {
+                const interpretador = criarInterpretadorMock();
+                await expect(minimo(interpretador, [])).rejects.toMatchObject({
+                    mensagem: 'Parâmetro inválido. O vetor não pode estar vazio.',
+                });
+            });
+    
+            it('Deve rejeitar tipos misturados (texto vs número)', async () => {
+                const interpretador = criarInterpretadorMock();
+                await expect(minimo(interpretador, [1, [2]])).rejects.toMatchObject({
+                    mensagem: 'Não é possível comparar elementos de tipos diferentes dentro do vetor (ex: números com vetores).',
+                });
+            });
+        });
 
     describe('encontrar()', () => {
         it('Sucesso', async () => {
@@ -553,6 +639,42 @@ describe('Biblioteca Global', () => {
             expect(retornoInterpretador.erros).toHaveLength(0);
         });
     });
+      describe('intervalo', () => {
+            it('cria intervalo correto (inicio inclusivo, fim exclusivo)', async () => {
+                const interpretador = criarInterpretadorMock();
+                const resultado = await intervalo(interpretador as any, 1 as any, 5 as any);
+                expect(resultado).toEqual([1,2,3,4]);
+            });
+            it('Rejeita quando parâmetros não são números', async () => {
+                const interpretador = criarInterpretadorMock();
+                await expect(intervalo(interpretador as any, '1' as any, 5 as any)).rejects.toMatchObject({
+                    mensagem: 'Os parâmetros de início e fim devem ser do tipo número ou inteiro.'
+                });
+            });
+            it('Cria intervalo correto (com passo)', async () => {
+                const interpretador = criarInterpretadorMock();
+                const resultado = await intervalo(interpretador as any, 1 as any, 10 as any, 3 as any);
+                expect(resultado).toEqual([1,4,7]);
+            });
+            it('Rejeita quando passo não é número', async () => {
+                const interpretador = criarInterpretadorMock();
+                await expect(intervalo(interpretador as any, 1 as any, 10 as any, '3' as any)).rejects.toMatchObject({
+                    mensagem: 'O parâmetro de passo deve ser do tipo número ou inteiro.'
+                });
+            });
+            it('Rejeita quando passo é zero', async () => {
+                const interpretador = criarInterpretadorMock();
+                await expect(intervalo(interpretador as any, 1 as any, 10 as any, 0 as any)).rejects.toMatchObject({
+                    mensagem: 'O passo não pode ser zero.'
+                });
+            });
+            it('Cria intervalo quando passo é negativo', async () => {
+                const interpretador = criarInterpretadorMock();
+                const resultado = await intervalo(interpretador as any, 10 as any, 1 as any, -3 as any);
+                expect(resultado).toEqual([10,7,4]);
+            });
+    
+        });
 
     describe('ordenar()', () => {
         it('Sucesso', async () => {
