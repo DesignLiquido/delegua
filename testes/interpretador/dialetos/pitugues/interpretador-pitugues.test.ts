@@ -37,7 +37,7 @@ describe('Interpretador (Pituguês)', () => {
                         retornoAvaliadorSintatico.declaracoes
                     );
 
-                     expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
                 it('Teste do exemplo de código presente no artigo sobre o Interpretador', async () => {
@@ -58,7 +58,7 @@ describe('Interpretador (Pituguês)', () => {
                         retornoAvaliadorSintatico.declaracoes
                     );
 
-                     expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
                 it('Atribuição com anotação de tipo texto[]', async () => {
@@ -1629,7 +1629,7 @@ describe('Interpretador (Pituguês)', () => {
                         expect(_saidas[0]).toBe('falso');
                     });
                 });
-                });
+            });
 
             describe('Desempacotamento de dicionários com **', () => {
                 describe('Casos de sucesso', () => {
@@ -3661,143 +3661,200 @@ describe('Interpretador (Pituguês)', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(_saidas[0]).toBe('1.234,5');
                 });
-            describe('todos()', () => {
-                it('Chama a função nativa "todos()" com iterável de dados Truly', async () => {
-                    let _saida: string = '';
+                describe('todos()', () => {
+                    it('Chama a função nativa "todos()" com iterável de dados Truly', async () => {
+                        let _saida: string = '';
 
-                    const retornoLexador = lexador.mapear(
-                        [
-                            'listaDeNumeros = [1, "Pituguês", verdadeiro]',
-                            'escreva(todos(listaDeNumeros))'
-                        ],
-                        -1
-                    );
-                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'listaDeNumeros = [1, "Pituguês", verdadeiro]',
+                                'escreva(todos(listaDeNumeros))'
+                            ],
+                            -1
+                        );
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        _saida = saida;
-                    };
+                        interpretador.funcaoDeRetorno = (saida: any) => {
+                            _saida = saida;
+                        };
 
-                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                        await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    expect(_saida).toBeTruthy();
-                    expect(_saida).toBe('verdadeiro');
+                        expect(_saida).toBeTruthy();
+                        expect(_saida).toBe('verdadeiro');
+                    });
+
+                    it('Chama a função nativa "todos()" com um objeto', async () => {
+                        let _saida: string = '';
+
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'objetoLegal = { 1: "a", 2: "b", 3: "c" }',
+                                'escreva(todos(objetoLegal))'
+                            ],
+                            -1
+                        );
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                        interpretador.funcaoDeRetorno = (saida: any) => {
+                            _saida = saida;
+                        };
+
+                        await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(_saida).toBeTruthy();
+                        expect(_saida).toBe('verdadeiro');
+                    });
+
+                    it('Chama a função nativa "todos()" com um dicionário', async () => {
+                        let _saida: string = '';
+
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'objetoLegal = { 1: "a", 2: "b", 3: "c" }',
+                                'escreva(todos(objetoLegal))'
+                            ],
+                            -1
+                        );
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                        interpretador.funcaoDeRetorno = (saida: any) => {
+                            _saida = saida;
+                        };
+
+                        await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(_saida).toBeTruthy();
+                        expect(_saida).toBe('verdadeiro');
+                    });
+
+                    it('Chama a função nativa "todos()" com iterável de dados Falsy', async () => {
+                        let _saida: string = '';
+
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'listaDeNumeros = [0, "", nulo, falso]',
+                                'escreva(todos(listaDeNumeros))'
+                            ],
+                            -1
+                        );
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                        interpretador.funcaoDeRetorno = (saida: any) => {
+                            _saida = saida;
+                        };
+
+                        await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(_saida).toBeTruthy();
+                        expect(_saida).toBe('falso');
+                    });
                 });
 
-                it('Chama a função nativa "todos()" com um objeto', async () => {
-                    let _saida: string = '';
+                describe('todosEmCondicao()', () => {
+                    it('Chama a função nativa "todosEmCondicao()" para verificar se os elementos do array são par.', async () => {
+                        let _saida: string = '';
 
-                    const retornoLexador = lexador.mapear(
-                        [
-                            'objetoLegal = { 1: "a", 2: "b", 3: "c" }',
-                            'escreva(todos(objetoLegal))'
-                        ],
-                        -1
-                    );
-                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'listaDeNumeros = [1, 2, 3, 4, 5]',
+                                'funcao eh_par(valor):',
+                                '    retorna valor % 2 == 0',
+                                'escreva(todosEmCondicao(listaDeNumeros, eh_par))'
+                            ],
+                            -1
+                        );
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        _saida = saida;
-                    };
+                        interpretador.funcaoDeRetorno = (saida: any) => {
+                            _saida = saida;
+                        };
 
-                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                        await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    expect(_saida).toBeTruthy();
-                    expect(_saida).toBe('verdadeiro');
-                });
+                        expect(_saida).toBe('falso');
+                    });
 
-                it('Chama a função nativa "todos()" com um dicionário', async () => {
-                    let _saida: string = '';
+                    it('Chama a função nativa "todosEmCondicao()" para verificar se todos os nomes começam com "V"', async () => {
+                        let _saida: string = '';
 
-                    const retornoLexador = lexador.mapear(
-                        [
-                            'objetoLegal = { 1: "a", 2: "b", 3: "c" }',
-                            'escreva(todos(objetoLegal))'
-                        ],
-                        -1
-                    );
-                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'listaDeNomes = ["Victor", "Verônica", "Vanessa"]',
+                                'funcao verificar_nomes(nome):',
+                                '    retorna nome[0] == "V"',
+                                'escreva(todosEmCondicao(listaDeNomes, verificar_nomes))'
+                            ],
+                            -1
+                        );
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        _saida = saida;
-                    };
+                        interpretador.funcaoDeRetorno = (saida: any) => {
+                            _saida = saida;
+                        };
 
-                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                        await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                    expect(_saida).toBeTruthy();
-                    expect(_saida).toBe('verdadeiro');
-                });
-
-                it('Chama a função nativa "todos()" com iterável de dados Falsy', async () => {
-                    let _saida: string = '';
-
-                    const retornoLexador = lexador.mapear(
-                        [
-                            'listaDeNumeros = [0, "", nulo, falso]',
-                            'escreva(todos(listaDeNumeros))'
-                        ],
-                        -1
-                    );
-                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        _saida = saida;
-                    };
-
-                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-
-                    expect(_saida).toBeTruthy();
-                    expect(_saida).toBe('falso');
+                        expect(_saida).toBeTruthy();
+                        expect(_saida).toBe('verdadeiro');
+                    });
                 });
             });
 
-            describe('todosEmCondicao()', () => {
-                it('Chama a função nativa "todosEmCondicao()" para verificar se os elementos do array são par.', async () => {
-                    let _saida: string = '';
+            it('Suporta o uso de Decoradores utilizando função anônima', async () => {
+                const codigo = [
+                    'função de decorador meu_decorador(decorado):',
+                    '   retorna funcao():',
+                    '       escreva("Antes")',
+                    '       decorado()',
+                    '       escreva("Depois")',
+                    '',
+                    '@meu_decorador',
+                    'função ola_mundo():',
+                    '   escreva("Olá, Mundo!")',
+                    '',
+                    'ola_mundo()'
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliador = await avaliadorSintatico.analisar(
+                    retornoLexador,
+                    -1
+                );
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliador.declaracoes
+                );
 
-                    const retornoLexador = lexador.mapear(
-                        [
-                            'listaDeNumeros = [1, 2, 3, 4, 5]',
-                            'funcao eh_par(valor):',
-                            '    retorna valor % 2 == 0',
-                            'escreva(todosEmCondicao(listaDeNumeros, eh_par))'
-                        ],
-                        -1
-                    );
-                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toEqual(['Antes', 'Olá, Mundo!', 'Depois']);
+            });
 
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        _saida = saida;
-                    };
+            it('Suporta o uso de Decoradores usando função nomeada', async () => {
+                const codigo = [
+                    'função de decorador meu_decorador(decorado):',
+                    '   funcao envelope():',
+                    '       escreva("Antes")',
+                    '       decorado()',
+                    '       escreva("Depois")',
+                    '',
+                    '   retorna envelope',
+                    '',
+                    '@meu_decorador',
+                    'função ola_mundo():',
+                    '   escreva("Olá, Mundo!")',
+                    '',
+                    'ola_mundo()'
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliador = await avaliadorSintatico.analisar(
+                    retornoLexador,
+                    -1
+                );
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliador.declaracoes
+                );
 
-                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-
-                    expect(_saida).toBe('falso');
-                });
-
-                it('Chama a função nativa "todosEmCondicao()" para verificar se todos os nomes começam com "V"', async () => {
-                    let _saida: string = '';
-
-                    const retornoLexador = lexador.mapear(
-                        [
-                            'listaDeNomes = ["Victor", "Verônica", "Vanessa"]',
-                            'funcao verificar_nomes(nome):',
-                            '    retorna nome[0] == "V"',
-                            'escreva(todosEmCondicao(listaDeNomes, verificar_nomes))'
-                        ],
-                        -1
-                    );
-                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-
-                    interpretador.funcaoDeRetorno = (saida: any) => {
-                        _saida = saida;
-                    };
-
-                    await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-
-                    expect(_saida).toBeTruthy();
-                    expect(_saida).toBe('verdadeiro');
-                });
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toEqual(['Antes', 'Olá, Mundo!', 'Depois']);
             });
         });
 
@@ -3996,9 +4053,9 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('Acesso a elementos negativos fora do tamanho do vetor', async () => {
                     const retornoLexador = lexador.mapear([`
-                        a = [1, 2, 3]
-                        escreva(a[-4])
-                    `], -1);
+                    a = [1, 2, 3]
+                    escreva(a[-4])
+                `], -1);
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
                         retornoLexador,
                         -1
@@ -4013,9 +4070,9 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('Acesso a elementos negativos fora do tamanho da tupla', async () => {
                     const retornoLexador = lexador.mapear([`
-                        a = (1, 2, 3)
-                        escreva(a[-4])
-                    `], -1);
+                    a = (1, 2, 3)
+                    escreva(a[-4])
+                `], -1);
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
                         retornoLexador,
                         -1
@@ -4088,9 +4145,9 @@ describe('Interpretador (Pituguês)', () => {
             describe('Fatiamento (Slicing)', () => {
                 it('Tentar fatiar número', async () => {
                     const retornoLexador = lexador.mapear([`
-                        numero = 123
-                        fatia = numero[0:1]
-                    `], -1);
+                    numero = 123
+                    fatia = numero[0:1]
+                `], -1);
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const retornoInterpretador = await interpretador.interpretar(
@@ -4106,9 +4163,9 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('Tentar fatiar booleano', async () => {
                     const retornoLexador = lexador.mapear([`
-                        logico = verdadeiro
-                        fatia = logico[0:1]
-                    `], -1);
+                    logico = verdadeiro
+                    fatia = logico[0:1]
+                `], -1);
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const retornoInterpretador = await interpretador.interpretar(
@@ -4121,9 +4178,9 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('Tentar fatiar dicionário (não suportado como intervalo)', async () => {
                     const retornoLexador = lexador.mapear([`
-                        dic = {'a': 1, 'b': 2}
-                        fatia = dic[0:1]
-                    `], -1);
+                    dic = {'a': 1, 'b': 2}
+                    fatia = dic[0:1]
+                `], -1);
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     const retornoInterpretador = await interpretador.interpretar(
@@ -4179,9 +4236,9 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('Tentativa de formatar uma string como ponto flutuante', async () => {
                     const retornoLexador = lexador.mapear([`
-                        valor = "estudante"
-                        escreva(f"{valor:.2f}")
-                    `], -1);
+                    valor = "estudante"
+                    escreva(f"{valor:.2f}")
+                `], -1);
 
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
@@ -4191,8 +4248,8 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('Variável não definida dentro da f-string', async () => {
                     const retornoLexador = lexador.mapear([`
-                        escreva(f"O resultado é: {resultado_fantasma:.2f}")
-                    `], -1);
+                    escreva(f"O resultado é: {resultado_fantasma:.2f}")
+                `], -1);
 
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
@@ -4203,9 +4260,9 @@ describe('Interpretador (Pituguês)', () => {
 
             it('Tentativa de formatação de ponto flutuante usando formatar() com valor string', async () => {
                 const retornoLexador = lexador.mapear([`
-                    valor = "1234.56789"
-                    escreva("Duas casas decimais: {:.2f}".formatar(valor))
-                `], -1);
+                valor = "1234.56789"
+                escreva("Duas casas decimais: {:.2f}".formatar(valor))
+            `], -1);
 
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
                     retornoLexador,
@@ -4220,9 +4277,9 @@ describe('Interpretador (Pituguês)', () => {
 
             it('Deve dar erro ao tentar alterar valor de uma tupla (Imutabilidade)', async () => {
                 const retornoLexador = lexador.mapear([`
-                    t = (1, 2, 3)
-                    t[0] = 999
-                `], -1);
+                t = (1, 2, 3)
+                t[0] = 999
+            `], -1);
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                 const retornoInterpretador = await interpretador.interpretar(
@@ -4390,10 +4447,10 @@ describe('Interpretador (Pituguês)', () => {
             describe('tupla() e vetor()', () => {
                 it('Erro em transformar vetor para vetor', async () => {
                     const retornoLexador = lexador.mapear([`
-                        vetor_muito_legal = [1, 2, 3]
-                        vetor = vetor(vetor_muito_legal)
-                        escreva(vetor);
-                    `], -1);
+                    vetor_muito_legal = [1, 2, 3]
+                    vetor = vetor(vetor_muito_legal)
+                    escreva(vetor);
+                `], -1);
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
                         retornoLexador,
                         -1
@@ -4409,10 +4466,10 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('Erro em transformar tupla para tupla', async () => {
                     const retornoLexador = lexador.mapear([`
-                        tupla_muito_legal = (1, 2, 3)
-                        tupla = tupla(tupla_muito_legal)
-                        escreva(tupla);
-                    `], -1);
+                    tupla_muito_legal = (1, 2, 3)
+                    tupla = tupla(tupla_muito_legal)
+                    escreva(tupla);
+                `], -1);
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
                         retornoLexador,
                         -1
@@ -4430,10 +4487,10 @@ describe('Interpretador (Pituguês)', () => {
             describe('paraTupla() e paraVetor()', () => {
                 it('Erro em transformar vetor para vetor usando paraVetor()', async () => {
                     const retornoLexador = lexador.mapear([`
-                        vetor_muito_legal = [1, 2, 3]
-                        vetor = vetor_muito_legal.paraVetor()
-                        escreva(vetor);
-                    `], -1);
+                    vetor_muito_legal = [1, 2, 3]
+                    vetor = vetor_muito_legal.paraVetor()
+                    escreva(vetor);
+                `], -1);
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
                         retornoLexador,
                         -1
@@ -4449,10 +4506,10 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('Erro em transformar tupla para tupla usando paraTupla()', async () => {
                     const retornoLexador = lexador.mapear([`
-                        tupla_muito_legal = (1, 2, 3)
-                        tupla = tupla_muito_legal.paraTupla()
-                        escreva(tupla);
-                    `], -1);
+                    tupla_muito_legal = (1, 2, 3)
+                    tupla = tupla_muito_legal.paraTupla()
+                    escreva(tupla);
+                `], -1);
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
                         retornoLexador,
                         -1
@@ -4548,8 +4605,8 @@ describe('Interpretador (Pituguês)', () => {
 
             it('Deve falhar ao tentar usar atribuição composta em um literal (Syntax Error)', async () => {
                 const retornoLexador = lexador.mapear([`
-                    10 += 5
-                `], -1);
+                10 += 5
+            `], -1);
 
                 const retornoAvaliador = await avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -4559,8 +4616,8 @@ describe('Interpretador (Pituguês)', () => {
 
             it('Deve falhar ao tentar atualizar variável não definida (Runtime Error)', async () => {
                 const retornoLexador = lexador.mapear([`
-                    x += 10
-                `], -1);
+                x += 10
+            `], -1);
 
                 const retornoAvaliador = await avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -4665,9 +4722,9 @@ describe('Interpretador (Pituguês)', () => {
             describe('vetor.limpar()', () => {
                 it('Falha - Tentar limpar uma variável que não é um vetor (ex: número)', async () => {
                     const retornoLexador = lexador.mapear([`
-                        numero = 10
-                        numero.limpar()
-                    `], -1);
+                    numero = 10
+                    numero.limpar()
+                `], -1);
 
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
@@ -4678,9 +4735,9 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('Falha - Tentar limpar um vetor nulo', async () => {
                     const retornoLexador = lexador.mapear([`
-                        v = nulo
-                        v.limpar()
-                    `], -1);
+                    v = nulo
+                    v.limpar()
+                `], -1);
 
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
@@ -4692,9 +4749,9 @@ describe('Interpretador (Pituguês)', () => {
             describe('vetor.contar()', () => {
                 it('Falha - Chamar contar() sem passar o argumento do elemento', async () => {
                     const retornoLexador = lexador.mapear([`
-                        v = [1, 2]
-                        escreva(v.contar())
-                    `], -1);
+                    v = [1, 2]
+                    escreva(v.contar())
+                `], -1);
 
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
@@ -4704,9 +4761,9 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('Falha - Passar mais argumentos do que o esperado (deve ignorar ou falhar)', async () => {
                     const retornoLexador = lexador.mapear([`
-                        v = [1, 2]
-                        escreva(v.contar(1, 2, 3))
-                    `], -1);
+                    v = [1, 2]
+                    escreva(v.contar(1, 2, 3))
+                `], -1);
 
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
@@ -4718,10 +4775,10 @@ describe('Interpretador (Pituguês)', () => {
             describe('vetor.estender()', () => {
                 it('Falha - Tentar estender com um valor booleano', async () => {
                     const retornoLexador = lexador.mapear([`
-                        v = [1]
-                        v.estender(verdadeiro)
-                        escreva(v)
-                    `], -1);
+                    v = [1]
+                    v.estender(verdadeiro)
+                    escreva(v)
+                `], -1);
 
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
@@ -4731,10 +4788,10 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('Falha - Estender com nulo', async () => {
                     const retornoLexador = lexador.mapear([`
-                        v = [1]
-                        v.estender(nulo)
-                        escreva(v)
-                    `], -1);
+                    v = [1]
+                    v.estender(nulo)
+                    escreva(v)
+                `], -1);
 
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
@@ -4746,9 +4803,9 @@ describe('Interpretador (Pituguês)', () => {
             describe('vetor.inserir()', () => {
                 it('Falha - Inserir passando texto no lugar do índice', async () => {
                     const retornoLexador = lexador.mapear([`
-                        v = [1, 2]
-                        v.inserir('texto', 10)
-                    `], -1);
+                    v = [1, 2]
+                    v.inserir('texto', 10)
+                `], -1);
 
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
@@ -4767,10 +4824,10 @@ describe('Interpretador (Pituguês)', () => {
 
                 it('Falha - Índice muito negativo (fora da realidade do vetor)', async () => {
                     const retornoLexador = lexador.mapear([`
-                        v = [1, 2]
-                        v.inserir(-999, 0)
-                        escreva(v)
-                    `], -1);
+                    v = [1, 2]
+                    v.inserir(-999, 0)
+                    escreva(v)
+                `], -1);
 
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
@@ -4926,4 +4983,3 @@ describe('Interpretador (Pituguês)', () => {
         });
     });
 });
-})
