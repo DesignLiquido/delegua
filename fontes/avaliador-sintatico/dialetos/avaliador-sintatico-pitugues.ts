@@ -11,6 +11,7 @@ import {
     Chamada,
     DefinirValor,
     Construto,
+    Decorador,
     Dicionario,
     FuncaoConstruto,
     Isto,
@@ -132,6 +133,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
     performance: boolean;
     superclasseAtual: string | undefined;
     intuirTipoQualquerParaIdentificadores: boolean;
+    pilhaDecoradores: Decorador[];
 
     constructor(performance = false) {
         this.atual = 0;
@@ -139,6 +141,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         this.performance = performance;
         this.intuirTipoQualquerParaIdentificadores = false;
         this.escopos = [];
+        this.pilhaDecoradores = [];
         this.pilhaEscopos = new PilhaEscopos();
         this.primitivasConhecidas = {};
         this.tiposDefinidosEmCodigo = {};
@@ -1753,6 +1756,56 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return new Sustar(this.simboloAtual());
     }
 
+    protected async resolverDecoradores(): Promise<void> {
+        while (this.verificarTipoSimboloAtual(tiposDeSimbolos.ARROBA)) {
+            this.avancarEDevolverAnterior();
+            let nomeDecorador = '@';
+            let linha: number;
+            let parametros: Array<Partial<ParametroInterface>> = [];
+            const atributos: { [key: string]: any } = {};
+
+            const primeiraParteNomeDecorador = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                'Esperado nome de decorador após "@".'
+            );
+            linha = Number(primeiraParteNomeDecorador.linha);
+            nomeDecorador += primeiraParteNomeDecorador.lexema;
+
+            while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
+                const parteNomeDecorador = this.consumir(
+                    tiposDeSimbolos.IDENTIFICADOR,
+                    'Esperado nome de decorador após "."'
+                );
+                nomeDecorador += '.' + parteNomeDecorador.lexema;
+            }
+
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
+                if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+                    parametros = await this.logicaComumParametros();
+                }
+
+                for (const parametro of parametros) {
+                    if (parametro.nome.lexema in atributos) {
+                        throw this.erro(
+                            parametro.nome,
+                            `Atributo de decorador declarado duas ou mais vezes: ${parametro.nome.lexema}`
+                        );
+                    }
+                    atributos[parametro.nome.lexema] = parametro.valorPadrao;
+                }
+
+                this.consumir(
+                    tiposDeSimbolos.PARENTESE_DIREITO,
+                    'Esperado ")" após argumentos do decorador.'
+                );
+            }
+
+            this.pilhaDecoradores.push(
+                new Decorador(this.hashArquivo, linha, nomeDecorador, atributos)
+            );
+        }
+    }
+
     declaracaoComentario(): Comentario {
         const simboloComentario = this.avancarEDevolverAnterior();
         return new Comentario(
@@ -1958,6 +2011,9 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             ? this.consumir(tiposDeSimbolos.IDENTIFICADOR, `Esperado nome ${tipo}.`)
             : new Simbolo(tiposDeSimbolos.CONSTRUTOR, 'construtor', null, -1, -1);
 
+        const decoradores = Array.from(this.pilhaDecoradores);
+        this.pilhaDecoradores = [];
+
         // Se houver chamadas recursivas à função, precisamos definir um tipo
         // para ela. Vai ser atualizado após avaliação do corpo da função.
         this.pilhaEscopos.definirInformacoesVariavel(
@@ -1971,8 +2027,17 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             simbolo.lexema,
             new InformacaoElementoSintatico(simbolo.lexema, tipoDaFuncao)
         );
-        const funcaoDeclaracao = new FuncaoDeclaracao(simbolo, corpoDaFuncao, tipoDaFuncao);
-        this.pilhaEscopos.registrarReferenciaFuncao(simbolo.lexema, funcaoDeclaracao);
+        const funcaoDeclaracao = new FuncaoDeclaracao(
+            simbolo,
+            corpoDaFuncao,
+            tipoDaFuncao,
+            decoradores
+        );
+        this.pilhaEscopos.registrarReferenciaFuncao(
+            simbolo.lexema,
+            funcaoDeclaracao
+        );
+
         return funcaoDeclaracao;
     }
 
@@ -2103,6 +2168,24 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
     }
 
     protected verificarDefinicaoTipoAtual(): string {
+        if (
+            this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) ||
+            this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNÇÃO)
+        ) {
+            if (this.verificarTipoProximoSimbolo(tiposDeSimbolos.MENOR)) {
+                this.avancarEDevolverAnterior();
+                this.avancarEDevolverAnterior();
+
+                const tipoRetorno = this.simboloAtual().lexema;
+
+                this.avancarEDevolverAnterior();
+
+                return `função<${tipoRetorno}>`;
+            }
+
+            return 'função<qualquer>';
+        }
+
         const tipos = [...Object.values(tiposDeDadosPitugues)];
 
         if (this.simbolos[this.atual].lexema in this.tiposDefinidosEmCodigo) {
@@ -2332,11 +2415,24 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
      */
     async resolverDeclaracaoForaDeBloco(): Promise<Declaracao | Declaracao[]> {
         try {
+            if (this.verificarTipoSimboloAtual(tiposDeSimbolos.ARROBA)) {
+                await this.resolverDecoradores();
+            }
+
             if (
                 this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) ||
                 this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNÇÃO)
             ) {
                 this.avancarEDevolverAnterior();
+
+                if (
+                    this.verificarTipoSimboloAtual(tiposDeSimbolos.DE) &&
+                    this.simboloNaPosicao(1)?.lexema === 'decorador'
+                ) {
+                    this.avancarEDevolverAnterior();
+                    this.avancarEDevolverAnterior();
+                }
+
                 return await this.funcao('da função');
             }
 
@@ -2685,6 +2781,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         this.atual = 0;
         this.blocos = 0;
         this.escopos = [];
+        this.pilhaDecoradores = [];
         this.inicializarPilhaEscopos();
         this.tiposDefinidosEmCodigo = {};
 
