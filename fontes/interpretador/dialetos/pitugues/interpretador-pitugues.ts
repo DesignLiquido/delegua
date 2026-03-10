@@ -16,9 +16,9 @@ import { Interpretador } from '../../interpretador';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
 
 import * as comum from './comum';
-import { ParaCada } from '../../../declaracoes';
+import { ParaCada, Retorna } from '../../../declaracoes';
 import { inferirTipoVariavel } from '../../../inferenciador';
-import { ContinuarQuebra, Quebra, SustarQuebra } from '../../../quebras';
+import { ContinuarQuebra, Quebra, SustarQuebra, RetornoQuebra } from '../../../quebras';
 
 export class InterpretadorPitugues extends Interpretador {
     constructor(
@@ -251,5 +251,24 @@ export class InterpretadorPitugues extends Interpretador {
         }
 
         return retornoExecucao;
+    }
+
+    override async visitarExpressaoRetornar(
+        declaracao: Retorna
+    ): Promise<RetornoQuebra> {
+        let valor = null;
+        if (declaracao.valor !== null && declaracao.valor !== undefined) {
+            valor = await this.avaliar(declaracao.valor);
+        }
+
+        const retornoQuebra = new RetornoQuebra(valor, declaracao.tipo);
+
+        if (retornoQuebra.valor) {
+            const valorResolvido = this.resolverValor(retornoQuebra.valor);
+            const construtorRetorno = valorResolvido?.constructor?.name?.replaceAll('_', '') ?? '';
+            if (['DeleguaFuncao', 'ReferenciaMontao'].includes(construtorRetorno)) retornoQuebra.preservarEscopo = true;
+        }
+
+        return retornoQuebra;
     }
 }
