@@ -1,5 +1,6 @@
 import { VisitanteComumInterface } from '../interfaces';
 import { Construto } from './construto';
+import { Separador } from './separador';
 
 export class Vetor implements Construto {
     linha: number;
@@ -12,7 +13,6 @@ export class Vetor implements Construto {
         hashArquivo: number,
         linha: number,
         valores: Construto[],
-        _tamanho?: number,
         tipo?: string
     ) {
         this.linha = linha;
@@ -26,7 +26,7 @@ export class Vetor implements Construto {
      * (Separador, comentários) que podem aparecer entre os elementos.
      */
     get elementos(): Construto[] {
-        return this.valores.filter((v) => v.constructor.name !== 'Separador');
+        return this.valores.filter((v) => v.constructor !== Separador);
     }
 
     get tamanho(): number {

@@ -311,7 +311,6 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
                         this.hashArquivo,
                         Number(simboloAtual.linha),
                         [],
-                        0,
                         'qualquer[]'
                     );
                 }
@@ -336,7 +335,6 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
                     this.hashArquivo,
                     Number(simboloAtual.linha),
                     valores,
-                    valores.length,
                     tipoVetor
                 );
 
