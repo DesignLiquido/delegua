@@ -335,6 +335,24 @@ describe('Tradutor Delégua -> Assembly x64', () => {
             expect(resultado).toContain('jmp L');
         });
 
+        it('laço para com i++ e escreva de variável inteira', async () => {
+            const retornoLexador = lexador.mapear([
+                'para var i = 1; i <= 10; i++ {',
+                '    escreva(i)',
+                '}',
+            ], -1);
+
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, 1);
+            const resultado = tradutorLinux.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+            expect(resultado).toContain('var_i');
+            expect(resultado).toContain('setle');
+            expect(resultado).toContain('inc rax');
+            expect(resultado).toContain('__delegua_print_int');
+            expect(resultado).not.toContain('Operador <= não implementado');
+            expect(resultado).not.toMatch(/mov ecx,\s*\n/);
+        });
+
         it('laço fazer-enquanto', async () => {
             const retornoLexador = lexador.mapear([
                 'fazer {',

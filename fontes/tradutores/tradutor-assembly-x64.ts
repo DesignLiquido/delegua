@@ -48,23 +48,26 @@ export class TradutorAssemblyX64 {
     variaveis: Map<string, string> = new Map();
     registradoresDisponiveis: string[] = ['rbx', 'r12', 'r13', 'r14', 'r15'];
     pilhaRegistradores: string[] = [];
+    helperPrintIntEmitido: boolean = false;
+    fmtIntWindowsEmitido: boolean = false;
+    helpers: string = '';
 
     bss = 'section .bss\n';
     data = 'section .data\n';
-    text: string;
+    textoSaida: string;
 
     constructor(public alvo: PlataformaAlvo = 'linux') {
         this.indentacao = 0;
-        this.text = `
+        this.textoSaida = `
 section .text
     ${this.alvo === 'linux' ? 'global _start' : 'global main'}
 ${this.alvo === 'linux' ? '_start:' : 'main:'}`;
 
         if (this.alvo === 'windows') {
-            this.text =
+            this.textoSaida =
                 `
 extern printf
-` + this.text;
+` + this.textoSaida;
         }
     }
 
@@ -182,7 +185,7 @@ extern printf
         );
         const valor = this.dicionarioConstrutos[construto.valor.constructor.name](construto.valor);
 
-        this.text += `
+        this.textoSaida += `
     mov rax, ${valor}
     mov [${nomeVar} + ${indice} * 8], rax`;
     }
@@ -206,7 +209,7 @@ extern printf
             this.variaveis.set(nomeVar, varLabel);
         }
 
-        this.text += `
+        this.textoSaida += `
     mov rax, ${valor}
     mov [${this.variaveis.get(nomeVar)}], rax`;
     }
@@ -220,42 +223,78 @@ extern printf
         );
         const operador = construto.operador.lexema;
 
-        const reg = this.obterRegistrador();
+        const registrador = this.obterRegistrador();
 
-        this.text += `
+        this.textoSaida += `
     mov rax, ${esquerda}
-    mov ${reg}, ${direita}`;
+    mov ${registrador}, ${direita}`;
 
         switch (operador) {
             case '+':
-                this.text += `
-    add rax, ${reg}`;
+                this.textoSaida += `
+    add rax, ${registrador}`;
                 break;
             case '-':
-                this.text += `
-    sub rax, ${reg}`;
+                this.textoSaida += `
+    sub rax, ${registrador}`;
                 break;
             case '*':
-                this.text += `
-    imul rax, ${reg}`;
+                this.textoSaida += `
+    imul rax, ${registrador}`;
                 break;
             case '/':
-                this.text += `
+                this.textoSaida += `
     xor rdx, rdx
-    idiv ${reg}`;
+    idiv ${registrador}`;
                 break;
             case '%':
-                this.text += `
+                this.textoSaida += `
     xor rdx, rdx
-    idiv ${reg}
+    idiv ${registrador}
     mov rax, rdx`;
                 break;
+            case '<':
+                this.textoSaida += `
+    cmp rax, ${registrador}
+    setl al
+    movzx rax, al`;
+                break;
+            case '>':
+                this.textoSaida += `
+    cmp rax, ${registrador}
+    setg al
+    movzx rax, al`;
+                break;
+            case '<=':
+                this.textoSaida += `
+    cmp rax, ${registrador}
+    setle al
+    movzx rax, al`;
+                break;
+            case '>=':
+                this.textoSaida += `
+    cmp rax, ${registrador}
+    setge al
+    movzx rax, al`;
+                break;
+            case '==':
+                this.textoSaida += `
+    cmp rax, ${registrador}
+    sete al
+    movzx rax, al`;
+                break;
+            case '!=':
+                this.textoSaida += `
+    cmp rax, ${registrador}
+    setne al
+    movzx rax, al`;
+                break;
             default:
-                this.text += `
+                this.textoSaida += `
     ; Operador ${operador} não implementado`;
         }
 
-        this.liberarRegistrador(reg);
+        this.liberarRegistrador(registrador);
         return 'rax';
     }
 
@@ -273,14 +312,14 @@ extern printf
         construto.argumentos.forEach((arg: Construto, index: number) => {
             if (index < registrosArgs.length) {
                 const valorArg = this.dicionarioConstrutos[arg.constructor.name](arg);
-                this.text += `
+                this.textoSaida += `
     mov ${registrosArgs[index]}, ${valorArg}`;
             } else {
                 // TODO: push extra args on stack according to target ABI
             }
         });
 
-        this.text += `
+        this.textoSaida += `
     call ${nomeFuncao}`;
     }
 
@@ -290,7 +329,7 @@ extern printf
         );
         const valor = this.dicionarioConstrutos[construto.valor.constructor.name](construto.valor);
 
-        this.text += `
+        this.textoSaida += `
     mov rax, ${valor}
     mov [${objeto}], rax`;
     }
@@ -298,7 +337,7 @@ extern printf
     traduzirFuncaoConstruto(construto: FuncaoConstruto): void {
         const labelFuncao = `func_${this.gerarDigitoAleatorio()}`;
 
-        this.text += `
+        this.textoSaida += `
 ${labelFuncao}:
     push rbp
     mov rbp, rsp`;
@@ -312,7 +351,7 @@ ${labelFuncao}:
             });
         }
 
-        this.text += `
+        this.textoSaida += `
     pop rbp
     ret`;
     }
@@ -336,12 +375,12 @@ ${labelFuncao}:
         const labelVerdadeiro = this.gerarLabel();
         const labelFim = this.gerarLabel();
 
-        this.text += `
+        this.textoSaida += `
     mov rax, ${esquerda}
     cmp rax, 0`;
 
         if (operador === 'e' || operador === '&&') {
-            this.text += `
+            this.textoSaida += `
     je ${labelFim}
     mov rax, ${direita}
     cmp rax, 0
@@ -350,7 +389,7 @@ ${labelVerdadeiro}:
     mov rax, 1
 ${labelFim}:`;
         } else if (operador === 'ou' || operador === '||') {
-            this.text += `
+            this.textoSaida += `
     jne ${labelVerdadeiro}
     mov rax, ${direita}
     cmp rax, 0
@@ -379,17 +418,25 @@ ${labelFim}:`;
         );
         const operador = construto.operador.lexema;
 
-        this.text += `
+        this.textoSaida += `
     mov rax, ${operando}`;
 
         if (operador === '-') {
-            this.text += `
+            this.textoSaida += `
     neg rax`;
         } else if (operador === '!' || operador === 'nao') {
-            this.text += `
+            this.textoSaida += `
     cmp rax, 0
     sete al
     movzx rax, al`;
+        } else if (operador === '++') {
+            this.textoSaida += `
+    inc rax
+    mov ${operando}, rax`;
+        } else if (operador === '--') {
+            this.textoSaida += `
+    dec rax
+    mov ${operando}, rax`;
         }
 
         return 'rax';
@@ -404,31 +451,31 @@ ${labelFim}:`;
     }
 
     traduzirConstrutoVetor(construto: Vetor): string {
-        const labelVetor = `vetor_${this.gerarDigitoAleatorio()}`;
+        const rotuloVetor = `vetor_${this.gerarDigitoAleatorio()}`;
         const tamanho = construto.valores?.length || 0;
 
-        this.bss += `    ${labelVetor} resq ${tamanho}\n`;
+        this.bss += `    ${rotuloVetor} resq ${tamanho}\n`;
 
         if (construto.valores && Array.isArray(construto.valores)) {
             construto.valores.forEach((valor: Construto, index: number) => {
                 if (this.dicionarioConstrutos[valor.constructor.name]) {
                     const valorTraduzido = this.dicionarioConstrutos[valor.constructor.name](valor);
-                    this.text += `
+                    this.textoSaida += `
     mov rax, ${valorTraduzido}
-    mov [${labelVetor} + ${index * 8}], rax`;
+    mov [${rotuloVetor} + ${index * 8}], rax`;
                 }
             });
         }
 
-        return labelVetor;
+        return rotuloVetor;
     }
 
     // Implementação das Declarações
     traduzirDeclaracaoBloco(declaracao: Bloco): void {
         if (declaracao.declaracoes && Array.isArray(declaracao.declaracoes)) {
-            declaracao.declaracoes.forEach((decl: Declaracao) => {
-                if (this.dicionarioDeclaracoes[decl.constructor.name]) {
-                    this.dicionarioDeclaracoes[decl.constructor.name](decl);
+            declaracao.declaracoes.forEach((declaracao: Declaracao) => {
+                if (this.dicionarioDeclaracoes[declaracao.constructor.name]) {
+                    this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao);
                 }
             });
         }
@@ -438,14 +485,14 @@ ${labelFim}:`;
         const labelInicio = this.gerarLabel();
         const labelFim = this.gerarLabel();
 
-        this.text += `
+        this.textoSaida += `
 ${labelInicio}:`;
 
         const condicao = this.dicionarioConstrutos[declaracao.condicao.constructor.name](
             declaracao.condicao
         );
 
-        this.text += `
+        this.textoSaida += `
     cmp ${condicao}, 0
     je ${labelFim}`;
 
@@ -453,7 +500,7 @@ ${labelInicio}:`;
             this.dicionarioDeclaracoes[declaracao.corpo.constructor.name](declaracao.corpo);
         }
 
-        this.text += `
+        this.textoSaida += `
     jmp ${labelInicio}
 ${labelFim}:`;
     }
@@ -472,27 +519,27 @@ ${labelFim}:`;
                         caminho.condicoes[0].constructor.name
                     ](caminho.condicoes[0]);
 
-                    this.text += `
+                    this.textoSaida += `
     mov rax, ${valorEscolha}
     cmp rax, ${valorCaso}
     jne ${labelProximo}`;
 
                     if (caminho.declaracoes && Array.isArray(caminho.declaracoes)) {
-                        caminho.declaracoes.forEach((decl: Declaracao) => {
-                            if (this.dicionarioDeclaracoes[decl.constructor.name]) {
-                                this.dicionarioDeclaracoes[decl.constructor.name](decl);
+                        caminho.declaracoes.forEach((declaracao: Declaracao) => {
+                            if (this.dicionarioDeclaracoes[declaracao.constructor.name]) {
+                                this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao);
                             }
                         });
                     }
 
-                    this.text += `
+                    this.textoSaida += `
     jmp ${labelFim}
 ${labelProximo}:`;
                 }
             });
         }
 
-        this.text += `
+        this.textoSaida += `
 ${labelFim}:`;
     }
 
@@ -508,14 +555,14 @@ ${labelFim}:`;
     traduzirDeclaracaoFazer(declaracao: Fazer): void {
         const labelInicio = this.gerarLabel();
 
-        this.text += `
+        this.textoSaida += `
 ${labelInicio}:`;
 
         // Em Delégua, fazer-enquanto tem caminhoFazer que é um Bloco
         if (declaracao.caminhoFazer && declaracao.caminhoFazer.declaracoes) {
-            declaracao.caminhoFazer.declaracoes.forEach((decl: Declaracao) => {
-                if (this.dicionarioDeclaracoes[decl.constructor.name]) {
-                    this.dicionarioDeclaracoes[decl.constructor.name](decl);
+            declaracao.caminhoFazer.declaracoes.forEach((declaracao: Declaracao) => {
+                if (this.dicionarioDeclaracoes[declaracao.constructor.name]) {
+                    this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao);
                 }
             });
         }
@@ -525,7 +572,7 @@ ${labelInicio}:`;
                 declaracao.condicaoEnquanto.constructor.name
             ](declaracao.condicaoEnquanto);
 
-            this.text += `
+            this.textoSaida += `
     cmp ${condicao}, 0
     jne ${labelInicio}`;
         }
@@ -545,13 +592,13 @@ ${labelInicio}:`;
         }
 
         if (this.alvo === 'linux') {
-            this.text += `
+            this.textoSaida += `
         ; Falhar com mensagem: ${mensagem}
         mov eax, 1
         mov ebx, 1
         int 0x80`;
         } else {
-            this.text += `
+            this.textoSaida += `
         ; Falhar com mensagem: ${mensagem}
         mov eax, 1
         ret`;
@@ -561,7 +608,7 @@ ${labelInicio}:`;
     traduzirDeclaracaoFuncao(declaracao: FuncaoDeclaracao): void {
         const nomeFuncao = declaracao.simbolo?.lexema || 'funcao';
 
-        this.text += `
+        this.textoSaida += `
 ${nomeFuncao}:
     push rbp
     mov rbp, rsp`;
@@ -578,14 +625,14 @@ ${nomeFuncao}:
             });
         }
 
-        this.text += `
+        this.textoSaida += `
     pop rbp
     ret`;
     }
 
     traduzirDeclaracaoImportar(declaracao: Importar): void {
         // Importação é tratada em tempo de linkagem
-        this.text += `
+        this.textoSaida += `
     ; Importar: ${declaracao.caminho || 'unknown'}`;
     }
 
@@ -607,7 +654,7 @@ ${nomeFuncao}:
             this.variaveis.set(nomeVar, varLabel);
         }
 
-        this.text += `
+        this.textoSaida += `
     mov eax, 3
     mov ebx, 0
     mov ecx, ${this.variaveis.get(nomeVar)}
@@ -619,24 +666,33 @@ ${nomeFuncao}:
         const labelInicio = this.gerarLabel();
         const labelFim = this.gerarLabel();
 
-        // Inicializador pode ser uma declaração ou construto
+        // Inicializador pode ser um array de declarações, uma declaração ou um construto
         if (declaracao.inicializador) {
-            const tipoInicializador = declaracao.inicializador.constructor.name;
-            if (this.dicionarioDeclaracoes[tipoInicializador]) {
-                this.dicionarioDeclaracoes[tipoInicializador](declaracao.inicializador);
-            } else if (this.dicionarioConstrutos[tipoInicializador]) {
-                this.dicionarioConstrutos[tipoInicializador](declaracao.inicializador);
+            if (Array.isArray(declaracao.inicializador)) {
+                for (const decl of declaracao.inicializador) {
+                    const tipo = decl.constructor.name;
+                    if (this.dicionarioDeclaracoes[tipo]) {
+                        this.dicionarioDeclaracoes[tipo](decl);
+                    }
+                }
+            } else {
+                const tipoInicializador = declaracao.inicializador.constructor.name;
+                if (this.dicionarioDeclaracoes[tipoInicializador]) {
+                    this.dicionarioDeclaracoes[tipoInicializador](declaracao.inicializador);
+                } else if (this.dicionarioConstrutos[tipoInicializador]) {
+                    this.dicionarioConstrutos[tipoInicializador](declaracao.inicializador);
+                }
             }
         }
 
-        this.text += `
+        this.textoSaida += `
 ${labelInicio}:`;
 
         if (declaracao.condicao) {
             const condicao = this.dicionarioConstrutos[declaracao.condicao.constructor.name](
                 declaracao.condicao
             );
-            this.text += `
+            this.textoSaida += `
     cmp ${condicao}, 0
     je ${labelFim}`;
         }
@@ -653,14 +709,14 @@ ${labelInicio}:`;
             }
         }
 
-        this.text += `
+        this.textoSaida += `
     jmp ${labelInicio}
 ${labelFim}:`;
     }
 
     traduzirDeclaracaoParaCada(declaracao: ParaCada): void {
-        const labelInicio = this.gerarLabel();
-        const labelFim = this.gerarLabel();
+        const rotuloInicio = this.gerarLabel();
+        const rotuloFim = this.gerarLabel();
         let nomeVar: string | undefined;
         if (declaracao.variavelIteracao instanceof Variavel) {
             nomeVar = declaracao.variavelIteracao.simbolo?.lexema;
@@ -672,20 +728,20 @@ ${labelFim}:`;
             tamanhoVetor = vetor.tamanho || 0;
         }
 
-        this.text += `
+        this.textoSaida += `
     xor rcx, rcx
-${labelInicio}:
+${rotuloInicio}:
     cmp rcx, ${tamanhoVetor}
-    jge ${labelFim}`;
+    jge ${rotuloFim}`;
 
         if (this.dicionarioDeclaracoes[declaracao.corpo.constructor.name]) {
             this.dicionarioDeclaracoes[declaracao.corpo.constructor.name](declaracao.corpo);
         }
 
-        this.text += `
+        this.textoSaida += `
     inc rcx
-    jmp ${labelInicio}
-${labelFim}:`;
+    jmp ${rotuloInicio}
+${rotuloFim}:`;
     }
 
     traduzirDeclaracaoRetorna(declaracao: Retorna): void {
@@ -693,25 +749,25 @@ ${labelFim}:`;
             const valor = this.dicionarioConstrutos[declaracao.valor.constructor.name](
                 declaracao.valor
             );
-            this.text += `
+            this.textoSaida += `
     mov rax, ${valor}`;
         }
-        this.text += `
+        this.textoSaida += `
     pop rbp
     ret`;
     }
 
     traduzirDeclaracaoSe(declaracao: Se): void {
-        const labelSenao = this.gerarLabel();
-        const labelFim = this.gerarLabel();
+        const rotuloSenao = this.gerarLabel();
+        const rotuloFim = this.gerarLabel();
 
         const condicao = this.dicionarioConstrutos[declaracao.condicao.constructor.name](
             declaracao.condicao
         );
 
-        this.text += `
+        this.textoSaida += `
     cmp ${condicao}, 0
-    je ${labelSenao}`;
+    je ${rotuloSenao}`;
 
         if (this.dicionarioDeclaracoes[declaracao.caminhoEntao.constructor.name]) {
             this.dicionarioDeclaracoes[declaracao.caminhoEntao.constructor.name](
@@ -719,9 +775,9 @@ ${labelFim}:`;
             );
         }
 
-        this.text += `
-    jmp ${labelFim}
-${labelSenao}:`;
+        this.textoSaida += `
+    jmp ${rotuloFim}
+${rotuloSenao}:`;
 
         if (
             declaracao.caminhoSenao &&
@@ -732,25 +788,25 @@ ${labelSenao}:`;
             );
         }
 
-        this.text += `
-${labelFim}:`;
+        this.textoSaida += `
+${rotuloFim}:`;
     }
 
     traduzirDeclaracaoClasse(declaracao: Classe): void {
         // Classes em assembly são complexas - implementação básica
-        this.text += `
+        this.textoSaida += `
     ; Classe: ${declaracao.simbolo?.lexema || 'unknown'}`;
     }
 
     traduzirDeclaracaoTente(declaracao: Tente): void {
         // Try-catch em assembly requer handler complexo
-        this.text += `
+        this.textoSaida += `
     ; Tente-pegue`;
 
         if (declaracao.caminhoTente && Array.isArray(declaracao.caminhoTente)) {
-            declaracao.caminhoTente.forEach((decl: Declaracao) => {
-                if (this.dicionarioDeclaracoes[decl.constructor.name]) {
-                    this.dicionarioDeclaracoes[decl.constructor.name](decl);
+            declaracao.caminhoTente.forEach((declaracao: Declaracao) => {
+                if (this.dicionarioDeclaracoes[declaracao.constructor.name]) {
+                    this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao);
                 }
             });
         }
@@ -793,7 +849,7 @@ ${labelFim}:`;
                 const valor = this.dicionarioConstrutos[tipoInicializador](
                     declaracao.inicializador
                 );
-                this.text += `
+                this.textoSaida += `
     mov rax, ${valor}
     mov [${varLabel}], rax`;
             }
@@ -812,40 +868,89 @@ ${labelFim}:`;
         return varTamanho;
     }
 
+    emitirHelperPrintInt(): void {
+        if (this.helperPrintIntEmitido) return;
+        this.helperPrintIntEmitido = true;
+        this.bss += `    __print_buf resb 24\n`;
+        this.helpers += `
+__delegua_print_int:
+    push rbx
+    push rcx
+    push rdx
+    push rsi
+    mov rcx, 10
+    lea rsi, [__print_buf + 22]
+    mov byte [rsi], 10
+.print_digitloop:
+    xor rdx, rdx
+    div rcx
+    add dl, '0'
+    dec rsi
+    mov [rsi], dl
+    test rax, rax
+    jnz .print_digitloop
+    lea rdx, [__print_buf + 23]
+    sub rdx, rsi
+    mov ecx, esi
+    mov ebx, 1
+    mov eax, 4
+    int 0x80
+    pop rsi
+    pop rdx
+    pop rcx
+    pop rbx
+    ret`;
+    }
+
     traduzirDeclaracaoEscreva(declaracaoEscreva: Escreva): void {
-        let tam_string_literal = '';
-        let nome_string_literal = '';
+        const arg = declaracaoEscreva.argumentos[0];
 
-        if (declaracaoEscreva.argumentos[0] instanceof Literal) {
-            nome_string_literal = this.criaStringLiteral(declaracaoEscreva.argumentos[0]);
-            tam_string_literal = this.criaTamanhoNaMemoriaReferenteAVar(nome_string_literal);
-        }
+        if (arg instanceof Literal) {
+            const nome_string_literal = this.criaStringLiteral(arg);
+            const tam_string_literal = this.criaTamanhoNaMemoriaReferenteAVar(nome_string_literal);
 
-        if (this.alvo === 'linux') {
-            this.text += `
+            if (this.alvo === 'linux') {
+                this.textoSaida += `
     mov edx, ${tam_string_literal}
     mov ecx, ${nome_string_literal}
     mov ebx, 1        ; fd stdout
     mov eax, 4        ; sys_write
     int 0x80`;
-        } else {
-            // Windows: prototype `extern printf` and follow Win64 calling convention
-            // RCX = format pointer; here we use the literal directly as a C string
-            this.text += `
+            } else {
+                this.textoSaida += `
     lea rcx, [rel ${nome_string_literal}]
     call printf`;
+            }
+        } else {
+            const valor = this.dicionarioConstrutos[arg.constructor.name](arg);
+
+            if (this.alvo === 'linux') {
+                this.emitirHelperPrintInt();
+                this.textoSaida += `
+    mov rax, ${valor}
+    call __delegua_print_int`;
+            } else {
+                if (!this.fmtIntWindowsEmitido) {
+                    this.data += `    __fmt_int db '%d', 10, 0\n`;
+                    this.fmtIntWindowsEmitido = true;
+                }
+                this.textoSaida += `
+    mov rdx, ${valor}
+    lea rcx, [rel __fmt_int]
+    call printf`;
+            }
         }
     }
 
     saidaSistema(): void {
         if (this.alvo === 'linux') {
-            this.text += `
+            this.textoSaida += `
         mov eax, 1        ; sys_exit
         xor ebx, ebx      ; status 0
         int 0x80`;
         } else {
             // Windows: return from main with 0 in EAX
-            this.text += `
+            this.textoSaida += `
         xor eax, eax
         ret`;
         }
@@ -863,8 +968,9 @@ ${labelFim}:`;
             }
         }
         this.saidaSistema();
+        this.textoSaida += this.helpers;
 
-        resultado += this.bss + '\n' + this.data + '\n' + this.text;
+        resultado += this.bss + '\n' + this.data + '\n' + this.textoSaida;
 
         return resultado;
     }
