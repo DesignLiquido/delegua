@@ -539,6 +539,33 @@ describe('Analisador semântico', () => {
             expect(errosOperacaoAritmetica.length).toBe(0);
         });
 
+        it('Comparação entre texto (retorno de leia) e inteiro - deve gerar aviso', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'variável salário_mensal',
+                    'variável salário_anual',
+                    'salário_mensal = leia("Digite seu salário mensal (em reais):")',
+                    'salário_anual = salário_mensal * 12',
+                    'escreva("salário_mensal = ${salário_mensal}, salário_anual=${salário_anual}")',
+                    'se salário_anual>1000000 {',
+                    '  escreva("a pessoa é rica!!!")',
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            const avisosComparacao = retornoAnalisadorSemantico.diagnosticos.filter(
+                d => d.mensagem?.includes('Esta comparação ocorre entre tipos texto e inteiro')
+            );
+
+            expect(avisosComparacao.length).toBeGreaterThanOrEqual(1);
+        });
+
         it('Atribuição de função', async () => {
             const retornoLexador = lexador.mapear(
                 ['var f = função(a, b) {', '   escreva(a + b)', '}', 'f(1)'],
@@ -876,7 +903,8 @@ describe('Analisador semântico', () => {
                     retornoAvaliadorSintatico.declaracoes
                 );
                 expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(4);
+                // 4 aritméticos (1 aviso de concatenação + 3 erros) + 4 avisos de comparação texto vs inteiro
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(8);
             });
 
             it('verificar operação divisão por zero', async () => {
