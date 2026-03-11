@@ -560,7 +560,7 @@ describe('Analisador semântico', () => {
 
             expect(retornoAnalisadorSemantico).toBeTruthy();
             const avisosComparacao = retornoAnalisadorSemantico.diagnosticos.filter(
-                d => d.mensagem?.includes('Esta comparação ocorre entre tipos texto e inteiro')
+                d => d.mensagem?.includes('Esta comparação ocorre entre tipos')
             );
 
             expect(avisosComparacao.length).toBeGreaterThanOrEqual(1);

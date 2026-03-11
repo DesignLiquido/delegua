@@ -709,7 +709,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         ) {
             this.aviso(
                 binario.operador,
-                `Esta comparação ocorre entre tipos texto e inteiro, e o resultado pode não ser o desejado.`
+                `Esta comparação ocorre entre tipos ${tipoEsquerda} e ${tipoDireita}, e o resultado pode não ser o desejado.`
             );
         }
     }
