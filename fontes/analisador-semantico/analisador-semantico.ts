@@ -344,6 +344,14 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         // Marca como inicializada após atribuição
         this.gerenciadorEscopos.marcarComoInicializada(simboloAlvo.lexema, expressao.valor);
 
+        // Atualiza tipo se a variável não foi tipada explicitamente
+        if (variavel.tipo === 'qualquer') {
+            const tipoInferido = this.obterTipoExpressao(expressao.valor);
+            if (tipoInferido && tipoInferido !== 'qualquer') {
+                variavel.tipo = tipoInferido;
+            }
+        }
+
         // TODO: Readaptar para trabalhar com `expressao.alvo` sendo um construto.
         switch (expressao.alvo.constructor) {
             case Variavel:
@@ -614,9 +622,14 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         }
 
         const operadoresMatematicos = ['ADICAO', 'SUBTRACAO', 'MULTIPLICACAO', 'DIVISAO', 'MODULO'];
+        const operadoresComparacao = ['MAIOR', 'MAIOR_IGUAL', 'MENOR', 'MENOR_IGUAL', 'IGUAL', 'DIFERENTE'];
 
         if (operadoresMatematicos.includes(binario.operador.tipo)) {
             this.verificarTiposOperandos(binario);
+        }
+
+        if (operadoresComparacao.includes(binario.operador.tipo)) {
+            this.verificarTiposComparacao(binario);
         }
 
         if (binario.operador.tipo === 'DIVISAO') {
@@ -679,6 +692,25 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                     `Operação entre tipos diferentes: tipo esquerdo '${tipoEsquerda}' e tipo direito '${tipoDireita}'. O resultado será resolvido implicitamente.`
                 );
             }
+        }
+    }
+
+    /**
+     * Verifica se os tipos dos operandos em uma comparação são compatíveis
+     */
+    private verificarTiposComparacao(binario: Binario): void {
+        const tipoEsquerda = this.obterTipoExpressao(binario.esquerda);
+        const tipoDireita = this.obterTipoExpressao(binario.direita);
+        const tiposNumericos = ['inteiro', 'número', 'real'];
+
+        if (
+            (tipoEsquerda === 'texto' && tiposNumericos.includes(tipoDireita)) ||
+            (tiposNumericos.includes(tipoEsquerda) && tipoDireita === 'texto')
+        ) {
+            this.aviso(
+                binario.operador,
+                `Esta comparação ocorre entre tipos ${tipoEsquerda} e ${tipoDireita}, e o resultado pode não ser o desejado.`
+            );
         }
     }
 
