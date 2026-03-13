@@ -2643,11 +2643,11 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     async visitarExpressaoVetor(expressao: Vetor): Promise<any> {
         const valores = [];
-        for (let i = 0; i < expressao.valores.length; i++) {
-            valores.push(this.resolverValor(await this.avaliar(expressao.valores[i])));
+        for (let i = 0; i < expressao.elementos.length; i++) {
+            valores.push(this.resolverValor(await this.avaliar(expressao.elementos[i])));
         }
 
-        return valores.filter((v) => v !== null && v !== undefined);
+        return valores;
     }
 
     visitarExpressaoSuper(expressao: Super): any {
