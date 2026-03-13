@@ -411,6 +411,25 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Vetor com elemento nulo não descarta o valor (issue #1139)', async () => {
+                    const _saidas: string[] = [];
+                    const retornoLexador = lexador.mapear(
+                        ['var lista = [1, nulo, 3]', 'escreva(lista[1])'],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        _saidas.push(saida);
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('nulo');
+                });
+
                 describe('Dicionários', () => {
                     it('Dicionário, atribuição simples', async () => {
                         const retornoLexador = lexador.mapear([
