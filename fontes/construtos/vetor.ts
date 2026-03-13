@@ -1,4 +1,5 @@
 import { VisitanteComumInterface } from '../interfaces';
+import { ComentarioComoConstruto } from './comentario-como-construto';
 import { Construto } from './construto';
 import { Separador } from './separador';
 
@@ -26,7 +27,9 @@ export class Vetor implements Construto {
      * (Separador, comentários) que podem aparecer entre os elementos.
      */
     get elementos(): Construto[] {
-        return this.valores.filter((v) => v.constructor !== Separador);
+        return this.valores.filter(
+            (v) => v.constructor !== Separador && v.constructor !== ComentarioComoConstruto
+        );
     }
 
     get tamanho(): number {
