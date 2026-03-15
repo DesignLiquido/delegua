@@ -102,7 +102,17 @@ describe('Tradutor Delégua -> WebAssembly', () => {
             const ast = await avaliadorSintatico.analisar(retornoLexador, 1);
             const wat = tradutor.traduzir(ast.declaracoes);
 
-            expect(wat).toContain('(data (i32.const 0) "Olá")');
+            // "Olá": O=0x4F l=0x6C á=U+00E1→0xC3 0xA1 → literal WAT "Ol\c3\a1"
+            expect(wat).toContain('(data (i32.const 0) "Ol\\c3\\a1")');
+        });
+
+        it('comprimento de string não-ASCII usa bytes UTF-8, não caracteres', async () => {
+            // "Olá" = 3 caracteres mas 4 bytes UTF-8; escreva_texto deve receber len=4
+            const retornoLexador = lexador.mapear(['escreva("Olá")'], -1);
+            const ast = await avaliadorSintatico.analisar(retornoLexador, 1);
+            const wat = tradutor.traduzir(ast.declaracoes);
+
+            expect(wat).toContain('(call $__escreva_texto (i32.const 0) (i32.const 4))');
         });
 
         it('duas strings distintas recebem offsets consecutivos', async () => {

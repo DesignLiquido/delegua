@@ -111,20 +111,62 @@ export class TradutorWebAssembly {
     }
 
     /**
+     * Converte uma string JavaScript para bytes UTF-8.
+     * Usa `encodeURIComponent` para extrair os bytes — funciona em qualquer ambiente JS
+     * sem depender de APIs específicas de Node.js (Buffer) ou browser (TextEncoder).
+     */
+    private stringParaBytesUtf8(valor: string): number[] {
+        const encoded = encodeURIComponent(valor);
+        const bytes: number[] = [];
+        for (let i = 0; i < encoded.length; ) {
+            if (encoded[i] === '%') {
+                bytes.push(parseInt(encoded.slice(i + 1, i + 3), 16));
+                i += 3;
+            } else {
+                bytes.push(encoded.charCodeAt(i));
+                i++;
+            }
+        }
+        return bytes;
+    }
+
+    /**
+     * Converte uma string JavaScript para o formato de literal de string WAT.
+     * Bytes não-ASCII e caracteres especiais são hex-escapados como `\xx`.
+     * Retorna o literal pronto para uso em `(data ...)` e o comprimento em bytes UTF-8.
+     */
+    private escaparStringWat(valor: string): { watLiteral: string; byteLen: number } {
+        const bytes = this.stringParaBytesUtf8(valor);
+        let watLiteral = '';
+        for (const byte of bytes) {
+            if (byte === 0x22) {
+                watLiteral += '\\"';          // aspas duplas
+            } else if (byte === 0x5c) {
+                watLiteral += '\\\\';         // contrabarra
+            } else if (byte >= 0x20 && byte <= 0x7e) {
+                watLiteral += String.fromCharCode(byte);   // ASCII imprimível
+            } else {
+                watLiteral += `\\${byte.toString(16).padStart(2, '0')}`;  // \xx
+            }
+        }
+        return { watLiteral, byteLen: bytes.length };
+    }
+
+    /**
      * Internaliza uma string literal na memória linear estática.
      * Strings idênticas são deduplicadas.
+     * O comprimento armazenado é o comprimento em bytes UTF-8, não em caracteres.
      */
     private internalizarTexto(valor: string): { offset: number; len: number } {
         const existente = this.segmentosTexto.find((s) => s.conteudo === valor);
         if (existente) {
             return { offset: existente.deslocamento, len: existente.tamanho };
         }
+        const { byteLen } = this.escaparStringWat(valor);
         const offset = this.deslocamentoTexto;
-        // Comprimento em bytes UTF-8 simplificado: para v1 assumimos ASCII
-        const len = valor.length;
-        this.segmentosTexto.push({ deslocamento: offset, conteudo: valor, tamanho: len });
-        this.deslocamentoTexto += len;
-        return { offset, len };
+        this.segmentosTexto.push({ deslocamento: offset, conteudo: valor, tamanho: byteLen });
+        this.deslocamentoTexto += byteLen;
+        return { offset, len: byteLen };
     }
 
     /**
@@ -923,9 +965,10 @@ export class TradutorWebAssembly {
 
         const linhaMemoria = `  (memory (export "memory") 1)`;
 
-        const linhasDados = this.segmentosTexto.map(
-            (s) => `  (data (i32.const ${s.deslocamento}) "${s.conteudo}")`
-        );
+        const linhasDados = this.segmentosTexto.map((s) => {
+            const { watLiteral } = this.escaparStringWat(s.conteudo);
+            return `  (data (i32.const ${s.deslocamento}) "${watLiteral}")`;
+        });
 
         const partes: string[] = [
             '(module',
