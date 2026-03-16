@@ -7,5 +7,6 @@ export interface VariavelInterface {
     // subtipo?: 'texto' | 'número' | 'longo' | 'lógico';
     subtipo?: string;
     imutavel: boolean;
+    tipoExplicito?: boolean;
     nomeReferencia?: string;
 }

@@ -279,6 +279,99 @@ describe('Interpretador Base com Depuração', () => {
         });
     });
 
+    describe('Comando de Pausa', () => {
+        let execucaoFinalizada: boolean = false;
+
+        beforeEach(() => {
+            lexador = new Lexador();
+            avaliadorSintatico = new AvaliadorSintatico();
+            _saidas = [];
+            interpretador = new InterpretadorBaseComDepuracao(
+                process.cwd(),
+                funcaoSaida,
+                funcaoSaida
+            );
+
+            execucaoFinalizada = false;
+            interpretador.finalizacaoDaExecucao = () => {
+                execucaoFinalizada = true;
+            };
+        });
+
+        it('Deve interromper laço enquanto com o comando de pausar', async () => {
+            const retornoLexador = lexador.mapear([
+                "escreva('iniciando')",
+                "enquanto (verdadeiro) {",
+                "    var i = 1",
+                "}"
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+
+            // Inicia a execução sem aguardar
+            const promessaExecucao = interpretador.instrucaoContinuarInterpretacao();
+
+            // Aguarda tempo suficiente para o laço rodar ao menos 1000 iterações (um cederControle)
+            await new Promise<void>(resolve => setTimeout(resolve, 100));
+
+            // Simula o botão de pausa do depurador
+            interpretador.comando = 'pausar';
+
+            // A execução deve terminar com o laço interrompido
+            await promessaExecucao;
+
+            // Verifica que o código antes do laço foi executado
+            expect(_saidas).toContain('iniciando');
+            // Verifica que o comando de pausa foi o responsável pela interrupção
+            expect(interpretador.comando).toBe('pausar');
+        }, 10000);
+
+        it('Deve interromper laço para com o comando de pausar', async () => {
+            const retornoLexador = lexador.mapear([
+                "escreva('iniciando')",
+                "para (var j = 0; j < 10000000; j = j + 1) {",
+                "    var i = 1",
+                "}"
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+
+            const promessaExecucao = interpretador.instrucaoContinuarInterpretacao();
+
+            await new Promise<void>(resolve => setTimeout(resolve, 100));
+
+            interpretador.comando = 'pausar';
+
+            await promessaExecucao;
+
+            // O laço foi interrompido antes das 10 milhões de iterações
+            expect(_saidas).toContain('iniciando');
+            expect(interpretador.comando).toBe('pausar');
+        }, 10000);
+
+        it('Deve interromper laço fazer...enquanto com o comando de pausar', async () => {
+            const retornoLexador = lexador.mapear([
+                "escreva('iniciando')",
+                "fazer {",
+                "    var i = 1",
+                "} enquanto (verdadeiro)"
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+
+            const promessaExecucao = interpretador.instrucaoContinuarInterpretacao();
+
+            await new Promise<void>(resolve => setTimeout(resolve, 100));
+
+            interpretador.comando = 'pausar';
+
+            await promessaExecucao;
+
+            expect(_saidas).toContain('iniciando');
+            expect(interpretador.comando).toBe('pausar');
+        }, 10000);
+    });
+
     describe('adentrarEscopo()', () => {
         let execucaoFinalizada: boolean = false;
         let pontoParadaAtivado: boolean = false;
@@ -434,9 +527,7 @@ describe('Interpretador Base com Depuração', () => {
             expect(interpretador.pilhaEscoposExecucao.elementos()).toBe(escoposAposAdentrar);
         });
 
-        // TODO: Avaliar implementar suporte a `ReferenciaFuncao` e `ArgumentoReferenciaFuncao` para demais dialetos
-        // que não Delégua e Pituguês.
-        it.skip('Deve funcionar com funções aninhadas', async () => {
+        it('Deve funcionar com funções aninhadas', async () => {
             const retornoLexador = lexador.mapear([
                 "funcao externa(x) {",
                 "    funcao interna(y) {",

@@ -85,6 +85,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
     interfaceEntradaSaida: any = null;
     hashArquivoDeclaracaoAtual: number;
     linhaDeclaracaoAtual: number;
+    classeAtualEmExecucao: any = null;
 
     diretorioBase: any;
     funcaoDeRetorno: Function;
@@ -105,7 +106,9 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
     }
 
     /* istanbul ignore next */
-    visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> | void {
+    visitarExpressaoAcessoIntervaloVariavel(
+        expressao: AcessoIntervaloVariavel
+    ): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 

@@ -1,15 +1,22 @@
-import { AcessoMetodo, AcessoMetodoOuPropriedade, AcessoPropriedade, AcessoIntervaloVariavel, TuplaN, Literal } from "../../../construtos";
-import { inferirTipoVariavel } from "../../../inferenciador";
-import { InterpretadorInterface, SimboloInterface, VariavelInterface } from "../../../interfaces";
-import { RetornoQuebra } from "../../../quebras";
-import { DeleguaModulo, MetodoPrimitiva, ObjetoDeleguaClasse } from "../../estruturas";
-import { ErroEmTempoDeExecucao } from "../../../excecoes";
+import {
+    AcessoMetodo,
+    AcessoMetodoOuPropriedade,
+    AcessoPropriedade,
+    AcessoIntervaloVariavel,
+    TuplaN,
+    Literal,
+} from '../../../construtos';
+import { inferirTipoVariavel } from '../../../inferenciador';
+import { InterpretadorInterface, SimboloInterface, VariavelInterface } from '../../../interfaces';
+import { RetornoQuebra } from '../../../quebras';
+import { DeleguaModulo, MetodoPrimitiva, ObjetoDeleguaClasse } from '../../estruturas';
+import { ErroEmTempoDeExecucao } from '../../../excecoes';
 
-import primitivasDicionario from "../../../bibliotecas/dialetos/pitugues/primitivas-dicionario";
-import primitivasNumero from "../../../bibliotecas/dialetos/pitugues/primitivas-numero";
-import primitivasTexto from "../../../bibliotecas/dialetos/pitugues/primitivas-texto";
-import primitivasVetor from "../../../bibliotecas/dialetos/pitugues/primitivas-vetor";
-import primitivasTupla from "../../../bibliotecas/dialetos/pitugues/primitivas-tupla";
+import primitivasDicionario from '../../../bibliotecas/dialetos/pitugues/primitivas-dicionario';
+import primitivasNumero from '../../../bibliotecas/dialetos/pitugues/primitivas-numero';
+import primitivasTexto from '../../../bibliotecas/dialetos/pitugues/primitivas-texto';
+import primitivasVetor from '../../../bibliotecas/dialetos/pitugues/primitivas-vetor';
+import primitivasTupla from '../../../bibliotecas/dialetos/pitugues/primitivas-tupla';
 
 import tipoDeDadosPrimitivos from '../../../tipos-de-dados/primitivos';
 import tipoDeDadosPitugues from '../../../tipos-de-dados/dialetos/pitugues';
@@ -31,6 +38,20 @@ export async function visitarExpressaoAcessoMetodo(
     }
 
     const objeto = interpretador.resolverValor(variavelObjeto);
+
+    if (Array.isArray(objeto)) {
+        const metodoDePrimitivaVetor: Function =
+            primitivasVetor[expressao.nomeMetodo]?.implementacao;
+        if (metodoDePrimitivaVetor) {
+            return new MetodoPrimitiva(
+                nomeObjeto,
+                objeto,
+                metodoDePrimitivaVetor,
+                expressao.nomeMetodo,
+                'vetor'
+            );
+        }
+    }
 
     if (objeto.constructor === ObjetoDeleguaClasse) {
         return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomeMetodo) || null;
@@ -54,7 +75,13 @@ export async function visitarExpressaoAcessoMetodo(
         if (expressao.nomeMetodo in primitivasDicionario) {
             const metodoDePrimitivaDicionario: Function =
                 primitivasDicionario[expressao.nomeMetodo].implementacao;
-            return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario, expressao.nomeMetodo, 'dicionário');
+            return new MetodoPrimitiva(
+                nomeObjeto,
+                objeto,
+                metodoDePrimitivaDicionario,
+                expressao.nomeMetodo,
+                'dicionário'
+            );
         }
 
         return objeto[expressao.nomeMetodo] || null;
@@ -95,14 +122,26 @@ export async function visitarExpressaoAcessoMetodo(
             const metodoDePrimitivaNumero: Function =
                 primitivasNumero[expressao.nomeMetodo].implementacao;
             if (metodoDePrimitivaNumero) {
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaNumero, expressao.nomeMetodo, tipoObjeto);
+                return new MetodoPrimitiva(
+                    nomeObjeto,
+                    objeto,
+                    metodoDePrimitivaNumero,
+                    expressao.nomeMetodo,
+                    tipoObjeto
+                );
             }
             break;
         case tipoDeDadosPitugues.TEXTO:
             const metodoDePrimitivaTexto: Function =
                 primitivasTexto[expressao.nomeMetodo].implementacao;
             if (metodoDePrimitivaTexto) {
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto, expressao.nomeMetodo, 'texto');
+                return new MetodoPrimitiva(
+                    nomeObjeto,
+                    objeto,
+                    metodoDePrimitivaTexto,
+                    expressao.nomeMetodo,
+                    'texto'
+                );
             }
             break;
         case tipoDeDadosPitugues.VETOR:
@@ -112,7 +151,13 @@ export async function visitarExpressaoAcessoMetodo(
             const metodoDePrimitivaVetor: Function =
                 primitivasVetor[expressao.nomeMetodo].implementacao;
             if (metodoDePrimitivaVetor) {
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor, expressao.nomeMetodo, tipoObjeto);
+                return new MetodoPrimitiva(
+                    nomeObjeto,
+                    objeto,
+                    metodoDePrimitivaVetor,
+                    expressao.nomeMetodo,
+                    tipoObjeto
+                );
             }
             break;
     }
@@ -156,8 +201,22 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
 
     const objeto = interpretador.resolverValor(variavelObjeto, true);
 
+    if (Array.isArray(objeto)) {
+        if (expressao.simbolo.lexema in primitivasVetor) {
+            const metodoDePrimitivaVetor: Function =
+                primitivasVetor[expressao.simbolo.lexema].implementacao;
+            return new MetodoPrimitiva(
+                nomeObjeto,
+                objeto,
+                metodoDePrimitivaVetor,
+                expressao.simbolo.lexema,
+                'vetor'
+            );
+        }
+    }
+
     if (objeto.constructor === ObjetoDeleguaClasse) {
-        return (objeto as ObjetoDeleguaClasse).obter(expressao.simbolo);
+        return await (objeto as ObjetoDeleguaClasse).obter(expressao.simbolo, interpretador as any);
     }
 
     if (objeto instanceof TuplaN || objeto.constructor.name === 'TuplaN') {
@@ -178,7 +237,13 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
         if (expressao.simbolo.lexema in primitivasDicionario) {
             const metodoDePrimitivaDicionario: Function =
                 primitivasDicionario[expressao.simbolo.lexema].implementacao;
-            return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario, expressao.simbolo.lexema, 'dicionário');
+            return new MetodoPrimitiva(
+                nomeObjeto,
+                objeto,
+                metodoDePrimitivaDicionario,
+                expressao.simbolo.lexema,
+                'dicionário'
+            );
         }
 
         return objeto[expressao.simbolo.lexema];
@@ -195,7 +260,13 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
 
         const metodoDePrimitivaTexto: Function =
             primitivasTexto[expressao.simbolo.lexema].implementacao;
-        return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto, expressao.simbolo.lexema, 'texto');
+        return new MetodoPrimitiva(
+            nomeObjeto,
+            objeto,
+            metodoDePrimitivaTexto,
+            expressao.simbolo.lexema,
+            'texto'
+        );
     }
 
     // A partir daqui, presume-se que o objeto é uma das estruturas
@@ -226,7 +297,13 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
             const metodoDePrimitivaNumero: Function =
                 primitivasNumero[expressao.simbolo.lexema].implementacao;
             if (metodoDePrimitivaNumero) {
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaNumero, expressao.simbolo.lexema, tipoObjeto);
+                return new MetodoPrimitiva(
+                    nomeObjeto,
+                    objeto,
+                    metodoDePrimitivaNumero,
+                    expressao.simbolo.lexema,
+                    tipoObjeto
+                );
             }
             break;
         case tipoDeDadosPitugues.TEXTO:
@@ -240,7 +317,13 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
             const metodoDePrimitivaTexto: Function =
                 primitivasTexto[expressao.simbolo.lexema].implementacao;
             if (metodoDePrimitivaTexto) {
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto, expressao.simbolo.lexema, 'texto');
+                return new MetodoPrimitiva(
+                    nomeObjeto,
+                    objeto,
+                    metodoDePrimitivaTexto,
+                    expressao.simbolo.lexema,
+                    'texto'
+                );
             }
             break;
         case tipoDeDadosPitugues.VETOR:
@@ -261,7 +344,13 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
             const metodoDePrimitivaVetor: Function =
                 primitivasVetor[expressao.simbolo.lexema].implementacao;
             if (metodoDePrimitivaVetor) {
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor, expressao.simbolo.lexema, tipoObjeto);
+                return new MetodoPrimitiva(
+                    nomeObjeto,
+                    objeto,
+                    metodoDePrimitivaVetor,
+                    expressao.simbolo.lexema,
+                    tipoObjeto
+                );
             }
             break;
     }
@@ -306,10 +395,7 @@ export async function visitarExpressaoAcessoPropriedade(
 
     // Outro caso que `instanceof` simplesmente não funciona para casos em Liquido,
     // então testamos também o nome do construtor.
-    if (
-        objeto instanceof ObjetoDeleguaClasse ||
-        (objeto.constructor === ObjetoDeleguaClasse)
-    ) {
+    if (objeto instanceof ObjetoDeleguaClasse || objeto.constructor === ObjetoDeleguaClasse) {
         return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomePropriedade) || null;
     }
 
@@ -331,7 +417,13 @@ export async function visitarExpressaoAcessoPropriedade(
         if (expressao.nomePropriedade in primitivasDicionario) {
             const metodoDePrimitivaDicionario: Function =
                 primitivasDicionario[expressao.nomePropriedade].implementacao;
-            return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario, expressao.nomePropriedade, 'dicionário');
+            return new MetodoPrimitiva(
+                nomeObjeto,
+                objeto,
+                metodoDePrimitivaDicionario,
+                expressao.nomePropriedade,
+                'dicionário'
+            );
         }
 
         return objeto[expressao.nomePropriedade] || null;
@@ -386,10 +478,9 @@ export async function resolverInterpolacoes(
         const expressaoInterpolacao: string = s.slice(2, -1);
 
         let microLexador = (interpretador as any).microLexador.mapear(expressaoInterpolacao);
-        const resultadoMicroAvaliadorSintatico = (interpretador as any).microAvaliadorSintatico.analisar(
-            microLexador,
-            linha
-        );
+        const resultadoMicroAvaliadorSintatico = (
+            interpretador as any
+        ).microAvaliadorSintatico.analisar(microLexador, linha);
 
         return {
             expressaoInterpolacao,
@@ -417,9 +508,14 @@ export async function visitarExpressaoAcessoIntervaloVariavel(
     const objeto = interpretador.resolverValor(resultadoEntidade);
 
     let tamanho = 0;
+    let itens: any;
+    const ehTexto = typeof objeto === 'string';
+
     if (objeto instanceof TuplaN) {
+        itens = objeto.elementos;
         tamanho = objeto.elementos.length;
-    } else if (Array.isArray(objeto) || typeof objeto === 'string') {
+    } else if (Array.isArray(objeto) || ehTexto) {
+        itens = objeto;
         tamanho = objeto.length;
     } else {
         throw new ErroEmTempoDeExecucao(
@@ -429,26 +525,58 @@ export async function visitarExpressaoAcessoIntervaloVariavel(
         );
     }
 
-    let inicio = 0;
+    let passo = 1;
+    if (expressao.indicePasso) {
+        const resPasso = await interpretador.avaliar(expressao.indicePasso);
+        passo = interpretador.resolverValor(resPasso);
+    }
+
+    if (passo === 0) {
+        throw new ErroEmTempoDeExecucao(
+            expressao.simboloFechamento,
+            'O passo do fatiamento não pode ser zero.',
+            expressao.linha
+        );
+    }
+
+    let inicio = passo > 0 ? 0 : tamanho - 1;
     if (expressao.indiceInicio) {
         const resInicio = await interpretador.avaliar(expressao.indiceInicio);
         inicio = interpretador.resolverValor(resInicio);
         if (inicio < 0) inicio = tamanho + inicio;
     }
 
-    let fim = tamanho;
+    let fim = passo > 0 ? tamanho : -1;
     if (expressao.indiceFim) {
         const resFim = await interpretador.avaliar(expressao.indiceFim);
         fim = interpretador.resolverValor(resFim);
         if (fim < 0) fim = tamanho + fim;
     }
 
-    if (objeto instanceof TuplaN) {
-        const novosElementos = objeto.elementos.slice(inicio, fim);
-        return new TuplaN(objeto.hashArquivo, objeto.linha, novosElementos);
+    // Lógica de fatiamento para suportar "passo", pois o TypeScript não suporta nativamente
+    const resultadoFatiado: any[] = [];
+
+    if (passo > 0) {
+        for (let i = inicio; i < fim; i += passo) {
+            if (i >= 0 && i < tamanho) {
+                resultadoFatiado.push(itens[i]);
+            }
+        }
+    } else {
+        for (let i = inicio; i > fim; i += passo) {
+            if (i >= 0 && i < tamanho) {
+                resultadoFatiado.push(itens[i]);
+            }
+        }
     }
 
-    return objeto.slice(inicio, fim);
+    if (objeto instanceof TuplaN) {
+        return new TuplaN(objeto.hashArquivo, objeto.linha, resultadoFatiado);
+    }
+
+    if (ehTexto) return resultadoFatiado.join('');
+
+    return resultadoFatiado;
 }
 
 export async function visitarExpressaoTuplaN(
@@ -462,8 +590,8 @@ export async function visitarExpressaoTuplaN(
         elementos.push(interpretador.resolverValor(res));
     }
 
-    const elementosComoConstrutos = elementos.map(valor =>
-        new Literal(expressao.hashArquivo, expressao.linha, valor)
+    const elementosComoConstrutos = elementos.map(
+        (valor) => new Literal(expressao.hashArquivo, expressao.linha, valor)
     );
 
     return new TuplaN(expressao.hashArquivo, expressao.linha, elementosComoConstrutos);

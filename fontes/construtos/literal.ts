@@ -1,5 +1,5 @@
 import { VisitanteComumInterface } from '../interfaces';
-import { TipoDadosElementar } from '../tipo-dados-elementar';
+import { TipoInferencia } from '../inferenciador';
 import { Construto } from './construto';
 
 export type ValorLiteral = boolean | null | number | string | number[] | string[] | Construto;
@@ -8,13 +8,13 @@ export class Literal implements Construto {
     linha: number;
     hashArquivo: number;
     valor: ValorLiteral;
-    tipo: TipoDadosElementar;
+    tipo: TipoInferencia;
 
     constructor(
         hashArquivo: number,
         linha: number,
         valor: ValorLiteral,
-        tipo: TipoDadosElementar = 'qualquer'
+        tipo: TipoInferencia = 'qualquer'
     ) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
@@ -39,7 +39,7 @@ export class Literal implements Construto {
         if (this.tipo === 'texto') {
             return `"${this.valor}"`;
         }
-        
+
         return `${this.valor}`;
     }
 }

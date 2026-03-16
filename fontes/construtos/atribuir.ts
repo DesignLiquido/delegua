@@ -1,5 +1,6 @@
 import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
 import { Construto } from './construto';
+import { Variavel } from './variavel';
 
 /**
  * Construto de atribuição de um valor a um símbolo.
@@ -17,8 +18,6 @@ export class Atribuir<TTipoSimbolo extends string = string> implements Construto
         hashArquivo: number,
         alvo: Construto,
         valor: Construto,
-        // indice so é usado para variaveis de vetores
-        // TODO: criar alguma validaçao para garantir que `indice` só seja passado para variáveis de vetores
         indice?: Construto,
         simboloOperador?: SimboloInterface<TTipoSimbolo>
     ) {
@@ -29,6 +28,21 @@ export class Atribuir<TTipoSimbolo extends string = string> implements Construto
         this.valor = valor;
 
         if (indice !== undefined) {
+            const alvoComoVariavel = alvo as Variavel<TTipoSimbolo>;
+            const tipoAlvo = alvoComoVariavel?.tipo;
+            const alvoSuportaIndice =
+                alvo instanceof Variavel &&
+                (tipoAlvo === 'vetor' ||
+                    tipoAlvo === 'dicionário' ||
+                    tipoAlvo === 'qualquer' ||
+                    tipoAlvo?.endsWith('[]'));
+
+            if (!alvoSuportaIndice) {
+                throw new Error(
+                    '`indice` só pode ser informado quando o alvo for uma variável de vetor ou dicionário.'
+                );
+            }
+
             this.indice = indice;
         }
 

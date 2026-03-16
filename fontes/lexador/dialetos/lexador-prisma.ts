@@ -13,7 +13,7 @@ import tiposDeSimbolos from '../../tipos-de-simbolos/prisma';
  * Cada token de linguagem é representado por um tipo, um lexema e informações da linha de código em que foi expresso.
  * Também é responsável por mapear as palavras reservadas da linguagem, que não podem ser usadas por outras
  * estruturas, tais como nomes de variáveis, funções, literais, classes e assim por diante.
- * 
+ *
  * Este lexador é específico para o dialeto Prisma da linguagem Delégua.
  */
 export class LexadorPrisma implements LexadorInterface<SimboloInterface> {
@@ -44,9 +44,31 @@ export class LexadorPrisma implements LexadorInterface<SimboloInterface> {
 
     eAlfabeto(caractere: string): boolean {
         const acentuacoes = [
-            'á', 'Á', 'ã', 'Ã', 'â', 'Â', 'à', 'À',
-            'é', 'É', 'ê', 'Ê', 'í', 'Í', 'ó', 'Ó',
-            'õ', 'Õ', 'ô', 'Ô', 'ú', 'Ú', 'ç', 'Ç', '_',
+            'á',
+            'Á',
+            'ã',
+            'Ã',
+            'â',
+            'Â',
+            'à',
+            'À',
+            'é',
+            'É',
+            'ê',
+            'Ê',
+            'í',
+            'Í',
+            'ó',
+            'Ó',
+            'õ',
+            'Õ',
+            'ô',
+            'Ô',
+            'ú',
+            'Ú',
+            'ç',
+            'Ç',
+            '_',
         ];
 
         return (
@@ -110,7 +132,20 @@ export class LexadorPrisma implements LexadorInterface<SimboloInterface> {
 
     adicionarSimbolo(tipo: string, literal: any = null): void {
         const texto: string = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
-        this.simbolos.push(new Simbolo(tipo, texto, literal, this.linha + 1, this.hashArquivo));
+        const comprimento = Math.max(texto.length, 1);
+        const colunaInicio = this.inicioSimbolo + 1;
+        const colunaFim = this.inicioSimbolo + comprimento;
+        this.simbolos.push(
+            new Simbolo(
+                tipo,
+                texto,
+                literal,
+                this.linha + 1,
+                this.hashArquivo,
+                colunaInicio,
+                colunaFim
+            )
+        );
     }
 
     analisarTexto(delimitador: string = '"'): void {
@@ -162,8 +197,11 @@ export class LexadorPrisma implements LexadorInterface<SimboloInterface> {
             this.avancar();
         }
 
-        const textoPalavraChave: string = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
-        
+        const textoPalavraChave: string = this.codigo[this.linha].substring(
+            this.inicioSimbolo,
+            this.atual
+        );
+
         const tipo: string =
             textoPalavraChave in palavrasReservadas
                 ? palavrasReservadas[textoPalavraChave]

@@ -57,7 +57,7 @@ import {
     SimboloInterface,
     VariavelInterface,
 } from '../../../interfaces';
-import { ErroInterpretador } from '../../../interfaces/erros/erro-interpretador';
+import { ErroInterpretadorInterface } from '../../../interfaces/erros/erro-interpretador-interface';
 import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
 import { PilhaEscoposExecucaoInterface } from '../../../interfaces/pilha-escopos-execucao-interface';
 import { RetornoInterpretadorInterface } from '../../../interfaces/retornos';
@@ -78,10 +78,11 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
     interfaceEntradaSaida: any;
 
     declaracoes: Declaracao[];
-    erros: ErroInterpretador[];
+    erros: ErroInterpretadorInterface[];
 
     hashArquivoDeclaracaoAtual: number;
     linhaDeclaracaoAtual: number;
+    classeAtualEmExecucao: any = null;
 
     resultadoInterpretador: ResultadoParcialInterpretadorInterface[] = [];
 
@@ -110,14 +111,16 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
     }
-    
+
     /* istanbul ignore next */
     visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
     /* istanbul ignore next */
-    visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> | void {
+    visitarExpressaoAcessoIntervaloVariavel(
+        expressao: AcessoIntervaloVariavel
+    ): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 

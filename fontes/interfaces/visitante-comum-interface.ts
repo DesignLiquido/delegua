@@ -62,7 +62,7 @@ import {
     Var,
     VarMultiplo,
 } from '../declaracoes';
-import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
+import { ContinuarQuebra, SustarQuebra } from '../quebras';
 
 export interface VisitanteComumInterface {
     visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> | void;
@@ -87,7 +87,9 @@ export interface VisitanteComumInterface {
     visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any> | void;
     visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> | void;
     visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel): Promise<any> | void;
-    visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> | void;
+    visitarExpressaoAcessoIntervaloVariavel(
+        expressao: AcessoIntervaloVariavel
+    ): Promise<any> | void;
     visitarExpressaoAcessoElementoMatriz(expressao: AcessoElementoMatriz): Promise<any> | void;
     visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> | void;
     visitarExpressaoAcessoMetodoOuPropriedade(
@@ -105,13 +107,13 @@ export interface VisitanteComumInterface {
     visitarExpressaoBinaria(expressao: Binario): Promise<any> | void;
     visitarExpressaoBloco(declaracao: Bloco): Promise<any>;
     visitarExpressaoComentario(expressao: ComentarioComoConstruto): Promise<any> | void;
-    visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra;
+    visitarExpressaoContinua(declaracao?: Continua): any;
     visitarExpressaoDeChamada(expressao: Chamada): Promise<any> | void;
     visitarExpressaoDefinirValor(expressao: DefinirValor): Promise<any> | void;
     visitarExpressaoFuncaoConstruto(expressao: FuncaoConstruto): Promise<any> | void;
     visitarExpressaoDeVariavel(expressao: Variavel | Constante): Promise<any> | void;
     visitarExpressaoDicionario(expressao: Dicionario): Promise<any> | void;
-    visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<RegExp> | void;
+    visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<any> | void;
     visitarExpressaoFalhar(expressao: Falhar): Promise<any> | void;
     visitarExpressaoFimPara(declaracao: FimPara): Promise<any> | void;
     visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita): Promise<any> | void;
@@ -120,10 +122,10 @@ export interface VisitanteComumInterface {
     visitarExpressaoLiteral(expressao: Literal): Promise<any> | void;
     visitarExpressaoLogica(expressao: Logico): Promise<any> | void;
     visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> | void;
-    visitarExpressaoRetornar(expressao: Retorna): Promise<RetornoQuebra> | void;
+    visitarExpressaoRetornar(expressao: Retorna): Promise<any> | void;
     visitarExpressaoSeparador(expressao: Separador): Promise<any> | void;
     visitarExpressaoSuper(expressao: Super): Promise<any> | void;
-    visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra | void;
+    visitarExpressaoSustar(declaracao?: Sustar): any | void;
     visitarExpressaoTupla(expressao: Tupla): Promise<any> | void;
     visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> | void;
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> | void;

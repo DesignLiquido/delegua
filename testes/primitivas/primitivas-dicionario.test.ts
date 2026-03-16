@@ -14,7 +14,7 @@ describe('Primitivas de dicionário', () => {
     describe('chaves()', () => {
         it('Trivial', async () => {
             const meuDicionario = { "a": 1, "b": 2, "c": 3 };
-            const resultado = await primitivasDicionario.chaves.implementacao(interpretador, 'meuDicionario', meuDicionario);
+            const resultado = await primitivasDicionario.chaves.implementacao(interpretador, meuDicionario);
             expect(resultado).toStrictEqual(["a", "b", "c"]);
         });
     });
@@ -22,10 +22,10 @@ describe('Primitivas de dicionário', () => {
     describe('contém() ou contem()', () => {
         it('Trivial', async () => {
             const meuDicionario = { "a": 1, "b": 2, "c": 3 };
-            const resultado1 = await primitivasDicionario.contém.implementacao(interpretador, 'meuDicionario', meuDicionario, "a");
+            const resultado1 = await primitivasDicionario.contém.implementacao(interpretador, meuDicionario, "a");
             expect(resultado1).toStrictEqual(true);
 
-            const resultado2 = await primitivasDicionario.contem.implementacao(interpretador,'meuDicionario',  meuDicionario, "f");
+            const resultado2 = await primitivasDicionario.contem.implementacao(interpretador, meuDicionario, "f");
             expect(resultado2).toStrictEqual(false);
         });
     });
@@ -33,7 +33,7 @@ describe('Primitivas de dicionário', () => {
     describe('remover()', () => {
         it('Trivial', async () => {
             const meuDicionario = { "a": 1, "b": 2, "c": 3 };
-            const resultado = await primitivasDicionario.remover.implementacao(interpretador, 'meuDicionario', meuDicionario, "b");
+            const resultado = await primitivasDicionario.remover.implementacao(interpretador, meuDicionario, "b");
             expect(resultado).toStrictEqual(true);
         });
     });
@@ -41,7 +41,7 @@ describe('Primitivas de dicionário', () => {
     describe('valores()', () => {
         it('Trivial', async () => {
             const meuDicionario = { "a": 1, "b": 2, "c": 3 };
-            const resultado = await primitivasDicionario.valores.implementacao(interpretador, 'meuDicionario', meuDicionario);
+            const resultado = await primitivasDicionario.valores.implementacao(interpretador, meuDicionario);
             expect(resultado).toStrictEqual([1, 2, 3]);
         });
     });

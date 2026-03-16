@@ -16,7 +16,7 @@ import { SimboloInterface } from '../../interfaces';
 import { RetornoAvaliadorSintatico, RetornoLexador } from '../../interfaces/retornos';
 import { MicroAvaliadorSintaticoBase } from '../micro-avaliador-sintatico-base';
 
-import { inferirTipoVariavel, TipoInferencia, tipoInferenciaParaTipoDadosElementar } from '../../inferenciador';
+import { inferirTipoVariavel, TipoInferencia } from '../../inferenciador';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/pitugues';
 
@@ -74,7 +74,7 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
                 }
 
                 const tipoVetor = inferirTipoVariavel(valores);
-                return new Vetor(-1, Number(this.linha), valores, valores.length, tipoVetor);
+                return new Vetor(-1, Number(this.linha), valores, tipoVetor);
 
             case tiposDeSimbolos.FALSO:
                 this.avancarEDevolverAnterior();
@@ -88,8 +88,12 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
             case tiposDeSimbolos.TEXTO:
                 const simboloNumeroTexto: SimboloInterface = this.avancarEDevolverAnterior();
                 const tipoInferido = inferirTipoVariavel(simboloNumeroTexto.literal);
-                const tiposDadosElementar = tipoInferenciaParaTipoDadosElementar(tipoInferido as TipoInferencia);
-                return new Literal(-1, Number(this.linha), simboloNumeroTexto.literal, tiposDadosElementar);
+                return new Literal(
+                    -1,
+                    Number(this.linha),
+                    simboloNumeroTexto.literal,
+                    tipoInferido as TipoInferencia
+                );
 
             case tiposDeSimbolos.IDENTIFICADOR:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
@@ -208,10 +212,7 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
         let expressao = this.multiplicar();
 
         while (
-            this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.ADICAO,
-                tiposDeSimbolos.SUBTRACAO
-            )
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ADICAO, tiposDeSimbolos.SUBTRACAO)
         ) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.multiplicar();

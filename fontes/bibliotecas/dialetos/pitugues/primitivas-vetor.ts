@@ -1,8 +1,9 @@
 import { DeleguaFuncao } from '../../../interpretador/estruturas';
-import { InterpretadorInterface, PrimitivaInterface, SimboloInterface } from '../../../interfaces';
+import { InterpretadorInterface, PrimitivaInterface } from '../../../interfaces';
 import { InformacaoElementoSintatico } from '../../../informacao-elemento-sintatico';
 import { inferirTipoVariavel } from '../../../inferenciador';
 import { Literal, TuplaN } from '../../../construtos';
+import { ErroEmTempoDeExecucao } from '../../../excecoes';
 
 export default {
     adicionar: {
@@ -18,19 +19,10 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             elemento: any
         ): Promise<any> => {
             vetor.push(elemento);
-            // TODO: Será que apenas isso é suficiente aqui?
-            if (nomePrimitiva !== '') {
-                interpretador.pilhaEscoposExecucao.atribuirVariavel(
-                    { lexema: nomePrimitiva } as SimboloInterface,
-                    vetor
-                );
-            }
-
             return Promise.resolve(vetor);
         },
         assinaturaFormato: 'vetor.adicionar(...elemento: qualquer)',
@@ -58,7 +50,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             outroVetor: Array<any>
         ): Promise<any> => {
@@ -74,12 +65,59 @@ export default {
             '\n\n ### Formas de uso  \n',
         exemploCodigo: 'vetor.concatenar(...argumentos)',
     },
+    contar: {
+        tipoRetorno: 'numero',
+        argumentos: [
+            new InformacaoElementoSintatico(
+                'elemento',
+                'qualquer',
+                true,
+                [],
+                'O elemento a ser contado no vetor.'
+            ),
+        ],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            vetor: Array<any>,
+            ...args: any[]
+        ): Promise<any> => {
+            if (args.length === 0) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        null,
+                        `A função "contar" espera um argumento.`,
+                        interpretador.linhaDeclaracaoAtual
+                    )
+                );
+            }
+
+            if (args.length > 1) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        null,
+                        `A função "contar" espera apenas um argumento.`,
+                        interpretador.linhaDeclaracaoAtual
+                    )
+                );
+            }
+
+            const elemento = args[0];
+            const valorProcurado = interpretador.resolverValor(elemento);
+            const total = vetor.filter(
+                (item) => interpretador.resolverValor(item) === valorProcurado
+            ).length;
+            return Promise.resolve(total);
+        },
+        assinaturaFormato: 'vetor.contar(elemento)',
+        documentacao:
+            '# `vetor.contar(elemento)`\n\nRetorna quantas vezes o elemento aparece no vetor.',
+        exemploCodigo: 'vetor.contar(elemento)',
+    },
     empilhar: {
         tipoRetorno: 'qualquer[]',
         argumentos: [new InformacaoElementoSintatico('elemento', 'qualquer', true, [], '')],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             elemento: any
         ): Promise<any> => {
@@ -99,71 +137,62 @@ export default {
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'vetor.empilhar(elemento)',
     },
-    encaixar: {
+    estender: {
         tipoRetorno: 'qualquer[]',
         argumentos: [
-            new InformacaoElementoSintatico('inicio', 'inteiro'),
-            new InformacaoElementoSintatico('excluirQuantidade', 'número'),
-            new InformacaoElementoSintatico('itens', 'qualquer[]'),
+            new InformacaoElementoSintatico(
+                'outrosVetores',
+                'qualquer[]',
+                true,
+                [],
+                'Um ou mais vetores (ou dicionários) cujos elementos serão adicionados ao final deste vetor.'
+            ),
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
-            posicaoInicial: number,
-            quantidadeExclusao?: number,
-            ...itens: any[]
-        ): Promise<any> => {
-            let elementos = [];
-
-            if (quantidadeExclusao || quantidadeExclusao === 0) {
-                elementos = !itens.length
-                    ? vetor.splice(posicaoInicial, quantidadeExclusao)
-                    : vetor.splice(posicaoInicial, quantidadeExclusao, ...itens);
-
-                if (nomePrimitiva !== '') {
-                    interpretador.pilhaEscoposExecucao.atribuirVariavel(
-                        { lexema: nomePrimitiva } as SimboloInterface,
-                        vetor
-                    );
-                }
-
-                return Promise.resolve(elementos);
-            } else {
-                elementos = !itens.length ? vetor.splice(posicaoInicial) : vetor.splice(posicaoInicial, ...itens);
-
-                if (nomePrimitiva !== '') {
-                    interpretador.pilhaEscoposExecucao.atribuirVariavel(
-                        { lexema: nomePrimitiva } as SimboloInterface,
-                        elementos
-                    );
-                }
-
-                return Promise.resolve(vetor);
+            ...iteraveis: any[]
+        ): Promise<any[]> => {
+            if (iteraveis.length === 0) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        null,
+                        'A função "estender" espera pelo menos um argumento (vetor ou dicionário).',
+                        interpretador.linhaDeclaracaoAtual
+                    )
+                );
             }
+
+            for (const argumento of iteraveis) {
+                const itemResolvido = interpretador.resolverValor(argumento);
+
+                // É um vetor
+                if (Array.isArray(itemResolvido)) {
+                    vetor.push(...itemResolvido);
+                    continue;
+                }
+
+                // É um dicionário
+                if (typeof itemResolvido === 'object' && itemResolvido !== null) {
+                    vetor.push(...Object.keys(itemResolvido));
+                    continue;
+                }
+
+                // Não é iterável
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        null,
+                        'O argumento da função "estender" deve ser um vetor ou um dicionário.',
+                        interpretador.linhaDeclaracaoAtual
+                    )
+                );
+            }
+            return Promise.resolve(vetor);
         },
-        assinaturaFormato: 'vetor.encaixar(posicaoInicial?: número, quantidadeExclusao?: número, itens?: qualquer[])',
+        assinaturaFormato: 'vetor.estender(...iteravel: qualquer[])',
         documentacao:
-            '# `vetor.encaixar(posicaoInicial, quantidadeExclusao, itens)` \n \n' +
-            'Encaixa um vetor em outro, dadas posições de início e quantidade de ítens a serem excluídos do vetor original. \n' +
-            '\n\n ## Exemplo de Código\n' +
-            '\n\n```pitugues\nvar v = [1, 2, 3, 4, 5]\n' +
-            'escreva(v.encaixar()) // "[1, 2, 3, 4, 5]", ou seja, não faz coisa alguma.\n' +
-            `var v1 = v.encaixar(2)\n` +
-            'escreva(v) // "[3, 4, 5]", ou seja, a posição 2, onde fica o 3, passa a ser a nova posição inicial do vetor.\n' +
-            'escreva(v1) // "[1, 2]", ou seja, o retorno de `encaixar()` são as posições removidas do vetor original.\n' +
-            'var v2 = [1, 2, 3, 4, 5]\n' +
-            'escreva(v2.encaixar(2, 1)) // "[3]"\n' +
-            'escreva(v2) // "[1, 2, 4, 5]"\n```' +
-            'var v3 = [1, 2, 3, 4, 5]\n' +
-            'escreva(v3.encaixar(2, 1, "teste")) // "[3]"\n' +
-            'escreva(v3) // "[1, 2, "teste", 4, 5]"\n```' +
-            '\n\n ### Formas de uso \n' +
-            '`encaixar` suporta sobrecarga do método.\n\n',
-        exemploCodigo:
-            'vetor.encaixar(<nova posição inicial>)\n' +
-            'vetor.encaixar(<a partir desta posição>, <exclua esta quantidade de elementos>)\n' +
-            'vetor.encaixar(<a partir desta posição>, <exclua esta quantidade de elementos>, <adicione estes elementos>)',
+            '# `vetor.estender(iteravel)`\n\nAdiciona elementos de um vetor ou chaves de um dicionário ao final do vetor atual.',
+        exemploCodigo: 'vetor.estender([1, 2])',
     },
     fatiar: {
         tipoRetorno: 'qualquer[]',
@@ -185,7 +214,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             inicio: number,
             fim: number
@@ -208,17 +236,10 @@ export default {
     filtrar_por: {
         tipoRetorno: 'qualquer[]',
         argumentos: [
-            new InformacaoElementoSintatico(
-                'funcao',
-                'função',
-                true,
-                [],
-                'A função de filtragem.'
-            ),
+            new InformacaoElementoSintatico('funcao', 'função', true, [], 'A função de filtragem.'),
         ],
         implementacao: async (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             funcao: DeleguaFuncao
         ): Promise<any> => {
@@ -263,7 +284,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             elemento: any
         ): Promise<any> => Promise.resolve(vetor.includes(elemento)),
@@ -276,16 +296,127 @@ export default {
             'escreva(v.inclui(2)) // verdadeiro\n' +
             'escreva(v.inclui(4)) // falso\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'vetor.inclui(elemento)'
+        exemploCodigo: 'vetor.inclui(elemento)',
+    },
+    indice: {
+        tipoRetorno: 'numero',
+        argumentos: [
+            new InformacaoElementoSintatico(
+                'elemento',
+                'qualquer',
+                true,
+                [],
+                'O elemento cuja posição (índice) será buscada no vetor.'
+            ),
+        ],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            vetor: Array<any>,
+            elemento: any
+        ): Promise<any> => {
+            if (elemento === undefined) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(null, '', interpretador.linhaDeclaracaoAtual)
+                );
+            }
+
+            if (elemento === 'nulo') return Promise.reject(-1);
+
+            const valorProcurado = interpretador.resolverValor(elemento);
+            const index = vetor.findIndex(
+                (item) => interpretador.resolverValor(item) === valorProcurado
+            );
+            return Promise.resolve(index);
+        },
+        assinaturaFormato: 'vetor.indice(elemento: qualquer)',
+        documentacao:
+            '# `vetor.indice(elemento)` \n \n' +
+            'Retorna a posição (índice) da primeira ocorrência do elemento no vetor. \n' +
+            'Caso o elemento não seja encontrado, devolve `-1`.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```pitugues\n' +
+            'var v = ["maçã", "banana", "uva"]\n' +
+            'escreva(v.indice("banana")) // 1\n' +
+            'escreva(v.indice("abacaxi")) // -1\n' +
+            '```',
+        exemploCodigo: 'vetor.indice(elemento)',
+    },
+    inserir: {
+        tipoRetorno: 'qualquer[]',
+        argumentos: [
+            new InformacaoElementoSintatico(
+                'índice',
+                'inteiro',
+                true,
+                [],
+                'O índice onde o elemento será inserido.'
+            ),
+            new InformacaoElementoSintatico(
+                'elemento',
+                'qualquer',
+                true,
+                [],
+                'O elemento a ser inserido.'
+            ),
+        ],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            vetor: Array<any>,
+            ...args: any[]
+        ): Promise<any> => {
+            if (args.length !== 2) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        null,
+                        `A função "inserir" espera exatamente 2 argumentos (índice e elemento), mas recebeu ${args.length}.`,
+                        interpretador.linhaDeclaracaoAtual
+                    )
+                );
+            }
+
+            const idx = interpretador.resolverValor(args[0]);
+            const item = interpretador.resolverValor(args[1]);
+
+            if (typeof idx !== 'number') {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        null,
+                        'O primeiro argumento da função "inserir" (índice) deve ser um número.',
+                        interpretador.linhaDeclaracaoAtual
+                    )
+                );
+            }
+
+            if (idx < 0 || idx > vetor.length) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        null,
+                        `Índice ${idx} fora dos limites do vetor. O tamanho atual é ${vetor.length}.`,
+                        interpretador.linhaDeclaracaoAtual
+                    )
+                );
+            }
+
+            vetor.splice(idx, 0, item);
+            return Promise.resolve(vetor);
+        },
+        assinaturaFormato: 'vetor.inserir(indice: numero, elemento: qualquer)',
+        documentacao:
+            '# `vetor.inserir(indice, elemento)` \n \n' +
+            'Insere um elemento em uma posição específica do vetor, deslocando os elementos existentes para a direita. \n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```pitugues\n' +
+            'v = [1, 2, 4, 5]\n' +
+            'v.inserir(2, 3) \n' +
+            'escreva(v) // "[1, 2, 3, 4, 5]"\n' +
+            '```',
+        exemploCodigo: 'vetor.inserir(indice, elemento)',
     },
     inverter: {
         tipoRetorno: 'qualquer[]',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
-            vetor: Array<any>
-        ): Promise<any> => Promise.resolve(vetor.reverse()),
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> =>
+            Promise.resolve(vetor.reverse()),
         assinaturaFormato: 'vetor.inverter()',
         documentacao:
             '# `vetor.inverter()` \n \n' +
@@ -309,7 +440,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             separador: string
         ): Promise<any> => Promise.resolve(vetor.join(separador)),
@@ -321,8 +451,22 @@ export default {
             '\n\n```pitugues\nvar v = [1, 2, 3]\n' +
             'escreva(v.juntar(":")) // "1:2:3"\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'vetor.juntar()\n' +
-            'vetor.juntar(<separador>)',
+        exemploCodigo: 'vetor.juntar()\n' + 'vetor.juntar(<separador>)',
+    },
+    limpar: {
+        tipoRetorno: 'qualquer[]',
+        argumentos: [],
+        implementacao: async (
+            interpretador: InterpretadorInterface,
+            vetor: Array<any>
+        ): Promise<any> => {
+            vetor.splice(0, vetor.length);
+            return Promise.resolve();
+        },
+        assinaturaFormato: 'vetor.limpar()',
+        documentacao:
+            '# `vetor.limpar()`\n\nRemove todos os elementos do vetor original, deixando-o vazio.',
+        exemploCodigo: 'vetor.limpar()',
     },
     mapear: {
         tipoRetorno: 'qualquer[]',
@@ -337,7 +481,6 @@ export default {
         ],
         implementacao: async (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             funcao: DeleguaFuncao
         ): Promise<any> => {
@@ -348,7 +491,7 @@ export default {
             const retorno = [];
             for (let elemento of vetor) {
                 let resultado = await funcao.chamar(interpretador, [elemento]);
-                retorno.push(resultado);
+                retorno.push(interpretador.resolverValor(resultado));
             }
 
             return retorno;
@@ -378,7 +521,6 @@ export default {
         ],
         implementacao: async (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             funcaoOrdenacao: DeleguaFuncao
         ): Promise<any> => {
@@ -400,15 +542,6 @@ export default {
                     }
                 }
 
-                if (nomePrimitiva !== '') {
-                    interpretador.pilhaEscoposExecucao.atribuirVariavel(
-                        {
-                            lexema: nomePrimitiva,
-                        } as SimboloInterface,
-                        vetor
-                    );
-                }
-
                 return vetor;
             }
 
@@ -416,15 +549,6 @@ export default {
                 vetor.sort();
             } else {
                 vetor.sort((a, b) => a - b);
-            }
-
-            if (nomePrimitiva !== '') {
-                interpretador.pilhaEscoposExecucao.atribuirVariavel(
-                    {
-                        lexema: nomePrimitiva,
-                    } as SimboloInterface,
-                    vetor
-                );
             }
 
             return vetor;
@@ -446,12 +570,8 @@ export default {
     paraTupla: {
         tipoRetorno: 'tupla',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
-            vetor: Array<any>
-        ): Promise<any> => {
-            const elementos = vetor.map(item => {
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> => {
+            const elementos = vetor.map((item) => {
                 return new Literal(
                     interpretador.hashArquivoDeclaracaoAtual,
                     interpretador.linhaDeclaracaoAtual,
@@ -460,16 +580,17 @@ export default {
                 );
             });
 
-            return Promise.resolve(new TuplaN(
-                interpretador.hashArquivoDeclaracaoAtual,
-                interpretador.linhaDeclaracaoAtual,
-                elementos
-            ));
+            return Promise.resolve(
+                new TuplaN(
+                    interpretador.hashArquivoDeclaracaoAtual,
+                    interpretador.linhaDeclaracaoAtual,
+                    elementos
+                )
+            );
         },
         assinaturaFormato: 'vetor.paraTupla()',
         documentacao:
-            '# `vetor.paraTupla()` \n \n' +
-            'Converte o vetor atual em uma tupla imutável.',
+            '# `vetor.paraTupla()` \n \n' + 'Converte o vetor atual em uma tupla imutável.',
         exemploCodigo: 'vetor.paraTupla()',
     },
     remover: {
@@ -485,7 +606,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             elemento: any
         ): Promise<any> => {
@@ -507,11 +627,7 @@ export default {
     remover_primeiro: {
         tipoRetorno: 'qualquer',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
-            vetor: Array<any>
-        ): Promise<any> => {
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> => {
             let elemento = vetor.shift();
             return Promise.resolve(elemento);
         },
@@ -530,11 +646,7 @@ export default {
     remover_ultimo: {
         tipoRetorno: 'qualquer',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
-            vetor: Array<any>
-        ): Promise<any> => {
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> => {
             let elemento = vetor.pop();
             return Promise.resolve(elemento);
         },
@@ -555,7 +667,6 @@ export default {
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<number | { valor: number }>
         ): Promise<number | { valor: number }> => {
             return Promise.resolve(
@@ -578,11 +689,8 @@ export default {
     tamanho: {
         tipoRetorno: 'número',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
-            vetor: Array<any>
-        ): Promise<any> => Promise.resolve(vetor.length),
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> =>
+            Promise.resolve(vetor.length),
         assinaturaFormato: 'vetor.tamanho()',
         documentacao:
             '# `vetor.tamanho()` \n \n' +

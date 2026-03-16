@@ -13,7 +13,7 @@ import {
     Octeto,
     Noneto,
     Deceto,
-    TuplaN
+    TuplaN,
 } from '../construtos';
 import { ErroEmTempoDeExecucao } from '../excecoes';
 
@@ -26,7 +26,7 @@ const mapaConstrutoresTupla: { [tamanho: number]: any } = {
     7: Septeto,
     8: Octeto,
     9: Noneto,
-    10: Deceto
+    10: Deceto,
 };
 
 export default {
@@ -43,19 +43,10 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             elemento: any
         ): Promise<any> => {
             vetor.push(elemento);
-            // TODO: Será que apenas isso é suficiente aqui?
-            if (nomePrimitiva !== '') {
-                interpretador.pilhaEscoposExecucao.atribuirVariavel(
-                    { lexema: nomePrimitiva } as SimboloInterface,
-                    vetor
-                );
-            }
-
             return Promise.resolve(vetor);
         },
         assinaturaFormato: 'vetor.adicionar(...elemento: qualquer)',
@@ -83,7 +74,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             outroVetor: Array<any>
         ): Promise<any> => {
@@ -104,7 +94,6 @@ export default {
         argumentos: [new InformacaoElementoSintatico('elemento', 'qualquer', true, [], '')],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             elemento: any
         ): Promise<any> => {
@@ -133,7 +122,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             posicaoInicial: number,
             quantidadeExclusao?: number,
@@ -146,27 +134,13 @@ export default {
                     ? vetor.splice(posicaoInicial, quantidadeExclusao)
                     : vetor.splice(posicaoInicial, quantidadeExclusao, ...itens);
 
-                if (nomePrimitiva !== '') {
-                    interpretador.pilhaEscoposExecucao.atribuirVariavel(
-                        { lexema: nomePrimitiva } as SimboloInterface,
-                        vetor
-                    );
-                }
-
                 return Promise.resolve(elementos);
             } else {
                 elementos = !itens.length
                     ? vetor.splice(posicaoInicial)
                     : vetor.splice(posicaoInicial, ...itens);
 
-                if (nomePrimitiva !== '') {
-                    interpretador.pilhaEscoposExecucao.atribuirVariavel(
-                        { lexema: nomePrimitiva } as SimboloInterface,
-                        elementos
-                    );
-                }
-
-                return Promise.resolve(vetor);
+                return Promise.resolve(elementos);
             }
         },
         assinaturaFormato:
@@ -213,7 +187,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             inicio: number,
             fim: number
@@ -240,7 +213,6 @@ export default {
         ],
         implementacao: async (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             funcao: DeleguaFuncao
         ): Promise<any> => {
@@ -285,7 +257,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             elemento: any
         ): Promise<any> => Promise.resolve(vetor.includes(elemento)),
@@ -303,11 +274,8 @@ export default {
     inverter: {
         tipoRetorno: 'qualquer[]',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
-            vetor: Array<any>
-        ): Promise<any> => Promise.resolve(vetor.reverse()),
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> =>
+            Promise.resolve(vetor.reverse()),
         assinaturaFormato: 'vetor.inverter()',
         documentacao:
             '# `vetor.inverter()` \n \n' +
@@ -331,7 +299,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             separador: string
         ): Promise<any> => Promise.resolve(vetor.join(separador)),
@@ -358,7 +325,6 @@ export default {
         ],
         implementacao: async (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             funcao: DeleguaFuncao
         ): Promise<any> => {
@@ -369,7 +335,7 @@ export default {
             const retorno = [];
             for (let elemento of vetor) {
                 let resultado = await funcao.chamar(interpretador, [elemento]);
-                retorno.push(resultado);
+                retorno.push(interpretador.resolverValor(resultado));
             }
 
             return retorno;
@@ -399,7 +365,6 @@ export default {
         ],
         implementacao: async (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             funcaoOrdenacao: DeleguaFuncao
         ): Promise<any> => {
@@ -421,15 +386,6 @@ export default {
                     }
                 }
 
-                if (nomePrimitiva !== '') {
-                    interpretador.pilhaEscoposExecucao.atribuirVariavel(
-                        {
-                            lexema: nomePrimitiva,
-                        } as SimboloInterface,
-                        vetor
-                    );
-                }
-
                 return vetor;
             }
 
@@ -437,15 +393,6 @@ export default {
                 vetor.sort();
             } else {
                 vetor.sort((a, b) => a - b);
-            }
-
-            if (nomePrimitiva !== '') {
-                interpretador.pilhaEscoposExecucao.atribuirVariavel(
-                    {
-                        lexema: nomePrimitiva,
-                    } as SimboloInterface,
-                    vetor
-                );
             }
 
             return vetor;
@@ -467,11 +414,7 @@ export default {
     paraTupla: {
         tipoRetorno: 'tupla',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
-            vetor: Array<any>
-        ): Promise<any> => {
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> => {
             if (vetor.length < 2) {
                 return Promise.reject(
                     new ErroEmTempoDeExecucao(
@@ -484,12 +427,13 @@ export default {
                 );
             }
 
-            const criarLiteral = (item: any) => new Literal(
-                interpretador.hashArquivoDeclaracaoAtual,
-                interpretador.linhaDeclaracaoAtual,
-                item,
-                inferirTipoVariavel(item) as any
-            );
+            const criarLiteral = (item: any) =>
+                new Literal(
+                    interpretador.hashArquivoDeclaracaoAtual,
+                    interpretador.linhaDeclaracaoAtual,
+                    item,
+                    inferirTipoVariavel(item) as any
+                );
 
             if (mapaConstrutoresTupla.hasOwnProperty(vetor.length)) {
                 const Construtor = mapaConstrutoresTupla[vetor.length];
@@ -499,11 +443,13 @@ export default {
 
             const elementos = vetor.map(criarLiteral);
 
-            return Promise.resolve(new TuplaN(
-                interpretador.hashArquivoDeclaracaoAtual,
-                interpretador.linhaDeclaracaoAtual,
-                elementos
-            ));
+            return Promise.resolve(
+                new TuplaN(
+                    interpretador.hashArquivoDeclaracaoAtual,
+                    interpretador.linhaDeclaracaoAtual,
+                    elementos
+                )
+            );
         },
         assinaturaFormato: 'vetor.paraTupla()',
         documentacao:
@@ -524,7 +470,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<any>,
             elemento: any
         ): Promise<any> => {
@@ -546,11 +491,7 @@ export default {
     removerPrimeiro: {
         tipoRetorno: 'qualquer',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
-            vetor: Array<any>
-        ): Promise<any> => {
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> => {
             let elemento = vetor.shift();
             return Promise.resolve(elemento);
         },
@@ -569,11 +510,7 @@ export default {
     removerUltimo: {
         tipoRetorno: 'qualquer',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
-            vetor: Array<any>
-        ): Promise<any> => {
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> => {
             let elemento = vetor.pop();
             return Promise.resolve(elemento);
         },
@@ -589,12 +526,30 @@ export default {
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'vetor.removerUltimo()',
     },
+    removerÚltimo: {
+        tipoRetorno: 'qualquer',
+        argumentos: [],
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> => {
+            let elemento = vetor.pop();
+            return Promise.resolve(elemento);
+        },
+        assinaturaFormato: 'vetor.removerÚltimo()',
+        documentacao:
+            '# `vetor.removerÚltimo()` \n \n' +
+            'Remove o último elemento do vetor caso o elemento exista no vetor.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar vetor = [1, 2, 3]\n' +
+            'var ultimoElemento = vetor.removerÚltimo()\n' +
+            'escreva(ultimoElemento) // 3\n' +
+            'escreva(vetor) // [1, 2]\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'vetor.removerÚltimo()',
+    },
     somar: {
         tipoRetorno: 'qualquer',
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             vetor: Array<number | { valor: number }>
         ): Promise<number | { valor: number }> => {
             return Promise.resolve(
@@ -617,11 +572,8 @@ export default {
     tamanho: {
         tipoRetorno: 'número',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
-            vetor: Array<any>
-        ): Promise<any> => Promise.resolve(vetor.length),
+        implementacao: (interpretador: InterpretadorInterface, vetor: Array<any>): Promise<any> =>
+            Promise.resolve(vetor.length),
         assinaturaFormato: 'vetor.tamanho()',
         documentacao:
             '# `vetor.tamanho()` \n \n' +

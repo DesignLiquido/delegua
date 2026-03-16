@@ -31,7 +31,18 @@ import { ParametroInterface, SimboloInterface } from '../../interfaces';
 
 import { ErroAvaliadorSintatico } from './../erro-avaliador-sintatico';
 
-import { Deceto, Dupla, Noneto, Octeto, Quarteto, Quinteto, SeletorTuplas, Septeto, Sexteto, Trio } from '../../construtos/tuplas';
+import {
+    Deceto,
+    Dupla,
+    Noneto,
+    Octeto,
+    Quarteto,
+    Quinteto,
+    SeletorTuplas,
+    Septeto,
+    Sexteto,
+    Trio,
+} from '../../construtos/tuplas';
 import {
     Bloco,
     Comentario,
@@ -50,10 +61,8 @@ import {
 } from '../../declaracoes';
 import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
 import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
-import { TipoDadosElementar } from '../../tipo-dados-elementar';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
-import { inferirTipoVariavel, tipoInferenciaParaTipoDadosElementar } from '../../inferenciador';
-import { TipoInferencia } from '../../inferenciador';
+import { inferirTipoVariavel, TipoInferencia } from '../../inferenciador';
 import { PilhaEscopos } from './../pilha-escopos';
 import { InformacaoEscopo } from './../informacao-escopo';
 import { InformacaoElementoSintatico } from '../../informacao-elemento-sintatico';
@@ -188,10 +197,10 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
 
             const tipoVetor = tiposVetores.find((tipo) => tipo === `${lexemaElementar}[]`);
             this.avancarEDevolverAnterior();
-            return tipoVetor as TipoDadosElementar;
+            return tipoVetor as TipoInferencia;
         }
 
-        return tipoElementarResolvido as TipoDadosElementar;
+        return tipoElementarResolvido as TipoInferencia;
     }
 
     protected async obterChaveDicionario(): Promise<Construto> {
@@ -238,7 +247,9 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         }
     }
 
-    protected async construtoDicionario(simboloChaveEsquerda: SimboloInterface): Promise<Dicionario> {
+    protected async construtoDicionario(
+        simboloChaveEsquerda: SimboloInterface
+    ): Promise<Dicionario> {
         this.avancarEDevolverAnterior();
         const chaves = [];
         const valores = [];
@@ -300,7 +311,6 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
                         this.hashArquivo,
                         Number(simboloAtual.linha),
                         [],
-                        0,
                         'qualquer[]'
                     );
                 }
@@ -325,7 +335,6 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
                     this.hashArquivo,
                     Number(simboloAtual.linha),
                     valores,
-                    valores.length,
                     tipoVetor
                 );
 
@@ -420,14 +429,11 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.TEXTO:
                 const simboloNumeroTexto: SimboloInterface = this.avancarEDevolverAnterior();
                 const tipoInferido = inferirTipoVariavel(simboloNumeroTexto.literal);
-                const tipoDadosElementar = tipoInferenciaParaTipoDadosElementar(
-                    tipoInferido as TipoInferencia
-                );
                 return new Literal(
                     this.hashArquivo,
                     Number(simboloNumeroTexto.linha),
                     simboloNumeroTexto.literal,
-                    tipoDadosElementar
+                    tipoInferido as TipoInferencia
                 );
 
             case tiposDeSimbolos.PARENTESE_ESQUERDO:
@@ -728,7 +734,9 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         return entidadeChamada;
     }
 
-    protected async declaracaoDeFuncao(identificador: SimboloInterface<string>): Promise<FuncaoDeclaracao> {
+    protected async declaracaoDeFuncao(
+        identificador: SimboloInterface<string>
+    ): Promise<FuncaoDeclaracao> {
         // Se houver chamadas recursivas à função, precisamos definir um tipo
         // para ela. Vai ser atualizado após avaliação do corpo da função.
         this.pilhaEscopos.definirInformacoesVariavel(
@@ -1362,7 +1370,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
 
         this.consumir(tiposDeSimbolos.ENTÃO, "Esperado 'então' após a condição.");
 
-        const caminhoEntao = await this.resolverDeclaracao() as Bloco;
+        const caminhoEntao = (await this.resolverDeclaracao()) as Bloco;
 
         let caminhoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENÃO)) {

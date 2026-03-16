@@ -120,7 +120,20 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
 
     adicionarSimbolo(tipo: any, literal: any = null, linha: number = null): void {
         const texto: string = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
-        this.simbolos.push(new Simbolo(tipo, texto, literal, linha || this.linha + 1, this.hashArquivo));
+        const comprimento = Math.max(texto.length, 1);
+        const colunaInicio = this.inicioSimbolo + 1;
+        const colunaFim = this.inicioSimbolo + comprimento;
+        this.simbolos.push(
+            new Simbolo(
+                tipo,
+                texto,
+                literal,
+                linha || this.linha + 1,
+                this.hashArquivo,
+                colunaInicio,
+                colunaFim
+            )
+        );
     }
 
     simboloAtual(): string {
@@ -239,7 +252,11 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
             this.atual
         );
 
-        if (textoCompleto.length === 0 && !this.eFinalDoCodigo() && this.codigo[this.linha].charAt(this.atual + 1) === delimitador) {
+        if (
+            textoCompleto.length === 0 &&
+            !this.eFinalDoCodigo() &&
+            this.codigo[this.linha].charAt(this.atual + 1) === delimitador
+        ) {
             this.avancar(); // Avança para o próximo delimitador
             this.analisarTextoMultilinha(delimitador);
             return;
@@ -259,25 +276,36 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
     }
 
     analisarNumero(): void {
-        const linhaPrimeiroDigito: number = this.linha;
-        while (this.eDigito(this.simboloAtual()) && this.linha === linhaPrimeiroDigito) {
-            this.avancar();
-        }
+        const linhaInicial = this.linha;
 
-        if (this.simboloAtual() == '.' && this.eDigito(this.proximoSimbolo())) {
+        while (
+            this.linha === linhaInicial &&
+            this.eDigito(this.simboloAtual())
+        ) this.avancar();
+
+        const temPonto = this.simboloAtual() === '.';
+        const proximoEhDigito = this.eDigito(this.proximoSimbolo());
+
+        if (this.linha === linhaInicial && temPonto && proximoEhDigito) {
             this.avancar();
 
-            while (this.eDigito(this.simboloAtual())) {
-                this.avancar();
-            }
+            while (
+                this.linha === linhaInicial &&
+                this.eDigito(this.simboloAtual())
+            ) this.avancar();
         }
 
         let numeroCompleto: string;
-        if (linhaPrimeiroDigito < this.linha) {
-            const linhaNumero: string = this.codigo[linhaPrimeiroDigito];
-            numeroCompleto = linhaNumero.substring(this.inicioSimbolo, linhaNumero.length);
+        if (linhaInicial < this.linha) {
+            numeroCompleto = this.codigo[linhaInicial].substring(
+                this.inicioSimbolo,
+                this.codigo[linhaInicial].length
+            );
         } else {
-            numeroCompleto = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
+            numeroCompleto = this.codigo[this.linha].substring(
+                this.inicioSimbolo,
+                this.atual
+            );
         }
 
         this.simbolos.push(
@@ -285,7 +313,7 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
                 tiposDeSimbolos.NUMERO,
                 numeroCompleto,
                 parseFloat(numeroCompleto),
-                linhaPrimeiroDigito + 1,
+                linhaInicial + 1,
                 this.hashArquivo
             )
         );
@@ -370,6 +398,11 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
                 this.avancar();
                 break;
 
+            case '@':
+                this.adicionarSimbolo(tiposDeSimbolos.ARROBA);
+                this.avancar();
+                break;
+
             case '=':
                 this.avancar();
                 if (this.simboloAtual() === '=') {
@@ -413,8 +446,13 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
                 this.avancar();
                 break;
             case '.':
-                this.adicionarSimbolo(tiposDeSimbolos.PONTO);
-                this.avancar();
+                if (this.eDigito(this.proximoSimbolo())) {
+                    this.analisarNumero();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.PONTO);
+                    this.avancar();
+                }
+
                 break;
             case '-':
                 this.avancar();

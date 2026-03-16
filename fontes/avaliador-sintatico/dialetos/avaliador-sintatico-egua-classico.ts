@@ -54,9 +54,10 @@ import tiposDeSimbolos from '../../tipos-de-simbolos/egua-classico';
  *
  * Esta implementação tenta seguir à risca o que está atualmente em https://github.com/eguatech/egua/blob/master/src/parser.js.
  */
-export class AvaliadorSintaticoEguaClassico
-    implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao>
-{
+export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterface<
+    SimboloInterface,
+    Declaracao
+> {
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
 
@@ -232,7 +233,7 @@ export class AvaliadorSintaticoEguaClassico
             return new Agrupamento(this.hashArquivo, 0, expressao);
         }
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IMPORTAR))
-            return this.declaracaoImportar();
+            return this.construtoImportar();
 
         throw this.erro(this.simboloAtual(), 'Esperado expressão.');
     }
@@ -302,9 +303,9 @@ export class AvaliadorSintaticoEguaClassico
     }
 
     /**
-     * A exponenciacão de Égua [é implementada com resolução à esquerda](https://github.com/eguadev/egua/blob/main/src/parser.js#L230). 
+     * A exponenciacão de Égua [é implementada com resolução à esquerda](https://github.com/eguadev/egua/blob/main/src/parser.js#L230).
      * Por isso esse dialeto resolve `direito` chamando `unario()`, e não `exponenciacao()` como os demais.
-     * @returns {Binario} A expressão binária na forma do construto `Binario`. 
+     * @returns {Binario} A expressão binária na forma do construto `Binario`.
      */
     exponenciacao(): Construto {
         let expressao = this.unario();
@@ -749,7 +750,7 @@ export class AvaliadorSintaticoEguaClassico
         }
     }
 
-    declaracaoImportar(): ImportarComoConstruto {
+    construtoImportar(): ImportarComoConstruto {
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após declaração.");
         const caminho = this.expressao();
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração.");
@@ -938,7 +939,7 @@ export class AvaliadorSintaticoEguaClassico
 
         this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após o escopo da classe.");
         this.superclasseAtual = undefined;
-        return new Classe(nome, superClasse, metodos);
+        return new Classe(nome, superClasse ? [superClasse] : [], metodos);
     }
 
     resolverDeclaracaoForaDeBloco(): Declaracao {

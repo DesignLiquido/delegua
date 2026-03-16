@@ -14,11 +14,13 @@ import {
     Escreva,
     EscrevaMesmaLinha,
     Expressao,
+    Extensao,
     Falhar,
     Fazer,
     FuncaoDeclaracao,
     Importar,
     InicioAlgoritmo,
+    InterfaceDeclaracao,
     Para,
     ParaCada,
     Retorna,
@@ -33,10 +35,12 @@ import {
     Chamavel,
     DescritorTipoClasse,
     DeleguaFuncao,
+    MetodoPolimorfico,
     ObjetoDeleguaClasse,
     DeleguaModulo,
     FuncaoPadrao,
     ObjetoPadrao,
+    OBJETO_BASE,
 } from './estruturas';
 import {
     AcessoIndiceVariavel,
@@ -73,8 +77,9 @@ import {
     Vetor,
     ListaCompreensao,
     Isto,
+    Binario,
 } from '../construtos';
-import { ErroInterpretador } from '../interfaces/erros/erro-interpretador';
+import { ErroInterpretadorInterface } from '../interfaces/erros/erro-interpretador-interface';
 import { RetornoInterpretadorInterface } from '../interfaces/retornos/retorno-interpretador-interface';
 import { EscopoExecucao } from '../interfaces/escopo-execucao';
 import { PilhaEscoposExecucao } from './pilha-escopos-execucao';
@@ -115,11 +120,12 @@ import primitivasVetor from '../bibliotecas/primitivas-vetor';
  */
 export class InterpretadorBase implements InterpretadorInterface {
     diretorioBase: string;
-    erros: ErroInterpretador[];
+    erros: ErroInterpretadorInterface[];
     declaracoes: Declaracao[];
     resultadoInterpretador: ResultadoParcialInterpretadorInterface[] = [];
     linhaDeclaracaoAtual: number;
     hashArquivoDeclaracaoAtual: number;
+    classeAtualEmExecucao: any = null;
 
     // Esta variável indica que uma propriedade de um objeto
     // não precisa da palavra `isto` para ser acessada, ou seja,
@@ -142,16 +148,29 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
 
+    // typeName → methodName → DeleguaFuncao
+    extensoesGlobais: Map<string, Map<string, DeleguaFuncao>> = new Map();
+    // hashArquivo → typeName → methodName → DeleguaFuncao
+    extensoesModulo: Map<number, Map<string, Map<string, DeleguaFuncao>>> = new Map();
+
     microLexador: MicroLexador = new MicroLexador();
     microAvaliadorSintatico: MicroAvaliadorSintaticoBase = new MicroAvaliadorSintatico();
 
     regexInterpolacao = /\${(.*?)}/g;
+
+    // Número de iterações entre cada cessão de controle ao loop de eventos do JavaScript.
+    // Isso permite que laços de repetição longos ou infinitos não bloqueiem o loop de eventos.
+    private iteracoesParaCederControle = 1000;
+
     private tiposNumericos = [
         tipoDeDadosDelegua.INTEIRO,
+        tipoDeDadosDelegua.LONGO,
         tipoDeDadosDelegua.NUMERO,
         tipoDeDadosDelegua.NÚMERO,
         tipoDeDadosDelegua.REAL,
     ];
+
+    lancarErroPorDivisaoPorZero = false;
 
     constructor(
         diretorioBase: string,
@@ -188,6 +207,26 @@ export class InterpretadorBase implements InterpretadorInterface {
             emLacoRepeticao: false,
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+
+        // Registrar a classe base `Objeto` no escopo global.
+        this.pilhaEscoposExecucao.definirVariavel('Objeto', OBJETO_BASE);
+    }
+
+    /**
+     * Cede o controle ao loop de eventos do JavaScript.
+     * Usado em laços de repetição para evitar bloqueio do loop de eventos
+     * em iterações longas ou infinitas.
+     */
+    protected async cederControle(iteracoes: number): Promise<void> {
+        if (iteracoes % this.iteracoesParaCederControle === 0) {
+            await new Promise<void>((resolve) => {
+                if (typeof setImmediate !== 'undefined') {
+                    setImmediate(resolve);
+                } else {
+                    setTimeout(resolve, 0);
+                }
+            });
+        }
     }
 
     visitarDeclaracaoTextoDocumentacao(declaracao: TextoDocumentacao): Promise<any> | void {
@@ -218,7 +257,9 @@ export class InterpretadorBase implements InterpretadorInterface {
             case AcessoIndiceVariavel:
                 return this.resolverNomeObjectoAcessado((objetoAcessado as AcessoIndiceVariavel).entidadeChamada); */
             case Chamada:
-                return this.resolverNomeObjectoAcessado((objetoAcessado as Chamada).entidadeChamada);
+                return this.resolverNomeObjectoAcessado(
+                    (objetoAcessado as Chamada).entidadeChamada
+                );
             case Constante:
                 return (objetoAcessado as Constante).simbolo.lexema;
             case AcessoMetodoOuPropriedade:
@@ -235,7 +276,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                 return (objetoAcessado as Variavel).simbolo.lexema;
         }
 
-        throw new ErroEmTempoDeExecucao((objetoAcessado as any).simbolo, `Construto ${objetoAcessado.constructor.name} não possui resolução de nome apropriada.`);
+        throw new ErroEmTempoDeExecucao(
+            (objetoAcessado as any).simbolo,
+            `Construto ${objetoAcessado.constructor.name} não possui resolução de nome apropriada.`
+        );
     }
 
     resolverValor(objeto: any) {
@@ -250,14 +294,53 @@ export class InterpretadorBase implements InterpretadorInterface {
         return objeto;
     }
 
-    visitarExpressaoArgumentoReferenciaFuncao(
-        expressao: ArgumentoReferenciaFuncao
-    ): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    /**
+     * Resolve valores recursivamente, incluindo valores aninhados em arrays e dicionários.
+     * Remove metadados que não devem ser serializados.
+     * @param objeto O objeto a ser resolvido
+     * @returns O valor resolvido sem metadados
+     */
+    protected resolverValorRecursivo(objeto: any): any {
+        // Null, undefined, ou tipos primitivos
+        if (objeto === null || objeto === undefined || typeof objeto !== 'object') {
+            return objeto;
+        }
+
+        // Resolve metadados primeiro (valorRetornado ou valor)
+        if (objeto.hasOwnProperty && objeto.hasOwnProperty('valorRetornado')) {
+            return this.resolverValorRecursivo(objeto.valorRetornado);
+        }
+
+        if (objeto.hasOwnProperty && objeto.hasOwnProperty('valor')) {
+            return this.resolverValorRecursivo(objeto.valor);
+        }
+
+        // Se é array, resolve recursivamente todos os elementos
+        if (Array.isArray(objeto)) {
+            return objeto.map((elemento) => this.resolverValorRecursivo(elemento));
+        }
+
+        // Se é objeto plano, resolve recursivamente todas as propriedades
+        if (objeto && objeto.constructor && objeto.constructor === Object) {
+            const objetoResolvido: any = {};
+            for (const chave in objeto) {
+                objetoResolvido[chave] = this.resolverValorRecursivo(objeto[chave]);
+            }
+            return objetoResolvido;
+        }
+
+        // Outros tipos de objetos (Date, classes customizadas, etc.)
+        return objeto;
     }
 
-    visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> | void {
-        throw new Error('Método não implementado.');
+    async visitarExpressaoArgumentoReferenciaFuncao(
+        expressao: ArgumentoReferenciaFuncao
+    ): Promise<any> {
+        const deleguaFuncao = this.pilhaEscoposExecucao.obterVariavelPorNome(
+            expressao.simboloFuncao.lexema
+        );
+
+        return deleguaFuncao;
     }
 
     visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> | void {
@@ -278,25 +361,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     async visitarDeclaracaoTendoComo(declaracao: TendoComo): Promise<any> {
-        const retornoInicializacao = await this.avaliar(declaracao.inicializacaoVariavel);
-        const retornoInicializacaoResolvido = this.resolverValor(retornoInicializacao);
-        this.pilhaEscoposExecucao.definirConstante(
-            declaracao.simboloVariavel.lexema,
-            retornoInicializacaoResolvido
-        );
-        await this.executar(declaracao.corpo);
-
-        if (retornoInicializacao instanceof ObjetoDeleguaClasse) {
-            const metodoFinalizar = retornoInicializacaoResolvido.classe.metodos['finalizar'];
-            if (metodoFinalizar) {
-                const chamavel = metodoFinalizar.funcaoPorMetodoDeClasse(
-                    retornoInicializacaoResolvido
-                );
-                chamavel.chamar(this, []);
-            }
-        }
-
-        return null;
+        throw new Error('Método não implementado.');
     }
 
     async visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> {
@@ -308,11 +373,28 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     async visitarExpressaoTupla(expressao: Tupla): Promise<any> {
-        const chaves = Object.keys(expressao);
+        // Lista de propriedades válidas para tuplas (ignorar propriedades de controle)
+        const propriedadesValidas = [
+            'primeiro',
+            'segundo',
+            'terceiro',
+            'quarto',
+            'quinto',
+            'sexto',
+            'sétimo',
+            'setimo',
+            'oitavo',
+            'nono',
+            'décimo',
+            'decimo',
+        ];
+
         const valores = [];
-        for (let chave of chaves) {
-            const valor = await this.avaliar(expressao[chave]);
-            valores.push(valor);
+        for (let propriedade of propriedadesValidas) {
+            if (expressao.hasOwnProperty(propriedade) && expressao[propriedade] !== undefined) {
+                const valor = await this.avaliar(expressao[propriedade]);
+                valores.push(valor);
+            }
         }
 
         return valores;
@@ -326,8 +408,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             elementos.push(this.resolverValor(res));
         }
 
-        const elementosComoConstrutos = elementos.map(valor =>
-            new Literal(expressao.hashArquivo, expressao.linha, valor)
+        const elementosComoConstrutos = elementos.map(
+            (valor) => new Literal(expressao.hashArquivo, expressao.linha, valor)
         );
 
         return new TuplaN(expressao.hashArquivo, expressao.linha, elementosComoConstrutos);
@@ -370,6 +452,11 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     async visitarExpressaoFimPara(declaracao: FimPara): Promise<any> {
         throw new Error('Método não implementado.');
+    }
+
+    async visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<any> {
+        const deleguaFuncao = this.pilhaEscoposExecucao.obterReferenciaFuncao(expressao.idFuncao);
+        return deleguaFuncao;
     }
 
     /**
@@ -453,42 +540,60 @@ export class InterpretadorBase implements InterpretadorInterface {
     protected async resolverInterpolacoes(textoOriginal: string, linha: number): Promise<any[]> {
         const variaveis = textoOriginal.match(this.regexInterpolacao);
 
-        let resultadosAvaliacaoSintatica = variaveis.map((s) => {
-            const expressaoInterpolacao: string = s.replace(/[\$\{\}]*/gm, '');
+        return await Promise.all(
+            variaveis.map(async (s) => {
+                const expressaoInterpolacao: string = s.replace(/[\$\{\}]*/gm, '');
 
-            let microLexador = this.microLexador.mapear(expressaoInterpolacao);
-            const resultadoMicroAvaliadorSintatico = this.microAvaliadorSintatico.analisar(
-                microLexador,
-                linha
-            );
+                const microLexador = this.microLexador.mapear(expressaoInterpolacao);
+                let declaracoes: any[] = [];
+                try {
+                    const resultadoMicroAvaliadorSintatico = this.microAvaliadorSintatico.analisar(
+                        microLexador,
+                        linha
+                    );
 
-            return {
-                expressaoInterpolacao,
-                resultadoMicroAvaliadorSintatico,
-            };
-        });
+                    for (const erro of resultadoMicroAvaliadorSintatico.erros) {
+                        this.erros.push({
+                            erroInterno: erro,
+                            linha: erro.linha ?? linha,
+                            hashArquivo: erro.hashArquivo ?? -1,
+                        });
+                    }
 
-        // TODO: Verificar erros do `resultadosAvaliacaoSintatica`.
+                    declaracoes = resultadoMicroAvaliadorSintatico.declaracoes;
+                } catch (erroAvaliador: any) {
+                    this.erros.push({
+                        erroInterno: erroAvaliador,
+                        linha: erroAvaliador.linha ?? linha,
+                        hashArquivo: erroAvaliador.hashArquivo ?? -1,
+                    });
+                }
 
-        const resolucoesPromises = await Promise.all(
-            resultadosAvaliacaoSintatica
-                .flatMap((r) => r.resultadoMicroAvaliadorSintatico.declaracoes)
-                .map((d) => this.avaliar(d))
+                let valor = declaracoes.length > 0 ? await this.avaliar(declaracoes[0]) : '';
+
+                const instancia =
+                    valor instanceof ObjetoDeleguaClasse
+                        ? valor
+                        : valor?.valor instanceof ObjetoDeleguaClasse
+                          ? valor.valor
+                          : null;
+                if (instancia) {
+                    const metodoParaTexto = instancia.classe.encontrarMetodo('paraTexto');
+                    if (metodoParaTexto) {
+                        const funcaoBound = metodoParaTexto.funcaoPorMetodoDeClasse(instancia);
+                        valor = await funcaoBound.chamar(this, []);
+                    }
+                }
+
+                return { expressaoInterpolacao, valor };
+            })
         );
-
-        return resolucoesPromises.map((item, indice) => ({
-            expressaoInterpolacao: resultadosAvaliacaoSintatica[indice].expressaoInterpolacao,
-            valor: item,
-        }));
     }
 
     async visitarExpressaoLiteral(expressao: Literal): Promise<any> {
         if (this.regexInterpolacao.test(String(expressao.valor))) {
             const valorComoTexto = String(expressao.valor);
-            const interpolacoes = await this.resolverInterpolacoes(
-                valorComoTexto,
-                expressao.linha
-            );
+            const interpolacoes = await this.resolverInterpolacoes(valorComoTexto, expressao.linha);
             return this.retirarInterpolacao(valorComoTexto, interpolacoes);
         }
 
@@ -549,7 +654,11 @@ export class InterpretadorBase implements InterpretadorInterface {
             case tiposDeSimbolos.NEGACAO:
                 return !this.eVerdadeiro(valor);
             case tiposDeSimbolos.BIT_NOT:
-                return ~valor;
+                // Mantém BigInt como BigInt, converte outros para Number
+                if (typeof valor === 'bigint') {
+                    return ~valor;
+                }
+                return ~Number(valor);
             // Para incrementar e decrementar, primeiro precisamos saber se o operador
             // veio antes do literal ou variável.
             // Se veio antes e o operando é uma variável, precisamos incrementar/decrementar,
@@ -642,6 +751,15 @@ export class InterpretadorBase implements InterpretadorInterface {
     eIgual(esquerda: VariavelInterface | any, direita: VariavelInterface | any): boolean {
         if (esquerda === null && direita === null) return true;
         if (esquerda === null) return false;
+
+        // Handle BigInt/Number comparison
+        if (typeof esquerda === 'bigint' && typeof direita === 'number') {
+            return esquerda == BigInt(direita);
+        }
+        if (typeof esquerda === 'number' && typeof direita === 'bigint') {
+            return BigInt(esquerda) == direita;
+        }
+
         return esquerda === direita;
     }
 
@@ -662,12 +780,16 @@ export class InterpretadorBase implements InterpretadorInterface {
             ? direita.tipo
             : typeof direita === tipoDeDadosPrimitivos.NUMERO
               ? tipoDeDadosDelegua.NUMERO
-              : String(NaN);
+              : typeof direita === 'bigint'
+                ? tipoDeDadosDelegua.LONGO
+                : String(NaN);
         const tipoEsquerda: string = esquerda.tipo
             ? esquerda.tipo
             : typeof esquerda === tipoDeDadosPrimitivos.NUMERO
               ? tipoDeDadosDelegua.NUMERO
-              : String(NaN);
+              : typeof esquerda === 'bigint'
+                ? tipoDeDadosDelegua.LONGO
+                : String(NaN);
 
         if (this.tiposNumericos.includes(tipoDireita) && this.tiposNumericos.includes(tipoEsquerda))
             return;
@@ -689,11 +811,31 @@ export class InterpretadorBase implements InterpretadorInterface {
         );
     }
 
-    async visitarExpressaoBinaria(expressao: any): Promise<any> {
+    async visitarExpressaoBinaria(expressao: Binario): Promise<any> {
         const esquerda: VariavelInterface | any = await this.avaliar(expressao.esquerda);
         const direita: VariavelInterface | any = await this.avaliar(expressao.direita);
         const valorEsquerdo: any = this.resolverValor(esquerda);
         const valorDireito: any = this.resolverValor(direita);
+
+        // Verificar sobrecarga de operador: se o operando esquerdo é uma instância de classe,
+        // procurar método `operador<símbolo>` (ex: `operador+`, `operador==`).
+        if (valorEsquerdo instanceof ObjetoDeleguaClasse) {
+            const nomeOperador = 'operador' + expressao.operador.lexema;
+            const metodoOperador = valorEsquerdo.classe.encontrarMetodo(nomeOperador);
+            if (metodoOperador) {
+                const metodoBound = metodoOperador.funcaoPorMetodoDeClasse(valorEsquerdo);
+                const argumentoOperador: VariavelInterface | any =
+                    direita && Object.prototype.hasOwnProperty.call(direita, 'tipo')
+                        ? (direita as VariavelInterface)
+                        : {
+                              tipo: inferirTipoVariavel(valorDireito),
+                              valor: valorDireito,
+                              imutavel: false,
+                          };
+                return await metodoBound.chamar(this, [{ nome: null, valor: argumentoOperador }]);
+            }
+        }
+
         const tipoEsquerdo: string = esquerda?.hasOwnProperty('tipo')
             ? esquerda.tipo
             : inferirTipoVariavel(esquerda);
@@ -704,6 +846,18 @@ export class InterpretadorBase implements InterpretadorInterface {
         switch (expressao.operador.tipo) {
             case tiposDeSimbolos.EXPONENCIACAO:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                // Auto-promove para BigInt se qualquer operando for BigInt
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                    const esq =
+                        typeof valorEsquerdo === 'bigint'
+                            ? valorEsquerdo
+                            : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir =
+                        typeof valorDireito === 'bigint'
+                            ? valorDireito
+                            : BigInt(Math.floor(Number(valorDireito)));
+                    return esq ** dir;
+                }
                 const resultadoExponenciacao = Math.pow(valorEsquerdo, valorDireito);
                 return resultadoExponenciacao;
 
@@ -712,32 +866,44 @@ export class InterpretadorBase implements InterpretadorInterface {
                     this.tiposNumericos.includes(tipoEsquerdo) &&
                     this.tiposNumericos.includes(tipoDireito)
                 ) {
-                    return Number(valorEsquerdo) > Number(valorDireito);
+                    return valorEsquerdo > valorDireito;
                 }
 
                 return String(valorEsquerdo) > String(valorDireito);
 
             case tiposDeSimbolos.MAIOR_IGUAL:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                return Number(valorEsquerdo) >= Number(valorDireito);
+                return valorEsquerdo >= valorDireito;
 
             case tiposDeSimbolos.MENOR:
                 if (
                     this.tiposNumericos.includes(tipoEsquerdo) &&
                     this.tiposNumericos.includes(tipoDireito)
                 ) {
-                    return Number(valorEsquerdo) < Number(valorDireito);
+                    return valorEsquerdo < valorDireito;
                 }
 
                 return String(valorEsquerdo) < String(valorDireito);
 
             case tiposDeSimbolos.MENOR_IGUAL:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                return Number(valorEsquerdo) <= Number(valorDireito);
+                return valorEsquerdo <= valorDireito;
 
             case tiposDeSimbolos.SUBTRACAO:
             case tiposDeSimbolos.MENOS_IGUAL:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                // Auto-promove para BigInt se qualquer operando for BigInt
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                    const esq =
+                        typeof valorEsquerdo === 'bigint'
+                            ? valorEsquerdo
+                            : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir =
+                        typeof valorDireito === 'bigint'
+                            ? valorDireito
+                            : BigInt(Math.floor(Number(valorDireito)));
+                    return esq - dir;
+                }
                 return Number(valorEsquerdo) - Number(valorDireito);
 
             case tiposDeSimbolos.ADICAO:
@@ -745,6 +911,19 @@ export class InterpretadorBase implements InterpretadorInterface {
                 // Se ambos os operandos são vetores, concatená-los
                 if (Array.isArray(valorEsquerdo) && Array.isArray(valorDireito)) {
                     return valorEsquerdo.concat(valorDireito);
+                }
+
+                // Auto-promove para BigInt se qualquer operando for BigInt
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                    const esq =
+                        typeof valorEsquerdo === 'bigint'
+                            ? valorEsquerdo
+                            : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir =
+                        typeof valorDireito === 'bigint'
+                            ? valorDireito
+                            : BigInt(Math.floor(Number(valorDireito)));
+                    return esq + dir;
                 }
 
                 if (
@@ -765,15 +944,64 @@ export class InterpretadorBase implements InterpretadorInterface {
             case tiposDeSimbolos.DIVISAO:
             case tiposDeSimbolos.DIVISAO_IGUAL:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+
+                if (this.lancarErroPorDivisaoPorZero && Number(valorDireito) === 0) {
+                    throw new ErroEmTempoDeExecucao(
+                        expressao.operador,
+                        'Divisão por zero não é permitida.',
+                        expressao.operador.linha
+                    );
+                }
+
+                // SEMPRE retorna Number para precisão decimal (preferência do usuário)
+                // Mesmo se operandos forem BigInt, converte para Number
                 return Number(valorEsquerdo) / Number(valorDireito);
 
             case tiposDeSimbolos.DIVISAO_INTEIRA:
             case tiposDeSimbolos.DIVISAO_INTEIRA_IGUAL:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+
+                if (this.lancarErroPorDivisaoPorZero && valorDireito === 0) {
+                    throw new ErroEmTempoDeExecucao(
+                        expressao.operador,
+                        'Divisão por zero não é permitida.',
+                        expressao.operador.linha
+                    );
+                }
+
+                // Retorna BigInt se qualquer operando for BigInt
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                    const esq =
+                        typeof valorEsquerdo === 'bigint'
+                            ? valorEsquerdo
+                            : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir =
+                        typeof valorDireito === 'bigint'
+                            ? valorDireito
+                            : BigInt(Math.floor(Number(valorDireito)));
+                    return esq / dir; // Trunca automaticamente
+                }
                 return Math.floor(Number(valorEsquerdo) / Number(valorDireito));
 
             case tiposDeSimbolos.MULTIPLICACAO:
             case tiposDeSimbolos.MULTIPLICACAO_IGUAL:
+                // Auto-promove para BigInt se qualquer operando for BigInt (e não for texto)
+                if (
+                    (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') &&
+                    tipoEsquerdo !== tipoDeDadosDelegua.TEXTO &&
+                    tipoDireito !== tipoDeDadosDelegua.TEXTO
+                ) {
+                    const esq =
+                        typeof valorEsquerdo === 'bigint'
+                            ? valorEsquerdo
+                            : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir =
+                        typeof valorDireito === 'bigint'
+                            ? valorDireito
+                            : BigInt(Math.floor(Number(valorDireito)));
+                    return esq * dir;
+                }
+
                 if (
                     tipoEsquerdo === tipoDeDadosDelegua.TEXTO ||
                     tipoDireito === tipoDeDadosDelegua.TEXTO
@@ -792,8 +1020,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                         );
                     }
 
-                    const valorTexto = tipoEsquerdo === tipoDeDadosDelegua.TEXTO ? valorEsquerdo : valorDireito;
-                    const valorQuantidade = tipoEsquerdo === tipoDeDadosDelegua.TEXTO ? valorDireito : valorEsquerdo;
+                    const valorTexto =
+                        tipoEsquerdo === tipoDeDadosDelegua.TEXTO ? valorEsquerdo : valorDireito;
+                    const valorQuantidade =
+                        tipoEsquerdo === tipoDeDadosDelegua.TEXTO ? valorDireito : valorEsquerdo;
 
                     if (typeof valorQuantidade !== 'number') {
                         throw new ErroEmTempoDeExecucao(
@@ -831,27 +1061,122 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             case tiposDeSimbolos.MODULO:
             case tiposDeSimbolos.MODULO_IGUAL:
+                // Se o operando esquerdo é uma string, usar formatação de string
+                if (
+                    tipoEsquerdo === tipoDeDadosDelegua.TEXTO ||
+                    typeof valorEsquerdo === 'string'
+                ) {
+                    return this.formatarStringComOperadorPorcentagem(
+                        String(valorEsquerdo),
+                        direita, // Passar 'direita' ao invés de 'valorDireito' para preservar arrays de tuplas
+                        expressao.operador
+                    );
+                }
+
+                // Caso contrário, operação matemática normal
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 return Number(valorEsquerdo) % Number(valorDireito);
 
             case tiposDeSimbolos.BIT_AND:
+                if (typeof valorEsquerdo === 'boolean' && typeof valorDireito === 'boolean') {
+                    return valorEsquerdo && valorDireito;
+                }
+
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                // Auto-promove para BigInt se qualquer operando for BigInt
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                    const esq =
+                        typeof valorEsquerdo === 'bigint'
+                            ? valorEsquerdo
+                            : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir =
+                        typeof valorDireito === 'bigint'
+                            ? valorDireito
+                            : BigInt(Math.floor(Number(valorDireito)));
+                    return esq & dir;
+                }
                 return Number(valorEsquerdo) & Number(valorDireito);
 
-            case tiposDeSimbolos.BIT_XOR:
+            case tiposDeSimbolos.CIRCUMFLEXO:
+                if (typeof valorEsquerdo === 'boolean' && typeof valorDireito === 'boolean') {
+                    return valorEsquerdo !== valorDireito;
+                }
+
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                // Auto-promove para BigInt se qualquer operando for BigInt
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                    const esq =
+                        typeof valorEsquerdo === 'bigint'
+                            ? valorEsquerdo
+                            : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir =
+                        typeof valorDireito === 'bigint'
+                            ? valorDireito
+                            : BigInt(Math.floor(Number(valorDireito)));
+                    return esq ^ dir;
+                }
                 return Number(valorEsquerdo) ^ Number(valorDireito);
 
             case tiposDeSimbolos.BIT_OR:
+                if (typeof valorEsquerdo === 'boolean' && typeof valorDireito === 'boolean') {
+                    return valorEsquerdo || valorDireito;
+                }
+
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                // Auto-promove para BigInt se qualquer operando for BigInt
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                    const esq =
+                        typeof valorEsquerdo === 'bigint'
+                            ? valorEsquerdo
+                            : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir =
+                        typeof valorDireito === 'bigint'
+                            ? valorDireito
+                            : BigInt(Math.floor(Number(valorDireito)));
+                    return esq | dir;
+                }
                 return Number(valorEsquerdo) | Number(valorDireito);
 
             case tiposDeSimbolos.MENOR_MENOR:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                // Auto-promove para BigInt (interno para longo) se qualquer operando for BigInt ou se deslocamento >= 32
+                const tamanhoDeslocamentoEsquerda = Number(valorDireito);
+                if (
+                    typeof valorEsquerdo === 'bigint' ||
+                    typeof valorDireito === 'bigint' ||
+                    tamanhoDeslocamentoEsquerda >= 32
+                ) {
+                    const esq =
+                        typeof valorEsquerdo === 'bigint'
+                            ? valorEsquerdo
+                            : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir =
+                        typeof valorDireito === 'bigint'
+                            ? valorDireito
+                            : BigInt(Math.floor(Number(valorDireito)));
+                    return esq << dir;
+                }
                 return Number(valorEsquerdo) << Number(valorDireito);
 
             case tiposDeSimbolos.MAIOR_MAIOR:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                // Auto-promove para BigInt (interno para longo) se qualquer operando for BigInt ou se deslocamento >= 32
+                const tamanhoDeslocamentoDireita = Number(valorDireito);
+                if (
+                    typeof valorEsquerdo === 'bigint' ||
+                    typeof valorDireito === 'bigint' ||
+                    tamanhoDeslocamentoDireita >= 32
+                ) {
+                    const esq =
+                        typeof valorEsquerdo === 'bigint'
+                            ? valorEsquerdo
+                            : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir =
+                        typeof valorDireito === 'bigint'
+                            ? valorDireito
+                            : BigInt(Math.floor(Number(valorDireito)));
+                    return esq >> dir;
+                }
                 return Number(valorEsquerdo) >> Number(valorDireito);
 
             case tiposDeSimbolos.DIFERENTE:
@@ -956,7 +1281,14 @@ export class InterpretadorBase implements InterpretadorInterface {
                 : entidadeChamada.length;
 
             // Completar os argumentos não preenchidos com valores indefinidos.
-            if (argumentos.length < aridade) {
+            // Para métodos polimórficos e classes com construtores polimórficos,
+            // a quantidade original de argumentos é necessária para o despacho
+            // correto da sobrecarga.
+            const ehPolimorfico =
+                entidadeChamada instanceof MetodoPolimorfico ||
+                (entidadeChamada instanceof DescritorTipoClasse &&
+                    entidadeChamada.encontrarMetodo('construtor') instanceof MetodoPolimorfico);
+            if (!ehPolimorfico && argumentos.length < aridade) {
                 const diferenca = aridade - argumentos.length;
                 for (let i = 0; i < diferenca; i++) {
                     argumentos.push({
@@ -987,7 +1319,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             // então precisamos testar o nome do construtor também.
             if (
                 entidadeChamada instanceof Chamavel ||
-                entidadeChamada.constructor.name === 'DeleguaFuncao'
+                entidadeChamada.constructor.name === 'DeleguaFuncao' ||
+                entidadeChamada.constructor.name === 'MetodoPolimorfico'
             ) {
                 const retornoEntidadeChamada = await entidadeChamada.chamar(this, argumentos);
                 return retornoEntidadeChamada;
@@ -1008,7 +1341,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             // Casos que passam aqui: chamadas a métodos de bibliotecas de Delégua.
             if (typeof entidadeChamada === tipoDeDadosPrimitivos.FUNCAO) {
                 let objeto = null;
-                if ((expressao.entidadeChamada as any).objeto) { // TODO: Qual o tipo certo aqui?
+                if ((expressao.entidadeChamada as any).objeto) {
+                    // TODO: Qual o tipo certo aqui?
                     objeto = await this.avaliar((expressao.entidadeChamada as any).objeto);
                 }
                 return entidadeChamada.apply(this.resolverValor(objeto), argumentos);
@@ -1062,7 +1396,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 const valor = await this.avaliar(expressao.valor);
                 if (objeto.constructor === ObjetoDeleguaClasse) {
                     const objetoDeleguaClasse = objeto as ObjetoDeleguaClasse;
-                    objetoDeleguaClasse.definir(alvoPropriedade.simbolo, valor);
+                    await objetoDeleguaClasse.definir(alvoPropriedade.simbolo, valor, this);
                 }
                 break;
             default:
@@ -1089,7 +1423,10 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     protected logicaContemOuEm(esquerda: any, direita: any, expressao: Logico) {
         const valorDireitoResolvido = this.resolverValor(direita);
-        if (Array.isArray(valorDireitoResolvido) || typeof valorDireitoResolvido === tipoDeDadosPrimitivos.TEXTO) {
+        if (
+            Array.isArray(valorDireitoResolvido) ||
+            typeof valorDireitoResolvido === tipoDeDadosPrimitivos.TEXTO
+        ) {
             const avaliacao = valorDireitoResolvido.includes(esquerda);
             return expressao.negado ? !avaliacao : avaliacao;
         }
@@ -1123,6 +1460,46 @@ export class InterpretadorBase implements InterpretadorInterface {
             }
         }
 
+        // E/OU como bitwise quando ambos operandos são numéricos
+        if ([tiposDeSimbolos.E, tiposDeSimbolos.OU].includes(expressao.operador.tipo)) {
+            const valorEsquerdo = this.resolverValor(esquerda);
+            if (typeof valorEsquerdo === 'number' || typeof valorEsquerdo === 'bigint') {
+                const direita = await this.avaliar(expressao.direita);
+                const valorDireito = this.resolverValor(direita);
+
+                if (typeof valorDireito === 'number' || typeof valorDireito === 'bigint') {
+                    if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                        const esq =
+                            typeof valorEsquerdo === 'bigint'
+                                ? valorEsquerdo
+                                : BigInt(Math.floor(Number(valorEsquerdo)));
+                        const dir =
+                            typeof valorDireito === 'bigint'
+                                ? valorDireito
+                                : BigInt(Math.floor(Number(valorDireito)));
+                        return expressao.operador.tipo === tiposDeSimbolos.E
+                            ? esq & dir
+                            : esq | dir;
+                    }
+
+                    return expressao.operador.tipo === tiposDeSimbolos.E
+                        ? Number(valorEsquerdo) & Number(valorDireito)
+                        : Number(valorEsquerdo) | Number(valorDireito);
+                }
+
+                // Demais casos sem diferença de tipos
+                if (expressao.operador.tipo === tiposDeSimbolos.OU) {
+                    if (this.eVerdadeiro(esquerda)) return esquerda;
+                    return direita;
+                }
+
+                if (expressao.operador.tipo === tiposDeSimbolos.E) {
+                    if (!this.eVerdadeiro(esquerda)) return esquerda;
+                    return direita;
+                }
+            }
+        }
+
         // se um estado for verdadeiro, retorna verdadeiro
         if (expressao.operador.tipo === tiposDeSimbolos.OU) {
             if (this.eVerdadeiro(esquerda)) return esquerda;
@@ -1146,6 +1523,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         let retornoExecucao: ResultadoParcialInterpretadorInterface;
+        let iteracoes = 0;
         while (!(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) {
             if (
                 declaracao.condicao !== null &&
@@ -1155,6 +1533,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             }
 
             try {
+                await this.cederControle(++iteracoes);
                 retornoExecucao = await this.executar(declaracao.corpo);
                 if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                     return null;
@@ -1204,11 +1583,13 @@ export class InterpretadorBase implements InterpretadorInterface {
             );
         }
 
+        let iteracoes = 0;
         while (
             !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
             declaracao.posicaoAtual < valorVetorResolvido.length
         ) {
             try {
+                await this.cederControle(++iteracoes);
                 if (declaracao.variavelIteracao instanceof Variavel) {
                     this.pilhaEscoposExecucao.definirVariavel(
                         declaracao.variavelIteracao.simbolo.lexema,
@@ -1221,7 +1602,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
                     const promises = await Promise.all([
                         this.avaliar(declaracao.variavelIteracao.primeiro),
-                        this.avaliar(declaracao.variavelIteracao.segundo)
+                        this.avaliar(declaracao.variavelIteracao.segundo),
                     ]);
 
                     // TODO: O que fazer quando não forem literais?
@@ -1272,8 +1653,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         for (let i = 0; i < declaracao.caminhosSeSenao.length; i++) {
-            // TODO: Qual o tipo de `atual`?
-            const atual = declaracao.caminhosSeSenao[i] as any;
+            const atual = declaracao.caminhosSeSenao[i];
 
             if (this.eVerdadeiro(await this.avaliar(atual.condicao))) {
                 return await this.executar(atual.caminho);
@@ -1289,11 +1669,13 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
         let retornoExecucao: ResultadoParcialInterpretadorInterface;
+        let iteracoes = 0;
         while (
             !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
             this.eVerdadeiro(await this.avaliar(declaracao.condicao))
         ) {
             try {
+                await this.cederControle(++iteracoes);
                 retornoExecucao = await this.executar(declaracao.corpo);
                 if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                     return null;
@@ -1361,8 +1743,10 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     async visitarDeclaracaoFazer(declaracao: Fazer): Promise<any> {
         let retornoExecucao: ResultadoParcialInterpretadorInterface;
+        let iteracoes = 0;
         do {
             try {
+                await this.cederControle(++iteracoes);
                 retornoExecucao = await this.executar(declaracao.caminhoFazer);
                 if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                     return null;
@@ -1435,7 +1819,11 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         for (const argumento of argumentos) {
             let resultadoAvaliacao = await this.avaliar(argumento);
-            if (resultadoAvaliacao && resultadoAvaliacao.hasOwnProperty && resultadoAvaliacao.hasOwnProperty('valorRetornado')) {
+            if (
+                resultadoAvaliacao &&
+                resultadoAvaliacao.hasOwnProperty &&
+                resultadoAvaliacao.hasOwnProperty('valorRetornado')
+            ) {
                 resultadoAvaliacao = resultadoAvaliacao.valorRetornado;
             }
 
@@ -1786,15 +2174,15 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     /**
-        * Método base para acesso a intervalo.
-        * Por padrão lança erro, pois a maioria dos dialetos (como Delégua padrão)
-        * ainda não suporta isso nativamente, apenas Pituguês.
-    */
+     * Método base para acesso a intervalo.
+     * Por padrão lança erro, pois a maioria dos dialetos (como Delégua padrão)
+     * ainda não suporta isso nativamente, apenas Pituguês.
+     */
     visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 expressao.simboloFechamento,
-                "Acesso por intervalo não implementado para este dialeto.",
+                'Acesso por intervalo não implementado para este dialeto.',
                 expressao.linha
             )
         );
@@ -1816,7 +2204,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         const valor = await this.avaliar(expressao.valor);
         if (objeto.constructor === ObjetoDeleguaClasse) {
-            objeto.definir(expressao.nome, valor);
+            await objeto.definir(expressao.nome, valor, this);
             return valor;
         }
 
@@ -1825,13 +2213,12 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
     }
 
-    visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> {
-        const funcao = new DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
+    async visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> {
+        const funcao: any = new DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
+        funcao.documentacao = declaracao.documentacao;
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
-
-        return Promise.resolve({
-            declaracao: funcao,
-        });
+        this.pilhaEscoposExecucao.registrarReferenciaFuncao(declaracao.id, funcao);
+        return { declaracao: funcao };
     }
 
     /**
@@ -1841,48 +2228,189 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @returns Sempre retorna nulo, por ser requerido pelo contrato de visita.
      */
     async visitarDeclaracaoClasse(declaracao: Classe): Promise<DescritorTipoClasse> {
-        let superClasse = null;
-        if (declaracao.superClasse !== null && declaracao.superClasse !== undefined) {
-            const variavelSuperClasse: VariavelInterface = await this.avaliar(
-                declaracao.superClasse
-            );
-            superClasse = variavelSuperClasse.valor;
+        // Resolver cada superclasse listada em `herda A, B, ...`
+        const superClassesResolvidas: DescritorTipoClasse[] = [];
+        for (const superClasseVariavel of declaracao.superClasses) {
+            const variavelSuperClasse: VariavelInterface = await this.avaliar(superClasseVariavel);
+            const superClasse = variavelSuperClasse.valor;
             if (!(superClasse instanceof DescritorTipoClasse)) {
                 throw new ErroEmTempoDeExecucao(
-                    declaracao.superClasse.nome,
+                    superClasseVariavel.nome,
                     'Superclasse precisa ser uma classe.',
                     declaracao.linha
                 );
             }
+            superClassesResolvidas.push(superClasse);
+        }
+
+        // Resolver cada misturável listado em `mescla X, Y, ...`
+        const mesclaResolvidas: DescritorTipoClasse[] = [];
+        for (const mesclaVariavel of declaracao.mesclas) {
+            const variavelMisturavel: VariavelInterface = await this.avaliar(mesclaVariavel);
+            const misturável = variavelMisturavel.valor;
+            if (!(misturável instanceof DescritorTipoClasse)) {
+                throw new ErroEmTempoDeExecucao(
+                    mesclaVariavel.nome,
+                    'Misturável precisa ser uma classe.',
+                    declaracao.linha
+                );
+            }
+            mesclaResolvidas.push(misturável);
         }
 
         // TODO: Precisamos disso?
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, declaracao);
 
-        if (declaracao.superClasse !== null && declaracao.superClasse !== undefined) {
-            this.pilhaEscoposExecucao.definirVariavel('super', superClasse);
+        if (superClassesResolvidas.length > 0) {
+            this.pilhaEscoposExecucao.definirVariavel('super', superClassesResolvidas[0]);
         }
 
-        const metodos = {};
+        const metodos: { [nome: string]: DeleguaFuncao | DeleguaFuncao[] } = {};
+        const metodosEstaticos: { [nome: string]: DeleguaFuncao | DeleguaFuncao[] } = {};
+        const obtenedores: { [nome: string]: DeleguaFuncao } = {};
+        const definidores: { [nome: string]: DeleguaFuncao } = {};
+        const obtenedoresEstaticos: { [nome: string]: DeleguaFuncao } = {};
+        const definidoresEstaticos: { [nome: string]: DeleguaFuncao } = {};
+        const metodosAbstratos: string[] = [];
+        const acessoMetodos: { [nome: string]: 'privado' | 'protegido' | 'publico' } = {};
+        const acessoPropriedades: { [nome: string]: 'privado' | 'protegido' | 'publico' } = {};
         const definirMetodos = declaracao.metodos;
         for (let i = 0; i < declaracao.metodos.length; i++) {
             const metodoAtual = definirMetodos[i];
-            const eInicializador = metodoAtual.simbolo.lexema === 'construtor';
+            const nomeMetodo = metodoAtual.simbolo.lexema;
+
+            // Registrar nível de acesso do método.
+            if (metodoAtual.acesso && metodoAtual.acesso !== 'publico') {
+                acessoMetodos[nomeMetodo] = metodoAtual.acesso;
+            }
+
+            // Métodos abstratos: registrar apenas o nome, não criar função executável.
+            if (metodoAtual.abstrato) {
+                metodosAbstratos.push(nomeMetodo);
+                continue;
+            }
+
+            const eInicializador = nomeMetodo === 'construtor';
             const funcao = new DeleguaFuncao(
-                metodoAtual.simbolo.lexema,
+                nomeMetodo,
                 metodoAtual.funcao,
                 undefined,
                 eInicializador
             );
-            metodos[metodoAtual.simbolo.lexema] = funcao;
+            funcao.documentacao = metodoAtual.documentacao;
+
+            // Numa classe estática, todos os métodos (exceto construtor) são estáticos.
+            const ehEstatico = declaracao.classeEstatica ? !eInicializador : metodoAtual.estatico;
+
+            if (metodoAtual.eObtenedor) {
+                if (ehEstatico) {
+                    obtenedoresEstaticos[nomeMetodo] = funcao;
+                } else {
+                    obtenedores[nomeMetodo] = funcao;
+                }
+                continue;
+            }
+
+            if (metodoAtual.eDefinidor) {
+                if (ehEstatico) {
+                    definidoresEstaticos[nomeMetodo] = funcao;
+                } else {
+                    definidores[nomeMetodo] = funcao;
+                }
+                continue;
+            }
+
+            const destino = ehEstatico && !eInicializador ? metodosEstaticos : metodos;
+            if (destino[nomeMetodo]) {
+                if (!Array.isArray(destino[nomeMetodo])) {
+                    destino[nomeMetodo] = [destino[nomeMetodo] as DeleguaFuncao];
+                }
+                (destino[nomeMetodo] as DeleguaFuncao[]).push(funcao);
+            } else {
+                destino[nomeMetodo] = funcao;
+            }
+        }
+
+        // Registrar propriedades estáticas no mapa de membros estáticos e níveis de acesso.
+        // Numa classe estática, todas as propriedades são tratadas como estáticas.
+        const membrosEstaticos: { [nome: string]: any } = {};
+        for (const prop of declaracao.propriedades) {
+            if (prop.estatico || declaracao.classeEstatica) {
+                membrosEstaticos[prop.nome.lexema] = undefined;
+            }
+            if (prop.acesso && prop.acesso !== 'publico') {
+                acessoPropriedades[prop.nome.lexema] = prop.acesso;
+            }
         }
 
         const descritorTipoClasse: DescritorTipoClasse = new DescritorTipoClasse(
             declaracao.simbolo,
-            superClasse,
+            superClassesResolvidas,
             metodos,
             declaracao.propriedades
         );
+        descritorTipoClasse.metodosEstaticos = metodosEstaticos;
+        descritorTipoClasse.membrosEstaticos = membrosEstaticos;
+        descritorTipoClasse.obtenedores = obtenedores;
+        descritorTipoClasse.definidores = definidores;
+        descritorTipoClasse.obtenedoresEstaticos = obtenedoresEstaticos;
+        descritorTipoClasse.definidoresEstaticos = definidoresEstaticos;
+        descritorTipoClasse.abstrata = declaracao.abstrata;
+        descritorTipoClasse.classeEstatica = declaracao.classeEstatica;
+        descritorTipoClasse.metodosAbstratos = metodosAbstratos;
+        descritorTipoClasse.acessoMetodos = acessoMetodos;
+        descritorTipoClasse.acessoPropriedades = acessoPropriedades;
+
+        // Toda classe sem superclasse explícita herda implicitamente de `Objeto`.
+        // Isso só deve acontecer quando OBJETO_BASE já estiver inicializado e a classe
+        // atual não for o próprio OBJETO_BASE, para evitar cadeias de herança recursivas.
+        if (
+            descritorTipoClasse.superClasses.length === 0 &&
+            OBJETO_BASE &&
+            descritorTipoClasse !== OBJETO_BASE
+        ) {
+            descritorTipoClasse.superClasses = [OBJETO_BASE];
+        }
+
+        // Calcular o OReM (linearização C3) após os pais estarem definidos.
+        descritorTipoClasse.orem = DescritorTipoClasse.computarOReM(descritorTipoClasse);
+
+        // Mesclar métodos e propriedades dos misturávels (primeiro misturável ganha se não definido na classe).
+        for (const misturável of mesclaResolvidas) {
+            for (const [nome, funcao] of Object.entries(misturável.metodos)) {
+                if (!descritorTipoClasse.metodos.hasOwnProperty(nome)) {
+                    descritorTipoClasse.metodos[nome] = funcao;
+                }
+            }
+            for (const [nome, funcao] of Object.entries(misturável.obtenedores)) {
+                if (!descritorTipoClasse.obtenedores.hasOwnProperty(nome)) {
+                    descritorTipoClasse.obtenedores[nome] = funcao;
+                }
+            }
+            for (const [nome, funcao] of Object.entries(misturável.definidores)) {
+                if (!descritorTipoClasse.definidores.hasOwnProperty(nome)) {
+                    descritorTipoClasse.definidores[nome] = funcao;
+                }
+            }
+            for (const prop of misturável.propriedades) {
+                const jaDeclarada = descritorTipoClasse.propriedades.some(
+                    (p) => p.nome.lexema === prop.nome.lexema
+                );
+                if (!jaDeclarada) {
+                    descritorTipoClasse.propriedades.push(prop);
+                }
+            }
+        }
+
+        // Verifica se a subclasse concreta implementa todos os métodos abstratos
+        // da(s) superclasse(s) abstrata(s).
+        if (!declaracao.abstrata) {
+            for (const superClasse of superClassesResolvidas) {
+                if (superClasse.abstrata) {
+                    superClasse.verificarImplementacaoAbstrata(descritorTipoClasse);
+                }
+            }
+        }
 
         // TODO: Até então, a única exceção a isso é Égua Clássico.
         // Por enquanto, tudo bem deixar isso aqui.
@@ -1890,6 +2418,71 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         this.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolo, descritorTipoClasse);
         return descritorTipoClasse;
+    }
+
+    /**
+     * Registra uma declaração de interface no ambiente de execução.
+     * Interfaces são verificadas em tempo de análise; em tempo de execução, apenas registramos
+     * o nome para possíveis verificações futuras (ex: `eInstanciaDe`).
+     */
+    async visitarDeclaracaoInterface(_declaracao: InterfaceDeclaracao): Promise<void> {
+        // Interfaces não possuem comportamento em tempo de execução.
+        // São contratos verificados em tempo de análise sintática.
+        return Promise.resolve();
+    }
+
+    /**
+     * Procura um método de extensão nos registros de módulo e global,
+     * percorrendo os tipos na ordem indicada (específico antes de base).
+     */
+    encontrarMetodoExtensao(
+        tiposParaVerificar: string[],
+        nomeMetodo: string,
+        hashArquivo: number
+    ): DeleguaFuncao | undefined {
+        // Extensões module-scoped têm prioridade sobre as globais.
+        const extensoesDoModulo = this.extensoesModulo.get(hashArquivo);
+        if (extensoesDoModulo) {
+            for (const tipo of tiposParaVerificar) {
+                const metodo = extensoesDoModulo.get(tipo)?.get(nomeMetodo);
+                if (metodo) return metodo;
+            }
+        }
+        for (const tipo of tiposParaVerificar) {
+            const metodo = this.extensoesGlobais.get(tipo)?.get(nomeMetodo);
+            if (metodo) return metodo;
+        }
+        return undefined;
+    }
+
+    /**
+     * Registra os métodos de uma declaração de extensão nos registros
+     * de extensão do interpretador.
+     */
+    async visitarDeclaracaoExtensao(declaracao: Extensao): Promise<void> {
+        const tipoNome = declaracao.simboloTipo.lexema;
+
+        for (const metodoDeclarado of declaracao.metodos) {
+            const nomeMetodo = metodoDeclarado.simbolo.lexema;
+            const funcao = new DeleguaFuncao(nomeMetodo, metodoDeclarado.funcao);
+
+            if (declaracao.ehGlobal) {
+                if (!this.extensoesGlobais.has(tipoNome)) {
+                    this.extensoesGlobais.set(tipoNome, new Map());
+                }
+                this.extensoesGlobais.get(tipoNome).set(nomeMetodo, funcao);
+            } else {
+                const hash = declaracao.hashArquivo;
+                if (!this.extensoesModulo.has(hash)) {
+                    this.extensoesModulo.set(hash, new Map());
+                }
+                const mapa = this.extensoesModulo.get(hash);
+                if (!mapa.has(tipoNome)) {
+                    mapa.set(tipoNome, new Map());
+                }
+                mapa.get(tipoNome).set(nomeMetodo, funcao);
+            }
+        }
     }
 
     /**
@@ -1919,7 +2512,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             objeto instanceof ObjetoDeleguaClasse ||
             objeto.constructor.name === 'ObjetoDeleguaClasse'
         ) {
-            const valor = objeto.obter(expressao.simbolo);
+            const valor = await objeto.obter(expressao.simbolo, this);
             if (valor === 0) return 0;
             return valor || null;
         }
@@ -1929,7 +2522,13 @@ export class InterpretadorBase implements InterpretadorInterface {
             if (expressao.simbolo.lexema in primitivasDicionario) {
                 const metodoDePrimitivaDicionario: Function =
                     primitivasDicionario[expressao.simbolo.lexema].implementacao;
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario, expressao.simbolo.lexema, 'dicionário');
+                return new MetodoPrimitiva(
+                    nomeObjeto,
+                    objeto,
+                    metodoDePrimitivaDicionario,
+                    expressao.simbolo.lexema,
+                    'dicionário'
+                );
             }
 
             return objeto[expressao.simbolo.lexema];
@@ -1965,7 +2564,13 @@ export class InterpretadorBase implements InterpretadorInterface {
                 // Existe uma lógica nas bibliotecas padrão que, quando a primitiva tem um nome, ela deve ser definida na
                 // pilha de escopos, para registrar a mutação do vetor corretamente.
                 // Não é uma boa solução. Algo melhor precisa ser feito.
-                return new MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor, expressao.simbolo.lexema, tipoObjeto);
+                return new MetodoPrimitiva(
+                    nomeObjeto,
+                    objeto,
+                    metodoDePrimitivaVetor,
+                    expressao.simbolo.lexema,
+                    tipoObjeto
+                );
             }
         }
 
@@ -1992,7 +2597,9 @@ export class InterpretadorBase implements InterpretadorInterface {
         const dicionario = {};
         for (let i = 0; i < expressao.chaves.length; i++) {
             if (expressao.esSpread && expressao.esSpread[i]) {
-                const dicionarioParaDesempacotar = this.resolverValor(await this.avaliar(expressao.valores[i]));
+                const dicionarioParaDesempacotar = this.resolverValor(
+                    await this.avaliar(expressao.valores[i])
+                );
 
                 // Validação: verificar se é realmente um dicionário
                 if (
@@ -2006,8 +2613,8 @@ export class InterpretadorBase implements InterpretadorInterface {
                             dicionarioParaDesempacotar === null
                                 ? 'nulo'
                                 : Array.isArray(dicionarioParaDesempacotar)
-                                ? 'vetor'
-                                : typeof dicionarioParaDesempacotar
+                                  ? 'vetor'
+                                  : typeof dicionarioParaDesempacotar
                         }`,
                         expressao.linha
                     );
@@ -2023,7 +2630,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
                 if (typeof promises[0] === 'boolean') {
                     const chaveLogico = promises[0] === true ? 'verdadeiro' : 'falso';
-                    dicionario[chaveLogico] = promises[1];
+                    dicionario[chaveLogico] = this.resolverValor(promises[1]);
                     continue;
                 }
 
@@ -2036,11 +2643,11 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     async visitarExpressaoVetor(expressao: Vetor): Promise<any> {
         const valores = [];
-        for (let i = 0; i < expressao.valores.length; i++) {
-            valores.push(await this.avaliar(expressao.valores[i]));
+        for (let i = 0; i < expressao.elementos.length; i++) {
+            valores.push(this.resolverValor(await this.avaliar(expressao.elementos[i])));
         }
 
-        return valores.filter((v) => v !== null && v !== undefined);
+        return valores;
     }
 
     visitarExpressaoSuper(expressao: Super): any {
@@ -2063,7 +2670,8 @@ export class InterpretadorBase implements InterpretadorInterface {
         this.pilhaEscoposExecucao.definirVariavel(
             declaracao.simbolo.lexema,
             valorFinal,
-            tipoResolvido
+            tipoResolvido,
+            declaracao.tipoExplicito && declaracao.tipoOriginal !== 'qualquer'
         );
 
         // TODO: É relevante registrar uma declaração de variável no
@@ -2094,6 +2702,202 @@ export class InterpretadorBase implements InterpretadorInterface {
         return null;
     }
 
+    /**
+     * Formata uma string usando o operador % (similar ao Python).
+     * @param formato A string de formato com especificadores (ex: "Olá %s").
+     * @param valores Os valores para substituir (pode ser um único valor ou uma tupla/vetor).
+     * @param operador O símbolo do operador para mensagens de erro.
+     * @returns A string formatada.
+     */
+    private formatarStringComOperadorPorcentagem(
+        formato: string,
+        valores: any,
+        operador: any
+    ): string {
+        let valoresArray: any[];
+
+        // Verificar se é uma TuplaN (verifica instanceof OU propriedade elementos/tipo para maior compatibilidade)
+        if (
+            valores instanceof TuplaN ||
+            (valores &&
+                valores.tipo === 'tupla' &&
+                valores.elementos &&
+                Array.isArray(valores.elementos))
+        ) {
+            valoresArray = valores.elementos.map((elem: any) => {
+                if (
+                    elem instanceof Literal ||
+                    (elem && typeof elem === 'object' && elem.hasOwnProperty('valor'))
+                ) {
+                    return this.resolverValor(elem.valor);
+                }
+                return this.resolverValor(elem);
+            });
+        } else if (Array.isArray(valores)) {
+            valoresArray = valores.map((v) => this.resolverValor(v));
+        } else {
+            const valorResolvido = this.resolverValor(valores);
+
+            if (Array.isArray(valorResolvido)) {
+                valoresArray = valorResolvido.map((v) => this.resolverValor(v));
+            } else {
+                valoresArray = [valorResolvido];
+            }
+        }
+
+        let indiceValor = 0;
+        let resultado = '';
+        let i = 0;
+
+        while (i < formato.length) {
+            if (formato[i] === '%') {
+                if (i + 1 >= formato.length) {
+                    throw new ErroEmTempoDeExecucao(
+                        operador,
+                        'Formato inválido: % no final da string',
+                        operador.linha
+                    );
+                }
+
+                const proximoChar = formato[i + 1];
+
+                // %% -> % literal
+                if (proximoChar === '%') {
+                    resultado += '%';
+                    i += 2;
+                    continue;
+                }
+
+                // Verificar se ainda temos valores para substituir
+                if (indiceValor >= valoresArray.length) {
+                    throw new ErroEmTempoDeExecucao(
+                        operador,
+                        'Argumentos insuficientes para a string de formatação',
+                        operador.linha
+                    );
+                }
+
+                const valor = valoresArray[indiceValor];
+                indiceValor++;
+
+                // Processar especificadores de formato
+                if (proximoChar === 's') {
+                    // %s - string
+                    resultado += this.paraTexto(valor);
+                    i += 2;
+                } else if (proximoChar === 'd') {
+                    // %d - inteiro
+                    const valorNumerico = Number(valor);
+                    if (isNaN(valorNumerico)) {
+                        throw new ErroEmTempoDeExecucao(
+                            operador,
+                            `Esperado número para %d, mas recebeu ${typeof valor}`,
+                            operador.linha
+                        );
+                    }
+                    resultado += Math.floor(valorNumerico).toString();
+                    i += 2;
+                } else if (proximoChar === 'f') {
+                    // %f - flutuante
+                    const valorNumerico = Number(valor);
+                    if (isNaN(valorNumerico)) {
+                        throw new ErroEmTempoDeExecucao(
+                            operador,
+                            `Esperado número para %f, mas recebeu ${typeof valor}`,
+                            operador.linha
+                        );
+                    }
+                    resultado += valorNumerico.toString();
+                    i += 2;
+                } else if (proximoChar === '.') {
+                    // %.nf - flutuante com n casas decimais
+                    let j = i + 2;
+                    let casasDecimais = '';
+                    while (j < formato.length && formato[j] >= '0' && formato[j] <= '9') {
+                        casasDecimais += formato[j];
+                        j++;
+                    }
+
+                    if (j >= formato.length || formato[j] !== 'f') {
+                        throw new ErroEmTempoDeExecucao(
+                            operador,
+                            'Formato inválido: esperado %.nf (ex: %.2f)',
+                            operador.linha
+                        );
+                    }
+
+                    const precisao = parseInt(casasDecimais, 10);
+                    const valorNumerico = Number(valor);
+                    if (isNaN(valorNumerico)) {
+                        throw new ErroEmTempoDeExecucao(
+                            operador,
+                            `Esperado número para %.${precisao}f, mas recebeu ${typeof valor}`,
+                            operador.linha
+                        );
+                    }
+                    resultado += valorNumerico.toFixed(precisao);
+                    i = j + 1;
+                } else if (proximoChar === 'x') {
+                    // %x - hexadecimal (caixa baixa)
+                    const valorNumerico = Number(valor);
+                    if (isNaN(valorNumerico)) {
+                        throw new ErroEmTempoDeExecucao(
+                            operador,
+                            `Esperado número para %x, mas recebeu ${typeof valor}`,
+                            operador.linha
+                        );
+                    }
+                    resultado += Math.floor(valorNumerico).toString(16);
+                    i += 2;
+                } else if (proximoChar === 'X') {
+                    // %X - hexadecimal (caixa alta)
+                    const valorNumerico = Number(valor);
+                    if (isNaN(valorNumerico)) {
+                        throw new ErroEmTempoDeExecucao(
+                            operador,
+                            `Esperado número para %X, mas recebeu ${typeof valor}`,
+                            operador.linha
+                        );
+                    }
+                    resultado += Math.floor(valorNumerico).toString(16).toUpperCase();
+                    i += 2;
+                } else if (proximoChar === 'o') {
+                    // %o - octal
+                    const valorNumerico = Number(valor);
+                    if (isNaN(valorNumerico)) {
+                        throw new ErroEmTempoDeExecucao(
+                            operador,
+                            `Esperado número para %o, mas recebeu ${typeof valor}`,
+                            operador.linha
+                        );
+                    }
+                    resultado += Math.floor(valorNumerico).toString(8);
+                    i += 2;
+                } else {
+                    throw new ErroEmTempoDeExecucao(
+                        operador,
+                        `Especificador de formato desconhecido: %${proximoChar}`,
+                        operador.linha
+                    );
+                }
+            } else {
+                resultado += formato[i];
+                i++;
+            }
+        }
+
+        // Verificar se há valores não utilizados
+        if (indiceValor < valoresArray.length) {
+            throw new ErroEmTempoDeExecucao(
+                operador,
+                'Nem todos os argumentos foram convertidos durante a formatação da string.',
+                operador.linha
+            );
+        }
+
+        return resultado;
+    }
+
     paraTexto(objeto: any): string {
         if (objeto === null || objeto === undefined) return tipoDeDadosDelegua.NULO;
         if (typeof objeto === tipoDeDadosPrimitivos.BOOLEANO) {
@@ -2102,7 +2906,11 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
         if (objeto instanceof Literal) return this.paraTexto(objeto.valor);
-        if (objeto instanceof ObjetoDeleguaClasse || objeto instanceof DeleguaFuncao)
+        if (
+            objeto instanceof ObjetoDeleguaClasse ||
+            objeto instanceof DeleguaFuncao ||
+            objeto instanceof DescritorTipoClasse
+        )
             return objeto.paraTexto();
 
         if (objeto instanceof RetornoQuebra) {
@@ -2143,7 +2951,8 @@ export class InterpretadorBase implements InterpretadorInterface {
                 if ('tipo' in objeto) {
                     switch (objeto.tipo) {
                         case 'dicionário':
-                            return JSON.stringify(objeto.valor);
+                            const valorResolvido = this.resolverValorRecursivo(objeto.valor);
+                            return JSON.stringify(valorResolvido);
                         default:
                             return objeto.valor;
                     }

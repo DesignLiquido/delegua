@@ -61,7 +61,7 @@ import {
     SimboloInterface,
     VariavelInterface,
 } from '../../../interfaces';
-import { ErroInterpretador } from '../../../interfaces/erros/erro-interpretador';
+import { ErroInterpretadorInterface } from '../../../interfaces/erros/erro-interpretador-interface';
 import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
 import { RetornoInterpretadorInterface } from '../../../interfaces/retornos/retorno-interpretador-interface';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../../../quebras';
@@ -91,11 +91,12 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     diretorioBase: any;
     funcaoDeRetorno: Function;
     locais: Map<Construto, number>;
-    erros: ErroInterpretador[];
+    erros: ErroInterpretadorInterface[];
     pilhaEscoposExecucao: PilhaEscoposExecucao;
     interfaceEntradaSaida: any = null;
     hashArquivoDeclaracaoAtual: number;
     linhaDeclaracaoAtual: number;
+    classeAtualEmExecucao: any = null;
     emDeclaracaoTente: boolean = false;
 
     constructor(diretorioBase: string) {
@@ -125,7 +126,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     /* istanbul ignore next */
-    visitarExpressaoAcessoIntervaloVariavel(expressao: AcessoIntervaloVariavel): Promise<any> | void {
+    visitarExpressaoAcessoIntervaloVariavel(
+        expressao: AcessoIntervaloVariavel
+    ): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
 
@@ -487,9 +490,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         if (entidadeChamada instanceof DeleguaFuncao) {
             parametros = entidadeChamada.declaracao.parametros;
         } else if (entidadeChamada instanceof DescritorTipoClasse) {
-            parametros = entidadeChamada.metodos.inicializacao
-                ? entidadeChamada.metodos.inicializacao.declaracao.parametros
-                : [];
+            const metodoInit = entidadeChamada.metodos.inicializacao as DeleguaFuncao;
+            parametros = metodoInit ? metodoInit.declaracao.parametros : [];
         } else {
             parametros = [];
         }
@@ -585,9 +587,8 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         for (let i = 0; i < declaracao.caminhosSeSenao.length; i++) {
             const atual = declaracao.caminhosSeSenao[i];
 
-            // TODO: Qual seria o tipo certo aqui?
-            if (this.eVerdadeiro(await this.avaliar((atual as any).condicao))) {
-                return await this.executar((atual as any).caminho);
+            if (this.eVerdadeiro(await this.avaliar(atual.condicao))) {
+                return await this.executar(atual.caminho);
             }
         }
 
@@ -929,7 +930,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
         const valor = await this.avaliar(expressao.valor);
         if (objeto instanceof ObjetoDeleguaClasse) {
-            objeto.definir(expressao.nome, valor);
+            await objeto.definir(expressao.nome, valor, this);
             return valor;
         } else if (objeto.constructor === Object) {
             objeto[expressao.simbolo.lexema] = valor;
@@ -964,7 +965,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             this.pilhaEscoposExecucao.definirVariavel('super', superClasse);
         }
 
-        const metodos = {};
+        const metodos: { [nome: string]: DeleguaFuncao } = {};
         const definirMetodos = declaracao.metodos;
         for (let i = 0; i < declaracao.metodos.length; i++) {
             const metodoAtual = definirMetodos[i];
@@ -979,14 +980,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         }
 
         const deleguaClasse = new DescritorTipoClasse(declaracao.simbolo, superClasse, metodos);
-        // TODO: Depreciar na próxima versão.
-        deleguaClasse.dialetoRequerExpansaoPropriedadesEspacoMemoria = false;
-        deleguaClasse.dialetoRequerDeclaracaoPropriedades = false;
-
-        // TODO: Recolocar isso se for necessário.
-        /* if (superClasse !== null) {
-            this.ambiente = this.ambiente.enclosing;
-        } */
+        deleguaClasse.orem = DescritorTipoClasse.computarOReM(deleguaClasse);
 
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, deleguaClasse);
         return null;
@@ -996,10 +990,14 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         const variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
         const objeto = variavelObjeto?.valor;
         if (objeto instanceof ObjetoDeleguaClasse) {
-            return objeto.obter(expressao.simbolo) || null;
-        } else if (objeto.constructor === Object) {
+            return (await objeto.obter(expressao.simbolo, this)) || null;
+        }
+
+        if (objeto.constructor === Object) {
             return objeto[expressao.simbolo.lexema] || null;
-        } else if (objeto instanceof DeleguaModulo) {
+        }
+
+        if (objeto instanceof DeleguaModulo) {
             return objeto[expressao.simbolo.lexema] || null;
         }
 

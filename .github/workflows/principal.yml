@@ -19,12 +19,13 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: '20'
+        cache: 'yarn'
 
-    - name: NPM - Dependências
-      run: npm install
+    - name: Yarn - Dependências
+      run: yarn install --frozen-lockfile
 
     - name: Testes unitários com cobertura
-      run: npm run testes-unitarios -- --coverage --coverageReporters=json-summary --coverageReporters=text
+      run: yarn testes-unitarios --coverage --coverageReporters=json-summary --coverageReporters=text
 
     - name: Salvar resultados de cobertura
       if: github.event_name == 'pull_request'

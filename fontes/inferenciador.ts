@@ -1,5 +1,4 @@
 import { Simbolo } from './lexador';
-import { TipoDadosElementar } from './tipo-dados-elementar';
 
 import tipoDeDadosPrimitivos from './tipos-de-dados/primitivos';
 import tipoDeDadosDelegua from './tipos-de-dados/delegua';
@@ -8,8 +7,11 @@ import tiposDeSimbolos from './tipos-de-simbolos/delegua';
 export type TipoInferencia =
     | 'cadeia'
     | 'caracter'
+    | 'caracter[]'
     | 'dicionário'
     | 'função'
+    | 'inteiro'
+    | 'inteiro[]'
     | 'lógico'
     | 'lógico[]'
     | 'longo'
@@ -19,6 +21,10 @@ export type TipoInferencia =
     | 'número'
     | 'número[]'
     | 'objeto'
+    | 'qualquer'
+    | 'qualquer[]'
+    | 'real'
+    | 'real[]'
     | 'símbolo'
     | 'texto'
     | 'texto[]'
@@ -83,6 +89,7 @@ export function inferirTipoVariavel(variavel: any): TipoInferencia | TipoNativoS
         case 'Number':
         case 'number':
             return 'número';
+        case 'BigInt':
         case 'bigint':
             return 'longo';
         case 'Boolean':
@@ -135,15 +142,5 @@ export function inferirTipoVariavel(variavel: any): TipoInferencia | TipoNativoS
             return 'função';
         case 'symbol':
             return 'símbolo';
-    }
-}
-
-export function tipoInferenciaParaTipoDadosElementar(
-    tipoInferencia: TipoInferencia
-): TipoDadosElementar {
-    switch (tipoInferencia) {
-        // TODO: Colocar exceções aqui.
-        default:
-            return tipoInferencia as TipoDadosElementar;
     }
 }

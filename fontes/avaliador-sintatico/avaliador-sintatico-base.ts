@@ -1,5 +1,15 @@
-import { Binario, Chamada, Construto, FuncaoConstruto, Leia, Logico, Unario } from '../construtos';
 import {
+    Binario,
+    Chamada,
+    Construto,
+    FuncaoConstruto,
+    Leia,
+    Logico,
+    TuplaN,
+    Unario,
+} from '../construtos';
+import {
+    Bloco,
     Classe,
     Continua,
     Declaracao,
@@ -26,9 +36,10 @@ import tiposDeSimbolos from '../tipos-de-simbolos/comum';
  * entre todos os outros Avaliadores Sintáticos. Depende de um dicionário
  * de tipos de símbolos comuns entre todos os dialetos.
  */
-export abstract class AvaliadorSintaticoBase
-    implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao>
-{
+export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterface<
+    SimboloInterface,
+    Declaracao
+> {
     simbolos: SimboloInterface[];
     erros: ErroAvaliadorSintatico[];
 
@@ -116,6 +127,18 @@ export abstract class AvaliadorSintaticoBase
     protected abstract primario(): Promise<Construto>;
     protected abstract resolverDeclaracaoForaDeBloco(): Promise<Declaracao | Declaracao[]>;
 
+    protected async declaracaoBloco(): Promise<Bloco> {
+        const simboloInicioBloco: SimboloInterface = this.consumir(
+            tiposDeSimbolos.CHAVE_ESQUERDA,
+            "Esperado '{' para abertura de bloco."
+        );
+        return new Bloco(
+            simboloInicioBloco.hashArquivo,
+            Number(simboloInicioBloco.linha),
+            await this.blocoEscopo()
+        );
+    }
+
     protected async finalizarChamada(entidadeChamada: Construto): Promise<Chamada> {
         const argumentos: Array<Construto> = [];
 
@@ -149,9 +172,9 @@ export abstract class AvaliadorSintaticoBase
     }
 
     /**
-     * A exponenciacão é uma exceção na ordem de avaliação (resolve primeiro à direita). 
+     * A exponenciacão é uma exceção na ordem de avaliação (resolve primeiro à direita).
      * Por isso `direito` chama `exponenciacao()`, e não `unario()`.
-     * @returns {Binario} A expressão binária na forma do construto `Binario`. 
+     * @returns {Binario} A expressão binária na forma do construto `Binario`.
      */
     protected async exponenciacao(): Promise<Construto> {
         let expressao = await this.unario();
@@ -267,6 +290,31 @@ export abstract class AvaliadorSintaticoBase
         return expressao;
     }
 
+    /**
+     * Processa tuplas, que são expressões separadas por vírgula entre parênteses.
+     * Se não houver vírgula, retorna apenas a expressão simples.
+     */
+    protected async tupla(): Promise<Construto> {
+        let expressao = await this.ou();
+
+        // Se não há vírgula, retorna a expressão simples
+        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)) {
+            return expressao;
+        }
+
+        // Se há vírgula, então é uma tupla
+        const elementos = [expressao];
+
+        do {
+            if (this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+                break;
+            }
+            elementos.push(await this.ou());
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        return new TuplaN(this.hashArquivo, expressao.linha, elementos);
+    }
+
     protected async expressao(): Promise<Construto> {
         return await this.atribuir();
     }
@@ -280,7 +328,7 @@ export abstract class AvaliadorSintaticoBase
             `Esperado nome ${tipo}.`
         );
 
-        const corpo = await this.corpoDaFuncao(tipo)
+        const corpo = await this.corpoDaFuncao(tipo);
         return new FuncaoDeclaracao(nomeFuncao, corpo);
     }
 

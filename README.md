@@ -138,7 +138,8 @@ Para este núcleo, alguns compiladores são tradutores de Delégua para certos _
 Já outros compiladores demandam uma infraestrutura de código mais robusta e são projetos separados, que ou usam este núcleo diretamente, ou usam a sintaxe implementada no núcleo de forma independente. 
 São eles:
 
-- [`delegua-llvm`](https://github.com/DesignLiquido/delegua-llvm), o compilador oficial da Design Líquido, independente de arquitetura de processador;
+- [`delegua-nativo`](https://github.com/DesignLiquido/delegua-nativo), o compilador oficial da Design Líquido, independente de arquitetura de processador;
+- [`delegua-llvm`](https://github.com/DesignLiquido/delegua-llvm), o compilador de código Delégua para LLVM, que pode ser usado para gerar código nativo para diversas arquiteturas de processador, incluindo x64 e ARM. É usado por `delegua-nativo`;
 - [`cgd` (Compilador Geral Delégua)](https://github.com/FernandoTheDev/cgd). Documentação: https://fernandothedev.github.io/cgd/
 
 ## Contribuições e Comunidade

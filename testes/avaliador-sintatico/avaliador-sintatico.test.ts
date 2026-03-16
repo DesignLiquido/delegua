@@ -1,7 +1,7 @@
 import { Lexador } from '../../fontes/lexador';
 import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
 import { Ajuda, Bloco, Classe, Const, Escreva, Expressao, FuncaoDeclaracao, Importar, ParaCada, Retorna, TendoComo, Tente, Var } from '../../fontes/declaracoes';
-import { Binario, Chamada, Elvis, FuncaoConstruto, Leia, Literal, Logico, SeTernario, Variavel } from '../../fontes/construtos';
+import { Binario, Chamada, DefinirValor, Elvis, FuncaoConstruto, Leia, ListaCompreensao, Literal, Logico, SeTernario, Variavel } from '../../fontes/construtos';
 
 describe('Avaliador sintático', () => {
     describe('analisar()', () => {
@@ -124,6 +124,85 @@ describe('Avaliador sintático', () => {
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+
+                it('Propriedade estática não torna construtor estático', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'classe MinhaClasse {',
+                            '    estatico {',
+                            '        resultado: numero',
+                            '    }',
+                            '    construtor() {',
+                            '        MinhaClasse.resultado = 99',
+                            '    }',
+                            '}',
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+
+                    const declaracaoClasse = retornoAvaliadorSintatico.declaracoes[0] as Classe;
+                    expect(declaracaoClasse.propriedades).toHaveLength(1);
+                    expect(declaracaoClasse.propriedades[0].estatico).toBe(true);
+
+                    const construtor = declaracaoClasse.metodos.find((m) => m.simbolo.lexema === 'construtor');
+                    expect(construtor).toBeDefined();
+                    if (!construtor) {
+                        throw new Error('Construtor não encontrado.');
+                    }
+                    expect(construtor.estatico).toBe(false);
+
+                    const primeiraDeclaracaoCorpo = construtor.funcao.corpo[0] as Expressao;
+                    expect(primeiraDeclaracaoCorpo).toBeInstanceOf(Expressao);
+                    expect(primeiraDeclaracaoCorpo.expressao).toBeInstanceOf(DefinirValor);
+
+                    const definirValor = primeiraDeclaracaoCorpo.expressao as DefinirValor;
+                    expect(definirValor.objeto).toBeInstanceOf(Variavel);
+                    expect((definirValor.objeto as Variavel).simbolo.lexema).toBe('MinhaClasse');
+                });
+
+                it('Métodos obtenedor e definidor são marcados corretamente', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'classe Pessoa {',
+                            '    _nome: texto',
+                            '    nome: texto {',
+                            '        obter() {',
+                            '            retorna isto._nome',
+                            '        }',
+                            '        definir(valor) {',
+                            '            isto._nome = valor',
+                            '        }',
+                            '    }',
+                            '}',
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+
+                    const declaracaoClasse = retornoAvaliadorSintatico.declaracoes[0] as Classe;
+                    expect(declaracaoClasse.metodos).toHaveLength(2);
+
+                    const obtenedor = declaracaoClasse.metodos.find((m) => m.simbolo.lexema === 'nome' && m.eObtenedor);
+                    const definidor = declaracaoClasse.metodos.find((m) => m.simbolo.lexema === 'nome' && m.eDefinidor);
+
+                    expect(obtenedor).toBeDefined();
+                    if (!obtenedor) {
+                        throw new Error('Obtenedor não encontrado.');
+                    }
+                    expect(obtenedor.eDefinidor).toBe(false);
+                    expect(definidor).toBeDefined();
+                    if (!definidor) {
+                        throw new Error('Definidor não encontrado.');
+                    }
+                    expect(definidor.eObtenedor).toBe(false);
                 });
             });
 
@@ -1318,11 +1397,11 @@ describe('Avaliador sintático', () => {
 
             describe('Funções', () => {
                 it('Função retorna vazio mas tem retorno de valores', async () => {
+                    // Usa um literal com tipo conhecido para que o avaliador sintático possa detectar
                     const retornoLexador = lexador.mapear(
                         [
-                            'funcao executar(valor1, valor2): vazio {',
-                            '    var resultado = valor1 + valor2',
-                            '    retorna resultado',
+                            'funcao executar(): vazio {',
+                            '    retorna "resultado"',
                             '}',
                         ],
                         -1
@@ -1858,6 +1937,41 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
                 });
+
+                it('Recuperação - duas declarações quebradas no nível superior acumulam dois erros', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var x = ;',
+                        'var y = ;',
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThanOrEqual(2);
+                });
+
+                it('Recuperação - declaração quebrada seguida de declaração válida no nível superior', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var x = ;',
+                        "escreva('recuperado')",
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThanOrEqual(1);
+                    expect(retornoAvaliadorSintatico.declaracoes.length).toBeGreaterThanOrEqual(1);
+                });
+
+                it('Recuperação - declaração quebrada dentro de bloco não impede análise das demais', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'funcao teste() {',
+                        '    var x = ;',
+                        "    escreva('ok')",
+                        '}',
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThanOrEqual(1);
+                    // A declaração de função deve ter sido recuperada
+                    expect(retornoAvaliadorSintatico.declaracoes.length).toBeGreaterThanOrEqual(1);
+                });
             });
 
             describe('Classes - casos extremos', () => {
@@ -1915,6 +2029,53 @@ describe('Avaliador sintático', () => {
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+            });
+
+            describe('Compreensão de listas', () => {
+                it('Infere tipo texto[] quando expressão de retorno é literal de texto', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var lista = [1, 2, 3]',
+                            'var resultado = ["olá" para cada x em lista]',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    const listaCompreensao = (retornoAvaliadorSintatico.declaracoes[1] as Var).inicializador as ListaCompreensao;
+                    expect(listaCompreensao.tipo).toBe('texto[]');
+                });
+
+                it('Infere tipo número[] quando expressão de retorno é literal numérico', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var lista = ["a", "b", "c"]',
+                            'var resultado = [42 para cada x em lista]',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    const listaCompreensao = (retornoAvaliadorSintatico.declaracoes[1] as Var).inicializador as ListaCompreensao;
+                    expect(listaCompreensao.tipo).toBe('número[]');
+                });
+
+                it('Usa qualquer[] quando expressão de retorno é uma variável', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var lista = [1, 2, 3]',
+                            'var resultado = [x para cada x em lista]',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    const listaCompreensao = (retornoAvaliadorSintatico.declaracoes[1] as Var).inicializador as ListaCompreensao;
+                    expect(listaCompreensao.tipo).toBe('qualquer[]');
                 });
             });
         });

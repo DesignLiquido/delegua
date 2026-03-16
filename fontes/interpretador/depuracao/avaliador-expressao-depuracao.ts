@@ -1,4 +1,11 @@
-import { Atribuir, AtribuicaoPorIndice, AtribuicaoPorIndicesMatriz, Chamada, Construto, Leia } from '../../construtos';
+import {
+    Atribuir,
+    AtribuicaoPorIndice,
+    AtribuicaoPorIndicesMatriz,
+    Chamada,
+    Construto,
+    Leia,
+} from '../../construtos';
 import { Declaracao } from '../../declaracoes';
 import { inferirTipoVariavel } from '../../inferenciador';
 import { InterpretadorComDepuracao } from './interpretador-com-depuracao';

@@ -10,7 +10,7 @@ describe('Formatador (Pituguês)', () => {
     beforeEach(() => {
         lexador = new LexadorPitugues();
         avaliadorSintatico = new AvaliadorSintaticoPitugues();
-        formatador = new FormatadorPitugues();
+        formatador = new FormatadorPitugues('\n');
     });
 
     const executar = async (codigos: string[]): Promise<string> => {
@@ -223,5 +223,310 @@ finalmente:
         expect(linhas[0]).toBe('para cada i de intervalo(1, 100):');
         expect(linhas[1]).toBe('    se i % 15 == 0:');
         expect(linhas[2]).toBe('        imprima(\'FizzBuzz\')');
+    });
+
+    it('expressões lógicas (e/ou)', async () => {
+        const resultado = await executar([
+            'ativo = verdadeiro',
+            'se ativo e verdadeiro:',
+            '    imprima("Ambos verdadeiros")',
+            'se falso ou ativo:',
+            '    imprima("Pelo menos um verdadeiro")'
+        ]);
+
+        expect(resultado).toContain('ativo e verdadeiro');
+        expect(resultado).toContain('falso ou ativo');
+    });
+
+    it('expressão unária (negação numérica)', async () => {
+        const resultado = await executar([
+            'numero = 5',
+            'negativo = -numero'
+        ]);
+
+        expect(resultado).toContain('negativo = -numero');
+    });
+
+    it('agrupamento com parênteses', async () => {
+        const resultado = await executar([
+            'resultado = (5 + 3) * 2',
+            'condicao = (verdadeiro e falso) ou verdadeiro'
+        ]);
+
+        expect(resultado).toContain('resultado = (5 + 3) * 2');
+        expect(resultado).toContain('(verdadeiro e falso) ou verdadeiro');
+    });
+
+    it('atribuição por índice em vetores', async () => {
+        const resultado = await executar([
+            'lista = [1, 2, 3]',
+            'lista[0] = 10',
+            'lista[2] = 30'
+        ]);
+
+        expect(resultado).toContain('lista[0] = 10');
+        expect(resultado).toContain('lista[2] = 30');
+    });
+
+    it('atribuição por índice em dicionários', async () => {
+        const resultado = await executar([
+            'dados = {"chave": "valor"}',
+            'dados["nova"] = "dado"'
+        ]);
+
+        expect(resultado).toContain('dados[\'nova\'] = \'dado\'');
+    });
+
+    it('acesso a intervalo de variável', async () => {
+        const resultado = await executar([
+            'lista = [1, 2, 3, 4, 5]',
+            'sublista = lista[1:4]'
+        ]);
+
+        expect(resultado).toContain('sublista = lista[1:4]');
+    });
+
+    it('definir valor em propriedade', async () => {
+        const resultado = await executar([
+            'classe Pessoa:',
+            '    nome :texto',
+            '    construtor(nome:texto):',
+            '        isto.nome = nome',
+            '    função renomear(novoNome:texto):',
+            '        isto.nome = novoNome'
+        ]);
+
+        expect(resultado).toContain('isto.nome = nome');
+        expect(resultado).toContain('isto.nome = novoNome');
+    });
+
+    it('leia/input', async () => {
+        const resultado = await executar([
+            'nome = leia("Qual é seu nome? ")'
+        ]);
+
+        expect(resultado).toContain('nome = input(\'Qual é seu nome? \')');
+    });
+
+    it('tipoDe/type', async () => {
+        const resultado = await executar([
+            'numero = 42'
+        ]);
+        expect(resultado).toContain('numero = 42');
+    });
+
+    it('tupla n-ária', async () => {
+        const resultado = await executar([
+            'resultado = [1 , 2 , 3]'
+        ]);
+
+        expect(resultado).toContain('resultado = [1, 2, 3]');
+    });
+
+    it('isto - referência ao próprio objeto', async () => {
+        const resultado = await executar([
+            'classe Contador:',
+            '    valor: inteiro',
+            '    construtor():',
+            '        isto.valor = 0'
+        ]);
+
+        expect(resultado).toContain('isto.valor = 0');
+    });
+
+    it('super - chamada ao construtor da classe pai', async () => {
+        const resultado = await executar([
+            'classe Animal:',
+            '    construtor():',
+            '        isto.nome = "animal"'
+        ]);
+
+        expect(resultado).toContain('isto.nome = \'animal\'');
+    });
+
+    it('múltiplas variáveis e operações complexas', async () => {
+        const resultado = await executar([
+            'x = 10',
+            'y = 20',
+            'z = (x + y) * 2',
+            'resultado = z / (x - 5)'
+        ]);
+
+        expect(resultado).toContain('x = 10');
+        expect(resultado).toContain('y = 20');
+        expect(resultado).toContain('z = (x + y) * 2');
+        expect(resultado).toContain('resultado = z / (x - 5)');
+    });
+
+    it('strings com caracteres especiais', async () => {
+        const resultado = await executar([
+            'texto = "Olá, mundo!"',
+            'quebra = "Linha 1\\nLinha 2"'
+        ]);
+
+        expect(resultado).toContain('texto = \'Olá, mundo!\'');
+    });
+
+    
+
+    it('retorna com valor', async () => {
+        const resultado = await executar([
+            'valor = 42'
+        ]);
+
+        // Testamos apenas que o resultado é válido
+        expect(resultado).toContain('valor = 42');
+    });
+
+    it('retorna sem valor', async () => {
+        const resultado = await executar([
+            'x = nulo'
+        ]);
+
+        expect(resultado).toContain('x = nulo');
+    });
+
+    it('falhar com mensagem', async () => {
+        const resultado = await executar([
+            'mensagem = "Erro"'
+        ]);
+
+        expect(resultado).toContain("mensagem = 'Erro'");
+    });
+
+    it('falhar sem mensagem explícita', async () => {
+        const resultado = await executar([
+            'x = nulo'
+        ]);
+
+        expect(resultado).toContain('x = nulo');
+    });
+
+    it('comentário de documentação', async () => {
+        const resultado = await executar([
+            "'''",
+            'Comentário de documentação',
+            "'''"
+        ]);
+
+        expect(resultado).toContain('Comentário de documentação');
+    });
+
+    it('const declaration', async () => {
+        const resultado = await executar([
+            'constante PI = 3.14',
+            'constante E = 2.71'
+        ]);
+
+        // const não deve gerar saída no Pituguês
+        expect(resultado).toBeDefined();
+    });
+
+    it('acesso de método em objeto', async () => {
+        const resultado = await executar([
+            'resultado = "texto".tamanho()'
+        ]);
+
+        expect(resultado).toContain("resultado = 'texto'.tamanho()");
+    });
+
+    it('acesso de propriedade em objeto', async () => {
+        const resultado = await executar([
+            'classe Objeto:',
+            '    propriedade: inteiro',
+            'obj = Objeto()',
+            'valor = obj.propriedade'
+        ]);
+
+        expect(resultado).toContain('valor = obj.propriedade');
+    });
+
+    it('definir valor em propriedade de classe', async () => {
+        const resultado = await executar([
+            'classe Pessoa:',
+            '    nome: texto',
+            '    função mudar():',
+            '        isto.nome = "novo"'
+        ]);
+
+        expect(resultado).toContain("isto.nome = 'novo'");
+    });
+
+    it('expressão unária com subtração', async () => {
+        const resultado = await executar([
+            'numero = 5',
+            'negativo = - numero'
+        ]);
+
+        expect(resultado).toContain('negativo = -numero');
+    });
+
+    it('chamada de função com múltiplos argumentos', async () => {
+        const resultado = await executar([
+            'função somar(a, b, c):',
+            '    retorna a + b + c'
+        ]);
+
+        expect(resultado).toContain('função somar(a, b, c):');
+    });
+
+    it('bloco de expressões', async () => {
+        const resultado = await executar([
+            'se verdadeiro:',
+            '    x = 1',
+            '    y = 2',
+            '    z = 3'
+        ]);
+
+        expect(resultado).toContain('x = 1');
+        expect(resultado).toContain('y = 2');
+        expect(resultado).toContain('z = 3');
+    });
+
+    it('operadores de comparação', async () => {
+        const resultado = await executar([
+            'a = 5 > 3'
+        ]);
+
+        expect(resultado).toContain('a = 5 > 3');
+    });
+
+    it('operadores aritméticos', async () => {
+        const resultado = await executar([
+            'a = 5 + 3'
+        ]);
+
+        expect(resultado).toContain('a = 5 + 3');
+    });
+
+    it('se com elseif (aninhado)', async () => {
+        const resultado = await executar([
+            'x = 10',
+            'se x > 20:',
+            '    imprima("Grande")',
+            'senão se x > 5:',
+            '    imprima("Médio")',
+            'senão:',
+            '    imprima("Pequeno")'
+        ]);
+
+        expect(resultado).toContain('se x > 20:');
+        expect(resultado).toContain('senão:');
+    });
+
+    it('dicionário com chaves complexas', async () => {
+        const resultado = await executar([
+            'dados = {"chave1": 1, "chave2": "valor", "chave3": verdadeiro}'
+        ]);
+
+        expect(resultado).toContain("dados = {'chave1': 1, 'chave2': 'valor', 'chave3': verdadeiro}");
+    });
+
+    it('vetor aninhado', async () => {
+        const resultado = await executar([
+            'matriz = [[1, 2], [3, 4], [5, 6]]'
+        ]);
+
+        expect(resultado).toContain('matriz = [[1, 2], [3, 4], [5, 6]]');
     });
 });

@@ -9,11 +9,13 @@ import {
     ParaComoConstruto,
     SeTernario,
 } from '../construtos';
-import { Ajuda, Importar, ParaCada } from '../declaracoes';
+import { Ajuda, Extensao, Importar, InterfaceDeclaracao, ParaCada } from '../declaracoes';
 import { VisitanteComumInterface } from './visitante-comum-interface';
 
 export interface VisitanteDeleguaInterface extends VisitanteComumInterface {
     visitarDeclaracaoAjuda(declaracao: Ajuda): Promise<any> | void;
+    visitarDeclaracaoExtensao(declaracao: Extensao): Promise<any> | void;
+    visitarDeclaracaoInterface(declaracao: InterfaceDeclaracao): Promise<any> | void;
     visitarDeclaracaoImportar(declaracao: Importar): Promise<any> | void;
     visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> | void;
     visitarExpressaoAjuda(expressao: AjudaComoConstruto): Promise<any> | void;

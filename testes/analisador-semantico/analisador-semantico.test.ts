@@ -133,6 +133,25 @@ describe('Analisador semântico', () => {
             expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
         });
 
+        it('Função sem tipo de retorno explícito com retorno de valor', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'funcao f(x, a, b) {',
+                    '    retorna a * x + b',
+                    '}',
+                    'escreva(f(1, 2, 3))',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+
         it('Absoluto', async () => {
             const retornoLexador = lexador.mapear(
                 [
@@ -304,6 +323,27 @@ describe('Analisador semântico', () => {
             expect(retornoAnalisadorSemantico).toBeTruthy();
             expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe(
                 "Esperado retorno do tipo 'inteiro' dentro da função."
+            );
+        });
+
+        it('Retorno de valor com tipo vazio explícito', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'funcao f(x, a, b): vazio {',
+                    '    retorna a * x + b',
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
+            expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe(
+                'A função não pode ter nenhum tipo de retorno.'
             );
         });
 
@@ -497,6 +537,33 @@ describe('Analisador semântico', () => {
 
             // Não deve ter erros de operação aritmética quando leia() é convertido
             expect(errosOperacaoAritmetica.length).toBe(0);
+        });
+
+        it('Comparação entre texto (retorno de leia) e inteiro - deve gerar aviso', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'variável salário_mensal',
+                    'variável salário_anual',
+                    'salário_mensal = leia("Digite seu salário mensal (em reais):")',
+                    'salário_anual = salário_mensal * 12',
+                    'escreva("salário_mensal = ${salário_mensal}, salário_anual=${salário_anual}")',
+                    'se salário_anual>1000000 {',
+                    '  escreva("a pessoa é rica!!!")',
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            const avisosComparacao = retornoAnalisadorSemantico.diagnosticos.filter(
+                d => d.mensagem?.includes('Esta comparação ocorre entre tipos')
+            );
+
+            expect(avisosComparacao.length).toBeGreaterThanOrEqual(1);
         });
 
         it('Atribuição de função', async () => {
@@ -836,7 +903,8 @@ describe('Analisador semântico', () => {
                     retornoAvaliadorSintatico.declaracoes
                 );
                 expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(4);
+                // 4 aritméticos (1 aviso de concatenação + 3 erros) + 4 avisos de comparação texto vs inteiro
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(8);
             });
 
             it('verificar operação divisão por zero', async () => {
@@ -1817,6 +1885,30 @@ describe('Analisador semântico', () => {
             expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toContain('nunca usada');
         });
 
+        it('Sucesso - variável usada como argumento de ajuda() não gera aviso de nunca usada', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'classe Veiculo {',
+                    '    /** Acelera o veículo. */',
+                    '    acelerar() { }',
+                    '}',
+                    'var v = Veiculo()',
+                    'escreva(ajuda(v))',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            const avisoVariavelNaoUsada = retornoAnalisadorSemantico.diagnosticos.find(
+                (d) => d.mensagem === "Variável 'v' foi declarada mas nunca usada."
+            );
+            expect(avisoVariavelNaoUsada).toBeUndefined();
+        });
+
         it('Erro - redeclaração de variável no mesmo escopo', async () => {
             const retornoLexador = lexador.mapear(['var duplicada = 1', 'var duplicada = 2'], -1);
             const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
@@ -1903,6 +1995,311 @@ describe('Analisador semântico', () => {
 
             expect(retornoAnalisadorSemantico).toBeTruthy();
             expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+    });
+
+    describe('Sugestões de tipo (Quick Fixes)', () => {
+        it('Sugestão - tipo qualquer pode ser inferido para número', async () => {
+            const retornoLexador = lexador.mapear(
+                ['var a: qualquer = 1', 'escreva(a)'],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
+
+            const sugestao = retornoAnalisadorSemantico.diagnosticos[0];
+            expect(sugestao.severidade).toBe(DiagnosticoSeveridade.SUGESTAO);
+            expect(sugestao.mensagem).toBe('Um tipo melhor pode ser inferido.');
+            expect(sugestao.correcoes).toBeDefined();
+            expect(sugestao.correcoes).toHaveLength(1);
+            const primeiraCorrecao = sugestao.correcoes![0];
+            expect(primeiraCorrecao.titulo).toBe("Alterar tipo para 'número'");
+            expect(primeiraCorrecao.textoOriginal).toBe('qualquer');
+            expect(primeiraCorrecao.textoSubstituto).toBe('número');
+            // 'a' está na coluna 5
+            expect(primeiraCorrecao.colunaInicio).toBe(5);
+            expect(primeiraCorrecao.colunaFim).toBe(5);
+            expect(sugestao.colunaInicio).toBe(5);
+            expect(sugestao.colunaFim).toBe(5);
+        });
+
+        it('Sugestão - tipo qualquer pode ser inferido para texto', async () => {
+            const retornoLexador = lexador.mapear(
+                ['var b: qualquer = "hello"', 'escreva(b)'],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
+
+            const sugestao = retornoAnalisadorSemantico.diagnosticos[0];
+            expect(sugestao.severidade).toBe(DiagnosticoSeveridade.SUGESTAO);
+            const primeiraCorrecao = sugestao.correcoes![0];
+            expect(primeiraCorrecao.titulo).toBe("Alterar tipo para 'texto'");
+            expect(primeiraCorrecao.textoSubstituto).toBe('texto');
+            // 'b' está na coluna 5
+            expect(primeiraCorrecao.colunaInicio).toBe(5);
+            expect(primeiraCorrecao.colunaFim).toBe(5);
+        });
+
+        it('Sem sugestão - tipo já é específico', async () => {
+            const retornoLexador = lexador.mapear(
+                ['var c: inteiro = 1', 'escreva(c)'],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+
+        it('Sem sugestão - tipo qualquer sem inicializador', async () => {
+            const retornoLexador = lexador.mapear(
+                ['var d: qualquer', 'escreva(d)'],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            // Pode ter aviso sobre variável não inicializada, mas não deve ter sugestão de tipo
+            const sugestoes = retornoAnalisadorSemantico.diagnosticos.filter(
+                d => d.severidade === DiagnosticoSeveridade.SUGESTAO
+            );
+            expect(sugestoes).toHaveLength(0);
+        });
+
+        it('Sem sugestão - tipo qualquer inferido implicitamente (não explícito)', async () => {
+            const retornoLexador = lexador.mapear(
+                ['var e = 1', 'escreva(e)'],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            // Não deve ter sugestão porque o tipo não foi explicitamente declarado como qualquer
+            const sugestoes = retornoAnalisadorSemantico.diagnosticos.filter(
+                d => d.severidade === DiagnosticoSeveridade.SUGESTAO
+            );
+            expect(sugestoes).toHaveLength(0);
+        });
+    });
+
+    describe('Declarações de classe', () => {
+        it('Herança válida - superclasse declarada antes da subclasse', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'classe Animal {',
+                    '    falar() {',
+                    '    }',
+                    '}',
+                    'classe Cachorro herda Animal {',
+                    '    latir() {',
+                    '    }',
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            const erros = retornoAnalisadorSemantico.diagnosticos.filter(
+                d => d.severidade === DiagnosticoSeveridade.ERRO
+            );
+            expect(erros).toHaveLength(0);
+        });
+
+        it('Auto-herança - classe que herda de si mesma gera erro', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'classe Ciclo herda Ciclo {',
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            const erros = retornoAnalisadorSemantico.diagnosticos.filter(
+                d => d.severidade === DiagnosticoSeveridade.ERRO
+            );
+            expect(erros).toHaveLength(1);
+            expect(erros[0].mensagem).toContain("não pode herdar de si mesma");
+        });
+
+        it('Superclasse não declarada - gera erro', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'classe Filho herda PaiInexistente {',
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            const erros = retornoAnalisadorSemantico.diagnosticos.filter(
+                d => d.severidade === DiagnosticoSeveridade.ERRO
+            );
+            expect(erros).toHaveLength(1);
+            expect(erros[0].mensagem).toContain("'PaiInexistente' não foi declarada");
+        });
+    });
+
+    describe('Acesso a membros de classe', () => {
+        it('Acesso a propriedade privada fora da classe gera erro', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'classe ContaBancaria {',
+                    '    privado {',
+                    '        saldo: numero',
+                    '    }',
+                    '    construtor(inicial) { isto.saldo = inicial }',
+                    '}',
+                    'var c = ContaBancaria(1000)',
+                    'escreva(c.saldo)',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            const erros = retornoAnalisadorSemantico.diagnosticos.filter(
+                d => d.severidade === DiagnosticoSeveridade.ERRO
+            );
+            expect(erros).toHaveLength(1);
+            expect(erros[0].mensagem).toContain('privado');
+        });
+
+        it('Acesso a propriedade privada dentro da própria classe não gera erro', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'classe ContaBancaria {',
+                    '    privado {',
+                    '        saldo: numero',
+                    '    }',
+                    '    obterSaldo() { retorna isto.saldo }',
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            const erros = retornoAnalisadorSemantico.diagnosticos.filter(
+                d => d.severidade === DiagnosticoSeveridade.ERRO
+            );
+            expect(erros).toHaveLength(0);
+        });
+
+        it('Acesso a propriedade protegida fora da hierarquia gera erro', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'classe Animal {',
+                    '    protegido {',
+                    '        energia: numero',
+                    '    }',
+                    '}',
+                    'var a = Animal()',
+                    'escreva(a.energia)',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            const erros = retornoAnalisadorSemantico.diagnosticos.filter(
+                d => d.severidade === DiagnosticoSeveridade.ERRO
+            );
+            expect(erros).toHaveLength(1);
+            expect(erros[0].mensagem).toContain('protegido');
+        });
+
+        it('Acesso a propriedade protegida em subclasse não gera erro', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'classe Animal {',
+                    '    protegido {',
+                    '        energia: numero',
+                    '    }',
+                    '}',
+                    'classe Cachorro herda Animal {',
+                    '    verificar() { retorna isto.energia }',
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            const erros = retornoAnalisadorSemantico.diagnosticos.filter(
+                d => d.severidade === DiagnosticoSeveridade.ERRO
+            );
+            expect(erros).toHaveLength(0);
+        });
+
+        it('Acesso a método privado fora da classe gera erro', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'classe Servico {',
+                    '    privado {',
+                    '        conectar() { }',
+                    '    }',
+                    '}',
+                    'var s = Servico()',
+                    's.conectar()',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            const erros = retornoAnalisadorSemantico.diagnosticos.filter(
+                d => d.severidade === DiagnosticoSeveridade.ERRO
+            );
+            expect(erros).toHaveLength(1);
+            expect(erros[0].mensagem).toContain('privado');
         });
     });
 });

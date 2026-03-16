@@ -1,7 +1,10 @@
 export * from './tradutor-assembly-arm';
+export * from './tradutor-assembly-risc-v';
+export * from './tradutor-webassembly';
 export * from './tradutor-assembly-x64';
 export * from './tradutor-assemblyscript';
 export * from './tradutor-calango';
+export * from './tradutor-elixir';
 export * from './tradutor-javascript';
 export * from './tradutor-mermaidjs';
 export * from './tradutor-portugol-ipt';
@@ -9,3 +12,4 @@ export * from './tradutor-python';
 export * from './tradutor-reverso-javascript';
 export * from './tradutor-reverso-python';
 export * from './tradutor-reverso-tenda';
+export * from './tradutor-ruby';

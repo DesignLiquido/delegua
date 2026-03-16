@@ -1,20 +1,22 @@
 import { Construto } from '../construtos';
 import { Declaracao } from '../declaracoes';
 import { EspacoMemoria } from '../interpretador/espaco-memoria';
-import { ErroInterpretador } from './erros/erro-interpretador';
+import { ErroInterpretadorInterface } from './erros/erro-interpretador-interface';
 import { PilhaEscoposExecucaoInterface } from './pilha-escopos-execucao-interface';
 
 import { RetornoInterpretadorInterface } from './retornos/retorno-interpretador-interface';
 import { VisitanteComumInterface } from './visitante-comum-interface';
 
 export interface InterpretadorInterface extends VisitanteComumInterface {
-    erros: ErroInterpretador[];
+    erros: ErroInterpretadorInterface[];
     diretorioBase: any;
     funcaoDeRetorno: Function;
     pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
     interfaceEntradaSaida: any;
     hashArquivoDeclaracaoAtual: number;
     linhaDeclaracaoAtual: number;
+    /** Descritor da classe cujo método está sendo executado no momento. Nulo se fora de método de classe. */
+    classeAtualEmExecucao: any;
 
     eVerdadeiro(objeto: any): boolean;
     avaliar(expressao: Construto | Declaracao): any;

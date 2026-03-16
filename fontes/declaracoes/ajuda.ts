@@ -1,5 +1,6 @@
-import { Construto } from "../construtos";
-import { Declaracao } from "./declaracao";
+import { Construto } from '../construtos';
+import { VisitanteDeleguaInterface } from '../interfaces';
+import { Declaracao } from './declaracao';
 
 /**
  * A declaração de ajuda (`ajuda()` em Delégua) exibe na saída padrão uma documentação sobre como
@@ -13,6 +14,10 @@ export class Ajuda extends Declaracao {
         super(linha, hashArquivo);
         this.elemento = elemento;
         this.funcao = funcao;
+    }
+
+    async aceitar(visitante: VisitanteDeleguaInterface): Promise<any> {
+        return await visitante.visitarDeclaracaoAjuda(this);
     }
 
     paraTexto(): string {

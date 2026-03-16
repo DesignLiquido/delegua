@@ -3,7 +3,12 @@ import { PontoParada } from '../depuracao';
 import { TipoEscopoExecucao } from './escopo-execucao';
 import { InterpretadorInterface } from './interpretador-interface';
 
-export type ComandoDepurador = 'proximo' | 'adentrarEscopo' | 'proximoESair' | 'continuar';
+export type ComandoDepurador =
+    | 'proximo'
+    | 'adentrarEscopo'
+    | 'proximoESair'
+    | 'continuar'
+    | 'pausar';
 
 export interface InterpretadorComDepuracaoInterface extends InterpretadorInterface {
     comando?: ComandoDepurador;

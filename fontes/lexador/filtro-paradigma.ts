@@ -6,7 +6,9 @@ import { TipoParadigma, gruposPalavrasParadigma, palavrasNeutras } from './mapea
  * @param paradigma O paradigma desejado ('imperativo', 'infinitivo', ou 'ambos')
  * @returns Um objeto mapeando palavras reservadas para tipos de símbolos
  */
-export function gerarPalavrasReservadasPorParadigma(paradigma: TipoParadigma): Record<string, string> {
+export function gerarPalavrasReservadasPorParadigma(
+    paradigma: TipoParadigma
+): Record<string, string> {
     // Se 'ambos', retorna todas as palavras reservadas
     if (paradigma === 'ambos') {
         return { ...palavrasReservadasDelegua };
@@ -19,7 +21,8 @@ export function gerarPalavrasReservadasPorParadigma(paradigma: TipoParadigma): R
 
     // Adiciona palavras do paradigma selecionado
     for (const grupo of gruposPalavrasParadigma) {
-        const palavrasDoParadigma = paradigma === 'imperativo' ? grupo.imperativo : grupo.infinitivo;
+        const palavrasDoParadigma =
+            paradigma === 'imperativo' ? grupo.imperativo : grupo.infinitivo;
 
         if (palavrasDoParadigma) {
             for (const palavra of palavrasDoParadigma) {
@@ -46,7 +49,8 @@ export function obterPalavrasExcluidas(paradigma: TipoParadigma): string[] {
     const paradigmaOposto = paradigma === 'imperativo' ? 'infinitivo' : 'imperativo';
 
     for (const grupo of gruposPalavrasParadigma) {
-        const palavrasOpostas = paradigmaOposto === 'imperativo' ? grupo.imperativo : grupo.infinitivo;
+        const palavrasOpostas =
+            paradigmaOposto === 'imperativo' ? grupo.imperativo : grupo.infinitivo;
 
         if (palavrasOpostas) {
             palavrasExcluidas.push(...palavrasOpostas);

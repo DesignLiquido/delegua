@@ -1,42 +1,79 @@
 import {
+    AcessoElementoMatriz,
     AcessoIndiceVariavel,
+    AcessoIntervaloVariavel,
     AcessoMetodo,
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
     Agrupamento,
+    ArgumentoReferenciaFuncao,
+    AtribuicaoPorIndice,
+    AtribuicaoPorIndicesMatriz,
     Atribuir,
     Binario,
     Chamada,
+    ComentarioComoConstruto,
+    Constante,
     DefinirValor,
     Dicionario,
+    ExpressaoRegular,
+    FimPara,
+    FormatacaoEscrita,
     FuncaoConstruto,
+    Isto,
     Leia,
     Literal,
+    Logico,
+    ReferenciaFuncao,
     Separador,
+    Super,
+    TipoDe,
+    Tupla,
+    TuplaN,
     Unario,
     Variavel,
     Vetor,
 } from '../construtos';
 import {
     Bloco,
+    CabecalhoPrograma,
     Classe,
+    Comentario,
     Const,
+    ConstMultiplo,
+    Continua,
     Declaracao,
     Enquanto,
     Escolha,
     Escreva,
+    EscrevaMesmaLinha,
     Expressao,
+    Falhar,
     Fazer,
     FuncaoDeclaracao,
+    InicioAlgoritmo,
     Para,
     ParaCada,
+    Retorna,
     Se,
+    Sustar,
+    TendoComo,
+    Tente,
+    TextoDocumentacao,
     Var,
+    VarMultiplo,
 } from '../declaracoes';
-import { CaminhoEscolha, TradutorInterface } from '../interfaces';
+import { CaminhoEscolha, TradutorInterface, VisitanteComumInterface } from '../interfaces';
+import {
+    ArestaFluxograma,
+    SubgrafoClasse,
+    SubgrafoFuncao,
+    SubgrafoMetodo,
+    VerticeFluxograma,
+} from './mermaid';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
-import { ArestaFluxograma, DiagramaClasse, SubgrafoClasse, SubgrafoFuncao, VerticeFluxograma } from './mermaid';
+import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
 
 /**
  * [MermaidJs](https://mermaid.js.org/) é uma especificação que nos permite
@@ -50,77 +87,699 @@ import { ArestaFluxograma, DiagramaClasse, SubgrafoClasse, SubgrafoFuncao, Verti
  * `VerticeFluxograma`.
  * @see VerticeFluxograma
  */
-export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
+export class TradutorMermaidJs implements TradutorInterface<Declaracao>, VisitanteComumInterface {
     anteriores: ArestaFluxograma[];
     vertices: VerticeFluxograma[];
     ultimaDicaVertice: string | undefined;
-    classes: DiagramaClasse[];
-    subgrafosFuncoes: { [nome: string]: SubgrafoFuncao };
+    declaracoesFuncoes: { [nome: string]: SubgrafoFuncao };
+    declaracoesClasses: { [nome: string]: SubgrafoClasse };
     indentacaoAtual: number;
 
-    traduzirConstrutoAcessoIndiceVariavel(acessoIndiceVariavel: AcessoIndiceVariavel): string {
-        const textoIndice = this.dicionarioConstrutos[acessoIndiceVariavel.indice.constructor.name](
-            acessoIndiceVariavel.indice
+    visitarDeclaracaoCabecalhoPrograma(declaracao: CabecalhoPrograma): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    async visitarDeclaracaoClasse(declaracao: Classe): Promise<VerticeFluxograma[]> {
+        const nomeClasse = declaracao.simbolo.lexema;
+        const superClasse = declaracao.superClasse
+            ? declaracao.superClasse.simbolo?.lexema || declaracao.superClasse.nome?.lexema
+            : undefined;
+        const linha = declaracao.linha;
+
+        // Cria arestas de entrada e saída para a classe
+        const textoInicio = `Classe${nomeClasse}Inicio[Início: Classe ${nomeClasse}]`;
+        const arestaInicial = new ArestaFluxograma(declaracao, textoInicio);
+
+        const textoFim = `Classe${nomeClasse}Fim[Fim: Classe ${nomeClasse}]`;
+        const arestaFinal = new ArestaFluxograma(declaracao, textoFim);
+
+        // Cria o subgrafo da classe
+        const subgrafo = new SubgrafoClasse(
+            nomeClasse,
+            linha,
+            arestaInicial,
+            arestaFinal,
+            superClasse
         );
-        return `no índice ${textoIndice}`;
-    }
 
-    traduzirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodo): string {
-        return `método ${acessoMetodo.nomeMetodo}`;
-    }
+        // Salva o estado anterior
+        const anterioresAntes = [...this.anteriores];
 
-    traduzirConstrutoAcessoMetodoOuPropriedade(
-        acessoMetodoOuPropriedade: AcessoMetodoOuPropriedade
-    ): string {
-        return `método ou propriedade ${acessoMetodoOuPropriedade.simbolo.lexema}`;
-    }
+        // Processa métodos
+        if (declaracao.metodos && declaracao.metodos.length > 0) {
+            for (const metodoDeclaracao of declaracao.metodos) {
+                const nomeMetodo = metodoDeclaracao.simbolo.lexema;
+                const linhaMetodo = metodoDeclaracao.linha;
+                const ehConstrutor = nomeMetodo === 'construtor' || nomeMetodo === 'iniciar';
 
-    traduzirConstrutoAcessoPropriedade(acessoPropriedade: AcessoPropriedade): string {
-        return `propriedade ${acessoPropriedade.nomePropriedade}`;
-    }
+                // Cria arestas de entrada e saída para o método
+                const textoInicioMetodo = `Metodo${nomeMetodo}${nomeClasse}Inicio[Início: ${nomeMetodo}()]`;
+                const arestaInicialMetodo = new ArestaFluxograma(
+                    metodoDeclaracao,
+                    textoInicioMetodo
+                );
 
-    traduzirConstrutoAgrupamento(agrupamento: Agrupamento): string {
-        return this.dicionarioConstrutos[agrupamento.expressao.constructor.name](
-            agrupamento.expressao
-        );
-    }
+                const textoFimMetodo = `Metodo${nomeMetodo}${nomeClasse}Fim[Fim: ${nomeMetodo}()]`;
+                const arestaFinalMetodo = new ArestaFluxograma(metodoDeclaracao, textoFimMetodo);
 
-    traduzirConstrutoAtribuir(atribuir: Atribuir): string {
-        const textoAlvo = this.dicionarioConstrutos[atribuir.alvo.constructor.name](atribuir.alvo);
-        const textoValor = this.dicionarioConstrutos[atribuir.valor.constructor.name](
-            atribuir.valor
-        );
-        return `${textoAlvo} recebe: ${textoValor}`;
-    }
+                // Cria o subgrafo do método
+                const subgrafoMetodo = new SubgrafoMetodo(
+                    nomeMetodo,
+                    nomeClasse,
+                    linhaMetodo,
+                    arestaInicialMetodo,
+                    arestaFinalMetodo,
+                    ehConstrutor
+                );
 
-    traduzirConstrutoBinario(binario: Binario): string {
-        const operandoEsquerdo: string = this.dicionarioConstrutos[
-            binario.esquerda.constructor.name
-        ](binario.esquerda);
-        const operandoDireito: string = this.dicionarioConstrutos[binario.direita.constructor.name](
-            binario.direita
-        );
-        switch (binario.operador.tipo) {
-            case tiposDeSimbolos.ADICAO:
-                return `somar ${operandoEsquerdo} e ${operandoDireito}`;
-            case tiposDeSimbolos.MENOR:
-                return `${operandoEsquerdo} for menor que ${operandoDireito}`;
+                // Traduz o corpo do método
+                this.anteriores = [arestaInicialMetodo];
+
+                if (metodoDeclaracao.funcao.corpo && metodoDeclaracao.funcao.corpo.length > 0) {
+                    for (const declaracaoCorpo of metodoDeclaracao.funcao.corpo) {
+                        const verticesCorpo = await declaracaoCorpo.aceitar(this);
+                        subgrafoMetodo.vertices = subgrafoMetodo.vertices.concat(verticesCorpo);
+                    }
+                }
+
+                // Conecta o último vértice do corpo ao fim do método
+                if (this.anteriores.length > 0) {
+                    for (const anterior of this.anteriores) {
+                        subgrafoMetodo.vertices.push(
+                            new VerticeFluxograma(anterior, arestaFinalMetodo)
+                        );
+                    }
+                }
+
+                // Adiciona o método ao subgrafo da classe
+                if (ehConstrutor) {
+                    subgrafo.construtor = subgrafoMetodo;
+                } else {
+                    subgrafo.metodos.push(subgrafoMetodo);
+                }
+            }
         }
 
-        return '';
+        // Restaura o estado anterior
+        this.anteriores = anterioresAntes;
+
+        // Armazena o subgrafo da classe
+        this.declaracoesClasses[nomeClasse] = subgrafo;
+
+        return Promise.resolve([]);
     }
 
-    traduzirConstrutoChamada(chamada: Chamada): string {
-        const textoEntidadeChamada = this.dicionarioConstrutos[
-            chamada.entidadeChamada.constructor.name
-        ](chamada.entidadeChamada);
+    async visitarDeclaracaoComentario(declaracao: Comentario): Promise<string> {
+        return Promise.resolve('');
+    }
+
+    async visitarDeclaracaoConst(declaracao: Const): Promise<VerticeFluxograma[]> {
+        let texto = `Linha${declaracao.linha}(variável: ${declaracao.simbolo.lexema}`;
+        texto += await this.logicaComumTraducaoVarEConst(declaracao, texto);
+
+        const aresta = new ArestaFluxograma(declaracao, texto);
+        const vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
+
+        this.anteriores.push(aresta);
+        return Promise.resolve(vertices);
+    }
+
+    visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    async visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<VerticeFluxograma[]> {
+        // Verifica se é uma chamada de função
+        if (declaracao.expressao.constructor === Chamada) {
+            const chamada = declaracao.expressao as Chamada;
+            const verticesChamada = await this.traduzirChamadaFuncao(declaracao, chamada);
+
+            if (verticesChamada.length > 0) {
+                return Promise.resolve(verticesChamada);
+            }
+        }
+
+        // Se não for uma chamada de função ou não for uma função conhecida,
+        // trata como expressão normal
+        let texto = `Linha${declaracao.linha}(`;
+        const textoConstruto = await declaracao.expressao.aceitar(this);
+        texto += textoConstruto + ')';
+
+        const aresta = new ArestaFluxograma(declaracao, texto);
+        const vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
+
+        this.anteriores.push(aresta);
+        return Promise.resolve(vertices);
+    }
+
+    async visitarDeclaracaoDefinicaoFuncao(
+        declaracao: FuncaoDeclaracao
+    ): Promise<VerticeFluxograma[]> {
+        const nomeFuncao = declaracao.simbolo.lexema;
+        const linha = declaracao.linha;
+
+        // Cria arestas de entrada e saída para a função
+        const textoInicio = `Func${nomeFuncao}Inicio[Início: ${nomeFuncao}()]`;
+        const arestaInicial = new ArestaFluxograma(declaracao, textoInicio);
+
+        const textoFim = `Func${nomeFuncao}Fim[Fim: ${nomeFuncao}()]`;
+        const arestaFinal = new ArestaFluxograma(declaracao, textoFim);
+
+        // Cria o subgrafo da função
+        const subgrafo = new SubgrafoFuncao(nomeFuncao, linha, arestaInicial, arestaFinal);
+
+        // Salva o estado atual de anteriores
+        const anterioresAntes = [...this.anteriores];
+        this.anteriores = [arestaInicial];
+
+        // Processa o corpo da função
+        if (declaracao.funcao.corpo && declaracao.funcao.corpo.length > 0) {
+            for (const declaracaoCorpo of declaracao.funcao.corpo) {
+                const verticesCorpo = await declaracaoCorpo.aceitar(this);
+                subgrafo.vertices = subgrafo.vertices.concat(verticesCorpo);
+            }
+        }
+
+        // Conecta o fim do corpo à aresta final
+        if (this.anteriores.length > 0) {
+            for (const anterior of this.anteriores) {
+                subgrafo.vertices.push(new VerticeFluxograma(anterior, arestaFinal));
+            }
+        }
+
+        // Restaura o estado anterior
+        this.anteriores = anterioresAntes;
+
+        // Armazena o subgrafo
+        this.declaracoesFuncoes[nomeFuncao] = subgrafo;
+
+        // Não adiciona ao fluxo principal
+        return Promise.resolve([]);
+    }
+
+    async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<VerticeFluxograma[]> {
+        let texto = `Linha${declaracao.linha}(enquanto `;
+        const condicao = await declaracao.condicao.aceitar(this);
+
+        texto += condicao + ')';
+        const aresta = new ArestaFluxograma(declaracao, texto);
+        let vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
+
+        this.anteriores.push(aresta);
+
+        // Corpo, normalmente um `Bloco`.
+        const verticesCorpo: VerticeFluxograma[] = await declaracao.corpo.aceitar(this);
+        vertices = vertices.concat(verticesCorpo);
+
+        const ultimaArestaCorpo = verticesCorpo[verticesCorpo.length - 1].destino;
+        const verticeLaco = new VerticeFluxograma(ultimaArestaCorpo, aresta);
+        vertices.push(verticeLaco);
+
+        return Promise.resolve(vertices);
+    }
+
+    async visitarDeclaracaoEscolha(declaracao: Escolha): Promise<VerticeFluxograma[]> {
+        let texto = `Linha${declaracao.linha}(escolha um caminho pelo valor de `;
+        const textoIdentificadorOuLiteral = await declaracao.identificadorOuLiteral.aceitar(this);
+        texto += textoIdentificadorOuLiteral + ')';
+        const aresta = new ArestaFluxograma(declaracao, texto);
+        let vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
+
+        const arestasCaminho: {
+            caminho: ArestaFluxograma;
+            declaracoesCaminho: VerticeFluxograma[];
+        }[] = [];
+
+        for (const caminho of declaracao.caminhos) {
+            arestasCaminho.push(
+                await this.logicaComumCaminhoEscolha(
+                    declaracao,
+                    caminho,
+                    caminho.condicoes[0].linha,
+                    textoIdentificadorOuLiteral,
+                    false
+                )
+            );
+        }
+
+        if (declaracao.caminhoPadrao) {
+            arestasCaminho.push(
+                await this.logicaComumCaminhoEscolha(
+                    declaracao,
+                    declaracao.caminhoPadrao,
+                    declaracao.caminhoPadrao.declaracoes[0].linha - 1,
+                    textoIdentificadorOuLiteral,
+                    true
+                )
+            );
+        }
+
+        for (const conjunto of Object.values(arestasCaminho)) {
+            const verticeEscolhaECaminho = new VerticeFluxograma(aresta, conjunto.caminho);
+            vertices.push(verticeEscolhaECaminho);
+            vertices = vertices.concat(conjunto.declaracoesCaminho);
+            this.anteriores.push(
+                conjunto.declaracoesCaminho[conjunto.declaracoesCaminho.length - 1].destino
+            );
+        }
+
+        return Promise.resolve(vertices);
+    }
+
+    async visitarDeclaracaoEscreva(declaracao: Escreva): Promise<VerticeFluxograma[]> {
+        let texto = `Linha${declaracao.linha}(escreva: `;
+        for (const argumento of declaracao.argumentos) {
+            const valor = await argumento.aceitar(this);
+            texto += valor + ', ';
+        }
+
+        texto = texto.slice(0, -2);
+        texto += ')';
+        const aresta = new ArestaFluxograma(declaracao, texto);
+        const vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
+
+        this.anteriores.push(aresta);
+        return Promise.resolve(vertices);
+    }
+
+    visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    async visitarDeclaracaoFazer(declaracao: Fazer): Promise<VerticeFluxograma[]> {
+        const texto = `Linha${declaracao.linha}(fazer)`;
+        const aresta = new ArestaFluxograma(declaracao, texto);
+        let vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
+
+        this.anteriores.push(aresta);
+
+        // Corpo, normalmente um `Bloco`.
+        const verticesCorpo: VerticeFluxograma[] = await declaracao.caminhoFazer.aceitar(this);
+        vertices = vertices.concat(verticesCorpo);
+
+        const ultimaArestaCorpo = verticesCorpo[verticesCorpo.length - 1].destino;
+        const condicao: string = await declaracao.condicaoEnquanto.aceitar(this);
+        let textoEnquanto = `Linha${declaracao.condicaoEnquanto.linha}(enquanto ${condicao})`;
+
+        const arestaEnquanto = new ArestaFluxograma(declaracao, textoEnquanto);
+        const verticeEnquanto = new VerticeFluxograma(ultimaArestaCorpo, arestaEnquanto);
+        vertices.push(verticeEnquanto);
+
+        const verticeCondicaoComFazer = new VerticeFluxograma(arestaEnquanto, aresta);
+        vertices.push(verticeCondicaoComFazer);
+
+        this.anteriores.pop();
+        this.anteriores.push(arestaEnquanto);
+        return Promise.resolve(vertices);
+    }
+
+    visitarDeclaracaoInicioAlgoritmo(declaracao: InicioAlgoritmo): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    async visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<VerticeFluxograma[]> {
+        const textoVariavelIteracao = await declaracao.variavelIteracao.aceitar(this);
+        let texto = `Linha${declaracao.linha}(para cada ${textoVariavelIteracao} em `;
+        const textoVariavelIterada = await declaracao.vetorOuDicionario.aceitar(this);
+        texto += textoVariavelIterada + ')';
+        const aresta = new ArestaFluxograma(declaracao, texto);
+        let vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
+
+        this.anteriores.push(aresta);
+
+        // Corpo, normalmente um `Bloco`.
+        const verticesCorpo: VerticeFluxograma[] = await declaracao.corpo.aceitar(this);
+        vertices = vertices.concat(verticesCorpo);
+
+        const ultimaArestaCorpo = verticesCorpo[verticesCorpo.length - 1].destino;
+        vertices.push(new VerticeFluxograma(ultimaArestaCorpo, aresta));
+
+        return Promise.resolve(vertices);
+    }
+
+    async visitarDeclaracaoPara(declaracao: Para): Promise<VerticeFluxograma[]> {
+        let texto = `Linha${declaracao.linha}(para `;
+        if (declaracao.inicializador) {
+            for (const declaracaoInicializadora of declaracao.inicializador as Declaracao[]) {
+                // Normalmente é `Var`.
+                const declaracaoVar = declaracaoInicializadora as Var;
+                const valorInicializacao = await declaracaoVar.inicializador.aceitar(this);
+                texto += `uma variável ${declaracaoVar.simbolo.lexema} inicializada com ${valorInicializacao}, `;
+            }
+
+            texto = texto.slice(0, -2);
+        }
+
+        texto += ')';
+        const aresta = new ArestaFluxograma(declaracao, texto);
+        let vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
+
+        this.anteriores.push(aresta);
+
+        // Condição
+        const textoCondicao = await declaracao.condicao.aceitar(this);
+        const textoArestaCondicao = `Linha${declaracao.linha}Condicao{se ${textoCondicao}}`;
+        const arestaCondicao = new ArestaFluxograma(declaracao, textoArestaCondicao);
+        vertices = vertices.concat(this.logicaComumConexaoArestas(arestaCondicao));
+
+        this.anteriores.push(arestaCondicao);
+        this.ultimaDicaVertice = 'Sim';
+
+        // Corpo, normalmente um `Bloco`.
+        const verticesCorpo: VerticeFluxograma[] = await declaracao.corpo.aceitar(this);
+        vertices = vertices.concat(verticesCorpo);
+
+        // Incremento
+        const ultimaArestaCorpo = verticesCorpo[verticesCorpo.length - 1].destino;
+        const textoIncremento = await declaracao.incrementar.aceitar(this);
+        const arestaIncremento = new ArestaFluxograma(
+            declaracao,
+            `Linha${declaracao.linha}Incremento(${textoIncremento})`
+        );
+        const verticeIncremento = new VerticeFluxograma(ultimaArestaCorpo, arestaIncremento);
+        vertices.push(verticeIncremento);
+
+        const verticeLaco = new VerticeFluxograma(arestaIncremento, arestaCondicao);
+        vertices.push(verticeLaco);
+
+        // Configura a condição como anterior
+        this.anteriores.pop();
+        this.anteriores.push(arestaCondicao);
+        this.ultimaDicaVertice = 'Não';
+        return Promise.resolve(vertices);
+    }
+
+    async visitarDeclaracaoSe(declaracao: Se): Promise<VerticeFluxograma[]> {
+        let texto = `Linha${declaracao.linha}{se `;
+        const condicao = await declaracao.condicao.aceitar(this);
+        texto += condicao;
+        texto += `}`;
+
+        const aresta = new ArestaFluxograma(declaracao, texto);
+        let vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
+
+        this.anteriores.push(aresta);
+        this.ultimaDicaVertice = 'Sim';
+
+        // Caminho então, normalmente um `Bloco`.
+        const verticesEntao: VerticeFluxograma[] = await declaracao.caminhoEntao.aceitar(this);
+        vertices = vertices.concat(verticesEntao);
+
+        const ultimaArestaEntao =
+            verticesEntao.length > 0 ? verticesEntao[verticesEntao.length - 1].destino : aresta;
+
+        if (declaracao.caminhoSenao) {
+            this.anteriores = [];
+
+            // Verifica se é "senão se" ou apenas "senão"
+            const ehSenaoSe = declaracao.caminhoSenao.constructor === Se;
+
+            if (ehSenaoSe) {
+                // Para "senão se", conecta diretamente ao próximo condicional sem nó intermediário
+                this.anteriores.push(aresta);
+                this.ultimaDicaVertice = 'Não';
+            } else {
+                // Para "senão" simples, cria o nó intermediário
+                const arestaSenao = new ArestaFluxograma(
+                    declaracao,
+                    `Linha${declaracao.caminhoSenao.linha}(senão)`
+                );
+                vertices.push(new VerticeFluxograma(aresta, arestaSenao, 'Não'));
+                this.anteriores.push(arestaSenao);
+            }
+
+            const verticesSenao: VerticeFluxograma[] = await declaracao.caminhoSenao.aceitar(this);
+            vertices = vertices.concat(verticesSenao);
+        }
+
+        this.anteriores.push(ultimaArestaEntao);
+        return Promise.resolve(vertices);
+    }
+
+    async visitarDeclaracaoTendoComo(declaracao: TendoComo): Promise<VerticeFluxograma[]> {
+        const textoVariavelIteracao = await declaracao.inicializacaoVariavel.aceitar(this);
+        let texto = `Linha${declaracao.linha}(tendo ${textoVariavelIteracao} como `;
+        texto += declaracao.simboloVariavel.lexema + ')';
+        const aresta = new ArestaFluxograma(declaracao, texto);
+        let vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
+
+        this.anteriores.push(aresta);
+
+        // Corpo, normalmente um `Bloco`.
+        const verticesCorpo: VerticeFluxograma[] = await declaracao.corpo.aceitar(this);
+        vertices = vertices.concat(verticesCorpo);
+
+        const ultimaArestaCorpo = verticesCorpo[verticesCorpo.length - 1].destino;
+        vertices.push(new VerticeFluxograma(ultimaArestaCorpo, aresta));
+
+        return Promise.resolve(vertices);
+    }
+
+    async visitarDeclaracaoTente(declaracao: Tente): Promise<VerticeFluxograma[]> {
+        const texto = `Linha${declaracao.linha}(tente)`;
+        const aresta = new ArestaFluxograma(declaracao, texto);
+        let vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
+
+        this.anteriores.push(aresta);
+
+        // Caminho tente (try)
+        const verticesTente: VerticeFluxograma[] = [];
+        for (const declaracaoTente of declaracao.caminhoTente) {
+            const verticesDeclaracao = await declaracaoTente.aceitar(this);
+            verticesTente.push(...verticesDeclaracao);
+        }
+        vertices = vertices.concat(verticesTente);
+
+        const ultimaArestaTente =
+            verticesTente.length > 0 ? verticesTente[verticesTente.length - 1].destino : aresta;
+
+        const anterioresAposTente: ArestaFluxograma[] = [];
+
+        // Caminho pegue (catch) - se existir
+        if (declaracao.caminhoPegue) {
+            this.anteriores = [aresta];
+            const arestaPegue = new ArestaFluxograma(
+                declaracao,
+                `Linha${declaracao.linha}Pegue(pegue)`
+            );
+            vertices.push(new VerticeFluxograma(aresta, arestaPegue, 'Erro'));
+            this.anteriores.push(arestaPegue);
+
+            const verticesPegue: VerticeFluxograma[] = [];
+            if (Array.isArray(declaracao.caminhoPegue)) {
+                for (const declaracaoPegue of declaracao.caminhoPegue) {
+                    const verticesDeclaracao = await declaracaoPegue.aceitar(this);
+                    verticesPegue.push(...verticesDeclaracao);
+                }
+            }
+            vertices = vertices.concat(verticesPegue);
+
+            const ultimaArestaPegue =
+                verticesPegue.length > 0
+                    ? verticesPegue[verticesPegue.length - 1].destino
+                    : arestaPegue;
+
+            anterioresAposTente.push(ultimaArestaPegue);
+        }
+
+        // Caminho senão (else) - se existir
+        if (declaracao.caminhoSenao && declaracao.caminhoSenao.length > 0) {
+            this.anteriores = [ultimaArestaTente];
+            const arestaSenao = new ArestaFluxograma(
+                declaracao,
+                `Linha${declaracao.linha}Senao(senão - sem erro)`
+            );
+            vertices.push(new VerticeFluxograma(ultimaArestaTente, arestaSenao, 'Sucesso'));
+            this.anteriores.push(arestaSenao);
+
+            const verticesSenao: VerticeFluxograma[] = [];
+            for (const declaracaoSenao of declaracao.caminhoSenao) {
+                const verticesDeclaracao = await declaracaoSenao.aceitar(this);
+                verticesSenao.push(...verticesDeclaracao);
+            }
+            vertices = vertices.concat(verticesSenao);
+
+            const ultimaArestaSenao =
+                verticesSenao.length > 0
+                    ? verticesSenao[verticesSenao.length - 1].destino
+                    : arestaSenao;
+
+            anterioresAposTente.push(ultimaArestaSenao);
+        } else {
+            // Se não há senão, o caminho de sucesso também continua
+            anterioresAposTente.push(ultimaArestaTente);
+        }
+
+        // Caminho finalmente (finally) - se existir
+        if (declaracao.caminhoFinalmente && declaracao.caminhoFinalmente.length > 0) {
+            this.anteriores = anterioresAposTente;
+            const arestaFinalmente = new ArestaFluxograma(
+                declaracao,
+                `Linha${declaracao.linha}Finalmente(finalmente)`
+            );
+            vertices = vertices.concat(this.logicaComumConexaoArestas(arestaFinalmente));
+            this.anteriores.push(arestaFinalmente);
+
+            const verticesFinalmente: VerticeFluxograma[] = [];
+            for (const declaracaoFinalmente of declaracao.caminhoFinalmente) {
+                const verticesDeclaracao = await declaracaoFinalmente.aceitar(this);
+                verticesFinalmente.push(...verticesDeclaracao);
+            }
+            vertices = vertices.concat(verticesFinalmente);
+        } else {
+            // Se não há finalmente, os anteriores são os caminhos após tente
+            this.anteriores = anterioresAposTente;
+        }
+
+        return Promise.resolve(vertices);
+    }
+
+    visitarDeclaracaoTextoDocumentacao(declaracao: TextoDocumentacao): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    async visitarDeclaracaoVar(declaracao: Var): Promise<VerticeFluxograma[]> {
+        let texto = `Linha${declaracao.linha}(variável: ${declaracao.simbolo.lexema}`;
+        texto += await this.logicaComumTraducaoVarEConst(declaracao, texto);
+
+        const aresta = new ArestaFluxograma(declaracao, texto);
+        const vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
+
+        this.anteriores.push(aresta);
+        return Promise.resolve(vertices);
+    }
+
+    visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    async visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<string> {
+        const textoAlvo = await expressao.alvo.aceitar(this);
+        const textoValor = await expressao.valor.aceitar(this);
+        return Promise.resolve(`${textoAlvo} recebe: ${textoValor}`);
+    }
+
+    async visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel): Promise<string> {
+        const textoIndice = await expressao.indice.aceitar(this);
+        return Promise.resolve(`no índice ${textoIndice}`);
+    }
+
+    visitarExpressaoAcessoIntervaloVariavel(
+        expressao: AcessoIntervaloVariavel
+    ): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    visitarExpressaoAcessoElementoMatriz(expressao: AcessoElementoMatriz): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    async visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<string> {
+        return Promise.resolve(`método ${expressao.nomeMetodo}`);
+    }
+
+    async visitarExpressaoAcessoMetodoOuPropriedade(
+        expressao: AcessoMetodoOuPropriedade
+    ): Promise<string> {
+        return Promise.resolve(`método ou propriedade ${expressao.simbolo.lexema}`);
+    }
+
+    async visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<string> {
+        return Promise.resolve(`propriedade ${expressao.nomePropriedade}`);
+    }
+
+    async visitarExpressaoAgrupamento(expressao: Agrupamento): Promise<string> {
+        return await expressao.expressao.aceitar(this);
+    }
+
+    async visitarExpressaoArgumentoReferenciaFuncao(
+        expressao: ArgumentoReferenciaFuncao
+    ): Promise<string> {
+        const nomeFuncao = expressao.simboloFuncao.lexema;
+        return Promise.resolve(`referência à função ${nomeFuncao}`);
+    }
+
+    async visitarExpressaoAtribuicaoPorIndice(expressao: AtribuicaoPorIndice): Promise<string> {
+        const textoObjeto = await expressao.objeto.aceitar(this);
+        const textoIndice = await expressao.indice.aceitar(this);
+        const textoValor = await expressao.valor.aceitar(this);
+        return Promise.resolve(`${textoObjeto} no índice ${textoIndice} recebe: ${textoValor}`);
+    }
+
+    visitarExpressaoAtribuicaoPorIndicesMatriz(
+        expressao: AtribuicaoPorIndicesMatriz
+    ): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    async visitarExpressaoBinaria(expressao: Binario): Promise<string> {
+        const operandoEsquerdo: string = await expressao.esquerda.aceitar(this);
+        const operandoDireito: string = await expressao.direita.aceitar(this);
+        switch (expressao.operador.tipo) {
+            case tiposDeSimbolos.ADICAO:
+                return Promise.resolve(`somar ${operandoEsquerdo} e ${operandoDireito}`);
+            case tiposDeSimbolos.SUBTRACAO:
+                return Promise.resolve(`subtrair ${operandoDireito} de ${operandoEsquerdo}`);
+            case tiposDeSimbolos.MULTIPLICACAO:
+                return Promise.resolve(`multiplicar ${operandoEsquerdo} por ${operandoDireito}`);
+            case tiposDeSimbolos.DIVISAO:
+                return Promise.resolve(`dividir ${operandoEsquerdo} por ${operandoDireito}`);
+            case tiposDeSimbolos.MODULO:
+                return Promise.resolve(
+                    `resto de ${operandoEsquerdo} dividido por ${operandoDireito}`
+                );
+            case tiposDeSimbolos.MENOR:
+                return Promise.resolve(`${operandoEsquerdo} for menor que ${operandoDireito}`);
+            case tiposDeSimbolos.MENOR_IGUAL:
+                return Promise.resolve(
+                    `${operandoEsquerdo} for menor ou igual a ${operandoDireito}`
+                );
+            case tiposDeSimbolos.MAIOR:
+                return Promise.resolve(`${operandoEsquerdo} for maior que ${operandoDireito}`);
+            case tiposDeSimbolos.MAIOR_IGUAL:
+                return Promise.resolve(
+                    `${operandoEsquerdo} for maior ou igual a ${operandoDireito}`
+                );
+            case tiposDeSimbolos.IGUAL_IGUAL:
+                return Promise.resolve(`${operandoEsquerdo} for igual a ${operandoDireito}`);
+            case tiposDeSimbolos.DIFERENTE:
+                return Promise.resolve(`${operandoEsquerdo} for diferente de ${operandoDireito}`);
+        }
+
+        return Promise.resolve('');
+    }
+
+    async visitarExpressaoBloco(bloco: Bloco): Promise<VerticeFluxograma[]> {
+        let vertices: VerticeFluxograma[] = [];
+        for (const declaracao of bloco.declaracoes) {
+            const verticesDeclaracao = await declaracao.aceitar(this);
+            vertices = vertices.concat(verticesDeclaracao);
+        }
+
+        return Promise.resolve(vertices);
+    }
+
+    async visitarExpressaoComentario(expressao: ComentarioComoConstruto): Promise<string> {
+        return Promise.resolve('');
+    }
+
+    async visitarExpressaoContinua(declaracao?: Continua): Promise<VerticeFluxograma[]> {
+        const texto = `Linha${declaracao.linha}(continua)`;
+        const aresta = new ArestaFluxograma(declaracao, texto);
+        const vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
+
+        this.anteriores.push(aresta);
+        return Promise.resolve(vertices);
+    }
+
+    async visitarExpressaoDeChamada(expressao: Chamada): Promise<string> {
+        const textoEntidadeChamada = await expressao.entidadeChamada.aceitar(this);
         let texto = `chamada a ${textoEntidadeChamada}`;
 
-        if (chamada.argumentos.length > 0) {
+        if (expressao.argumentos.length > 0) {
             texto += `, com argumentos: `;
-            for (const argumento of chamada.argumentos) {
-                const textoArgumento =
-                    this.dicionarioConstrutos[argumento.constructor.name](argumento);
+            for (const argumento of expressao.argumentos) {
+                const textoArgumento = await argumento.aceitar(this);
                 texto += `${textoArgumento}, `;
             }
 
@@ -129,93 +788,198 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
             texto += `, sem argumentos`;
         }
 
-        return texto;
+        return Promise.resolve(texto);
     }
 
-    traduzirConstrutoDefinirValor(definirValor: DefinirValor): string {
-        const textoObjeto = this.dicionarioConstrutos[definirValor.objeto.constructor.name](
-            definirValor.objeto
-        );
-        const textoValor = this.dicionarioConstrutos[definirValor.valor.constructor.name](
-            definirValor.valor
-        );
-        return `${definirValor.nome.lexema} em ${textoObjeto} recebe ${textoValor}`;
+    async visitarExpressaoDefinirValor(expressao: DefinirValor): Promise<string> {
+        const textoObjeto = await expressao.objeto.aceitar(this);
+        const textoValor = await expressao.valor.aceitar(this);
+        return Promise.resolve(`${expressao.nome.lexema} em ${textoObjeto} recebe ${textoValor}`);
     }
 
-    traduzirConstrutoDicionario(dicionario: Dicionario): string {
+    async visitarExpressaoFuncaoConstruto(expressao: FuncaoConstruto): Promise<string> {
+        let texto = 'função anônima';
+
+        if (expressao.parametros && expressao.parametros.length > 0) {
+            const parametros = expressao.parametros.map((p) => p.nome.lexema).join(', ');
+            texto += `(${parametros})`;
+        } else {
+            texto += '()';
+        }
+
+        return Promise.resolve(texto);
+    }
+
+    async visitarExpressaoDeVariavel(expressao: Variavel | Constante): Promise<string> {
+        return Promise.resolve(expressao.simbolo.lexema);
+    }
+
+    async visitarExpressaoDicionario(expressao: Dicionario): Promise<string> {
         let texto = `dicionário`;
-        if (dicionario.chaves.length > 0) {
+        if (expressao.chaves.length > 0) {
             texto += `, com `;
-            for (const [chave, indice] of Object.entries(dicionario.chaves)) {
-                texto += `chave ${chave} definida com o valor ${dicionario.valores[0]}`;
+            for (const [chave, indice] of Object.entries(expressao.chaves)) {
+                texto += `chave ${chave} definida com o valor ${expressao.valores[0]}`;
             }
         } else {
             texto += ' vazio';
         }
 
-        return texto;
+        return Promise.resolve(texto);
     }
 
-    traduzirFuncaoConstruto(funcaoConstruto: FuncaoConstruto): VerticeFluxograma[] {
-        let vertices: VerticeFluxograma[] = [];
-        let arestas: ArestaFluxograma[] = [];
-
-        if (funcaoConstruto.corpo && funcaoConstruto.corpo.length > 0) {
-            for (const declaracaoCorpo of funcaoConstruto.corpo) {
-                // Usa o mesmo caminho de outras declarações,
-                // então todas as arestas passam por logicaComumConexaoArestas.
-                const verticesCorpo = this.dicionarioDeclaracoes[
-                    declaracaoCorpo.constructor.name
-                ](declaracaoCorpo);
-                vertices = vertices.concat(verticesCorpo);
-                arestas = arestas.concat(this.anteriores);
-                this.anteriores = [];
-            }
-        }
-
-        let primeiraAresta: ArestaFluxograma | undefined = undefined;
-        if (this.anteriores.length > 0) {
-            primeiraAresta = this.anteriores[0];
-            const verticesRestantes: VerticeFluxograma[] = this.logicaComumConexaoArestas(primeiraAresta);
-            console.log(verticesRestantes);
-        }
-
-        return vertices;
+    async visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<string> {
+        // Representa a expressão regular como texto para o fluxograma
+        const padraoRegex = expressao.valor ? String(expressao.valor) : expressao.simbolo.lexema;
+        return Promise.resolve(`expressão regular: /${padraoRegex}/`);
     }
 
-    traduzirConstrutoLeia(leia: Leia): string {
+    async visitarExpressaoFalhar(expressao: Falhar): Promise<VerticeFluxograma[]> {
+        let texto = `Linha${expressao.linha}(falhar`;
+
+        if (expressao.explicacao) {
+            const textoExplicacao = await expressao.explicacao.aceitar(this);
+            texto += `: ${textoExplicacao}`;
+        }
+
+        texto += ')';
+
+        const aresta = new ArestaFluxograma(expressao, texto);
+        const vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
+
+        this.anteriores.push(aresta);
+        return Promise.resolve(vertices);
+    }
+
+    visitarExpressaoFimPara(declaracao: FimPara): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    async visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita): Promise<string> {
+        const textoExpressao = await declaracao.expressao.aceitar(this);
+        let formato = textoExpressao;
+
+        // Adiciona informações de formatação se especificadas
+        const partes: string[] = [textoExpressao];
+
+        if (declaracao.espacos > 0) {
+            partes.push(`${declaracao.espacos} espaços`);
+        }
+
+        if (declaracao.casasDecimais > 0) {
+            partes.push(`${declaracao.casasDecimais} casas decimais`);
+        }
+
+        if (partes.length > 1) {
+            formato = `${partes[0]} (${partes.slice(1).join(', ')})`;
+        }
+
+        return Promise.resolve(formato);
+    }
+
+    async visitarExpressaoIsto(expressao: Isto): Promise<string> {
+        return Promise.resolve('this');
+    }
+
+    async visitarExpressaoLeia(expressao: Leia): Promise<string> {
         let texto = 'leia da entrada';
-        if (leia.argumentos && leia.argumentos.length > 0) {
-            const textoArgumento = this.dicionarioConstrutos[leia.argumentos[0].constructor.name](
-                leia.argumentos[0]
-            );
+        if (expressao.argumentos && expressao.argumentos.length > 0) {
+            const textoArgumento = await expressao.argumentos[0].aceitar(this);
             texto += `, imprimindo antes: \\'${textoArgumento}\\'`;
         }
 
-        return texto;
+        return Promise.resolve(texto);
     }
 
-    traduzirConstrutoLiteral(literal: Literal): string {
-        switch (literal.tipo) {
+    async visitarExpressaoLiteral(expressao: Literal): Promise<string> {
+        switch (expressao.tipo) {
             case 'lógico':
-                return literal.valor ? 'verdadeiro' : 'falso';
+                return Promise.resolve(expressao.valor ? 'verdadeiro' : 'falso');
             case 'texto':
-                return `\\'${literal.valor}\\'`;
+                return Promise.resolve(`\\'${expressao.valor}\\'`);
             default:
-                return String(literal.valor);
+                return Promise.resolve(String(expressao.valor));
         }
     }
 
-    traduzirConstrutoSeparador(separador: Separador): string {
-        return `${separador.conteudo} `;
+    async visitarExpressaoLogica(expressao: Logico): Promise<string> {
+        const operandoEsquerdo: string = await expressao.esquerda.aceitar(this);
+        const operandoDireito: string = await expressao.direita.aceitar(this);
+
+        switch (expressao.operador.tipo) {
+            case tiposDeSimbolos.E:
+                return Promise.resolve(`${operandoEsquerdo} e ${operandoDireito}`);
+            case tiposDeSimbolos.OU:
+                return Promise.resolve(`${operandoEsquerdo} ou ${operandoDireito}`);
+        }
+
+        return Promise.resolve('');
     }
 
-    traduzirConstrutoUnario(unario: Unario): string {
-        const textoOperando = this.dicionarioConstrutos[unario.operando.constructor.name](
-            unario.operando
-        );
+    async visitarExpressaoReferenciaFuncao(expressao: ReferenciaFuncao): Promise<string> {
+        const nomeFuncao = expressao.simboloFuncao.lexema;
+        return Promise.resolve(`@${nomeFuncao}`);
+    }
+
+    async visitarExpressaoRetornar(expressao: Retorna): Promise<VerticeFluxograma[]> {
+        let texto = `Linha${expressao.linha}(retorna`;
+        if (expressao.valor) {
+            texto += `: ${await expressao.valor.aceitar(this)}`;
+        }
+        texto += ')';
+
+        const aresta = new ArestaFluxograma(expressao, texto);
+        const vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
+
+        this.anteriores.push(aresta);
+        return Promise.resolve(vertices);
+    }
+
+    async visitarExpressaoSeparador(expressao: Separador): Promise<string> {
+        return Promise.resolve(`${expressao.conteudo} `);
+    }
+
+    async visitarExpressaoSuper(expressao: Super): Promise<string> {
+        return Promise.resolve('super');
+    }
+
+    async visitarExpressaoSustar(declaracao?: Sustar): Promise<VerticeFluxograma[]> {
+        const texto = `Linha${declaracao.linha}(sustar)`;
+        const aresta = new ArestaFluxograma(declaracao, texto);
+        const vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
+
+        this.anteriores.push(aresta);
+        return Promise.resolve(vertices);
+    }
+
+    async visitarExpressaoTupla(expressao: Tupla): Promise<string> {
+        // Tupla base pode ter um único valor
+        if (expressao.valor !== undefined) {
+            return Promise.resolve(`tupla(${expressao.valor})`);
+        }
+
+        // Se não houver valor, tupla vazia
+        return Promise.resolve('tupla()');
+    }
+
+    async visitarExpressaoTuplaN(expressao: TuplaN): Promise<string> {
+        const valores = [];
+        for (const elemento of expressao.elementos) {
+            const valorTraduzido = await elemento.aceitar(this);
+            valores.push(valorTraduzido);
+        }
+
+        return Promise.resolve(`tupla(${valores.join(', ')})`);
+    }
+
+    visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> | void {
+        throw new Error('Método não implementado.');
+    }
+
+    async visitarExpressaoUnaria(expressao: Unario): Promise<string> {
+        const textoOperando = await expressao.operando.aceitar(this);
         let textoOperador = '';
-        switch (unario.operador.tipo) {
+        switch (expressao.operador.tipo) {
             case tiposDeSimbolos.INCREMENTAR:
                 textoOperador = `incrementar ${textoOperando} em 1`;
                 break;
@@ -224,25 +988,56 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
                 break;
         }
 
-        switch (unario.incidenciaOperador) {
+        switch (expressao.incidenciaOperador) {
             case 'ANTES':
-                return `${textoOperador}, devolver valor de ${textoOperando}`;
+                return Promise.resolve(`${textoOperador}, devolver valor de ${textoOperando}`);
             case 'DEPOIS':
-                return `devolver valor de ${textoOperando}, ${textoOperador}`;
+                return Promise.resolve(`devolver valor de ${textoOperando}, ${textoOperador}`);
         }
     }
-
-    traduzirConstrutoVariavel(variavel: Variavel): string {
-        return variavel.simbolo.lexema;
-    }
-
-    traduzirConstrutoVetor(vetor: Vetor): string {
+    async visitarExpressaoVetor(expressao: Vetor): Promise<string> {
         let texto = `vetor: `;
-        for (const elemento of vetor.valores) {
-            texto += this.dicionarioConstrutos[elemento.constructor.name](elemento);
+        for (const elemento of expressao.valores) {
+            texto += await elemento.aceitar(this);
         }
 
-        return texto;
+        return Promise.resolve(texto);
+    }
+
+    /**
+     * Traduz uma declaração de Expressao que contém uma chamada de função,
+     * criando os vértices necessários para conectar ao subgrafo da função.
+     */
+    async traduzirChamadaFuncao(
+        declaracaoExpressao: Expressao,
+        chamada: Chamada
+    ): Promise<VerticeFluxograma[]> {
+        // Verifica se é uma chamada a uma função conhecida
+        if (chamada.entidadeChamada.constructor === Variavel) {
+            const variavel = chamada.entidadeChamada as Variavel;
+            const nomeFuncao = variavel.simbolo.lexema;
+
+            if (this.declaracoesFuncoes[nomeFuncao]) {
+                const subgrafo = this.declaracoesFuncoes[nomeFuncao];
+                let vertices: VerticeFluxograma[] = [];
+
+                // Conecta do fluxo atual para a entrada da função
+                const textoPreChamada = `Linha${declaracaoExpressao.linha}(${await chamada.aceitar(this)})`;
+                const arestaPreChamada = new ArestaFluxograma(declaracaoExpressao, textoPreChamada);
+                vertices = vertices.concat(this.logicaComumConexaoArestas(arestaPreChamada));
+
+                // Conecta a pré-chamada ao início da função
+                vertices.push(new VerticeFluxograma(arestaPreChamada, subgrafo.arestaInicial));
+
+                // A saída da função volta para o fluxo principal
+                this.anteriores = [subgrafo.arestaFinal];
+
+                return Promise.resolve(vertices);
+            }
+        }
+
+        // Se não for uma função conhecida, trata como expressão normal
+        return Promise.resolve([]);
     }
 
     protected logicaComumConexaoArestas(aresta: ArestaFluxograma) {
@@ -262,113 +1057,21 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         return vertices;
     }
 
-    traduzirDeclaracaoBloco(declaracaoBloco: Bloco) {
-        let vertices: VerticeFluxograma[] = [];
-        for (const declaracao of declaracaoBloco.declaracoes) {
-            const verticesDeclaracao =
-                this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao);
-            vertices = vertices.concat(verticesDeclaracao);
-        }
-
-        return vertices;
-    }
-
-    traduzirDeclaracaoClasse(declaracaoClasse: Classe): VerticeFluxograma[] {
-        const nomeClasse = declaracaoClasse.simbolo.lexema;
-        const superClasse = declaracaoClasse.superClasse 
-            ? declaracaoClasse.superClasse.nome.lexema 
-            : undefined;
-
-        // Cria o diagrama de classe
-        const diagramaClasse = new DiagramaClasse(nomeClasse, superClasse);
-
-        // Adiciona métodos ao diagrama
-        if (declaracaoClasse.metodos && declaracaoClasse.metodos.length > 0) {
-            for (const metodo of declaracaoClasse.metodos) {
-                const parametros: string[] = [];
-                
-                if (metodo.funcao.parametros && metodo.funcao.parametros.length > 0) {
-                    for (const param of metodo.funcao.parametros) {
-                        const nomeParam = param.nome.lexema;
-                        const tipoParam = param.tipoDado || 'qualquer';
-                        parametros.push(`${nomeParam}: ${tipoParam}`);
-                    }
-                }
-
-                const tipoRetorno = metodo.funcao.tipo;
-
-                diagramaClasse.metodos.push({
-                    nome: metodo.simbolo.lexema,
-                    parametros,
-                    tipoRetorno
-                });
-            }
-        }
-
-        // Adiciona o diagrama à lista
-        this.classes.push(diagramaClasse);
-
-        // No fluxograma principal, apenas mostra a definição da classe
-        const texto = `Linha${declaracaoClasse.linha}[Classe ${nomeClasse}${superClasse ? ` herda ${superClasse}` : ''}]`;
-        const aresta = new ArestaFluxograma(declaracaoClasse, texto);
-        const vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
-
-        this.anteriores.push(aresta);
-        return vertices;
-    }
-
-    traduzirDeclaracaoConst(declaracaoConst: Const): VerticeFluxograma[] {
-        let texto = `Linha${declaracaoConst.linha}(variável: ${declaracaoConst.simbolo.lexema}`;
-        texto += this.logicaComumTraducaoVarEConst(declaracaoConst, texto);
-
-        const aresta = new ArestaFluxograma(declaracaoConst, texto);
-        const vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
-
-        this.anteriores.push(aresta);
-        return vertices;
-    }
-
-    traduzirDeclaracaoEnquanto(declaracaoEnquanto: Enquanto): VerticeFluxograma[] {
-        let texto = `Linha${declaracaoEnquanto.linha}(enquanto `;
-        const condicao = this.dicionarioConstrutos[declaracaoEnquanto.condicao.constructor.name](
-            declaracaoEnquanto.condicao
-        );
-
-        texto += condicao + ')';
-        const aresta = new ArestaFluxograma(declaracaoEnquanto, texto);
-        let vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
-
-        this.anteriores.push(aresta);
-
-        // Corpo, normalmente um `Bloco`.
-        const verticesCorpo: VerticeFluxograma[] = this.dicionarioDeclaracoes[
-            declaracaoEnquanto.corpo.constructor.name
-        ](declaracaoEnquanto.corpo);
-        vertices = vertices.concat(verticesCorpo);
-
-        const ultimaArestaCorpo = verticesCorpo[verticesCorpo.length - 1].destino;
-        const verticeLaco = new VerticeFluxograma(ultimaArestaCorpo, aresta);
-        vertices.push(verticeLaco);
-
-        return vertices;
-    }
-
-    protected logicaComumCaminhoEscolha(
+    protected async logicaComumCaminhoEscolha(
         declaracaoEscolha: Escolha,
         caminhoEscolha: CaminhoEscolha,
         linha: number,
         textoIdentificadorOuLiteral: string,
         caminhoPadrao: boolean
-    ): {
+    ): Promise<{
         caminho: ArestaFluxograma;
         declaracoesCaminho: VerticeFluxograma[];
-    } {
+    }> {
         let textoCaso: string = '';
         if (!caminhoPadrao) {
             textoCaso = `caso ${textoIdentificadorOuLiteral} seja igual a `;
             for (const condicao of caminhoEscolha.condicoes) {
-                const textoCondicao =
-                    this.dicionarioConstrutos[condicao.constructor.name](condicao);
+                const textoCondicao = await condicao.aceitar(this);
                 textoCaso += `${textoCondicao} ou `;
             }
 
@@ -385,8 +1088,7 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
         let verticesResolvidos: VerticeFluxograma[] = [];
 
         for (const declaracaoCaminho of caminhoEscolha.declaracoes) {
-            const verticesDeclaracoes: VerticeFluxograma[] =
-                this.dicionarioDeclaracoes[declaracaoCaminho.constructor.name](declaracaoCaminho);
+            const verticesDeclaracoes: VerticeFluxograma[] = await declaracaoCaminho.aceitar(this);
             verticesResolvidos = verticesResolvidos.concat(verticesDeclaracoes);
             this.anteriores.pop();
             this.anteriores.push(verticesDeclaracoes[verticesDeclaracoes.length - 1].destino);
@@ -394,342 +1096,24 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
 
         this.anteriores.pop();
 
-        return {
+        return Promise.resolve({
             caminho: arestaCondicaoCaminho,
             declaracoesCaminho: verticesResolvidos,
-        };
+        });
     }
 
-    traduzirDeclaracaoEscolha(declaracaoEscolha: Escolha): VerticeFluxograma[] {
-        let texto = `Linha${declaracaoEscolha.linha}(escolha um caminho pelo valor de `;
-        const textoIdentificadorOuLiteral = this.dicionarioConstrutos[
-            declaracaoEscolha.identificadorOuLiteral.constructor.name
-        ](declaracaoEscolha.identificadorOuLiteral);
-        texto += textoIdentificadorOuLiteral + ')';
-        const aresta = new ArestaFluxograma(declaracaoEscolha, texto);
-        let vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
-
-        const arestasCaminho: {
-            caminho: ArestaFluxograma;
-            declaracoesCaminho: VerticeFluxograma[];
-        }[] = [];
-
-        for (const caminho of declaracaoEscolha.caminhos) {
-            arestasCaminho.push(
-                this.logicaComumCaminhoEscolha(
-                    declaracaoEscolha,
-                    caminho,
-                    caminho.condicoes[0].linha,
-                    textoIdentificadorOuLiteral,
-                    false
-                )
-            );
-        }
-
-        if (declaracaoEscolha.caminhoPadrao) {
-            arestasCaminho.push(
-                this.logicaComumCaminhoEscolha(
-                    declaracaoEscolha,
-                    declaracaoEscolha.caminhoPadrao,
-                    declaracaoEscolha.caminhoPadrao.declaracoes[0].linha - 1,
-                    textoIdentificadorOuLiteral,
-                    true
-                )
-            );
-        }
-
-        for (const conjunto of Object.values(arestasCaminho)) {
-            const verticeEscolhaECaminho = new VerticeFluxograma(aresta, conjunto.caminho);
-            vertices.push(verticeEscolhaECaminho);
-            vertices = vertices.concat(conjunto.declaracoesCaminho);
-            this.anteriores.push(
-                conjunto.declaracoesCaminho[conjunto.declaracoesCaminho.length - 1].destino
-            );
-        }
-
-        return vertices;
-    }
-
-    traduzirDeclaracaoEscreva(declaracaoEscreva: Escreva): VerticeFluxograma[] {
-        let texto = `Linha${declaracaoEscreva.linha}(escreva: `;
-        for (const argumento of declaracaoEscreva.argumentos) {
-            const valor = this.dicionarioConstrutos[argumento.constructor.name](argumento);
-            texto += valor + ', ';
-        }
-
-        texto = texto.slice(0, -2);
-        texto += ')';
-        const aresta = new ArestaFluxograma(declaracaoEscreva, texto);
-        const vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
-
-        this.anteriores.push(aresta);
-        return vertices;
-    }
-
-    traduzirDeclaracaoExpressao(declaracaoExpressao: Expressao): VerticeFluxograma[] {
-        let texto = `Linha${declaracaoExpressao.linha}(`;
-        const textoConstruto = this.dicionarioConstrutos[
-            declaracaoExpressao.expressao.constructor.name
-        ](declaracaoExpressao.expressao);
-        texto += textoConstruto + ')';
-
-        const aresta = new ArestaFluxograma(declaracaoExpressao, texto);
-        const vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
-
-        this.anteriores.push(aresta);
-        return vertices;
-    }
-
-    traduzirDeclaracaoFazerEnquanto(declaracaoFazerEnquanto: Fazer) {
-        const texto = `Linha${declaracaoFazerEnquanto.linha}(fazer)`;
-        const aresta = new ArestaFluxograma(declaracaoFazerEnquanto, texto);
-        let vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
-
-        this.anteriores.push(aresta);
-
-        // Corpo, normalmente um `Bloco`.
-        const verticesCorpo: VerticeFluxograma[] = this.dicionarioDeclaracoes[
-            declaracaoFazerEnquanto.caminhoFazer.constructor.name
-        ](declaracaoFazerEnquanto.caminhoFazer);
-        vertices = vertices.concat(verticesCorpo);
-
-        const ultimaArestaCorpo = verticesCorpo[verticesCorpo.length - 1].destino;
-        const condicao: string = this.dicionarioConstrutos[
-            declaracaoFazerEnquanto.condicaoEnquanto.constructor.name
-        ](declaracaoFazerEnquanto.condicaoEnquanto);
-        let textoEnquanto = `Linha${declaracaoFazerEnquanto.condicaoEnquanto.linha}(enquanto ${condicao})`;
-
-        const arestaEnquanto = new ArestaFluxograma(declaracaoFazerEnquanto, textoEnquanto);
-        const verticeEnquanto = new VerticeFluxograma(ultimaArestaCorpo, arestaEnquanto);
-        vertices.push(verticeEnquanto);
-
-        const verticeCondicaoComFazer = new VerticeFluxograma(arestaEnquanto, aresta);
-        vertices.push(verticeCondicaoComFazer);
-
-        this.anteriores.pop();
-        this.anteriores.push(arestaEnquanto);
-        return vertices;
-    }
-
-    traduzirDeclaracaoFuncao(declaracaoFuncao: FuncaoDeclaracao): VerticeFluxograma[] {
-        // Gera o corpo como vértices, mas não conecta nada ao fluxo principal
-        const verticesCorpo = this.traduzirFuncaoConstruto(declaracaoFuncao.funcao);
-
-        if (verticesCorpo.length === 0) {
-            return [];
-        }
-
-        // Descobre o texto dos nós do corpo
-        /* let textoSubgrafo = `subgraph função ${declaracaoFuncao.simbolo.lexema}\n`;
-        for (const vertice of verticesCorpo) {
-            textoSubgrafo += vertice.paraTexto();
-        }
-        textoSubgrafo += `end;\n`; */
-
-        // Armazena o subgraph para imprimir depois de graph TD;
-        // this.subgrafosFuncoes.push(textoSubgrafo);
-
-        // IMPORTANTE: não altera this.anteriores aqui, para a função
-        // não entrar no fluxo principal. O fluxo principal continua
-        // sendo só as declarações "top-level" (como a chamada em Linha4).
-
-        // Também não precisa devolver vértices, porque eles já
-        // foram adicionados em this.vertices pelos próprios tradutores
-        // das declarações do corpo (via dicionarioDeclaracoes).
-        return [];
-    }
-
-    traduzirDeclaracaoPara(declaracaoPara: Para): VerticeFluxograma[] {
-        let texto = `Linha${declaracaoPara.linha}(para `;
-        if (declaracaoPara.inicializador) {
-            for (const declaracaoInicializadora of declaracaoPara.inicializador as Declaracao[]) {
-                // Normalmente é `Var`.
-                const declaracaoVar = declaracaoInicializadora as Var;
-                const valorInicializacao = this.dicionarioConstrutos[
-                    declaracaoVar.inicializador.constructor.name
-                ](declaracaoVar.inicializador);
-                texto += `uma variável ${declaracaoVar.simbolo.lexema} inicializada com ${valorInicializacao}, `;
-            }
-
-            texto = texto.slice(0, -2);
-        }
-
-        texto += ')';
-        const aresta = new ArestaFluxograma(declaracaoPara, texto);
-        let vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
-
-        this.anteriores.push(aresta);
-
-        // Condição
-        const textoCondicao = this.dicionarioConstrutos[declaracaoPara.condicao.constructor.name](
-            declaracaoPara.condicao
-        );
-        const textoArestaCondicao = `Linha${declaracaoPara.linha}Condicao{se ${textoCondicao}}`;
-        const arestaCondicao = new ArestaFluxograma(declaracaoPara, textoArestaCondicao);
-        vertices = vertices.concat(this.logicaComumConexaoArestas(arestaCondicao));
-
-        this.anteriores.push(arestaCondicao);
-        this.ultimaDicaVertice = 'Sim';
-
-        // Corpo, normalmente um `Bloco`.
-        const verticesCorpo: VerticeFluxograma[] = this.dicionarioDeclaracoes[
-            declaracaoPara.corpo.constructor.name
-        ](declaracaoPara.corpo);
-        vertices = vertices.concat(verticesCorpo);
-
-        // Incremento
-        const ultimaArestaCorpo = verticesCorpo[verticesCorpo.length - 1].destino;
-        const textoIncremento = this.dicionarioConstrutos[
-            declaracaoPara.incrementar.constructor.name
-        ](declaracaoPara.incrementar);
-        const arestaIncremento = new ArestaFluxograma(
-            declaracaoPara,
-            `Linha${declaracaoPara.linha}Incremento(${textoIncremento})`
-        );
-        const verticeIncremento = new VerticeFluxograma(ultimaArestaCorpo, arestaIncremento);
-        vertices.push(verticeIncremento);
-
-        const verticeLaco = new VerticeFluxograma(arestaIncremento, arestaCondicao);
-        vertices.push(verticeLaco);
-
-        // Configura a condição como anterior
-        this.anteriores.pop();
-        this.anteriores.push(arestaCondicao);
-        this.ultimaDicaVertice = 'Não';
-        return vertices;
-    }
-
-    traduzirDeclaracaoParaCada(declaracaoParaCada: ParaCada): VerticeFluxograma[] {
-        const textoVariavelIteracao = this.dicionarioConstrutos[
-            declaracaoParaCada.variavelIteracao.constructor.name
-        ](declaracaoParaCada.variavelIteracao);
-        let texto = `Linha${declaracaoParaCada.linha}(para cada ${textoVariavelIteracao} em `;
-        const textoVariavelIterada = this.dicionarioConstrutos[
-            declaracaoParaCada.vetorOuDicionario.constructor.name
-        ](declaracaoParaCada.vetorOuDicionario);
-        texto += textoVariavelIterada + ')';
-        const aresta = new ArestaFluxograma(declaracaoParaCada, texto);
-        let vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
-
-        this.anteriores.push(aresta);
-
-        // Corpo, normalmente um `Bloco`.
-        const verticesCorpo: VerticeFluxograma[] = this.dicionarioDeclaracoes[
-            declaracaoParaCada.corpo.constructor.name
-        ](declaracaoParaCada.corpo);
-        vertices = vertices.concat(verticesCorpo);
-
-        const ultimaArestaCorpo = verticesCorpo[verticesCorpo.length - 1].destino;
-        vertices.push(new VerticeFluxograma(ultimaArestaCorpo, aresta));
-
-        return vertices;
-    }
-
-    traduzirDeclaracaoSe(declaracaoSe: Se): VerticeFluxograma[] {
-        let texto = `Linha${declaracaoSe.linha}{se `;
-        const condicao = this.dicionarioConstrutos[declaracaoSe.condicao.constructor.name](
-            declaracaoSe.condicao
-        );
-        texto += condicao;
-        texto += `}`;
-
-        const aresta = new ArestaFluxograma(declaracaoSe, texto);
-        let vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
-
-        this.anteriores.push(aresta);
-        this.ultimaDicaVertice = 'Sim';
-
-        // Caminho então, normalmente um `Bloco`.
-        const verticesEntao: VerticeFluxograma[] = this.dicionarioDeclaracoes[
-            declaracaoSe.caminhoEntao.constructor.name
-        ](declaracaoSe.caminhoEntao);
-        vertices = vertices.concat(verticesEntao);
-
-        const ultimaArestaEntao = verticesEntao[verticesEntao.length - 1].destino;
-
-        if (declaracaoSe.caminhoSenao) {
-            this.anteriores = [];
-            const arestaSenao = new ArestaFluxograma(
-                declaracaoSe,
-                `Linha${declaracaoSe.caminhoSenao.linha}(senão)`
-            );
-            vertices.push(new VerticeFluxograma(aresta, arestaSenao, 'Não'));
-            this.anteriores.push(arestaSenao);
-
-            const verticesSenao: VerticeFluxograma[] = this.dicionarioDeclaracoes[
-                declaracaoSe.caminhoSenao.constructor.name
-            ](declaracaoSe.caminhoSenao);
-            vertices = vertices.concat(verticesSenao);
-        }
-
-        this.anteriores.push(ultimaArestaEntao);
-        return vertices;
-    }
-
-    protected logicaComumTraducaoVarEConst(
+    protected async logicaComumTraducaoVarEConst(
         declaracaoVarOuConst: Var | Const,
         textoInicial: string
-    ): string {
+    ): Promise<string> {
+        let adicional = '';
         if (declaracaoVarOuConst.inicializador) {
-            textoInicial += `, iniciada com: ${this.dicionarioConstrutos[declaracaoVarOuConst.inicializador.constructor.name](declaracaoVarOuConst.inicializador)}`;
+            adicional += `, iniciada com: ${await declaracaoVarOuConst.inicializador.aceitar(this)}`;
         }
 
-        textoInicial += ')';
-        return textoInicial;
+        adicional += ')';
+        return Promise.resolve(adicional);
     }
-
-    traduzirDeclaracaoVar(declaracaoVar: Var): VerticeFluxograma[] {
-        let texto = `Linha${declaracaoVar.linha}(variável: ${declaracaoVar.simbolo.lexema}`;
-        texto += this.logicaComumTraducaoVarEConst(declaracaoVar, texto);
-
-        const aresta = new ArestaFluxograma(declaracaoVar, texto);
-        const vertices: VerticeFluxograma[] = this.logicaComumConexaoArestas(aresta);
-
-        this.anteriores.push(aresta);
-        return vertices;
-    }
-
-    dicionarioConstrutos = {
-        AcessoIndiceVariavel: this.traduzirConstrutoAcessoIndiceVariavel.bind(this),
-        AcessoMetodo: this.traduzirConstrutoAcessoMetodo.bind(this),
-        AcessoMetodoOuPropriedade: this.traduzirConstrutoAcessoMetodoOuPropriedade.bind(this),
-        AcessoPropriedade: this.traduzirConstrutoAcessoPropriedade.bind(this),
-        Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
-        Atribuir: this.traduzirConstrutoAtribuir.bind(this),
-        Binario: this.traduzirConstrutoBinario.bind(this),
-        Chamada: this.traduzirConstrutoChamada.bind(this),
-        ComentarioComoConstruto: () => '',
-        DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
-        Dicionario: this.traduzirConstrutoDicionario.bind(this),
-        // FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
-        FuncaoConstruto: () => { throw new Error("Fluxogramas de funções ainda não é suportado.") },
-        Isto: () => 'this',
-        Leia: this.traduzirConstrutoLeia.bind(this),
-        Literal: this.traduzirConstrutoLiteral.bind(this),
-        Separador: this.traduzirConstrutoSeparador.bind(this),
-        Unario: this.traduzirConstrutoUnario.bind(this),
-        Variavel: this.traduzirConstrutoVariavel.bind(this),
-        Vetor: this.traduzirConstrutoVetor.bind(this),
-    };
-
-    dicionarioDeclaracoes = {
-        Bloco: this.traduzirDeclaracaoBloco.bind(this),
-        // Classe: this.traduzirDeclaracaoClasse.bind(this),
-        Classe: () => { throw new Error("Fluxogramas de classes ainda não é suportado.") },
-        Comentario: () => '',
-        Const: this.traduzirDeclaracaoConst.bind(this),
-        Enquanto: this.traduzirDeclaracaoEnquanto.bind(this),
-        Escolha: this.traduzirDeclaracaoEscolha.bind(this),
-        Expressao: this.traduzirDeclaracaoExpressao.bind(this),
-        Escreva: this.traduzirDeclaracaoEscreva.bind(this),
-        Fazer: this.traduzirDeclaracaoFazerEnquanto.bind(this),
-        // FuncaoDeclaracao: this.traduzirDeclaracaoFuncao.bind(this),
-        FuncaoDeclaracao: () => { throw new Error("Fluxogramas de funções ainda não é suportado.") },
-        Para: this.traduzirDeclaracaoPara.bind(this),
-        ParaCada: this.traduzirDeclaracaoParaCada.bind(this),
-        Se: this.traduzirDeclaracaoSe.bind(this),
-        Var: this.traduzirDeclaracaoVar.bind(this),
-    };
 
     /**
      * Ponto de entrada para a tradução de declarações em um fluxograma
@@ -737,22 +1121,36 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao> {
      * @param {Declaracao[]} declaracoes As declarações a serem traduzidas.
      * @returns {string} Texto no formato MermaidJs representando o fluxograma.
      */
-    traduzir(declaracoes: Declaracao[]): string {
+    async traduzir(declaracoes: Declaracao[]): Promise<string> {
         this.anteriores = [];
         this.vertices = [];
         let resultado = 'graph TD;\n';
         this.indentacaoAtual = 4;
-        this.subgrafosFuncoes = {};
+        this.declaracoesFuncoes = {};
+        this.declaracoesClasses = {};
 
         for (const declaracao of declaracoes) {
-            this.vertices = this.vertices.concat(
-                this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao)
-            );
+            this.vertices = this.vertices.concat(await declaracao.aceitar(this));
         }
 
-        if (Object.keys(this.subgrafosFuncoes).length > 0) {
-            for (const subgrafo of Object.values(this.subgrafosFuncoes)) {
-                resultado += subgrafo;
+        // Renderiza os subgrafos de funções
+        if (Object.keys(this.declaracoesFuncoes).length > 0) {
+            for (const [nomeFuncao, subgrafo] of Object.entries(this.declaracoesFuncoes)) {
+                resultado += `    subgraph ${nomeFuncao}["Função: ${nomeFuncao}()"]\n`;
+
+                // Renderiza os vértices da função
+                for (const vertice of subgrafo.vertices) {
+                    resultado += '    ' + vertice.paraTexto();
+                }
+
+                resultado += `    end\n`;
+            }
+        }
+
+        // Renderiza os subgrafos de classes
+        if (Object.keys(this.declaracoesClasses).length > 0) {
+            for (const [nomeClasse, subgrafo] of Object.entries(this.declaracoesClasses)) {
+                resultado += subgrafo.paraTexto();
             }
         }
 

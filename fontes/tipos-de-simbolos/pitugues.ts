@@ -1,5 +1,6 @@
 export default {
     ADICAO: 'ADICAO',
+    ARROBA: 'ARROBA',
     BIT_AND: 'BIT_AND',
     BIT_OR: 'BIT_OR',
     BIT_XOR: 'BIT_XOR',
@@ -54,6 +55,7 @@ export default {
     MODULO: 'MODULO',
     MULTIPLICACAO: 'MULTIPLICACAO',
     MULTIPLICACAO_IGUAL: 'MULTIPLICACAO_IGUAL',
+    NADA: 'NADA',
     NAO: 'NAO',
     NEGACAO: 'NEGACAO',
     NULO: 'NULO',

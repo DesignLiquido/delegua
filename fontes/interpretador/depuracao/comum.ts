@@ -1,7 +1,17 @@
 import _ from 'lodash';
 
 import { Binario, Chamada, Construto, Leia, Literal } from '../../construtos';
-import { Bloco, Declaracao, Enquanto, Escreva, Expressao, Para, Retorna, Tente } from '../../declaracoes';
+import {
+    Bloco,
+    Declaracao,
+    Enquanto,
+    Escreva,
+    Expressao,
+    Fazer,
+    Para,
+    Retorna,
+    Tente,
+} from '../../declaracoes';
 import {
     InterpretadorComDepuracaoInterface,
     ResultadoParcialInterpretadorInterface,
@@ -13,6 +23,20 @@ import { inferirTipoVariavel } from '../../inferenciador';
 import { EspacoMemoria } from '../espaco-memoria';
 import tiposDeSimbolos from '../../tipos-de-simbolos/delegua';
 import tipoDeDadosDelegua from '../../tipos-de-dados/delegua';
+
+const ITERACOES_PARA_CEDER_CONTROLE = 1000;
+
+async function cederControle(iteracoes: number): Promise<void> {
+    if (iteracoes % ITERACOES_PARA_CEDER_CONTROLE === 0) {
+        await new Promise<void>((resolve) => {
+            if (typeof setImmediate !== 'undefined') {
+                setImmediate(resolve);
+            } else {
+                setTimeout(resolve, 0);
+            }
+        });
+    }
+}
 
 async function avaliarArgumentosEscreva(
     interpretador: InterpretadorComDepuracaoInterface,
@@ -116,6 +140,22 @@ export async function avaliar(
     return await expressao.aceitar(interpretador);
 }
 
+export async function visitarExpressaoReferenciaFuncao(
+    interpretador: InterpretadorComDepuracaoInterface,
+    visitarExpressaoReferenciaFuncaoAncestral: (expressao: any) => Promise<any>,
+    expressao: any
+): Promise<any> {
+    return await visitarExpressaoReferenciaFuncaoAncestral(expressao);
+}
+
+export async function visitarExpressaoArgumentoReferenciaFuncao(
+    interpretador: InterpretadorComDepuracaoInterface,
+    visitarExpressaoArgumentoReferenciaFuncaoAncestral: (expressao: any) => Promise<any>,
+    expressao: any
+): Promise<any> {
+    return await visitarExpressaoArgumentoReferenciaFuncaoAncestral(expressao);
+}
+
 export async function visitarExpressaoDeChamada(
     interpretador: InterpretadorComDepuracaoInterface,
     visitarExpressaoDeChamadaAncestral: (expressao: Chamada) => Promise<any>,
@@ -150,13 +190,16 @@ export async function visitarDeclaracaoEnquanto(
             return null;
         default:
             let retornoExecucao: any;
+            let iteracoes = 0;
             while (
                 !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
                 !interpretador.pontoDeParadaAtivo &&
+                interpretador.comando !== 'pausar' &&
                 interpretador.eVerdadeiro(await interpretador.avaliar(declaracao.condicao))
             ) {
                 escopoAtual.emLacoRepeticao = true;
                 try {
+                    await cederControle(++iteracoes);
                     retornoExecucao = await interpretador.executar(declaracao.corpo);
                     if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                         return null;
@@ -250,9 +293,11 @@ export async function visitarDeclaracaoPara(
             return null;
         default:
             let retornoExecucao: any;
+            let iteracoes = 0;
             while (
                 !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
-                !interpretador.pontoDeParadaAtivo
+                !interpretador.pontoDeParadaAtivo &&
+                interpretador.comando !== 'pausar'
             ) {
                 if (
                     cloneDeclaracao.condicao !== null &&
@@ -264,6 +309,7 @@ export async function visitarDeclaracaoPara(
                 }
 
                 try {
+                    await cederControle(++iteracoes);
                     retornoExecucao = await interpretador.executar(corpoExecucao);
                     if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                         return null;
@@ -282,6 +328,36 @@ export async function visitarDeclaracaoPara(
             // escopoAtual.emLacoRepeticao = false;
             return retornoExecucao;
     }
+}
+
+export async function visitarDeclaracaoFazer(
+    interpretador: InterpretadorComDepuracaoInterface,
+    declaracao: Fazer
+): Promise<any> {
+    let retornoExecucao: any;
+    let iteracoes = 0;
+    do {
+        try {
+            await cederControle(++iteracoes);
+            retornoExecucao = await interpretador.executar(declaracao.caminhoFazer);
+            if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
+                return null;
+            }
+
+            if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) {
+                retornoExecucao = null;
+            }
+        } catch (erro: any) {
+            return Promise.reject(erro);
+        }
+    } while (
+        !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
+        !interpretador.pontoDeParadaAtivo &&
+        interpretador.comando !== 'pausar' &&
+        interpretador.eVerdadeiro(await interpretador.avaliar(declaracao.condicaoEnquanto))
+    );
+
+    return retornoExecucao;
 }
 
 /**
@@ -334,8 +410,11 @@ export async function visitarDeclaracaoTente(
         // Só executa finally se:
         // 1. Existe um bloco finally
         // 2. Não há um novo escopo criado OU não estamos em modo de passo/adentrar
-        if (declaracao.caminhoFinalmente !== null &&
-            (!novoEscopoCriado || (interpretador.comando !== 'proximo' && interpretador.comando !== 'adentrarEscopo'))) {
+        if (
+            declaracao.caminhoFinalmente !== null &&
+            (!novoEscopoCriado ||
+                (interpretador.comando !== 'proximo' && interpretador.comando !== 'adentrarEscopo'))
+        ) {
             valorRetorno = await interpretador.executarBloco(declaracao.caminhoFinalmente);
         }
         (interpretador as any).emDeclaracaoTente = false;
@@ -358,15 +437,21 @@ export async function visitarExpressaoRetornar(
     // Captura o escopo atual ANTES de avaliar a expressão,
     // pois a avaliação pode abrir novos escopos
     const escopoAtual = interpretador.pilhaEscoposExecucao.topoDaPilha();
+    const escoposAntes = interpretador.pilhaEscoposExecucao.elementos();
 
     const retorno = await visitarExpressaoRetornarAncestral(declaracao);
+
+    // Verifica se novos escopos foram criados durante a avaliação
+    const escoposDepois = interpretador.pilhaEscoposExecucao.elementos();
+    const novoEscopoFoiCriado = escoposDepois > escoposAntes;
 
     // Se o retorno é null ou RetornoQuebra com valor null (porque pausamos durante avaliação de expressão,
     // como ao entrar em uma função em modo adentrarEscopo), não marcar como finalizado ainda
     const valorRetorno = retorno && retorno.hasOwnProperty('valor') ? retorno.valor : retorno;
-    const novoEscopoFoiCriado = interpretador.pilhaEscoposExecucao.topoDaPilha() !== escopoAtual;
 
-    if (valorRetorno === null && interpretador.comando === 'adentrarEscopo' && novoEscopoFoiCriado) {
+    // Em modo adentrarEscopo, se um novo escopo foi criado (entramos em uma função aninhada),
+    // NÃO marcar o escopo atual como finalizado ainda
+    if (interpretador.comando === 'adentrarEscopo' && novoEscopoFoiCriado) {
         return retorno;
     }
 
@@ -451,7 +536,7 @@ export async function visitarExpressaoBinaria(
         const expressaoTemp = {
             ...expressao,
             esquerda: { valor: valorEsquerdo, tipo: tipoEsquerdo },
-            direita: { valor: valorDireito, tipo: tipoDireito }
+            direita: { valor: valorDireito, tipo: tipoDireito },
         };
 
         // Não podemos chamar o ancestral diretamente porque ele vai tentar avaliar novamente
@@ -602,10 +687,9 @@ async function executarOperacaoBinaria(
         case tiposDeSimbolos.MULTIPLICACAO:
         case tiposDeSimbolos.MULTIPLICACAO_IGUAL:
             if (
-                tipoDeDadosDelegua && (
-                    tipoEsquerdo === tipoDeDadosDelegua.TEXTO ||
-                    tipoDireito === tipoDeDadosDelegua.TEXTO
-                )
+                tipoDeDadosDelegua &&
+                (tipoEsquerdo === tipoDeDadosDelegua.TEXTO ||
+                    tipoDireito === tipoDeDadosDelegua.TEXTO)
             ) {
                 if (
                     tipoEsquerdo === tipoDeDadosDelegua.TEXTO &&
@@ -629,7 +713,7 @@ async function executarOperacaoBinaria(
             interpretador.verificarOperandosNumeros(expressao.operador, esquerda, direita);
             return Number(valorEsquerdo) & Number(valorDireito);
 
-        case tiposDeSimbolos.BIT_XOR:
+        case tiposDeSimbolos.CIRCUMFLEXO:
             interpretador.verificarOperandosNumeros(expressao.operador, esquerda, direita);
             return Number(valorEsquerdo) ^ Number(valorDireito);
 
@@ -797,17 +881,26 @@ async function executarUmPassoNoEscopo(interpretador: InterpretadorComDepuracaoI
         // - Há um ponto de parada ativo (de escopo interno)
         // - Estamos em um laço de repetição (o laço gerencia a iteração)
         // - Entramos em um novo escopo (precisamos executar o novo escopo antes de avançar)
-        if (!interpretador.pontoDeParadaAtivo && !ultimoEscopo.emLacoRepeticao && !entroEmNovoEscopo) {
+        if (
+            !interpretador.pontoDeParadaAtivo &&
+            !ultimoEscopo.emLacoRepeticao &&
+            !entroEmNovoEscopo
+        ) {
             ultimoEscopo.declaracaoAtual++;
         }
 
         // Após executar e avançar, verifica se há ponto de parada na PRÓXIMA declaração
-        if (!interpretador.pontoDeParadaAtivo &&
-            ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length) {
+        if (
+            !interpretador.pontoDeParadaAtivo &&
+            ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length
+        ) {
             const proximaDeclaracao = ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual];
             interpretador.linhaDeclaracaoAtual = proximaDeclaracao.linha;
             interpretador.hashArquivoDeclaracaoAtual = proximaDeclaracao.hashArquivo;
-            interpretador.pontoDeParadaAtivo = verificarPontoParada(interpretador, proximaDeclaracao);
+            interpretador.pontoDeParadaAtivo = verificarPontoParada(
+                interpretador,
+                proximaDeclaracao
+            );
 
             if (interpretador.pontoDeParadaAtivo) {
                 interpretador.avisoPontoParadaAtivado();
@@ -831,8 +924,10 @@ async function executarUmPassoNoEscopo(interpretador: InterpretadorComDepuracaoI
                     const escopoAtual = interpretador.pilhaEscoposExecucao.topoDaPilha();
                     // Só incrementa se ainda há declarações para executar neste escopo
                     // e não estamos em um laço de repetição
-                    if (!escopoAtual.emLacoRepeticao &&
-                        escopoAtual.declaracaoAtual < escopoAtual.declaracoes.length) {
+                    if (
+                        !escopoAtual.emLacoRepeticao &&
+                        escopoAtual.declaracaoAtual < escopoAtual.declaracoes.length
+                    ) {
                         escopoAtual.declaracaoAtual++;
                     }
                 }

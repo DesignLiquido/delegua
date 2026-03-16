@@ -8,8 +8,8 @@ import { Chamavel } from './chamavel';
  * - `v.inclui(1)` (`v` é um vetor)
  * - `t.minusculo()` (`t` é um texto)
  *
- * A aridade é sempre a quantidade de argumentos do método menos um porque o
- * primeiro parâmetro é sempre a referência para a primitiva.
+ * A aridade é sempre a quantidade de argumentos do método menos dois porque os
+ * dois primeiros parâmetros são sempre o interpretador e a referência para a primitiva.
  */
 export class MetodoPrimitiva extends Chamavel {
     nome: string;
@@ -18,18 +18,24 @@ export class MetodoPrimitiva extends Chamavel {
     nomeMetodo: string;
     tipo: string = 'qualquer';
 
-    constructor(nome: string, primitiva: any, metodo: Function, nomeMetodo: string, tipo: string = 'qualquer') {
+    constructor(
+        nome: string,
+        primitiva: any,
+        metodo: Function,
+        nomeMetodo: string,
+        tipo: string = 'qualquer'
+    ) {
         super();
         this.nome = nome;
         this.primitiva = primitiva;
         this.metodo = metodo;
         this.nomeMetodo = nomeMetodo;
         this.tipo = tipo;
-        this.valorAridade = metodo.length - 1;
+        this.valorAridade = metodo.length - 2;
     }
 
     async chamar(interpretador: InterpretadorInterface, argumentos: any[] = []): Promise<any> {
-        return await this.metodo(interpretador, this.nome, this.primitiva, ...argumentos);
+        return await this.metodo(interpretador, this.primitiva, ...argumentos);
     }
 
     /**

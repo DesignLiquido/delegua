@@ -28,7 +28,26 @@ export class Decorador implements Construto {
     }
 
     paraTexto(): string {
-        // TODO: Atributos
+        let atributos = '';
+
+        for (const chave in this.atributos) {
+            if (!Object.prototype.hasOwnProperty.call(this.atributos, chave)) {
+                continue;
+            }
+
+            const valor = this.atributos[chave];
+            const valorTexto =
+                valor && typeof valor === 'object' && typeof valor.paraTexto === 'function'
+                    ? valor.paraTexto()
+                    : valor;
+
+            atributos += `${chave}=${valorTexto} `;
+        }
+
+        if (atributos.length > 0) {
+            return `<decorador nome=${this.nome} ${atributos.slice(0, -1)} />`;
+        }
+
         return `<decorador nome=${this.nome} />`;
     }
 

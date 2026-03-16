@@ -1,7 +1,7 @@
-import { TipoDadosElementar } from '../tipo-dados-elementar';
+import { TipoInferencia } from '../inferenciador';
 
 export interface VariavelHipoteticaInterface {
-    tipo: TipoDadosElementar;
+    tipo: TipoInferencia | undefined;
     subtipo?: 'texto' | 'número' | 'inteiro' | 'longo' | 'lógico';
     imutavel: boolean;
     valor?: any;

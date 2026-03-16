@@ -8,6 +8,8 @@ import { TipoInferencia, inferirTipoVariavel } from '../inferenciador';
 
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 
+const tiposNumericos = ['inteiro', 'número', 'numero', 'real', 'longo'];
+
 export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
     pilha: EscopoExecucao[];
 
@@ -41,15 +43,34 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         return this.pilha.pop();
     }
 
+    private tiposCompativeis(tipoVariavel: string, tipoValor: string): boolean {
+        if (tipoVariavel === tipoValor) return true;
+        if (tiposNumericos.includes(tipoVariavel) && tiposNumericos.includes(tipoValor as string))
+            return true;
+        return false;
+    }
+
     private converterValor(tipo: string, valor: any) {
         switch (tipo) {
             case 'inteiro':
                 return parseInt(valor);
+            case 'longo':
+                // Converte para BigInt
+                if (typeof valor === 'bigint') return valor;
+                if (typeof valor === 'number') return BigInt(Math.floor(valor));
+                // Para strings, remove parte decimal antes de converter
+                const strValue = String(valor).split('.')[0].trim();
+                return BigInt(strValue || '0');
             case 'logico':
             case 'lógico':
                 return Boolean(valor);
             case 'numero':
             case 'número':
+                // Não converter objetos (ex: instâncias de classe de sobrecarga de operador)
+                // para número, pois resultaria em NaN.
+                if (typeof valor === 'object' && valor !== null) {
+                    return valor;
+                }
                 return Number(valor);
             case 'texto':
                 return String(valor);
@@ -93,7 +114,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         this.pilha[this.pilha.length - 1].espacoMemoria.valores[nomeConstante] = elementoAlvo;
     }
 
-    definirVariavel(nomeVariavel: string, valor: any, tipo?: string) {
+    definirVariavel(nomeVariavel: string, valor: any, tipo?: string, tipoExplicito?: boolean) {
         const variavel = this.pilha[this.pilha.length - 1].espacoMemoria.valores[nomeVariavel];
 
         let tipoVariavel: string;
@@ -117,6 +138,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
             tipo: tipoVariavel,
             subtipo: subtipo,
             imutavel: false,
+            tipoExplicito: tipoExplicito || false,
         };
 
         if ([tipoDeDadosDelegua.VETOR, tipoDeDadosDelegua.TUPLA].includes(tipoVariavel)) {
@@ -137,16 +159,29 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
 
     atribuirVariavelEm(distancia: number, simbolo: any, valor: any): void {
         const espacoMemoriaAncestral = this.pilha[this.pilha.length - distancia].espacoMemoria;
-        if (espacoMemoriaAncestral.valores[simbolo.lexema].imutavel) {
+        const variavel = espacoMemoriaAncestral.valores[simbolo.lexema];
+        if (variavel.imutavel) {
             throw new ErroEmTempoDeExecucao(
                 simbolo,
                 `Constante '${simbolo.lexema}' não pode receber novos valores.`
             );
         }
+
+        if (variavel.tipoExplicito && variavel.tipo !== 'qualquer') {
+            const tipoDoValor = inferirTipoVariavel(valor);
+            if (!this.tiposCompativeis(variavel.tipo, tipoDoValor as string)) {
+                throw new ErroEmTempoDeExecucao(
+                    simbolo,
+                    `Variável '${simbolo.lexema}' é do tipo '${variavel.tipo}' e não pode receber um valor do tipo '${tipoDoValor}'.`
+                );
+            }
+        }
+
         espacoMemoriaAncestral.valores[simbolo.lexema] = {
             valor,
-            tipo: inferirTipoVariavel(valor),
+            tipo: variavel.tipo || inferirTipoVariavel(valor),
             imutavel: false,
+            tipoExplicito: variavel.tipoExplicito,
         };
     }
 
@@ -160,6 +195,16 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
                         simbolo,
                         `Constante '${simbolo.lexema}' não pode receber novos valores.`
                     );
+                }
+
+                if (variavel.tipoExplicito && variavel.tipo !== 'qualquer') {
+                    const tipoDoValor = inferirTipoVariavel(valor);
+                    if (!this.tiposCompativeis(variavel.tipo, tipoDoValor as string)) {
+                        throw new ErroEmTempoDeExecucao(
+                            simbolo,
+                            `Variável '${simbolo.lexema}' é do tipo '${variavel.tipo}' e não pode receber um valor do tipo '${tipoDoValor}'.`
+                        );
+                    }
                 }
 
                 const tipoInferido =
@@ -185,6 +230,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
                         valor: valorResolvido,
                         tipo,
                         imutavel: false,
+                        tipoExplicito: variavel.tipoExplicito,
                     };
                 }
 

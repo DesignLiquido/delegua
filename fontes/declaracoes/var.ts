@@ -9,6 +9,7 @@ export class Var extends Declaracao {
     simbolo: SimboloInterface;
     inicializador: Construto;
     tipo: string;
+    tipoOriginal: string; // Tipo originalmente especificado pelo usuário (antes da inferência)
     tipoExplicito: boolean;
     referencia: boolean;
     desestruturacao: boolean;
@@ -19,11 +20,14 @@ export class Var extends Declaracao {
         inicializador: Construto,
         tipo: string = 'qualquer',
         tipoExplicito: boolean = false,
-        decoradores: Decorador[] = []
+        decoradores: Decorador[] = [],
+        tipoOriginal?: string
     ) {
         super(Number(simbolo.linha), simbolo.hashArquivo, decoradores);
         this.simbolo = simbolo;
         this.inicializador = inicializador;
+        // Preserva o tipo original especificado pelo usuário (antes de inferência do parser)
+        this.tipoOriginal = tipoOriginal !== undefined ? tipoOriginal : tipo;
 
         if (tipo !== 'qualquer') {
             this.tipo = tipo;

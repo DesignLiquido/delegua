@@ -77,6 +77,31 @@ export abstract class LexadorBase implements LexadorInterface<SimboloInterface> 
     }
 
     /**
+     * Verifica se o caractere é um dígito hexadecimal (0-9, a-f, A-F).
+     */
+    eHexDigito(caractere: string): boolean {
+        return (
+            (caractere >= '0' && caractere <= '9') ||
+            (caractere >= 'a' && caractere <= 'f') ||
+            (caractere >= 'A' && caractere <= 'F')
+        );
+    }
+
+    /**
+     * Verifica se o caractere é um dígito binário (0 ou 1).
+     */
+    eBinarioDigito(caractere: string): boolean {
+        return caractere === '0' || caractere === '1';
+    }
+
+    /**
+     * Verifica se o caractere é um dígito octal (0-7).
+     */
+    eOctalDigito(caractere: string): boolean {
+        return caractere >= '0' && caractere <= '7';
+    }
+
+    /**
      * Indica se o código está na última linha.
      * @returns Verdadeiro se contador de linhas está na última linha.
      *          Falso caso contrário.
@@ -117,8 +142,21 @@ export abstract class LexadorBase implements LexadorInterface<SimboloInterface> 
 
     adicionarSimbolo(tipo: any, literal?: any): void {
         const texto: string = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
+        const lexema = literal || texto;
+        const comprimentoLexema = typeof lexema === 'string' ? lexema.length : 0;
+        const comprimento = Math.max(comprimentoLexema, texto.length) || 1;
+        const colunaInicio = this.inicioSimbolo + 1;
+        const colunaFim = this.inicioSimbolo + comprimento;
         this.simbolos.push(
-            new Simbolo(tipo, literal || texto, literal, this.linha + 1, this.hashArquivo)
+            new Simbolo(
+                tipo,
+                lexema,
+                literal,
+                this.linha + 1,
+                this.hashArquivo,
+                colunaInicio,
+                colunaFim
+            )
         );
     }
 

@@ -2,16 +2,14 @@ import { InterpretadorInterface } from '../../../interfaces';
 import { PrimitivaInterface } from '../../../interfaces/primitiva-interface';
 import { InformacaoElementoSintatico } from '../../../informacao-elemento-sintatico';
 import { implementacaoParticao } from '../../primitivas-texto';
+import { ErroEmTempoDeExecucao } from '../../../excecoes';
 
 export default {
     aparar: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
-            texto: string
-        ): Promise<string> => Promise.resolve(texto.trim()),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
+            Promise.resolve(texto.trim()),
         assinaturaFormato: 'texto.aparar()',
         documentacao:
             '# `texto.aparar()` \n \n' +
@@ -25,11 +23,8 @@ export default {
     aparar_fim: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
-            texto: string
-        ): Promise<string> => Promise.resolve(texto.trimEnd()),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
+            Promise.resolve(texto.trimEnd()),
         assinaturaFormato: 'texto.aparar_fim()',
         documentacao:
             '# `texto.aparar_fim()` \n \n' +
@@ -43,11 +38,8 @@ export default {
     aparar_inicio: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
-            texto: string
-        ): Promise<string> => Promise.resolve(texto.trimStart()),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
+            Promise.resolve(texto.trimStart()),
         assinaturaFormato: 'texto.aparar_inicio()',
         documentacao:
             '# `texto.aparar_inicio()` \n \n' +
@@ -71,7 +63,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             ...texto: string[]
         ): Promise<string> => Promise.resolve(''.concat(...texto)),
         assinaturaFormato: 'texto.concatenar(...outroTexto: texto)',
@@ -105,7 +96,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             texto: string,
             divisor: string,
             limite?: number
@@ -146,7 +136,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             texto: string,
             subtexto: string,
             indiceInicio?: number
@@ -188,7 +177,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             texto: string,
             subtexto: string,
             indiceInicio?: number
@@ -244,7 +232,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             texto: string,
             inicio: number,
             fim: number
@@ -262,6 +249,52 @@ export default {
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'texto.fatiar(início, final)\n' + 'texto.fatiar(aPartirDaPosicao)',
     },
+    formatar: {
+        tipoRetorno: 'texto',
+        argumentos: [
+            new InformacaoElementoSintatico(
+                'elemento',
+                'qualquer',
+                true,
+                [],
+                'O elemento a ser formatado.'
+            ),
+        ],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            mascara: string,
+            elemento: any
+        ): Promise<string> => {
+            const valor = interpretador.resolverValor(elemento);
+            const matchMascara = mascara.match(/\{:(.*?)\}/);
+
+            if (matchMascara) {
+                const configuracao = matchMascara[1];
+
+                if (configuracao.includes('f') && typeof valor !== 'number') {
+                    return Promise.reject(
+                        new ErroEmTempoDeExecucao(
+                            null,
+                            `Erro: Código de formato 'f' desconhecido para objeto do tipo '${typeof valor === 'string' ? 'texto' : typeof valor}'`,
+                            interpretador.linhaDeclaracaoAtual
+                        )
+                    );
+                }
+
+                if (typeof valor === 'number') {
+                    const matchCasas = configuracao.match(/\.(\d+)f/);
+                    const casas = matchCasas ? parseInt(matchCasas[1]) : 2;
+                    return Promise.resolve(mascara.replace(matchMascara[0], valor.toFixed(casas)));
+                }
+            }
+
+            return Promise.resolve(mascara.replace(/\{.*?\}/, String(valor)));
+        },
+        assinaturaFormato: 'texto.formatar(elemento: qualquer)',
+        documentacao:
+            '# `texto.formatar(valor)` \n\n Formata um valor com base na máscara de texto.',
+        exemploCodigo: '"{:.2f}".formatar(1.2345)',
+    },
     inclui: {
         tipoRetorno: 'lógico',
         argumentos: [
@@ -275,7 +308,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             texto: string,
             elemento: string
         ): Promise<boolean> => Promise.resolve(texto.includes(elemento)),
@@ -293,11 +325,7 @@ export default {
     inverter: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
-            texto: string
-        ): Promise<string> =>
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
             Promise.resolve(
                 texto.split('').reduce((texto, caracter) => (texto = caracter + texto), '')
             ),
@@ -314,11 +342,8 @@ export default {
     maiusculo: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
-            texto: string
-        ): Promise<string> => Promise.resolve(texto.toUpperCase()),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
+            Promise.resolve(texto.toUpperCase()),
         assinaturaFormato: 'texto.maiusculo()',
         documentacao:
             '# `texto.maiusculo()` \n \n' +
@@ -332,11 +357,8 @@ export default {
     minusculo: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
-            texto: string
-        ): Promise<string> => Promise.resolve(texto.toLowerCase()),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
+            Promise.resolve(texto.toLowerCase()),
         assinaturaFormato: 'texto.minusculo()',
         documentacao:
             '# `texto.minusculo()` \n \n' +
@@ -399,7 +421,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             texto: string,
             elemento: string,
             substituto: string
@@ -434,7 +455,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             texto: string,
             inicio: number,
             fim: number
@@ -452,11 +472,8 @@ export default {
     tamanho: {
         tipoRetorno: 'inteiro',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
-            texto: string
-        ): Promise<number> => Promise.resolve(texto.length),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<number> =>
+            Promise.resolve(texto.length),
         assinaturaFormato: 'texto.tamanho()',
         documentacao:
             '# `texto.tamanho()` \n\n' +
@@ -480,7 +497,6 @@ export default {
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
             texto: string,
             sufixo: string
         ): Promise<boolean> => Promise.resolve(texto.endsWith(sufixo)),
@@ -499,11 +515,8 @@ export default {
     tudo_maiusculo: {
         tipoRetorno: 'lógico',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
-            texto: string
-        ): Promise<boolean> => Promise.resolve(texto === texto.toUpperCase()),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<boolean> =>
+            Promise.resolve(texto === texto.toUpperCase()),
         assinaturaFormato: 'texto.tudo_maiusculo()',
         documentacao:
             '# `texto.tudo_maiusculo()` \n\n' +
@@ -519,11 +532,8 @@ export default {
     tudo_minusculo: {
         tipoRetorno: 'lógico',
         argumentos: [],
-        implementacao: (
-            interpretador: InterpretadorInterface,
-            nomePrimitiva: string,
-            texto: string
-        ): Promise<boolean> => Promise.resolve(texto === texto.toLowerCase()),
+        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<boolean> =>
+            Promise.resolve(texto === texto.toLowerCase()),
         assinaturaFormato: 'texto.tudo_minusculo()',
         documentacao:
             '# `texto.tudo_minusculo()` \n\n' +

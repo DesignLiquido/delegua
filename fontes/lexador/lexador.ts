@@ -80,6 +80,22 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
         return this.eDigito(caractere) || this.eAlfabeto(caractere);
     }
 
+    eHexDigito(caractere: string): boolean {
+        return (
+            (caractere >= '0' && caractere <= '9') ||
+            (caractere >= 'a' && caractere <= 'f') ||
+            (caractere >= 'A' && caractere <= 'F')
+        );
+    }
+
+    eBinarioDigito(caractere: string): boolean {
+        return caractere === '0' || caractere === '1';
+    }
+
+    eOctalDigito(caractere: string): boolean {
+        return caractere >= '0' && caractere <= '7';
+    }
+
     eFinalDaLinha(): boolean {
         if (this.codigo.length === this.linha) {
             return true;
@@ -110,8 +126,21 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
 
     adicionarSimbolo(tipo: string, literal: any = null): void {
         const texto: string = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
+        const lexema = literal || texto;
+        const comprimentoLexema = typeof lexema === 'string' ? lexema.length : 0;
+        const comprimento = Math.max(comprimentoLexema, texto.length) || 1;
+        const colunaInicio = this.inicioSimbolo + 1;
+        const colunaFim = this.inicioSimbolo + comprimento;
         this.simbolos.push(
-            new Simbolo(tipo, literal || texto, literal, this.linha + 1, this.hashArquivo)
+            new Simbolo(
+                tipo,
+                lexema,
+                literal,
+                this.linha + 1,
+                this.hashArquivo,
+                colunaInicio,
+                colunaFim
+            )
         );
     }
 
@@ -142,6 +171,37 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
                 break;
             }
         }
+    }
+
+    /**
+     * Lê um comentário documentário (iniciado com `/**`), agregando o conteúdo
+     * em um único token DOCUMENTARIO. Linhas com `*` inicial (convenção JSDoc)
+     * têm o asterisco removido.
+     */
+    comentarioDocumentario(): void {
+        // Cursor está no primeiro '*' de '/**'. Avança para pular o segundo '*'.
+        this.avancar();
+        let conteudo = '';
+        while (!this.eFinalDoCodigo()) {
+            this.avancar();
+            if (this.simboloAtual() === '*' && this.proximoSimbolo() === '/') {
+                // Fecha o documentário sem adicionar o '*' ao conteúdo.
+                this.avancar(); // pula '*'
+                this.avancar(); // pula '/'
+                break;
+            }
+            conteudo += this.codigo[this.linha].charAt(this.atual);
+        }
+        // Divide por '\0' (separador de linha), remove asteriscos iniciais e filtra vazios.
+        const conteudoLimpo = conteudo
+            .split('\0')
+            .map((l) => {
+                const trimmed = l.trim();
+                return trimmed.startsWith('*') ? trimmed.substring(1).trim() : trimmed;
+            })
+            .filter((l) => l.length > 0)
+            .join('\n');
+        this.adicionarSimbolo(tiposDeSimbolos.DOCUMENTARIO, conteudoLimpo || '');
     }
 
     comentarioUmaLinha(): void {
@@ -205,7 +265,87 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
         } as ErroLexador);
     }
 
+    analisarHexadecimal(): void {
+        this.avancar(); // Pula '0'
+        this.avancar(); // Pula 'x' ou 'X'
+
+        while (this.eHexDigito(this.simboloAtual())) {
+            this.avancar();
+        }
+
+        const hexString = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
+        try {
+            const bigintValue = BigInt(hexString);
+            this.adicionarSimbolo(tiposDeSimbolos.NUMERO, bigintValue);
+        } catch (e) {
+            this.erros.push({
+                linha: this.linha + 1,
+                caractere: this.simboloAnterior(),
+                mensagem: `Literal hexadecimal inválido: ${hexString}`,
+            } as ErroLexador);
+        }
+    }
+
+    analisarBinario(): void {
+        this.avancar(); // Pula '0'
+        this.avancar(); // Pula 'b' ou 'B'
+
+        while (this.eBinarioDigito(this.simboloAtual())) {
+            this.avancar();
+        }
+
+        const binaryString = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
+        try {
+            const bigintValue = BigInt(binaryString);
+            this.adicionarSimbolo(tiposDeSimbolos.NUMERO, bigintValue);
+        } catch (e) {
+            this.erros.push({
+                linha: this.linha + 1,
+                caractere: this.simboloAnterior(),
+                mensagem: `Literal binário inválido: ${binaryString}`,
+            } as ErroLexador);
+        }
+    }
+
+    analisarOctal(): void {
+        this.avancar(); // Pula '0'
+        this.avancar(); // Pula 'o' ou 'O'
+
+        while (this.eOctalDigito(this.simboloAtual())) {
+            this.avancar();
+        }
+
+        const octalString = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
+        try {
+            const bigintValue = BigInt(octalString);
+            this.adicionarSimbolo(tiposDeSimbolos.NUMERO, bigintValue);
+        } catch (e) {
+            this.erros.push({
+                linha: this.linha + 1,
+                caractere: this.simboloAnterior(),
+                mensagem: `Literal octal inválido: ${octalString}`,
+            } as ErroLexador);
+        }
+    }
+
     analisarNumero(): void {
+        // Verifica se é um literal especial (hexadecimal, binário ou octal)
+        if (this.simboloAtual() === '0') {
+            const proximoChar = this.proximoSimbolo();
+
+            if (proximoChar === 'x' || proximoChar === 'X') {
+                this.analisarHexadecimal();
+                return;
+            } else if (proximoChar === 'b' || proximoChar === 'B') {
+                this.analisarBinario();
+                return;
+            } else if (proximoChar === 'o' || proximoChar === 'O') {
+                this.analisarOctal();
+                return;
+            }
+        }
+
+        // Análise de número decimal normal
         while (this.eDigito(this.simboloAtual())) {
             this.avancar();
         }
@@ -385,7 +525,7 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
                 break;
 
             case '^':
-                this.adicionarSimbolo(tiposDeSimbolos.BIT_XOR);
+                this.adicionarSimbolo(tiposDeSimbolos.CIRCUMFLEXO);
                 this.avancar();
                 break;
 
@@ -425,7 +565,11 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
                         this.comentarioUmaLinha();
                         break;
                     case '*':
-                        this.comentarioMultilinha();
+                        if (this.proximoSimbolo() === '*') {
+                            this.comentarioDocumentario();
+                        } else {
+                            this.comentarioMultilinha();
+                        }
                         break;
                     case '=':
                         this.adicionarSimbolo(tiposDeSimbolos.DIVISAO_IGUAL, '/=');
