@@ -101,9 +101,15 @@ _start:`;
         if (valor === registrador) return;
         if (valor === 'null') {
             this.text += `\n    li ${registrador}, 0`;
-        } else if (/^-?\d+(\.\d+)?$/.test(valor) || valor === 'true' || valor === 'false') {
+        } else if (/^-?\d+$/.test(valor) || valor === 'true' || valor === 'false') {
             const numVal = valor === 'true' ? '1' : valor === 'false' ? '0' : valor;
             this.text += `\n    li ${registrador}, ${numVal}`;
+        } else if (/^-?\d+\.\d+$/.test(valor)) {
+            // Ponto flutuante: armazenar em .data e carregar endereço.
+            // Operações FPU não são suportadas por esta implementação básica.
+            const floatLabel = `float_${this.gerarDigitoAleatorio()}`;
+            this.data += `    ${floatLabel}: .double ${valor}\n`;
+            this.text += `\n    la ${registrador}, ${floatLabel}`;
         } else {
             this.text += `\n    la ${registrador}, ${valor}`;
         }
@@ -111,7 +117,7 @@ _start:`;
 
     dicionarioConstrutos = {
         AcessoIndiceVariavel: this.traduzirAcessoIndiceVariavel.bind(this),
-        AcessoMetodoOuPropriedade: this.trazudirConstrutoAcessoMetodo.bind(this),
+        AcessoMetodoOuPropriedade: this.traduzirConstrutoAcessoMetodo.bind(this),
         Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
         AtribuicaoPorIndice: this.traduzirConstrutoAtribuicaoPorIndice.bind(this),
         Atribuir: this.traduzirConstrutoAtribuir.bind(this),
@@ -173,7 +179,7 @@ _start:`;
         return 'a0';
     }
 
-    trazudirConstrutoAcessoMetodo(construto: AcessoMetodo): string {
+    traduzirConstrutoAcessoMetodo(construto: AcessoMetodo): string {
         const objeto = this.dicionarioConstrutos[construto.objeto.constructor.name](construto.objeto);
         return `${objeto}_${construto.nomeMetodo}`;
     }
@@ -433,22 +439,21 @@ ${labelFim}:`;
 
     traduzirConstrutoVetor(construto: Vetor): string {
         const labelVetor = `vetor_${this.gerarDigitoAleatorio()}`;
-        const tamanho = construto.valores?.length || 0;
+        // `elementos` filtra nós sintáticos (Separador, ComentarioComoConstruto)
+        const elementos = construto.elementos;
 
         // Cada elemento ocupa 8 bytes em rv64
-        this.bss += `    ${labelVetor}: .space ${tamanho * 8}\n`;
+        this.bss += `    ${labelVetor}: .space ${elementos.length * 8}\n`;
 
-        if (construto.valores && Array.isArray(construto.valores)) {
-            construto.valores.forEach((valor: Construto, index: number) => {
-                if (this.dicionarioConstrutos[valor.constructor.name]) {
-                    const valorTraduzido = this.dicionarioConstrutos[valor.constructor.name](valor);
-                    this.emitirCarga('a0', valorTraduzido);
-                    this.text += `
+        elementos.forEach((valor: Construto, index: number) => {
+            if (this.dicionarioConstrutos[valor.constructor.name]) {
+                const valorTraduzido = this.dicionarioConstrutos[valor.constructor.name](valor);
+                this.emitirCarga('a0', valorTraduzido);
+                this.text += `
     la a1, ${labelVetor}
     sd a0, ${index * 8}(a1)`;
-                }
-            });
-        }
+            }
+        });
 
         return labelVetor;
     }
