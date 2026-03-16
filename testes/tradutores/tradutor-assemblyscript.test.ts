@@ -441,6 +441,136 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
             });
         });
 
+        describe('Fase 5: Fluxo de Controle', () => {
+            it('enquanto -> while', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var i: inteiro = 0',
+                    'enquanto (i < 10) {',
+                    '    i = i + 1',
+                    '}'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('while (');
+                expect(resultado).toContain('i < 10');
+                expect(resultado).not.toContain('enquanto');
+            });
+
+            it('para -> for', async () => {
+                const retornoLexador = lexador.mapear([
+                    'para (var i = 0; i < 10; i = i + 1) {',
+                    '    escreva(i)',
+                    '}'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('for (');
+                expect(resultado).toContain('i < 10');
+                expect(resultado).not.toContain('para (');
+            });
+
+            it('escolha -> switch/case com padrão', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var x: inteiro = 1',
+                    'escolha (x) {',
+                    '    caso 1:',
+                    '        escreva("um")',
+                    '    caso 2:',
+                    '        escreva("dois")',
+                    '    padrao:',
+                    '        escreva("outro")',
+                    '}'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('switch (');
+                expect(resultado).toContain('case');
+                expect(resultado).toContain('break');
+                expect(resultado).toContain('default:');
+                expect(resultado).not.toContain('escolha');
+            });
+
+            it('fazer/enquanto -> do/while', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var i: inteiro = 0',
+                    'fazer { i = i + 1 } enquanto (i < 5)'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('do ');
+                expect(resultado).toContain('while (');
+                expect(resultado).toContain('i < 5');
+                expect(resultado).not.toContain('fazer');
+            });
+
+            it('retorna -> return com expressão', async () => {
+                const retornoLexador = lexador.mapear([
+                    'funcao soma(a: inteiro, b: inteiro): inteiro {',
+                    '    retorna a + b',
+                    '}'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('return ');
+                expect(resultado).toContain('a + b');
+                expect(resultado).not.toContain('retorna');
+            });
+        });
+
+        describe('Fase 6: Expressões', () => {
+            it('operador lógico ou -> ||', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var a: logico = verdadeiro',
+                    'var b: logico = falso',
+                    'var r: logico = a ou b'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('||');
+                expect(resultado).not.toContain(' ou ');
+            });
+
+            it('operador ternário -> condição ? a : b', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var x: inteiro = 5',
+                    'var categoria: texto = x > 3 ? "grande" : "pequeno"'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toMatch(/x > 3 \? "grande" : "pequeno"/);
+            });
+
+            it('atribuição de variável -> x = valor', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var x: inteiro = 0',
+                    'x = 42'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('x = 42');
+            });
+
+            it('acesso a índice de vetor -> vetor[i]', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var nums: inteiro[] = [1, 2, 3]',
+                    'escreva(nums[1])'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('nums[1]');
+            });
+
+            it('atribuição por índice -> vetor[i] = valor', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var nums: inteiro[] = [1, 2, 3]',
+                    'nums[0] = 99'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('nums[0] = 99');
+            });
+        });
+
         describe('Fase 4: Tipos de Tupla', () => {
             it('dupla - 2 elementos', async () => {
                 const retornoLexador = lexador.mapear(['var par = (1, 2)'], -1);

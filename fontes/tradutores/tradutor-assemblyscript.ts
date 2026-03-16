@@ -891,7 +891,7 @@ export class TradutorAssemblyScript {
         this.indentacao += 4;
         resultado += ' '.repeat(this.indentacao);
 
-        for (let condicao of caminho.condicoes) {
+        for (let condicao of (caminho.condicoes || [])) {
             resultado +=
                 'case ' + this.dicionarioConstrutos[condicao.constructor.name](condicao) + ':\n';
             resultado += ' '.repeat(this.indentacao);
