@@ -331,12 +331,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
                 }
 
                 const tipoVetor = inferirTipoVariavel(valores);
-                return new Vetor(
-                    this.hashArquivo,
-                    Number(simboloAtual.linha),
-                    valores,
-                    tipoVetor
-                );
+                return new Vetor(this.hashArquivo, Number(simboloAtual.linha), valores, tipoVetor);
 
             case tiposDeSimbolos.EXPRESSAO_REGULAR:
                 let valor: string = '';

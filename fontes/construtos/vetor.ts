@@ -10,12 +10,7 @@ export class Vetor implements Construto {
 
     valores: Construto[];
 
-    constructor(
-        hashArquivo: number,
-        linha: number,
-        valores: Construto[],
-        tipo?: string
-    ) {
+    constructor(hashArquivo: number, linha: number, valores: Construto[], tipo?: string) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
         this.tipo = tipo;

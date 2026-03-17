@@ -278,10 +278,7 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
     analisarNumero(): void {
         const linhaInicial = this.linha;
 
-        while (
-            this.linha === linhaInicial &&
-            this.eDigito(this.simboloAtual())
-        ) this.avancar();
+        while (this.linha === linhaInicial && this.eDigito(this.simboloAtual())) this.avancar();
 
         const temPonto = this.simboloAtual() === '.';
         const proximoEhDigito = this.eDigito(this.proximoSimbolo());
@@ -289,10 +286,7 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
         if (this.linha === linhaInicial && temPonto && proximoEhDigito) {
             this.avancar();
 
-            while (
-                this.linha === linhaInicial &&
-                this.eDigito(this.simboloAtual())
-            ) this.avancar();
+            while (this.linha === linhaInicial && this.eDigito(this.simboloAtual())) this.avancar();
         }
 
         let numeroCompleto: string;
@@ -302,10 +296,7 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
                 this.codigo[linhaInicial].length
             );
         } else {
-            numeroCompleto = this.codigo[this.linha].substring(
-                this.inicioSimbolo,
-                this.atual
-            );
+            numeroCompleto = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
         }
 
         this.simbolos.push(

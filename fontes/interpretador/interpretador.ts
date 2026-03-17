@@ -345,9 +345,12 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         if (declaracao.decoradores && declaracao.decoradores.length > 0) {
             for (const decorador of [...declaracao.decoradores].reverse()) {
                 const nomeDecorador = decorador.nome.slice(1);
-                const variavelDecoradora = this.pilhaEscoposExecucao.obterVariavelPorNome(nomeDecorador);
+                const variavelDecoradora =
+                    this.pilhaEscoposExecucao.obterVariavelPorNome(nomeDecorador);
                 const funcaoDecoradora: DeleguaFuncao = variavelDecoradora.valor;
-                const resultado = await funcaoDecoradora.chamar(this, [{ nome: null, valor: funcao }]);
+                const resultado = await funcaoDecoradora.chamar(this, [
+                    { nome: null, valor: funcao },
+                ]);
                 funcao = this.resolverValorRecursivo(resultado);
             }
         }

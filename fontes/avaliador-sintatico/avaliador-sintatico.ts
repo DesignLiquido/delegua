@@ -628,12 +628,7 @@ export class AvaliadorSintatico
                     (v) => v.constructor !== Separador
                 );
                 const tipoVetor = inferirTipoVariavel(valoresSemSeparadores);
-                return new Vetor(
-                    this.hashArquivo,
-                    Number(simboloAtual.linha),
-                    valores,
-                    tipoVetor
-                );
+                return new Vetor(this.hashArquivo, Number(simboloAtual.linha), valores, tipoVetor);
 
             case tiposDeSimbolos.ENQUANTO:
                 this.avancarEDevolverAnterior();
@@ -4305,7 +4300,9 @@ export class AvaliadorSintatico
                 ) {
                     this.avancarEDevolverAnterior();
                     const declaracaoFuncao = (await this.funcao('funcao')) as FuncaoDeclaracao;
-                    declaracaoFuncao.documentacao = new ComentarioComoConstruto(simboloDocumentario);
+                    declaracaoFuncao.documentacao = new ComentarioComoConstruto(
+                        simboloDocumentario
+                    );
                     return declaracaoFuncao;
                 }
 

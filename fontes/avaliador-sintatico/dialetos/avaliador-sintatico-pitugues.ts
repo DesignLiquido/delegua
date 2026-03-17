@@ -670,15 +670,9 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         }
     }
 
-    erro(
-        simbolo: SimboloInterface,
-        mensagemDeErro: string
-    ): ErroAvaliadorSintatico {
+    erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico {
         const simboloParaErro = simbolo || this.simboloAnterior();
-        const excecao = new ErroAvaliadorSintatico(
-            simboloParaErro,
-            mensagemDeErro
-        );
+        const excecao = new ErroAvaliadorSintatico(simboloParaErro, mensagemDeErro);
         this.erros.push(excecao);
 
         return excecao;
@@ -813,12 +807,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                 }
 
                 const tipoVetor = inferirTipoVariavel(valoresVetor);
-                return new Vetor(
-                    this.hashArquivo,
-                    simboloAtual.linha,
-                    valoresVetor,
-                    tipoVetor
-                );
+                return new Vetor(this.hashArquivo, simboloAtual.linha, valoresVetor, tipoVetor);
 
             case tiposDeSimbolos.COMENTARIO:
                 const simboloComentario = this.avancarEDevolverAnterior();
@@ -1450,10 +1439,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         const simboloAnterior = this.simboloAnterior();
 
         if (!simboloAtual) {
-            throw this.erro(
-                simboloAnterior,
-                'Esperado corpo do escopo após a declaração.'
-            );
+            throw this.erro(simboloAnterior, 'Esperado corpo do escopo após a declaração.');
         }
 
         // Declaração na mesma linha (ex: 'se verdadeiro: escreva("Oi")')
@@ -1462,12 +1448,8 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             if (retorno !== null) declaracoes = declaracoes.concat(retorno);
         } else {
             // Bloco de múltiplas linhas baseado em indentação
-            let espacosAtual = this
-                .localizacoes[simboloAtual.linha]
-                .espacosIndentacao;
-            const espacosAnterior = this
-                .localizacoes[simboloAnterior.linha]
-                .espacosIndentacao;
+            let espacosAtual = this.localizacoes[simboloAtual.linha].espacosIndentacao;
+            const espacosAnterior = this.localizacoes[simboloAnterior.linha].espacosIndentacao;
 
             if (espacosAtual <= espacosAnterior) {
                 throw this.erro(
@@ -1487,9 +1469,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
 
                 simboloAtual = this.simboloAtual();
                 if (simboloAtual) {
-                    espacosAtual = this
-                        .localizacoes[simboloAtual.linha]
-                        .espacosIndentacao;
+                    espacosAtual = this.localizacoes[simboloAtual.linha].espacosIndentacao;
                 }
             }
         }
@@ -2031,10 +2011,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             tipoDaFuncao,
             decoradores
         );
-        this.pilhaEscopos.registrarReferenciaFuncao(
-            simbolo.lexema,
-            funcaoDeclaracao
-        );
+        this.pilhaEscopos.registrarReferenciaFuncao(simbolo.lexema, funcaoDeclaracao);
 
         return funcaoDeclaracao;
     }

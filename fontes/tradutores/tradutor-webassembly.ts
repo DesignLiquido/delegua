@@ -55,7 +55,6 @@ interface ContextoFuncao {
 }
 
 export class TradutorWebAssembly {
-
     // ── Seções do módulo WAT ───────────────────────────────────────────────
 
     /** Segmentos de dados estáticos para strings literais */
@@ -140,13 +139,13 @@ export class TradutorWebAssembly {
         let watLiteral = '';
         for (const byte of bytes) {
             if (byte === 0x22) {
-                watLiteral += '\\"';          // aspas duplas
+                watLiteral += '\\"'; // aspas duplas
             } else if (byte === 0x5c) {
-                watLiteral += '\\\\';         // contrabarra
+                watLiteral += '\\\\'; // contrabarra
             } else if (byte >= 0x20 && byte <= 0x7e) {
-                watLiteral += String.fromCharCode(byte);   // ASCII imprimível
+                watLiteral += String.fromCharCode(byte); // ASCII imprimível
             } else {
-                watLiteral += `\\${byte.toString(16).padStart(2, '0')}`;  // \xx
+                watLiteral += `\\${byte.toString(16).padStart(2, '0')}`; // \xx
             }
         }
         return { watLiteral, byteLen: bytes.length };
@@ -263,21 +262,21 @@ export class TradutorWebAssembly {
     // =========================================================================
 
     dicionarioConstrutos = {
-        AcessoIndiceVariavel:    this.traduzirAcessoIndiceVariavel.bind(this),
+        AcessoIndiceVariavel: this.traduzirAcessoIndiceVariavel.bind(this),
         AcessoMetodoOuPropriedade: this.traduzirAcessoMetodo.bind(this),
-        Agrupamento:             this.traduzirAgrupamento.bind(this),
-        AtribuicaoPorIndice:     this.traduzirAtribuicaoPorIndice.bind(this),
-        Atribuir:                this.traduzirAtribuir.bind(this),
-        Binario:                 this.traduzirBinario.bind(this),
-        Chamada:                 this.traduzirChamada.bind(this),
-        DefinirValor:            this.traduzirDefinirValor.bind(this),
-        FuncaoConstruto:         this.traduzirFuncaoConstruto.bind(this),
-        Literal:                 this.traduzirLiteral.bind(this),
-        Logico:                  this.traduzirLogico.bind(this),
-        TipoDe:                  this.traduzirTipoDe.bind(this),
-        Unario:                  this.traduzirUnario.bind(this),
-        Variavel:                this.traduzirVariavel.bind(this),
-        Vetor:                   this.traduzirVetor.bind(this),
+        Agrupamento: this.traduzirAgrupamento.bind(this),
+        AtribuicaoPorIndice: this.traduzirAtribuicaoPorIndice.bind(this),
+        Atribuir: this.traduzirAtribuir.bind(this),
+        Binario: this.traduzirBinario.bind(this),
+        Chamada: this.traduzirChamada.bind(this),
+        DefinirValor: this.traduzirDefinirValor.bind(this),
+        FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
+        Literal: this.traduzirLiteral.bind(this),
+        Logico: this.traduzirLogico.bind(this),
+        TipoDe: this.traduzirTipoDe.bind(this),
+        Unario: this.traduzirUnario.bind(this),
+        Variavel: this.traduzirVariavel.bind(this),
+        Vetor: this.traduzirVetor.bind(this),
     };
 
     // =========================================================================
@@ -285,26 +284,26 @@ export class TradutorWebAssembly {
     // =========================================================================
 
     dicionarioDeclaracoes = {
-        Bloco:             this.traduzirBloco.bind(this),
-        Classe:            this.traduzirClasse.bind(this),
-        Const:             this.traduzirConst.bind(this),
-        Continua:          this.traduzirContinua.bind(this),
-        Enquanto:          this.traduzirEnquanto.bind(this),
-        Escolha:           this.traduzirEscolha.bind(this),
-        Escreva:           this.traduzirEscreva.bind(this),
+        Bloco: this.traduzirBloco.bind(this),
+        Classe: this.traduzirClasse.bind(this),
+        Const: this.traduzirConst.bind(this),
+        Continua: this.traduzirContinua.bind(this),
+        Enquanto: this.traduzirEnquanto.bind(this),
+        Escolha: this.traduzirEscolha.bind(this),
+        Escreva: this.traduzirEscreva.bind(this),
         EscrevaMesmaLinha: this.traduzirEscreva.bind(this),
-        Expressao:         this.traduzirExpressao.bind(this),
-        Falhar:            this.traduzirFalhar.bind(this),
-        Fazer:             this.traduzirFazer.bind(this),
-        FuncaoDeclaracao:  this.traduzirFuncaoDeclaracao.bind(this),
-        Importar:          this.traduzirImportar.bind(this),
-        Para:              this.traduzirPara.bind(this),
-        ParaCada:          this.traduzirParaCada.bind(this),
-        Retorna:           this.traduzirRetorna.bind(this),
-        Se:                this.traduzirSe.bind(this),
-        Sustar:            this.traduzirSustar.bind(this),
-        Tente:             this.traduzirTente.bind(this),
-        Var:               this.traduzirVar.bind(this),
+        Expressao: this.traduzirExpressao.bind(this),
+        Falhar: this.traduzirFalhar.bind(this),
+        Fazer: this.traduzirFazer.bind(this),
+        FuncaoDeclaracao: this.traduzirFuncaoDeclaracao.bind(this),
+        Importar: this.traduzirImportar.bind(this),
+        Para: this.traduzirPara.bind(this),
+        ParaCada: this.traduzirParaCada.bind(this),
+        Retorna: this.traduzirRetorna.bind(this),
+        Se: this.traduzirSe.bind(this),
+        Sustar: this.traduzirSustar.bind(this),
+        Tente: this.traduzirTente.bind(this),
+        Var: this.traduzirVar.bind(this),
     };
 
     // =========================================================================
@@ -358,19 +357,30 @@ export class TradutorWebAssembly {
         const op = construto.operador.lexema;
 
         switch (op) {
-            case '+':  return `(i64.add ${esq} ${dir})`;
-            case '-':  return `(i64.sub ${esq} ${dir})`;
-            case '*':  return `(i64.mul ${esq} ${dir})`;
-            case '/':  return `(i64.div_s ${esq} ${dir})`;
-            case '%':  return `(i64.rem_s ${esq} ${dir})`;
-            case '<':  return `(i64.extend_i32_s (i64.lt_s ${esq} ${dir}))`;
-            case '>':  return `(i64.extend_i32_s (i64.gt_s ${esq} ${dir}))`;
-            case '<=': return `(i64.extend_i32_s (i64.le_s ${esq} ${dir}))`;
-            case '>=': return `(i64.extend_i32_s (i64.ge_s ${esq} ${dir}))`;
+            case '+':
+                return `(i64.add ${esq} ${dir})`;
+            case '-':
+                return `(i64.sub ${esq} ${dir})`;
+            case '*':
+                return `(i64.mul ${esq} ${dir})`;
+            case '/':
+                return `(i64.div_s ${esq} ${dir})`;
+            case '%':
+                return `(i64.rem_s ${esq} ${dir})`;
+            case '<':
+                return `(i64.extend_i32_s (i64.lt_s ${esq} ${dir}))`;
+            case '>':
+                return `(i64.extend_i32_s (i64.gt_s ${esq} ${dir}))`;
+            case '<=':
+                return `(i64.extend_i32_s (i64.le_s ${esq} ${dir}))`;
+            case '>=':
+                return `(i64.extend_i32_s (i64.ge_s ${esq} ${dir}))`;
             case '==':
-            case '===': return `(i64.extend_i32_s (i64.eq ${esq} ${dir}))`;
+            case '===':
+                return `(i64.extend_i32_s (i64.eq ${esq} ${dir}))`;
             case '!=':
-            case '!==': return `(i64.extend_i32_s (i64.ne ${esq} ${dir}))`;
+            case '!==':
+                return `(i64.extend_i32_s (i64.ne ${esq} ${dir}))`;
             default:
                 return `(i64.const 0) ;; operador não suportado: ${op}`;
         }
@@ -624,7 +634,11 @@ export class TradutorWebAssembly {
         this.emitir(`  (i32.wrap_i64 ${condicao})`);
         this.emitir(`  (then`);
 
-        if (this.dicionarioDeclaracoes[declaracao.caminhoEntao.constructor.name as keyof typeof this.dicionarioDeclaracoes]) {
+        if (
+            this.dicionarioDeclaracoes[
+                declaracao.caminhoEntao.constructor.name as keyof typeof this.dicionarioDeclaracoes
+            ]
+        ) {
             const corpoPrevio = this.corpoDaFuncaoAtual;
             this.corpoDaFuncaoAtual = '';
             this.traduzirDeclaracaoInterna(declaracao.caminhoEntao);
@@ -970,12 +984,7 @@ export class TradutorWebAssembly {
             return `  (data (i32.const ${s.deslocamento}) "${watLiteral}")`;
         });
 
-        const partes: string[] = [
-            '(module',
-            ...linhasImports,
-            '',
-            linhaMemoria,
-        ];
+        const partes: string[] = ['(module', ...linhasImports, '', linhaMemoria];
 
         if (linhasDados.length > 0) {
             partes.push('');

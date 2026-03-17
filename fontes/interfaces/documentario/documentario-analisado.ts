@@ -1,5 +1,5 @@
-import { ParametroDoc } from "./parametro-doc";
-import { RetornaDoc } from "./retorna-doc";
+import { ParametroDoc } from './parametro-doc';
+import { RetornaDoc } from './retorna-doc';
 
 export interface DocumentarioAnalisado {
     descricao: string;

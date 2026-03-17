@@ -166,7 +166,9 @@ _start:`;
         }
         if (!nomeVar) nomeVar = 'unknown';
 
-        const indice = this.dicionarioConstrutos[construto.indice.constructor.name](construto.indice);
+        const indice = this.dicionarioConstrutos[construto.indice.constructor.name](
+            construto.indice
+        );
 
         const reg = this.obterRegistrador();
         this.text += `\n    la ${reg}, ${nomeVar}`;
@@ -180,7 +182,9 @@ _start:`;
     }
 
     traduzirConstrutoAcessoMetodo(construto: AcessoMetodo): string {
-        const objeto = this.dicionarioConstrutos[construto.objeto.constructor.name](construto.objeto);
+        const objeto = this.dicionarioConstrutos[construto.objeto.constructor.name](
+            construto.objeto
+        );
         return `${objeto}_${construto.nomeMetodo}`;
     }
 
@@ -195,7 +199,9 @@ _start:`;
         }
         if (!nomeVar) nomeVar = 'unknown';
 
-        const indice = this.dicionarioConstrutos[construto.indice.constructor.name](construto.indice);
+        const indice = this.dicionarioConstrutos[construto.indice.constructor.name](
+            construto.indice
+        );
         const valor = this.dicionarioConstrutos[construto.valor.constructor.name](construto.valor);
 
         const reg = this.obterRegistrador();
@@ -553,9 +559,9 @@ ${labelProximo}:`;
         }
 
         if (declaracao.condicaoEnquanto) {
-            const condicao = this.dicionarioConstrutos[declaracao.condicaoEnquanto.constructor.name](
-                declaracao.condicaoEnquanto
-            );
+            const condicao = this.dicionarioConstrutos[
+                declaracao.condicaoEnquanto.constructor.name
+            ](declaracao.condicaoEnquanto);
             if (condicao !== 'a0') {
                 this.emitirCarga('a0', condicao);
             }
@@ -804,7 +810,9 @@ ${labelSenao}:`;
                 const labelVetor = this.traduzirConstrutoVetor(declaracao.inicializador);
                 this.variaveis.set(nomeVar, labelVetor);
             } else if (this.dicionarioConstrutos[tipoInicializador]) {
-                const valor = this.dicionarioConstrutos[tipoInicializador](declaracao.inicializador);
+                const valor = this.dicionarioConstrutos[tipoInicializador](
+                    declaracao.inicializador
+                );
                 this.emitirCarga('a0', valor);
                 this.text += `
     la a1, ${varLabel}

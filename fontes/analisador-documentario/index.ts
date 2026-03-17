@@ -1,4 +1,4 @@
-import { DocumentarioAnalisado } from "../interfaces/documentario/documentario-analisado";
+import { DocumentarioAnalisado } from '../interfaces/documentario/documentario-analisado';
 
 const REGEX_PARAMETRO = /^@(?:par[aâ]metro|param)\s+(?:\{([^}]+)\}\s+)?(\S+)\s*(.*)$/;
 const REGEX_RETORNA = /^@(?:retorna)\s*(?:\{([^}]+)\}\s*)?(.*)$/;

@@ -253,9 +253,7 @@ export class InterpretadorPitugues extends Interpretador {
         return retornoExecucao;
     }
 
-    override async visitarExpressaoRetornar(
-        declaracao: Retorna
-    ): Promise<RetornoQuebra> {
+    override async visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
         let valor = null;
         if (declaracao.valor !== null && declaracao.valor !== undefined) {
             valor = await this.avaliar(declaracao.valor);
@@ -266,7 +264,8 @@ export class InterpretadorPitugues extends Interpretador {
         if (retornoQuebra.valor) {
             const valorResolvido = this.resolverValor(retornoQuebra.valor);
             const construtorRetorno = valorResolvido?.constructor?.name?.replaceAll('_', '') ?? '';
-            if (['DeleguaFuncao', 'ReferenciaMontao'].includes(construtorRetorno)) retornoQuebra.preservarEscopo = true;
+            if (['DeleguaFuncao', 'ReferenciaMontao'].includes(construtorRetorno))
+                retornoQuebra.preservarEscopo = true;
         }
 
         return retornoQuebra;

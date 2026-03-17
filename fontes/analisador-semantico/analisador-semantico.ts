@@ -622,7 +622,14 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         }
 
         const operadoresMatematicos = ['ADICAO', 'SUBTRACAO', 'MULTIPLICACAO', 'DIVISAO', 'MODULO'];
-        const operadoresComparacao = ['MAIOR', 'MAIOR_IGUAL', 'MENOR', 'MENOR_IGUAL', 'IGUAL', 'DIFERENTE'];
+        const operadoresComparacao = [
+            'MAIOR',
+            'MAIOR_IGUAL',
+            'MENOR',
+            'MENOR_IGUAL',
+            'IGUAL',
+            'DIFERENTE',
+        ];
 
         if (operadoresMatematicos.includes(binario.operador.tipo)) {
             this.verificarTiposOperandos(binario);
