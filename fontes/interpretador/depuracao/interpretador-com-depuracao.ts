@@ -6,7 +6,7 @@ import { ComandoDepurador, InterpretadorComDepuracaoInterface } from '../../inte
 import { TipoEscopoExecucao } from '../../interfaces/escopo-execucao';
 import { RetornoQuebra } from '../../quebras';
 import { RetornoInterpretadorInterface } from '../../interfaces/retornos/retorno-interpretador-interface';
-import { Binario, Chamada, Construto } from '../../construtos';
+import { AtribuicaoPorIndice, Atribuir, Binario, Chamada, Construto } from '../../construtos';
 import { Interpretador } from '../interpretador';
 import { EspacoMemoria } from '../espaco-memoria';
 
@@ -102,10 +102,20 @@ export class InterpretadorComDepuracao
     }
 
     override async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
+        if (this.constructor !== InterpretadorComDepuracao) {
+            return await super.avaliarArgumentosEscreva(argumentos);
+        }
+
         let formatoTexto: string = '';
 
         for (const argumento of argumentos) {
             const resultadoAvaliacao = await this.avaliar(argumento);
+
+            if (argumento instanceof Atribuir || argumento instanceof AtribuicaoPorIndice) {
+                formatoTexto += `${argumento.paraTexto()} `;
+                continue;
+            }
+
             let valor = this.resolverValor(resultadoAvaliacao);
             formatoTexto += `${this.paraTexto(valor)} `;
         }

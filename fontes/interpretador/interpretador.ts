@@ -3,6 +3,7 @@ import {
     AcessoMetodo,
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
+    Construto,
     Agrupamento,
     AtribuicaoPorIndice,
     Atribuir,
@@ -113,6 +114,35 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
      */
     protected pontoInicializacaoBibliotecasGlobais() {
         carregarBibliotecasGlobais(this.pilhaEscoposExecucao);
+    }
+
+    protected override async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
+        if (this.constructor !== Interpretador) {
+            return await super.avaliarArgumentosEscreva(argumentos);
+        }
+
+        let formatoTexto = '';
+
+        for (const argumento of argumentos) {
+            let resultadoAvaliacao = await this.avaliar(argumento);
+            if (
+                resultadoAvaliacao &&
+                resultadoAvaliacao.hasOwnProperty &&
+                resultadoAvaliacao.hasOwnProperty('valorRetornado')
+            ) {
+                resultadoAvaliacao = resultadoAvaliacao.valorRetornado;
+            }
+
+            if (argumento instanceof Atribuir || argumento instanceof AtribuicaoPorIndice) {
+                formatoTexto += `${argumento.paraTexto()} `;
+                continue;
+            }
+
+            const valor = this.resolverValor(resultadoAvaliacao);
+            formatoTexto += `${this.paraTexto(valor)} `;
+        }
+
+        return formatoTexto.trimEnd();
     }
 
     protected resolverReferenciaMontao(referenciaMontao: ReferenciaMontao) {
