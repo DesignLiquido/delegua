@@ -164,7 +164,7 @@ export async function aleatorioEntre(
     minimo: VariavelInterface | number,
     maximo: VariavelInterface | number
 ): Promise<number> {
-    if (arguments.length <= 0) {
+    if (arguments.length <= 1) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 {
@@ -176,9 +176,7 @@ export async function aleatorioEntre(
         );
     }
 
-    const valorMinimo = minimo.hasOwnProperty('valor')
-        ? (minimo as VariavelInterface).valor
-        : minimo;
+    const valorMinimo = interpretador.resolverValor(minimo);
 
     if (arguments.length === 2) {
         if (typeof valorMinimo !== 'number') {
@@ -208,9 +206,7 @@ export async function aleatorioEntre(
         );
     }
 
-    const valorMaximo = maximo.hasOwnProperty('valor')
-        ? (maximo as VariavelInterface).valor
-        : maximo;
+    const valorMaximo = interpretador.resolverValor(maximo);
 
     if (typeof valorMinimo !== 'number' || typeof valorMaximo !== 'number') {
         return Promise.reject(

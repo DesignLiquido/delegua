@@ -44,10 +44,8 @@ describe('Biblioteca Global', () => {
         it('Falha - não é passado nenhum parâmetro', async () => {
             const retornoLexador = lexador.mapear(["escreva(aleatorioEntre())"], -1);
             const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-            
-            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-            
-            expect(retornoInterpretador.erros).toHaveLength(1);
+
+            expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
         });
         
     });
@@ -96,12 +94,8 @@ describe('Biblioteca Global', () => {
             );
             
             const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-            
-            const retornoInterpretador = await interpretador.interpretar(
-                retornoAvaliadorSintatico.declaracoes
-            );
-            
-            expect(retornoInterpretador.erros).toHaveLength(1);
+
+            expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
         });
         
         

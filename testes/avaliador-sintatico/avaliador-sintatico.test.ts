@@ -1486,6 +1486,28 @@ describe('Avaliador sintático', () => {
             });
 
             describe('Funções nativas', () => {
+                it('aleatorioEntre - erro quando chamada sem argumentos', async () => {
+                    const codigo = [
+                        'escreva(aleatorioEntre())'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                });
+
+                it('algum - erro quando segundo argumento não é função', async () => {
+                    const codigo = [
+                        "escreva(algum([1, 2, 3], 'texto'))"
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                });
+
                 it('filtrarPor - Função de mapeamento inválida', async () => {
                     const codigo = [
                         "var f = 'Sou uma função'",

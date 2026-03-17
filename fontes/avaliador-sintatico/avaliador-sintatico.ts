@@ -1351,6 +1351,30 @@ export class AvaliadorSintatico
         if (entidadeChamada.constructor === Variavel) {
             const entidadeChamadaResolvidaVariavel = entidadeChamada as Variavel;
 
+            const informacoesFuncaoBibliotecaGlobal = this.pilhaEscopos.obterBibliotecaGlobal(
+                entidadeChamadaResolvidaVariavel.simbolo.lexema
+            ) as InformacaoElementoSintatico;
+
+            if (
+                informacoesFuncaoBibliotecaGlobal &&
+                Array.isArray(informacoesFuncaoBibliotecaGlobal.subElementos) &&
+                informacoesFuncaoBibliotecaGlobal.subElementos.length > 0
+            ) {
+                const erros = this.validarArgumentosEntidadeChamada(
+                    informacoesFuncaoBibliotecaGlobal.subElementos as InformacaoElementoSintatico[],
+                    argumentos
+                );
+
+                if (erros.length > 0) {
+                    throw new ErroAvaliadorSintatico(
+                        entidadeChamadaResolvidaVariavel.simbolo,
+                        `Erros ao resolver argumentos de chamada a ${entidadeChamadaResolvidaVariavel.simbolo.lexema}: \n${erros.reduce((mensagem, erro) => (mensagem += `${erro}\n`), '')}`
+                    );
+                }
+
+                return entidadeChamadaResolvidaVariavel;
+            }
+
             if (tipoPrimitiva === 'qualquer') {
                 // Provavelmente uma chamada a alguma função da biblioteca global.
                 // Até então, é sempre do tipo `InformacaoElementoSintatico`.
