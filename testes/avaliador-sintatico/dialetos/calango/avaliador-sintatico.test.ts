@@ -75,6 +75,74 @@ describe('Avaliador sintático (Calango)', () => {
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(9);
         });
 
+        it('Sucesso - enquanto / fimEnquanto', async () => {
+            const retornoLexador = lexador.mapear([
+                'algoritmo tituloDoAlgoritmo;',
+                'principal',
+                'inteiro i;',
+                'i = 0;',
+                'enquanto (i < 3) faca',
+                'i = i + 1;',
+                'fimEnquanto',
+                'fimPrincipal',
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+        });
+
+        it('Sucesso - faca / enquanto (do-while)', async () => {
+            const retornoLexador = lexador.mapear([
+                'algoritmo tituloDoAlgoritmo;',
+                'principal',
+                'inteiro i;',
+                'i = 0;',
+                'faca',
+                'i = i + 1;',
+                'enquanto (i < 3)',
+                'fimPrincipal',
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            // 1 Var + 1 Atribuir + 1 Fazer
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+        });
+
+        it('Sucesso - para / ate / passo / fimPara (passo explícito)', async () => {
+            const retornoLexador = lexador.mapear([
+                'algoritmo tituloDoAlgoritmo;',
+                'principal',
+                'inteiro i;',
+                'para i de 1 ate 5 passo 1 faca',
+                'escreval(i);',
+                'fimPara',
+                'fimPrincipal',
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            // 1 declaracao Var + 1 Para
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+        });
+
+        it('Sucesso - para / ate / fimPara (passo implícito)', async () => {
+            const retornoLexador = lexador.mapear([
+                'algoritmo tituloDoAlgoritmo;',
+                'principal',
+                'inteiro i;',
+                'para i de 1 ate 3 faca',
+                'escreval(i);',
+                'fimPara',
+                'fimPrincipal',
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+        });
+
         it('Sucesso - Condicionais (se, senao)', async () => {
             const retornoLexador = lexador.mapear([
                 'algoritmo tituloDoAlgoritmo;', 

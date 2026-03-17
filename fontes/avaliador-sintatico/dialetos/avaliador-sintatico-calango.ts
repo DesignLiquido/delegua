@@ -3,6 +3,7 @@ import {
     Agrupamento,
     AtribuicaoPorIndice,
     Atribuir,
+    Binario,
     Construto,
     FormatacaoEscrita,
     FuncaoConstruto,
@@ -10,6 +11,7 @@ import {
     Literal,
     Variavel,
 } from '../../construtos';
+import { Simbolo } from '../../lexador/simbolo';
 import {
     Bloco,
     Declaracao,
@@ -17,6 +19,7 @@ import {
     Escolha,
     Escreva,
     EscrevaMesmaLinha,
+    Expressao,
     Fazer,
     Para,
     ParaCada,
@@ -77,8 +80,26 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         return await this.primario();
     }
 
-    protected declaracaoEnquanto(): Promise<Enquanto> {
-        throw new Error('Método não implementado.');
+    protected async declaracaoEnquanto(): Promise<Enquanto> {
+        try {
+            this.blocos += 1;
+            this.avancarEDevolverAnterior(); // consome 'enquanto'
+
+            this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'enquanto'.");
+            const condicao = await this.expressao();
+            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após condição do 'enquanto'.");
+            this.consumir(tiposDeSimbolos.FACA, "Esperado 'faca' após condição do 'enquanto'.");
+
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
+
+            const corpo = await this.resolverBloco(['fimEnquanto']);
+
+            this.consumir(tiposDeSimbolos.FIM_ENQUANTO, "Esperado 'fimEnquanto' para fechar o laço.");
+
+            return new Enquanto(condicao, corpo);
+        } finally {
+            this.blocos -= 1;
+        }
     }
 
     protected declaracaoEscolha(): Escolha {
@@ -202,12 +223,78 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         return this.declaracaoVariaveis(tiposDeSimbolos.TIPO_TEXTO, 'texto', '');
     }
 
-    protected declaracaoFazer(): Fazer {
-        throw new Error('Método não implementado.');
+    protected async declaracaoFazer(): Promise<Fazer> {
+        try {
+            this.blocos += 1;
+            const simboloFaca = this.avancarEDevolverAnterior(); // consome 'faca'
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
+
+            // Corpo termina quando encontramos o 'enquanto' do do-while (não de um 'enquanto' aninhado,
+            // pois esses são consumidos recursivamente por declaracaoEnquanto dentro do bloco).
+            const corpo = await this.resolverBloco(['enquanto']);
+
+            this.consumir(tiposDeSimbolos.ENQUANTO, "Esperado 'enquanto' após corpo do 'faca'.");
+            this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'enquanto' no 'faca'.");
+            const condicao = await this.expressao();
+            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após condição do 'faca'.");
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+
+            return new Fazer(this.hashArquivo, Number(simboloFaca.linha), corpo, condicao);
+        } finally {
+            this.blocos -= 1;
+        }
     }
 
-    protected declaracaoPara(): Promise<Para | ParaCada> {
-        throw new Error('Método não implementado.');
+    protected async declaracaoPara(): Promise<Para> {
+        try {
+            this.blocos += 1;
+            const simboloPara = this.avancarEDevolverAnterior(); // consome 'para'
+
+            const identificador = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                "Esperado identificador após 'para'."
+            );
+
+            this.consumir(tiposDeSimbolos.DE, "Esperado 'de' após variável do 'para'.");
+            const inicioExpr = await this.expressao();
+
+            this.consumir(tiposDeSimbolos.ATE, "Esperado 'ate' após valor inicial do 'para'.");
+            const fimExpr = await this.expressao();
+
+            let passoExpr: Construto = new Literal(
+                this.hashArquivo,
+                Number(simboloPara.linha),
+                1,
+                'inteiro'
+            );
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PASSO)) {
+                passoExpr = await this.expressao();
+            }
+
+            this.consumir(tiposDeSimbolos.FACA, "Esperado 'faca' após condição do 'para'.");
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
+
+            const corpo = await this.resolverBloco(['fimPara']);
+            this.consumir(tiposDeSimbolos.FIM_PARA, "Esperado 'fimPara' para fechar o laço 'para'.");
+
+            const linha = Number(simboloPara.linha);
+            const varIteracao = new Variavel(this.hashArquivo, identificador, 'inteiro');
+
+            const simboloMenorIgual = new Simbolo(tiposDeSimbolos.MENOR_IGUAL, '<=', null, linha, this.hashArquivo);
+            const simboloAdicao = new Simbolo(tiposDeSimbolos.ADICAO, '+', null, linha, this.hashArquivo);
+
+            const inicializador = new Expressao(new Atribuir(this.hashArquivo, varIteracao, inicioExpr));
+            const condicao = new Binario(this.hashArquivo, varIteracao, simboloMenorIgual, fimExpr);
+            const incrementar = new Atribuir(
+                this.hashArquivo,
+                varIteracao,
+                new Binario(this.hashArquivo, varIteracao, simboloAdicao, passoExpr)
+            );
+
+            return new Para(this.hashArquivo, linha, inicializador, condicao, incrementar, corpo);
+        } finally {
+            this.blocos -= 1;
+        }
     }
 
     protected async resolverBloco(simbolosParada: string[]): Promise<Bloco> {
@@ -350,6 +437,12 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
                 return this.declaracaoCaracteres();
             case tiposDeSimbolos.TIPO_TEXTO:
                 return this.declaracaoTextos();
+            case tiposDeSimbolos.ENQUANTO:
+                return await this.declaracaoEnquanto();
+            case tiposDeSimbolos.FACA:
+                return await this.declaracaoFazer();
+            case tiposDeSimbolos.PARA:
+                return await this.declaracaoPara();
             case tiposDeSimbolos.SE:
                 return await this.declaracaoSe();
             case tiposDeSimbolos.QUEBRA_LINHA:

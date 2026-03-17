@@ -63,6 +63,50 @@ describe('Lexador (Calango)', () => {
                 );
             });
 
+            it('Sucesso - enquanto / fimEnquanto', () => {
+                const resultado = lexador.mapear([
+                    'inteiro i;',
+                    'i = 0;',
+                    'enquanto (i < 3) faca',
+                    'i = i + 1;',
+                    'fimEnquanto',
+                ], -1);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(resultado.simbolos.map((s) => s.tipo)).toEqual(
+                    expect.arrayContaining(['ENQUANTO', 'FACA', 'FIM_ENQUANTO'])
+                );
+            });
+
+            it('Sucesso - faca / enquanto (do-while)', () => {
+                const resultado = lexador.mapear([
+                    'inteiro i;',
+                    'i = 0;',
+                    'faca',
+                    'i = i + 1;',
+                    'enquanto (i < 3)',
+                ], -1);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(resultado.simbolos.map((s) => s.tipo)).toEqual(
+                    expect.arrayContaining(['FACA', 'ENQUANTO'])
+                );
+            });
+
+            it('Sucesso - para / ate / passo / fimPara', () => {
+                const resultado = lexador.mapear([
+                    'inteiro i;',
+                    'para i de 1 ate 5 passo 1 faca',
+                    'escreval(i);',
+                    'fimPara',
+                ], -1);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(resultado.simbolos.map((s) => s.tipo)).toEqual(
+                    expect.arrayContaining(['PARA', 'DE', 'ATE', 'PASSO', 'FACA', 'FIM_PARA'])
+                );
+            });
+
             it('Sucesso - Condicionais (se, senao)', () => {
                 const resultado = lexador.mapear([
                     'algoritmo tituloDoAlgoritmo;'+ 

@@ -55,6 +55,112 @@ describe('Interpretador (Calango)', () => {
                 expect(_saidas[3]).toBe('João');
             });
 
+            it('enquanto / fimEnquanto', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'algoritmo tituloDoAlgoritmo;',
+                        'principal',
+                        'inteiro i;',
+                        'i = 0;',
+                        'enquanto (i < 3) faca',
+                        'escreval(i);',
+                        'i = i + 1;',
+                        'fimEnquanto',
+                        'fimPrincipal',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(3);
+                expect(_saidas[0]).toBe('0');
+                expect(_saidas[1]).toBe('1');
+                expect(_saidas[2]).toBe('2');
+            });
+
+            it('faca / enquanto (do-while executa ao menos uma vez)', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'algoritmo tituloDoAlgoritmo;',
+                        'principal',
+                        'inteiro i;',
+                        'i = 0;',
+                        'faca',
+                        'escreval(i);',
+                        'i = i + 1;',
+                        'enquanto (i < 3)',
+                        'fimPrincipal',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(3);
+                expect(_saidas[0]).toBe('0');
+                expect(_saidas[1]).toBe('1');
+                expect(_saidas[2]).toBe('2');
+            });
+
+            it('para / ate / passo / fimPara (passo explícito)', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'algoritmo tituloDoAlgoritmo;',
+                        'principal',
+                        'inteiro i;',
+                        'para i de 1 ate 5 passo 1 faca',
+                        'escreval(i);',
+                        'fimPara',
+                        'fimPrincipal',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(5);
+                expect(_saidas[0]).toBe('1');
+                expect(_saidas[1]).toBe('2');
+                expect(_saidas[2]).toBe('3');
+                expect(_saidas[3]).toBe('4');
+                expect(_saidas[4]).toBe('5');
+            });
+
+            it('para / ate / fimPara (passo implícito)', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'algoritmo tituloDoAlgoritmo;',
+                        'principal',
+                        'inteiro i;',
+                        'para i de 1 ate 3 faca',
+                        'escreval(i);',
+                        'fimPara',
+                        'fimPrincipal',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(3);
+                expect(_saidas[0]).toBe('1');
+                expect(_saidas[1]).toBe('2');
+                expect(_saidas[2]).toBe('3');
+            });
+
             it('escreva()', async () => {
                 const retornoLexador = lexador.mapear(
                     [
@@ -82,7 +188,7 @@ describe('Interpretador (Calango)', () => {
                 // Aqui vamos simular a resposta para uma variável de `leia()`.
                 const respostas = ['40'];
                 interpretador.interfaceEntradaSaida = {
-                    question: (mensagem: string, callback: Function) => {
+                    question: (_mensagem: string, callback: Function) => {
                         callback(respostas.shift());
                     },
                 };
@@ -120,7 +226,7 @@ describe('Interpretador (Calango)', () => {
                 // Aqui vamos simular a resposta para uma variável de `leia()`.
                 const respostas = ['40'];
                 interpretador.interfaceEntradaSaida = {
-                    question: (mensagem: string, callback: Function) => {
+                    question: (_mensagem: string, callback: Function) => {
                         callback(respostas.shift());
                     },
                 };
