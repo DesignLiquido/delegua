@@ -44,7 +44,7 @@ describe('Interpretador (Calango)', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
-            it.skip('Sucesso - Condicionais (se, senao)', async () => {
+            it('Sucesso - Condicionais (se, senao)', async () => {
                 // Aqui vamos simular a resposta para uma variável de `leia()`.
                 const respostas = ['40'];
                 interpretador.interfaceEntradaSaida = {

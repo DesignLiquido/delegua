@@ -54,8 +54,7 @@ describe('Avaliador sintático (Calango)', () => {
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
         });
 
-        // TODO @Maitê: Corrigir.
-        it.skip('Sucesso - Condicionais (se, senao)', async () => {
+        it('Sucesso - Condicionais (se, senao)', async () => {
             const retornoLexador = lexador.mapear([
                 'algoritmo tituloDoAlgoritmo;', 
                 'principal', 
