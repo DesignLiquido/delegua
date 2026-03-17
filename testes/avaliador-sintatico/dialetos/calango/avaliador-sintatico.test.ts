@@ -54,6 +54,27 @@ describe('Avaliador sintático (Calango)', () => {
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
         });
 
+        it('Sucesso - Tipos de dados (real, logico, caracter, texto)', async () => {
+            const retornoLexador = lexador.mapear([
+                'algoritmo tituloDoAlgoritmo;',
+                'principal',
+                'real preco;',
+                'logico ativo;',
+                'caracter letra;',
+                'texto nome;',
+                'preco = 3.14;',
+                'ativo = verdadeiro;',
+                'letra = \'a\';',
+                'nome = "João";',
+                'escreval(preco);',
+                'fimPrincipal',
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(9);
+        });
+
         it('Sucesso - Condicionais (se, senao)', async () => {
             const retornoLexador = lexador.mapear([
                 'algoritmo tituloDoAlgoritmo;', 

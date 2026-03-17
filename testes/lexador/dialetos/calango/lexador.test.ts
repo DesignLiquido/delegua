@@ -45,6 +45,24 @@ describe('Lexador (Calango)', () => {
                 expect(resultado.erros).toHaveLength(0);
             });
 
+            it('Sucesso - Tipos de dados (real, logico, caracter, texto)', () => {
+                const resultado = lexador.mapear([
+                    'real preco;',
+                    'logico ativo;',
+                    'caracter letra;',
+                    'texto nome;',
+                    'preco = 3.14;',
+                    'ativo = verdadeiro;',
+                    'letra = \'a\';',
+                    'nome = "João";',
+                ], -1);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(resultado.simbolos.map((s) => s.tipo)).toEqual(
+                    expect.arrayContaining(['REAL', 'LOGICO', 'CARACTER', 'TIPO_TEXTO', 'VERDADEIRO', 'LITERAL_CARACTER', 'TEXTO'])
+                );
+            });
+
             it('Sucesso - Condicionais (se, senao)', () => {
                 const resultado = lexador.mapear([
                     'algoritmo tituloDoAlgoritmo;'+ 

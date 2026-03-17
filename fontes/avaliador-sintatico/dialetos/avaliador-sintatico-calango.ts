@@ -28,6 +28,7 @@ import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 import { PilhaEscopos } from '../pilha-escopos';
 import { InformacaoEscopo } from '../informacao-escopo';
 import { InformacaoElementoSintatico } from '../../informacao-elemento-sintatico';
+import { TipoInferencia } from '../../inferenciador';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/calango';
 
@@ -150,34 +151,26 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         return new EscrevaMesmaLinha(Number(simboloAtual.linha), this.hashArquivo, argumentos);
     }
 
-    protected declaracaoInteiros(): Var[] {
-        const simboloInteiro = this.consumir(tiposDeSimbolos.INTEIRO, '');
+    private declaracaoVariaveis(tipoToken: string, tipoDelégua: TipoInferencia, valorPadrao: any): Var[] {
+        const simboloTipo = this.avancarEDevolverAnterior();
 
         const inicializacoes = [];
         do {
             const identificador = this.consumir(
                 tiposDeSimbolos.IDENTIFICADOR,
-                "Esperado identificador após palavra reservada 'inteiro'."
+                `Esperado identificador após palavra reservada '${simboloTipo.lexema}'.`
             );
-
-            // Inicializações de variáveis podem ter valores definidos.
-            let valorInicializacao = 0;
 
             inicializacoes.push(
                 new Var(
                     identificador,
-                    new Literal(
-                        this.hashArquivo,
-                        Number(simboloInteiro.linha),
-                        valorInicializacao,
-                        'inteiro'
-                    )
+                    new Literal(this.hashArquivo, Number(simboloTipo.linha), valorPadrao, tipoDelégua)
                 )
             );
 
             this.pilhaEscopos.definirInformacoesVariavel(
                 identificador.lexema,
-                new InformacaoElementoSintatico(identificador.lexema, 'inteiro')
+                new InformacaoElementoSintatico(identificador.lexema, tipoDelégua)
             );
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
@@ -187,6 +180,26 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         );
 
         return inicializacoes;
+    }
+
+    protected declaracaoInteiros(): Var[] {
+        return this.declaracaoVariaveis(tiposDeSimbolos.INTEIRO, 'inteiro', 0);
+    }
+
+    protected declaracaoReais(): Var[] {
+        return this.declaracaoVariaveis(tiposDeSimbolos.REAL, 'real', 0.0);
+    }
+
+    protected declaracaoLogicos(): Var[] {
+        return this.declaracaoVariaveis(tiposDeSimbolos.LOGICO, 'lógico', false);
+    }
+
+    protected declaracaoCaracteres(): Var[] {
+        return this.declaracaoVariaveis(tiposDeSimbolos.CARACTER, 'caracter', '');
+    }
+
+    protected declaracaoTextos(): Var[] {
+        return this.declaracaoVariaveis(tiposDeSimbolos.TIPO_TEXTO, 'texto', '');
     }
 
     protected declaracaoFazer(): Fazer {
@@ -283,16 +296,26 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
                 }
 
                 return new Variavel(this.hashArquivo, simboloIdentificador, tipoOperando);
-            case tiposDeSimbolos.INTEIRO:
-            case tiposDeSimbolos.NUMERO: // Precisamos substituir 'NUMERO' por 'REAL' pois Calango não possui 'NUMERO'
-            case tiposDeSimbolos.TEXTO:
-                const simboloAnterior: SimboloInterface = this.avancarEDevolverAnterior();
+            case tiposDeSimbolos.NUMERO:
+                const simboloNumero: SimboloInterface = this.avancarEDevolverAnterior();
                 return new Literal(
                     this.hashArquivo,
-                    Number(simboloAnterior.linha),
-                    simboloAnterior.literal,
-                    simboloAnterior.tipo == tiposDeSimbolos.TEXTO ? 'texto' : 'inteiro'
+                    Number(simboloNumero.linha),
+                    simboloNumero.literal,
+                    Number.isInteger(simboloNumero.literal) ? 'inteiro' : 'real'
                 );
+            case tiposDeSimbolos.TEXTO:
+                const simboloTexto: SimboloInterface = this.avancarEDevolverAnterior();
+                return new Literal(this.hashArquivo, Number(simboloTexto.linha), simboloTexto.literal, 'texto');
+            case tiposDeSimbolos.LITERAL_CARACTER:
+                const simboloCaracter: SimboloInterface = this.avancarEDevolverAnterior();
+                return new Literal(this.hashArquivo, Number(simboloCaracter.linha), simboloCaracter.literal, 'caracter');
+            case tiposDeSimbolos.VERDADEIRO:
+                const simboloVerdadeiro: SimboloInterface = this.avancarEDevolverAnterior();
+                return new Literal(this.hashArquivo, Number(simboloVerdadeiro.linha), true, 'lógico');
+            case tiposDeSimbolos.FALSO:
+                const simboloFalso: SimboloInterface = this.avancarEDevolverAnterior();
+                return new Literal(this.hashArquivo, Number(simboloFalso.linha), false, 'lógico');
             case tiposDeSimbolos.PARENTESE_ESQUERDO:
                 this.avancarEDevolverAnterior();
                 const expressao = await this.expressao();
@@ -319,6 +342,14 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
                 return await this.expressaoLeia();
             case tiposDeSimbolos.INTEIRO:
                 return this.declaracaoInteiros();
+            case tiposDeSimbolos.REAL:
+                return this.declaracaoReais();
+            case tiposDeSimbolos.LOGICO:
+                return this.declaracaoLogicos();
+            case tiposDeSimbolos.CARACTER:
+                return this.declaracaoCaracteres();
+            case tiposDeSimbolos.TIPO_TEXTO:
+                return this.declaracaoTextos();
             case tiposDeSimbolos.SE:
                 return await this.declaracaoSe();
             case tiposDeSimbolos.QUEBRA_LINHA:

@@ -21,6 +21,40 @@ describe('Interpretador (Calango)', () => {
         });
 
         describe('Cenários de sucesso', () => {
+            it('Tipos de dados (real, logico, caracter, texto)', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'algoritmo tituloDoAlgoritmo;',
+                        'principal',
+                        'real preco;',
+                        'logico ativo;',
+                        'caracter letra;',
+                        'texto nome;',
+                        'preco = 3.14;',
+                        'ativo = verdadeiro;',
+                        'letra = \'a\';',
+                        'nome = "João";',
+                        'escreval(preco);',
+                        'escreval(ativo);',
+                        'escreval(letra);',
+                        'escreval(nome);',
+                        'fimPrincipal',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(4);
+                expect(_saidas[0]).toBe('3.14');
+                expect(_saidas[1]).toBe('verdadeiro');
+                expect(_saidas[2]).toBe('a');
+                expect(_saidas[3]).toBe('João');
+            });
+
             it('escreva()', async () => {
                 const retornoLexador = lexador.mapear(
                     [

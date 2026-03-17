@@ -136,6 +136,35 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
         );
     }
 
+    analisarCaracter(): void {
+        const linhaPrimeiroCaracter: number = this.linha;
+        // Avança até o fechamento da aspas simples
+        while (this.simboloAtual() !== "'" && !this.eFinalDoCodigo()) {
+            this.avancar();
+        }
+
+        if (this.eFinalDoCodigo()) {
+            this.erros.push({
+                linha: this.linha + 1,
+                caractere: this.simboloAnterior(),
+                mensagem: 'Caractere não finalizado.',
+            } as ErroLexador);
+            return;
+        }
+
+        const valorCaracter = this.codigo[this.linha].substring(this.inicioSimbolo + 1, this.atual);
+
+        this.simbolos.push(
+            new Simbolo(
+                tiposDeSimbolos.LITERAL_CARACTER,
+                valorCaracter,
+                valorCaracter,
+                linhaPrimeiroCaracter + 1,
+                this.hashArquivo
+            )
+        );
+    }
+
     analisarNumero(): void {
         const linhaPrimeiroDigito: number = this.linha;
         while (this.eDigito(this.simboloAtual()) && this.linha === linhaPrimeiroDigito) {
@@ -220,6 +249,11 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
             case '"':
                 this.avancar();
                 this.analisarTexto('"');
+                this.avancar();
+                break;
+            case "'":
+                this.avancar();
+                this.analisarCaracter();
                 this.avancar();
                 break;
             case '(':
