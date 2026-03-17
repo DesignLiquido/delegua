@@ -366,6 +366,48 @@ describe('Interpretador', () => {
             });
 
             describe('Atribuições', () => {
+                it('Atribuição como expressão em escreva retorna representação XML (issue #1138)', async () => {
+                    const saidas: string[] = [];
+                    const retornoLexador = lexador.mapear(['var x = 10', 'escreva(x = 99)'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: string) => {
+                        saidas.push(saida);
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(saidas).toHaveLength(1);
+                    expect(saidas[0]).toContain('<atribuir alvo=<variável nome=x tipo=número />');
+                    expect(saidas[0]).toContain('valor=<literal valor=99 tipo=número />');
+                });
+
+                it('Atribuição por índice em escreva retorna representação XML', async () => {
+                    const saidas: string[] = [];
+                    const retornoLexador = lexador.mapear(
+                        ['var lista = [1, 2, 3]', 'escreva(lista[0] = 99)', 'escreva(lista[0])'],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: string) => {
+                        saidas.push(saida);
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(saidas).toHaveLength(2);
+                    expect(saidas[0]).toContain('<atribuição-por-índice objeto=<variável nome=lista');
+                    expect(saidas[0]).toContain('valor=<literal valor=99 tipo=número />');
+                    expect(saidas[1]).toBe('99');
+                });
+
                 it('Trivial var/variavel', async () => {
                     const retornoLexador = lexador.mapear(
                         [

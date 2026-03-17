@@ -22,6 +22,26 @@ describe('Interpretador (Pituguês)', () => {
 
         describe('Cenários de sucesso', () => {
             describe('Atribuições', () => {
+                it('Atribuição como expressão em escreva mantém valor em Pituguês', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'x = 10',
+                        'escreva(x = 99)',
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('99');
+                });
+
                 it('Trivial', async () => {
                     const retornoLexador = lexador.mapear([
                         'a = 1',
