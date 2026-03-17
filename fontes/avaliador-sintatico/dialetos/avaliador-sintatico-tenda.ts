@@ -353,6 +353,11 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
                     return new ExpressaoRegular(this.hashArquivo, simboloAtual, valor);
                 }
 
+            case tiposDeSimbolos.BIBLIOTECA_GLOBAL: {
+                const simboloBiblioteca = this.avancarEDevolverAnterior();
+                return new Variavel(this.hashArquivo, simboloBiblioteca, 'qualquer');
+            }
+
             case tiposDeSimbolos.FALSO:
                 this.avancarEDevolverAnterior();
                 return new Literal(this.hashArquivo, Number(simboloAtual.linha), false, 'lógico');
@@ -465,10 +470,23 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
                 expressao = await this.finalizarChamada(expressao, tipoPrimitiva);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
-                const nome = this.consumir(
+                // Alguns tokens de biblioteca global são palavras reservadas (ex: `exiba`, `leia`, `entrada`),
+                // mas precisam ser aceitos como nomes de métodos após o ponto.
+                const tiposAceitosComoNomeDeMetodo = [
                     tiposDeSimbolos.IDENTIFICADOR,
-                    "Esperado nome de método ou propriedade após '.'."
-                );
+                    tiposDeSimbolos.EXIBA,
+                    tiposDeSimbolos.LEIA,
+                    tiposDeSimbolos.ENTRADA,
+                ];
+                let nome: SimboloInterface;
+                if (tiposAceitosComoNomeDeMetodo.includes(this.simbolos[this.atual]?.tipo as any)) {
+                    nome = this.avancarEDevolverAnterior();
+                } else {
+                    nome = this.consumir(
+                        tiposDeSimbolos.IDENTIFICADOR,
+                        "Esperado nome de método ou propriedade após '.'."
+                    );
+                }
 
                 tipoPrimitiva = expressao.tipo;
                 expressao = new AcessoMetodoOuPropriedade(this.hashArquivo, expressao, nome);
@@ -1483,10 +1501,9 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
                             ].tipo;
                         }
 
-                        throw new ErroAvaliadorSintatico(
-                            entidadeChamadaAcessoMetodoOuPropriedade.simbolo,
-                            `Primitiva '${entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema}' não existe.`
-                        );
+                        // Para métodos de namespaces da biblioteca global (Lista, Matemática, etc.),
+                        // o tipo não é conhecido estaticamente. Retorna 'qualquer'.
+                        return 'qualquer';
                     case AcessoPropriedade:
                         const entidadeChamadaAcessoPropriedade =
                             entidadeChamadaChamada as AcessoPropriedade;
@@ -1699,6 +1716,14 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
     protected inicializarPilhaEscopos() {
         this.pilhaEscopos = new PilhaEscopos();
         this.pilhaEscopos.empilhar(new InformacaoEscopo());
+
+        // Registrar namespaces da biblioteca global de Tenda.
+        for (const nomeBiblioteca of ['Data', 'Lista', 'Matemática', 'Saída', 'Texto']) {
+            this.pilhaEscopos.definirInformacoesVariavel(
+                nomeBiblioteca,
+                new InformacaoElementoSintatico(nomeBiblioteca, 'qualquer')
+            );
+        }
 
         // TODO: Escrever algum tipo de validação aqui.
         for (const tipos of Object.values(this.tiposDeFerramentasExternas)) {

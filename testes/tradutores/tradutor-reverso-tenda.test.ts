@@ -23,7 +23,7 @@ describe('Tradutor Tenda -> Delégua', () => {
     });
 
     describe('Bibliotecas globais', () => {
-        it.skip('Data', async () => {
+        it('Data', async () => {
             const codigo = [
                 'exiba(Data.agora())',
             ];
@@ -34,7 +34,7 @@ describe('Tradutor Tenda -> Delégua', () => {
             expect(resultado).toBeTruthy();
         });
 
-        it.skip('Lista', async () => {
+        it('Lista', async () => {
             const codigo = [
                 'seja listaQualquer = [2, 4, 6, 8, 10]',
                 'exiba(Lista.tamanho(listaQualquer))',
@@ -46,7 +46,7 @@ describe('Tradutor Tenda -> Delégua', () => {
             expect(resultado).toBeTruthy();
         });
 
-        it.skip('Matemática', async () => {
+        it('Matemática', async () => {
             const codigo = [
                 'exiba(Matemática.aleatório(1, 100))'
             ];
@@ -57,7 +57,7 @@ describe('Tradutor Tenda -> Delégua', () => {
             expect(resultado).toBeTruthy();
         });
 
-        it.skip('Saída', async () => {
+        it('Saída', async () => {
             const codigo = [
                 'exiba(Saída.exiba("Olá mundo!"))'
             ];
@@ -68,7 +68,7 @@ describe('Tradutor Tenda -> Delégua', () => {
             expect(resultado).toBeTruthy();
         });
 
-        it.skip('Texto', async () => {
+        it('Texto', async () => {
             const codigo = [
                 'exiba(Texto.tamanho("Olá mundo!"))'
             ];
