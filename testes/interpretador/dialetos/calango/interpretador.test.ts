@@ -82,6 +82,35 @@ describe('Interpretador (Calango)', () => {
                 expect(_saidas[2]).toBe('2');
             });
 
+            it('escolha / caso / outroCaso / fimEscolha', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'algoritmo tituloDoAlgoritmo;',
+                        'principal',
+                        'inteiro x;',
+                        'x = 2;',
+                        'escolha (x)',
+                        'caso 1:',
+                        'escreval("um");',
+                        'caso 2:',
+                        'escreval("dois");',
+                        'outroCaso:',
+                        'escreval("outro");',
+                        'fimEscolha',
+                        'fimPrincipal',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('dois');
+            });
+
             it('faca / enquanto (do-while executa ao menos uma vez)', async () => {
                 const retornoLexador = lexador.mapear(
                     [

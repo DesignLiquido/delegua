@@ -78,6 +78,26 @@ describe('Lexador (Calango)', () => {
                 );
             });
 
+            it('Sucesso - escolha / caso / outroCaso / fimEscolha', () => {
+                const resultado = lexador.mapear([
+                    'inteiro x;',
+                    'x = 2;',
+                    'escolha (x)',
+                    'caso 1:',
+                    'escreval("um");',
+                    'caso 2:',
+                    'escreval("dois");',
+                    'outroCaso:',
+                    'escreval("outro");',
+                    'fimEscolha',
+                ], -1);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(resultado.simbolos.map((s) => s.tipo)).toEqual(
+                    expect.arrayContaining(['ESCOLHA', 'CASO', 'DOIS_PONTOS', 'OUTRO_CASO', 'FIM_ESCOLHA'])
+                );
+            });
+
             it('Sucesso - faca / enquanto (do-while)', () => {
                 const resultado = lexador.mapear([
                     'inteiro i;',

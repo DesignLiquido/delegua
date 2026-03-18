@@ -256,6 +256,10 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
                 this.analisarCaracter();
                 this.avancar();
                 break;
+            case ':':
+                this.adicionarSimbolo(tiposDeSimbolos.DOIS_PONTOS);
+                this.avancar();
+                break;
             case '(':
                 this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_ESQUERDO);
                 this.avancar();

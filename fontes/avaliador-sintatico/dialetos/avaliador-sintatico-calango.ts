@@ -27,6 +27,7 @@ import {
     Var,
 } from '../../declaracoes';
 import { RetornoLexador, SimboloInterface, RetornoAvaliadorSintatico } from '../../interfaces';
+import { CaminhoEscolha } from '../../interfaces/construtos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 import { PilhaEscopos } from '../pilha-escopos';
 import { InformacaoEscopo } from '../informacao-escopo';
@@ -102,8 +103,40 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         }
     }
 
-    protected declaracaoEscolha(): Escolha {
-        throw new Error('Método não implementado.');
+    protected async declaracaoEscolha(): Promise<Escolha> {
+        this.avancarEDevolverAnterior(); // consome 'escolha'
+
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'escolha'.");
+        const identificador = await this.expressao();
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após expressão do 'escolha'.");
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
+
+        const caminhos: CaminhoEscolha[] = [];
+        let caminhoPadrao: CaminhoEscolha = null;
+
+        while (
+            !this.estaNoFinal() &&
+            this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIM_ESCOLHA
+        ) {
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CASO)) {
+                const condicao = await this.expressao();
+                this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após valor do 'caso'.");
+                this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
+                const bloco = await this.resolverBloco(['caso', 'outroCaso', 'fimEscolha']);
+                caminhos.push({ condicoes: [condicao], declaracoes: bloco.declaracoes });
+            } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.OUTRO_CASO)) {
+                this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após 'outroCaso'.");
+                this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
+                const bloco = await this.resolverBloco(['fimEscolha']);
+                caminhoPadrao = { condicoes: [], declaracoes: bloco.declaracoes };
+            } else {
+                break;
+            }
+        }
+
+        this.consumir(tiposDeSimbolos.FIM_ESCOLHA, "Esperado 'fimEscolha' para fechar o 'escolha'.");
+
+        return new Escolha(identificador, caminhos, caminhoPadrao);
     }
 
     // Em Calango, método "escreval"
@@ -439,6 +472,8 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
                 return this.declaracaoTextos();
             case tiposDeSimbolos.ENQUANTO:
                 return await this.declaracaoEnquanto();
+            case tiposDeSimbolos.ESCOLHA:
+                return await this.declaracaoEscolha();
             case tiposDeSimbolos.FACA:
                 return await this.declaracaoFazer();
             case tiposDeSimbolos.PARA:
