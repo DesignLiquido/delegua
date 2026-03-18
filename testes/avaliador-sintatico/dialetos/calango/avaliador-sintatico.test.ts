@@ -220,6 +220,74 @@ describe('Avaliador sintático (Calango)', () => {
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
         });
 
+        it('Sucesso - operador <> (diferente) em condicional', async () => {
+            const retornoLexador = lexador.mapear([
+                'algoritmo tituloDoAlgoritmo;',
+                'principal',
+                'inteiro x;',
+                'x = 1;',
+                'se (x <> 0) entao',
+                'escreval(x);',
+                'fimSe',
+                'fimPrincipal',
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            // 1 Var + 1 Atribuir + 1 Se
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+        });
+
+        it('Sucesso - nao (negacao logica)', async () => {
+            const retornoLexador = lexador.mapear([
+                'algoritmo tituloDoAlgoritmo;',
+                'principal',
+                'logico ativo;',
+                'ativo = nao verdadeiro;',
+                'fimPrincipal',
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            // 1 Var + 1 Atribuir
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+        });
+
+        it('Sucesso - mod, div, ^', async () => {
+            const retornoLexador = lexador.mapear([
+                'algoritmo tituloDoAlgoritmo;',
+                'principal',
+                'inteiro a;',
+                'a = 10 mod 3;',
+                'a = 10 div 3;',
+                'a = 2 ^ 8;',
+                'fimPrincipal',
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            // 1 Var + 3 Atribuir
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(4);
+        });
+
+        it('Sucesso - se com = como comparacao (nao atribuicao)', async () => {
+            const retornoLexador = lexador.mapear([
+                'algoritmo tituloDoAlgoritmo;',
+                'principal',
+                'inteiro x;',
+                'x = 1;',
+                'se (x = 1) entao',
+                'escreval(x);',
+                'fimSe',
+                'fimPrincipal',
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            // 1 Var + 1 Atribuir + 1 Se
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+        });
+
         it('Sucesso - Condicionais (se, senao)', async () => {
             const retornoLexador = lexador.mapear([
                 'algoritmo tituloDoAlgoritmo;', 

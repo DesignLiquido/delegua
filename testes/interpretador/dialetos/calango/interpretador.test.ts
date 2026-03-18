@@ -268,6 +268,152 @@ describe('Interpretador (Calango)', () => {
                 expect(_saidas[2]).toBe('3');
             });
 
+            it('se com = como comparacao verdadeira', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'algoritmo tituloDoAlgoritmo;',
+                        'principal',
+                        'inteiro x;',
+                        'x = 1;',
+                        'se (x = 1) entao',
+                        'escreval(\"igual\");',
+                        'senao',
+                        'escreval(\"diferente\");',
+                        'fimSe',
+                        'fimPrincipal',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('igual');
+            });
+
+            it('se com = como comparacao falsa', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'algoritmo tituloDoAlgoritmo;',
+                        'principal',
+                        'inteiro x;',
+                        'x = 2;',
+                        'se (x = 1) entao',
+                        'escreval(\"igual\");',
+                        'senao',
+                        'escreval(\"diferente\");',
+                        'fimSe',
+                        'fimPrincipal',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('diferente');
+            });
+
+            it('operador <> (diferente)', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'algoritmo tituloDoAlgoritmo;',
+                        'principal',
+                        'inteiro x;',
+                        'x = 1;',
+                        'se (x <> 0) entao',
+                        'escreval(\"diferente de zero\");',
+                        'fimSe',
+                        'fimPrincipal',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('diferente de zero');
+            });
+
+            it('nao (negacao logica)', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'algoritmo tituloDoAlgoritmo;',
+                        'principal',
+                        'logico ativo;',
+                        'ativo = nao verdadeiro;',
+                        'escreval(ativo);',
+                        'fimPrincipal',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('falso');
+            });
+
+            it('mod e div', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'algoritmo tituloDoAlgoritmo;',
+                        'principal',
+                        'inteiro a;',
+                        'inteiro b;',
+                        'a = 10 mod 3;',
+                        'b = 10 div 3;',
+                        'escreval(a);',
+                        'escreval(b);',
+                        'fimPrincipal',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('1');
+                expect(_saidas[1]).toBe('3');
+            });
+
+            it('exponenciacao (^)', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'algoritmo tituloDoAlgoritmo;',
+                        'principal',
+                        'inteiro a;',
+                        'a = 2 ^ 8;',
+                        'escreval(a);',
+                        'fimPrincipal',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('256');
+            });
+
             it('escreva()', async () => {
                 const retornoLexador = lexador.mapear(
                     [

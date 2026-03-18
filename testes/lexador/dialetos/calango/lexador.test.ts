@@ -173,6 +173,56 @@ describe('Lexador (Calango)', () => {
                 );
             });
 
+            it('Sucesso - operador <> (diferente)', () => {
+                const resultado = lexador.mapear([
+                    'inteiro x;',
+                    'x <> 0',
+                ], -1);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(resultado.simbolos.map((s) => s.tipo)).toEqual(
+                    expect.arrayContaining(['DIFERENTE'])
+                );
+            });
+
+            it('Sucesso - nao (negacao logica)', () => {
+                const resultado = lexador.mapear([
+                    'logico ativo;',
+                    'ativo = nao verdadeiro;',
+                ], -1);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(resultado.simbolos.map((s) => s.tipo)).toEqual(
+                    expect.arrayContaining(['NEGACAO'])
+                );
+            });
+
+            it('Sucesso - mod e div', () => {
+                const resultado = lexador.mapear([
+                    'inteiro a;',
+                    'a = 10 mod 3;',
+                    'a = 10 div 3;',
+                ], -1);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(resultado.simbolos.map((s) => s.tipo)).toEqual(
+                    expect.arrayContaining(['MODULO', 'DIVISAO_INTEIRA'])
+                );
+            });
+
+            it('Sucesso - % (modulo) e ^ (exponenciacao)', () => {
+                const resultado = lexador.mapear([
+                    'inteiro a;',
+                    'a = 10 % 3;',
+                    'a = 2 ^ 8;',
+                ], -1);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(resultado.simbolos.map((s) => s.tipo)).toEqual(
+                    expect.arrayContaining(['MODULO', 'EXPONENCIACAO'])
+                );
+            });
+
             it('Sucesso - Condicionais (se, senao)', () => {
                 const resultado = lexador.mapear([
                     'algoritmo tituloDoAlgoritmo;'+ 

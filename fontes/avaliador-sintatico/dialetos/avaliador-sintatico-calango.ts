@@ -42,6 +42,9 @@ import tiposDeSimbolos from '../../tipos-de-simbolos/calango';
 
 export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
     pilhaEscopos: PilhaEscopos;
+    /** Flag ativa quando se está a parsear a condição de um `se`, `enquanto` ou `faca/enquanto`.
+     * Permite que `=` seja tratado como igualdade (não atribuição) nesses contextos. */
+    private emContextoCondicao = false;
 
     constructor() {
         super();
@@ -104,7 +107,9 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
             this.avancarEDevolverAnterior(); // consome 'enquanto'
 
             this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'enquanto'.");
-            const condicao = await this.expressao();
+            this.emContextoCondicao = true;
+            const condicao = await this.ou();
+            this.emContextoCondicao = false;
             this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após condição do 'enquanto'.");
             this.consumir(tiposDeSimbolos.FACA, "Esperado 'faca' após condição do 'enquanto'.");
 
@@ -285,7 +290,9 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
 
             this.consumir(tiposDeSimbolos.ENQUANTO, "Esperado 'enquanto' após corpo do 'faca'.");
             this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'enquanto' no 'faca'.");
-            const condicao = await this.expressao();
+            this.emContextoCondicao = true;
+            const condicao = await this.ou();
+            this.emContextoCondicao = false;
             this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após condição do 'faca'.");
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
 
@@ -347,6 +354,32 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         }
     }
 
+    /**
+     * Em Calango, `=` é usado tanto para atribuição (em comandos) quanto para igualdade (em condições).
+     * Este override só trata `IGUAL_ATRIBUICAO` como igualdade quando `emContextoCondicao` estiver ativo,
+     * evitando que `i = i + 1` dentro de blocos seja erroneamente interpretado como comparação.
+     */
+    protected override async comparacaoIgualdade(): Promise<Construto> {
+        let expressao = await this.comparar();
+
+        while (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.DIFERENTE,
+                tiposDeSimbolos.IGUAL,
+                tiposDeSimbolos.IGUAL_IGUAL
+            ) || (this.emContextoCondicao && this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL_ATRIBUICAO))
+        ) {
+            let operador = this.simbolos[this.atual - 1];
+            if (operador.tipo === tiposDeSimbolos.IGUAL_ATRIBUICAO) {
+                operador = new Simbolo(tiposDeSimbolos.IGUAL_IGUAL, '=', null, operador.linha, operador.hashArquivo);
+            }
+            const direito = await this.comparar();
+            expressao = new Binario(this.hashArquivo, expressao, operador, direito);
+        }
+
+        return expressao;
+    }
+
     protected async resolverBloco(simbolosParada: string[]): Promise<Bloco> {
         const declaracoes = [];
         this.pilhaEscopos.empilhar(new InformacaoEscopo());
@@ -373,7 +406,9 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
     protected async declaracaoSe(): Promise<Se> {
         this.avancarEDevolverAnterior();
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'se'");
-        const condicao = await this.expressao();
+        this.emContextoCondicao = true;
+        const condicao = await this.ou();
+        this.emContextoCondicao = false;
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após condição do 'se'");
         this.consumir(tiposDeSimbolos.ENTAO, "Esperado 'entao' após condição");
 
