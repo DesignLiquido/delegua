@@ -1,12 +1,12 @@
 import { AvaliadorSintaticoCalango } from '../../../../fontes/avaliador-sintatico/dialetos/avaliador-sintatico-calango';
 import { LexadorCalango } from '../../../../fontes/lexador/dialetos';
-import { InterpretadorBase } from '../../../../fontes/interpretador/interpretador-base';
+import { InterpretadorCalango } from '../../../../fontes/interpretador/dialetos/calango';
 
 describe('Interpretador (Calango)', () => {
     describe('interpretar()', () => {
         let lexador: LexadorCalango;
         let avaliadorSintatico: AvaliadorSintaticoCalango;
-        let interpretador: InterpretadorBase;
+        let interpretador: InterpretadorCalango;
 
         let _saidas: string[] = [];
         const funcaoSaida = (texto: string) => {
@@ -17,7 +17,7 @@ describe('Interpretador (Calango)', () => {
             _saidas = [];
             lexador = new LexadorCalango();
             avaliadorSintatico = new AvaliadorSintaticoCalango();
-            interpretador = new InterpretadorBase(process.cwd(), false, funcaoSaida, funcaoSaida);
+            interpretador = new InterpretadorCalango(process.cwd(), false, funcaoSaida, funcaoSaida);
         });
 
         describe('Cenários de sucesso', () => {
@@ -80,6 +80,56 @@ describe('Interpretador (Calango)', () => {
                 expect(_saidas[0]).toBe('0');
                 expect(_saidas[1]).toBe('1');
                 expect(_saidas[2]).toBe('2');
+            });
+
+            it('funcao com retorna e chamada', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'algoritmo tituloDoAlgoritmo;',
+                        'funcao dobrar(inteiro n): inteiro',
+                        'inteiro resultado;',
+                        'resultado = n + n;',
+                        'retorna resultado;',
+                        'fimFuncao',
+                        'principal',
+                        'inteiro x;',
+                        'x = dobrar(5);',
+                        'escreval(x);',
+                        'fimPrincipal',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('10');
+            });
+
+            it('procedimento sem retorno', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'algoritmo tituloDoAlgoritmo;',
+                        'procedimento saudar(texto nome)',
+                        'escreval(nome);',
+                        'fimProcedimento',
+                        'principal',
+                        'saudar("Mundo");',
+                        'fimPrincipal',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('Mundo');
             });
 
             it('interrompa dentro de enquanto', async () => {

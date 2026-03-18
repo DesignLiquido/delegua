@@ -4,6 +4,7 @@ import {
     AtribuicaoPorIndice,
     Atribuir,
     Binario,
+    Chamada,
     Construto,
     FormatacaoEscrita,
     FuncaoConstruto,
@@ -21,14 +22,16 @@ import {
     EscrevaMesmaLinha,
     Expressao,
     Fazer,
+    FuncaoDeclaracao,
     Para,
-    ParaCada,
+    Retorna,
     Se,
     Sustar,
     Var,
 } from '../../declaracoes';
 import { RetornoLexador, SimboloInterface, RetornoAvaliadorSintatico } from '../../interfaces';
 import { CaminhoEscolha } from '../../interfaces/construtos';
+import { ParametroInterface } from '../../interfaces/parametro-interface';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 import { PilhaEscopos } from '../pilha-escopos';
 import { InformacaoEscopo } from '../informacao-escopo';
@@ -79,7 +82,20 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
     }
 
     protected async chamar(): Promise<Construto> {
-        return await this.primario();
+        let expressao = await this.primario();
+
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
+            const argumentos: Construto[] = [];
+            if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+                do {
+                    argumentos.push(await this.expressao());
+                } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+            }
+            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após argumentos da chamada.");
+            expressao = new Chamada(this.hashArquivo, expressao, argumentos);
+        }
+
+        return expressao;
     }
 
     protected async declaracaoEnquanto(): Promise<Enquanto> {
@@ -338,7 +354,12 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         const primeiroSimbolo = this.simbolos[this.atual];
 
         while (!this.estaNoFinal() && !simbolosParada.includes(this.simbolos[this.atual].lexema)) {
-            declaracoes.push(await this.resolverDeclaracaoForaDeBloco());
+            const resolucao = await this.resolverDeclaracaoForaDeBloco();
+            if (Array.isArray(resolucao)) {
+                declaracoes.push(...resolucao);
+            } else {
+                declaracoes.push(resolucao);
+            }
         }
 
         this.pilhaEscopos.removerUltimo();
@@ -477,6 +498,8 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
                 return await this.declaracaoEscolha();
             case tiposDeSimbolos.INTERROMPA:
                 return new Sustar(this.avancarEDevolverAnterior());
+            case tiposDeSimbolos.RETORNA:
+                return await this.declaracaoRetorna();
             case tiposDeSimbolos.FACA:
                 return await this.declaracaoFazer();
             case tiposDeSimbolos.PARA:
@@ -486,13 +509,111 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.QUEBRA_LINHA:
                 this.avancarEDevolverAnterior();
                 return null;
-            default:
-                return await this.expressao();
+            default: {
+                const resultado = await this.expressao();
+                this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+                return resultado;
+            }
         }
     }
 
-    protected corpoDaFuncao(tipo: string): Promise<FuncaoConstruto> {
+    protected corpoDaFuncao(_tipo: string): Promise<FuncaoConstruto> {
         throw new Error('Método não implementado.');
+    }
+
+    /** Mapeia um tipo de token Calango para a string de tipo da Delégua. */
+    private mapearTipo(tipoToken: string): string {
+        switch (tipoToken) {
+            case tiposDeSimbolos.INTEIRO:   return 'inteiro';
+            case tiposDeSimbolos.REAL:      return 'real';
+            case tiposDeSimbolos.LOGICO:    return 'lógico';
+            case tiposDeSimbolos.CARACTER:  return 'caracter';
+            case tiposDeSimbolos.TIPO_TEXTO: return 'texto';
+            default:                        return 'qualquer';
+        }
+    }
+
+    private async analisarParametrosCalango(): Promise<ParametroInterface[]> {
+        const parametros: ParametroInterface[] = [];
+        if (this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+            return parametros;
+        }
+        do {
+            const tipoTipo = this.mapearTipo(this.simbolos[this.atual].tipo);
+            this.avancarEDevolverAnterior(); // consome o token de tipo
+            const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de parâmetro.');
+            this.pilhaEscopos.definirInformacoesVariavel(
+                nome.lexema,
+                new InformacaoElementoSintatico(nome.lexema, tipoTipo)
+            );
+            parametros.push({ abrangencia: 'padrao', nome, tipoDado: tipoTipo });
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+        return parametros;
+    }
+
+    protected async declaracaoFuncao(): Promise<FuncaoDeclaracao> {
+        this.avancarEDevolverAnterior(); // consome 'funcao'
+        const simboloNome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome da função.");
+        this.pilhaEscopos.definirInformacoesVariavel(
+            simboloNome.lexema,
+            new InformacaoElementoSintatico(simboloNome.lexema, 'qualquer')
+        );
+
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após nome da função.");
+        const parametros = await this.analisarParametrosCalango();
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
+        this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após ')' na função.");
+
+        const tipoRetorno = this.mapearTipo(this.simbolos[this.atual].tipo);
+        this.avancarEDevolverAnterior(); // consome o tipo de retorno
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
+
+        const bloco = await this.resolverBloco(['fimFuncao']);
+        this.consumir(tiposDeSimbolos.FIM_FUNCAO, "Esperado 'fimFuncao' para fechar a função.");
+
+        const funcaoConstruto = new FuncaoConstruto(
+            this.hashArquivo,
+            Number(simboloNome.linha),
+            parametros,
+            bloco.declaracoes,
+            tipoRetorno,
+            true
+        );
+        return new FuncaoDeclaracao(simboloNome, funcaoConstruto, tipoRetorno);
+    }
+
+    protected async declaracaoProcedimento(): Promise<FuncaoDeclaracao> {
+        this.avancarEDevolverAnterior(); // consome 'procedimento'
+        const simboloNome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome do procedimento.");
+        this.pilhaEscopos.definirInformacoesVariavel(
+            simboloNome.lexema,
+            new InformacaoElementoSintatico(simboloNome.lexema, 'qualquer')
+        );
+
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após nome do procedimento.");
+        const parametros = await this.analisarParametrosCalango();
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
+
+        const bloco = await this.resolverBloco(['fimProcedimento']);
+        this.consumir(tiposDeSimbolos.FIM_PROCEDIMENTO, "Esperado 'fimProcedimento' para fechar o procedimento.");
+
+        const funcaoConstruto = new FuncaoConstruto(
+            this.hashArquivo,
+            Number(simboloNome.linha),
+            parametros,
+            bloco.declaracoes,
+            'vazio',
+            false
+        );
+        return new FuncaoDeclaracao(simboloNome, funcaoConstruto, 'vazio');
+    }
+
+    protected async declaracaoRetorna(): Promise<Retorna> {
+        const simbolo = this.avancarEDevolverAnterior(); // consome 'retorna'
+        const valor = await this.expressao();
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+        return new Retorna(simbolo, valor);
     }
 
     private validarSegmentoAlgoritmo(): void {
@@ -530,6 +651,21 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         let declaracoes = [];
 
         this.validarSegmentoAlgoritmo();
+
+        // Declarações de funções e procedimentos antes do bloco principal
+        while (
+            !this.estaNoFinal() &&
+            this.simbolos[this.atual].tipo !== tiposDeSimbolos.PRINCIPAL
+        ) {
+            if (this.simbolos[this.atual].tipo === tiposDeSimbolos.FUNCAO) {
+                declaracoes.push(await this.declaracaoFuncao());
+            } else if (this.simbolos[this.atual].tipo === tiposDeSimbolos.PROCEDIMENTO) {
+                declaracoes.push(await this.declaracaoProcedimento());
+            } else {
+                this.avancarEDevolverAnterior(); // pula tokens inesperados
+            }
+        }
+
         this.validarSegmentoPrincipal('principal');
 
         while (

@@ -78,6 +78,34 @@ describe('Lexador (Calango)', () => {
                 );
             });
 
+            it('Sucesso - funcao / fimFuncao / retorna', () => {
+                const resultado = lexador.mapear([
+                    'funcao dobrar(inteiro n): inteiro',
+                    'inteiro resultado;',
+                    'resultado = n + n;',
+                    'retorna resultado;',
+                    'fimFuncao',
+                ], -1);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(resultado.simbolos.map((s) => s.tipo)).toEqual(
+                    expect.arrayContaining(['FUNCAO', 'FIM_FUNCAO', 'RETORNA', 'DOIS_PONTOS'])
+                );
+            });
+
+            it('Sucesso - procedimento / fimProcedimento', () => {
+                const resultado = lexador.mapear([
+                    'procedimento saudar(texto nome)',
+                    'escreval(nome);',
+                    'fimProcedimento',
+                ], -1);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(resultado.simbolos.map((s) => s.tipo)).toEqual(
+                    expect.arrayContaining(['PROCEDIMENTO', 'FIM_PROCEDIMENTO'])
+                );
+            });
+
             it('Sucesso - interrompa', () => {
                 const resultado = lexador.mapear([
                     'inteiro i;',

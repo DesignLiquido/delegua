@@ -92,6 +92,39 @@ describe('Avaliador sintático (Calango)', () => {
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
         });
 
+        it('Sucesso - funcao com parametros e retorna', async () => {
+            const retornoLexador = lexador.mapear([
+                'algoritmo tituloDoAlgoritmo;',
+                'funcao dobrar(inteiro n): inteiro',
+                'inteiro resultado;',
+                'resultado = n + n;',
+                'retorna resultado;',
+                'fimFuncao',
+                'principal',
+                'fimPrincipal',
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            // 1 FuncaoDeclaracao antes do principal, 0 declarações no corpo
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+        });
+
+        it('Sucesso - procedimento com parametros', async () => {
+            const retornoLexador = lexador.mapear([
+                'algoritmo tituloDoAlgoritmo;',
+                'procedimento saudar(texto nome)',
+                'escreval(nome);',
+                'fimProcedimento',
+                'principal',
+                'fimPrincipal',
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+        });
+
         it('Sucesso - interrompa dentro de enquanto', async () => {
             const retornoLexador = lexador.mapear([
                 'algoritmo tituloDoAlgoritmo;',
