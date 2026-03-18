@@ -78,6 +78,24 @@ describe('Lexador (Calango)', () => {
                 );
             });
 
+            it('Sucesso - interrompa', () => {
+                const resultado = lexador.mapear([
+                    'inteiro i;',
+                    'i = 0;',
+                    'enquanto (i < 10) faca',
+                    'se (i = 3) entao',
+                    'interrompa',
+                    'fimSe',
+                    'i = i + 1;',
+                    'fimEnquanto',
+                ], -1);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(resultado.simbolos.map((s) => s.tipo)).toEqual(
+                    expect.arrayContaining(['INTERROMPA'])
+                );
+            });
+
             it('Sucesso - escolha / caso / outroCaso / fimEscolha', () => {
                 const resultado = lexador.mapear([
                     'inteiro x;',

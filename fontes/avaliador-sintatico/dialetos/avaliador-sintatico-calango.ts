@@ -24,6 +24,7 @@ import {
     Para,
     ParaCada,
     Se,
+    Sustar,
     Var,
 } from '../../declaracoes';
 import { RetornoLexador, SimboloInterface, RetornoAvaliadorSintatico } from '../../interfaces';
@@ -474,6 +475,8 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
                 return await this.declaracaoEnquanto();
             case tiposDeSimbolos.ESCOLHA:
                 return await this.declaracaoEscolha();
+            case tiposDeSimbolos.INTERROMPA:
+                return new Sustar(this.avancarEDevolverAnterior());
             case tiposDeSimbolos.FACA:
                 return await this.declaracaoFazer();
             case tiposDeSimbolos.PARA:

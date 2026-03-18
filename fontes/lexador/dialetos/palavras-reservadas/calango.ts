@@ -20,6 +20,7 @@ export default {
     fimSe: tiposDeSimbolos.FIM_SE,
     outroCaso: tiposDeSimbolos.OUTRO_CASO,
     inteiro: tiposDeSimbolos.INTEIRO,
+    interrompa: tiposDeSimbolos.INTERROMPA,
     leia: tiposDeSimbolos.LEIA,
     logico: tiposDeSimbolos.LOGICO,
     para: tiposDeSimbolos.PARA,

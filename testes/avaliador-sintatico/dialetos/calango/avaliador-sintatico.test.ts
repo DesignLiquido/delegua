@@ -92,6 +92,27 @@ describe('Avaliador sintático (Calango)', () => {
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
         });
 
+        it('Sucesso - interrompa dentro de enquanto', async () => {
+            const retornoLexador = lexador.mapear([
+                'algoritmo tituloDoAlgoritmo;',
+                'principal',
+                'inteiro i;',
+                'i = 0;',
+                'enquanto (i < 10) faca',
+                'se (i = 3) entao',
+                'interrompa',
+                'fimSe',
+                'i = i + 1;',
+                'fimEnquanto',
+                'fimPrincipal',
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            // 1 Var + 1 Atribuir + 1 Enquanto
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
+        });
+
         it('Sucesso - escolha / caso / outroCaso / fimEscolha', async () => {
             const retornoLexador = lexador.mapear([
                 'algoritmo tituloDoAlgoritmo;',
