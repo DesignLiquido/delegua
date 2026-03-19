@@ -1466,6 +1466,31 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas[5]).toBe('5');
                 });
 
+                it('Função com múltiplos parâmetros retorna valor atribuído a variável', async () => {
+                    const codigo = [
+                        'funcao somar_com_varios_parametros(a, b, c):',
+                        '    soma = a + b + c',
+                        '    imprima(soma)',
+                        '    retorna soma',
+                        'soma = somar_com_varios_parametros(1, 1, 1)',
+                        'imprima(f"soma: {soma}")',
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(2);
+                    expect(_saidas[0]).toBe('3');
+                    expect(_saidas[1]).toBe('soma: 3');
+                });
+
                 it('Uso de funções de ordem superior', async () => {
                     const codigo = [
                         'vetor = [1, 2, 3]',

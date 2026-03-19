@@ -474,10 +474,25 @@ describe('Analisador semântico', () => {
                         "enquanto (x / y < 10) ",
                         "   sustar",
                     ], -1);
-                    
+
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-                    
+
+                    expect(retornoAnalisadorSemantico).toBeTruthy();
+                    expect(retornoAnalisadorSemantico.diagnosticos.length).toBeGreaterThanOrEqual(1);
+                });
+
+                it('verificar divisão por zero em retorno de função', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "funcao somar_com_varios_parametros(a, b, c):",
+                        "    soma = a + b + c",
+                        "    imprima(soma)",
+                        "    retorna 1/0",
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
                     expect(retornoAnalisadorSemantico).toBeTruthy();
                     expect(retornoAnalisadorSemantico.diagnosticos.length).toBeGreaterThanOrEqual(1);
                 });

@@ -1713,11 +1713,28 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
     async declaracaoSe(): Promise<Se> {
         const condicao = await this.expressao();
 
-        const caminhoEntao = (await this.resolverDeclaracao()) as Bloco;
+        this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após condição do 'se'.");
+        const simboloColonEntao = this.simboloAnterior();
+        const caminhoEntao = new Bloco(
+            simboloColonEntao.hashArquivo,
+            Number(simboloColonEntao.linha),
+            await this.blocoEscopo()
+        );
 
         let caminhoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO, tiposDeSimbolos.SENÃO)) {
-            caminhoSenao = await this.resolverDeclaracao();
+            if (this.verificarTipoSimboloAtual(tiposDeSimbolos.SE)) {
+                // 'senao se' - encadeamento de condicionais, sem dois-pontos
+                caminhoSenao = await this.resolverDeclaracao();
+            } else {
+                this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após 'senao'.");
+                const simboloColonSenao = this.simboloAnterior();
+                caminhoSenao = new Bloco(
+                    simboloColonSenao.hashArquivo,
+                    Number(simboloColonSenao.linha),
+                    await this.blocoEscopo()
+                );
+            }
         }
 
         return new Se(condicao, caminhoEntao, [], caminhoSenao);
