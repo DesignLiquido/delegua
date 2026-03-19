@@ -95,6 +95,28 @@ describe('Interpretador (Prisma)', () => {
                 expect(_saidas).not.toContain('um');
                 expect(_saidas).not.toContain('outro');
             });
+
+            it('Estrutura tente com pegue e finalmente', async () => {
+                const retornoLexador = lexador.mapear([
+                    'tente',
+                    '    imprima("no-tente");',
+                    'pegue',
+                    '    imprima("pegou");',
+                    'finalmente',
+                    '    imprima("finalizou");',
+                    'fim'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                const resultado = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(_saidas).toContain('no-tente');
+                expect(_saidas).not.toContain('pegou');
+                expect(_saidas).toContain('finalizou');
+            });
         });
     });
 });

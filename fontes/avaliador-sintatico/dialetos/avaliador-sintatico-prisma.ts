@@ -26,6 +26,7 @@ import {
     Escreva,
     Escolha,
     Se,
+    Tente,
     Enquanto,
     Para,
     Continua,
@@ -823,6 +824,61 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         );
     }
 
+    async declaracaoTente(): Promise<Tente> {
+        const simboloTente: SimboloInterface = this.simboloAnterior();
+
+        const blocoTente = [];
+        while (
+            !this.estaNoFinal() &&
+            ![
+                tiposDeSimbolos.PEGUE,
+                tiposDeSimbolos.FINALMENTE,
+                tiposDeSimbolos.FIM,
+            ].includes(this.simbolos[this.atual].tipo)
+        ) {
+            blocoTente.push(await this.resolverDeclaracaoForaDeBloco());
+        }
+
+        let blocoPegue = null;
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PEGUE)) {
+            const declaracoesPegue = [];
+            while (
+                !this.estaNoFinal() &&
+                ![tiposDeSimbolos.FINALMENTE, tiposDeSimbolos.FIM].includes(
+                    this.simbolos[this.atual].tipo
+                )
+            ) {
+                declaracoesPegue.push(await this.resolverDeclaracaoForaDeBloco());
+            }
+
+            blocoPegue = declaracoesPegue.filter((d) => d);
+        }
+
+        let blocoFinalmente = null;
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FINALMENTE)) {
+            const declaracoesFinalmente = [];
+            while (!this.estaNoFinal() && !this.verificarTipoSimboloAtual(tiposDeSimbolos.FIM)) {
+                declaracoesFinalmente.push(await this.resolverDeclaracaoForaDeBloco());
+            }
+
+            blocoFinalmente = declaracoesFinalmente.filter((d) => d);
+        }
+
+        this.consumir(
+            tiposDeSimbolos.FIM,
+            "Esperado palavra-chave 'fim' para fechamento de declaração 'tente'."
+        );
+
+        return new Tente(
+            simboloTente.hashArquivo,
+            Number(simboloTente.linha),
+            blocoTente.filter((d) => d),
+            blocoPegue,
+            null,
+            blocoFinalmente
+        );
+    }
+
     async declaracaoQuebre(): Promise<Sustar> {
         if (this.blocos < 1) {
             throw this.erro(
@@ -997,6 +1053,9 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.RETORNE:
                 this.avancarEDevolverAnterior();
                 return await this.declaracaoRetorna();
+            case tiposDeSimbolos.TENTE:
+                this.avancarEDevolverAnterior();
+                return await this.declaracaoTente();
             case tiposDeSimbolos.LOCAL:
                 this.avancarEDevolverAnterior();
                 return await this.declaracaoDeLocal();
