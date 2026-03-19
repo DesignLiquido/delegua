@@ -285,8 +285,17 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
                 this.avancar();
                 break;
             case '/':
-                this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
-                this.avancar();
+                if (this.proximoSimbolo() === '/') {
+                    // Comentário de linha: consumir até ao fim da linha sem emitir símbolo.
+                    // Guardamos o número da linha para parar quando avancar() mudar para a próxima.
+                    const linhaComentario = this.linha;
+                    while (this.linha === linhaComentario && !this.eFinalDoCodigo()) {
+                        this.avancar();
+                    }
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
+                    this.avancar();
+                }
                 break;
             case '=':
                 this.adicionarSimbolo(tiposDeSimbolos.IGUAL_ATRIBUICAO);

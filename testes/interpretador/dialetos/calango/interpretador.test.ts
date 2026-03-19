@@ -414,6 +414,29 @@ describe('Interpretador (Calango)', () => {
                 expect(_saidas[0]).toBe('256');
             });
 
+            it('comentários de linha (//)', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'algoritmo tituloDoAlgoritmo; // titulo',
+                        'principal',
+                        '// declara variável',
+                        'inteiro x;',
+                        'x = 42; // atribui 42',
+                        'escreval(x); // imprime',
+                        'fimPrincipal',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('42');
+            });
+
             it('escreva()', async () => {
                 const retornoLexador = lexador.mapear(
                     [

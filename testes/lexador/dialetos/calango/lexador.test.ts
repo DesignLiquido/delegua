@@ -223,6 +223,30 @@ describe('Lexador (Calango)', () => {
                 );
             });
 
+            it('Sucesso - comentário de linha (//)', () => {
+                const resultado = lexador.mapear([
+                    '// este é um comentário',
+                ], -1);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(resultado.simbolos).toHaveLength(0);
+            });
+
+            it('Sucesso - comentário após instrução', () => {
+                const resultado = lexador.mapear([
+                    'algoritmo tituloDoAlgoritmo;',
+                    'principal',
+                    'inteiro x; // declara x',
+                    'x = 1; // atribui 1 a x',
+                    'fimPrincipal',
+                ], -1);
+
+                expect(resultado.erros).toHaveLength(0);
+                // Apenas os símbolos das declarações, sem tokens do comentário
+                const tipos = resultado.simbolos.map((s) => s.tipo);
+                expect(tipos).not.toContain('DIVISAO');
+            });
+
             it('Sucesso - Condicionais (se, senao)', () => {
                 const resultado = lexador.mapear([
                     'algoritmo tituloDoAlgoritmo;'+ 
