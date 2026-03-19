@@ -136,6 +136,36 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
         );
     }
 
+    analisarCaracter(): void {
+        const linhaPrimeiroCaracter: number = this.linha;
+        // Restringe leitura à linha atual (como analisarNumero), evitando
+        // que avancar() mude this.linha e corrompa o cálculo do substring.
+        while (this.simboloAtual() !== "'" && this.linha === linhaPrimeiroCaracter && !this.eFinalDoCodigo()) {
+            this.avancar();
+        }
+
+        if (this.linha !== linhaPrimeiroCaracter || this.eFinalDoCodigo()) {
+            this.erros.push({
+                linha: linhaPrimeiroCaracter + 1,
+                caractere: this.simboloAnterior(),
+                mensagem: 'Caractere não finalizado.',
+            } as ErroLexador);
+            return;
+        }
+
+        const valorCaracter = this.codigo[linhaPrimeiroCaracter].substring(this.inicioSimbolo + 1, this.atual);
+
+        this.simbolos.push(
+            new Simbolo(
+                tiposDeSimbolos.LITERAL_CARACTER,
+                valorCaracter,
+                valorCaracter,
+                linhaPrimeiroCaracter + 1,
+                this.hashArquivo
+            )
+        );
+    }
+
     analisarNumero(): void {
         const linhaPrimeiroDigito: number = this.linha;
         while (this.eDigito(this.simboloAtual()) && this.linha === linhaPrimeiroDigito) {
@@ -222,6 +252,23 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
                 this.analisarTexto('"');
                 this.avancar();
                 break;
+            case "'":
+                this.avancar();
+                this.analisarCaracter();
+                this.avancar();
+                break;
+            case ':':
+                this.adicionarSimbolo(tiposDeSimbolos.DOIS_PONTOS);
+                this.avancar();
+                break;
+            case '[':
+                this.adicionarSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO);
+                this.avancar();
+                break;
+            case ']':
+                this.adicionarSimbolo(tiposDeSimbolos.COLCHETE_DIREITO);
+                this.avancar();
+                break;
             case '(':
                 this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_ESQUERDO);
                 this.avancar();
@@ -229,6 +276,35 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
             case ')':
                 this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_DIREITO);
                 this.avancar();
+                break;
+            case ',':
+                this.adicionarSimbolo(tiposDeSimbolos.VIRGULA);
+                this.avancar();
+                break;
+            case '+':
+                this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
+                this.avancar();
+                break;
+            case '-':
+                this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
+                this.avancar();
+                break;
+            case '*':
+                this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
+                this.avancar();
+                break;
+            case '/':
+                if (this.proximoSimbolo() === '/') {
+                    // Comentário de linha: consumir até ao fim da linha sem emitir símbolo.
+                    // Guardamos o número da linha para parar quando avancar() mudar para a próxima.
+                    const linhaComentario = this.linha;
+                    while (this.linha === linhaComentario && !this.eFinalDoCodigo()) {
+                        this.avancar();
+                    }
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
+                    this.avancar();
+                }
                 break;
             case '=':
                 this.adicionarSimbolo(tiposDeSimbolos.IGUAL_ATRIBUICAO);
@@ -248,9 +324,20 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
                 if (this.simboloAtual() === '=') {
                     this.adicionarSimbolo(tiposDeSimbolos.MENOR_IGUAL, '<=');
                     this.avancar();
+                } else if (this.simboloAtual() === '>') {
+                    this.adicionarSimbolo(tiposDeSimbolos.DIFERENTE, '<>');
+                    this.avancar();
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.MENOR);
                 }
+                break;
+            case '%':
+                this.adicionarSimbolo(tiposDeSimbolos.MODULO);
+                this.avancar();
+                break;
+            case '^':
+                this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
+                this.avancar();
                 break;
             default:
                 if (this.eDigito(caractere)) this.analisarNumero();
