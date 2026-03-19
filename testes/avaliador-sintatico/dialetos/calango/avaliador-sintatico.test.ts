@@ -288,11 +288,28 @@ describe('Avaliador sintático (Calango)', () => {
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(3);
         });
 
+        it('Sucesso - vetor inteiro com acesso e atribuição por índice', async () => {
+            const retornoLexador = lexador.mapear([
+                'algoritmo tituloDoAlgoritmo;',
+                'principal',
+                'inteiro v[3];',
+                'v[0] = 10;',
+                'v[1] = 20;',
+                'escreval(v[0]);',
+                'fimPrincipal',
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            // 1 Var (vetor) + 2 AtribuicaoPorIndice + 1 Escreva
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(4);
+        });
+
         it('Sucesso - Condicionais (se, senao)', async () => {
             const retornoLexador = lexador.mapear([
-                'algoritmo tituloDoAlgoritmo;', 
-                'principal', 
-                'inteiro idade;', 
+                'algoritmo tituloDoAlgoritmo;',
+                'principal',
+                'inteiro idade;',
                 'escreva("Informe sua idade: ");',
                 'leia(idade);',
                 'se (idade >= 18) entao',

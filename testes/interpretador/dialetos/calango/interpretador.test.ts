@@ -437,6 +437,34 @@ describe('Interpretador (Calango)', () => {
                 expect(_saidas[0]).toBe('42');
             });
 
+            it('vetor inteiro: declaração, atribuição e leitura por índice', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'algoritmo tituloDoAlgoritmo;',
+                        'principal',
+                        'inteiro v[3];',
+                        'v[0] = 10;',
+                        'v[1] = 20;',
+                        'v[2] = 30;',
+                        'escreval(v[0]);',
+                        'escreval(v[1]);',
+                        'escreval(v[2]);',
+                        'fimPrincipal',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(3);
+                expect(_saidas[0]).toBe('10');
+                expect(_saidas[1]).toBe('20');
+                expect(_saidas[2]).toBe('30');
+            });
+
             it('escreva()', async () => {
                 const retornoLexador = lexador.mapear(
                     [

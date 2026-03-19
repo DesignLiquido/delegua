@@ -247,6 +247,17 @@ describe('Lexador (Calango)', () => {
                 expect(tipos).not.toContain('DIVISAO');
             });
 
+            it('Sucesso - declaração de vetor inteiro v[5]', () => {
+                const resultado = lexador.mapear([
+                    'inteiro v[5];',
+                ], -1);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(resultado.simbolos.map((s) => s.tipo)).toEqual(
+                    expect.arrayContaining(['INTEIRO', 'IDENTIFICADOR', 'COLCHETE_ESQUERDO', 'NUMERO', 'COLCHETE_DIREITO'])
+                );
+            });
+
             it('Sucesso - Condicionais (se, senao)', () => {
                 const resultado = lexador.mapear([
                     'algoritmo tituloDoAlgoritmo;'+ 

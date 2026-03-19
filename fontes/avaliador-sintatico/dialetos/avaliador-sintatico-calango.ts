@@ -11,6 +11,7 @@ import {
     Leia,
     Literal,
     Variavel,
+    Vetor,
 } from '../../construtos';
 import { Simbolo } from '../../lexador/simbolo';
 import {
@@ -87,15 +88,23 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
     protected async chamar(): Promise<Construto> {
         let expressao = await this.primario();
 
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
-            const argumentos: Construto[] = [];
-            if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
-                do {
-                    argumentos.push(await this.expressao());
-                } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+        while (true) {
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
+                const argumentos: Construto[] = [];
+                if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+                    do {
+                        argumentos.push(await this.expressao());
+                    } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+                }
+                this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após argumentos da chamada.");
+                expressao = new Chamada(this.hashArquivo, expressao, argumentos);
+            } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
+                const indice = await this.expressao();
+                const fechamento = this.consumir(tiposDeSimbolos.COLCHETE_DIREITO, "Esperado ']' após índice.");
+                expressao = new AcessoIndiceVariavel(this.hashArquivo, expressao, indice, fechamento);
+            } else {
+                break;
             }
-            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após argumentos da chamada.");
-            expressao = new Chamada(this.hashArquivo, expressao, argumentos);
         }
 
         return expressao;
@@ -227,7 +236,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         return new EscrevaMesmaLinha(Number(simboloAtual.linha), this.hashArquivo, argumentos);
     }
 
-    private declaracaoVariaveis(tipoToken: string, tipoDelégua: TipoInferencia, valorPadrao: any): Var[] {
+    private declaracaoVariaveis(_tipoToken: string, tipoDelégua: TipoInferencia, valorPadrao: any): Var[] {
         const simboloTipo = this.avancarEDevolverAnterior();
 
         const inicializacoes = [];
@@ -237,17 +246,39 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
                 `Esperado identificador após palavra reservada '${simboloTipo.lexema}'.`
             );
 
-            inicializacoes.push(
-                new Var(
-                    identificador,
-                    new Literal(this.hashArquivo, Number(simboloTipo.linha), valorPadrao, tipoDelégua)
-                )
-            );
+            // Vetor com tamanho fixo: inteiro v[10];
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
+                const tamanhoSimbolo = this.consumir(tiposDeSimbolos.NUMERO, 'Esperado tamanho do vetor.');
+                const tamanho = Number(tamanhoSimbolo.literal);
+                this.consumir(tiposDeSimbolos.COLCHETE_DIREITO, "Esperado ']' após tamanho do vetor.");
 
-            this.pilhaEscopos.definirInformacoesVariavel(
-                identificador.lexema,
-                new InformacaoElementoSintatico(identificador.lexema, tipoDelégua)
-            );
+                const elementos: Literal[] = Array.from(
+                    { length: tamanho },
+                    () => new Literal(this.hashArquivo, Number(simboloTipo.linha), valorPadrao, tipoDelégua)
+                );
+                const tipoVetor = `${tipoDelégua}[]` as TipoInferencia;
+
+                inicializacoes.push(
+                    new Var(identificador, new Vetor(this.hashArquivo, Number(simboloTipo.linha), elementos, tipoVetor))
+                );
+
+                this.pilhaEscopos.definirInformacoesVariavel(
+                    identificador.lexema,
+                    new InformacaoElementoSintatico(identificador.lexema, tipoVetor)
+                );
+            } else {
+                inicializacoes.push(
+                    new Var(
+                        identificador,
+                        new Literal(this.hashArquivo, Number(simboloTipo.linha), valorPadrao, tipoDelégua)
+                    )
+                );
+
+                this.pilhaEscopos.definirInformacoesVariavel(
+                    identificador.lexema,
+                    new InformacaoElementoSintatico(identificador.lexema, tipoDelégua)
+                );
+            }
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         this.consumir(
