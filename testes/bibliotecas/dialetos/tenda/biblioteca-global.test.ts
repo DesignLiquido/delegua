@@ -229,11 +229,27 @@ describe('Biblioteca Global Tenda', () => {
         });
 
         it('aleatório() retorna valor entre 0 e 1', async () => {
-            const codigo = ['seja r = Matemática.aleatório()'];
+            const codigo = ['exiba(Matemática.aleatório())'];
             const retornoLexador = lexador.mapear(codigo, -1);
             const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
             expect(retorno.erros).toHaveLength(0);
+            const r = parseFloat(_saidas[0]);
+            expect(isFinite(r)).toBe(true);
+            expect(r).toBeGreaterThanOrEqual(0);
+            expect(r).toBeLessThan(1);
+        });
+
+        it('aleatório(min, max) retorna valor no intervalo', async () => {
+            const codigo = ['exiba(Matemática.aleatório(10, 20))'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retorno.erros).toHaveLength(0);
+            const r = parseFloat(_saidas[0]);
+            expect(isFinite(r)).toBe(true);
+            expect(r).toBeGreaterThanOrEqual(10);
+            expect(r).toBeLessThan(20);
         });
 
         it('constante pi', async () => {
@@ -348,11 +364,14 @@ describe('Biblioteca Global Tenda', () => {
 
     describe('Data', () => {
         it('agora() retorna timestamp', async () => {
-            const codigo = ['seja ts = Data.agora()'];
+            const codigo = ['exiba(Data.agora())'];
             const retornoLexador = lexador.mapear(codigo, -1);
             const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
             const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
             expect(retorno.erros).toHaveLength(0);
+            const ts = parseFloat(_saidas[0]);
+            expect(typeof ts).toBe('number');
+            expect(ts).toBeGreaterThan(0);
         });
 
         it('ano(data)', async () => {

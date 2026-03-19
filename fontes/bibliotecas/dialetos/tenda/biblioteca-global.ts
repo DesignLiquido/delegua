@@ -201,8 +201,16 @@ export default function carregarBibliotecaGlobalTenda(
             const vb = b !== null && b !== undefined && b.hasOwnProperty('valor') ? b.valor : b;
             return Math.min(va, vb);
         }),
-        aleatório: new FuncaoPadrao(0, function () {
-            return Math.random();
+        aleatório: new FuncaoPadrao(0, function (_: any, min: any, max: any) {
+            if (min === undefined) {
+                return Math.random();
+            }
+            const vMin = min !== null && min.hasOwnProperty('valor') ? min.valor : min;
+            if (max === undefined) {
+                return Math.floor(Math.random() * vMin);
+            }
+            const vMax = max !== null && max.hasOwnProperty('valor') ? max.valor : max;
+            return Math.floor(Math.random() * (vMax - vMin)) + vMin;
         }),
     });
 
