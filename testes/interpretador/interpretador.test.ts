@@ -4507,6 +4507,19 @@ describe('Interpretador', () => {
                 );
             });
 
+            it('Variável do tipo logico (sem acento) aceita resultado de expressão lógica', async () => {
+                const codigo = [
+                    'var decisao: logico',
+                    'decisao = 3 > 2',
+                    'escreva(decisao)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+            });
+
             it('Variável com tipo qualquer aceita qualquer valor', async () => {
                 const codigo = [
                     'var x: qualquer = "hello"',
