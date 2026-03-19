@@ -133,6 +133,36 @@ describe('Interpretador (Prisma)', () => {
                 expect(_saidas).toContain('sim');
                 expect(_saidas).not.toContain('nao');
             });
+
+            it('Laço para cada', async () => {
+                const retornoLexador = lexador.mapear([
+                    'local lista = nulo;',
+                    'local total = 0;',
+                    'para cada elemento em lista inicio',
+                    '    total = total + 1;',
+                    'fim',
+                    'imprima(total);'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                // Primeiro declara a variável para manter consistência com a análise sintática,
+                // depois injeta um vetor real no ambiente para testar execução do para cada.
+                const resultadoInicial = await interpretador.interpretar([
+                    retornoAvaliadorSintatico.declaracoes[0],
+                ]);
+                expect(resultadoInicial.erros).toHaveLength(0);
+
+                interpretador.pilhaEscoposExecucao.definirVariavel('lista', [1, 2, 3], 'vetor');
+
+                const resultado = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes.slice(1)
+                );
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(_saidas).toContain('3');
+            });
         });
     });
 });

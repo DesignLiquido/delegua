@@ -26,6 +26,7 @@ import {
 import {
     Escreva,
     Escolha,
+    ParaCada,
     Se,
     Tente,
     Enquanto,
@@ -1143,10 +1144,56 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         }
     }
 
-    async declaracaoPara(): Promise<Para> {
+    async declaracaoParaCada(simboloPara: SimboloInterface): Promise<ParaCada> {
+        const variavelIteracao = this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            "Esperado identificador de variável após 'para cada'."
+        );
+
+        this.consumir(tiposDeSimbolos.EM, "Esperado palavra reservada 'em' após variável de iteração.");
+
+        const vetorOuDicionario = await this.expressao();
+
+        this.consumir(
+            tiposDeSimbolos.INICIO,
+            `espera-se 'inicio' proximo a '${this.simbolos[this.atual].lexema}'.`
+        );
+
+        this.pilhaEscopos.definirInformacoesVariavel(
+            variavelIteracao.lexema,
+            new InformacaoElementoSintatico(variavelIteracao.lexema, 'qualquer')
+        );
+
+        const declaracoesBlocoParaCada = [];
+        while (!this.estaNoFinal() && !this.verificarTipoSimboloAtual(tiposDeSimbolos.FIM)) {
+            declaracoesBlocoParaCada.push(await this.resolverDeclaracaoForaDeBloco());
+        }
+
+        this.consumir(tiposDeSimbolos.FIM, "Esperado 'fim' após bloco do para cada.");
+
+        const corpo = new Bloco(
+            this.hashArquivo,
+            Number(simboloPara.linha) + 1,
+            declaracoesBlocoParaCada.filter((d) => d)
+        );
+
+        return new ParaCada(
+            this.hashArquivo,
+            Number(simboloPara.linha),
+            new Variavel(this.hashArquivo, variavelIteracao, 'qualquer'),
+            vetorOuDicionario,
+            corpo
+        );
+    }
+
+    async declaracaoPara(): Promise<Para | ParaCada> {
         try {
             this.blocos += 1;
             const simboloPara: SimboloInterface = this.avancarEDevolverAnterior();
+
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CADA)) {
+                return await this.declaracaoParaCada(simboloPara);
+            }
 
             const variavelIteracao = this.consumir(
                 tiposDeSimbolos.IDENTIFICADOR,

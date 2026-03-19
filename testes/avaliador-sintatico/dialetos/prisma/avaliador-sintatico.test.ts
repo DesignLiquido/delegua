@@ -1,6 +1,6 @@
 import { AvaliadorSintaticoPrisma } from '../../../../fontes/avaliador-sintatico/dialetos';
 import { Leia, Literal, SeTernario } from '../../../../fontes/construtos';
-import { Classe, Enquanto, Escolha, Expressao, FuncaoDeclaracao, Para, Se, Tente, Var } from '../../../../fontes/declaracoes';
+import { Classe, Enquanto, Escolha, Expressao, FuncaoDeclaracao, Para, ParaCada, Se, Tente, Var } from '../../../../fontes/declaracoes';
 import { LexadorPrisma } from '../../../../fontes/lexador/dialetos';
 
 describe('Avaliador Sintático (Prisma)', () => {
@@ -359,6 +359,24 @@ describe('Avaliador Sintático (Prisma)', () => {
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Para);
+            });
+
+            it('Laço para cada', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'local tabela = {1, 2, 3};',
+                        'para cada elemento em tabela inicio',
+                        '    imprima(elemento);',
+                        'fim'
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                expect(retornoAvaliadorSintatico.declaracoes[1].constructor).toBe(ParaCada);
             });
         });
 
