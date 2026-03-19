@@ -9,6 +9,7 @@ import { TipoInferencia, inferirTipoVariavel } from '../inferenciador';
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 
 const tiposNumericos = ['inteiro', 'número', 'numero', 'real', 'longo'];
+const tiposLogicos = ['logico', 'lógico'];
 
 export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
     pilha: EscopoExecucao[];
@@ -46,6 +47,8 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
     private tiposCompativeis(tipoVariavel: string, tipoValor: string): boolean {
         if (tipoVariavel === tipoValor) return true;
         if (tiposNumericos.includes(tipoVariavel) && tiposNumericos.includes(tipoValor as string))
+            return true;
+        if (tiposLogicos.includes(tipoVariavel) && tiposLogicos.includes(tipoValor))
             return true;
         return false;
     }
