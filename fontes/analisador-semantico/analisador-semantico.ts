@@ -461,8 +461,12 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 switch (condicao.constructor) {
                     case Literal:
                         const condicaoLiteral = condicao as Literal;
+                        const tiposNumericos = ['inteiro', 'número', 'real'];
+                        const ambosSaoNumericos =
+                            tiposNumericos.includes(condicaoLiteral.tipo) &&
+                            tiposNumericos.includes(tipo);
 
-                        if (condicaoLiteral.tipo !== tipo) {
+                        if (condicaoLiteral.tipo !== tipo && !ambosSaoNumericos) {
                             this.erro(
                                 {
                                     lexema: condicaoLiteral.valor,

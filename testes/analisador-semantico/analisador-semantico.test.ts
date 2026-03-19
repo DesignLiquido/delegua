@@ -403,6 +403,34 @@ describe('Analisador semântico', () => {
             );
         });
 
+        it("Escolha com variável 'inteiro' e literal numérico em 'caso' não deve gerar aviso de tipo", async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var opcao: inteiro',
+                    'opcao = inteiro(leia("Digite um valor de 1 a 4"))',
+                    'escolha (opcao) {',
+                    '    caso 1:',
+                    '        escreva("Olá Mundo!");',
+                    '    padrao:',
+                    '        escreva("Valor padrão!");',
+                    '}',
+                    'escreva(opcao)',
+                ],
+                -1
+            );
+
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            const avisosDeTipo = retornoAnalisadorSemantico.diagnosticos.filter((d) =>
+                d.mensagem.includes('não é do mesmo tipo esperado em')
+            );
+            expect(avisosDeTipo).toHaveLength(0);
+        });
+
         it('Leia por padrão retorna texto', async () => {
             const retornoLexador = lexador.mapear(
                 ["var opcao: inteiro = leia('Digite a opção desejada: ')"],
