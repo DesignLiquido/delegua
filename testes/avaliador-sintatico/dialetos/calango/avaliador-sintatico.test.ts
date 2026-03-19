@@ -11,6 +11,20 @@ describe('Avaliador sintático (Calango)', () => {
             avaliadorSintatico = new AvaliadorSintaticoCalango();
         });
 
+        describe('Cenários de falha', () => {
+            it('Falha - tamanho de vetor não-inteiro (inteiro v[2.5])', async () => {
+                const retornoLexador = lexador.mapear([
+                    'algoritmo a;',
+                    'principal',
+                    'inteiro v[2.5];',
+                    'fimPrincipal',
+                ], -1);
+                await expect(avaliadorSintatico.analisar(retornoLexador, -1)).rejects.toThrow(
+                    'Tamanho do vetor deve ser um inteiro não-negativo.'
+                );
+            });
+        });
+
         it('Sucesso - escreva()', async () => {
             const retornoLexador = lexador.mapear([
                 'algoritmo tituloDoAlgoritmo;', 

@@ -258,6 +258,20 @@ describe('Lexador (Calango)', () => {
                 );
             });
 
+        });
+
+        describe('Cenários de falha', () => {
+            it('Falha - caractere não finalizado (aspa simples sem fechamento)', () => {
+                const resultado = lexador.mapear([
+                    "letra = 'a;",
+                ], -1);
+
+                expect(resultado.erros).toHaveLength(1);
+                expect(resultado.erros[0].mensagem).toBe('Caractere não finalizado.');
+            });
+        });
+
+        describe('Cenários de sucesso', () => {
             it('Sucesso - Condicionais (se, senao)', () => {
                 const resultado = lexador.mapear([
                     'algoritmo tituloDoAlgoritmo;'+ 

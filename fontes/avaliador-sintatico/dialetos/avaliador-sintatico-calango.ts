@@ -250,6 +250,9 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
                 const tamanhoSimbolo = this.consumir(tiposDeSimbolos.NUMERO, 'Esperado tamanho do vetor.');
                 const tamanho = Number(tamanhoSimbolo.literal);
+                if (!Number.isInteger(tamanho) || tamanho < 0) {
+                    throw this.erro(tamanhoSimbolo, 'Tamanho do vetor deve ser um inteiro não-negativo.');
+                }
                 this.consumir(tiposDeSimbolos.COLCHETE_DIREITO, "Esperado ']' após tamanho do vetor.");
 
                 const elementos: Literal[] = Array.from(
@@ -315,8 +318,12 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
             const simboloFaca = this.avancarEDevolverAnterior(); // consome 'faca'
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
 
-            // Corpo termina quando encontramos o 'enquanto' do do-while (não de um 'enquanto' aninhado,
-            // pois esses são consumidos recursivamente por declaracaoEnquanto dentro do bloco).
+            // Corpo termina quando encontramos o 'enquanto' do do-while.
+            // LIMITAÇÃO CONHECIDA: um `enquanto...fimEnquanto` (while) aninhado dentro deste bloco
+            // causará término prematuro, pois o parser não consegue distinguir o 'enquanto' de
+            // fechamento do do-while do 'enquanto' de abertura de um while aninhado sem lookahead
+            // arbitrário. Este é um defeito da gramática do Calango, presente também no interpretador
+            // de referência (github.com/GeovanaRamos/calango-interpreter). Não deve ser corrigido.
             const corpo = await this.resolverBloco(['enquanto']);
 
             this.consumir(tiposDeSimbolos.ENQUANTO, "Esperado 'enquanto' após corpo do 'faca'.");

@@ -138,21 +138,22 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
 
     analisarCaracter(): void {
         const linhaPrimeiroCaracter: number = this.linha;
-        // Avança até o fechamento da aspas simples
-        while (this.simboloAtual() !== "'" && !this.eFinalDoCodigo()) {
+        // Restringe leitura à linha atual (como analisarNumero), evitando
+        // que avancar() mude this.linha e corrompa o cálculo do substring.
+        while (this.simboloAtual() !== "'" && this.linha === linhaPrimeiroCaracter && !this.eFinalDoCodigo()) {
             this.avancar();
         }
 
-        if (this.eFinalDoCodigo()) {
+        if (this.linha !== linhaPrimeiroCaracter || this.eFinalDoCodigo()) {
             this.erros.push({
-                linha: this.linha + 1,
+                linha: linhaPrimeiroCaracter + 1,
                 caractere: this.simboloAnterior(),
                 mensagem: 'Caractere não finalizado.',
             } as ErroLexador);
             return;
         }
 
-        const valorCaracter = this.codigo[this.linha].substring(this.inicioSimbolo + 1, this.atual);
+        const valorCaracter = this.codigo[linhaPrimeiroCaracter].substring(this.inicioSimbolo + 1, this.atual);
 
         this.simbolos.push(
             new Simbolo(
