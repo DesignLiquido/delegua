@@ -40,6 +40,7 @@ import {
     Declaracao,
     Expressao,
     Bloco,
+    PropriedadeClasse,
     Sustar,
 } from '../../declaracoes';
 
@@ -1343,6 +1344,85 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         }
     }
 
+    async metodoClassePrisma(construtor: boolean): Promise<FuncaoDeclaracao> {
+        const simbolo: SimboloInterface = construtor
+            ? new Simbolo(
+                  tiposDeSimbolos.CONSTRUTOR,
+                  'construtor',
+                  null,
+                  Number(this.simboloAnterior().linha),
+                  this.hashArquivo
+              )
+            : this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do método.');
+
+        this.consumir(
+            tiposDeSimbolos.PARENTESE_ESQUERDO,
+            "Esperado '(' após nome do método."
+        );
+
+        let parametros = [];
+        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+            parametros = await this.logicaComumParametros();
+        }
+
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
+        this.consumir(
+            tiposDeSimbolos.CHAVE_ESQUERDA,
+            "Esperado '{' antes do corpo do método."
+        );
+
+        const declaracoesCorpo = [];
+        while (!this.estaNoFinal() && !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA)) {
+            declaracoesCorpo.push(await this.resolverDeclaracaoForaDeBloco());
+        }
+
+        this.consumir(
+            tiposDeSimbolos.CHAVE_DIREITA,
+            "Esperado '}' após o corpo do método."
+        );
+
+        const corpoDaFuncao = new FuncaoConstruto(
+            this.hashArquivo,
+            Number(simbolo.linha),
+            parametros,
+            declaracoesCorpo.filter((d) => d),
+            'qualquer',
+            false
+        );
+
+        const tipoDaFuncao = `função<${corpoDaFuncao.tipo}>`;
+        return new FuncaoDeclaracao(simbolo, corpoDaFuncao, tipoDaFuncao);
+    }
+
+    private propriedadesDeclaradasEmMetodo(metodo: FuncaoDeclaracao): PropriedadeClasse[] {
+        const propriedades: PropriedadeClasse[] = [];
+        const nomesPropriedades = new Set<string>();
+
+        for (const declaracao of metodo.funcao.corpo) {
+            if (!(declaracao instanceof Expressao)) {
+                continue;
+            }
+
+            if (!(declaracao.expressao instanceof DefinirValor)) {
+                continue;
+            }
+
+            if (!(declaracao.expressao.objeto instanceof Isto)) {
+                continue;
+            }
+
+            const nomePropriedade = declaracao.expressao.nome.lexema;
+            if (nomesPropriedades.has(nomePropriedade)) {
+                continue;
+            }
+
+            nomesPropriedades.add(nomePropriedade);
+            propriedades.push(new PropriedadeClasse(declaracao.expressao.nome, 'qualquer'));
+        }
+
+        return propriedades;
+    }
+
     async declaracaoDeClasse(): Promise<Classe> {
         const simbolo: SimboloInterface = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
@@ -1370,14 +1450,38 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
                 this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) ||
                 this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNÇÃO))
         ) {
-            const ehConstrutor = this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONSTRUTOR);
-            metodos.push(await this.funcao('método'));
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONSTRUTOR)) {
+                metodos.push(await this.metodoClassePrisma(true));
+                continue;
+            }
+
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FUNCAO, tiposDeSimbolos.FUNÇÃO);
+            metodos.push(await this.metodoClassePrisma(false));
         }
 
         this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após métodos da classe.");
 
+        const propriedades = [];
+        const nomesPropriedades = new Set<string>();
+        for (const metodo of metodos) {
+            const propriedadesDoMetodo = this.propriedadesDeclaradasEmMetodo(metodo);
+            for (const propriedade of propriedadesDoMetodo) {
+                if (nomesPropriedades.has(propriedade.nome.lexema)) {
+                    continue;
+                }
+
+                nomesPropriedades.add(propriedade.nome.lexema);
+                propriedades.push(propriedade);
+            }
+        }
+
         this.superclasseAtual = undefined;
-        const definicaoClasse = new Classe(simbolo, superClasse ? [superClasse] : [], metodos);
+        const definicaoClasse = new Classe(
+            simbolo,
+            superClasse ? [superClasse] : [],
+            metodos,
+            propriedades
+        );
         this.tiposDefinidosEmCodigo[definicaoClasse.simbolo.lexema] = definicaoClasse;
         return definicaoClasse;
     }

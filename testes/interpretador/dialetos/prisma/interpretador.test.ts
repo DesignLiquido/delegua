@@ -163,6 +163,29 @@ describe('Interpretador (Prisma)', () => {
                 expect(resultado.erros).toHaveLength(0);
                 expect(_saidas).toContain('3');
             });
+
+            it('Classe com construtor e método', async () => {
+                const retornoLexador = lexador.mapear([
+                    'classe Pessoa {',
+                    '    construtor(nome) {',
+                    '        isto.nome = nome;',
+                    '    }',
+                    '    funcao apresentar() {',
+                    '        retorne isto.nome;',
+                    '    }',
+                    '}',
+                    'local pessoa = Pessoa("Maria");',
+                    'imprima(pessoa.apresentar());'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                const resultado = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(_saidas).toContain('Maria');
+            });
         });
     });
 });

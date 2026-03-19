@@ -342,12 +342,15 @@ describe('Avaliador Sintático (Prisma)', () => {
                 });
             });
 
-            it.skip('Declaração de classe', async () => {
+            it('Declaração de classe', async () => {
                 const retornoLexador = lexador.mapear(
                     [
                         'classe Pessoa {',
                         '    construtor(nome) {',
                         '        isto.nome = nome;',
+                        '    }',
+                        '    funcao apresentar() {',
+                        '        retorne isto.nome;',
                         '    }',
                         '}'
                     ],
@@ -359,6 +362,10 @@ describe('Avaliador Sintático (Prisma)', () => {
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Classe);
+
+                const declaracaoClasse = retornoAvaliadorSintatico.declaracoes[0] as Classe;
+                expect(declaracaoClasse.propriedades).toHaveLength(1);
+                expect(declaracaoClasse.propriedades[0].nome.lexema).toBe('nome');
             });
         });
 
@@ -400,7 +407,7 @@ describe('Avaliador Sintático (Prisma)', () => {
         });
 
         describe('Exemplos Prisma', () => {
-            it('Arquivos de exemplo devem ser analisados sem erros (exceto classes.prisma)', async () => {
+            it('Arquivos de exemplo devem ser analisados sem erros', async () => {
                 const diretorioExemplosPrisma = path.resolve(
                     __dirname,
                     '../../../../exemplos/dialetos/prisma'
@@ -408,8 +415,7 @@ describe('Avaliador Sintático (Prisma)', () => {
 
                 const arquivosExemplo = fs
                     .readdirSync(diretorioExemplosPrisma)
-                    .filter((arquivo) => arquivo.endsWith('.prisma'))
-                    .filter((arquivo) => arquivo !== 'classes.prisma');
+                    .filter((arquivo) => arquivo.endsWith('.prisma'));
 
                 for (const arquivoExemplo of arquivosExemplo) {
                     const conteudo = fs.readFileSync(
