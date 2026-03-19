@@ -15,16 +15,19 @@ import {
     Isto,
     Literal,
     Logico,
+    SeTernario,
     Super,
     Unario,
     Variavel,
     Leia,
-    FimPara,
     ImportarComoConstruto,
 } from '../../construtos';
 import {
     Escreva,
+    Escolha,
+    ParaCada,
     Se,
+    Tente,
     Enquanto,
     Para,
     Continua,
@@ -36,6 +39,7 @@ import {
     Declaracao,
     Expressao,
     Bloco,
+    PropriedadeClasse,
     Sustar,
 } from '../../declaracoes';
 
@@ -181,10 +185,17 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
 
                 let indice = 1;
                 do {
-                    let chave: string = String(indice);
-                    if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
-                        // Lógica para índice nomeado
-                        // TODO: Terminar
+                    let chave: Construto;
+                    if (
+                        this.verificarTipoSimboloAtual(tiposDeSimbolos.IDENTIFICADOR) &&
+                        this.simbolos[this.atual + 1]?.tipo === tiposDeSimbolos.IGUAL
+                    ) {
+                        // Chave nomeada: {nome = "João"}
+                        const chaveIdentificador = this.avancarEDevolverAnterior();
+                        this.avancarEDevolverAnterior(); // consume IGUAL
+                        chave = new Literal(this.hashArquivo, simboloAtual.linha, chaveIdentificador.lexema);
+                    } else {
+                        chave = new Literal(this.hashArquivo, simboloAtual.linha, String(indice));
                     }
 
                     const valor = await this.ou();
@@ -267,8 +278,13 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
     }
 
-    expressaoImportar(): ImportarComoConstruto {
-        throw new Error('Método não implementado.');
+    async expressaoImportar(): Promise<ImportarComoConstruto> {
+        this.avancarEDevolverAnterior();
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após declaração.");
+        const caminho = await this.expressao();
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração.");
+
+        return new ImportarComoConstruto(caminho as Literal);
     }
 
     /**
@@ -374,7 +390,9 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.NEGACAO,
                 tiposDeSimbolos.SUBTRACAO,
-                tiposDeSimbolos.BIT_NOT
+                tiposDeSimbolos.BIT_NOT,
+                tiposDeSimbolos.NAO,
+                tiposDeSimbolos.COMPRIMENTO
             )
         ) {
             const operador = this.simboloAnterior();
@@ -430,8 +448,20 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    async bitShift(): Promise<Construto> {
+    async concatenacao(): Promise<Construto> {
         let expressao = await this.adicaoOuSubtracao();
+
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONCATENACAO)) {
+            const operador = this.simboloAnterior();
+            const direito = await this.adicaoOuSubtracao();
+            expressao = new Binario(this.hashArquivo, expressao, operador, direito);
+        }
+
+        return expressao;
+    }
+
+    async bitShift(): Promise<Construto> {
+        let expressao = await this.concatenacao();
 
         while (
             this.verificarSeSimboloAtualEIgualA(
@@ -545,8 +575,33 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         return expressao;
     }
 
+    async ternario(): Promise<Construto> {
+        let expressaoOuCondicao = await this.ou();
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTERROGACAO)) {
+            const operador = this.simboloAnterior();
+            const caminhoEntao = await this.e();
+
+            this.consumir(
+                tiposDeSimbolos.OU,
+                "Esperado palavra reservada 'ou' após caminho positivo em operador ternário."
+            );
+
+            const caminhoSenao = await this.ternario();
+            expressaoOuCondicao = new SeTernario(
+                this.hashArquivo,
+                expressaoOuCondicao,
+                caminhoEntao,
+                operador,
+                caminhoSenao
+            );
+        }
+
+        return expressaoOuCondicao;
+    }
+
     async atribuir(): Promise<Construto> {
-        const expressao = await this.ou();
+        const expressao = await this.ternario();
 
         if (
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL) ||
@@ -636,7 +691,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.FIM, "Esperado 'fim' após o bloco.");
 
         this.pilhaEscopos.removerUltimo();
-        return declaracoes;
+        return declaracoes.filter((d) => d);
     }
 
     async declaracaoDeLocal(): Promise<Var> {
@@ -675,6 +730,93 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         }
     }
 
+    async declaracaoEscolha(): Promise<Escolha> {
+        try {
+            this.blocos += 1;
+
+            const condicao = await this.expressao();
+            const caminhos = [];
+            let caminhoPadrao = null;
+
+            while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.FIM) && !this.estaNoFinal()) {
+                if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CASO)) {
+                    const caminhoCondicoes = [await this.expressao()];
+
+                    while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CASO)) {
+                        caminhoCondicoes.push(await this.expressao());
+                    }
+
+                    this.consumir(
+                        tiposDeSimbolos.ENTAO,
+                        "Esperado palavra reservada 'entao' ou 'então' após valor do 'caso'."
+                    );
+
+                    const declaracoes = [];
+                    while (
+                        !this.estaNoFinal() &&
+                        ![
+                            tiposDeSimbolos.CASO,
+                            tiposDeSimbolos.PADRAO,
+                            tiposDeSimbolos.FIM,
+                        ].includes(this.simbolos[this.atual].tipo)
+                    ) {
+                        declaracoes.push(await this.resolverDeclaracaoForaDeBloco());
+                    }
+
+                    caminhos.push({
+                        condicoes: caminhoCondicoes,
+                        declaracoes: declaracoes.filter((d) => d),
+                    });
+                } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PADRAO)) {
+                    if (caminhoPadrao !== null) {
+                        const excecao = new ErroAvaliadorSintatico(
+                            this.simbolos[this.atual],
+                            "Você só pode ter um 'padrao' em cada declaração de 'escolha'."
+                        );
+                        this.erros.push(excecao);
+                        throw excecao;
+                    }
+
+                    this.consumir(
+                        tiposDeSimbolos.ENTAO,
+                        "Esperado palavra reservada 'entao' ou 'então' após declaração do 'padrao'."
+                    );
+
+                    const declaracoes = [];
+                    while (
+                        !this.estaNoFinal() &&
+                        ![
+                            tiposDeSimbolos.CASO,
+                            tiposDeSimbolos.PADRAO,
+                            tiposDeSimbolos.FIM,
+                        ].includes(this.simbolos[this.atual].tipo)
+                    ) {
+                        declaracoes.push(await this.resolverDeclaracaoForaDeBloco());
+                    }
+
+                    caminhoPadrao = {
+                        condicoes: [],
+                        declaracoes: declaracoes.filter((d) => d),
+                    };
+                } else {
+                    throw this.erro(
+                        this.simbolos[this.atual],
+                        "Esperado 'caso', 'padrao' ou 'fim' em declaração 'escolha'."
+                    );
+                }
+            }
+
+            this.consumir(
+                tiposDeSimbolos.FIM,
+                "Esperado palavra-chave 'fim' para fechamento de declaração 'escolha'."
+            );
+
+            return new Escolha(condicao, caminhos, caminhoPadrao);
+        } finally {
+            this.blocos -= 1;
+        }
+    }
+
     async declaracaoSe(): Promise<Se> {
         const simboloSe: SimboloInterface = this.simbolos[this.atual];
         const condicao = await this.expressao();
@@ -695,25 +837,33 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         );
 
         let caminhoSenao = null;
+        let fimConsumidoNoCaminhoSenao = false;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO, tiposDeSimbolos.SENÃO)) {
             const simboloSenao = this.simbolos[this.atual - 1];
-            const declaracoesSenao = [];
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SE)) {
+                caminhoSenao = await this.declaracaoSe();
+                fimConsumidoNoCaminhoSenao = true;
+            } else {
+                const declaracoesSenao = [];
 
-            do {
-                declaracoesSenao.push(await this.resolverDeclaracaoForaDeBloco());
-            } while (![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo));
+                do {
+                    declaracoesSenao.push(await this.resolverDeclaracaoForaDeBloco());
+                } while (![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo));
 
-            caminhoSenao = new Bloco(
-                this.hashArquivo,
-                Number(simboloSenao.linha),
-                declaracoesSenao.filter((d) => d)
-            );
+                caminhoSenao = new Bloco(
+                    this.hashArquivo,
+                    Number(simboloSenao.linha),
+                    declaracoesSenao.filter((d) => d)
+                );
+            }
         }
 
-        this.consumir(
-            tiposDeSimbolos.FIM,
-            "Esperado palavra-chave 'fimse' para fechamento de declaração 'se'."
-        );
+        if (!fimConsumidoNoCaminhoSenao) {
+            this.consumir(
+                tiposDeSimbolos.FIM,
+                "Esperado palavra-chave 'fim' para fechamento de declaração 'se'."
+            );
+        }
 
         return new Se(
             condicao,
@@ -724,6 +874,61 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             ),
             [],
             caminhoSenao
+        );
+    }
+
+    async declaracaoTente(): Promise<Tente> {
+        const simboloTente: SimboloInterface = this.simboloAnterior();
+
+        const blocoTente = [];
+        while (
+            !this.estaNoFinal() &&
+            ![
+                tiposDeSimbolos.PEGUE,
+                tiposDeSimbolos.FINALMENTE,
+                tiposDeSimbolos.FIM,
+            ].includes(this.simbolos[this.atual].tipo)
+        ) {
+            blocoTente.push(await this.resolverDeclaracaoForaDeBloco());
+        }
+
+        let blocoPegue = null;
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PEGUE)) {
+            const declaracoesPegue = [];
+            while (
+                !this.estaNoFinal() &&
+                ![tiposDeSimbolos.FINALMENTE, tiposDeSimbolos.FIM].includes(
+                    this.simbolos[this.atual].tipo
+                )
+            ) {
+                declaracoesPegue.push(await this.resolverDeclaracaoForaDeBloco());
+            }
+
+            blocoPegue = declaracoesPegue.filter((d) => d);
+        }
+
+        let blocoFinalmente = null;
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FINALMENTE)) {
+            const declaracoesFinalmente = [];
+            while (!this.estaNoFinal() && !this.verificarTipoSimboloAtual(tiposDeSimbolos.FIM)) {
+                declaracoesFinalmente.push(await this.resolverDeclaracaoForaDeBloco());
+            }
+
+            blocoFinalmente = declaracoesFinalmente.filter((d) => d);
+        }
+
+        this.consumir(
+            tiposDeSimbolos.FIM,
+            "Esperado palavra-chave 'fim' para fechamento de declaração 'tente'."
+        );
+
+        return new Tente(
+            simboloTente.hashArquivo,
+            Number(simboloTente.linha),
+            blocoTente.filter((d) => d),
+            blocoPegue,
+            null,
+            blocoFinalmente
         );
     }
 
@@ -867,6 +1072,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
                 return null;
             case tiposDeSimbolos.ENTAO:
             case tiposDeSimbolos.INICIO:
+            case tiposDeSimbolos.FAZER:
                 const simboloInicioBloco: SimboloInterface = this.avancarEDevolverAnterior();
                 return new Bloco(
                     simboloInicioBloco.hashArquivo,
@@ -876,6 +1082,9 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.ENQUANTO:
                 this.avancarEDevolverAnterior();
                 return await this.declaracaoEnquanto();
+            case tiposDeSimbolos.ESCOLHA:
+                this.avancarEDevolverAnterior();
+                return await this.declaracaoEscolha();
             case tiposDeSimbolos.IDENTIFICADOR:
                 const proximoSimbolo = this.simbolos[this.atual + 1];
                 if (proximoSimbolo && proximoSimbolo.tipo === tiposDeSimbolos.IGUAL) {
@@ -898,6 +1107,9 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.RETORNE:
                 this.avancarEDevolverAnterior();
                 return await this.declaracaoRetorna();
+            case tiposDeSimbolos.TENTE:
+                this.avancarEDevolverAnterior();
+                return await this.declaracaoTente();
             case tiposDeSimbolos.LOCAL:
                 this.avancarEDevolverAnterior();
                 return await this.declaracaoDeLocal();
@@ -959,10 +1171,56 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         }
     }
 
-    async declaracaoPara(): Promise<Para> {
+    async declaracaoParaCada(simboloPara: SimboloInterface): Promise<ParaCada> {
+        const variavelIteracao = this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            "Esperado identificador de variável após 'para cada'."
+        );
+
+        this.consumir(tiposDeSimbolos.EM, "Esperado palavra reservada 'em' após variável de iteração.");
+
+        const vetorOuDicionario = await this.expressao();
+
+        this.consumir(
+            tiposDeSimbolos.INICIO,
+            `espera-se 'inicio' proximo a '${this.simbolos[this.atual].lexema}'.`
+        );
+
+        this.pilhaEscopos.definirInformacoesVariavel(
+            variavelIteracao.lexema,
+            new InformacaoElementoSintatico(variavelIteracao.lexema, 'qualquer')
+        );
+
+        const declaracoesBlocoParaCada = [];
+        while (!this.estaNoFinal() && !this.verificarTipoSimboloAtual(tiposDeSimbolos.FIM)) {
+            declaracoesBlocoParaCada.push(await this.resolverDeclaracaoForaDeBloco());
+        }
+
+        this.consumir(tiposDeSimbolos.FIM, "Esperado 'fim' após bloco do para cada.");
+
+        const corpo = new Bloco(
+            this.hashArquivo,
+            Number(simboloPara.linha) + 1,
+            declaracoesBlocoParaCada.filter((d) => d)
+        );
+
+        return new ParaCada(
+            this.hashArquivo,
+            Number(simboloPara.linha),
+            new Variavel(this.hashArquivo, variavelIteracao, 'qualquer'),
+            vetorOuDicionario,
+            corpo
+        );
+    }
+
+    async declaracaoPara(): Promise<Para | ParaCada> {
         try {
             this.blocos += 1;
             const simboloPara: SimboloInterface = this.avancarEDevolverAnterior();
+
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CADA)) {
+                return await this.declaracaoParaCada(simboloPara);
+            }
 
             const variavelIteracao = this.consumir(
                 tiposDeSimbolos.IDENTIFICADOR,
@@ -990,21 +1248,19 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
                 Number(simboloPara.linha),
                 this.hashArquivo
             );
-            let operadorCondicaoIncremento = new Simbolo(
-                tiposDeSimbolos.MENOR,
-                '<',
-                null,
-                Number(simboloPara.linha),
-                this.hashArquivo
-            );
 
             let passo: Construto = new Literal(this.hashArquivo, Number(simboloPara.linha), 1);
-            const resolverIncrementoEmExecucao = false; // Mudar caso seja necessário.
 
-            this.consumir(
-                tiposDeSimbolos.INICIO,
-                `espera-se 'inicio' proximo a '${this.simbolos[this.atual].lexema}'.`
-            );
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)) {
+                passo = await this.adicaoOuSubtracao();
+            }
+
+            if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INICIO, tiposDeSimbolos.FAZER)) {
+                throw this.erro(
+                    this.simbolos[this.atual],
+                    `espera-se 'inicio' ou 'fazer' proximo a '${this.simbolos[this.atual].lexema}'.`
+                );
+            }
 
             // Aqui já é seguro inicializar a variável.
             this.pilhaEscopos.definirInformacoesVariavel(
@@ -1030,14 +1286,8 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             const para = new Para(
                 this.hashArquivo,
                 Number(simboloPara.linha),
-                // Inicialização.
-                new Expressao(
-                    new Atribuir(
-                        this.hashArquivo,
-                        new Variavel(this.hashArquivo, variavelIteracao, 'inteiro'),
-                        literalOuVariavelInicio
-                    )
-                ),
+                // Inicialização: declara a variável de iteração.
+                new Var(variavelIteracao, literalOuVariavelInicio, 'inteiro'),
                 // Condição.
                 new Binario(
                     this.hashArquivo,
@@ -1045,40 +1295,25 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
                     operadorCondicao,
                     literalOuVariavelFim
                 ),
-                // Incremento, feito em construto especial `FimPara`.
-                new FimPara(
+                // Incremento simples.
+                new Atribuir(
                     this.hashArquivo,
-                    Number(simboloPara.linha),
+                    new Variavel(this.hashArquivo, variavelIteracao, 'inteiro'),
                     new Binario(
                         this.hashArquivo,
                         new Variavel(this.hashArquivo, variavelIteracao, 'inteiro'),
-                        operadorCondicaoIncremento,
-                        literalOuVariavelFim
-                    ),
-                    new Expressao(
-                        new Atribuir(
-                            this.hashArquivo,
-                            new Variavel(this.hashArquivo, variavelIteracao, 'inteiro'),
-                            new Binario(
-                                this.hashArquivo,
-                                new Variavel(this.hashArquivo, variavelIteracao, 'inteiro'),
-                                new Simbolo(
-                                    tiposDeSimbolos.ADICAO,
-                                    '+',
-                                    null,
-                                    Number(simboloPara.linha),
-                                    this.hashArquivo
-                                ),
-                                passo
-                            )
-                        )
+                        new Simbolo(
+                            tiposDeSimbolos.ADICAO,
+                            '+',
+                            null,
+                            Number(simboloPara.linha),
+                            this.hashArquivo
+                        ),
+                        passo
                     )
                 ),
                 corpo
             );
-            para.blocoPosExecucao = corpo;
-            para.resolverIncrementoEmExecucao = resolverIncrementoEmExecucao;
-
             return para;
         } finally {
             this.blocos -= 1;
@@ -1105,6 +1340,85 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             this.erros.push(erro);
             return null;
         }
+    }
+
+    async metodoClassePrisma(construtor: boolean): Promise<FuncaoDeclaracao> {
+        const simbolo: SimboloInterface = construtor
+            ? new Simbolo(
+                  tiposDeSimbolos.CONSTRUTOR,
+                  'construtor',
+                  null,
+                  Number(this.simboloAnterior().linha),
+                  this.hashArquivo
+              )
+            : this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do método.');
+
+        this.consumir(
+            tiposDeSimbolos.PARENTESE_ESQUERDO,
+            "Esperado '(' após nome do método."
+        );
+
+        let parametros = [];
+        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+            parametros = await this.logicaComumParametros();
+        }
+
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
+        this.consumir(
+            tiposDeSimbolos.CHAVE_ESQUERDA,
+            "Esperado '{' antes do corpo do método."
+        );
+
+        const declaracoesCorpo = [];
+        while (!this.estaNoFinal() && !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA)) {
+            declaracoesCorpo.push(await this.resolverDeclaracaoForaDeBloco());
+        }
+
+        this.consumir(
+            tiposDeSimbolos.CHAVE_DIREITA,
+            "Esperado '}' após o corpo do método."
+        );
+
+        const corpoDaFuncao = new FuncaoConstruto(
+            this.hashArquivo,
+            Number(simbolo.linha),
+            parametros,
+            declaracoesCorpo.filter((d) => d),
+            'qualquer',
+            false
+        );
+
+        const tipoDaFuncao = `função<${corpoDaFuncao.tipo}>`;
+        return new FuncaoDeclaracao(simbolo, corpoDaFuncao, tipoDaFuncao);
+    }
+
+    private propriedadesDeclaradasEmMetodo(metodo: FuncaoDeclaracao): PropriedadeClasse[] {
+        const propriedades: PropriedadeClasse[] = [];
+        const nomesPropriedades = new Set<string>();
+
+        for (const declaracao of metodo.funcao.corpo) {
+            if (!(declaracao instanceof Expressao)) {
+                continue;
+            }
+
+            if (!(declaracao.expressao instanceof DefinirValor)) {
+                continue;
+            }
+
+            if (!(declaracao.expressao.objeto instanceof Isto)) {
+                continue;
+            }
+
+            const nomePropriedade = declaracao.expressao.nome.lexema;
+            if (nomesPropriedades.has(nomePropriedade)) {
+                continue;
+            }
+
+            nomesPropriedades.add(nomePropriedade);
+            propriedades.push(new PropriedadeClasse(declaracao.expressao.nome, 'qualquer'));
+        }
+
+        return propriedades;
     }
 
     async declaracaoDeClasse(): Promise<Classe> {
@@ -1134,14 +1448,38 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
                 this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) ||
                 this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNÇÃO))
         ) {
-            const ehConstrutor = this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONSTRUTOR);
-            metodos.push(await this.funcao('método'));
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONSTRUTOR)) {
+                metodos.push(await this.metodoClassePrisma(true));
+                continue;
+            }
+
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FUNCAO, tiposDeSimbolos.FUNÇÃO);
+            metodos.push(await this.metodoClassePrisma(false));
         }
 
         this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após métodos da classe.");
 
+        const propriedades = [];
+        const nomesPropriedades = new Set<string>();
+        for (const metodo of metodos) {
+            const propriedadesDoMetodo = this.propriedadesDeclaradasEmMetodo(metodo);
+            for (const propriedade of propriedadesDoMetodo) {
+                if (nomesPropriedades.has(propriedade.nome.lexema)) {
+                    continue;
+                }
+
+                nomesPropriedades.add(propriedade.nome.lexema);
+                propriedades.push(propriedade);
+            }
+        }
+
         this.superclasseAtual = undefined;
-        const definicaoClasse = new Classe(simbolo, superClasse ? [superClasse] : [], metodos);
+        const definicaoClasse = new Classe(
+            simbolo,
+            superClasse ? [superClasse] : [],
+            metodos,
+            propriedades
+        );
         this.tiposDefinidosEmCodigo[definicaoClasse.simbolo.lexema] = definicaoClasse;
         return definicaoClasse;
     }
@@ -1150,35 +1488,91 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         this.pilhaEscopos = new PilhaEscopos();
         this.pilhaEscopos.empilhar(new InformacaoEscopo());
 
-        // TODO: verificar quais são as funções nativas básicas de Prisma
-        /* this.pilhaEscopos.definirInformacoesVariavel(
-            'aleatorio',
-            new InformacaoElementoSintatico('aleatorio', 'número')
-        );
+        // Registrar funções nativas (built-ins) do Prisma no escopo do parser
+        // para evitar erros de variável não definida durante análise semântica
+
         this.pilhaEscopos.definirInformacoesVariavel(
-            'inteiro',
-            new InformacaoElementoSintatico('inteiro', 'inteiro', true, [
+            'tipo',
+            new InformacaoElementoSintatico('tipo', 'função', true, [
                 new InformacaoElementoSintatico('valor', 'qualquer'),
             ])
         );
+
         this.pilhaEscopos.definirInformacoesVariavel(
-            'numero',
-            new InformacaoElementoSintatico('número', 'número', true, [
-                new InformacaoElementoSintatico('valorParaConverter', 'qualquer'),
+            'poe',
+            new InformacaoElementoSintatico('poe', 'função', true, [
+                new InformacaoElementoSintatico('valores', 'qualquer'),
             ])
         );
-        this.pilhaEscopos.definirInformacoesVariavel(
-            'texto',
-            new InformacaoElementoSintatico('texto', 'texto', true, [
-                new InformacaoElementoSintatico('valorParaConverter', 'qualquer'),
-            ])
-        );
+
         this.pilhaEscopos.definirInformacoesVariavel(
             'tamanho',
-            new InformacaoElementoSintatico('tamanho', 'inteiro', true, [
+            new InformacaoElementoSintatico('tamanho', 'número', true, [
                 new InformacaoElementoSintatico('objeto', 'qualquer'),
             ])
-        ); */
+        );
+
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'pares',
+            new InformacaoElementoSintatico('pares', 'tabela', true, [
+                new InformacaoElementoSintatico('tabela', 'tabela'),
+            ])
+        );
+
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'ipares',
+            new InformacaoElementoSintatico('ipares', 'tabela', true, [
+                new InformacaoElementoSintatico('tabela', 'tabela'),
+            ])
+        );
+
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'convnumero',
+            new InformacaoElementoSintatico('convnumero', 'número', true, [
+                new InformacaoElementoSintatico('valor', 'qualquer'),
+            ])
+        );
+
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'convstring',
+            new InformacaoElementoSintatico('convstring', 'texto', true, [
+                new InformacaoElementoSintatico('valor', 'qualquer'),
+            ])
+        );
+
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'aleatorio',
+            new InformacaoElementoSintatico('aleatorio', 'função', true, [])
+        );
+
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'aleatorio_entre',
+            new InformacaoElementoSintatico('aleatorio_entre', 'número', true, [
+                new InformacaoElementoSintatico('minimo', 'número'),
+                new InformacaoElementoSintatico('maximo', 'número'),
+            ])
+        );
+
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'coletelixo',
+            new InformacaoElementoSintatico('coletelixo', 'número', true, [
+                new InformacaoElementoSintatico('acao', 'texto'),
+            ])
+        );
+
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'piso',
+            new InformacaoElementoSintatico('piso', 'número', true, [
+                new InformacaoElementoSintatico('n', 'número'),
+            ])
+        );
+
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'teto',
+            new InformacaoElementoSintatico('teto', 'número', true, [
+                new InformacaoElementoSintatico('n', 'número'),
+            ])
+        );
     }
 
     async analisar(

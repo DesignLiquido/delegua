@@ -1,6 +1,9 @@
+import * as fs from 'fs';
+import * as path from 'path';
+
 import { AvaliadorSintaticoPrisma } from '../../../../fontes/avaliador-sintatico/dialetos';
-import { Leia, Literal } from '../../../../fontes/construtos';
-import { Classe, Enquanto, Expressao, FuncaoDeclaracao, Para, Se, Var } from '../../../../fontes/declaracoes';
+import { ImportarComoConstruto, Leia, Literal, SeTernario } from '../../../../fontes/construtos';
+import { Classe, Enquanto, Escolha, Expressao, FuncaoDeclaracao, Para, ParaCada, Se, Tente, Var } from '../../../../fontes/declaracoes';
 import { LexadorPrisma } from '../../../../fontes/lexador/dialetos';
 
 describe('Avaliador Sintático (Prisma)', () => {
@@ -146,6 +149,113 @@ describe('Avaliador Sintático (Prisma)', () => {
                 expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Se);
             });
 
+            it('Estrutura condicional com senão se encadeado', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'se falso entao',
+                        '    imprima("primeiro");',
+                        'senao se verdadeiro entao',
+                        '    imprima("segundo");',
+                        'senao',
+                        '    imprima("terceiro");',
+                        'fim'
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Se);
+
+                const declaracaoSe = retornoAvaliadorSintatico.declaracoes[0] as Se;
+                expect(declaracaoSe.caminhoSenao).toBeInstanceOf(Se);
+
+                const declaracaoSenaoSe = declaracaoSe.caminhoSenao as Se;
+                expect(declaracaoSenaoSe.caminhoSenao).toBeTruthy();
+            });
+
+            it('Estrutura escolha com caso e padrao', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'local x = 2;',
+                        'escolha x',
+                        'caso 1 entao',
+                        '    imprima("um");',
+                        'caso 2 entao',
+                        '    imprima("dois");',
+                        'padrao entao',
+                        '    imprima("outro");',
+                        'fim'
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                expect(retornoAvaliadorSintatico.declaracoes[1].constructor).toBe(Escolha);
+
+                const declaracaoEscolha = retornoAvaliadorSintatico.declaracoes[1] as Escolha;
+                expect(declaracaoEscolha.caminhos).toHaveLength(2);
+                expect(declaracaoEscolha.caminhoPadrao).toBeTruthy();
+            });
+
+            it('Estrutura tente com pegue e finalmente', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'tente',
+                        '    imprima("tente");',
+                        'pegue',
+                        '    imprima("pegue");',
+                        'finalmente',
+                        '    imprima("finalmente");',
+                        'fim'
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Tente);
+            });
+
+            it('Operador ternário', async () => {
+                const retornoLexador = lexador.mapear(
+                    ['local resultado = verdadeiro ? 1 ou 0;'],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Var);
+
+                const declaracao = retornoAvaliadorSintatico.declaracoes[0] as Var;
+                expect(declaracao.inicializador.constructor).toBe(SeTernario);
+            });
+
+            it('Expressão importar', async () => {
+                const retornoLexador = lexador.mapear(
+                    ['local modulo = importar("./algum-modulo");'],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Var);
+
+                const declaracao = retornoAvaliadorSintatico.declaracoes[0] as Var;
+                expect(declaracao.inicializador.constructor).toBe(ImportarComoConstruto);
+            });
+
             it('Enquanto', async () => {
                 const retornoLexador = lexador.mapear(
                     [
@@ -232,12 +342,15 @@ describe('Avaliador Sintático (Prisma)', () => {
                 });
             });
 
-            it.skip('Declaração de classe', async () => {
+            it('Declaração de classe', async () => {
                 const retornoLexador = lexador.mapear(
                     [
                         'classe Pessoa {',
                         '    construtor(nome) {',
                         '        isto.nome = nome;',
+                        '    }',
+                        '    funcao apresentar() {',
+                        '        retorne isto.nome;',
                         '    }',
                         '}'
                     ],
@@ -249,6 +362,10 @@ describe('Avaliador Sintático (Prisma)', () => {
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Classe);
+
+                const declaracaoClasse = retornoAvaliadorSintatico.declaracoes[0] as Classe;
+                expect(declaracaoClasse.propriedades).toHaveLength(1);
+                expect(declaracaoClasse.propriedades[0].nome.lexema).toBe('nome');
             });
         });
 
@@ -268,6 +385,53 @@ describe('Avaliador Sintático (Prisma)', () => {
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Para);
+            });
+
+            it('Laço para cada', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'local tabela = {1, 2, 3};',
+                        'para cada elemento em tabela inicio',
+                        '    imprima(elemento);',
+                        'fim'
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                expect(retornoAvaliadorSintatico.declaracoes[1].constructor).toBe(ParaCada);
+            });
+        });
+
+        describe('Exemplos Prisma', () => {
+            it('Arquivos de exemplo devem ser analisados sem erros', async () => {
+                const diretorioExemplosPrisma = path.resolve(
+                    __dirname,
+                    '../../../../exemplos/dialetos/prisma'
+                );
+
+                const arquivosExemplo = fs
+                    .readdirSync(diretorioExemplosPrisma)
+                    .filter((arquivo) => arquivo.endsWith('.prisma'));
+
+                for (const arquivoExemplo of arquivosExemplo) {
+                    const conteudo = fs.readFileSync(
+                        path.join(diretorioExemplosPrisma, arquivoExemplo),
+                        'utf8'
+                    );
+                    const linhas = conteudo.split(/\r?\n/);
+
+                    const retornoLexador = lexador.mapear(linhas, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                }
             });
         });
 

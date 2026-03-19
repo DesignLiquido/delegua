@@ -178,6 +178,25 @@ describe('Lexador (Prisma)', () => {
                     ])
                 );
             });
+
+            it('Operador ternário', () => {
+                const resultado = lexador.mapear(
+                    ['local resultado = condicao ? 1 ou 0;'],
+                    -1
+                );
+
+                expect(resultado).toBeTruthy();
+                expect(resultado.simbolos).toEqual(
+                    expect.arrayContaining([
+                        expect.objectContaining({ tipo: 'LOCAL' }),
+                        expect.objectContaining({ tipo: 'IDENTIFICADOR' }),
+                        expect.objectContaining({ tipo: 'IGUAL' }),
+                        expect.objectContaining({ tipo: 'INTERROGACAO' }),
+                        expect.objectContaining({ tipo: 'OU' }),
+                        expect.objectContaining({ tipo: 'PONTO_E_VIRGULA' }),
+                    ])
+                );
+            });
         });
 
         describe('Cenários de falha', () => {
