@@ -1134,6 +1134,9 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
     }
 
     override visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
+        if (declaracao.valor instanceof Binario) {
+            this.verificarBinario(declaracao.valor);
+        }
         return Promise.resolve(null);
     }
 
@@ -1173,6 +1176,12 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> {
         if (declaracao.funcao.parametros.length >= 255) {
             this.erro(declaracao.simbolo, 'Função não pode ter mais de 255 parâmetros.');
+        }
+
+        for (const instrucao of declaracao.funcao.corpo) {
+            if (instrucao instanceof Retorna && instrucao.valor instanceof Binario) {
+                this.verificarBinario(instrucao.valor);
+            }
         }
 
         let tipoRetornoFuncao = declaracao.funcao.tipo;
