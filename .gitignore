@@ -10,6 +10,7 @@ coverage/
 dist/
 docs/
 node_modules/
+planos/
 
 .vscode/settings.json
 
