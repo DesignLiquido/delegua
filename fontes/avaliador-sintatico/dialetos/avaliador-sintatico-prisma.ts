@@ -695,25 +695,33 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         );
 
         let caminhoSenao = null;
+        let fimConsumidoNoCaminhoSenao = false;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO, tiposDeSimbolos.SENÃO)) {
             const simboloSenao = this.simbolos[this.atual - 1];
-            const declaracoesSenao = [];
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SE)) {
+                caminhoSenao = await this.declaracaoSe();
+                fimConsumidoNoCaminhoSenao = true;
+            } else {
+                const declaracoesSenao = [];
 
-            do {
-                declaracoesSenao.push(await this.resolverDeclaracaoForaDeBloco());
-            } while (![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo));
+                do {
+                    declaracoesSenao.push(await this.resolverDeclaracaoForaDeBloco());
+                } while (![tiposDeSimbolos.FIM].includes(this.simbolos[this.atual].tipo));
 
-            caminhoSenao = new Bloco(
-                this.hashArquivo,
-                Number(simboloSenao.linha),
-                declaracoesSenao.filter((d) => d)
-            );
+                caminhoSenao = new Bloco(
+                    this.hashArquivo,
+                    Number(simboloSenao.linha),
+                    declaracoesSenao.filter((d) => d)
+                );
+            }
         }
 
-        this.consumir(
-            tiposDeSimbolos.FIM,
-            "Esperado palavra-chave 'fimse' para fechamento de declaração 'se'."
-        );
+        if (!fimConsumidoNoCaminhoSenao) {
+            this.consumir(
+                tiposDeSimbolos.FIM,
+                "Esperado palavra-chave 'fimse' para fechamento de declaração 'se'."
+            );
+        }
 
         return new Se(
             condicao,

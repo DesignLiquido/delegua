@@ -146,6 +146,33 @@ describe('Avaliador Sintático (Prisma)', () => {
                 expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Se);
             });
 
+            it('Estrutura condicional com senão se encadeado', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'se falso entao',
+                        '    imprima("primeiro");',
+                        'senao se verdadeiro entao',
+                        '    imprima("segundo");',
+                        'senao',
+                        '    imprima("terceiro");',
+                        'fim'
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Se);
+
+                const declaracaoSe = retornoAvaliadorSintatico.declaracoes[0] as Se;
+                expect(declaracaoSe.caminhoSenao).toBeInstanceOf(Se);
+
+                const declaracaoSenaoSe = declaracaoSe.caminhoSenao as Se;
+                expect(declaracaoSenaoSe.caminhoSenao).toBeTruthy();
+            });
+
             it('Enquanto', async () => {
                 const retornoLexador = lexador.mapear(
                     [
