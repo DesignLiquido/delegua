@@ -347,8 +347,8 @@ export class LexadorPrisma implements LexadorInterface<SimboloInterface> {
             case '/':
                 this.avancar();
                 if (this.simboloAtual() === '/') {
-                    this.adicionarSimbolo(tiposDeSimbolos.DIVISAO_INTEIRA);
-                    this.avancar();
+                    // Comentário de linha — ignorar até o final da linha
+                    this.atual = this.codigo[this.linha].length;
                 } else if (this.simboloAtual() === '*') {
                     // Comentário de bloco
                     this.avancar();

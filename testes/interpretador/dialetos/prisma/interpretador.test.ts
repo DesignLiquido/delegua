@@ -189,6 +189,7 @@ describe('Interpretador (Prisma)', () => {
         });
 
         describe('Funções nativas (built-ins)', () => {
+
             it('tipo() - determina o tipo de um valor', async () => {
                 const retornoLexador = lexador.mapear([
                     'imprima(tipo(42));',
@@ -267,6 +268,51 @@ describe('Interpretador (Prisma)', () => {
 
                 expect(resultado.erros).toHaveLength(0);
                 expect(_saidas).toContain('42');
+                expect(_saidas).toContain('verdadeiro');
+            });
+
+            it('coletelixo() - solicita coleta de lixo sem ação', async () => {
+                const retornoLexador = lexador.mapear([
+                    'local r = coletelixo();',
+                    'imprima(r);'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                const resultado = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(_saidas).toContain('0');
+            });
+
+            it('coletelixo("contar") - retorna uso de memória', async () => {
+                const retornoLexador = lexador.mapear([
+                    'local r = coletelixo("contar");',
+                    'imprima(r);'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                const resultado = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(_saidas).toContain('0');
+            });
+
+            it('coletelixo("rodando") - verifica se coletor está ativo', async () => {
+                const retornoLexador = lexador.mapear([
+                    'local r = coletelixo("rodando");',
+                    'imprima(r);'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                const resultado = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(resultado.erros).toHaveLength(0);
                 expect(_saidas).toContain('verdadeiro');
             });
 
@@ -740,9 +786,10 @@ describe('Interpretador (Prisma)', () => {
                 expect(_saidas).toContain('2');
             });
 
-            it('Divisão inteira com //', async () => {
+            it('Divisão inteira com piso()', async () => {
+                // Em Prisma, // é comentário de linha; divisão inteira usa piso(a / b)
                 const retornoLexador = lexador.mapear([
-                    'imprima(17 // 5);'
+                    'imprima(piso(17 / 5));'
                 ], -1);
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
@@ -752,6 +799,20 @@ describe('Interpretador (Prisma)', () => {
 
                 expect(resultado.erros).toHaveLength(0);
                 expect(_saidas).toContain('3');
+            });
+
+            it('teto() - arredondamento para cima', async () => {
+                const retornoLexador = lexador.mapear([
+                    'imprima(teto(3.2));'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                const resultado = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(_saidas).toContain('4');
             });
 
             it('Negação unária', async () => {

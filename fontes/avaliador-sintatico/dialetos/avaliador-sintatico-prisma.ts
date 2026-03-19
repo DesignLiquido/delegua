@@ -1553,6 +1553,27 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
                 new InformacaoElementoSintatico('maximo', 'número'),
             ])
         );
+
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'coletelixo',
+            new InformacaoElementoSintatico('coletelixo', 'número', true, [
+                new InformacaoElementoSintatico('acao', 'texto'),
+            ])
+        );
+
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'piso',
+            new InformacaoElementoSintatico('piso', 'número', true, [
+                new InformacaoElementoSintatico('n', 'número'),
+            ])
+        );
+
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'teto',
+            new InformacaoElementoSintatico('teto', 'número', true, [
+                new InformacaoElementoSintatico('n', 'número'),
+            ])
+        );
     }
 
     async analisar(

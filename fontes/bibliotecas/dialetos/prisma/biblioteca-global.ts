@@ -202,6 +202,30 @@ export default function carregarBibliotecaGlobalPrisma(
     );
 
     /**
+     * `piso(n)` - Retorna o maior inteiro menor ou igual a `n` (equivalente a `math.floor` em Lua).
+     */
+    globals.definirVariavel(
+        'piso',
+        new FuncaoPadrao(1, function (_: any, n: any) {
+            const val = n !== null && n !== undefined && n.hasOwnProperty('valor') ? n.valor : n;
+            if (typeof val !== 'number') return null;
+            return Math.floor(val);
+        })
+    );
+
+    /**
+     * `teto(n)` - Retorna o menor inteiro maior ou igual a `n` (equivalente a `math.ceil` em Lua).
+     */
+    globals.definirVariavel(
+        'teto',
+        new FuncaoPadrao(1, function (_: any, n: any) {
+            const val = n !== null && n !== undefined && n.hasOwnProperty('valor') ? n.valor : n;
+            if (typeof val !== 'number') return null;
+            return Math.ceil(val);
+        })
+    );
+
+    /**
      * `aleatorio()` - Retorna um número aleatório entre 0 e 1.
      */
     globals.definirVariavel(
@@ -229,6 +253,45 @@ export default function carregarBibliotecaGlobalPrisma(
             }
 
             return Math.floor(Math.random() * (maxVal - minVal)) + minVal;
+        })
+    );
+
+    /**
+     * `coletelixo(acao?)` - Controla o coletor de lixo (equivalente a `collectgarbage` em Lua).
+     * Ações suportadas:
+     *   "coletar"    (padrão) - solicita um ciclo de coleta; retorna 0.
+     *   "contar"              - retorna o uso de memória em KB (sempre 0 em JS).
+     *   "parar"               - para o coletor; no-op em JS; retorna 0.
+     *   "reiniciar"           - reinicia o coletor; no-op em JS; retorna 0.
+     *   "rodando"             - retorna verdadeiro se o coletor está ativo.
+     * Qualquer outra ação retorna nulo.
+     */
+    globals.definirVariavel(
+        'coletelixo',
+        new FuncaoPadrao(1, function (_: any, acao: any) {
+            const acaoVal = acao !== null && acao !== undefined && acao.hasOwnProperty('valor')
+                ? acao.valor
+                : acao;
+
+            const acaoStr = typeof acaoVal === 'string' ? acaoVal : 'coletar';
+
+            if (acaoStr === 'rodando') {
+                return true;
+            }
+
+            if (acaoStr === 'contar') {
+                return 0;
+            }
+
+            if (['coletar', 'parar', 'reiniciar', 'passo'].includes(acaoStr)) {
+                // Solicita GC ao V8 se disponível (requer --expose-gc)
+                if (typeof (globalThis as any).gc === 'function') {
+                    (globalThis as any).gc();
+                }
+                return 0;
+            }
+
+            return null;
         })
     );
 }
