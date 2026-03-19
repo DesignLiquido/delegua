@@ -2,21 +2,21 @@
 
 // Loop for tradicional
 imprima("Loop for tradicional:");
-para (var i = 1; i <= 5; i = i + 1) {
+para i = 1, 5 inicio
     imprima("Contador:", i);
-}
+fim
 
 // Loop while
 imprima("Loop while:");
-var contador = 1;
-enquanto (contador <= 3) {
+local contador = 1;
+enquanto contador <= 3 inicio
     imprima("While contador:", contador);
     contador = contador + 1;
-}
+fim
 
 // Loop com array
 imprima("Loop para cada:");
-var numeros = [1, 2, 3, 4, 5];
-para cada numero em numeros {
+local numeros = {1, 2, 3, 4, 5};
+para cada numero em numeros inicio
     imprima("Número:", numero);
-}
+fim

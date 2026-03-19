@@ -1,3 +1,6 @@
+import * as fs from 'fs';
+import * as path from 'path';
+
 import { AvaliadorSintaticoPrisma } from '../../../../fontes/avaliador-sintatico/dialetos';
 import { Leia, Literal, SeTernario } from '../../../../fontes/construtos';
 import { Classe, Enquanto, Escolha, Expressao, FuncaoDeclaracao, Para, ParaCada, Se, Tente, Var } from '../../../../fontes/declaracoes';
@@ -377,6 +380,36 @@ describe('Avaliador Sintático (Prisma)', () => {
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 expect(retornoAvaliadorSintatico.declaracoes[1].constructor).toBe(ParaCada);
+            });
+        });
+
+        describe('Exemplos Prisma', () => {
+            it('Arquivos de exemplo devem ser analisados sem erros (exceto classes.prisma)', async () => {
+                const diretorioExemplosPrisma = path.resolve(
+                    __dirname,
+                    '../../../../exemplos/dialetos/prisma'
+                );
+
+                const arquivosExemplo = fs
+                    .readdirSync(diretorioExemplosPrisma)
+                    .filter((arquivo) => arquivo.endsWith('.prisma'))
+                    .filter((arquivo) => arquivo !== 'classes.prisma');
+
+                for (const arquivoExemplo of arquivosExemplo) {
+                    const conteudo = fs.readFileSync(
+                        path.join(diretorioExemplosPrisma, arquivoExemplo),
+                        'utf8'
+                    );
+                    const linhas = conteudo.split(/\r?\n/);
+
+                    const retornoLexador = lexador.mapear(linhas, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                }
             });
         });
 

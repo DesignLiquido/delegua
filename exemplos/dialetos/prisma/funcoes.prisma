@@ -5,17 +5,17 @@ funcao saudacao(nome)
     retorne "Olá, " + nome + "!";
 fim
 
-// Função com parâmetros padrão
+// Função com dois parâmetros
 funcao calcularArea(largura, altura)
     retorne largura * altura;
 fim
 
 // Função recursiva - fibonacci
 funcao fibonacci(n)
-    se (n <= 1) entao
-        retorna n;
+    se n <= 1 entao
+        retorne n;
     senao
-        retorna fibonacci(n - 1) + fibonacci(n - 2);
+        retorne fibonacci(n - 1) + fibonacci(n - 2);
     fim
 fim
 
@@ -24,7 +24,7 @@ local mensagem = saudacao("Maria");
 imprima(mensagem);
 
 local area1 = calcularArea(5, 3);
-local area2 = calcularArea(4); // usa altura padrão
+local area2 = calcularArea(4, 2);
 imprima("Área 1:", area1);
 imprima("Área 2:", area2);
 
