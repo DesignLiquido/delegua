@@ -71,6 +71,30 @@ describe('Interpretador (Prisma)', () => {
                 const resultado = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(resultado.erros).toHaveLength(0);
             });
+
+            it('Estrutura escolha com caso e padrao', async () => {
+                const retornoLexador = lexador.mapear([
+                    'local x = 2;',
+                    'escolha x',
+                    'caso 1 entao',
+                    '    imprima("um");',
+                    'caso 2 entao',
+                    '    imprima("dois");',
+                    'padrao entao',
+                    '    imprima("outro");',
+                    'fim'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                const resultado = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(_saidas).toContain('dois');
+                expect(_saidas).not.toContain('um');
+                expect(_saidas).not.toContain('outro');
+            });
         });
     });
 });

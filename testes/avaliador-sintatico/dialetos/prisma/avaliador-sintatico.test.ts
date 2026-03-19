@@ -1,6 +1,6 @@
 import { AvaliadorSintaticoPrisma } from '../../../../fontes/avaliador-sintatico/dialetos';
 import { Leia, Literal } from '../../../../fontes/construtos';
-import { Classe, Enquanto, Expressao, FuncaoDeclaracao, Para, Se, Var } from '../../../../fontes/declaracoes';
+import { Classe, Enquanto, Escolha, Expressao, FuncaoDeclaracao, Para, Se, Var } from '../../../../fontes/declaracoes';
 import { LexadorPrisma } from '../../../../fontes/lexador/dialetos';
 
 describe('Avaliador Sintático (Prisma)', () => {
@@ -171,6 +171,33 @@ describe('Avaliador Sintático (Prisma)', () => {
 
                 const declaracaoSenaoSe = declaracaoSe.caminhoSenao as Se;
                 expect(declaracaoSenaoSe.caminhoSenao).toBeTruthy();
+            });
+
+            it('Estrutura escolha com caso e padrao', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'local x = 2;',
+                        'escolha x',
+                        'caso 1 entao',
+                        '    imprima("um");',
+                        'caso 2 entao',
+                        '    imprima("dois");',
+                        'padrao entao',
+                        '    imprima("outro");',
+                        'fim'
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                expect(retornoAvaliadorSintatico.declaracoes[1].constructor).toBe(Escolha);
+
+                const declaracaoEscolha = retornoAvaliadorSintatico.declaracoes[1] as Escolha;
+                expect(declaracaoEscolha.caminhos).toHaveLength(2);
+                expect(declaracaoEscolha.caminhoPadrao).toBeTruthy();
             });
 
             it('Enquanto', async () => {

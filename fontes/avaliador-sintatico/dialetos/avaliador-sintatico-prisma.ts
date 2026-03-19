@@ -24,6 +24,7 @@ import {
 } from '../../construtos';
 import {
     Escreva,
+    Escolha,
     Se,
     Enquanto,
     Para,
@@ -675,6 +676,93 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         }
     }
 
+    async declaracaoEscolha(): Promise<Escolha> {
+        try {
+            this.blocos += 1;
+
+            const condicao = await this.expressao();
+            const caminhos = [];
+            let caminhoPadrao = null;
+
+            while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.FIM) && !this.estaNoFinal()) {
+                if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CASO)) {
+                    const caminhoCondicoes = [await this.expressao()];
+
+                    while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CASO)) {
+                        caminhoCondicoes.push(await this.expressao());
+                    }
+
+                    this.consumir(
+                        tiposDeSimbolos.ENTAO,
+                        "Esperado palavra reservada 'entao' ou 'então' após valor do 'caso'."
+                    );
+
+                    const declaracoes = [];
+                    while (
+                        !this.estaNoFinal() &&
+                        ![
+                            tiposDeSimbolos.CASO,
+                            tiposDeSimbolos.PADRAO,
+                            tiposDeSimbolos.FIM,
+                        ].includes(this.simbolos[this.atual].tipo)
+                    ) {
+                        declaracoes.push(await this.resolverDeclaracaoForaDeBloco());
+                    }
+
+                    caminhos.push({
+                        condicoes: caminhoCondicoes,
+                        declaracoes: declaracoes.filter((d) => d),
+                    });
+                } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PADRAO)) {
+                    if (caminhoPadrao !== null) {
+                        const excecao = new ErroAvaliadorSintatico(
+                            this.simbolos[this.atual],
+                            "Você só pode ter um 'padrao' em cada declaração de 'escolha'."
+                        );
+                        this.erros.push(excecao);
+                        throw excecao;
+                    }
+
+                    this.consumir(
+                        tiposDeSimbolos.ENTAO,
+                        "Esperado palavra reservada 'entao' ou 'então' após declaração do 'padrao'."
+                    );
+
+                    const declaracoes = [];
+                    while (
+                        !this.estaNoFinal() &&
+                        ![
+                            tiposDeSimbolos.CASO,
+                            tiposDeSimbolos.PADRAO,
+                            tiposDeSimbolos.FIM,
+                        ].includes(this.simbolos[this.atual].tipo)
+                    ) {
+                        declaracoes.push(await this.resolverDeclaracaoForaDeBloco());
+                    }
+
+                    caminhoPadrao = {
+                        condicoes: [],
+                        declaracoes: declaracoes.filter((d) => d),
+                    };
+                } else {
+                    throw this.erro(
+                        this.simbolos[this.atual],
+                        "Esperado 'caso', 'padrao' ou 'fim' em declaração 'escolha'."
+                    );
+                }
+            }
+
+            this.consumir(
+                tiposDeSimbolos.FIM,
+                "Esperado palavra-chave 'fim' para fechamento de declaração 'escolha'."
+            );
+
+            return new Escolha(condicao, caminhos, caminhoPadrao);
+        } finally {
+            this.blocos -= 1;
+        }
+    }
+
     async declaracaoSe(): Promise<Se> {
         const simboloSe: SimboloInterface = this.simbolos[this.atual];
         const condicao = await this.expressao();
@@ -884,6 +972,9 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.ENQUANTO:
                 this.avancarEDevolverAnterior();
                 return await this.declaracaoEnquanto();
+            case tiposDeSimbolos.ESCOLHA:
+                this.avancarEDevolverAnterior();
+                return await this.declaracaoEscolha();
             case tiposDeSimbolos.IDENTIFICADOR:
                 const proximoSimbolo = this.simbolos[this.atual + 1];
                 if (proximoSimbolo && proximoSimbolo.tipo === tiposDeSimbolos.IGUAL) {
