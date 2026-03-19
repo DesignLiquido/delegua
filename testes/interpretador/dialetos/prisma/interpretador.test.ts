@@ -1,12 +1,12 @@
 import { LexadorPrisma } from '../../../../fontes/lexador/dialetos';
 import { AvaliadorSintaticoPrisma } from '../../../../fontes/avaliador-sintatico/dialetos';
-import { Interpretador } from '../../../../fontes/interpretador/interpretador';
+import { InterpretadorPrisma } from '../../../../fontes/interpretador/dialetos';
 
 describe('Interpretador (Prisma)', () => {
     describe('interpretar()', () => {
         let lexador: LexadorPrisma;
         let avaliadorSintatico: AvaliadorSintaticoPrisma;
-        let interpretador: Interpretador;
+        let interpretador: InterpretadorPrisma;
 
         let _saidas: string[] = [];
         const funcaoSaida = (texto: string) => {
@@ -17,7 +17,7 @@ describe('Interpretador (Prisma)', () => {
             _saidas = [];
             lexador = new LexadorPrisma();
             avaliadorSintatico = new AvaliadorSintaticoPrisma();
-            interpretador = new Interpretador(process.cwd(), false, funcaoSaida, funcaoSaida);
+            interpretador = new InterpretadorPrisma(process.cwd(), false, funcaoSaida, funcaoSaida);
         });
 
         describe('Cenários de sucesso', () => {
@@ -185,6 +185,119 @@ describe('Interpretador (Prisma)', () => {
 
                 expect(resultado.erros).toHaveLength(0);
                 expect(_saidas).toContain('Maria');
+            });
+        });
+
+        describe('Funções nativas (built-ins)', () => {
+            it('tipo() - determina o tipo de um valor', async () => {
+                const retornoLexador = lexador.mapear([
+                    'imprima(tipo(42));',
+                    'imprima(tipo("texto"));',
+                    'imprima(tipo(verdadeiro));'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                const resultado = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(_saidas).toContain('número');
+                expect(_saidas).toContain('texto');
+                expect(_saidas).toContain('logico');
+            });
+
+            it('poe() - imprime valores', async () => {
+                const retornoLexador = lexador.mapear([
+                    'poe("Olá");',
+                    'poe("Mundo");'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                const resultado = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(_saidas).toContain('Olá');
+                expect(_saidas).toContain('Mundo');
+            });
+
+            it('tamanho() - calcula o tamanho de strings', async () => {
+                const retornoLexador = lexador.mapear([
+                    'imprima(tamanho("ola"));'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                const resultado = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(_saidas).toContain('3');
+            });
+
+            it('convnumero() - converte valores para número', async () => {
+                const retornoLexador = lexador.mapear([
+                    'imprima(convnumero("42"));',
+                    'imprima(convnumero(42));',
+                    'imprima(convnumero(verdadeiro));'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                const resultado = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(_saidas).toContain('42');
+                expect(_saidas).toContain('1');
+            });
+
+            it('convstring() - converte valores para texto', async () => {
+                const retornoLexador = lexador.mapear([
+                    'imprima(convstring(42));',
+                    'imprima(convstring(verdadeiro));'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                const resultado = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(_saidas).toContain('42');
+                expect(_saidas).toContain('verdadeiro');
+            });
+
+            it('aleatorio() - gera número entre 0 e 1', async () => {
+                const retornoLexador = lexador.mapear([
+                    'local x = aleatorio();',
+                    'imprima(x);'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                const resultado = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(_saidas.length).toBeGreaterThan(0);
+            });
+
+            it('aleatorio_entre() - gera número entre min e max', async () => {
+                const retornoLexador = lexador.mapear([
+                    'local x = aleatorio_entre(1, 10);',
+                    'imprima(x);'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                const resultado = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(_saidas.length).toBeGreaterThan(0);
             });
         });
     });

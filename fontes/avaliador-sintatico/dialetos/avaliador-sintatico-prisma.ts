@@ -1490,35 +1490,70 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         this.pilhaEscopos = new PilhaEscopos();
         this.pilhaEscopos.empilhar(new InformacaoEscopo());
 
-        // TODO: verificar quais são as funções nativas básicas de Prisma
-        /* this.pilhaEscopos.definirInformacoesVariavel(
-            'aleatorio',
-            new InformacaoElementoSintatico('aleatorio', 'número')
-        );
+        // Registrar funções nativas (built-ins) do Prisma no escopo do parser
+        // para evitar erros de variável não definida durante análise semântica
+
         this.pilhaEscopos.definirInformacoesVariavel(
-            'inteiro',
-            new InformacaoElementoSintatico('inteiro', 'inteiro', true, [
+            'tipo',
+            new InformacaoElementoSintatico('tipo', 'função', true, [
                 new InformacaoElementoSintatico('valor', 'qualquer'),
             ])
         );
+
         this.pilhaEscopos.definirInformacoesVariavel(
-            'numero',
-            new InformacaoElementoSintatico('número', 'número', true, [
-                new InformacaoElementoSintatico('valorParaConverter', 'qualquer'),
+            'poe',
+            new InformacaoElementoSintatico('poe', 'função', true, [
+                new InformacaoElementoSintatico('valores', 'qualquer'),
             ])
         );
-        this.pilhaEscopos.definirInformacoesVariavel(
-            'texto',
-            new InformacaoElementoSintatico('texto', 'texto', true, [
-                new InformacaoElementoSintatico('valorParaConverter', 'qualquer'),
-            ])
-        );
+
         this.pilhaEscopos.definirInformacoesVariavel(
             'tamanho',
-            new InformacaoElementoSintatico('tamanho', 'inteiro', true, [
+            new InformacaoElementoSintatico('tamanho', 'número', true, [
                 new InformacaoElementoSintatico('objeto', 'qualquer'),
             ])
-        ); */
+        );
+
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'pares',
+            new InformacaoElementoSintatico('pares', 'tabela', true, [
+                new InformacaoElementoSintatico('tabela', 'tabela'),
+            ])
+        );
+
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'ipares',
+            new InformacaoElementoSintatico('ipares', 'tabela', true, [
+                new InformacaoElementoSintatico('tabela', 'tabela'),
+            ])
+        );
+
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'convnumero',
+            new InformacaoElementoSintatico('convnumero', 'número', true, [
+                new InformacaoElementoSintatico('valor', 'qualquer'),
+            ])
+        );
+
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'convstring',
+            new InformacaoElementoSintatico('convstring', 'texto', true, [
+                new InformacaoElementoSintatico('valor', 'qualquer'),
+            ])
+        );
+
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'aleatorio',
+            new InformacaoElementoSintatico('aleatorio', 'função', true, [])
+        );
+
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'aleatorio_entre',
+            new InformacaoElementoSintatico('aleatorio_entre', 'número', true, [
+                new InformacaoElementoSintatico('minimo', 'número'),
+                new InformacaoElementoSintatico('maximo', 'número'),
+            ])
+        );
     }
 
     async analisar(
