@@ -271,8 +271,13 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
     }
 
-    expressaoImportar(): ImportarComoConstruto {
-        throw new Error('Método não implementado.');
+    async expressaoImportar(): Promise<ImportarComoConstruto> {
+        this.avancarEDevolverAnterior();
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após declaração.");
+        const caminho = await this.expressao();
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração.");
+
+        return new ImportarComoConstruto(caminho as Literal);
     }
 
     /**
