@@ -494,6 +494,30 @@ describe('Avaliador sintático (Pituguês)', () => {
                 expect(retornoAvaliadorSintatico.erros[0].message).toContain(mensagemEsperada);
             });
 
+            it('Falha - se sem dois-pontos após condição', async () => {
+                const retornoLexador = lexador.mapear([
+                    "se '1' == '0'",
+                    "    imprima('não passará')",
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                expect(retornoAvaliadorSintatico.erros[0].message).toContain("Esperado ':' após condição do 'se'.");
+            });
+
+            it('Falha - senao sem dois-pontos', async () => {
+                const retornoLexador = lexador.mapear([
+                    "se '1' == '0':",
+                    "    imprima('não passará')",
+                    "senao",
+                    "    imprima('uhullll')",
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                expect(retornoAvaliadorSintatico.erros[0].message).toContain("Esperado ':' após 'senao'.");
+            });
+
             it('Falha - Uso de "var" como palavra-chave', async () => {
                 const retornoLexador = lexador.mapear(['var a = 10'], -1);
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
