@@ -117,6 +117,22 @@ describe('Interpretador (Prisma)', () => {
                 expect(_saidas).not.toContain('pegou');
                 expect(_saidas).toContain('finalizou');
             });
+
+            it('Operador ternário', async () => {
+                const retornoLexador = lexador.mapear([
+                    'local resultado = verdadeiro ? "sim" ou "nao";',
+                    'imprima(resultado);'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                const resultado = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(_saidas).toContain('sim');
+                expect(_saidas).not.toContain('nao');
+            });
         });
     });
 });

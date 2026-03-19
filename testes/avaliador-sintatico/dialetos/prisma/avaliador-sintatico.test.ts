@@ -1,5 +1,5 @@
 import { AvaliadorSintaticoPrisma } from '../../../../fontes/avaliador-sintatico/dialetos';
-import { Leia, Literal } from '../../../../fontes/construtos';
+import { Leia, Literal, SeTernario } from '../../../../fontes/construtos';
 import { Classe, Enquanto, Escolha, Expressao, FuncaoDeclaracao, Para, Se, Tente, Var } from '../../../../fontes/declaracoes';
 import { LexadorPrisma } from '../../../../fontes/lexador/dialetos';
 
@@ -219,6 +219,22 @@ describe('Avaliador Sintático (Prisma)', () => {
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Tente);
+            });
+
+            it('Operador ternário', async () => {
+                const retornoLexador = lexador.mapear(
+                    ['local resultado = verdadeiro ? 1 ou 0;'],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico).toBeTruthy();
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Var);
+
+                const declaracao = retornoAvaliadorSintatico.declaracoes[0] as Var;
+                expect(declaracao.inicializador.constructor).toBe(SeTernario);
             });
 
             it('Enquanto', async () => {

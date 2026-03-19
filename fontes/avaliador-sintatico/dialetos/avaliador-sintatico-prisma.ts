@@ -15,6 +15,7 @@ import {
     Isto,
     Literal,
     Logico,
+    SeTernario,
     Super,
     Unario,
     Variavel,
@@ -547,8 +548,33 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         return expressao;
     }
 
+    async ternario(): Promise<Construto> {
+        let expressaoOuCondicao = await this.ou();
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTERROGACAO)) {
+            const operador = this.simboloAnterior();
+            const caminhoEntao = await this.e();
+
+            this.consumir(
+                tiposDeSimbolos.OU,
+                "Esperado palavra reservada 'ou' após caminho positivo em operador ternário."
+            );
+
+            const caminhoSenao = await this.ternario();
+            expressaoOuCondicao = new SeTernario(
+                this.hashArquivo,
+                expressaoOuCondicao,
+                caminhoEntao,
+                operador,
+                caminhoSenao
+            );
+        }
+
+        return expressaoOuCondicao;
+    }
+
     async atribuir(): Promise<Construto> {
-        const expressao = await this.ou();
+        const expressao = await this.ternario();
 
         if (
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL) ||
