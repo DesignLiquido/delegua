@@ -37,6 +37,7 @@ export default {
     IGUAL_IGUAL: 'IGUAL_IGUAL',
     IMPORTAR: 'IMPORTAR',
     INICIO: 'INICIO',
+    INTERROGACAO: 'INTERROGACAO',
     ISTO: 'ISTO',
     LEIA: 'LEIA',
     LOCAL: 'LOCAL',

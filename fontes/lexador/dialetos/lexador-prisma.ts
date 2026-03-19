@@ -262,6 +262,10 @@ export class LexadorPrisma implements LexadorInterface<SimboloInterface> {
                 this.adicionarSimbolo(tiposDeSimbolos.DOIS_PONTOS);
                 this.avancar();
                 break;
+            case '?':
+                this.adicionarSimbolo(tiposDeSimbolos.INTERROGACAO);
+                this.avancar();
+                break;
             case '=':
                 this.avancar();
                 if (this.simboloAtual() === '=') {
