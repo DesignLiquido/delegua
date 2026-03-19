@@ -24,7 +24,7 @@ Função executa com argumentos avaliados
 
 ## 2. Estrutura da Classe `FuncaoPadrao`
 
-**Localização:** [fontes/interpretador/estruturas/funcao-padrao.ts](fontes/interpretador/estruturas/funcao-padrao.ts)
+**Localização:** [funcao-padrao.ts](./funcao-padrao.ts)
 
 ```typescript
 export class FuncaoPadrao extends Chamavel {
@@ -58,7 +58,7 @@ export class FuncaoPadrao extends Chamavel {
 
 ## 3. Como os Argumentos São Resolvidos Antes de `FuncaoPadrao.chamar()`
 
-**Localização:** [fontes/interpretador/interpretador-base.ts](fontes/interpretador/interpretador-base.ts) linhas 1292–1330
+**Localização:** [interpretador-base.ts](../interpretador-base.ts) linhas 1292–1330
 
 ```typescript
 async visitarExpressaoDeChamada(expressao: Chamada): Promise<any> {
@@ -88,7 +88,7 @@ async visitarExpressaoDeChamada(expressao: Chamada): Promise<any> {
 
 **O método `resolverValor()`:**
 
-Localização: [fontes/interpretador/interpretador-base.ts](fontes/interpretador/interpretador-base.ts) linha 285
+Localização: [interpretador-base.ts](../interpretador-base.ts) linha 285
 
 ```typescript
 resolverValor(objeto: any) {
@@ -115,7 +115,7 @@ resolverValor(objeto: any) {
 
 ### Exemplo: função de conversão `numero()`
 
-**Localização:** [fontes/bibliotecas/dialetos/egua-classico/biblioteca-global.ts](fontes/bibliotecas/dialetos/egua-classico/biblioteca-global.ts)
+**Localização:** [biblioteca-global.ts](../../bibliotecas/dialetos/egua-classico/biblioteca-global.ts)
 
 ```typescript
 globals.definirVariavel(
@@ -149,7 +149,7 @@ globals.definirVariavel(
 
 ### Exemplo: `algum()` — Verifica se ALGUM elemento satisfaz a condição
 
-**Localização:** [fontes/bibliotecas/dialetos/egua-classico/biblioteca-global.ts](fontes/bibliotecas/dialetos/egua-classico/biblioteca-global.ts) linha 52+
+**Localização:** [biblioteca-global.ts](../../bibliotecas/dialetos/egua-classico/biblioteca-global.ts) linha 52+
 
 ```typescript
 globals.definirVariavel(
@@ -211,7 +211,7 @@ globals.definirVariavel(
 
 ## 6. Padrão 3: Dialeto Pituguês (Igual ao Delégua para funções)
 
-**Localização:** [fontes/bibliotecas/dialetos/pitugues/biblioteca-global.ts](fontes/bibliotecas/dialetos/pitugues/biblioteca-global.ts)
+**Localização:** [biblioteca-global.ts](../../bibliotecas/dialetos/pitugues/biblioteca-global.ts)
 
 ### Exemplo: `para_cada()` em Pituguês
 
@@ -251,7 +251,7 @@ export async function para_cada(
 
 ## 7. Padrão 4: Dialeto Tenda (Funções baseadas em espaços de nome)
 
-**Localização:** [fontes/bibliotecas/dialetos/tenda/biblioteca-global.ts](fontes/bibliotecas/dialetos/tenda/biblioteca-global.ts)
+**Localização:** [biblioteca-global.ts](../../bibliotecas/dialetos/tenda/biblioteca-global.ts)
 
 ```typescript
 globals.definirVariavel('Saída', {
@@ -325,7 +325,7 @@ return new Escreva(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumen
 
 **Avaliação pelo interpretador:**
 
-Localização: [fontes/interpretador/interpretador-base.ts](fontes/interpretador/interpretador-base.ts) linha 1866+
+Localização: [interpretador-base.ts](../interpretador-base.ts) linha 1866+
 
 ```typescript
 async visitarDeclaracaoEscreva(declaracao: Escreva): Promise<any> {
@@ -348,7 +348,7 @@ async visitarDeclaracaoEscreva(declaracao: Escreva): Promise<any> {
 
 **O método `avaliarArgumentosEscreva()`:**
 
-Localização: [fontes/interpretador/interpretador.ts](fontes/interpretador/interpretador.ts) linha 120+
+Localização: [interpretador.ts](../interpretador.ts) linha 120+
 
 ```typescript
 protected override async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
@@ -386,7 +386,7 @@ protected override async avaliarArgumentosEscreva(argumentos: Construto[]): Prom
 
 ## 9. Método-chave: `resolverAmbiente()` para DeleguaFuncao
 
-**Localização:** [fontes/interpretador/estruturas/delegua-funcao.ts](fontes/interpretador/estruturas/delegua-funcao.ts) linha 118+
+**Localização:** [delegua-funcao.ts](./delegua-funcao.ts) linha 118+
 
 Mostra como `DeleguaFuncao` (funções definidas pelo usuário) trata argumentos de forma diferente:
 

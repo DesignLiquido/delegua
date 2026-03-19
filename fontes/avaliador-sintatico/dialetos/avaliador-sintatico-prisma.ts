@@ -391,7 +391,6 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
                 tiposDeSimbolos.NEGACAO,
                 tiposDeSimbolos.SUBTRACAO,
                 tiposDeSimbolos.BIT_NOT,
-                tiposDeSimbolos.BIT_XOR,
                 tiposDeSimbolos.NAO,
                 tiposDeSimbolos.COMPRIMENTO
             )
@@ -862,7 +861,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         if (!fimConsumidoNoCaminhoSenao) {
             this.consumir(
                 tiposDeSimbolos.FIM,
-                "Esperado palavra-chave 'fimse' para fechamento de declaração 'se'."
+                "Esperado palavra-chave 'fim' para fechamento de declaração 'se'."
             );
         }
 

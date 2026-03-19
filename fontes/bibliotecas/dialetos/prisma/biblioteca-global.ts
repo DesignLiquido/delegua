@@ -1,4 +1,4 @@
-import { FuncaoPadrao } from '../../../interpretador/estruturas';
+import { Chamavel, FuncaoPadrao } from '../../../interpretador/estruturas';
 import { PilhaEscoposExecucaoInterface } from '../../../interfaces/pilha-escopos-execucao-interface';
 
 /**
@@ -39,7 +39,7 @@ export default function carregarBibliotecaGlobalPrisma(
                 return 'logico';
             }
 
-            if (typeof v === 'function') {
+            if (v instanceof Chamavel || typeof v.chamar === 'function') {
                 return 'funcao';
             }
 
@@ -264,6 +264,7 @@ export default function carregarBibliotecaGlobalPrisma(
      *   "parar"               - para o coletor; no-op em JS; retorna 0.
      *   "reiniciar"           - reinicia o coletor; no-op em JS; retorna 0.
      *   "rodando"             - retorna verdadeiro se o coletor está ativo.
+     *   "passo"               - executa um passo de coleta; no-op em JS; retorna 0.
      * Qualquer outra ação retorna nulo.
      */
     globals.definirVariavel(

@@ -253,8 +253,8 @@ export class LexadorPrisma implements LexadorInterface<SimboloInterface> {
             case '.':
                 this.avancar();
                 if (this.simboloAtual() === '.') {
-                    this.adicionarSimbolo(tiposDeSimbolos.CONCATENACAO);
                     this.avancar();
+                    this.adicionarSimbolo(tiposDeSimbolos.CONCATENACAO);
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.PONTO);
                 }

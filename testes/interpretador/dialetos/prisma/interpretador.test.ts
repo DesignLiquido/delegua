@@ -493,8 +493,7 @@ describe('Interpretador (Prisma)', () => {
                 const retornoLexador = lexador.mapear([
                     'para i = 0, 10 fazer',
                     '    se i == 3 entao',
-                    '        quebra;',
-                                        '        quebre;',
+                    '        quebre;',
                     '    fim',
                     '    imprima(i);',
                     'fim'
