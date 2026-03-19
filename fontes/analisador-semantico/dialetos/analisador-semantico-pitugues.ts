@@ -1133,9 +1133,19 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
+    private verificarBinarioEmExpressao(expressao: Construto): void {
+        if (expressao instanceof Agrupamento) {
+            this.verificarBinarioEmExpressao(expressao.expressao);
+            return;
+        }
+        if (expressao instanceof Binario) {
+            this.verificarOperadorBinario(expressao);
+        }
+    }
+
     override visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
-        if (declaracao.valor instanceof Binario) {
-            this.verificarBinario(declaracao.valor);
+        if (declaracao.valor) {
+            this.verificarBinarioEmExpressao(declaracao.valor);
         }
         return Promise.resolve(null);
     }
@@ -1178,9 +1188,10 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
             this.erro(declaracao.simbolo, 'Função não pode ter mais de 255 parâmetros.');
         }
 
-        for (const instrucao of declaracao.funcao.corpo) {
-            if (instrucao instanceof Retorna && instrucao.valor instanceof Binario) {
-                this.verificarBinario(instrucao.valor);
+        const todosRetornos = declaracao.funcao.corpo.flatMap((c) => buscarRetornos(c));
+        for (const instrucao of todosRetornos) {
+            if (instrucao.valor) {
+                this.verificarBinarioEmExpressao(instrucao.valor);
             }
         }
 
