@@ -76,18 +76,21 @@ export default function carregarBibliotecaGlobalPrisma(
      */
     globals.definirVariavel(
         'pares',
-        new FuncaoPadrao(1, function (_: any, tabela: any) {
-            const t = tabela !== null && tabela !== undefined && tabela.hasOwnProperty('valor')
-                ? tabela.valor
-                : tabela;
-
-            if (!Array.isArray(t)) {
-                return [];
-            }
+        new FuncaoPadrao(1, function (interp: any, tabela: any) {
+            const t = tabela !== null && tabela !== undefined
+                ? interp.resolverValor(tabela)
+                : null;
 
             const resultado = [];
-            for (let i = 0; i < t.length; i += 2) {
-                resultado.push([i, t[i]]);
+            if (Array.isArray(t)) {
+                for (let i = 0; i < t.length; i += 2) {
+                    resultado.push([i, t[i]]);
+                }
+            } else if (typeof t === 'object' && t !== null) {
+                const valores = Object.values(t);
+                for (let i = 0; i < valores.length; i += 2) {
+                    resultado.push([i, valores[i]]);
+                }
             }
 
             return resultado;
@@ -100,18 +103,21 @@ export default function carregarBibliotecaGlobalPrisma(
      */
     globals.definirVariavel(
         'ipares',
-        new FuncaoPadrao(1, function (_: any, tabela: any) {
-            const t = tabela !== null && tabela !== undefined && tabela.hasOwnProperty('valor')
-                ? tabela.valor
-                : tabela;
-
-            if (!Array.isArray(t)) {
-                return [];
-            }
+        new FuncaoPadrao(1, function (interp: any, tabela: any) {
+            const t = tabela !== null && tabela !== undefined
+                ? interp.resolverValor(tabela)
+                : null;
 
             const resultado = [];
-            for (let i = 1; i < t.length; i += 2) {
-                resultado.push([i, t[i]]);
+            if (Array.isArray(t)) {
+                for (let i = 1; i < t.length; i += 2) {
+                    resultado.push([i, t[i]]);
+                }
+            } else if (typeof t === 'object' && t !== null) {
+                const valores = Object.values(t);
+                for (let i = 1; i < valores.length; i += 2) {
+                    resultado.push([i, valores[i]]);
+                }
             }
 
             return resultado;

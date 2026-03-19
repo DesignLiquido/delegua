@@ -20,7 +20,6 @@ import {
     Unario,
     Variavel,
     Leia,
-    FimPara,
     ImportarComoConstruto,
 } from '../../construtos';
 import {
@@ -186,10 +185,17 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
 
                 let indice = 1;
                 do {
-                    let chave: string = String(indice);
-                    if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
-                        // Lógica para índice nomeado
-                        // TODO: Terminar
+                    let chave: Construto;
+                    if (
+                        this.verificarTipoSimboloAtual(tiposDeSimbolos.IDENTIFICADOR) &&
+                        this.simbolos[this.atual + 1]?.tipo === tiposDeSimbolos.IGUAL
+                    ) {
+                        // Chave nomeada: {nome = "João"}
+                        const chaveIdentificador = this.avancarEDevolverAnterior();
+                        this.avancarEDevolverAnterior(); // consume IGUAL
+                        chave = new Literal(this.hashArquivo, simboloAtual.linha, chaveIdentificador.lexema);
+                    } else {
+                        chave = new Literal(this.hashArquivo, simboloAtual.linha, String(indice));
                     }
 
                     const valor = await this.ou();
@@ -384,7 +390,10 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.NEGACAO,
                 tiposDeSimbolos.SUBTRACAO,
-                tiposDeSimbolos.BIT_NOT
+                tiposDeSimbolos.BIT_NOT,
+                tiposDeSimbolos.BIT_XOR,
+                tiposDeSimbolos.NAO,
+                tiposDeSimbolos.COMPRIMENTO
             )
         ) {
             const operador = this.simboloAnterior();
@@ -440,8 +449,20 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    async bitShift(): Promise<Construto> {
+    async concatenacao(): Promise<Construto> {
         let expressao = await this.adicaoOuSubtracao();
+
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONCATENACAO)) {
+            const operador = this.simboloAnterior();
+            const direito = await this.adicaoOuSubtracao();
+            expressao = new Binario(this.hashArquivo, expressao, operador, direito);
+        }
+
+        return expressao;
+    }
+
+    async bitShift(): Promise<Construto> {
+        let expressao = await this.concatenacao();
 
         while (
             this.verificarSeSimboloAtualEIgualA(
@@ -671,7 +692,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.FIM, "Esperado 'fim' após o bloco.");
 
         this.pilhaEscopos.removerUltimo();
-        return declaracoes;
+        return declaracoes.filter((d) => d);
     }
 
     async declaracaoDeLocal(): Promise<Var> {
@@ -1052,6 +1073,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
                 return null;
             case tiposDeSimbolos.ENTAO:
             case tiposDeSimbolos.INICIO:
+            case tiposDeSimbolos.FAZER:
                 const simboloInicioBloco: SimboloInterface = this.avancarEDevolverAnterior();
                 return new Bloco(
                     simboloInicioBloco.hashArquivo,
@@ -1227,21 +1249,19 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
                 Number(simboloPara.linha),
                 this.hashArquivo
             );
-            let operadorCondicaoIncremento = new Simbolo(
-                tiposDeSimbolos.MENOR,
-                '<',
-                null,
-                Number(simboloPara.linha),
-                this.hashArquivo
-            );
 
             let passo: Construto = new Literal(this.hashArquivo, Number(simboloPara.linha), 1);
-            const resolverIncrementoEmExecucao = false; // Mudar caso seja necessário.
 
-            this.consumir(
-                tiposDeSimbolos.INICIO,
-                `espera-se 'inicio' proximo a '${this.simbolos[this.atual].lexema}'.`
-            );
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)) {
+                passo = await this.adicaoOuSubtracao();
+            }
+
+            if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INICIO, tiposDeSimbolos.FAZER)) {
+                throw this.erro(
+                    this.simbolos[this.atual],
+                    `espera-se 'inicio' ou 'fazer' proximo a '${this.simbolos[this.atual].lexema}'.`
+                );
+            }
 
             // Aqui já é seguro inicializar a variável.
             this.pilhaEscopos.definirInformacoesVariavel(
@@ -1267,14 +1287,8 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             const para = new Para(
                 this.hashArquivo,
                 Number(simboloPara.linha),
-                // Inicialização.
-                new Expressao(
-                    new Atribuir(
-                        this.hashArquivo,
-                        new Variavel(this.hashArquivo, variavelIteracao, 'inteiro'),
-                        literalOuVariavelInicio
-                    )
-                ),
+                // Inicialização: declara a variável de iteração.
+                new Var(variavelIteracao, literalOuVariavelInicio, 'inteiro'),
                 // Condição.
                 new Binario(
                     this.hashArquivo,
@@ -1282,40 +1296,25 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
                     operadorCondicao,
                     literalOuVariavelFim
                 ),
-                // Incremento, feito em construto especial `FimPara`.
-                new FimPara(
+                // Incremento simples.
+                new Atribuir(
                     this.hashArquivo,
-                    Number(simboloPara.linha),
+                    new Variavel(this.hashArquivo, variavelIteracao, 'inteiro'),
                     new Binario(
                         this.hashArquivo,
                         new Variavel(this.hashArquivo, variavelIteracao, 'inteiro'),
-                        operadorCondicaoIncremento,
-                        literalOuVariavelFim
-                    ),
-                    new Expressao(
-                        new Atribuir(
-                            this.hashArquivo,
-                            new Variavel(this.hashArquivo, variavelIteracao, 'inteiro'),
-                            new Binario(
-                                this.hashArquivo,
-                                new Variavel(this.hashArquivo, variavelIteracao, 'inteiro'),
-                                new Simbolo(
-                                    tiposDeSimbolos.ADICAO,
-                                    '+',
-                                    null,
-                                    Number(simboloPara.linha),
-                                    this.hashArquivo
-                                ),
-                                passo
-                            )
-                        )
+                        new Simbolo(
+                            tiposDeSimbolos.ADICAO,
+                            '+',
+                            null,
+                            Number(simboloPara.linha),
+                            this.hashArquivo
+                        ),
+                        passo
                     )
                 ),
                 corpo
             );
-            para.blocoPosExecucao = corpo;
-            para.resolverIncrementoEmExecucao = resolverIncrementoEmExecucao;
-
             return para;
         } finally {
             this.blocos -= 1;

@@ -251,7 +251,16 @@ export class LexadorPrisma implements LexadorInterface<SimboloInterface> {
                 this.avancar();
                 break;
             case '.':
-                this.adicionarSimbolo(tiposDeSimbolos.PONTO);
+                this.avancar();
+                if (this.simboloAtual() === '.') {
+                    this.adicionarSimbolo(tiposDeSimbolos.CONCATENACAO);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.PONTO);
+                }
+                break;
+            case '#':
+                this.adicionarSimbolo(tiposDeSimbolos.COMPRIMENTO);
                 this.avancar();
                 break;
             case ';':
@@ -338,10 +347,8 @@ export class LexadorPrisma implements LexadorInterface<SimboloInterface> {
             case '/':
                 this.avancar();
                 if (this.simboloAtual() === '/') {
-                    // Comentário de linha
-                    while (this.simboloAtual() !== '\n' && !this.eFinalDoCodigo()) {
-                        this.avancar();
-                    }
+                    this.adicionarSimbolo(tiposDeSimbolos.DIVISAO_INTEIRA);
+                    this.avancar();
                 } else if (this.simboloAtual() === '*') {
                     // Comentário de bloco
                     this.avancar();
@@ -374,8 +381,13 @@ export class LexadorPrisma implements LexadorInterface<SimboloInterface> {
                 this.avancar();
                 break;
             case '~':
-                this.adicionarSimbolo(tiposDeSimbolos.BIT_NOT);
                 this.avancar();
+                if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.DIFERENTE);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.BIT_XOR);
+                }
                 break;
             case '"':
                 this.avancar();
