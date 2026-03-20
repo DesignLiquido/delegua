@@ -1476,12 +1476,72 @@ export class TradutorAssemblyScript {
         TextoDocumentacao: this.traduzirDeclaracaoTextoDocumentacao.bind(this),
     };
 
+    detectarImportacoesNecessarias(declaracoes: Declaracao[]): string {
+        const importsNecessarios = new Set<string>();
+        this.varrerDeclaracoesParaImports(declaracoes, importsNecessarios);
+
+        if (importsNecessarios.size === 0) {
+            return '';
+        }
+
+        return Array.from(importsNecessarios).join('\n') + '\n\n';
+    }
+
+    private varrerDeclaracoesParaImports(declaracoes: Declaracao[], imports: Set<string>): void {
+        for (const declaracao of declaracoes) {
+            const nome = declaracao.constructor.name;
+
+            if (nome === 'Escreva' || nome === 'EscrevaMesmaLinha') {
+                imports.add('import "wasi";');
+            } else if (nome === 'Bloco') {
+                this.varrerDeclaracoesParaImports((declaracao as Bloco).declaracoes, imports);
+            } else if (nome === 'Se') {
+                const se = declaracao as Se;
+                if (se.caminhoEntao) {
+                    this.varrerDeclaracoesParaImports([se.caminhoEntao], imports);
+                }
+                if (se.caminhoSenao) {
+                    this.varrerDeclaracoesParaImports([se.caminhoSenao], imports);
+                }
+            } else if (nome === 'Enquanto') {
+                const enquanto = declaracao as Enquanto;
+                this.varrerDeclaracoesParaImports([enquanto.corpo], imports);
+            } else if (nome === 'Para') {
+                const para = declaracao as Para;
+                this.varrerDeclaracoesParaImports([para.corpo], imports);
+            } else if (nome === 'ParaCada') {
+                const paraCada = declaracao as ParaCada;
+                this.varrerDeclaracoesParaImports([paraCada.corpo], imports);
+            } else if (nome === 'Fazer') {
+                const fazer = declaracao as Fazer;
+                this.varrerDeclaracoesParaImports([fazer.caminhoFazer], imports);
+            } else if (nome === 'FuncaoDeclaracao') {
+                const funcao = declaracao as FuncaoDeclaracao;
+                this.varrerDeclaracoesParaImports(funcao.funcao.corpo, imports);
+            } else if (nome === 'Classe') {
+                const classe = declaracao as Classe;
+                this.varrerDeclaracoesParaImports(classe.metodos, imports);
+            } else if (nome === 'Tente') {
+                const tente = declaracao as Tente;
+                this.varrerDeclaracoesParaImports(tente.caminhoTente, imports);
+                if (Array.isArray(tente.caminhoPegue)) {
+                    this.varrerDeclaracoesParaImports(tente.caminhoPegue as Declaracao[], imports);
+                }
+                if (tente.caminhoFinalmente && tente.caminhoFinalmente.length > 0) {
+                    this.varrerDeclaracoesParaImports(tente.caminhoFinalmente, imports);
+                }
+            }
+        }
+    }
+
     traduzir(declaracoes: Declaracao[]): string {
         let resultado = '';
 
         this.declaracoesDeClasses = declaracoes.filter(
             (declaracao) => declaracao instanceof Classe
         ) as Classe[];
+
+        resultado += this.detectarImportacoesNecessarias(declaracoes);
 
         for (const declaracao of declaracoes) {
             resultado += `${this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao)} \n`;

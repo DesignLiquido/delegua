@@ -635,5 +635,48 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 expect(resultado).toContain('[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]');
             });
         });
+
+        describe('Importações padrão', () => {
+            it('escreva gera import "wasi" no início do arquivo', async () => {
+                const retornoLexador = lexador.mapear(['escreva("Olá, mundo!")'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('import "wasi";');
+                expect(resultado.indexOf('import "wasi";')).toBeLessThan(resultado.indexOf('trace('));
+            });
+
+            it('escreva dentro de função gera import "wasi" no início do arquivo', async () => {
+                const retornoLexador = lexador.mapear([
+                    'funcao saudacao(): vazio {',
+                    '    escreva("Olá!")',
+                    '}',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('import "wasi";');
+                expect(resultado.indexOf('import "wasi";')).toBeLessThan(resultado.indexOf('function'));
+            });
+
+            it('código sem escreva não gera imports desnecessários', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var x: inteiro = 42',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).not.toContain('import');
+            });
+
+            it('escreva dentro de bloco se gera import "wasi"', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var x: inteiro = 1',
+                    'se (x == 1) {',
+                    '    escreva("dentro do se")',
+                    '}',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('import "wasi";');
+            });
+        });
     })
 })
