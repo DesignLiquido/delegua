@@ -226,7 +226,7 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
     }
 
     analisarTexto(delimitador = '"'): void {
-        let textoCompleto = '';
+        let valor = '';
 
         this.avancar();
 
@@ -235,7 +235,7 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
 
             if (caractere === delimitador) {
                 this.avancar();
-                this.adicionarSimbolo(tiposDeSimbolos.TEXTO, textoCompleto.replace(/\\n/g, '\n'));
+                this.adicionarSimbolo(tiposDeSimbolos.TEXTO, valor);
                 return;
             }
 
@@ -249,12 +249,44 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
             }
 
             if (caractere === '\0') {
-                textoCompleto += '\n';
+                valor += '\n';
                 this.avancar();
                 continue;
             }
 
-            textoCompleto += caractere;
+            if (caractere === '\\') {
+                this.avancar();
+                const proximoCaractere = this.simboloAtual();
+                switch (proximoCaractere) {
+                    case 'n': valor += '\n'; break;
+                    case 't': valor += '\t'; break;
+                    case 'r': valor += '\r'; break;
+                    case 'b': valor += '\b'; break;
+                    case "'": valor += "'"; break;
+                    case '"': valor += '"'; break;
+                    case '\\': valor += '\\'; break;
+                    case 'e': valor += '\x1B'; break;
+                    case 'x': {
+                        let hex = '';
+                        for (let i = 0; i < 2; i++) {
+                            const c = this.proximoSimbolo();
+                            if (/[0-9a-fA-F]/.test(c)) {
+                                this.avancar();
+                                hex += c;
+                            } else {
+                                break;
+                            }
+                        }
+                        valor += hex.length === 2 ? String.fromCharCode(parseInt(hex, 16)) : '\\x' + hex;
+                        break;
+                    }
+                    case '\0': break; // barra invertida no fim de linha: ignora e continua na próxima linha
+                    default: valor += '\\' + proximoCaractere; break;
+                }
+            } else {
+                valor += caractere;
+            }
+
             this.avancar();
         }
 
