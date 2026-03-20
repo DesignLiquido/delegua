@@ -310,6 +310,30 @@ describe('Lexador', () => {
                     expect(resultado.simbolos[0].literal).toBe('\x1B[31m');
                 });
 
+                it('\\xNN dentro de string literal vira o caractere correspondente', () => {
+                    const resultado = lexador.mapear(['"\\x41"'], -1); // 0x41 = 'A'
+
+                    expect(resultado.erros).toHaveLength(0);
+                    expect(resultado.simbolos).toHaveLength(1);
+                    expect(resultado.simbolos[0].literal).toBe('A');
+                });
+
+                it('\\x1B dentro de string literal vira ESC (ANSI)', () => {
+                    const resultado = lexador.mapear(['"\\x1B[31m"'], -1);
+
+                    expect(resultado.erros).toHaveLength(0);
+                    expect(resultado.simbolos).toHaveLength(1);
+                    expect(resultado.simbolos[0].literal).toBe('\x1B[31m');
+                });
+
+                it('Barra invertida no fim de linha dentro de string não insere NUL', () => {
+                    const resultado = lexador.mapear(['"Hello\\', 'World"'], -1);
+
+                    expect(resultado.erros).toHaveLength(0);
+                    expect(resultado.simbolos).toHaveLength(1);
+                    expect(resultado.simbolos[0].literal).not.toContain('\0');
+                });
+
                 it('Múltiplas sequências de escape em uma mesma string', () => {
                     const resultado = lexador.mapear(['"a\\tb\\nc"'], -1);
 

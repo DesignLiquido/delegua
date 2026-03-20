@@ -266,6 +266,21 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
                     case '"': valor += '"'; break;
                     case '\\': valor += '\\'; break;
                     case 'e': valor += '\x1B'; break;
+                    case 'x': {
+                        let hex = '';
+                        for (let i = 0; i < 2; i++) {
+                            const c = this.proximoSimbolo();
+                            if (/[0-9a-fA-F]/.test(c)) {
+                                this.avancar();
+                                hex += c;
+                            } else {
+                                break;
+                            }
+                        }
+                        valor += hex.length === 2 ? String.fromCharCode(parseInt(hex, 16)) : '\\x' + hex;
+                        break;
+                    }
+                    case '\0': break; // barra invertida no fim de linha: ignora e continua na próxima linha
                     default: valor += '\\' + proximoCaractere; break;
                 }
             } else {
