@@ -82,9 +82,19 @@ export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExe
         new FuncaoPadrao(2, bibliotecaGlobal.incluido)
     );
 
-    pilhaEscoposExecucao.definirVariavel('inteiro', new FuncaoPadrao(1, bibliotecaGlobal.inteiro));
+    const funcaoInteiro = new FuncaoPadrao(1, bibliotecaGlobal.inteiro);
+    (funcaoInteiro as any).MAXIMO = 2147483647;
+    (funcaoInteiro as any).MÁXIMO = 2147483647;
+    (funcaoInteiro as any).MINIMO = -2147483648;
+    (funcaoInteiro as any).MÍNIMO = -2147483648;
+    pilhaEscoposExecucao.definirVariavel('inteiro', funcaoInteiro);
 
-    pilhaEscoposExecucao.definirVariavel('longo', new FuncaoPadrao(1, bibliotecaGlobal.longo));
+    const funcaoLongo = new FuncaoPadrao(1, bibliotecaGlobal.longo);
+    (funcaoLongo as any).MAXIMO = BigInt('9223372036854775807');
+    (funcaoLongo as any).MÁXIMO = BigInt('9223372036854775807');
+    (funcaoLongo as any).MINIMO = BigInt('-9223372036854775808');
+    (funcaoLongo as any).MÍNIMO = BigInt('-9223372036854775808');
+    pilhaEscoposExecucao.definirVariavel('longo', funcaoLongo);
 
     pilhaEscoposExecucao.definirVariavel(
         'intervalo',
@@ -99,8 +109,13 @@ export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExe
     pilhaEscoposExecucao.definirVariavel('minimo', new FuncaoPadrao(1, bibliotecaGlobal.minimo));
     pilhaEscoposExecucao.definirVariavel('mínimo', new FuncaoPadrao(1, bibliotecaGlobal.minimo));
 
-    pilhaEscoposExecucao.definirVariavel('numero', new FuncaoPadrao(1, bibliotecaGlobal.numero));
-    pilhaEscoposExecucao.definirVariavel('número', new FuncaoPadrao(1, bibliotecaGlobal.numero));
+    const funcaoNumero = new FuncaoPadrao(1, bibliotecaGlobal.numero);
+    (funcaoNumero as any).MAXIMO = Number.MAX_VALUE;
+    (funcaoNumero as any).MÁXIMO = Number.MAX_VALUE;
+    (funcaoNumero as any).MINIMO = -Number.MAX_VALUE;
+    (funcaoNumero as any).MÍNIMO = -Number.MAX_VALUE;
+    pilhaEscoposExecucao.definirVariavel('numero', funcaoNumero);
+    pilhaEscoposExecucao.definirVariavel('número', funcaoNumero);
 
     pilhaEscoposExecucao.definirVariavel('ordenar', new FuncaoPadrao(1, bibliotecaGlobal.ordenar));
 
@@ -118,7 +133,12 @@ export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExe
         new FuncaoPadrao(2, bibliotecaGlobal.primeiroEmCondicao)
     );
 
-    pilhaEscoposExecucao.definirVariavel('real', new FuncaoPadrao(1, bibliotecaGlobal.real));
+    const funcaoReal = new FuncaoPadrao(1, bibliotecaGlobal.real);
+    (funcaoReal as any).MAXIMO = Number.MAX_VALUE;
+    (funcaoReal as any).MÁXIMO = Number.MAX_VALUE;
+    (funcaoReal as any).MINIMO = -Number.MAX_VALUE;
+    (funcaoReal as any).MÍNIMO = -Number.MAX_VALUE;
+    pilhaEscoposExecucao.definirVariavel('real', funcaoReal);
 
     pilhaEscoposExecucao.definirVariavel('reduzir', new FuncaoPadrao(3, bibliotecaGlobal.reduzir));
 
@@ -395,15 +415,20 @@ function obterAjudaFuncaoPadrao(funcaoPadrao: FuncaoPadrao): string {
         case 'inteiro':
             return (
                 `# inteiro(valor)\n\n` +
-                `Converte um valor em um número inteiro.\n\n` +
+                `Converte um valor em um número inteiro de 32 bits.\n\n` +
                 `**Sintaxe:** inteiro(valor: número | texto)\n\n` +
                 `**Parâmetros:**\n` +
                 `  - valor: O valor a ser convertido (número ou texto)\n\n` +
                 `**Retorno:** Número inteiro correspondente ao valor fornecido.\n\n` +
+                `**Constantes:**\n` +
+                `  - inteiro.MAXIMO (ou inteiro.MÁXIMO): 2147483647 (maior valor possível)\n` +
+                `  - inteiro.MINIMO (ou inteiro.MÍNIMO): -2147483648 (menor valor possível)\n\n` +
                 `**Exemplo:**\n` +
                 `\tescreva(inteiro(3.14)) // 3\n` +
                 `\tescreva(inteiro("42")) // 42\n` +
-                `\tescreva(inteiro("3.99")) // 3\n`
+                `\tescreva(inteiro("3.99")) // 3\n` +
+                `\tescreva(inteiro.MAXIMO) // 2147483647\n` +
+                `\tescreva(inteiro.MINIMO) // -2147483648\n`
             );
 
         case 'intervalo':
@@ -419,6 +444,24 @@ function obterAjudaFuncaoPadrao(funcaoPadrao: FuncaoPadrao): string {
                 `**Exemplo:**\n` +
                 `\tvar numeros = intervalo(1, 6)\n` +
                 `\tescreva(numeros) // [1, 2, 3, 4, 5]\n`
+            );
+
+        case 'longo':
+            return (
+                `# longo(valor)\n\n` +
+                `Converte um valor em um número inteiro de 64 bits (longo).\n\n` +
+                `**Sintaxe:** longo(valor: número | texto)\n\n` +
+                `**Parâmetros:**\n` +
+                `  - valor: O valor a ser convertido (número ou texto)\n\n` +
+                `**Retorno:** Número inteiro de 64 bits correspondente ao valor fornecido.\n\n` +
+                `**Constantes:**\n` +
+                `  - longo.MAXIMO (ou longo.MÁXIMO): 9223372036854775807 (maior valor possível)\n` +
+                `  - longo.MINIMO (ou longo.MÍNIMO): -9223372036854775808 (menor valor possível)\n\n` +
+                `**Exemplo:**\n` +
+                `\tescreva(longo(3.14)) // 3\n` +
+                `\tescreva(longo("9000000000")) // 9000000000\n` +
+                `\tescreva(longo.MAXIMO) // 9223372036854775807\n` +
+                `\tescreva(longo.MINIMO) // -9223372036854775808\n`
             );
 
         case 'mapear':
@@ -445,15 +488,20 @@ function obterAjudaFuncaoPadrao(funcaoPadrao: FuncaoPadrao): string {
         case 'numero':
             return (
                 `# numero(valor)\n\n` +
-                `Converte um valor em um número (pode ter parte decimal).\n\n` +
+                `Converte um valor em um número de ponto flutuante de 64 bits.\n\n` +
                 `**Sintaxe:** numero(valor: número | texto)\n\n` +
                 `**Parâmetros:**\n` +
                 `  - valor: O valor a ser convertido\n\n` +
                 `**Retorno:** Número correspondente ao valor fornecido.\n\n` +
+                `**Constantes:**\n` +
+                `  - numero.MAXIMO (ou numero.MÁXIMO / número.MÁXIMO): maior valor finito representável\n` +
+                `  - numero.MINIMO (ou numero.MÍNIMO / número.MÍNIMO): menor valor finito representável (mais negativo)\n\n` +
                 `**Exemplo:**\n` +
                 `\tescreva(numero("3.14")) // 3.14\n` +
                 `\tescreva(numero("42")) // 42\n` +
-                `\tescreva(numero(5)) // 5\n`
+                `\tescreva(numero(5)) // 5\n` +
+                `\tescreva(numero.MAXIMO) // 1.7976931348623157e+308\n` +
+                `\tescreva(numero.MINIMO) // -1.7976931348623157e+308\n`
             );
 
         case 'ordenar':
@@ -504,14 +552,19 @@ function obterAjudaFuncaoPadrao(funcaoPadrao: FuncaoPadrao): string {
         case 'real':
             return (
                 `# real(valor)\n\n` +
-                `Converte um valor em um número real (ponto flutuante).\n\n` +
+                `Converte um valor em um número real (ponto flutuante de 64 bits). Equivalente a numero().\n\n` +
                 `**Sintaxe:** real(valor: número | texto)\n\n` +
                 `**Parâmetros:**\n` +
                 `  - valor: O valor a ser convertido\n\n` +
                 `**Retorno:** Número real correspondente ao valor fornecido.\n\n` +
+                `**Constantes:**\n` +
+                `  - real.MAXIMO (ou real.MÁXIMO): maior valor finito representável\n` +
+                `  - real.MINIMO (ou real.MÍNIMO): menor valor finito representável (mais negativo)\n\n` +
                 `**Exemplo:**\n` +
                 `\tescreva(real("3.14")) // 3.14\n` +
-                `\tescreva(real(42)) // 42.0\n`
+                `\tescreva(real(42)) // 42.0\n` +
+                `\tescreva(real.MAXIMO) // 1.7976931348623157e+308\n` +
+                `\tescreva(real.MINIMO) // -1.7976931348623157e+308\n`
             );
 
         case 'reduzir':

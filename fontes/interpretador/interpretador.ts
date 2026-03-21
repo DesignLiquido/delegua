@@ -36,6 +36,7 @@ import {
     DeleguaFuncao,
     DeleguaModulo,
     DescritorTipoClasse,
+    FuncaoPadrao,
     MetodoPrimitiva,
     ObjetoDeleguaClasse,
     ObjetoPadrao,
@@ -884,6 +885,12 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         // Caso 2: Objeto tradicional do JavaScript.
         if (typeof objeto[expressao.nomeMetodo] === tipoDeDadosPrimitivos.OBJETO) {
             return objeto[expressao.nomeMetodo];
+        }
+
+        // Caso 3: Constante de tipo em FuncaoPadrao (ex: inteiro.MAXIMO, longo.MINIMO).
+        if (objeto instanceof FuncaoPadrao) {
+            const constante = (objeto as any)[expressao.nomeMetodo];
+            if (constante !== undefined) return constante;
         }
 
         // A partir daqui, presume-se que o objeto é uma das estruturas
