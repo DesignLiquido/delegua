@@ -14,9 +14,10 @@ import {
 } from '../../../construtos';
 import { Interpretador } from '../../interpretador';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
+import { EspacoMemoria } from '../../espaco-memoria';
 
 import * as comum from './comum';
-import { ParaCada, Retorna } from '../../../declaracoes';
+import { Declaracao, ParaCada, Retorna } from '../../../declaracoes';
 import { inferirTipoVariavel } from '../../../inferenciador';
 import { ContinuarQuebra, Quebra, SustarQuebra, RetornoQuebra } from '../../../quebras';
 import { PilhaEscoposExecucaoPitugues } from './pilha-escopos-execucao-pitugues';
@@ -37,6 +38,33 @@ export class InterpretadorPitugues extends Interpretador {
         }
         this.pilhaEscoposExecucao = pilhaPitugues;
         this.lancarErroPorDivisaoPorZero = true;
+    }
+
+    /**
+     * Sobrescreve `executarBloco` para marcar escopos de chamadas de função com
+     * `tipo: 'funcao'`. Quando `ambiente` é fornecido, a chamada vem de
+     * `DeleguaFuncao.chamar`, que repassa o espaço de memória dos parâmetros.
+     * Isso permite que `PilhaEscoposExecucaoPitugues` identifique fronteiras de
+     * função e aplique a semântica LEGB corretamente.
+     */
+    override async executarBloco(declaracoes: Declaracao[], ambiente?: EspacoMemoria): Promise<any> {
+        if (ambiente !== undefined && ambiente !== null) {
+            const escopoFuncao = {
+                declaracoes,
+                declaracaoAtual: 0,
+                espacoMemoria: ambiente,
+                finalizado: false,
+                tipo: 'funcao' as const,
+                emLacoRepeticao: false,
+            };
+            this.pilhaEscoposExecucao.empilhar(escopoFuncao);
+            const retorno = await this.executarUltimoEscopo();
+            if (retorno instanceof ErroEmTempoDeExecucao) {
+                return Promise.reject(retorno);
+            }
+            return retorno;
+        }
+        return super.executarBloco(declaracoes, ambiente);
     }
 
     override async visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> {
@@ -64,10 +92,30 @@ export class InterpretadorPitugues extends Interpretador {
     }
 
     override async visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> {
-        // PilhaEscoposExecucaoPitugues.atribuirVariavel já implementa a semântica
-        // local-first: se a variável não existe no escopo atual, ela é criada ali
-        // (implicitamente), sem alterar escopos ancestrais. Por isso, não é mais
-        // necessário o try/catch para tratar a declaração implícita.
+        if (expressao.alvo.constructor === Variavel) {
+            const alvoVariavel = expressao.alvo as Variavel;
+            try {
+                // Verifica se a variável existe em algum escopo.
+                // Se não existir, obterValorVariavel lança uma exceção.
+                this.pilhaEscoposExecucao.obterValorVariavel(alvoVariavel.simbolo);
+            } catch (e) {
+                // Variável completamente nova: declaração implícita no escopo atual.
+                let valor = await this.avaliar(expressao.valor);
+                if (valor && valor.hasOwnProperty('valorRetornado')) {
+                    valor = valor.valorRetornado;
+                }
+                const valorResolvido = this.resolverValor(valor);
+                this.pilhaEscoposExecucao.definirVariavel(
+                    alvoVariavel.simbolo.lexema,
+                    valorResolvido
+                );
+                return valorResolvido;
+            }
+        }
+        // Variável já existe em algum escopo. O método atribuirVariavel de
+        // PilhaEscoposExecucaoPitugues decide onde escrever: se estivermos dentro
+        // de uma função e a variável só existir no escopo global, ela é criada
+        // localmente na função (semântica LEGB do Python).
         return super.visitarExpressaoDeAtribuicao(expressao);
     }
 

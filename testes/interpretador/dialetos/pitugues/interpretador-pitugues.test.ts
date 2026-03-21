@@ -199,6 +199,7 @@ describe('Interpretador (Pituguês)', () => {
                             -1
                         );
 
+                        
                         const retornoInterpretador = await interpretador.interpretar(
                             retornoAvaliadorSintatico.declaracoes
                         );

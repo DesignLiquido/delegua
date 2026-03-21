@@ -1,47 +1,103 @@
+import { ErroEmTempoDeExecucao } from '../../../excecoes';
 import { SimboloInterface } from '../../../interfaces';
+import { inferirTipoVariavel } from '../../../inferenciador';
 import { PilhaEscoposExecucao } from '../../pilha-escopos-execucao';
 
 /**
  * Pilha de escopos de execução específica para Pituguês.
  *
- * Diferentemente de Delégua, Pituguês segue a regra LEGB do Python para atribuições:
- * toda atribuição de variável escreve **no escopo atual** (topo da pilha), nunca em
- * um escopo ancestral. Isso significa que, dentro de uma função, `x = 5` cria uma
- * variável local `x` mesmo que já exista um `x` no escopo global.
+ * Diferentemente de Delégua, Pituguês segue a regra de escopo local-first do
+ * Python para atribuições dentro de funções:
  *
- * Leituras ainda atravessam a pilha normalmente — é possível ler variáveis de
- * escopos externos; apenas a escrita é sempre local.
+ * - Fora de uma função (escopo global, laços no nível global): o comportamento
+ *   é o padrão — a pilha é percorrida para encontrar a variável e atualizá-la,
+ *   ou ela é criada no escopo atual caso ainda não exista.
+ *
+ * - Dentro de uma função: a atribuição é sempre resolvida dentro da cadeia de
+ *   escopos da própria função (do topo da pilha até o escopo de tipo 'funcao'
+ *   inclusive), sem cruzar a fronteira para escopos ancestrais (globais). Se a
+ *   variável não for encontrada nessa cadeia, ela é criada no escopo da função
+ *   (não no escopo de laço interno, refletindo o comportamento do Python onde
+ *   `if`/`while`/`for` não criam namespaces próprios).
+ *
+ * Leituras continuam percorrendo toda a pilha normalmente.
  */
 export class PilhaEscoposExecucaoPitugues extends PilhaEscoposExecucao {
     /**
-     * Atribui um valor a uma variável seguindo a semântica local-first do Pituguês:
+     * Retorna o índice do escopo de função mais recente na pilha, ou -1 se não
+     * houver nenhum (estamos no nível global).
+     */
+    private indiceFuncaoAtual(): number {
+        for (let i = this.pilha.length - 1; i >= 0; i--) {
+            if (this.pilha[i].tipo === 'funcao') {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Atribui um valor a uma variável seguindo a semântica de escopo do Pituguês.
      *
-     * - Se a variável já existe no escopo atual → atualiza no escopo atual
-     *   (com as verificações normais de imutabilidade e tipo).
-     * - Se a variável existe apenas em um escopo ancestral **e** não há índice
-     *   envolvido → cria uma nova variável local no escopo atual, sem alterar
-     *   a variável ancestral.
-     * - Se `indice` está presente (atribuição em vetor/dicionário via `x[i] = v`),
-     *   o comportamento é o padrão — atravessa a pilha para localizar o objeto e
-     *   modifica seu conteúdo in-place, sem substituir a ligação da variável.
+     * Casos:
+     * 1. Atribuição indexada (`x[i] = v`) → comportamento padrão (percorre a pilha).
+     * 2. Fora de função → comportamento padrão com criação implícita se necessário.
+     * 3. Dentro de função:
+     *    a. Variável encontrada na cadeia de escopos da função → atualiza lá.
+     *    b. Variável não encontrada (só existe no escopo global, ou é nova) →
+     *       cria no escopo da função (não no escopo de laço interno).
      */
     override atribuirVariavel(simbolo: SimboloInterface, valor: any, indice?: number): void {
-        // Atribuição indexada (ex: x[0] = 5) modifica o conteúdo do objeto,
-        // não a ligação da variável. Nesse caso o comportamento padrão é mantido.
+        // Caso 1 — atribuição indexada: modifica conteúdo do objeto, não a ligação.
         if (indice !== undefined && indice !== null) {
             return super.atribuirVariavel(simbolo, valor, indice);
         }
 
-        const espacoMemoriaAtual = this.pilha[this.pilha.length - 1].espacoMemoria;
+        const funcaoIndex = this.indiceFuncaoAtual();
 
-        if (espacoMemoriaAtual.valores[simbolo.lexema] !== undefined) {
-            // A variável existe no escopo atual: atualizar com as verificações normais.
-            // super.atribuirVariavel começa pelo topo da pilha e a encontrará aqui.
-            return super.atribuirVariavel(simbolo, valor, indice);
+        // Caso 2 — fora de qualquer função (nível global ou laço global).
+        if (funcaoIndex === -1) {
+            for (let i = this.pilha.length - 1; i >= 0; i--) {
+                if (this.pilha[i].espacoMemoria.valores[simbolo.lexema] !== undefined) {
+                    return super.atribuirVariavel(simbolo, valor);
+                }
+            }
+            // Variável ainda não existe: criação implícita no escopo atual.
+            this.definirVariavel(simbolo.lexema, valor);
+            return;
         }
 
-        // A variável não existe no escopo atual (pode existir em um ancestral ou ser
-        // completamente nova). Em ambos os casos, criamos uma variável local.
-        this.definirVariavel(simbolo.lexema, valor);
+        // Caso 3 — dentro de uma função.
+        // Percorre apenas os escopos dentro da função (do topo até funcaoIndex).
+        for (let i = this.pilha.length - 1; i >= funcaoIndex; i--) {
+            const espaco = this.pilha[i].espacoMemoria;
+            if (espaco.valores[simbolo.lexema] !== undefined) {
+                const variavel = espaco.valores[simbolo.lexema];
+
+                if (variavel.imutavel) {
+                    throw new ErroEmTempoDeExecucao(
+                        simbolo,
+                        `Constante '${simbolo.lexema}' não pode receber novos valores.`
+                    );
+                }
+
+                espaco.valores[simbolo.lexema] = {
+                    valor,
+                    tipo: variavel.tipo || (inferirTipoVariavel(valor) as string),
+                    imutavel: false,
+                    tipoExplicito: variavel.tipoExplicito,
+                };
+                return;
+            }
+        }
+
+        // Variável não encontrada na cadeia da função (existe só no global ou é nova).
+        // Cria no escopo da função (índice funcaoIndex), não no escopo de laço interno.
+        this.pilha[funcaoIndex].espacoMemoria.valores[simbolo.lexema] = {
+            valor,
+            tipo: inferirTipoVariavel(valor) as string,
+            imutavel: false,
+            tipoExplicito: false,
+        };
     }
 }
