@@ -795,6 +795,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             return;
         if (this.tiposNumericos.includes(tipoEsquerda) && tipoDireita === 'qualquer') return;
         if (this.tiposNumericos.includes(tipoDireita) && tipoEsquerda === 'qualquer') return;
+        if (this.tiposNumericos.includes(tipoEsquerda) && tipoDireita === 'nulo') return;
+        if (this.tiposNumericos.includes(tipoDireita) && tipoEsquerda === 'nulo') return;
 
         // Se operador é subtração, os dois tipos são `qualquer`, mas ambos podem ser convertidos
         // para número, a operação é válida.
@@ -935,7 +937,10 @@ export class InterpretadorBase implements InterpretadorInterface {
 
                 // TODO: Se tipo for 'qualquer', seria uma boa confiar nos operadores
                 // tradicionais do JavaScript?
-                if (tipoEsquerdo === 'qualquer' || tipoDireito === 'qualquer') {
+                if (
+                    tipoEsquerdo === 'qualquer' || tipoDireito === 'qualquer' ||
+                    tipoEsquerdo === 'nulo' || tipoDireito === 'nulo'
+                ) {
                     return valorEsquerdo + valorDireito;
                 }
 

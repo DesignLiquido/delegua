@@ -385,6 +385,27 @@ describe('Interpretador', () => {
                     expect(saidas[0]).toContain('valor=<literal valor=99 tipo=número />');
                 });
 
+                it('Variável inicializada como nulo e reatribuída como número deve somar corretamente', async () => {
+                    const saidas: string[] = [];
+                    const retornoLexador = lexador.mapear(
+                        ['var setorInicial = nulo', 'setorInicial = 1', 'escreva(setorInicial + 1)'],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: string) => {
+                        saidas.push(saida);
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(saidas).toHaveLength(1);
+                    expect(saidas[0]).toBe('2');
+                });
+
                 it('Atribuição por índice em escreva retorna representação XML', async () => {
                     const saidas: string[] = [];
                     const retornoLexador = lexador.mapear(

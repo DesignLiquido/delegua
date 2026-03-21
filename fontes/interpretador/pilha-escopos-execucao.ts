@@ -182,7 +182,9 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
 
         espacoMemoriaAncestral.valores[simbolo.lexema] = {
             valor,
-            tipo: variavel.tipo || inferirTipoVariavel(valor),
+            tipo: (variavel.tipo === 'nulo' && !variavel.tipoExplicito)
+                ? inferirTipoVariavel(valor) as string
+                : (variavel.tipo || inferirTipoVariavel(valor) as string),
             imutavel: false,
             tipoExplicito: variavel.tipoExplicito,
         };
@@ -210,9 +212,11 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
                     }
                 }
 
+                const tipoAtual = variavel && variavel.hasOwnProperty('tipo') ? variavel.tipo : null;
+                const deveLiberarTipo = tipoAtual === 'nulo' && !variavel.tipoExplicito;
                 const tipoInferido =
-                    variavel && variavel.hasOwnProperty('tipo') && variavel.tipo
-                        ? variavel.tipo
+                    tipoAtual && !deveLiberarTipo
+                        ? tipoAtual
                         : inferirTipoVariavel(valor);
                 const tipo = (tipoInferido || 'objeto').toLowerCase() as TipoInferencia;
 
