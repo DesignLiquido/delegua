@@ -49,7 +49,8 @@ import {
     VarMultiplo,
 } from '../../../declaracoes';
 import { EspacoMemoria } from '../../espaco-memoria';
-import { ObjetoPadrao } from '../../estruturas';
+import { Chamavel, FuncaoPadrao, ObjetoPadrao } from '../../estruturas';
+import { ArgumentoInterface } from '../../argumento-interface';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
 import {
     InterpretadorInterface,
@@ -758,6 +759,18 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
                 );
             }
         }
+    }
+
+    async executarChamavel(chamavel: Chamavel, argumentos: any[]): Promise<any> {
+        if (chamavel instanceof FuncaoPadrao) {
+            return chamavel.chamar(this, argumentos, null);
+        }
+
+        const argumentosFormatados: ArgumentoInterface[] = argumentos.map((valor) => ({
+            nome: null,
+            valor,
+        }));
+        return chamavel.chamar(this, argumentosFormatados, null);
     }
 
     async interpretar(

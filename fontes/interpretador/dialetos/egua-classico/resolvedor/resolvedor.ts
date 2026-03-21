@@ -700,4 +700,8 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
             locais: this.locais,
         } as RetornoResolvedor;
     }
+
+    async executarChamavel(_chamavel: any, _argumentos: any[]): Promise<any> {
+        return Promise.reject(new Error('ResolvedorEguaClassico não suporta execução de chamáveis.'));
+    }
 }

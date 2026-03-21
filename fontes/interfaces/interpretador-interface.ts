@@ -24,6 +24,15 @@ export interface InterpretadorInterface extends VisitanteComumInterface {
     paraTexto(objeto: any): any;
     executar(declaracao: Declaracao, mostrarResultado?: boolean): any;
     resolverValor(objeto: any, referencia?: boolean): any;
+    /**
+     * Executa um objeto chamável de Delégua (função declarada, função padrão, etc.)
+     * com os argumentos fornecidos como valores nativos já resolvidos.
+     * Útil para invocar callbacks de Delégua a partir de código nativo,
+     * como em bibliotecas de interface gráfica ou eventos externos.
+     * @param chamavel O objeto chamável obtido do escopo de Delégua.
+     * @param argumentos Valores nativos a serem passados como argumentos.
+     */
+    executarChamavel(chamavel: any, argumentos: any[]): Promise<any>;
     interpretar(
         declaracoes: Declaracao[],
         manterAmbiente?: boolean

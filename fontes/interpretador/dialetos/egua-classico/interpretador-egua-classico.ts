@@ -1108,6 +1108,18 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         }
     }
 
+    async executarChamavel(chamavel: Chamavel, argumentos: any[]): Promise<any> {
+        if (chamavel instanceof FuncaoPadrao) {
+            return chamavel.chamar(this, argumentos, null);
+        }
+
+        const argumentosFormatados: ArgumentoInterface[] = argumentos.map((valor) => ({
+            nome: null,
+            valor,
+        }));
+        return chamavel.chamar(this, argumentosFormatados, null);
+    }
+
     async interpretar(declaracoes: Declaracao[]): Promise<RetornoInterpretadorInterface> {
         this.erros = [];
 
