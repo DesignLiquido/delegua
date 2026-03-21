@@ -1770,6 +1770,72 @@ describe('Interpretador', () => {
                         expect(_saidas).toHaveLength(1);
                         expect(_saidas[0]).toBe('verdadeiro');
                     });
+
+                    it('\'em\' com texto - literal encontrado', async () => {
+                        const retornoLexador = lexador.mapear(["escreva('a' em 'aab')"], -1);
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('verdadeiro');
+                    });
+
+                    it('\'em\' com texto - literal não encontrado', async () => {
+                        const retornoLexador = lexador.mapear(["escreva('z' em 'aab')"], -1);
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('falso');
+                    });
+
+                    it('\'em\' com texto - variável no lado esquerdo', async () => {
+                        const retornoLexador = lexador.mapear([
+                            "var c = 'a'",
+                            "escreva(c em 'aab')"
+                        ], -1);
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('verdadeiro');
+                    });
+
+                    it('\'em\' com texto - variável no lado direito', async () => {
+                        const retornoLexador = lexador.mapear([
+                            "var texto = 'aab'",
+                            "escreva('a' em texto)"
+                        ], -1);
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('verdadeiro');
+                    });
+
+                    it('\'contém\' com texto', async () => {
+                        const retornoLexador = lexador.mapear(["escreva('aab' contém 'a')"], -1);
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('verdadeiro');
+                    });
+
+                    it('\'não contém\' com texto', async () => {
+                        const retornoLexador = lexador.mapear(["escreva('aab' não contém 'z')"], -1);
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('verdadeiro');
+                    });
                 });
 
                 it('Operações lógicas - bit a bit não', async () => {

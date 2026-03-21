@@ -1427,17 +1427,18 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     protected logicaContemOuEm(esquerda: any, direita: any, expressao: Logico) {
+        const valorEsquerdoResolvido = this.resolverValor(esquerda);
         const valorDireitoResolvido = this.resolverValor(direita);
         if (
             Array.isArray(valorDireitoResolvido) ||
             typeof valorDireitoResolvido === tipoDeDadosPrimitivos.TEXTO
         ) {
-            const avaliacao = valorDireitoResolvido.includes(esquerda);
+            const avaliacao = valorDireitoResolvido.includes(valorEsquerdoResolvido);
             return expressao.negado ? !avaliacao : avaliacao;
         }
 
         if (valorDireitoResolvido !== null && typeof valorDireitoResolvido === 'object') {
-            const avaliacao = esquerda in valorDireitoResolvido;
+            const avaliacao = valorEsquerdoResolvido in valorDireitoResolvido;
             return expressao.negado ? !avaliacao : avaliacao;
         }
 
