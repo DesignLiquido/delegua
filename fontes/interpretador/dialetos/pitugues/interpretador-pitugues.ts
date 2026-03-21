@@ -19,6 +19,7 @@ import * as comum from './comum';
 import { ParaCada, Retorna } from '../../../declaracoes';
 import { inferirTipoVariavel } from '../../../inferenciador';
 import { ContinuarQuebra, Quebra, SustarQuebra, RetornoQuebra } from '../../../quebras';
+import { PilhaEscoposExecucaoPitugues } from './pilha-escopos-execucao-pitugues';
 
 export class InterpretadorPitugues extends Interpretador {
     constructor(
@@ -28,6 +29,13 @@ export class InterpretadorPitugues extends Interpretador {
         funcaoDeRetornoMesmaLinha: Function = null
     ) {
         super(diretorioBase, performance, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
+        // Substituir a pilha compartilhada de Delégua pela implementação específica
+        // de Pituguês, que aplica a semântica de escopo local-first (estilo Python).
+        const pilhaPitugues = new PilhaEscoposExecucaoPitugues();
+        for (const escopo of this.pilhaEscoposExecucao.pilha) {
+            pilhaPitugues.empilhar(escopo);
+        }
+        this.pilhaEscoposExecucao = pilhaPitugues;
         this.lancarErroPorDivisaoPorZero = true;
     }
 
@@ -56,24 +64,10 @@ export class InterpretadorPitugues extends Interpretador {
     }
 
     override async visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> {
-        if (expressao.alvo.constructor === Variavel) {
-            const alvoVariavel = expressao.alvo as Variavel;
-            try {
-                this.pilhaEscoposExecucao.obterValorVariavel(alvoVariavel.simbolo);
-            } catch (e) {
-                // Em Pituguês, a variável não precisa ser declarada antes da atribuição.
-                let valor = await this.avaliar(expressao.valor);
-                if (valor && valor.hasOwnProperty('valorRetornado')) {
-                    valor = valor.valorRetornado;
-                }
-                const valorResolvido = this.resolverValor(valor);
-                this.pilhaEscoposExecucao.definirVariavel(
-                    alvoVariavel.simbolo.lexema,
-                    valorResolvido
-                );
-                return valorResolvido;
-            }
-        }
+        // PilhaEscoposExecucaoPitugues.atribuirVariavel já implementa a semântica
+        // local-first: se a variável não existe no escopo atual, ela é criada ali
+        // (implicitamente), sem alterar escopos ancestrais. Por isso, não é mais
+        // necessário o try/catch para tratar a declaração implícita.
         return super.visitarExpressaoDeAtribuicao(expressao);
     }
 
