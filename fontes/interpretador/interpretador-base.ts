@@ -1380,7 +1380,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         let indice: any = null;
 
         if (expressao.indice) {
-            indice = await this.avaliar(expressao.indice);
+            indice = this.resolverValor(await this.avaliar(expressao.indice));
         }
 
         switch (expressao.alvo.constructor) {

@@ -694,7 +694,31 @@ describe('Interpretador', () => {
 
                         expect(retornoInterpretador.erros).toHaveLength(0);
                         expect(_saidas).toHaveLength(1);
-                    })
+                    });
+
+                    it('Dicionário com atribuição composta (+=) usando chave de variável não deve criar chave "[object Object]"', async () => {
+                        const retornoLexador = lexador.mapear([
+                            'var contagem = {}',
+                            'var dados = "aab"',
+                            'para (var i = 0; i < tamanho(dados); i++) {',
+                            '    var c = dados[i]',
+                            '    se (contagem.contem(c)) {',
+                            '        contagem[c] += 1',
+                            '    } senao {',
+                            '        contagem[c] = 1',
+                            '    }',
+                            '}',
+                            'escreva(contagem)',
+                        ], -1);
+
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('{"a":2,"b":1}');
+                    });
                 });
 
                 it('Concatenação com um operador sendo tipo texto e outro operador qualquer', async () => {
