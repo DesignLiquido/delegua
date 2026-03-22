@@ -203,6 +203,124 @@ describe('Interpretador (Pituguês)', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                describe('Escopo de variáveis (Python LEGB)', () => {
+                    it('Atribuição dentro de função não altera variável global de mesmo nome', async () => {
+                        const retornoLexador = lexador.mapear([
+                            'x = 10',
+                            'funcao teste():',
+                            '    x = 5',
+                            '    escreva(x)',
+                            'teste()',
+                            'escreva(x)',
+                        ], -1);
+
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+
+                        
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(2);
+                        expect(_saidas[0]).toBe('5');
+                        expect(_saidas[1]).toBe('10');
+                    });
+
+                    it('Função pode ler variável global sem criar local', async () => {
+                        const retornoLexador = lexador.mapear([
+                            'x = 42',
+                            'funcao ler():',
+                            '    escreva(x)',
+                            'ler()',
+                        ], -1);
+
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas[0]).toBe('42');
+                    });
+
+                    it('Variável local de função não vaza para o escopo global', async () => {
+                        const retornoLexador = lexador.mapear([
+                            'funcao criar():',
+                            '    local = 99',
+                            'criar()',
+                        ], -1);
+
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(() =>
+                            interpretador.pilhaEscoposExecucao.obterVariavelPorNome('local')
+                        ).toThrow();
+                    });
+
+                    it('Múltiplas chamadas à função não acumulam estado entre si', async () => {
+                        const retornoLexador = lexador.mapear([
+                            'funcao incrementar(n):',
+                            '    n = n + 1',
+                            '    retorna n',
+                            'a = incrementar(5)',
+                            'b = incrementar(10)',
+                            'escreva(a)',
+                            'escreva(b)',
+                        ], -1);
+
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas[0]).toBe('6');
+                        expect(_saidas[1]).toBe('11');
+                    });
+
+                    it('Atribuição a índice de vetor global dentro de função modifica o vetor', async () => {
+                        const retornoLexador = lexador.mapear([
+                            'nums = [1, 2, 3]',
+                            'funcao alterar():',
+                            '    nums[0] = 99',
+                            'alterar()',
+                            'escreva(nums[0])',
+                        ], -1);
+
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas[0]).toBe('99');
+                    });
+                });
+
                 describe('Compreensão de listas', () => {
                     it('Trivial', async () => {
                         const retornoLexador = lexador.mapear(
