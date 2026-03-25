@@ -4191,6 +4191,11 @@ export class AvaliadorSintatico
                 docTopLevel = new ComentarioComoConstruto(simboloDoc);
             }
 
+            // Decoradores podem aparecer após um documentário.
+            while (this.verificarTipoSimboloAtual(tiposDeSimbolos.ARROBA)) {
+                await this.resolverDecoradores();
+            }
+
             if (
                 this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) ||
                 this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNÇÃO)
