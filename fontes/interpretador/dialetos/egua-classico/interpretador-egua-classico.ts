@@ -297,7 +297,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     async visitarExpressaoUnaria(expr: any) {
-        const direita = await this.avaliar(expr.direita);
+        const direita = await this.avaliar(expr.operando);
         const valor: any = this.resolverValor(direita);
 
         switch (expr.operador.tipo) {
@@ -841,7 +841,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             objeto[indice] = valor;
         } else {
             throw new ErroEmTempoDeExecucao(
-                expressao.objeto.nome,
+                expressao.simboloFechamento,
                 'Somente listas, dicionários, classes e objetos podem ser mudados por sobrescrita.',
                 expressao.linha
             );
@@ -910,7 +910,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             return objeto.charAt(indice);
         } else {
             throw new ErroEmTempoDeExecucao(
-                expressao.entidadeChamada.nome,
+                expressao.simboloFechamento,
                 'Somente listas, dicionários, classes e objetos podem ser mudados por sobrescrita.',
                 expressao.linha
             );
@@ -922,7 +922,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
         if (!(objeto instanceof ObjetoDeleguaClasse) && objeto.constructor !== Object) {
             throw new ErroEmTempoDeExecucao(
-                expressao.objeto.nome,
+                expressao.nome,
                 'Somente instâncias e dicionários podem possuir campos.',
                 expressao.linha
             );
@@ -933,7 +933,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             await objeto.definir(expressao.nome, valor, this);
             return valor;
         } else if (objeto.constructor === Object) {
-            objeto[expressao.simbolo.lexema] = valor;
+            objeto[expressao.nome.lexema] = valor;
         }
     }
 
@@ -951,7 +951,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
             superClasse = variavelSuperClasse.valor;
             if (!(superClasse instanceof DescritorTipoClasse)) {
                 throw new ErroEmTempoDeExecucao(
-                    declaracao.superClasse.nome,
+                    declaracao.superClasse.simbolo,
                     'Superclasse precisa ser uma classe.',
                     declaracao.linha
                 );
@@ -1002,7 +1002,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         }
 
         throw new ErroEmTempoDeExecucao(
-            expressao.nome,
+            expressao.simbolo,
             'Você só pode acessar métodos do objeto e dicionários.',
             expressao.linha
         );

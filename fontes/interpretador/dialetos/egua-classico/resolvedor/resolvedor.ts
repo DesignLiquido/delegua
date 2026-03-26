@@ -662,7 +662,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
     }
 
     visitarExpressaoUnaria(expressao?: any): any {
-        this.resolver(expressao.direita);
+        this.resolver(expressao.operando);
         return null;
     }
 

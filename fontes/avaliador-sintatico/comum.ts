@@ -3,27 +3,35 @@ import { InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
 import { AvaliadorSintaticoInterface, PrimitivaInterface, SimboloInterface } from '../interfaces';
 
 function* buscarRetornosEmBloco(construtoBloco: Bloco): Generator<Retorna> {
+    if (!construtoBloco?.declaracoes) return;
     for (const declaracao of construtoBloco.declaracoes) {
-        if (declaracao.constructor === Retorna) {
+        if (declaracao?.constructor === Retorna) {
             yield declaracao as Retorna;
         }
     }
 }
 
 function* buscarRetornosEmSe(construtoSe: Se): Generator<Retorna> {
-    const blocoEntao: Bloco = construtoSe.caminhoEntao as Bloco;
-    for (const declaracao of buscarRetornosEmBloco(blocoEntao)) {
-        if (declaracao.constructor === Retorna) {
-            yield declaracao;
+    if (construtoSe.caminhoEntao?.constructor === Retorna) {
+        yield construtoSe.caminhoEntao as unknown as Retorna;
+    } else {
+        const blocoEntao: Bloco = construtoSe.caminhoEntao as Bloco;
+        for (const declaracao of buscarRetornosEmBloco(blocoEntao)) {
+            if (declaracao.constructor === Retorna) {
+                yield declaracao;
+            }
         }
     }
 
     if (!construtoSe.caminhoSenao) return;
     switch (construtoSe.caminhoSenao.constructor) {
+        case Retorna:
+            yield construtoSe.caminhoSenao as unknown as Retorna;
+            break;
         case Bloco:
             const blocoSenao: Bloco = construtoSe.caminhoSenao as Bloco;
 
-            for (const declaracao of blocoSenao.declaracoes) {
+            for (const declaracao of buscarRetornosEmBloco(blocoSenao)) {
                 if (declaracao.constructor === Retorna) {
                     yield declaracao as Retorna;
                 }
