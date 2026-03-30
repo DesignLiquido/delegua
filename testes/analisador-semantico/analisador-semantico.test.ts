@@ -1470,6 +1470,24 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
             });
 
+            it('Sucesso - variável declarada fora do para é usada no laço', async () => {
+                const retornoLexador = lexador.mapear(
+                    ['var i: inteiro', 'para i = 0; i <= 5; i++ {', '    escreva(i)', '}'],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(
+                    retornoAnalisadorSemantico.diagnosticos.find(
+                        d => d.mensagem === "Variável 'i' foi declarada mas nunca usada."
+                    )
+                ).toBeUndefined();
+            });
+
             it('Sucesso - loop for com múltiplas variáveis', async () => {
                 const retornoLexador = lexador.mapear(
                     [

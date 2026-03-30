@@ -30,6 +30,7 @@ import {
     Fazer,
     Falhar,
     FuncaoDeclaracao,
+    Para,
     ParaCada,
     Retorna,
     Se,
@@ -510,6 +511,33 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         this.marcarVariaveisUsadasEmExpressao(declaracao.condicaoEnquanto);
         // Verifica a condição
         return this.verificarCondicao(declaracao.condicaoEnquanto);
+    }
+
+    override async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
+        if (Array.isArray(declaracao.inicializador)) {
+            for (const inicializador of declaracao.inicializador) {
+                await inicializador.aceitar(this);
+            }
+        } else if (declaracao.inicializador) {
+            await declaracao.inicializador.aceitar(this);
+        }
+
+        // O laço precisa visitar condição/incremento/corpo para registrar usos de variáveis.
+        if (declaracao.condicao) {
+            this.marcarVariaveisUsadasEmExpressao(declaracao.condicao);
+            await this.verificarCondicao(declaracao.condicao);
+        }
+
+        if (declaracao.incrementar) {
+            this.marcarVariaveisUsadasEmExpressao(declaracao.incrementar);
+            this.verificarExpressao(declaracao.incrementar);
+        }
+
+        for (const declaracaoCorpo of declaracao.corpo.declaracoes) {
+            await declaracaoCorpo.aceitar(this);
+        }
+
+        return Promise.resolve();
     }
 
     override visitarDeclaracaoParaCada(declaracao: ParaCada) {
