@@ -5,7 +5,7 @@ import { Binario, Unario } from '../../../construtos';
 
 /**
  * Interpretador específico para o dialeto Prisma da linguagem Delégua.
- * Carrega as funções nativas (built-ins) do Prisma durante a construção.
+ * Carrega as funções nativas (embutidos) do Prisma durante a construção.
  */
 export class InterpretadorPrisma extends Interpretador implements InterpretadorInterface {
     constructor(

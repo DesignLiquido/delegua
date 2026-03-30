@@ -788,7 +788,7 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
     }
 
     /**
-     * Mapeia métodos built-in de Delégua para Elixir
+     * Mapeia métodos embutidos de Delégua para Elixir
      */
     protected mapearMetodoBuiltIn(
         metodo: string,
@@ -954,7 +954,7 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
             const objeto = await acessoMetodo.objeto.aceitar(this);
             const metodo = this.converterIdentificador(acessoMetodo.nomeMetodo);
 
-            // Mapear métodos built-in
+            // Mapear métodos embutidos
             const metodoMapeado = this.mapearMetodoBuiltIn(metodo, objeto, argumentos);
             if (metodoMapeado) {
                 return Promise.resolve(metodoMapeado);
@@ -971,7 +971,7 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
             const objeto = await acesso.objeto.aceitar(this);
             const simbolo = this.converterIdentificador(acesso.simbolo.lexema);
 
-            // Mapear métodos built-in
+            // Mapear métodos embutidos
             const metodoMapeado = this.mapearMetodoBuiltIn(simbolo, objeto, argumentos);
             if (metodoMapeado) {
                 return Promise.resolve(metodoMapeado);

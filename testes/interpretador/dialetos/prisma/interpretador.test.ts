@@ -188,7 +188,7 @@ describe('Interpretador (Prisma)', () => {
             });
         });
 
-        describe('Funções nativas (built-ins)', () => {
+        describe('Funções nativas (embutidos)', () => {
 
             it('tipo() - determina o tipo de um valor', async () => {
                 const retornoLexador = lexador.mapear([

@@ -834,6 +834,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                 const funcoesBuiltIn = [
                     'inteiro',
                     'real',
+                    'numero',
                     'número',
                     'texto',
                     'leia',

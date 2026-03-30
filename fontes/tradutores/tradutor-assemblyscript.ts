@@ -539,7 +539,7 @@ export class TradutorAssemblyScript {
 
     traduzirDeclaracaoTendoComo(declaracaoTendoComo: TendoComo): string {
         // TendoComo is a resource management pattern (like try-with-resources in Java)
-        // AssemblyScript doesn't have built-in support, so we'll just treat it as a scope
+        // AssemblyScript doesn't have embutidos support, so we'll just treat it as a scope
         let resultado = `// tendo ${declaracaoTendoComo.simboloVariavel.lexema} como recurso\n`;
         resultado += ' '.repeat(this.indentacao);
         resultado += `let ${declaracaoTendoComo.simboloVariavel.lexema} = `;

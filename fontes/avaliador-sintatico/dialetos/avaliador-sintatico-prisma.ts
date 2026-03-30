@@ -1488,7 +1488,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         this.pilhaEscopos = new PilhaEscopos();
         this.pilhaEscopos.empilhar(new InformacaoEscopo());
 
-        // Registrar funções nativas (built-ins) do Prisma no escopo do parser
+        // Registrar funções nativas (embutidos) do Prisma no escopo do parser
         // para evitar erros de variável não definida durante análise semântica
 
         this.pilhaEscopos.definirInformacoesVariavel(

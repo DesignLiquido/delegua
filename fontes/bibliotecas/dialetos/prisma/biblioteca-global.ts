@@ -2,7 +2,7 @@ import { Chamavel, FuncaoPadrao } from '../../../interpretador/estruturas';
 import { PilhaEscoposExecucaoInterface } from '../../../interfaces/pilha-escopos-execucao-interface';
 
 /**
- * Carrega as funções nativas (built-ins) do dialeto Prisma na pilha de escopos.
+ * Carrega as funções nativas (embutidos) do dialeto Prisma na pilha de escopos.
  * Funções implementadas conforme o manual de Linguagem Prisma.
  *
  * @param interpretador - O interpretador em execução.

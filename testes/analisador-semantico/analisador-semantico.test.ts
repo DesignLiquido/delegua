@@ -59,6 +59,41 @@ describe('Analisador semântico', () => {
             expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(9);
         });
 
+        it('Atribuição tipada de vetor com retorno de chamada de método', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var linha: texto = leia()',
+                    'var partes: texto[] = linha.dividir(" ")',
+                    'escreva(partes)',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+
+        it('Conversão com funcao embutidos numero sem acento', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var n1 = numero(leia())',
+                    'escreva(n1)',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+
         it('Atribuindo tipos válidos para variáveis', async () => {
             const retornoLexador = lexador.mapear(
                 [
@@ -426,7 +461,7 @@ describe('Analisador semântico', () => {
 
             expect(retornoAnalisadorSemantico).toBeTruthy();
             const avisosDeTipo = retornoAnalisadorSemantico.diagnosticos.filter((d) =>
-                d.mensagem.includes('não é do mesmo tipo esperado em')
+                d.mensagem?.includes('não é do mesmo tipo esperado em')
             );
             expect(avisosDeTipo).toHaveLength(0);
         });

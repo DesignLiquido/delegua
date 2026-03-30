@@ -99,6 +99,9 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                             );
                         }
                     }
+                } else if (declaracao.inicializador instanceof Chamada) {
+                    // Chamadas de método/função podem retornar vetores.
+                    // A validação detalhada é feita em tempo de execução.
                 } else {
                     this.erro(
                         declaracao.simbolo,
@@ -846,10 +849,11 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 let entidadeChamadaVariavel = chamada.entidadeChamada as Variavel;
                 const nomeFuncao = entidadeChamadaVariavel.simbolo.lexema;
 
-                // Lista de funções built-in que não precisam ser declaradas
-                const funcoesBuiltIn = [
+                // Lista de funções embutidas que não precisam ser declaradas
+                const funcoesEmbutidas = [
                     'inteiro',
                     'real',
+                    'numero',
                     'número',
                     'texto',
                     'leia',
@@ -860,9 +864,9 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 // Classes/construtores geralmente começam com letra maiúscula
                 const pareceSerClasse = nomeFuncao[0] === nomeFuncao[0].toUpperCase();
 
-                // Só verifica se a função existe se não for built-in e não parecer ser classe
+                // Só verifica se a função existe se não for embutidas e não parecer ser classe
                 if (
-                    !funcoesBuiltIn.includes(nomeFuncao) &&
+                    !funcoesEmbutidas.includes(nomeFuncao) &&
                     !pareceSerClasse &&
                     !this.funcoes[nomeFuncao] &&
                     !this.gerenciadorEscopos.buscar(nomeFuncao)
