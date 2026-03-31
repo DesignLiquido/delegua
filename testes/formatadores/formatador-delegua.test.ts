@@ -278,7 +278,8 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(sistemaOperacional.EOL);
         
-        expect(linhasResultado).toHaveLength(3);
+        expect(linhasResultado).toHaveLength(4);
+        expect(linhasResultado[2]).toContain('// Imprime 3');
     });
     
     it('leia() e escreva()', async () => {
@@ -1235,5 +1236,43 @@ describe('Formatadores > Delégua', () => {
             expect(resultado).toContain("escreva(f())");
         });
         
+    });
+
+    describe('Comentários', () => {
+        it('Comentário de uma linha é preservado', async () => {
+            const codigo = [
+                "var i: inteiro",
+                "// incrementa i",
+                "i = 1",
+            ];
+            const lexado = lexador.mapear(codigo, -1);
+            const avaliado = await avaliadorSintatico.analisar(lexado, -1);
+            const resultado = formatador.formatar(avaliado.declaracoes);
+            expect(resultado).toContain("// incrementa i");
+        });
+
+        it('Comentário de bloco após enquanto é preservado', async () => {
+            const codigo = [
+                "var i: inteiro",
+                "i = 1",
+                "enquanto(i<=5){",
+                "    escreva(i)",
+                "    i = i + 1",
+                "}",
+                "/*",
+                "var nome: texto",
+                "para i = 1; i <= 5; i = i + 1 {",
+                "    nome = leia('Digite seu nome: ')",
+                "    escreva('Olá, ${nome}')",
+                "}",
+                "*/",
+            ];
+            const lexado = lexador.mapear(codigo, -1);
+            const avaliado = await avaliadorSintatico.analisar(lexado, -1);
+            const resultado = formatador.formatar(avaliado.declaracoes);
+            expect(resultado).toContain("/*");
+            expect(resultado).toContain("*/");
+            expect(resultado).toContain("var nome: texto");
+        });
     });
 });

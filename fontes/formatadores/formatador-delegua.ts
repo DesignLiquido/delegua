@@ -138,7 +138,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
 
     visitarDeclaracaoComentario(declaracao: Comentario): void | Promise<any> {
         if (declaracao.multilinha) {
-            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}/* `;
+            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}/*${this.quebraLinha}`;
 
             for (let linhaConteudo of declaracao.conteudo as string[]) {
                 this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}  ${linhaConteudo.replace(/\s+/g, ' ')}${
@@ -839,6 +839,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
                 break;
             case Classe:
                 this.visitarDeclaracaoClasse(declaracaoOuConstruto as Classe);
+                break;
+            case Comentario:
+                this.visitarDeclaracaoComentario(declaracaoOuConstruto as Comentario);
                 break;
             case Continua:
                 this.visitarExpressaoContinua(declaracaoOuConstruto as Continua);
