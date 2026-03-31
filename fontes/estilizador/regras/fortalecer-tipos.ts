@@ -1,7 +1,7 @@
 import { Declaracao } from '../../declaracoes';
 import { Var, Const } from '../../declaracoes';
 import { Construto, Literal } from '../../construtos';
-import { RegraEstilizacao } from '../../interfaces/estilizador-comum-interface';
+import { RegraEstilizacao } from '../../interfaces/estilizador/estilizador-interface';
 import { inferirTipoVariavel } from '../../inferenciador';
 
 /**

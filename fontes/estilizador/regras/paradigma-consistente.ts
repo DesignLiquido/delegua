@@ -2,26 +2,12 @@ import { Declaracao } from '../../declaracoes';
 import { Construto } from '../../construtos';
 import { Leia } from '../../construtos/leia';
 import { Escreva, EscrevaMesmaLinha } from '../../declaracoes';
-import { RegraEstilizacao } from '../../interfaces/estilizador-comum-interface';
+import { OpcoesParadigmaConsistenteInterface, RegraEstilizacaoInterface } from '../../interfaces/estilizador';
 import {
-    TipoParadigma,
     obterFormaAlternativa,
     pertenceAoParadigma,
     obterMapaLexemaParaParadigma,
 } from '../../lexador/mapeamento-paradigmas';
-
-/**
- * Opções para a regra de paradigma consistente.
- */
-export interface OpcoesParadigmaConsistente {
-    /**
-     * Paradigma a ser enforçado.
-     * - 'imperativo': Aceita apenas formas imperativas (escreva, leia, etc.)
-     * - 'infinitivo': Aceita apenas formas infinitivas (escrever, ler, etc.)
-     * - 'ambos': Aceita ambas as formas (padrão)
-     */
-    paradigma?: TipoParadigma;
-}
 
 /**
  * Regra que enforça consistência de paradigma em palavras reservadas.
@@ -34,14 +20,14 @@ export interface OpcoesParadigmaConsistente {
  * - Modo imperativo: `escreva()`, `leia()`, `tente { } pegue { }`
  * - Modo infinitivo: `escrever()`, `ler()`, `tentar { } pegar { }`
  */
-export class RegraParadigmaConsistente implements RegraEstilizacao {
+export class RegraParadigmaConsistente implements RegraEstilizacaoInterface {
     nome = 'paradigma-consistente';
     descricao = 'Enforça consistência de paradigma (imperativo/infinitivo) em palavras reservadas';
 
-    private opcoes: OpcoesParadigmaConsistente;
+    private opcoes: OpcoesParadigmaConsistenteInterface;
     private mapaLexemaParaParadigma: Map<string, 'imperativo' | 'infinitivo' | 'neutro'>;
 
-    constructor(opcoes: OpcoesParadigmaConsistente = {}) {
+    constructor(opcoes: OpcoesParadigmaConsistenteInterface = {}) {
         this.opcoes = {
             paradigma: opcoes.paradigma || 'ambos',
         };

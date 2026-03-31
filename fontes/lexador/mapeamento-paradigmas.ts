@@ -1,12 +1,5 @@
+import { TipoParadigma } from '../tipos';
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
-
-/**
- * Tipo de paradigma suportado.
- * - 'imperativo': Usa formas imperativas (escreva, leia, pegue, tente, etc.)
- * - 'infinitivo': Usa formas infinitivas (escrever, ler, pegar, tentar, etc.)
- * - 'ambos': Aceita ambas as formas (comportamento padrão)
- */
-export type TipoParadigma = 'imperativo' | 'infinitivo' | 'ambos';
 
 /**
  * Mapeamento de palavras reservadas por paradigma.
@@ -166,12 +159,12 @@ export function obterFormaAlternativa(
     lexema: string,
     paradigmaAlvo: 'imperativo' | 'infinitivo'
 ): string | undefined {
-    const lexemaLower = lexema.toLowerCase();
+    const lexemaMinusculo = lexema.toLowerCase();
 
     // Encontra o grupo que contém este lexema
     for (const grupo of gruposPalavrasParadigma) {
-        const temImperativo = grupo.imperativo?.some((p) => p === lexemaLower);
-        const temInfinitivo = grupo.infinitivo?.some((p) => p === lexemaLower);
+        const temImperativo = grupo.imperativo?.some((p) => p === lexemaMinusculo);
+        const temInfinitivo = grupo.infinitivo?.some((p) => p === lexemaMinusculo);
 
         if (temImperativo || temInfinitivo) {
             // Retorna a primeira forma do paradigma alvo

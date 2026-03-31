@@ -1,6 +1,6 @@
 import { Declaracao } from '../../declaracoes';
 import { Var, Const, FuncaoDeclaracao } from '../../declaracoes';
-import { RegraEstilizacao } from '../../interfaces/estilizador-comum-interface';
+import { RegraEstilizacao } from '../../interfaces/estilizador/estilizador-interface';
 
 /**
  * Opções de convenção de nomenclatura.

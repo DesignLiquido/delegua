@@ -1,27 +1,27 @@
 import { Declaracao } from '../declaracoes';
 import { Construto } from '../construtos';
 import {
-    EstilizadorComumInterface,
-    RegraEstilizacao,
-    ViolacaoEstilo,
-} from '../interfaces/estilizador-comum-interface';
+    EstilizadorInterface,
+    RegraEstilizacaoInterface,
+    ViolacaoEstiloInterface,
+} from '../interfaces/estilizador';
 
 /**
  * Estilizador de código para Delégua.
  * Aplica transformações no AST para enforcar convenções e melhorar qualidade do código.
  */
-export class EstilizadorDelegua implements EstilizadorComumInterface {
-    regras: RegraEstilizacao[];
-    private violacoes: ViolacaoEstilo[];
+export class EstilizadorDelegua implements EstilizadorInterface {
+    regras: RegraEstilizacaoInterface[];
+    private violacoes: ViolacaoEstiloInterface[];
     private modoValidacao: boolean;
 
-    constructor(regras: RegraEstilizacao[] = []) {
+    constructor(regras: RegraEstilizacaoInterface[] = []) {
         this.regras = regras;
         this.violacoes = [];
         this.modoValidacao = false;
     }
 
-    adicionarRegra(regra: RegraEstilizacao): void {
+    adicionarRegra(regra: RegraEstilizacaoInterface): void {
         this.regras.push(regra);
     }
 
@@ -251,7 +251,7 @@ export class EstilizadorDelegua implements EstilizadorComumInterface {
         return declaracoesEstilizadas;
     }
 
-    validar(declaracoes: Declaracao[]): ViolacaoEstilo[] {
+    validar(declaracoes: Declaracao[]): ViolacaoEstiloInterface[] {
         this.modoValidacao = true;
         this.violacoes = [];
 
