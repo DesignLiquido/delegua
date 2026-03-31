@@ -9,17 +9,20 @@ export class Literal implements Construto {
     hashArquivo: number;
     valor: ValorLiteral;
     tipo: TipoInferencia;
+    delimitadorTexto?: "'" | '"';
 
     constructor(
         hashArquivo: number,
         linha: number,
         valor: ValorLiteral,
-        tipo: TipoInferencia = 'qualquer'
+        tipo: TipoInferencia = 'qualquer',
+        delimitadorTexto?: "'" | '"'
     ) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
         this.valor = valor;
         this.tipo = tipo;
+        this.delimitadorTexto = delimitadorTexto;
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {

@@ -67,6 +67,12 @@ import { VisitanteComumInterface } from '../interfaces';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
+export type DelimitadorTextoFormatacao = 'aspas-simples' | 'aspas-duplas' | 'preservar';
+
+export interface OpcoesFormatadorDelegua {
+    delimitadorTexto?: DelimitadorTextoFormatacao;
+}
+
 /**
  * O formatador de código Delégua.
  * Normalmente usado por IDEs, mas pode ser usado por linha de comando ou programaticamente.
@@ -78,8 +84,13 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     codigoFormatado: string;
     devePularLinha: boolean;
     deveIndentar: boolean;
+    delimitadorTexto: DelimitadorTextoFormatacao;
 
-    constructor(quebraLinha: string, tamanhoIndentacao: number = 4) {
+    constructor(
+        quebraLinha: string,
+        tamanhoIndentacao: number = 4,
+        opcoes: OpcoesFormatadorDelegua = {}
+    ) {
         this.quebraLinha = quebraLinha;
         this.tamanhoIndentacao = tamanhoIndentacao;
 
@@ -87,6 +98,19 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.codigoFormatado = '';
         this.devePularLinha = true;
         this.deveIndentar = true;
+        this.delimitadorTexto = opcoes.delimitadorTexto || 'aspas-simples';
+    }
+
+    private obterDelimitadorTexto(expressao: Literal): "'" | '"' {
+        if (this.delimitadorTexto === 'aspas-duplas') {
+            return '"';
+        }
+
+        if (this.delimitadorTexto === 'preservar' && expressao.delimitadorTexto) {
+            return expressao.delimitadorTexto;
+        }
+
+        return "'";
     }
 
     /* istanbul ignore next */
@@ -691,13 +715,20 @@ export class FormatadorDelegua implements VisitanteComumInterface {
 
     visitarExpressaoLiteral(expressao: Literal): void {
         if (typeof expressao.valor === 'string') {
-            const valorStr = (expressao.valor as string)
+            const delimitador = this.obterDelimitadorTexto(expressao);
+            let valorTexto = (expressao.valor as string)
                 .replace(/\\/g, '\\\\')
                 .replace(/\r/g, '\\r')
                 .replace(/\n/g, '\\n')
-                .replace(/\t/g, '\\t')
-                .replace(/'/g, "\\'");
-            this.codigoFormatado += `'${valorStr}'`;
+                .replace(/\t/g, '\\t');
+
+            if (delimitador === "'") {
+                valorTexto = valorTexto.replace(/'/g, "\\'");
+            } else {
+                valorTexto = valorTexto.replace(/"/g, '\\"');
+            }
+
+            this.codigoFormatado += `${delimitador}${valorTexto}${delimitador}`;
             return;
         }
 

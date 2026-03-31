@@ -236,6 +236,8 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
             if (caractere === delimitador) {
                 this.avancar();
                 this.adicionarSimbolo(tiposDeSimbolos.TEXTO, valor);
+                const ultimoSimbolo = this.simbolos[this.simbolos.length - 1];
+                ultimoSimbolo.delimitadorTexto = delimitador as "'" | '"';
                 return;
             }
 

@@ -2,6 +2,14 @@ import { Declaracao } from '../../declaracoes/declaracao';
 import { RegraEstilizacaoInterface } from './regra-estilizacao-interface';
 import { ViolacaoEstiloInterface } from './violacao-estilo-interface';
 
+export type DelimitadorTextoEstilizador = 'aspas-simples' | 'aspas-duplas' | 'preservar';
+
+export interface OpcoesFormatacaoEstilizadorInterface {
+    delimitadorTexto?: DelimitadorTextoEstilizador;
+    quebraLinha?: string;
+    tamanhoIndentacao?: number;
+}
+
 /**
  * Interface base para estilizadores de código.
  * Um estilizador aplica transformações no AST para enforcar convenções e melhorar a qualidade do código.
@@ -37,5 +45,16 @@ export interface EstilizadorInterface {
      * @returns Array de violações encontradas.
      */
     validar(declaracoes: Declaracao[]): ViolacaoEstiloInterface[];
+
+    /**
+     * Aplica regras de estilização e formata o código com opções de saída.
+     * @param declaracoes As declarações a serem estilizadas e formatadas.
+     * @param opcoesFormatacao Opções de formatação da saída.
+     * @returns Código formatado.
+     */
+    estilizarEFormatar(
+        declaracoes: Declaracao[],
+        opcoesFormatacao?: OpcoesFormatacaoEstilizadorInterface
+    ): string;
 }
 

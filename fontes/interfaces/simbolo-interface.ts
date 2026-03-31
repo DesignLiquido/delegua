@@ -1,9 +1,10 @@
 export interface SimboloInterface<TTipo = string> {
     lexema: string;
     tipo: TTipo;
-    literal: string;
+    literal: any;
     linha: number;
     hashArquivo: number;
     colunaInicio?: number;
     colunaFim?: number;
+    delimitadorTexto?: "'" | '"';
 }

@@ -743,11 +743,16 @@ export class AvaliadorSintatico
             case tiposDeSimbolos.TEXTO:
                 const simboloNumeroTexto: SimboloInterface = this.avancarEDevolverAnterior();
                 const tipoInferido = inferirTipoVariavel(simboloNumeroTexto.literal);
+                const delimitadorTexto =
+                    simboloNumeroTexto.tipo === tiposDeSimbolos.TEXTO
+                        ? simboloNumeroTexto.delimitadorTexto
+                        : undefined;
                 return new Literal(
                     this.hashArquivo,
                     Number(simboloNumeroTexto.linha),
                     simboloNumeroTexto.literal,
-                    tipoInferido as TipoInferencia
+                    tipoInferido as TipoInferencia,
+                    delimitadorTexto
                 );
 
             case tiposDeSimbolos.PARA:

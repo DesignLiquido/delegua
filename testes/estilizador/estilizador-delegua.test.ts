@@ -223,6 +223,42 @@ describe('Estilizador Delégua', () => {
         });
     });
 
+    describe('Orquestração de Formatação', () => {
+        it('Deve aplicar regra do Estilizador e formatar com aspas duplas', async () => {
+            estilizador = new EstilizadorDelegua([
+                new RegraConvencaoNomenclatura({ variavel: 'caixaCamelo' })
+            ]);
+
+            const retornoLexador = lexador.mapear(["var MEU_NOME = 'Ana'"], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = estilizador.estilizarEFormatar(retornoAvaliadorSintatico.declaracoes, {
+                delimitadorTexto: 'aspas-duplas',
+                quebraLinha: '\\n',
+            });
+
+            expect(resultado).toContain('var meuNome = "Ana"');
+        });
+
+        it('Deve preservar delimitadores originais quando configurado', async () => {
+            estilizador = new EstilizadorDelegua();
+
+            const retornoLexador = lexador.mapear([
+                "var a = 'um'",
+                'var b = "dois"',
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = estilizador.estilizarEFormatar(retornoAvaliadorSintatico.declaracoes, {
+                delimitadorTexto: 'preservar',
+                quebraLinha: '\\n',
+            });
+
+            expect(resultado).toContain("var a = 'um'");
+            expect(resultado).toContain('var b = "dois"');
+        });
+    });
+
     describe('Modo Validação', () => {
         it('Deve detectar violações sem modificar declarações', async () => {
             const regra = new RegraConvencaoNomenclatura({

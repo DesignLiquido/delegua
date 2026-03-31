@@ -1,7 +1,9 @@
 import { Declaracao } from '../declaracoes';
 import { Construto } from '../construtos';
+import { FormatadorDelegua } from '../formatadores';
 import {
     EstilizadorInterface,
+    OpcoesFormatacaoEstilizadorInterface,
     RegraEstilizacaoInterface,
     ViolacaoEstiloInterface,
 } from '../interfaces/estilizador';
@@ -265,5 +267,21 @@ export class EstilizadorDelegua implements EstilizadorInterface {
         this.modoValidacao = false;
 
         return violacoesEncontradas;
+    }
+
+    estilizarEFormatar(
+        declaracoes: Declaracao[],
+        opcoesFormatacao: OpcoesFormatacaoEstilizadorInterface = {}
+    ): string {
+        const declaracoesEstilizadas = this.estilizar(declaracoes);
+        const formatador = new FormatadorDelegua(
+            opcoesFormatacao.quebraLinha || '\n',
+            opcoesFormatacao.tamanhoIndentacao ?? 4,
+            {
+                delimitadorTexto: opcoesFormatacao.delimitadorTexto,
+            }
+        );
+
+        return formatador.formatar(declaracoesEstilizadas);
     }
 }

@@ -8,6 +8,7 @@ export class Simbolo implements SimboloInterface {
     hashArquivo: number;
     colunaInicio: number;
     colunaFim: number;
+    delimitadorTexto?: "'" | '"';
 
     constructor(
         tipo: string,
@@ -16,7 +17,8 @@ export class Simbolo implements SimboloInterface {
         linha: number,
         hashArquivo: number,
         colunaInicio: number = 0,
-        colunaFim: number = 0
+        colunaFim: number = 0,
+        delimitadorTexto?: "'" | '"'
     ) {
         this.tipo = tipo;
         this.lexema = lexema;
@@ -25,6 +27,7 @@ export class Simbolo implements SimboloInterface {
         this.hashArquivo = hashArquivo;
         this.colunaInicio = colunaInicio;
         this.colunaFim = colunaFim;
+        this.delimitadorTexto = delimitadorTexto;
     }
 
     paraTexto(): string {
