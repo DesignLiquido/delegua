@@ -1,6 +1,6 @@
 import { Declaracao } from '../../declaracoes';
 import { Var, Const, FuncaoDeclaracao } from '../../declaracoes';
-import { RegraEstilizacao } from '../../interfaces/estilizador/estilizador-interface';
+import { RegraEstilizacaoInterface } from '../../interfaces/estilizador';
 
 /**
  * Opções de convenção de nomenclatura.
@@ -38,7 +38,7 @@ export interface OpcoesConvencaoNomenclatura {
  * - Constantes em CAIXA_ALTA: `constante PI_VALOR` (não `constante piValor`)
  * - Funções em caixaCamelo: `função calcularTotal()` (não `função CalcularTotal()`)
  */
-export class RegraConvencaoNomenclatura implements RegraEstilizacao {
+export class RegraConvencaoNomenclatura implements RegraEstilizacaoInterface {
     nome = 'convencao-nomenclatura';
     descricao = 'Enforça convenções de nomenclatura para variáveis, constantes e funções';
 

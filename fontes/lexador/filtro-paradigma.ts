@@ -1,5 +1,6 @@
 import { palavrasReservadasDelegua } from './palavras-reservadas';
-import { TipoParadigma, gruposPalavrasParadigma, palavrasNeutras } from './mapeamento-paradigmas';
+import { gruposPalavrasParadigma, palavrasNeutras } from './mapeamento-paradigmas';
+import { TipoParadigma } from '../tipos';
 
 /**
  * Gera um conjunto de palavras reservadas filtrado por paradigma.

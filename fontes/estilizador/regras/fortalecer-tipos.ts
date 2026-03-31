@@ -1,8 +1,8 @@
 import { Declaracao } from '../../declaracoes';
 import { Var, Const } from '../../declaracoes';
 import { Construto, Literal } from '../../construtos';
-import { RegraEstilizacao } from '../../interfaces/estilizador/estilizador-interface';
 import { inferirTipoVariavel } from '../../inferenciador';
+import { RegraEstilizacaoInterface } from '../../interfaces/estilizador';
 
 /**
  * Regra que fortalece tipos, convertendo `qualquer` para tipos inferidos.
@@ -12,7 +12,7 @@ import { inferirTipoVariavel } from '../../inferenciador';
  * - `var nomes = []` com tipo `qualquer` → `var nomes: vetor = []`
  * - `constante PI = 3.14` com tipo `qualquer` → `constante PI: número = 3.14`
  */
-export class RegraFortalecerTipos implements RegraEstilizacao {
+export class RegraFortalecerTipos implements RegraEstilizacaoInterface {
     nome = 'fortalecer-tipos';
     descricao = 'Converte tipos `qualquer` para tipos inferidos quando possível';
 
