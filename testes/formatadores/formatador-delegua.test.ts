@@ -1305,4 +1305,65 @@ describe('Formatadores > Delégua', () => {
             expect(resultado).toContain("var nome: texto");
         });
     });
+
+    describe('Extensão', () => {
+        it('Extensão simples de número', async () => {
+            const codigo = [
+                'extensão de número { dobro() {    retorna isto * 2    }',
+                '}',
+            ];
+            const resultadoLexador = lexador.mapear(codigo, -1);
+            const resultadoAvaliadorSintatico = await avaliadorSintatico.analisar(resultadoLexador, -1);
+            expect(resultadoAvaliadorSintatico.erros).toHaveLength(0);
+            const resultado = formatador.formatar(resultadoAvaliadorSintatico.declaracoes);
+            expect(resultado).toContain('extensão de número {');
+            expect(resultado).toContain('dobro(');
+        });
+
+        it('Extensão global de texto', async () => {
+            const codigo = [
+                'extensão global de texto {',
+                'gritando() {retorna isto.maiusculo()',
+                '  }',
+                '     }',
+            ];
+            const lexado = lexador.mapear(codigo, -1);
+            const avaliado = await avaliadorSintatico.analisar(lexado, -1);
+            expect(avaliado.erros).toHaveLength(0);
+            const resultado = formatador.formatar(avaliado.declaracoes);
+            expect(resultado).toContain('extensão global de texto {');
+        });
+    });
+
+    describe('Interface', () => {
+        it('Interface com método', async () => {
+            const codigo = [
+                'interface Imprimivel {',
+                '    imprimir(): vazio',
+                '}',
+            ];
+            const lexado = lexador.mapear(codigo, -1);
+            const avaliado = await avaliadorSintatico.analisar(lexado, -1);
+            expect(avaliado.erros).toHaveLength(0);
+            const resultado = formatador.formatar(avaliado.declaracoes);
+            expect(resultado).toContain('interface Imprimivel {');
+            expect(resultado).toContain('imprimir(): vazio');
+        });
+
+        it('Interface com propriedade e método com parâmetro', async () => {
+            const codigo = [
+                'interface Identificavel {',
+                '    id: inteiro',
+                '    identificar(prefixo: texto): texto',
+                '}',
+            ];
+            const lexado = lexador.mapear(codigo, -1);
+            const avaliado = await avaliadorSintatico.analisar(lexado, -1);
+            expect(avaliado.erros).toHaveLength(0);
+            const resultado = formatador.formatar(avaliado.declaracoes);
+            expect(resultado).toContain('interface Identificavel {');
+            expect(resultado).toContain('id: inteiro');
+            expect(resultado).toContain('identificar(prefixo: texto): texto');
+        });
+    });
 });

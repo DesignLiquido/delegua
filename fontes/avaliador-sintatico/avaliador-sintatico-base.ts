@@ -40,12 +40,12 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     SimboloInterface,
     Declaracao
 > {
-    simbolos: SimboloInterface[];
-    erros: ErroAvaliadorSintatico[];
+    simbolos: SimboloInterface[] = [];
+    erros: ErroAvaliadorSintatico[] = [];
 
-    hashArquivo: number;
-    atual: number;
-    blocos: number;
+    hashArquivo: number = -1;
+    atual: number = 0;
+    blocos: number = 0;
 
     erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico {
         const excecao = new ErroAvaliadorSintatico(simbolo, mensagemDeErro);
@@ -81,6 +81,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     }
 
     protected verificarTipoProximoSimbolo(tipo: string): boolean {
+        if (this.atual + 1 >= this.simbolos.length) return false;
         return this.simbolos[this.atual + 1].tipo === tipo;
     }
 
@@ -346,7 +347,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
             const parametro: Partial<ParametroInterface> = {};
 
             if (this.simbolos[this.atual].tipo === tiposDeSimbolos.MULTIPLICACAO) {
-                this.consumir(tiposDeSimbolos.MULTIPLICACAO, null);
+                this.avancarEDevolverAnterior();
                 parametro.abrangencia = 'multiplo';
             } else {
                 parametro.abrangencia = 'padrao';

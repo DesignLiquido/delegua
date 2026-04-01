@@ -1364,6 +1364,19 @@ describe('Avaliador sintático', () => {
                 );
             });
 
+            it('Declaração de múltiplas variáveis sem inicialização com tipo compartilhado (var i, j: inteiro)', async () => {
+                const retornoLexador = lexador.mapear(['var i, j: inteiro'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros.length).toBe(0);
+                expect(retornoAvaliadorSintatico.declaracoes.length).toBe(2);
+                const [declI, declJ] = retornoAvaliadorSintatico.declaracoes as any[];
+                expect(declI.simbolo.lexema).toBe('i');
+                expect(declI.tipo).toBe('inteiro');
+                expect(declJ.simbolo.lexema).toBe('j');
+                expect(declJ.tipo).toBe('inteiro');
+            });
+
             it('Declaração de constantes com identificadores à esquerda do igual diferente da quantidade de valores à direita', async () => {
                 const retornoLexador = lexador.mapear(['const a, b, c = 1, 2'], -1);
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);

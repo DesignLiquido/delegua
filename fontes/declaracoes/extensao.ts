@@ -3,6 +3,9 @@ import { VisitanteDeleguaInterface } from '../interfaces/visitante-delegua-inter
 import { Declaracao } from './declaracao';
 import { FuncaoDeclaracao } from './funcao';
 
+/**
+ * Declaração de Extensão de Classe.
+ */
 export class Extensao extends Declaracao {
     simboloTipo: SimboloInterface;
     metodos: FuncaoDeclaracao[];

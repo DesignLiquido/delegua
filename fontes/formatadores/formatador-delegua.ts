@@ -5,6 +5,7 @@ import {
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
     Agrupamento,
+    AjudaComoConstruto,
     ArgumentoReferenciaFuncao,
     AtribuicaoPorIndice,
     Atribuir,
@@ -14,17 +15,24 @@ import {
     Construto,
     DefinirValor,
     Dicionario,
+    Elvis,
+    EnquantoComoConstruto,
     ExpressaoRegular,
+    FazerComoConstruto,
     FimPara,
     FormatacaoEscrita,
     FuncaoConstruto,
     ImportarComoConstruto,
     Isto,
     Leia,
+    ListaCompreensao,
     Literal,
     Logico,
+    ParaCadaComoConstruto,
+    ParaComoConstruto,
     ReferenciaFuncao,
     Separador,
+    SeTernario,
     Super,
     TipoDe,
     Tupla,
@@ -61,23 +69,22 @@ import {
     TendoComo,
     Comentario,
     TextoDocumentacao,
+    Ajuda,
+    Extensao,
+    InterfaceDeclaracao,
 } from '../declaracoes';
 import { InicioAlgoritmo } from '../declaracoes/inicio-algoritmo';
-import { VisitanteComumInterface } from '../interfaces';
+import { VisitanteDeleguaInterface } from '../interfaces';
+import { OpcoesFormatadorDeleguaInterface } from '../interfaces/formatador';
+import { DelimitadorTextoFormatacao } from '../tipos';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
-
-export type DelimitadorTextoFormatacao = 'aspas-simples' | 'aspas-duplas' | 'preservar';
-
-export interface OpcoesFormatadorDelegua {
-    delimitadorTexto?: DelimitadorTextoFormatacao;
-}
 
 /**
  * O formatador de código Delégua.
  * Normalmente usado por IDEs, mas pode ser usado por linha de comando ou programaticamente.
  */
-export class FormatadorDelegua implements VisitanteComumInterface {
+export class FormatadorDelegua implements VisitanteDeleguaInterface {
     indentacaoAtual: number;
     quebraLinha: string;
     tamanhoIndentacao: number;
@@ -89,7 +96,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     constructor(
         quebraLinha: string,
         tamanhoIndentacao: number = 4,
-        opcoes: OpcoesFormatadorDelegua = {}
+        opcoes: OpcoesFormatadorDeleguaInterface = {}
     ) {
         this.quebraLinha = quebraLinha;
         this.tamanhoIndentacao = tamanhoIndentacao;
@@ -99,6 +106,148 @@ export class FormatadorDelegua implements VisitanteComumInterface {
         this.devePularLinha = true;
         this.deveIndentar = true;
         this.delimitadorTexto = opcoes.delimitadorTexto || 'aspas-simples';
+    }
+
+    visitarDeclaracaoAjuda(declaracao: Ajuda): Promise<any> | void {
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}ajuda(`;
+        if (declaracao.elemento) {
+            this.formatarDeclaracaoOuConstruto(declaracao.elemento);
+        }
+        this.codigoFormatado += `)${this.quebraLinha}`;
+    }
+
+    visitarDeclaracaoExtensao(declaracao: Extensao): Promise<any> | void {
+        const global = declaracao.ehGlobal ? 'global ' : '';
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}extensão ${global}de ${declaracao.simboloTipo.lexema} {${this.quebraLinha}`;
+        this.indentacaoAtual += this.tamanhoIndentacao;
+        for (let metodo of declaracao.metodos) {
+            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}${metodo.simbolo.lexema}`;
+            this.visitarExpressaoFuncaoConstruto(metodo.funcao);
+        }
+        this.indentacaoAtual -= this.tamanhoIndentacao;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}`;
+    }
+
+    visitarDeclaracaoInterface(declaracao: InterfaceDeclaracao): Promise<any> | void {
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}interface ${declaracao.simbolo.lexema} {${this.quebraLinha}`;
+        this.indentacaoAtual += this.tamanhoIndentacao;
+        for (let propriedade of declaracao.propriedades) {
+            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}${propriedade.nome.lexema}: ${
+                propriedade.tipo || 'qualquer'
+            }${this.quebraLinha}`;
+        }
+        for (let metodo of declaracao.metodos) {
+            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}${metodo.nome.lexema}(`;
+            for (let parametro of metodo.parametros) {
+                this.codigoFormatado += `${parametro.nome.lexema}: ${parametro.tipoDado || 'qualquer'}, `;
+            }
+            if (metodo.parametros.length > 0) {
+                this.codigoFormatado = this.codigoFormatado.slice(0, -2);
+            }
+            this.codigoFormatado += `)`;
+            if (metodo.tipoRetorno) {
+                this.codigoFormatado += `: ${metodo.tipoRetorno}`;
+            }
+            this.codigoFormatado += this.quebraLinha;
+        }
+        this.indentacaoAtual -= this.tamanhoIndentacao;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}`;
+    }
+
+    visitarExpressaoAjuda(expressao: AjudaComoConstruto): Promise<any> | void {
+        this.codigoFormatado += `ajuda(`;
+        if (expressao.valor) {
+            this.formatarDeclaracaoOuConstruto(expressao.valor);
+        }
+        this.codigoFormatado += `)`;
+    }
+
+    visitarExpressaoEnquanto(expressao: EnquantoComoConstruto): Promise<any> | void {
+        this.codigoFormatado += `enquanto `;
+        this.formatarDeclaracaoOuConstruto(expressao.condicao);
+        this.codigoFormatado += ` {${this.quebraLinha}`;
+        this.indentacaoAtual += this.tamanhoIndentacao;
+        for (let declaracao of (expressao.corpo as Bloco).declaracoes) {
+            this.formatarDeclaracaoOuConstruto(declaracao);
+        }
+        this.indentacaoAtual -= this.tamanhoIndentacao;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}`;
+    }
+
+    visitarExpressaoElvis(expressao: Elvis): Promise<any> | void {
+        this.formatarDeclaracaoOuConstruto(expressao.esquerda);
+        this.codigoFormatado += ` ?? `;
+        this.formatarDeclaracaoOuConstruto(expressao.direita);
+    }
+
+    visitarExpressaoFazer(expressao: FazerComoConstruto): Promise<any> | void {
+        this.codigoFormatado += `fazer {${this.quebraLinha}`;
+        this.indentacaoAtual += this.tamanhoIndentacao;
+        for (let declaracao of expressao.caminhoFazer.declaracoes) {
+            this.formatarDeclaracaoOuConstruto(declaracao);
+        }
+        this.indentacaoAtual -= this.tamanhoIndentacao;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}} enquanto `;
+        this.formatarDeclaracaoOuConstruto(expressao.condicaoEnquanto);
+    }
+
+    visitarExpressaoListaCompreensao(listaCompreensao: ListaCompreensao): Promise<any> | void {
+        this.codigoFormatado += `[`;
+        this.formatarDeclaracaoOuConstruto(listaCompreensao.expressaoRetorno);
+        this.codigoFormatado += ` para cada `;
+        this.formatarDeclaracaoOuConstruto(listaCompreensao.referenciaVariavelIteracao);
+        this.codigoFormatado += ` de `;
+        this.formatarDeclaracaoOuConstruto(listaCompreensao.paraCada.vetorOuDicionario);
+        this.codigoFormatado += `]`;
+    }
+
+    visitarExpressaoPara(expressao: ParaComoConstruto): Promise<any> | void {
+        this.codigoFormatado += `para `;
+        this.devePularLinha = false;
+        if (expressao.inicializador) {
+            if (Array.isArray(expressao.inicializador)) {
+                this.deveIndentar = false;
+                for (let declaracaoInicializador of expressao.inicializador) {
+                    this.formatarDeclaracaoOuConstruto(declaracaoInicializador);
+                }
+                this.deveIndentar = true;
+            } else {
+                this.formatarDeclaracaoOuConstruto(expressao.inicializador);
+            }
+        }
+        
+        this.codigoFormatado += `; `;
+        this.formatarDeclaracaoOuConstruto(expressao.condicao);
+        this.codigoFormatado += `; `;
+        this.formatarDeclaracaoOuConstruto(expressao.incrementar);
+        this.devePularLinha = true;
+        this.codigoFormatado += ` {${this.quebraLinha}`;
+        this.indentacaoAtual += this.tamanhoIndentacao;
+        for (let declaracao of (expressao.corpo as Bloco).declaracoes) {
+            this.formatarDeclaracaoOuConstruto(declaracao);
+        }
+        this.indentacaoAtual -= this.tamanhoIndentacao;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}`;
+    }
+
+    visitarExpressaoParaCada(expressao: ParaCadaComoConstruto): Promise<any> | void {
+        this.codigoFormatado += `para cada ${expressao.variavelIteracao} de `;
+        this.formatarDeclaracaoOuConstruto(expressao.vetorOuDicionario);
+        this.codigoFormatado += ` {${this.quebraLinha}`;
+        this.indentacaoAtual += this.tamanhoIndentacao;
+        for (let declaracao of (expressao.corpo as Bloco).declaracoes) {
+            this.formatarDeclaracaoOuConstruto(declaracao);
+        }
+        this.indentacaoAtual -= this.tamanhoIndentacao;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}`;
+    }
+
+    visitarExpressaoSeTernario(expressao: SeTernario): Promise<any> | void {
+        this.formatarDeclaracaoOuConstruto(expressao.condicao);
+        this.codigoFormatado += ` ? `;
+        this.formatarDeclaracaoOuConstruto(expressao.expressaoSe);
+        this.codigoFormatado += ` : `;
+        this.formatarDeclaracaoOuConstruto(expressao.expressaoSenao);
     }
 
     private obterDelimitadorTexto(expressao: Literal): "'" | '"' {
@@ -785,7 +934,7 @@ export class FormatadorDelegua implements VisitanteComumInterface {
     }
 
     visitarExpressaoUnaria(expressao: Unario) {
-        let operador: string;
+        let operador: string = '';
         switch (expressao.operador.tipo) {
             case tiposDeSimbolos.INCREMENTAR:
                 operador = `++`;
@@ -889,6 +1038,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
             case Enquanto:
                 this.visitarDeclaracaoEnquanto(declaracaoOuConstruto as Enquanto);
                 break;
+            case Extensao:
+                this.visitarDeclaracaoExtensao(declaracaoOuConstruto as Extensao);
+                break;
             case Escreva:
                 this.visitarDeclaracaoEscreva(declaracaoOuConstruto as Escreva);
                 break;
@@ -912,6 +1064,9 @@ export class FormatadorDelegua implements VisitanteComumInterface {
                 break;
             case Importar:
                 this.visitarDeclaracaoImportar(declaracaoOuConstruto as Importar);
+                break;
+            case InterfaceDeclaracao:
+                this.visitarDeclaracaoInterface(declaracaoOuConstruto as InterfaceDeclaracao);
                 break;
             case ImportarComoConstruto:
                 this.visitarExpressaoImportar(declaracaoOuConstruto as ImportarComoConstruto);
