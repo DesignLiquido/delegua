@@ -19,7 +19,7 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(quebraLinha);
         
-        expect(linhasResultado).toHaveLength(3);
+        expect(linhasResultado).toHaveLength(4);
         expect(linhasResultado[0]).toBe("3 ** 4 - 9(10 * -1");
         expect(linhasResultado[1]).toBe(" - -2");
         expect(linhasResultado[2]).toBe(")");
@@ -308,8 +308,9 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(quebraLinha);
         
-        expect(linhasResultado).toHaveLength(4);
-        expect(linhasResultado[2]).toContain('// Imprime 3');
+        expect(linhasResultado).toHaveLength(5);
+        expect(linhasResultado[2]).toContain('dm.raizQuadrada(9)');
+        expect(linhasResultado[3]).toContain('// Imprime 3');
     });
     
     it('leia() e escreva()', async () => {
@@ -1364,6 +1365,54 @@ describe('Formatadores > Delégua', () => {
             expect(resultado).toContain('interface Identificavel {');
             expect(resultado).toContain('id: inteiro');
             expect(resultado).toContain('identificar(prefixo: texto): texto');
+        });
+    });
+
+    describe('Correções de formatação', () => {
+        it('Chamada de método em objeto preserva objeto e método no output', async () => {
+            const codigo = [
+                "var regions = []",
+                "regions.adicionar(1)",
+                "regions.remover(0)",
+            ];
+            const resultadoLexador = lexador.mapear(codigo, -1);
+            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+
+            expect(resultado).toContain('regions.adicionar(1)');
+            expect(resultado).toContain('regions.remover(0)');
+        });
+
+        it('Enquanto com chamada de função na condição tem espaço antes de {', async () => {
+            const codigo = [
+                "var m = 0",
+                "enquanto m != 13 {",
+                "    m = m + 1",
+                "}",
+            ];
+            const resultadoLexador = lexador.mapear(codigo, -1);
+            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+
+            expect(resultado).toContain('enquanto m != 13 {');
+        });
+
+        it('Para com chamada de método no corpo coloca } em linha separada', async () => {
+            const codigo = [
+                "var regions = []",
+                "para var i = 0; i < 3; i++ {",
+                "    regions.adicionar(i + 1)",
+                "}",
+            ];
+            const resultadoLexador = lexador.mapear(codigo, -1);
+            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+            const linhas = resultado.split(quebraLinha);
+
+            const linhaCorpo = linhas.findIndex(l => l.includes('adicionar'));
+            const linhaFechamento = linhas.findIndex(l => l.trim() === '}');
+            expect(linhaCorpo).toBeGreaterThan(-1);
+            expect(linhaFechamento).toBeGreaterThan(linhaCorpo);
         });
     });
 });

@@ -418,6 +418,9 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
     visitarDeclaracaoDeExpressao(declaracao: Expressao) {
         this.codigoFormatado += ' '.repeat(this.indentacaoAtual);
         this.formatarDeclaracaoOuConstruto(declaracao.expressao);
+        if (!this.codigoFormatado.endsWith(this.quebraLinha)) {
+            this.codigoFormatado += this.quebraLinha;
+        }
     }
 
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao) {
@@ -432,7 +435,13 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
     visitarDeclaracaoEnquanto(declaracao: Enquanto) {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}enquanto `;
         this.formatarDeclaracaoOuConstruto(declaracao.condicao);
-        this.formatarDeclaracaoOuConstruto(declaracao.corpo);
+        this.codigoFormatado += ` {${this.quebraLinha}`;
+        this.indentacaoAtual += this.tamanhoIndentacao;
+        for (let declaracaoBloco of (declaracao.corpo as Bloco).declaracoes) {
+            this.formatarDeclaracaoOuConstruto(declaracaoBloco);
+        }
+        this.indentacaoAtual -= this.tamanhoIndentacao;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}`;
     }
 
     visitarDeclaracaoEscolha(declaracao: Escolha) {
@@ -986,6 +995,12 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
                 this.visitarExpressaoAcessoIndiceVariavel(
                     declaracaoOuConstruto as AcessoIndiceVariavel
                 );
+                break;
+            case AcessoMetodo:
+                this.visitarExpressaoAcessoMetodo(declaracaoOuConstruto as AcessoMetodo);
+                break;
+            case AcessoPropriedade:
+                this.visitarExpressaoAcessoPropriedade(declaracaoOuConstruto as AcessoPropriedade);
                 break;
             case AcessoMetodoOuPropriedade:
                 this.visitarExpressaoAcessoMetodoOuPropriedade(
