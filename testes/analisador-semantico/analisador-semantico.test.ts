@@ -28,8 +28,6 @@ describe('Analisador semântico', () => {
         it('Olá Mundo', async () => {
             const retornoLexador = lexador.mapear(["escreva('Olá mundo')"], -1);
             const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-            // DEBUG: inspecionar declarações geradas pelo avaliador sintático
-            console.log(JSON.stringify(retornoAvaliadorSintatico.declaracoes, null, 2));
             const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
                 retornoAvaliadorSintatico.declaracoes
             );
@@ -109,8 +107,6 @@ describe('Analisador semântico', () => {
                 -1
             );
             const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-            // DEBUG: inspecionar declarações geradas pelo avaliador sintático (classe)
-            console.log(JSON.stringify(retornoAvaliadorSintatico.declaracoes, null, 2));
             const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
                 retornoAvaliadorSintatico.declaracoes
             );
@@ -884,6 +880,26 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
             });
+
+            it('sucesso - variável usada em condição e corpo de enquanto com leia', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'var linha = leia()                      ',
+                        'enquanto linha != nulo e linha != "" {  ',
+                        '    escreva(linha)                      ',
+                        '    linha = leia()                      ',
+                        '}                                       ',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
         });
         describe('Cenários de diagnósticos detectados', () => {
             it('com variavel definida com valor inválido', async () => {
@@ -1443,8 +1459,6 @@ describe('Analisador semântico', () => {
                     -1
                 );
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-                // DEBUG: inspecionar declarações geradas pelo avaliador sintático
-                console.log(JSON.stringify(retornoAvaliadorSintatico.declaracoes, null, 2));
                 const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
                     retornoAvaliadorSintatico.declaracoes
                 );

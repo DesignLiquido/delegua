@@ -309,9 +309,6 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
                 
-                // Debug: print the result to see what's happening
-                console.log('paraCada result:', resultado);
-                
                 // Verifica que não usa for...of
                 expect(resultado).not.toContain('for (let numero of');
                 // Verifica que tem o vetor temporário e loop baseado em índice

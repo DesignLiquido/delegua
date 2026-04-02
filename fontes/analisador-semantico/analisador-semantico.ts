@@ -318,7 +318,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    visitarExpressaoDeAtribuicao(expressao: Atribuir) {
+    visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> {
         let simboloAlvo: SimboloInterface;
 
         switch (expressao.alvo.constructor) {
@@ -436,6 +436,8 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 this.variaveis[simboloAlvo.lexema].valor = expressao.valor;
             }
         } */
+
+        return Promise.resolve();
     }
 
     async visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<any> {
@@ -458,7 +460,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
 
     override visitarDeclaracaoEscolha(declaracao: Escolha) {
         const identificadorOuLiteral = declaracao.identificadorOuLiteral as Construto;
-        const tipo = identificadorOuLiteral.tipo;
+        const tipo = identificadorOuLiteral.tipo || 'qualquer';
 
         for (let caminho of declaracao.caminhos) {
             for (let condicao of caminho.condicoes) {
@@ -502,8 +504,19 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    override visitarDeclaracaoEnquanto(declaracao: Enquanto) {
-        return this.verificarCondicao(declaracao.condicao);
+    override async visitarDeclaracaoEnquanto(declaracao: Enquanto) {
+        // Marca variáveis usadas na condição.
+        this.marcarVariaveisUsadasEmExpressao(declaracao.condicao);
+
+        // Verifica a condição (incluindo validações de tipo para operadores lógicos).
+        await this.verificarCondicao(declaracao.condicao);
+
+        // Visita corpo para que usos/atribuições dentro do laço sejam analisados.
+        for (const declaracaoCorpo of declaracao.corpo.declaracoes) {
+            await declaracaoCorpo.aceitar(this);
+        }
+
+        return Promise.resolve();
     }
 
     override visitarDeclaracaoFazer(declaracao: Fazer) {
@@ -744,6 +757,10 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         const tipoEsquerda = this.obterTipoExpressao(binario.esquerda);
         const tipoDireita = this.obterTipoExpressao(binario.direita);
         const tiposNumericos = ['inteiro', 'número', 'real'];
+
+        if (!tipoEsquerda || !tipoDireita) {
+            return;
+        }
 
         if (
             (tipoEsquerda === 'texto' && tiposNumericos.includes(tipoDireita)) ||
@@ -1145,9 +1162,12 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         }
 
         // Inferir tipo do inicializador se não foi especificado explicitamente
-        let tipoInferido = declaracao.tipo;
+        let tipoInferido: string | undefined = declaracao.tipo;
         if (!tipoInferido && declaracao.inicializador) {
-            tipoInferido = this.obterTipoExpressao(declaracao.inicializador);
+            const tipoInicializador = this.obterTipoExpressao(declaracao.inicializador);
+            if (tipoInicializador) {
+                tipoInferido = tipoInicializador;
+            }
         }
 
         // Sugestão de tipo melhor quando 'qualquer' é usado explicitamente
@@ -1164,8 +1184,8 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                         textoOriginal: 'qualquer',
                         textoSubstituto: tipoMelhor,
                         linha: declaracao.simbolo.linha,
-                        colunaInicio: declaracao.simbolo.colunaInicio,
-                        colunaFim: declaracao.simbolo.colunaFim,
+                        colunaInicio: declaracao.simbolo.colunaInicio || 0,
+                        colunaFim: declaracao.simbolo.colunaFim || 0,
                     },
                 ]);
             }
@@ -1217,7 +1237,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     }
 
     override visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
-        return Promise.resolve(null);
+        return Promise.resolve(undefined as unknown as RetornoQuebra);
     }
 
     override visitarExpressaoDeVariavel(expressao: Variavel | Construto): Promise<any> {
@@ -1356,10 +1376,13 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 }
             }
 
-            const retornos = declaracao.funcao.corpo.flatMap((c) => buscarRetornos(c));
+            let retornos: Retorna[] = [];
+            for (const declaracaoCorpo of declaracao.funcao.corpo) {
+                retornos = retornos.concat(buscarRetornos(declaracaoCorpo));
+            }
             // Filtra retornos com tipo 'qualquer' (não determinado em tempo de análise sintática)
             const retornosComTipoIndeterminado = retornos.filter(
-                (retorno) =>
+                (retorno: Retorna) =>
                     retorno.valor !== null &&
                     retorno.valor !== undefined &&
                     retorno.tipo === 'qualquer'
@@ -1373,7 +1396,8 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 retornosComTipoIndeterminado.length > 0
             ) {
                 const retornoComValor = retornosComTipoIndeterminado[0];
-                const tipoInferido = this.obterTipoExpressao(retornoComValor.valor);
+                const valorRetorno = retornoComValor.valor as Construto;
+                const tipoInferido = this.obterTipoExpressao(valorRetorno);
 
                 if (tipoInferido && tipoInferido !== 'qualquer') {
                     this.erro(
@@ -1386,7 +1410,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             } else {
                 // Verifica tipos de retorno para funções não-vazio
                 const retornoComValor = retornos.find(
-                    (retorno) => retorno.valor !== null && retorno.valor !== undefined
+                    (retorno: Retorna) => retorno.valor !== null && retorno.valor !== undefined
                 );
 
                 if (retornoComValor) {
@@ -1427,7 +1451,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             const temErro = this.diagnosticos.some(
                 (d) =>
                     d.severidade === DiagnosticoSeveridade.ERRO &&
-                    d.simbolo.lexema === variavel.nome
+                    d.simbolo?.lexema === variavel.nome
             );
 
             // Se a variável já tem um erro associado, não emitir aviso de não usada.
