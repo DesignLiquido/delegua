@@ -1521,6 +1521,31 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
             });
+
+            it('Sucesso - reutilizando variável de inicialização em para sequenciais', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'para (var j = 0; j < 3; j++) {',
+                        '    escreva(j)',
+                        '}',
+                        'para (var j = 0; j < 2; j++) {',
+                        '    escreva(j)',
+                        '}',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(
+                    retornoAnalisadorSemantico.diagnosticos.some(d =>
+                        d.mensagem?.includes("Variável 'j' já foi declarada")
+                    )
+                ).toBe(false);
+            });
         });
 
         describe('Cenários de diagnósticos detectados', () => {

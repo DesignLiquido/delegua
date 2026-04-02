@@ -527,27 +527,33 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     }
 
     override async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
-        if (Array.isArray(declaracao.inicializador)) {
-            for (const inicializador of declaracao.inicializador) {
-                await inicializador.aceitar(this);
+        this.gerenciadorEscopos.empilharEscopo();
+
+        try {
+            if (Array.isArray(declaracao.inicializador)) {
+                for (const inicializador of declaracao.inicializador) {
+                    await inicializador.aceitar(this);
+                }
+            } else if (declaracao.inicializador) {
+                await declaracao.inicializador.aceitar(this);
             }
-        } else if (declaracao.inicializador) {
-            await declaracao.inicializador.aceitar(this);
-        }
 
-        // O laço precisa visitar condição/incremento/corpo para registrar usos de variáveis.
-        if (declaracao.condicao) {
-            this.marcarVariaveisUsadasEmExpressao(declaracao.condicao);
-            await this.verificarCondicao(declaracao.condicao);
-        }
+            // O laço precisa visitar condição/incremento/corpo para registrar usos de variáveis.
+            if (declaracao.condicao) {
+                this.marcarVariaveisUsadasEmExpressao(declaracao.condicao);
+                await this.verificarCondicao(declaracao.condicao);
+            }
 
-        if (declaracao.incrementar) {
-            this.marcarVariaveisUsadasEmExpressao(declaracao.incrementar);
-            this.verificarExpressao(declaracao.incrementar);
-        }
+            if (declaracao.incrementar) {
+                this.marcarVariaveisUsadasEmExpressao(declaracao.incrementar);
+                this.verificarExpressao(declaracao.incrementar);
+            }
 
-        for (const declaracaoCorpo of declaracao.corpo.declaracoes) {
-            await declaracaoCorpo.aceitar(this);
+            for (const declaracaoCorpo of declaracao.corpo.declaracoes) {
+                await declaracaoCorpo.aceitar(this);
+            }
+        } finally {
+            this.gerenciadorEscopos.desempilharEscopo();
         }
 
         return Promise.resolve();
