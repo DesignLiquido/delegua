@@ -2052,7 +2052,7 @@ describe('Analisador semântico', () => {
 
             const mensagensVariaveisNaoUsadas = retornoAnalisadorSemantico.diagnosticos
                 .map((d) => d.mensagem)
-                .filter((m) => m.includes('foi declarada mas nunca usada'));
+                .filter((m) => m?.includes('foi declarada mas nunca usada'));
 
             expect(mensagensVariaveisNaoUsadas).not.toContain(
                 "Variável 'maximoDeElementos' foi declarada mas nunca usada."
@@ -2068,6 +2068,32 @@ describe('Analisador semântico', () => {
             );
             expect(mensagensVariaveisNaoUsadas).not.toContain(
                 "Variável 'filaEstatica' foi declarada mas nunca usada."
+            );
+        });
+
+        it('Sucesso - constante usada em expressão de atribuição não gera aviso de não usada', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'const ano = 2026',
+                    'var idade: inteiro',
+                    'idade = ano - inteiro(leia("Digite seu ano de nascimento: "))',
+                ],
+                -1
+            );
+
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+
+            const mensagensVariaveisNaoUsadas = retornoAnalisadorSemantico.diagnosticos
+                .map((d) => d.mensagem)
+                .filter((m) => m?.includes('foi declarada mas nunca usada'));
+
+            expect(mensagensVariaveisNaoUsadas).not.toContain(
+                "Variável 'ano' foi declarada mas nunca usada."
             );
         });
 

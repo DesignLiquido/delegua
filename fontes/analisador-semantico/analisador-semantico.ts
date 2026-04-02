@@ -351,6 +351,9 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         // Marca como inicializada após atribuição
         this.gerenciadorEscopos.marcarComoInicializada(simboloAlvo.lexema, expressao.valor);
 
+        // Marca variáveis usadas no valor atribuído (ex: idade = ano - inteiro(leia(...))).
+        this.marcarVariaveisUsadasEmExpressao(expressao.valor);
+
         // Atualiza tipo se a variável não foi tipada explicitamente
         if (variavel.tipo === 'qualquer') {
             const tipoInferido = this.obterTipoExpressao(expressao.valor);
