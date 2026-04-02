@@ -4,5 +4,6 @@ import { RetornoAnalisadorSemantico } from './retornos/retorno-analisador-semant
 import { VisitanteComumInterface } from './visitante-comum-interface';
 
 export interface AnalisadorSemanticoInterface extends VisitanteComumInterface {
+    definirClassesExternasConhecidas?(classesExternasConhecidas: string[]): void;
     analisar(declaracoes: Declaracao[]): Promise<RetornoAnalisadorSemantico>;
 }

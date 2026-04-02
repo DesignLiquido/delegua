@@ -56,8 +56,9 @@ import { PilhaVariaveis } from './pilha-variaveis';
 export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     pilhaVariaveis: PilhaVariaveis;
     funcoes: { [nomeFuncao: string]: FuncaoHipoteticaInterface };
-    classesDeclararadas: Set<string>;
+    classesDeclaradas: Set<string>;
     classesRegistradas: Map<string, Classe>;
+    classesExternasConhecidas: Set<string>;
     classeAtualEmAnalise: Classe | null;
     atual: number;
     diagnosticos: DiagnosticoAnalisadorSemantico[];
@@ -67,11 +68,16 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         this.pilhaVariaveis = new PilhaVariaveis();
         this.gerenciadorEscopos = new GerenciadorEscopos();
         this.funcoes = {};
-        this.classesDeclararadas = new Set<string>();
+        this.classesDeclaradas = new Set<string>();
         this.classesRegistradas = new Map<string, Classe>();
+        this.classesExternasConhecidas = new Set<string>();
         this.classeAtualEmAnalise = null;
         this.atual = 0;
         this.diagnosticos = [];
+    }
+
+    definirClassesExternasConhecidas(classesExternasConhecidas: string[]): void {
+        this.classesExternasConhecidas = new Set(classesExternasConhecidas);
     }
 
     verificarTipoAtribuido(declaracao: Var | Const) {
@@ -1387,7 +1393,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                     superClasseVariavel.simbolo,
                     `A classe '${declaracao.simbolo.lexema}' não pode herdar de si mesma.`
                 );
-            } else if (!this.classesDeclararadas.has(nomeSuperclasse)) {
+            } else if (!this.classesDeclaradas.has(nomeSuperclasse) && !this.classesExternasConhecidas.has(nomeSuperclasse)) {
                 this.erro(
                     superClasseVariavel.simbolo,
                     `Superclasse '${nomeSuperclasse}' não foi declarada.`
@@ -1395,7 +1401,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             }
         }
 
-        this.classesDeclararadas.add(declaracao.simbolo.lexema);
+        this.classesDeclaradas.add(declaracao.simbolo.lexema);
         this.classesRegistradas.set(declaracao.simbolo.lexema, declaracao);
 
         // Visita corpos dos métodos com contexto de classe ativo
@@ -1553,7 +1559,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
 
     async analisar(declaracoes: Declaracao[]): Promise<RetornoAnalisadorSemantico> {
         this.gerenciadorEscopos = new GerenciadorEscopos();
-        this.classesDeclararadas = new Set<string>();
+        this.classesDeclaradas = new Set<string>();
         this.classesRegistradas = new Map<string, Classe>();
         this.classeAtualEmAnalise = null;
         this.atual = 0;
