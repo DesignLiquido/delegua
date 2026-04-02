@@ -1993,6 +1993,84 @@ describe('Analisador semântico', () => {
     });
 
     describe('Casos extremos e validações', () => {
+        it('Sucesso - variáveis globais usadas apenas dentro de funções não geram falso positivo de não usadas', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var maximoDeElementos = 4',
+                    'var indexInicial = 0',
+                    'var indexFinal = 0',
+                    'var i = 0',
+                    'var filaEstatica = []',
+                    '',
+                    'funcao enfileirar(valorEntrada) {',
+                    '  se (indexFinal == maximoDeElementos) {',
+                    '    escreva("Fila Cheia")',
+                    '  } senao {',
+                    '    filaEstatica[indexFinal] = valorEntrada',
+                    '    escreva(texto(filaEstatica[indexFinal]))',
+                    '    indexFinal = indexFinal + 1',
+                    '  }',
+                    '}',
+                    '',
+                    'funcao desenfileirar() {',
+                    '  se (indexInicial == indexFinal) {',
+                    '    escreva("Fila Vazia")',
+                    '  } senao {',
+                    '    para (i = 0; i <= indexFinal; i = i + 1) {',
+                    '      se (i + 1 == indexFinal) {',
+                    '        indexFinal = indexFinal - 1',
+                    '      } senao {',
+                    '        filaEstatica[i] = filaEstatica[i + 1]',
+                    '      }',
+                    '    }',
+                    '  }',
+                    '}',
+                    '',
+                    'funcao mostrar_fila() {',
+                    '  se (indexInicial == indexFinal) {',
+                    '    escreva("Fila Vazia")',
+                    '  } senao {',
+                    '    para (var i = 0; i < indexFinal; i = i + 1) {',
+                    '      escreva(texto(filaEstatica[i]))',
+                    '    }',
+                    '  }',
+                    '}',
+                    '',
+                    'mostrar_fila()',
+                    'enfileirar(2)',
+                    'desenfileirar()',
+                ],
+                -1
+            );
+
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+
+            const mensagensVariaveisNaoUsadas = retornoAnalisadorSemantico.diagnosticos
+                .map((d) => d.mensagem)
+                .filter((m) => m.includes('foi declarada mas nunca usada'));
+
+            expect(mensagensVariaveisNaoUsadas).not.toContain(
+                "Variável 'maximoDeElementos' foi declarada mas nunca usada."
+            );
+            expect(mensagensVariaveisNaoUsadas).not.toContain(
+                "Variável 'indexInicial' foi declarada mas nunca usada."
+            );
+            expect(mensagensVariaveisNaoUsadas).not.toContain(
+                "Variável 'indexFinal' foi declarada mas nunca usada."
+            );
+            expect(mensagensVariaveisNaoUsadas).not.toContain(
+                "Variável 'i' foi declarada mas nunca usada."
+            );
+            expect(mensagensVariaveisNaoUsadas).not.toContain(
+                "Variável 'filaEstatica' foi declarada mas nunca usada."
+            );
+        });
+
         it('Aviso - variável declarada mas nunca usada', async () => {
             const retornoLexador = lexador.mapear(['var nuncaUsada = 10', 'escreva("teste")'], -1);
             const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);

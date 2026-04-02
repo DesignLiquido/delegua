@@ -1,9 +1,11 @@
 import {
+    AcessoIndiceVariavel,
     AcessoMetodo,
     AcessoMetodoOuPropriedade,
     Agrupamento,
     ArgumentoReferenciaFuncao,
     AjudaComoConstruto,
+    AtribuicaoPorIndice,
     Atribuir,
     Binario,
     Chamada,
@@ -20,6 +22,7 @@ import {
 } from '../construtos';
 import {
     Ajuda,
+    Bloco,
     Classe,
     Const,
     Declaracao,
@@ -444,6 +447,33 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         return await declaracao.expressao.aceitar(this);
     }
 
+    override async visitarExpressaoBloco(declaracao: Bloco): Promise<any> {
+        this.gerenciadorEscopos.empilharEscopo();
+
+        try {
+            for (const declaracaoBloco of declaracao.declaracoes) {
+                await declaracaoBloco.aceitar(this);
+            }
+        } finally {
+            this.gerenciadorEscopos.desempilharEscopo();
+        }
+
+        return Promise.resolve();
+    }
+
+    override visitarExpressaoAcessoIndiceVariavel(expressao: AcessoIndiceVariavel): Promise<any> {
+        this.marcarVariaveisUsadasEmExpressao(expressao.entidadeChamada);
+        this.marcarVariaveisUsadasEmExpressao(expressao.indice);
+        return Promise.resolve();
+    }
+
+    override visitarExpressaoAtribuicaoPorIndice(expressao: AtribuicaoPorIndice): Promise<any> {
+        this.marcarVariaveisUsadasEmExpressao(expressao.objeto);
+        this.marcarVariaveisUsadasEmExpressao(expressao.indice);
+        this.marcarVariaveisUsadasEmExpressao(expressao.valor);
+        return Promise.resolve();
+    }
+
     visitarDeclaracaoAjuda(declaracao: Ajuda): Promise<any> {
         if (declaracao.elemento) {
             this.marcarVariaveisUsadasEmExpressao(declaracao.elemento);
@@ -565,11 +595,29 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    override visitarDeclaracaoSe(declaracao: Se) {
+    override async visitarDeclaracaoSe(declaracao: Se) {
         // Marca variáveis usadas na condição
         this.marcarVariaveisUsadasEmExpressao(declaracao.condicao);
         // Verifica a condição (incluindo validação de tipos para operadores lógicos)
-        return this.verificarCondicao(declaracao.condicao);
+        await this.verificarCondicao(declaracao.condicao);
+
+        if (declaracao.caminhoEntao) {
+            await declaracao.caminhoEntao.aceitar(this);
+        }
+
+        if (declaracao.caminhosSeSenao && declaracao.caminhosSeSenao.length > 0) {
+            for (const caminhoSeSenao of declaracao.caminhosSeSenao) {
+                this.marcarVariaveisUsadasEmExpressao(caminhoSeSenao.condicao);
+                await this.verificarCondicao(caminhoSeSenao.condicao);
+                await caminhoSeSenao.caminho.aceitar(this);
+            }
+        }
+
+        if (declaracao.caminhoSenao) {
+            await declaracao.caminhoSenao.aceitar(this);
+        }
+
+        return Promise.resolve();
     }
 
     /**
@@ -1358,7 +1406,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         this.classeAtualEmAnalise = classeAnterior;
     }
 
-    visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> {
+    async visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> {
         if (declaracao.funcao.tipo === undefined) {
             this.erro(declaracao.simbolo, `Declaração de retorno da função é inválido.`);
         }
@@ -1445,6 +1493,29 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         this.funcoes[declaracao.simbolo.lexema] = {
             valor: declaracao.funcao,
         };
+
+        this.gerenciadorEscopos.empilharEscopo();
+
+        try {
+            for (const parametro of declaracao.funcao.parametros) {
+                this.gerenciadorEscopos.declarar(parametro.nome.lexema, {
+                    nome: parametro.nome.lexema,
+                    tipo: parametro.tipoDado || 'qualquer',
+                    imutavel: false,
+                    valor: undefined,
+                    inicializada: true,
+                    usada: false,
+                    hashArquivo: parametro.nome.hashArquivo,
+                    linha: parametro.nome.linha,
+                });
+            }
+
+            for (const declaracaoCorpo of declaracao.funcao.corpo) {
+                await declaracaoCorpo.aceitar(this);
+            }
+        } finally {
+            this.gerenciadorEscopos.desempilharEscopo();
+        }
 
         return Promise.resolve();
     }
