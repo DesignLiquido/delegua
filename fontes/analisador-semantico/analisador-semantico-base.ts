@@ -84,14 +84,17 @@ import { GerenciadorEscopos } from './gerenciador-escopos';
  * simplesmente passa por ele (`return Promise.resolve()`).
  */
 export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInterface {
-    gerenciadorEscopos: GerenciadorEscopos;
+    gerenciadorEscopos: GerenciadorEscopos = new GerenciadorEscopos();
+    diagnosticos: DiagnosticoAnalisadorSemantico[] = [];
+
+    abstract analisar(declaracoes: Declaracao[]): Promise<RetornoAnalisadorSemantico>;
 
     protected diagnosticoJaExiste(simbolo: SimboloInterface, mensagem: string): boolean {
         return this.diagnosticos.some(
             (d) =>
                 d.linha === simbolo.linha &&
                 d.mensagem === mensagem &&
-                d.simbolo.lexema === simbolo.lexema
+                d.simbolo?.lexema === simbolo.lexema
         );
     }
 
@@ -274,6 +277,11 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
      * Marca as variáveis usadas em uma expressão.
      */
     protected marcarVariaveisUsadasEmExpressao(expressao: Construto): void {
+        if ((expressao as unknown) instanceof Expressao) {
+            this.marcarVariaveisUsadasEmExpressao((expressao as unknown as Expressao).expressao);
+            return;
+        }
+
         if (expressao instanceof Variavel) {
             this.gerenciadorEscopos.marcarComoUsada(expressao.simbolo.lexema);
             return;
@@ -332,7 +340,19 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
             return;
         }
 
+        if (expressao instanceof Literal && typeof expressao.valor === 'string') {
+            this.verificarInterpolacaoTexto(expressao.valor, expressao);
+            return;
+        }
+
         // TODO: Adicionar outros tipos de expressões conforme necessário.
+    }
+
+    /**
+     * Stub para ser sobrescrito por subclasses que implementam análise de interpolações.
+     */
+    protected verificarInterpolacaoTexto(_texto: string, _literal: Literal): void {
+        // implementado nas subclasses
     }
 
     /**
@@ -435,10 +455,6 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
         // Separadores não afetam a análise semântica, então não faz nada.
         return Promise.resolve();
     }
-
-    diagnosticos: DiagnosticoAnalisadorSemantico[];
-
-    abstract analisar(declaracoes: Declaracao[]): Promise<RetornoAnalisadorSemantico>;
 
     adicionarDiagnostico(
         simbolo: SimboloInterface,
@@ -591,7 +607,7 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     }
 
     visitarExpressaoContinua(declaracao?: Continua): ContinuarQuebra {
-        return null;
+        return new ContinuarQuebra();
     }
 
     visitarExpressaoDeChamada(expressao: Chamada): Promise<any> {
@@ -615,7 +631,7 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     }
 
     visitarExpressaoExpressaoRegular(expressao: ExpressaoRegular): Promise<RegExp> {
-        return;
+        return Promise.resolve(new RegExp(''));
     }
 
     visitarDeclaracaoEscrevaMesmaLinha(declaracao: EscrevaMesmaLinha): Promise<any> {
@@ -651,7 +667,7 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     }
 
     visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
-        return;
+        return Promise.resolve(new RetornoQuebra(null));
     }
 
     visitarExpressaoSuper(expressao: Super): Promise<any> {
@@ -659,7 +675,7 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     }
 
     visitarExpressaoSustar(declaracao?: Sustar): SustarQuebra {
-        return null;
+        return new SustarQuebra();
     }
 
     visitarExpressaoTupla(expressao: Tupla): Promise<any> {

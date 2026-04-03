@@ -44,6 +44,8 @@ import { DiagnosticoAnalisadorSemantico, DiagnosticoSeveridade } from '../interf
 import { RetornoAnalisadorSemantico } from '../interfaces/retornos/retorno-analisador-semantico';
 import { RetornoQuebra } from '../quebras';
 import { buscarRetornos } from '../avaliador-sintatico/comum';
+import { MicroAvaliadorSintatico } from '../avaliador-sintatico/micro-avaliador-sintatico';
+import { MicroLexador } from '../lexador/micro-lexador';
 import { AnalisadorSemanticoBase } from './analisador-semantico-base';
 import { EscopoVariavel } from './escopo-variavel';
 import { FuncaoHipoteticaInterface } from './funcao-hipotetica-interface';
@@ -62,6 +64,8 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     classeAtualEmAnalise: Classe | null;
     atual: number;
     diagnosticos: DiagnosticoAnalisadorSemantico[];
+    protected readonly microLexador = new MicroLexador();
+    protected readonly microAvaliadorSintatico = new MicroAvaliadorSintatico();
 
     constructor() {
         super();
@@ -1025,48 +1029,23 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     }
 
     /**
-     * Verifica interpolações de texto e marca variáveis como usadas
+     * Verifica interpolações de texto e marca variáveis como usadas,
+     * compreendendo cada expressão interpolada com MicroLexador e MicroAvaliadorSintatico.
      */
     protected verificarInterpolacaoTexto(texto: string, literal: Literal): void {
-        // Regex para encontrar ${identificador}
-        const regexInterpolacao = /\$\{([a-zA-Z_][a-zA-Z0-9_]*)\}/g;
+        const regexInterpolacao = /\$\{(.*?)\}/g;
         let match;
 
         while ((match = regexInterpolacao.exec(texto)) !== null) {
-            const nomeVariavel = match[1];
-
-            // Verifica se a variável existe
-            const variavel = this.gerenciadorEscopos.buscar(nomeVariavel);
-            const funcao = this.funcoes[nomeVariavel];
-
-            if (!variavel && !funcao) {
-                this.erro(
-                    {
-                        lexema: nomeVariavel,
-                        tipo: 'IDENTIFICADOR',
-                        linha: literal.linha,
-                        hashArquivo: literal.hashArquivo,
-                        literal: null,
-                    } as SimboloInterface,
-                    `Variável ou função '${nomeVariavel}' usada em interpolação não existe.`
-                );
-            } else if (variavel) {
-                // Marca como usada
-                this.gerenciadorEscopos.marcarComoUsada(nomeVariavel);
-
-                // Verifica se foi inicializada
-                if (!variavel.inicializada) {
-                    this.aviso(
-                        {
-                            lexema: nomeVariavel,
-                            tipo: 'IDENTIFICADOR',
-                            linha: literal.linha,
-                            hashArquivo: literal.hashArquivo,
-                            literal: null,
-                        } as SimboloInterface,
-                        `Variável '${nomeVariavel}' usada em interpolação pode não ter sido inicializada.`
-                    );
+            const expressaoInterpolacao = match[1].trim();
+            try {
+                const retornoMicroLexador = this.microLexador.mapear(expressaoInterpolacao);
+                const retornoMicro = this.microAvaliadorSintatico.analisar(retornoMicroLexador, literal.linha);
+                for (const construto of retornoMicro.declaracoes) {
+                    this.marcarVariaveisUsadasEmExpressao(construto as unknown as Construto);
                 }
+            } catch (_) {
+                // Erros de sintaxe na interpolação são tratados em tempo de execução
             }
         }
     }

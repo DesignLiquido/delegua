@@ -207,6 +207,63 @@ describe('Analisador semântico', () => {
             expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
         });
 
+        it('Interpolação com expressão binária não gera falso positivo', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var a = inteiro(leia("Digite a: "))',
+                    'var b = inteiro(leia("Digite b: "))',
+                    'escreva("X = ${a + b}")',
+                ],
+                -1
+            );
+
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+
+        it('Interpolação em inicializador de variável não gera falso positivo', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var nome = "João"',
+                    'var msg = "${nome} chegou"',
+                    'escreva(msg)',
+                ],
+                -1
+            );
+
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+
+        it('Interpolação com chamada de função não gera falso positivo', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'funcao dobrar(x) { retorna x * 2 }',
+                    'var n = 5',
+                    'escreva("resultado: ${dobrar(n)}")',
+                ],
+                -1
+            );
+
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+
         describe('Declaração se ... senão se ... senão', () => {
             it('Caso com os três blocos', async () => {
                 const retornoLexador = lexador.mapear(

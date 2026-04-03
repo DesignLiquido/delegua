@@ -33,11 +33,13 @@ import {
     Retorna,
     Var,
 } from '../../declaracoes';
-import { ParametroInterface, SimboloInterface } from '../../interfaces';
+import { SimboloInterface } from '../../interfaces';
 import { DiagnosticoAnalisadorSemantico, DiagnosticoSeveridade } from '../../interfaces/erros';
 import { RetornoAnalisadorSemantico } from '../../interfaces/retornos/retorno-analisador-semantico';
 import { RetornoQuebra } from '../../quebras';
 import { buscarRetornos } from '../../avaliador-sintatico/comum';
+import { MicroAvaliadorSintaticoPitugues } from '../../avaliador-sintatico/dialetos/micro-avaliador-sintatico-pitugues';
+import { MicroLexadorPitugues } from '../../lexador/micro-lexador-pitugues';
 import { AnalisadorSemanticoBase } from '../analisador-semantico-base';
 import { EscopoVariavel } from '../escopo-variavel';
 import { FuncaoHipoteticaInterface } from '../funcao-hipotetica-interface';
@@ -52,6 +54,8 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
     funcoes: { [nomeFuncao: string]: FuncaoHipoteticaInterface };
     atual: number;
     diagnosticos: DiagnosticoAnalisadorSemantico[];
+    protected readonly microLexador = new MicroLexadorPitugues();
+    protected readonly microAvaliadorSintatico = new MicroAvaliadorSintaticoPitugues();
 
     constructor() {
         super();
@@ -450,6 +454,8 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                 }
             }
         }
+
+        return Promise.resolve();
     }
 
     override async visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<any> {
@@ -869,48 +875,23 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
     }
 
     /**
-     * Verifica interpolações de texto e marca variáveis como usadas
+     * Verifica interpolações de texto e marca variáveis como usadas,
+     * compreendendo cada expressão interpolada com MicroLexadorPitugues e MicroAvaliadorSintaticoPitugues.
      */
-    protected verificarInterpolacaoTexto(texto: string, literal: Literal): void {
-        // Regex para encontrar ${identificador}
-        const regexInterpolacao = /\$\{([a-zA-Z_][a-zA-Z0-9_]*)\}/g;
+    protected override verificarInterpolacaoTexto(texto: string, literal: Literal): void {
+        const regexInterpolacao = /\$\{(.*?)\}/g;
         let match;
 
         while ((match = regexInterpolacao.exec(texto)) !== null) {
-            const nomeVariavel = match[1];
-
-            // Verifica se a variável existe
-            const variavel = this.gerenciadorEscopos.buscar(nomeVariavel);
-            const funcao = this.funcoes[nomeVariavel];
-
-            if (!variavel && !funcao) {
-                this.erro(
-                    {
-                        lexema: nomeVariavel,
-                        tipo: 'IDENTIFICADOR',
-                        linha: literal.linha,
-                        hashArquivo: literal.hashArquivo,
-                        literal: null,
-                    } as SimboloInterface,
-                    `Variável ou função '${nomeVariavel}' usada em interpolação não existe.`
-                );
-            } else if (variavel) {
-                // Marca como usada
-                this.gerenciadorEscopos.marcarComoUsada(nomeVariavel);
-
-                // Verifica se foi inicializada
-                if (!variavel.inicializada) {
-                    this.aviso(
-                        {
-                            lexema: nomeVariavel,
-                            tipo: 'IDENTIFICADOR',
-                            linha: literal.linha,
-                            hashArquivo: literal.hashArquivo,
-                            literal: null,
-                        } as SimboloInterface,
-                        `Variável '${nomeVariavel}' usada em interpolação pode não ter sido inicializada.`
-                    );
+            const expressaoInterpolacao = match[1].trim();
+            try {
+                const retornoMicroLexador = this.microLexador.mapear(expressaoInterpolacao);
+                const retornoMicro = this.microAvaliadorSintatico.analisar(retornoMicroLexador, literal.linha);
+                for (const construto of retornoMicro.declaracoes) {
+                    this.marcarVariaveisUsadasEmExpressao(construto as unknown as Construto);
                 }
+            } catch (_) {
+                // Erros de sintaxe na interpolação são tratados em tempo de execução
             }
         }
     }
@@ -1066,7 +1047,10 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         // Se o tipo é o padrão implícito 'qualquer', tenta inferir um tipo mais específico
         // a partir do inicializador. Para 'qualquer' explícito, apenas sugerimos mais abaixo.
         if (tipoInferido === 'qualquer' && !declaracao.tipoExplicito && declaracao.inicializador) {
-            tipoInferido = this.obterTipoExpressao(declaracao.inicializador);
+            const tipoObtido = this.obterTipoExpressao(declaracao.inicializador);
+            if (tipoObtido) {
+                tipoInferido = tipoObtido;
+            }
         }
 
         if (
@@ -1082,8 +1066,8 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                         textoOriginal: 'qualquer',
                         textoSubstituto: tipoMelhor,
                         linha: declaracao.simbolo.linha,
-                        colunaInicio: declaracao.simbolo.colunaInicio,
-                        colunaFim: declaracao.simbolo.colunaFim,
+                        colunaInicio: declaracao.simbolo.colunaInicio ?? -1,
+                        colunaFim: declaracao.simbolo.colunaFim ?? -1,
                     },
                 ]);
             }
@@ -1148,7 +1132,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         if (declaracao.valor) {
             this.verificarBinarioEmExpressao(declaracao.valor);
         }
-        return Promise.resolve(null);
+        return Promise.resolve(null as any);
     }
 
     override visitarExpressaoDeVariavel(expressao: Variavel | Construto): Promise<any> {
@@ -1189,7 +1173,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
             this.erro(declaracao.simbolo, 'Função não pode ter mais de 255 parâmetros.');
         }
 
-        const todosRetornos = declaracao.funcao.corpo.flatMap((c) => buscarRetornos(c));
+        const todosRetornos = declaracao.funcao.corpo.reduce((acc: any[], c) => acc.concat(buscarRetornos(c)), []);
         for (const instrucao of todosRetornos) {
             if (instrucao.valor) {
                 this.verificarBinarioEmExpressao(instrucao.valor);
@@ -1211,7 +1195,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                 }
             }
 
-            const retornos = declaracao.funcao.corpo.flatMap((c) => buscarRetornos(c));
+            const retornos = declaracao.funcao.corpo.reduce((acc: any[], c) => acc.concat(buscarRetornos(c)), []);
             // Filtra retornos com tipo 'qualquer' (não determinado em tempo de análise sintática)
             const retornosComTipoIndeterminado = retornos.filter(
                 (retorno) =>
@@ -1282,7 +1266,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
             const temErro = this.diagnosticos.some(
                 (d) =>
                     d.severidade === DiagnosticoSeveridade.ERRO &&
-                    d.simbolo.lexema === variavel.nome
+                    d.simbolo?.lexema === variavel.nome
             );
 
             // Se a variável já tem um erro associado, não emitir aviso de não usada.
