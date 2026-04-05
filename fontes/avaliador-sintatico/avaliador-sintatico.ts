@@ -3758,7 +3758,8 @@ export class AvaliadorSintatico
                                 nomeMetodo.linha,
                                 params,
                                 [],
-                                tipoRetorno
+                                tipoRetorno,
+                                definicaoExplicitaDeTipo
                             );
                             const metodoAbstrato = new FuncaoDeclaracao(
                                 nomeMetodo,

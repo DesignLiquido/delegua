@@ -204,6 +204,21 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
                 });
 
+                it('Método sem corpo em classe concreta lança erro de sintaxe', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'classe Concreta {',
+                            '    calcular(): numero',
+                            '}',
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                });
+
                 it('Métodos obtenedor e definidor são marcados corretamente', async () => {
                     const retornoLexador = lexador.mapear(
                         [

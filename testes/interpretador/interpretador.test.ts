@@ -4999,6 +4999,23 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(1);
             });
 
+            it('Subclasse que não sobrescreve método estrangeiro gera erro ao ser definida', async () => {
+                const codigo = [
+                    'classe estrangeira Modelo {',
+                    '    salvar()',
+                    '}',
+                    'classe Usuario herda Modelo {',
+                    '    nome: texto',
+                    '}',
+                    'var u = Usuario()',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+            });
+
             it('Subclasse de classe estrangeira pode ser instanciada e herda assinaturas', async () => {
                 const codigo = [
                     'classe estrangeira Modelo {',

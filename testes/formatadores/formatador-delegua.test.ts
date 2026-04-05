@@ -1397,6 +1397,26 @@ describe('Formatadores > Delégua', () => {
             expect(resultado).toContain('enquanto m != 13 {');
         });
 
+        it('classe estrangeira é formatada com modificador e métodos sem corpo', async () => {
+            const codigo = [
+                'classe estrangeira Modelo {',
+                '    id: numero',
+                '    salvar()',
+                '    buscarPorId(id: numero)',
+                '    versao(): texto',
+                '}',
+            ];
+            const resultadoLexador = lexador.mapear(codigo, -1);
+            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+
+            expect(resultado).toContain('classe estrangeira Modelo');
+            expect(resultado).not.toContain('salvar() {');
+            expect(resultado).toContain('salvar()');
+            expect(resultado).toContain('buscarPorId(id: numero)');
+            expect(resultado).toContain('versao(): texto');
+        });
+
         it('Para com chamada de método no corpo coloca } em linha separada', async () => {
             const codigo = [
                 "var regions = []",

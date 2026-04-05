@@ -2411,9 +2411,9 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         // Verifica se a subclasse concreta implementa todos os métodos abstratos
         // da(s) superclasse(s) abstrata(s).
-        if (!declaracao.abstrata) {
+        if (!declaracao.abstrata && !declaracao.estrangeira) {
             for (const superClasse of superClassesResolvidas) {
-                if (superClasse.abstrata) {
+                if (superClasse.abstrata || superClasse.estrangeira) {
                     superClasse.verificarImplementacaoAbstrata(descritorTipoClasse);
                 }
             }
