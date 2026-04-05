@@ -38,7 +38,7 @@ function assinaturasIguais(a: DeleguaFuncao, b: DeleguaFuncao): boolean {
  * de classe é criada, a referência para a instância é implementada aqui.
  */
 export class DescritorTipoClasse extends Chamavel {
-    simboloOriginal: SimboloInterface;
+    simboloOriginal: SimboloInterface | undefined;
     superClasses: DescritorTipoClasse[];
     /** OReM (Ordem de Resolução de Métodos, ou _Method Resolution Order_) calculado via C3.
      * Inclui a própria classe como primeiro elemento. */
@@ -124,7 +124,7 @@ export class DescritorTipoClasse extends Chamavel {
 
             if (candidato === null) {
                 throw new ErroEmTempoDeExecucao(
-                    null,
+                    undefined,
                     'Hierarquia de classes inconsistente: não foi possível calcular o OReM (C3).'
                 );
             }
@@ -242,7 +242,7 @@ export class DescritorTipoClasse extends Chamavel {
                     `Definidor estático '${nome}' requer contexto de execução.`
                 );
             }
-            await definidor.chamar(visitante, [{ nome: null, valor }]);
+            await definidor.chamar(visitante, [{ nome: '', valor }]);
             return;
         }
 
@@ -285,7 +285,7 @@ export class DescritorTipoClasse extends Chamavel {
         return sobrecarga;
     }
 
-    encontrarMetodo(nome: string): DeleguaFuncao | MetodoPolimorfico {
+    encontrarMetodo(nome: string): DeleguaFuncao | MetodoPolimorfico | undefined {
         let metodosAtuais: DeleguaFuncao[] = [];
 
         if (this.metodos.hasOwnProperty(nome)) {
@@ -313,21 +313,21 @@ export class DescritorTipoClasse extends Chamavel {
         return new MetodoPolimorfico(nome, todasSobrecargas);
     }
 
-    encontrarPropriedade(nome: string): PropriedadeClasse {
+    encontrarPropriedade(nome: string): PropriedadeClasse | undefined {
         if (nome in this.propriedades) {
-            return this.propriedades[nome];
+            return (this.propriedades as any)[nome] as PropriedadeClasse;
         }
 
         for (const ancestral of this.orem.slice(1)) {
             if (nome in ancestral.propriedades) {
-                return ancestral.propriedades[nome];
+                return (ancestral.propriedades as any)[nome] as PropriedadeClasse;
             }
         }
 
         if (this.dialetoRequerDeclaracaoPropriedades) {
             throw new ErroEmTempoDeExecucao(
                 this.simboloOriginal,
-                `Propriedade "${nome}" não declarada na classe ${this.simboloOriginal.lexema}.`
+                `Propriedade "${nome}" não declarada na classe ${this.simboloOriginal?.lexema}.`
             );
         }
 
