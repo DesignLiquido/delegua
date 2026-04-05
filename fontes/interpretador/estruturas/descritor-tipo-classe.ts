@@ -242,7 +242,7 @@ export class DescritorTipoClasse extends Chamavel {
                     `Definidor estático '${nome}' requer contexto de execução.`
                 );
             }
-            await definidor.chamar(visitante, [{ nome: '', valor }]);
+            await definidor.chamar(visitante, [{ nome: null as unknown as string, valor }]);
             return;
         }
 

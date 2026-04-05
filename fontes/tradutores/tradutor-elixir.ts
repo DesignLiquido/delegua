@@ -141,6 +141,18 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
         return nome.charAt(0).toUpperCase() + nome.slice(1);
     }
 
+    protected mapearTipoParaTypespec(tipo: string | undefined): string {
+        switch (tipo) {
+            case 'texto':    return 'String.t()';
+            case 'numero':
+            case 'inteiro':  return 'integer()';
+            case 'real':     return 'float()';
+            case 'logico':   return 'boolean()';
+            case 'vazio':    return 'no_return()';
+            default:         return 'term()';
+        }
+    }
+
     /**
      * Gera nome único para variável temporária
      */
@@ -241,11 +253,11 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
         this.moduloAtual = nomeModulo;
 
         if (declaracao.estrangeira) {
-            // Classe estrangeira: emitir @behaviour com @callback para cada método.
+            // Classe estrangeira: emitir @callback para cada método, definindo a interface esperada do módulo.
             resultado += this.adicionarIndentacao() + `@moduledoc "Classe estrangeira — implementação externa."\n`;
             for (const metodo of declaracao.metodos) {
-                const params = metodo.funcao.parametros.map(() => 'any').join(', ');
-                const retorno = metodo.funcao.tipo && metodo.funcao.tipo !== 'qualquer' ? metodo.funcao.tipo : 'any';
+                const params = metodo.funcao.parametros.map(() => 'term()').join(', ');
+                const retorno = this.mapearTipoParaTypespec(metodo.funcao.tipo);
                 resultado += this.adicionarIndentacao() + `@callback ${metodo.simbolo.lexema}(${params}) :: ${retorno}\n`;
             }
         } else {

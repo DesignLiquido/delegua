@@ -4996,6 +4996,8 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
+                expect(retornoLexador.erros).toHaveLength(0);
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 expect(retornoInterpretador.erros).toHaveLength(1);
             });
 
@@ -5013,6 +5015,8 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
+                expect(retornoLexador.erros).toHaveLength(0);
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
             });
 
