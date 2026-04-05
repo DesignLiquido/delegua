@@ -51,9 +51,10 @@ export class DescritorTipoClasse extends Chamavel {
     obtenedoresEstaticos: { [nome: string]: DeleguaFuncao };
     definidoresEstaticos: { [nome: string]: DeleguaFuncao };
     propriedades: PropriedadeClasse[];
-    dialetoRequerExpansaoPropriedadesEspacoMemoria: boolean;
+    dialetoRequerExpansaoPropriedadesEspacoMemoria: boolean = false;
     dialetoRequerDeclaracaoPropriedades: boolean;
     abstrata: boolean;
+    estrangeira: boolean;
     classeEstatica: boolean;
     metodosAbstratos: string[];
     acessoMetodos: { [nome: string]: 'privado' | 'protegido' | 'publico' };
@@ -95,6 +96,7 @@ export class DescritorTipoClasse extends Chamavel {
         this.propriedades = propriedades || [];
         this.dialetoRequerDeclaracaoPropriedades = false;
         this.abstrata = false;
+        this.estrangeira = false;
         this.classeEstatica = false;
         this.metodosAbstratos = [];
         this.acessoMetodos = {};
@@ -376,6 +378,13 @@ export class DescritorTipoClasse extends Chamavel {
             throw new ErroEmTempoDeExecucao(
                 this.simboloOriginal,
                 `Não é possível instanciar a classe abstrata '${this.simboloOriginal?.lexema}'.`
+            );
+        }
+
+        if (this.estrangeira) {
+            throw new ErroEmTempoDeExecucao(
+                this.simboloOriginal,
+                `Não é possível instanciar a classe estrangeira '${this.simboloOriginal?.lexema}' diretamente.`
             );
         }
 

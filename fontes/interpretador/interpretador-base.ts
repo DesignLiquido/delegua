@@ -2362,6 +2362,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         descritorTipoClasse.obtenedoresEstaticos = obtenedoresEstaticos;
         descritorTipoClasse.definidoresEstaticos = definidoresEstaticos;
         descritorTipoClasse.abstrata = declaracao.abstrata;
+        descritorTipoClasse.estrangeira = declaracao.estrangeira;
         descritorTipoClasse.classeEstatica = declaracao.classeEstatica;
         descritorTipoClasse.metodosAbstratos = metodosAbstratos;
         descritorTipoClasse.acessoMetodos = acessoMetodos;

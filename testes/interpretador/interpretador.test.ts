@@ -4984,6 +4984,47 @@ describe('Interpretador', () => {
             });
         });
 
+        describe('Classes estrangeiras', () => {
+            it('Classe estrangeira não pode ser instanciada diretamente', async () => {
+                const codigo = [
+                    'classe estrangeira Modelo {',
+                    '    salvar()',
+                    '}',
+                    'var m = Modelo()',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(1);
+            });
+
+            it('Subclasse de classe estrangeira pode ser instanciada e herda assinaturas', async () => {
+                const codigo = [
+                    'classe estrangeira Modelo {',
+                    '    salvar()',
+                    '    buscarTodos()',
+                    '}',
+                    'classe Usuario herda Modelo {',
+                    '    nome: texto',
+                    '    salvar() { retorne "salvo" }',
+                    '    buscarTodos() { retorne "todos" }',
+                    '}',
+                    'var u = Usuario()',
+                    'escreva(u.salvar())',
+                    'escreva(u.buscarTodos())',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('salvo');
+                expect(_saidas[1]).toBe('todos');
+            });
+        });
+
         describe('Classe estática', () => {
             it('Membros de classe estática são acessíveis diretamente pela classe', async () => {
                 const codigo = [
