@@ -3971,7 +3971,7 @@ export class AvaliadorSintatico
             }
         };
 
-        await compreenderMembros('publico', false);
+        await compreenderMembros('publico', false, ehAbstrata);
 
         this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após o escopo da classe.");
 

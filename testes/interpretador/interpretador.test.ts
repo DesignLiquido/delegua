@@ -4931,6 +4931,33 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
             });
 
+            it('Método sem corpo em classe abstrata é tratado como abstrato implícito', async () => {
+                const codigo = [
+                    'classe abstrata Forma {',
+                    '    area(): numero',
+                    '    perimetro(): numero',
+                    '}',
+                    'classe Quadrado herda Forma {',
+                    '    lado: numero',
+                    '    area() { retorne isto.lado * isto.lado }',
+                    '    perimetro() { retorne 4 * isto.lado }',
+                    '}',
+                    'var q = Quadrado()',
+                    'q.lado = 5',
+                    'escreva(q.area())',
+                    'escreva(q.perimetro())',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('25');
+                expect(_saidas[1]).toBe('20');
+            });
+
             it('Classe abstrata pode ter métodos concretos herdados pela subclasse', async () => {
                 const codigo = [
                     'classe abstrata Animal {',
