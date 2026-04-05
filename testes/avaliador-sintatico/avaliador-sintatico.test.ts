@@ -165,6 +165,60 @@ describe('Avaliador sintático', () => {
                     expect((definirValor.objeto as Variavel).simbolo.lexema).toBe('MinhaClasse');
                 });
 
+                it('classe estrangeira gera AST com flag estrangeira e métodos sem corpo', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'classe estrangeira Modelo {',
+                            '    id: numero',
+                            '    salvar()',
+                            '    buscarPorId(id: numero)',
+                            '    versao(): texto',
+                            '}',
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    const declaracaoClasse = retornoAvaliadorSintatico.declaracoes[0] as Classe;
+                    expect(declaracaoClasse.estrangeira).toBe(true);
+                    expect(declaracaoClasse.metodos).toHaveLength(3);
+                    declaracaoClasse.metodos.forEach((m) => {
+                        expect(m.funcao.corpo).toHaveLength(0);
+                    });
+                });
+
+                it('classe estrangeira — método com corpo lança erro de sintaxe', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'classe estrangeira Modelo {',
+                            '    salvar() { retorne 1 }',
+                            '}',
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                });
+
+                it('Método sem corpo em classe concreta lança erro de sintaxe', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'classe Concreta {',
+                            '    calcular(): numero',
+                            '}',
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                });
+
                 it('Métodos obtenedor e definidor são marcados corretamente', async () => {
                     const retornoLexador = lexador.mapear(
                         [

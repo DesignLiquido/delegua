@@ -13,6 +13,7 @@ export class Classe extends Declaracao {
     decoradores: Decorador[];
     documentacao?: Declaracao;
     abstrata: boolean;
+    estrangeira: boolean;
     classeEstatica: boolean;
     implementa: SimboloInterface[];
 
@@ -28,6 +29,7 @@ export class Classe extends Declaracao {
         propriedades: PropriedadeClasse[] = [],
         decoradores: Decorador[] = [],
         abstrata: boolean = false,
+        estrangeira: boolean = false,
         classeEstatica: boolean = false,
         implementa: SimboloInterface[] = [],
         mesclas: any[] = []
@@ -40,6 +42,7 @@ export class Classe extends Declaracao {
         this.propriedades = propriedades;
         this.decoradores = decoradores;
         this.abstrata = abstrata;
+        this.estrangeira = estrangeira;
         this.classeEstatica = classeEstatica;
         this.implementa = implementa;
     }

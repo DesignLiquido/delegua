@@ -1383,12 +1383,17 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         this.classesDeclaradas.add(declaracao.simbolo.lexema);
         this.classesRegistradas.set(declaracao.simbolo.lexema, declaracao);
 
-        // Visita corpos dos métodos com contexto de classe ativo
+        // Visita corpos dos métodos com contexto de classe ativo.
+        // Métodos abstratos implícitos e métodos de classes estrangeiras têm corpo vazio —
+        // não há declarações para visitar.
         const classeAnterior = this.classeAtualEmAnalise;
         this.classeAtualEmAnalise = declaracao;
-        for (const metodo of declaracao.metodos) {
-            for (const stmt of metodo.funcao.corpo) {
-                await stmt.aceitar(this);
+        if (!declaracao.estrangeira) {
+            for (const metodo of declaracao.metodos) {
+                if (metodo.abstrato) continue;
+                for (const stmt of metodo.funcao.corpo) {
+                    await stmt.aceitar(this);
+                }
             }
         }
         this.classeAtualEmAnalise = classeAnterior;

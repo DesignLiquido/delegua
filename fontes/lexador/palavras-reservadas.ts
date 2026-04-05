@@ -21,6 +21,7 @@ export const palavrasReservadasDelegua = {
     enquanto: tiposDeSimbolos.ENQUANTO,
     extensao: tiposDeSimbolos.EXTENSAO,
     extensão: tiposDeSimbolos.EXTENSAO,
+    estrangeira: tiposDeSimbolos.ESTRANGEIRA,
     estatica: tiposDeSimbolos.ESTATICO,
     estática: tiposDeSimbolos.ESTATICO,
     estatico: tiposDeSimbolos.ESTATICO,

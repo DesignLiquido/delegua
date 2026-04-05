@@ -3482,11 +3482,13 @@ export class AvaliadorSintatico
     }
 
     override async declaracaoDeClasse(): Promise<Classe> {
-        // Modificadores opcionais no nível da classe: `abstrata` e/ou `estática`.
-        // Sintaxe: `classe abstrata NomeDaClasse` ou `classe estática NomeDaClasse`.
+        // Modificadores opcionais no nível da classe: `abstrata`, `estrangeira` e/ou `estática`.
+        // Sintaxe: `classe abstrata NomeDaClasse`, `classe estrangeira NomeDaClasse`, etc.
         let ehAbstrata = false;
+        let ehEstrangeira = false;
         let ehEstatica = false;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ABSTRATO)) ehAbstrata = true;
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESTRANGEIRA)) ehEstrangeira = true;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESTATICO)) ehEstatica = true;
         // Também permite a ordem invertida: `classe estática abstrata`
         if (!ehAbstrata && this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ABSTRATO))
@@ -3720,8 +3722,6 @@ export class AvaliadorSintatico
                             "Esperado ')' após parâmetros do método."
                         );
 
-                        const ehAbstrato = ehAbstratoPadrao;
-
                         // Tipo de retorno opcional (igual a corpoDaFuncao())
                         let tipoRetorno = 'qualquer';
                         let definicaoExplicitaDeTipo = false;
@@ -3731,15 +3731,35 @@ export class AvaliadorSintatico
                             definicaoExplicitaDeTipo = true;
                         }
 
+                        // Método de classe estrangeira não pode ter corpo.
+                        if (
+                            ehEstrangeira &&
+                            this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_ESQUERDA)
+                        ) {
+                            throw this.erro(
+                                this.simbolos[this.atual],
+                                "Métodos de classe estrangeira não podem ter corpo."
+                            );
+                        }
+
+                        // Método é abstrato quando: (a) está dentro de um bloco `abstrato {}`,
+                        // ou (b) a classe é abstrata/estrangeira e o próximo token não é `{`.
+                        const ehAbstrato =
+                            ehAbstratoPadrao ||
+                            ehEstrangeira ||
+                            (ehAbstrata &&
+                                !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_ESQUERDA));
+
                         if (ehAbstrato) {
-                            // Método abstrato: sem corpo
+                            // Método abstrato/estrangeiro: sem corpo
                             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
                             const corpoVazio = new FuncaoConstruto(
                                 this.hashArquivo,
                                 nomeMetodo.linha,
                                 params,
                                 [],
-                                tipoRetorno
+                                tipoRetorno,
+                                definicaoExplicitaDeTipo
                             );
                             const metodoAbstrato = new FuncaoDeclaracao(
                                 nomeMetodo,
@@ -4046,6 +4066,7 @@ export class AvaliadorSintatico
             propriedades,
             pilhaDecoradoresClasse,
             ehAbstrata,
+            ehEstrangeira,
             ehEstatica,
             implementaInterfaces,
             mesclas

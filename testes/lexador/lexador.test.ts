@@ -477,6 +477,19 @@ describe('Lexador', () => {
                     })
                 );
             });
+
+            it('Palavra reservada `estrangeira` é reconhecida como token ESTRANGEIRA', () => {
+                const resultado = lexador.mapear(['classe estrangeira Modelo {}'], -1);
+
+                expect(resultado.erros).toHaveLength(0);
+                expect(resultado.simbolos).toEqual(
+                    expect.arrayContaining([
+                        expect.objectContaining({ tipo: tiposDeSimbolos.CLASSE }),
+                        expect.objectContaining({ tipo: tiposDeSimbolos.ESTRANGEIRA }),
+                        expect.objectContaining({ tipo: tiposDeSimbolos.IDENTIFICADOR, lexema: 'Modelo' }),
+                    ])
+                );
+            });
         });
 
         describe('Cenários de falha', () => {

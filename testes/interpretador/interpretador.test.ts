@@ -4931,6 +4931,33 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
             });
 
+            it('Método sem corpo em classe abstrata é tratado como abstrato implícito', async () => {
+                const codigo = [
+                    'classe abstrata Forma {',
+                    '    area(): numero',
+                    '    perimetro(): numero',
+                    '}',
+                    'classe Quadrado herda Forma {',
+                    '    lado: numero',
+                    '    area() { retorne isto.lado * isto.lado }',
+                    '    perimetro() { retorne 4 * isto.lado }',
+                    '}',
+                    'var q = Quadrado()',
+                    'q.lado = 5',
+                    'escreva(q.area())',
+                    'escreva(q.perimetro())',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('25');
+                expect(_saidas[1]).toBe('20');
+            });
+
             it('Classe abstrata pode ter métodos concretos herdados pela subclasse', async () => {
                 const codigo = [
                     'classe abstrata Animal {',
@@ -4954,6 +4981,68 @@ describe('Interpretador', () => {
                 expect(_saidas).toHaveLength(2);
                 expect(_saidas[0]).toBe('miau');
                 expect(_saidas[1]).toBe('Sou um animal');
+            });
+        });
+
+        describe('Classes estrangeiras', () => {
+            it('Classe estrangeira não pode ser instanciada diretamente', async () => {
+                const codigo = [
+                    'classe estrangeira Modelo {',
+                    '    salvar()',
+                    '}',
+                    'var m = Modelo()',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoLexador.erros).toHaveLength(0);
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                expect(retornoInterpretador.erros).toHaveLength(1);
+            });
+
+            it('Subclasse que não sobrescreve método estrangeiro gera erro ao ser definida', async () => {
+                const codigo = [
+                    'classe estrangeira Modelo {',
+                    '    salvar()',
+                    '}',
+                    'classe Usuario herda Modelo {',
+                    '    nome: texto',
+                    '}',
+                    'var u = Usuario()',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoLexador.erros).toHaveLength(0);
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+            });
+
+            it('Subclasse de classe estrangeira pode ser instanciada e herda assinaturas', async () => {
+                const codigo = [
+                    'classe estrangeira Modelo {',
+                    '    salvar()',
+                    '    buscarTodos()',
+                    '}',
+                    'classe Usuario herda Modelo {',
+                    '    nome: texto',
+                    '    salvar() { retorne "salvo" }',
+                    '    buscarTodos() { retorne "todos" }',
+                    '}',
+                    'var u = Usuario()',
+                    'escreva(u.salvar())',
+                    'escreva(u.buscarTodos())',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('salvo');
+                expect(_saidas[1]).toBe('todos');
             });
         });
 

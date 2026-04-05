@@ -349,7 +349,12 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
     }
 
     visitarDeclaracaoClasse(declaracao: Classe) {
-        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}classe ${declaracao.simbolo.lexema} {${
+        const modificador = declaracao.estrangeira
+            ? 'estrangeira '
+            : declaracao.abstrata
+              ? 'abstrata '
+              : '';
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}classe ${modificador}${declaracao.simbolo.lexema} {${
             this.quebraLinha
         }`;
 
@@ -364,7 +369,23 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
 
         for (let metodo of declaracao.metodos) {
             this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}${metodo.simbolo.lexema}`;
-            this.visitarExpressaoFuncaoConstruto(metodo.funcao);
+            if (declaracao.estrangeira) {
+                // Métodos estrangeiros: emitir apenas a assinatura, sem corpo.
+                this.codigoFormatado += `(`;
+                for (let argumento of metodo.funcao.parametros) {
+                    this.codigoFormatado += `${argumento.nome.lexema}: ${argumento.tipoDado || 'qualquer'}, `;
+                }
+                if (metodo.funcao.parametros.length > 0) {
+                    this.codigoFormatado = this.codigoFormatado.slice(0, -2);
+                }
+                this.codigoFormatado += `)`;
+                if (metodo.funcao.tipoExplicito && metodo.funcao.tipo) {
+                    this.codigoFormatado += `: ${metodo.funcao.tipo}`;
+                }
+                this.codigoFormatado += this.quebraLinha;
+            } else {
+                this.visitarExpressaoFuncaoConstruto(metodo.funcao);
+            }
         }
 
         this.indentacaoAtual -= this.tamanhoIndentacao;

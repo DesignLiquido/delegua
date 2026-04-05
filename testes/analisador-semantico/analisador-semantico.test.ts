@@ -2557,6 +2557,52 @@ describe('Analisador semântico', () => {
             expect(erros).toHaveLength(0);
         });
 
+        it('classe estrangeira com métodos tipados não gera diagnósticos', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'classe estrangeira Migracao {',
+                    '    versao(): texto',
+                    '    descricao(): texto',
+                    '    acima()',
+                    '    abaixo()',
+                    '    criarTabela(nome: texto, colunas: qualquer)',
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+
+        it('Subclasse de classe estrangeira que sobrescreve métodos não gera diagnósticos', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'classe estrangeira Modelo {',
+                    '    salvar()',
+                    '    buscarTodos()',
+                    '}',
+                    'classe Usuario herda Modelo {',
+                    '    nome: texto',
+                    '    salvar() { retorne "salvo" }',
+                    '    buscarTodos() { retorne "todos" }',
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+
         it('Acesso a método privado fora da classe gera erro', async () => {
             const retornoLexador = lexador.mapear(
                 [
