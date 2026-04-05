@@ -240,17 +240,27 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
         const moduloAnterior = this.moduloAtual;
         this.moduloAtual = nomeModulo;
 
-        // Extrair campos do struct do construtor
-        const camposStruct = await this.extrairCamposStruct(declaracao);
-        if (camposStruct.length > 0) {
-            resultado += this.adicionarIndentacao();
-            resultado += `defstruct [${camposStruct.join(', ')}]\n\n`;
-        }
+        if (declaracao.estrangeira) {
+            // Classe estrangeira: emitir @behaviour com @callback para cada método.
+            resultado += this.adicionarIndentacao() + `@moduledoc "Classe estrangeira — implementação externa."\n`;
+            for (const metodo of declaracao.metodos) {
+                const params = metodo.funcao.parametros.map(() => 'any').join(', ');
+                const retorno = metodo.funcao.tipo && metodo.funcao.tipo !== 'qualquer' ? metodo.funcao.tipo : 'any';
+                resultado += this.adicionarIndentacao() + `@callback ${metodo.simbolo.lexema}(${params}) :: ${retorno}\n`;
+            }
+        } else {
+            // Extrair campos do struct do construtor
+            const camposStruct = await this.extrairCamposStruct(declaracao);
+            if (camposStruct.length > 0) {
+                resultado += this.adicionarIndentacao();
+                resultado += `defstruct [${camposStruct.join(', ')}]\n\n`;
+            }
 
-        // Traduzir métodos
-        for (const metodo of declaracao.metodos) {
-            const traducaoMetodo = await this.traduzirMetodoClasse(metodo, nomeModulo);
-            resultado += traducaoMetodo + '\n\n';
+            // Traduzir métodos
+            for (const metodo of declaracao.metodos) {
+                const traducaoMetodo = await this.traduzirMetodoClasse(metodo, nomeModulo);
+                resultado += traducaoMetodo + '\n\n';
+            }
         }
 
         this.diminuirIndentacao();

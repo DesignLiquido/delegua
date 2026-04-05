@@ -107,10 +107,11 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao>, Visitan
         const linha = declaracao.linha;
 
         // Cria arestas de entrada e saída para a classe
-        const textoInicio = `Classe${nomeClasse}Inicio[Início: Classe ${nomeClasse}]`;
+        const rotulo = declaracao.estrangeira ? 'Classe Estrangeira' : 'Classe';
+        const textoInicio = `Classe${nomeClasse}Inicio[Início: ${rotulo} ${nomeClasse}]`;
         const arestaInicial = new ArestaFluxograma(declaracao, textoInicio);
 
-        const textoFim = `Classe${nomeClasse}Fim[Fim: Classe ${nomeClasse}]`;
+        const textoFim = `Classe${nomeClasse}Fim[Fim: ${rotulo} ${nomeClasse}]`;
         const arestaFinal = new ArestaFluxograma(declaracao, textoFim);
 
         // Cria o subgrafo da classe
