@@ -3720,8 +3720,6 @@ export class AvaliadorSintatico
                             "Esperado ')' após parâmetros do método."
                         );
 
-                        const ehAbstrato = ehAbstratoPadrao;
-
                         // Tipo de retorno opcional (igual a corpoDaFuncao())
                         let tipoRetorno = 'qualquer';
                         let definicaoExplicitaDeTipo = false;
@@ -3730,6 +3728,13 @@ export class AvaliadorSintatico
                             this.avancarEDevolverAnterior();
                             definicaoExplicitaDeTipo = true;
                         }
+
+                        // Método é abstrato quando: (a) está dentro de um bloco `abstrato {}`,
+                        // ou (b) a classe é abstrata e o próximo token não é `{` (corpo omitido).
+                        const ehAbstrato =
+                            ehAbstratoPadrao ||
+                            (ehAbstrata &&
+                                !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_ESQUERDA));
 
                         if (ehAbstrato) {
                             // Método abstrato: sem corpo
@@ -3971,7 +3976,7 @@ export class AvaliadorSintatico
             }
         };
 
-        await compreenderMembros('publico', false, ehAbstrata);
+        await compreenderMembros('publico', false);
 
         this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após o escopo da classe.");
 
@@ -4046,6 +4051,7 @@ export class AvaliadorSintatico
             propriedades,
             pilhaDecoradoresClasse,
             ehAbstrata,
+            false,
             ehEstatica,
             implementaInterfaces,
             mesclas
