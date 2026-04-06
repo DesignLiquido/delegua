@@ -204,6 +204,54 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
                 });
 
+                it('classe estrangeira com decorador @definicao aceita métodos sem corpo', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            '@definicao',
+                            'classe estrangeira Modelo {',
+                            '    id: numero',
+                            '    /**',
+                            '     * Persiste o registro no banco de dados como uma nova inserção.',
+                            '     */',
+                            '    salvar()',
+                            '    /**',
+                            '     * Atualiza os campos do registro já existente no banco de dados.',
+                            '     */',
+                            '    modificar()',
+                            '    /**',
+                            '     * Exclui o registro do banco de dados.',
+                            '     */',
+                            '    remover()',
+                            '    /**',
+                            '     * Insere o registro se ainda não existe, ou atualiza se já existir (upsert).',
+                            '     */',
+                            '    salvarOuAtualizar()',
+                            '    /**',
+                            '     * Retorna todos os registros da tabela correspondente.',
+                            '     */',
+                            '    buscarTodos()',
+                            '    /**',
+                            '     * Retorna o registro correspondente ao identificador informado, ou nulo se não encontrado.',
+                            '     */',
+                            '    buscarPorId(id: numero)',
+                            '    /**',
+                            '     * Retorna um construtor de consultas para filtros e ordenações avançadas.',
+                            '     */',
+                            '    consulta()',
+                            '}',
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    const declaracaoClasse = retornoAvaliadorSintatico.declaracoes[0] as Classe;
+                    expect(declaracaoClasse.estrangeira).toBe(true);
+                    expect(declaracaoClasse.decoradores).toHaveLength(1);
+                    expect(declaracaoClasse.decoradores[0].nome).toBe('@definicao');
+                });
+
                 it('Método sem corpo em classe concreta lança erro de sintaxe', async () => {
                     const retornoLexador = lexador.mapear(
                         [

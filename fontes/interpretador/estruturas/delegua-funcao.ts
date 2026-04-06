@@ -1,5 +1,6 @@
 import { Chamavel } from './chamavel';
 import { EspacoMemoria } from '../espaco-memoria';
+import { DescritorTipoClasse } from './descritor-tipo-classe';
 
 import { InterpretadorInterface } from '../../interfaces';
 import { RetornoQuebra } from '../../quebras';
@@ -18,6 +19,8 @@ export class DeleguaFuncao extends Chamavel {
     eInicializador: boolean;
     instancia: any;
     documentacao?: ComentarioComoConstruto;
+    /** Classe que declarou este método; usado para calcular a posição no OReM em chamadas a `super()`. */
+    classeDefinidora: DescritorTipoClasse | null = null;
 
     constructor(
         nome: string,
@@ -149,6 +152,14 @@ export class DeleguaFuncao extends Chamavel {
                         : tipoDeDados(this.instancia),
                 imutavel: false,
             };
+
+            if (this.classeDefinidora) {
+                ambiente.valores['classeExecutora'] = {
+                    valor: this.classeDefinidora,
+                    tipo: 'classe',
+                    imutavel: true,
+                };
+            }
         }
 
         // TODO: Repensar essa dinâmica para análise semântica (levar toda a lógica abaixo para
@@ -206,6 +217,7 @@ export class DeleguaFuncao extends Chamavel {
             this.eInicializador
         );
         funcao.documentacao = this.documentacao;
+        funcao.classeDefinidora = this.classeDefinidora;
         return funcao;
     }
 

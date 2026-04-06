@@ -12,3 +12,4 @@ export * from './objeto-base';
 export * from './objeto-delegua-classe';
 export * from './objeto-padrao';
 export * from './referencia-montao';
+export * from './super-proxy';

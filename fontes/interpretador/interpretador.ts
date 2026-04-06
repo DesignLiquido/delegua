@@ -21,6 +21,7 @@ import {
     ParaCadaComoConstruto,
     ParaComoConstruto,
     Separador,
+    Super,
     TipoDe,
     Unario,
     Variavel,
@@ -41,6 +42,7 @@ import {
     ObjetoDeleguaClasse,
     ObjetoPadrao,
     ReferenciaMontao,
+    SuperProxy,
 } from './estruturas';
 import {
     ResultadoParcialInterpretadorInterface,
@@ -54,6 +56,7 @@ import { inferirTipoVariavel } from '../inferenciador';
 import { ErroEmTempoDeExecucao } from '../excecoes';
 import {
     Ajuda,
+    Classe,
     Const,
     ConstMultiplo,
     Declaracao,
@@ -96,13 +99,13 @@ import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
  */
 export class Interpretador extends InterpretadorBase implements VisitanteDeleguaInterface {
     montao: Montao;
-    acumularRetornos: boolean;
+    acumularRetornos = false;
 
     constructor(
         diretorioBase: string,
         performance = false,
-        funcaoDeRetorno: Function = null,
-        funcaoDeRetornoMesmaLinha: Function = null
+        funcaoDeRetorno: Function | undefined = undefined,
+        funcaoDeRetornoMesmaLinha: Function | undefined = undefined
     ) {
         super(diretorioBase, performance, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
         this.montao = new Montao();
@@ -143,7 +146,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             formatoTexto += `${this.paraTexto(valor)} `;
         }
 
-        return formatoTexto.trimEnd();
+        return formatoTexto.replace(/\s+$/, '');
     }
 
     protected resolverReferenciaMontao(referenciaMontao: ReferenciaMontao) {
@@ -156,7 +159,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         return valorMontao;
     }
 
-    override resolverValor(objeto: any, referencia: boolean = false) {
+    override resolverValor(objeto: any, referencia: boolean = false): any {
         if (objeto === null || objeto === undefined) {
             return objeto;
         }
@@ -227,8 +230,13 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
         if (objeto instanceof Date) {
             const formato = Intl.DateTimeFormat('pt', {
-                dateStyle: 'full',
-                timeStyle: 'full',
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
             });
             return formato.format(objeto);
         }
@@ -272,7 +280,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         }
 
         if (typeof objeto === tipoDeDadosPrimitivos.OBJETO) {
-            const objetoEscrita = {};
+            const objetoEscrita: Record<string, any> = {};
             for (const propriedade in objeto) {
                 let valor = objeto[propriedade];
                 if (typeof valor === tipoDeDadosPrimitivos.BOOLEANO) {
@@ -350,7 +358,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                     this.pilhaEscoposExecucao.obterVariavelPorNome(nomeDecorador);
                 const funcaoDecoradora: DeleguaFuncao = variavelDecoradora.valor;
                 const resultado = await funcaoDecoradora.chamar(this, [
-                    { nome: null, valor: funcao },
+                    { nome: '', valor: funcao },
                 ]);
                 funcao = this.resolverValorRecursivo(resultado);
             }
@@ -371,7 +379,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         enquanto: EnquantoInterface,
         acumularRetornos: boolean
     ) {
-        let retornoExecucao: ResultadoParcialInterpretadorInterface;
+        let retornoExecucao: ResultadoParcialInterpretadorInterface | undefined = undefined;
         const retornos = [];
         while (
             (acumularRetornos ||
@@ -392,7 +400,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 }
 
                 if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) {
-                    retornoExecucao = null;
+                    retornoExecucao = undefined;
                 }
 
                 if (acumularRetornos) {
@@ -423,7 +431,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
     }
 
     protected async logicaComumExecucaoFazer(fazer: FazerInterface, acumularRetornos: boolean) {
-        let retornoExecucao: ResultadoParcialInterpretadorInterface;
+        let retornoExecucao: ResultadoParcialInterpretadorInterface | undefined = undefined;
         const retornos = [];
         do {
             try {
@@ -440,7 +448,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 }
 
                 if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) {
-                    retornoExecucao = null;
+                    retornoExecucao = undefined;
                 }
 
                 if (acumularRetornos) {
@@ -480,11 +488,11 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             ? para.inicializador[0]
             : para.inicializador;
 
-        if (declaracaoInicializador !== null) {
+        if (declaracaoInicializador !== null && declaracaoInicializador !== undefined) {
             await this.avaliar(declaracaoInicializador);
         }
 
-        let retornoExecucao: ResultadoParcialInterpretadorInterface;
+        let retornoExecucao: ResultadoParcialInterpretadorInterface | undefined = undefined;
         const retornos = [];
         while (
             acumularRetornos ||
@@ -503,11 +511,11 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                     };
                 }
 
-                return null;
+                return undefined;
             }
 
             if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) {
-                retornoExecucao = null;
+                retornoExecucao = undefined;
             }
 
             if (acumularRetornos) {
@@ -537,7 +545,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         paraCada: ParaCadaInterface,
         acumularRetornos: boolean
     ): Promise<any> {
-        let retornoExecucao: ResultadoParcialInterpretadorInterface;
+        let retornoExecucao: ResultadoParcialInterpretadorInterface | undefined = undefined;
         // Posição atual precisa ser reiniciada, pois pode estar dentro de outro
         // laço de repetição.
         paraCada.posicaoAtual = 0;
@@ -628,7 +636,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 }
 
                 if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) {
-                    retornoExecucao = null;
+                    retornoExecucao = undefined;
                 }
 
                 if (acumularRetornos) {
@@ -813,6 +821,56 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         );
     }
 
+    /**
+     * Marca a `classeDefinidora` nos métodos próprios do descritor retornado pelo
+     * interpretador base. Isso é necessário para que `super()` localize corretamente
+     * a posição da classe em execução dentro do OReM (herança cooperativa).
+     */
+    override async visitarDeclaracaoClasse(declaracao: Classe): Promise<DescritorTipoClasse> {
+        const descritor = await super.visitarDeclaracaoClasse(declaracao);
+        for (const funcaoOuSobrecargas of Object.values(descritor.metodos)) {
+            const lista = Array.isArray(funcaoOuSobrecargas)
+                ? funcaoOuSobrecargas
+                : [funcaoOuSobrecargas];
+            for (const funcao of lista) {
+                funcao.classeDefinidora = descritor;
+            }
+        }
+        return descritor;
+    }
+
+    /**
+     * Retorna um `SuperProxy` que aponta para a próxima classe no OReM após a classe
+     * atualmente em execução. Se não houver `classeExecutora` no escopo (chamada fora
+     * de método de instância), usa o primeiro pai direto como fallback.
+     */
+    override visitarExpressaoSuper(_expressao: Super): any {
+        const variavelIsto = this.pilhaEscoposExecucao.obterVariavelPorNome('isto');
+        const instancia: ObjetoDeleguaClasse = variavelIsto?.valor;
+        if (!instancia) return null;
+
+        const variavelClasseExecutora =
+            this.pilhaEscoposExecucao.obterVariavelPorNome('classeExecutora');
+        const classeExecutora: DescritorTipoClasse | null =
+            variavelClasseExecutora?.valor ?? null;
+
+        const orem = instancia.classe.orem;
+
+        if (classeExecutora) {
+            const posicao = orem.indexOf(classeExecutora);
+            if (posicao >= 0 && posicao + 1 < orem.length) {
+                return new SuperProxy(instancia, orem[posicao + 1]);
+            }
+        }
+
+        // Fallback: primeiro pai direto.
+        if (instancia.classe.superClasses.length > 0) {
+            return new SuperProxy(instancia, instancia.classe.superClasses[0]);
+        }
+
+        return null;
+    }
+
     override async visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> {
         const nomeObjeto = this.resolverNomeObjectoAcessado(expressao.objeto);
 
@@ -832,7 +890,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             try {
                 return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomeMetodo);
             } catch (e) {
-                const nomeClasse = (objeto as ObjetoDeleguaClasse).classe.simboloOriginal.lexema;
+                const nomeClasse =
+                    (objeto as ObjetoDeleguaClasse).classe.simboloOriginal?.lexema || 'objeto';
                 const funcaoExt = this.encontrarMetodoExtensao(
                     [nomeClasse, 'objeto'],
                     expressao.nomeMetodo,
@@ -859,8 +918,9 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         // Objeto simples do JavaScript, ou dicionário de Delégua.
         if (objeto.constructor === Object) {
             if (expressao.nomeMetodo in primitivasDicionario) {
-                const metodoDePrimitivaDicionario: Function =
-                    primitivasDicionario[expressao.nomeMetodo].implementacao;
+                const metodoDePrimitivaDicionario = primitivasDicionario[
+                    expressao.nomeMetodo
+                ].implementacao as (...argumentos: any[]) => any;
                 return new MetodoPrimitiva(
                     nomeObjeto,
                     objeto,
@@ -912,8 +972,9 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             case tipoDeDadosDelegua.NUMERO:
             case tipoDeDadosDelegua.NÚMERO:
                 if (expressao.nomeMetodo in primitivasNumero) {
-                    const metodoDePrimitivaNumero: Function =
-                        primitivasNumero[expressao.nomeMetodo].implementacao;
+                    const metodoDePrimitivaNumero = primitivasNumero[
+                        expressao.nomeMetodo
+                    ].implementacao as (...argumentos: any[]) => any;
                     if (metodoDePrimitivaNumero) {
                         return new MetodoPrimitiva(
                             nomeObjeto,
@@ -934,8 +995,9 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 break;
             case tipoDeDadosDelegua.TEXTO:
                 if (expressao.nomeMetodo in primitivasTexto) {
-                    const metodoDePrimitivaTexto: Function =
-                        primitivasTexto[expressao.nomeMetodo].implementacao;
+                    const metodoDePrimitivaTexto = primitivasTexto[
+                        expressao.nomeMetodo
+                    ].implementacao as (...argumentos: any[]) => any;
                     if (metodoDePrimitivaTexto) {
                         return new MetodoPrimitiva(
                             nomeObjeto,
@@ -963,8 +1025,9 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             case tipoDeDadosDelegua.VETOR_QUALQUER:
             case tipoDeDadosDelegua.VETOR_TEXTO:
                 if (expressao.nomeMetodo in primitivasVetor) {
-                    const metodoDePrimitivaVetor: Function =
-                        primitivasVetor[expressao.nomeMetodo].implementacao;
+                    const metodoDePrimitivaVetor = primitivasVetor[
+                        expressao.nomeMetodo
+                    ].implementacao as (...argumentos: any[]) => any;
                     if (metodoDePrimitivaVetor) {
                         return new MetodoPrimitiva(
                             nomeObjeto,
@@ -1023,6 +1086,44 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
         const objeto = this.resolverValor(variavelObjeto, true);
 
+        // Acesso a método via `super()`: percorre o OReM a partir de `proximaClasse`,
+        // vincula o método encontrado à instância original e registra `classeDefinidora`
+        // para que chamadas aninhadas a `super()` avancem corretamente na cadeia.
+        if (objeto instanceof SuperProxy) {
+            const proxy = objeto as SuperProxy;
+            const orem = proxy.instancia.classe.orem;
+            const indiceInicio = orem.indexOf(proxy.proximaClasse);
+
+            if (indiceInicio < 0) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        expressao.simbolo,
+                        `Classe '${proxy.proximaClasse.simboloOriginal?.lexema}' não encontrada no OReM.`,
+                        expressao.linha
+                    )
+                );
+            }
+
+            const nomeMetodo = expressao.simbolo.lexema;
+            for (let i = indiceInicio; i < orem.length; i++) {
+                const classe = orem[i];
+                if (!Object.prototype.hasOwnProperty.call(classe.metodos, nomeMetodo)) continue;
+                const metodoRaw = classe.metodos[nomeMetodo];
+                const funcao = Array.isArray(metodoRaw) ? metodoRaw[0] : metodoRaw;
+                const funcaoVinculada = funcao.funcaoPorMetodoDeClasse(proxy.instancia);
+                funcaoVinculada.classeDefinidora = classe;
+                return funcaoVinculada;
+            }
+
+            return Promise.reject(
+                new ErroEmTempoDeExecucao(
+                    expressao.simbolo,
+                    `Método '${nomeMetodo}' não encontrado nas superclasses.`,
+                    expressao.linha
+                )
+            );
+        }
+
         let descritorTipoClasse: DescritorTipoClasse | null = null;
         if (objeto instanceof DescritorTipoClasse) {
             descritorTipoClasse = objeto as DescritorTipoClasse;
@@ -1048,7 +1149,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             try {
                 return await (objeto as ObjetoDeleguaClasse).obter(expressao.simbolo, this);
             } catch {
-                const nomeClasse = (objeto as ObjetoDeleguaClasse).classe.simboloOriginal.lexema;
+                const nomeClasse =
+                    (objeto as ObjetoDeleguaClasse).classe.simboloOriginal?.lexema || 'objeto';
                 const funcaoExt = this.encontrarMetodoExtensao(
                     [nomeClasse, 'objeto'],
                     expressao.simbolo.lexema,
@@ -1079,8 +1181,9 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         // Objeto simples do JavaScript, ou dicionário de Delégua.
         if (objeto.constructor === Object) {
             if (expressao.simbolo.lexema in primitivasDicionario) {
-                const metodoDePrimitivaDicionario: Function =
-                    primitivasDicionario[expressao.simbolo.lexema].implementacao;
+                const metodoDePrimitivaDicionario = primitivasDicionario[
+                    expressao.simbolo.lexema
+                ].implementacao as (...argumentos: any[]) => any;
                 return new MetodoPrimitiva(
                     nomeObjeto,
                     objeto,
@@ -1108,8 +1211,9 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 );
             }
 
-            const metodoDePrimitivaTexto: Function =
-                primitivasTexto[expressao.simbolo.lexema].implementacao;
+            const metodoDePrimitivaTexto = primitivasTexto[
+                expressao.simbolo.lexema
+            ].implementacao as (...argumentos: any[]) => any;
             return new MetodoPrimitiva(
                 nomeObjeto,
                 objeto,
@@ -1150,8 +1254,9 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                     );
                 }
 
-                const metodoDePrimitivaNumero: Function =
-                    primitivasNumero[expressao.simbolo.lexema].implementacao;
+                const metodoDePrimitivaNumero = primitivasNumero[
+                    expressao.simbolo.lexema
+                ].implementacao as (...argumentos: any[]) => any;
                 if (metodoDePrimitivaNumero) {
                     return new MetodoPrimitiva(
                         nomeObjeto,
@@ -1177,8 +1282,9 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                     );
                 }
 
-                const metodoDePrimitivaTexto: Function =
-                    primitivasTexto[expressao.simbolo.lexema].implementacao;
+                const metodoDePrimitivaTexto = primitivasTexto[
+                    expressao.simbolo.lexema
+                ].implementacao as (...argumentos: any[]) => any;
                 if (metodoDePrimitivaTexto) {
                     return new MetodoPrimitiva(
                         nomeObjeto,
@@ -1211,8 +1317,9 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                     );
                 }
 
-                const metodoDePrimitivaVetor: Function =
-                    primitivasVetor[expressao.simbolo.lexema].implementacao;
+                const metodoDePrimitivaVetor = primitivasVetor[
+                    expressao.simbolo.lexema
+                ].implementacao as (...argumentos: any[]) => any;
                 if (metodoDePrimitivaVetor) {
                     return new MetodoPrimitiva(
                         nomeObjeto,
@@ -1248,7 +1355,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                null,
+                undefined,
                 `Método ou propriedade para objeto ou primitiva não encontrado: ${expressao.simbolo.lexema}.`,
                 expressao.linha
             )
@@ -1291,8 +1398,9 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         // Objeto simples do JavaScript, ou dicionário de Delégua.
         if (objeto.constructor === Object) {
             if (expressao.nomePropriedade in primitivasDicionario) {
-                const metodoDePrimitivaDicionario: Function =
-                    primitivasDicionario[expressao.nomePropriedade].implementacao;
+                const metodoDePrimitivaDicionario = primitivasDicionario[
+                    expressao.nomePropriedade
+                ].implementacao as (...argumentos: any[]) => any;
                 return new MetodoPrimitiva(
                     nomeObjeto,
                     objeto,
@@ -1332,7 +1440,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                null,
+                undefined,
                 `Propriedade para objeto ou primitiva não encontrado: ${expressao.nomePropriedade}.`,
                 expressao.linha
             )
@@ -1498,7 +1606,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 break;
             default:
                 throw new ErroEmTempoDeExecucao(
-                    null,
+                    undefined,
                     `Atribuição com caso faltante: ${JSON.stringify(expressao)}.`
                 );
         }
@@ -1623,8 +1731,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
         const resultadoCompreensao = await this.avaliar(listaCompreensao.paraCada);
         const resultadoCompreensaoResolvido = resultadoCompreensao.valorRetornado
-            .filter((r) => r !== null)
-            .map((r) => this.resolverValor(r));
+            .filter((r: any) => r !== null)
+            .map((r: any) => this.resolverValor(r));
 
         return resultadoCompreensaoResolvido;
     }
@@ -1701,7 +1809,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 const acessoMetodo = valorTipoDe as AcessoMetodo;
                 const tipoRetornoMetodoResolvido = acessoMetodo.tipoRetornoMetodo.replace(
                     '<T>',
-                    acessoMetodo.objeto.tipo
+                    acessoMetodo.objeto.tipo || 'qualquer'
                 );
                 return `método<${tipoRetornoMetodoResolvido}>`;
             case AcessoPropriedade:
@@ -1722,7 +1830,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 const alvoTipoDe = await this.avaliar(valorTipoDe);
                 return `tipo de<${alvoTipoDe}>`;
             case Variavel:
-                return valorTipoDe.tipo;
+                return valorTipoDe.tipo || inferirTipoVariavel(await this.avaliar(valorTipoDe));
             case Vetor:
                 const vetor = valorTipoDe as Vetor;
                 const apenasValores = vetor.valores.filter(
@@ -1819,9 +1927,9 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
      */
     override async executarUltimoEscopo(
         manterAmbiente = false
-    ): Promise<ResultadoParcialInterpretadorInterface> {
+    ): Promise<ResultadoParcialInterpretadorInterface | undefined> {
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
-        let retornoExecucao: ResultadoParcialInterpretadorInterface;
+        let retornoExecucao: ResultadoParcialInterpretadorInterface | undefined = undefined;
         try {
             for (
                 ;
