@@ -255,6 +255,20 @@ export class AvaliadorSintatico
             );
         }
 
+        const topicoPalavraChave = this.tentarResolverTopicoAjudaPalavraChave();
+        if (topicoPalavraChave) {
+            this.consumir(
+                tiposDeSimbolos.PARENTESE_DIREITO,
+                `Esperado parêntese direito após expressão usada como argumento em ajuda(). Atual: ${this.simbolos[this.atual].lexema}.`
+            );
+
+            return new AjudaComoConstruto(
+                simboloAjuda.hashArquivo,
+                simboloAjuda.linha,
+                topicoPalavraChave
+            );
+        }
+
         this.emAjuda = true;
         const expressaoAjuda = await this.expressao();
         this.emAjuda = false;
@@ -265,6 +279,42 @@ export class AvaliadorSintatico
         );
 
         return new AjudaComoConstruto(simboloAjuda.hashArquivo, simboloAjuda.linha, expressaoAjuda);
+    }
+
+    private tentarResolverTopicoAjudaPalavraChave(): Literal | undefined {
+        const simboloAtual = this.simbolos[this.atual];
+
+        switch (simboloAtual.tipo) {
+            case tiposDeSimbolos.CLASSE: {
+                const simboloClasse = this.avancarEDevolverAnterior();
+                let topico = 'classe';
+
+                if (this.simbolos[this.atual].tipo === tiposDeSimbolos.ABSTRATO) {
+                    this.avancarEDevolverAnterior();
+                    topico = 'classe abstrata';
+                } else if (this.simbolos[this.atual].tipo === tiposDeSimbolos.ESTRANGEIRA) {
+                    this.avancarEDevolverAnterior();
+                    topico = 'classe estrangeira';
+                }
+
+                return new Literal(this.hashArquivo, Number(simboloClasse.linha), topico, 'texto');
+            }
+
+            case tiposDeSimbolos.HERDA:
+                this.avancarEDevolverAnterior();
+                return new Literal(this.hashArquivo, Number(simboloAtual.linha), 'herda', 'texto');
+
+            case tiposDeSimbolos.MESCLA:
+                this.avancarEDevolverAnterior();
+                return new Literal(this.hashArquivo, Number(simboloAtual.linha), 'mescla', 'texto');
+
+            case tiposDeSimbolos.EXTENSAO:
+                this.avancarEDevolverAnterior();
+                return new Literal(this.hashArquivo, Number(simboloAtual.linha), 'extensao', 'texto');
+
+            default:
+                return undefined;
+        }
     }
 
     protected async obterChaveDicionario(): Promise<Construto> {
@@ -4430,6 +4480,16 @@ export class AvaliadorSintatico
         if (this.simbolos[this.atual].tipo === tiposDeSimbolos.PARENTESE_DIREITO) {
             this.avancarEDevolverAnterior();
             return new Ajuda(simboloAjuda.hashArquivo, simboloAjuda.linha, undefined, true);
+        }
+
+        const topicoPalavraChave = this.tentarResolverTopicoAjudaPalavraChave();
+        if (topicoPalavraChave) {
+            this.consumir(
+                tiposDeSimbolos.PARENTESE_DIREITO,
+                `Esperado parêntese direito após expressão usada como argumento em ajuda(). Atual: ${this.simbolos[this.atual].lexema}.`
+            );
+
+            return new Ajuda(simboloAjuda.hashArquivo, simboloAjuda.linha, topicoPalavraChave);
         }
 
         const expressaoAjuda = await this.expressao();

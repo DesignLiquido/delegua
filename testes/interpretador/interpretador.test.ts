@@ -4360,6 +4360,26 @@ describe('Interpretador', () => {
                 expect(resultado.valorRetornado).toContain('Ver também');
             });
 
+            it('ajuda(classe) - documentação da palavra-chave classe sem aspas', async () => {
+                const retornoLexador = lexador.mapear(['ajuda(classe)'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                const resultado = retornoInterpretador.resultado[0] as ResultadoParcialInterpretadorInterface;
+                expect(resultado.valorRetornado).toContain('declara um novo tipo');
+            });
+
+            it('escreva(ajuda(classe)) - documentação da palavra-chave classe sem aspas (expressão)', async () => {
+                const retornoLexador = lexador.mapear(['escreva(ajuda(classe))'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toContain('declara um novo tipo');
+            });
+
             it("ajuda('classe abstrata') - documentação de classe abstrata", async () => {
                 const retornoLexador = lexador.mapear(["ajuda('classe abstrata')"], -1);
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
@@ -4371,8 +4391,28 @@ describe('Interpretador', () => {
                 expect(resultado.valorRetornado).toContain('abstrato');
             });
 
+            it('ajuda(classe abstrata) - documentação de classe abstrata sem aspas', async () => {
+                const retornoLexador = lexador.mapear(['ajuda(classe abstrata)'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                const resultado = retornoInterpretador.resultado[0] as ResultadoParcialInterpretadorInterface;
+                expect(resultado.valorRetornado).toContain('não pode ser instanciada');
+            });
+
             it("ajuda('classe estrangeira') - documentação de classe estrangeira", async () => {
                 const retornoLexador = lexador.mapear(["ajuda('classe estrangeira')"], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                const resultado = retornoInterpretador.resultado[0] as ResultadoParcialInterpretadorInterface;
+                expect(resultado.valorRetornado).toContain('JavaScript externa');
+            });
+
+            it('ajuda(classe estrangeira) - documentação de classe estrangeira sem aspas', async () => {
+                const retornoLexador = lexador.mapear(['ajuda(classe estrangeira)'], -1);
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
