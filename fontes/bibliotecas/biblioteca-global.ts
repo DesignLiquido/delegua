@@ -292,7 +292,7 @@ export async function arredondar(
     if (numero == undefined || numero == null) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                null,
+                undefined,
                 'Erro: arredondar() deve receber um número.',
                 interpretador.linhaDeclaracaoAtual
             )
@@ -302,7 +302,7 @@ export async function arredondar(
     if (typeof numero !== 'number') {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
-                null,
+                undefined,
                 `Erro de Tipo: arredondar() espera um número, mas recebeu '${typeof valorNumero}'.`,
                 interpretador.linhaDeclaracaoAtual
             )
@@ -402,7 +402,7 @@ export async function clonar(
         const nomeClasseTupla = valorAtual.constructor?.name;
         if (nomeClasseTupla && configTuplas[nomeClasseTupla]) {
             const config = configTuplas[nomeClasseTupla];
-            const argsClonados = [];
+            const argsClonados: any[] = [];
 
             visitados.set(valorAtual, argsClonados);
 
@@ -639,7 +639,7 @@ export async function encontrarUltimoIndice(
         }
     }
 
-    return null;
+    return -1;
 }
 
 /**
@@ -810,7 +810,7 @@ export async function longo(
     valorParaConverter: VariavelInterface | any
 ): Promise<any> {
     if (valorParaConverter === null || valorParaConverter === undefined) {
-        return Promise.resolve(BigInt(0));
+        return Promise.resolve(globalThis.BigInt(0));
     }
 
     const valor = valorParaConverter.hasOwnProperty('valor')
@@ -824,7 +824,7 @@ export async function longo(
 
     // Se é número, converte para BigInt (trunca decimais)
     if (typeof valor === 'number') {
-        return Promise.resolve(BigInt(Math.floor(valor)));
+        return Promise.resolve(globalThis.BigInt(Math.floor(valor)));
     }
 
     // Para strings, remove parte decimal se presente
@@ -832,14 +832,14 @@ export async function longo(
 
     // Trata string vazia
     if (!strValue || strValue === '') {
-        return Promise.resolve(BigInt(0));
+        return Promise.resolve(globalThis.BigInt(0));
     }
 
     // Remove parte decimal da string (ex: "3.14" -> "3")
     const integerPart = strValue.split('.')[0];
 
     try {
-        return Promise.resolve(BigInt(integerPart));
+        return Promise.resolve(globalThis.BigInt(integerPart));
     } catch (e) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
@@ -993,14 +993,14 @@ export async function mapear(
             valorVetor[indice],
         ]);
         if (!informacoesRetorno.hasOwnProperty('valorRetornado')) {
-            console.warn(
+            globalThis.console.warn(
                 `Retorno inconsistente em mapear(): ${JSON.stringify(informacoesRetorno)}.`
             );
             continue;
         }
 
         if (!(informacoesRetorno.valorRetornado instanceof RetornoQuebra)) {
-            console.warn(
+            globalThis.console.warn(
                 `mapear() finalizado com valor retornado diferente do esperado: ${JSON.stringify(informacoesRetorno)}.`
             );
             continue;

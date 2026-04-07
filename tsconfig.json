@@ -2,7 +2,8 @@
     "compilerOptions": {
         "outDir": "dist",
         "module": "CommonJS",
-        "target": "es2017",
+        "target": "es2020",
+        "lib": ["es2020"],
         "rootDir": "fontes",
         "allowJs": true,
         "sourceMap": true,

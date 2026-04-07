@@ -4,9 +4,9 @@ import { FuncaoPadrao } from './estruturas/funcao-padrao';
 import { DeleguaFuncao } from './estruturas/delegua-funcao';
 import { DescritorTipoClasse } from './estruturas/descritor-tipo-classe';
 import { ObjetoDeleguaClasse } from './estruturas/objeto-delegua-classe';
+import { Leia } from '../construtos';
 
 import * as bibliotecaGlobal from '../bibliotecas/biblioteca-global';
-import { Leia } from '../construtos';
 
 export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExecucaoInterface) {
     pilhaEscoposExecucao.definirVariavel(
@@ -90,10 +90,10 @@ export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExe
     pilhaEscoposExecucao.definirVariavel('inteiro', funcaoInteiro);
 
     const funcaoLongo = new FuncaoPadrao(1, bibliotecaGlobal.longo);
-    (funcaoLongo as any).MAXIMO = BigInt('9223372036854775807');
-    (funcaoLongo as any).MÁXIMO = BigInt('9223372036854775807');
-    (funcaoLongo as any).MINIMO = BigInt('-9223372036854775808');
-    (funcaoLongo as any).MÍNIMO = BigInt('-9223372036854775808');
+    (funcaoLongo as any).MAXIMO = globalThis.BigInt('9223372036854775807');
+    (funcaoLongo as any).MÁXIMO = globalThis.BigInt('9223372036854775807');
+    (funcaoLongo as any).MINIMO = globalThis.BigInt('-9223372036854775808');
+    (funcaoLongo as any).MÍNIMO = globalThis.BigInt('-9223372036854775808');
     pilhaEscoposExecucao.definirVariavel('longo', funcaoLongo);
 
     pilhaEscoposExecucao.definirVariavel(
@@ -195,11 +195,12 @@ export function obterTopicoAjuda(topico: any): string {
             return obterAjudaFuncaoPadrao(topico);
 
         case DeleguaFuncao:
-            if ((topico as DeleguaFuncao).documentacao) {
-                const conteudo = (topico as DeleguaFuncao).documentacao.conteudo;
+            const topicoDeleguaFuncao = topico as DeleguaFuncao;
+            if (topicoDeleguaFuncao.documentacao?.conteudo) {
+                const conteudo = topicoDeleguaFuncao.documentacao.conteudo;
                 return Array.isArray(conteudo) ? conteudo.join('\n') : String(conteudo);
             }
-            return `Função '${(topico as DeleguaFuncao).nome}' — sem documentação disponível.`;
+            return `Função '${topicoDeleguaFuncao.nome}' — sem documentação disponível.`;
 
         case ObjetoDeleguaClasse:
             return obterAjudaDescritor((topico as ObjetoDeleguaClasse).classe, false);
@@ -208,7 +209,7 @@ export function obterTopicoAjuda(topico: any): string {
             return obterAjudaDescritor(topico as DescritorTipoClasse, true);
 
         default:
-            console.log(topico);
+            globalThis.console.log(topico);
             return `Desculpe, não há documentação disponível para o tópico solicitado no momento.`;
     }
 }
@@ -256,8 +257,8 @@ function obterAjudaFuncaoPadrao(funcaoPadrao: FuncaoPadrao): string {
     const implementacao = funcaoPadrao.funcao;
 
     // Mapeamento de funções por nome
-    const nomeFuncao = Object.keys(bibliotecaGlobal).find(
-        (key) => bibliotecaGlobal[key] === implementacao
+    const nomeFuncao = (Object.keys(bibliotecaGlobal) as Array<keyof typeof bibliotecaGlobal>).find(
+        (chave) => bibliotecaGlobal[chave] === implementacao
     );
 
     if (!nomeFuncao) {
