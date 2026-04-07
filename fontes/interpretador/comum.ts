@@ -208,9 +208,135 @@ export function obterTopicoAjuda(topico: any): string {
         case DescritorTipoClasse:
             return obterAjudaDescritor(topico as DescritorTipoClasse, true);
 
+        case String: {
+            const chave = (topico as string)
+                .trim()
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '');
+            return obterAjudaTemaClasse(chave);
+        }
+
         default:
             console.log(topico);
             return `Desculpe, não há documentação disponível para o tópico solicitado no momento.`;
+    }
+}
+
+function obterAjudaTemaClasse(chave: string): string {
+    switch (chave) {
+        case 'classe':
+            return (
+                `A palavra-chave 'classe' declara um novo tipo em Delégua.\n\n` +
+                `Sintaxe:\n` +
+                `\tclasse NomeDaClasse {\n` +
+                `\t\t// propriedades e métodos\n` +
+                `\t}\n\n` +
+                `Exemplo:\n` +
+                `\tclasse Animal {\n` +
+                `\t\tnome: texto\n` +
+                `\t\temitirSom() { escreva("...") }\n` +
+                `\t}\n\n` +
+                `Ver também: 'herda', 'mescla', 'classe abstrata', 'classe estrangeira'.`
+            );
+
+        case 'classe abstrata':
+            return (
+                `Uma 'classe abstrata' não pode ser instanciada diretamente — serve apenas como\n` +
+                `base para outras classes. Ela pode declarar métodos abstratos no bloco 'abstrato',\n` +
+                `que devem ser implementados pelas subclasses.\n\n` +
+                `Sintaxe:\n` +
+                `\tclasse abstrata NomeDaClasse {\n` +
+                `\t\tabstrato {\n` +
+                `\t\t\tnomeDoMetodo()\n` +
+                `\t\t}\n` +
+                `\t}\n\n` +
+                `Exemplo:\n` +
+                `\tclasse abstrata Forma {\n` +
+                `\t\tabstrato { area() }\n` +
+                `\t}\n` +
+                `\tclasse Circulo herda Forma {\n` +
+                `\t\tradio: numero\n` +
+                `\t\tarea() { retorna 3.14 * radio * radio }\n` +
+                `\t}\n\n` +
+                `Ver também: 'classe', 'herda'.`
+            );
+
+        case 'classe estrangeira':
+            return (
+                `Uma 'classe estrangeira' é um invólucro ao redor de uma classe JavaScript externa.\n` +
+                `Permite usar código JS dentro de Delégua sem reimplementação.\n\n` +
+                `Sintaxe:\n` +
+                `\tclasse estrangeira NomeDaClasse { }\n\n` +
+                `Exemplo:\n` +
+                `\tclasse estrangeira Buffer { }\n\n` +
+                `Nota: o corpo da classe estrangeira geralmente fica vazio; a implementação\n` +
+                `é fornecida pelo módulo JavaScript correspondente.\n\n` +
+                `Ver também: 'classe'.`
+            );
+
+        case 'herda':
+            return (
+                `A palavra-chave 'herda' estabelece herança entre classes.\n` +
+                `Delégua suporta herança múltipla: separe as superclasses por vírgula.\n\n` +
+                `Sintaxe:\n` +
+                `\tclasse Subclasse herda Pai {\n` +
+                `\t\t// pode chamar super.metodo() ou super.construtor()\n` +
+                `\t}\n\n` +
+                `\tclasse Subclasse herda PaiA, PaiB { }\n\n` +
+                `Exemplo:\n` +
+                `\tclasse Animal {\n` +
+                `\t\temitirSom() { escreva("...") }\n` +
+                `\t}\n` +
+                `\tclasse Cachorro herda Animal {\n` +
+                `\t\temitirSom() { escreva("Au!") }\n` +
+                `\t}\n\n` +
+                `A resolução de métodos segue a linearização C3 (MRO), assim como em Python.\n\n` +
+                `Ver também: 'classe', 'mescla'.`
+            );
+
+        case 'mescla':
+            return (
+                `A palavra-chave 'mescla' incorpora um ou mais mixins na classe.\n` +
+                `Mixins adicionam métodos à classe sem criar uma relação de herança formal.\n` +
+                `Os métodos da classe têm prioridade sobre os métodos do mixin.\n\n` +
+                `Sintaxe:\n` +
+                `\tclasse MinhaClasse mescla Mixin1, Mixin2 {\n` +
+                `\t\t// métodos locais têm prioridade\n` +
+                `\t}\n\n` +
+                `Exemplo:\n` +
+                `\tclasse Registravel {\n` +
+                `\t\tregistrar(msg: texto) { escreva("[LOG] " + msg) }\n` +
+                `\t}\n` +
+                `\tclasse Servico mescla Registravel {\n` +
+                `\t\texecutar() { registrar("executando") }\n` +
+                `\t}\n\n` +
+                `Ver também: 'classe', 'herda'.`
+            );
+
+        case 'extensao':
+            return (
+                `A declaração 'extensão' adiciona métodos a um tipo existente sem modificar sua\n` +
+                `definição original. Útil para enriquecer tipos embutidos ou tipos de terceiros.\n\n` +
+                `Sintaxe:\n` +
+                `\textensão de NomeDoTipo {\n` +
+                `\t\tnovoMetodo() { ... }\n` +
+                `\t}\n\n` +
+                `Com escopo global (disponível em todos os módulos):\n` +
+                `\textensão global de NomeDoTipo {\n` +
+                `\t\tnovoMetodo() { ... }\n` +
+                `\t}\n\n` +
+                `Exemplo:\n` +
+                `\textensão de texto {\n` +
+                `\t\tgritarMaiusculas() { retorna isto.maiusculas() + "!!!" }\n` +
+                `\t}\n` +
+                `\tvar s = "olá"\n` +
+                `\tescreva(s.gritarMaiusculas())  // OLÁ!!!\n\n` +
+                `Ver também: 'classe'.`
+            );
+
+        default:
+            return `Desculpe, não há documentação disponível para o tópico '${chave}' no momento.`;
     }
 }
 

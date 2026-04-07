@@ -4348,6 +4348,80 @@ describe('Interpretador', () => {
                 const resultado = retornoInterpretador.resultado[0] as ResultadoParcialInterpretadorInterface;
                 expect(resultado.valorRetornado).toContain('não há documentação disponível');
             });
+
+            it("ajuda('classe') - documentação da palavra-chave classe", async () => {
+                const retornoLexador = lexador.mapear(["ajuda('classe')"], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                const resultado = retornoInterpretador.resultado[0] as ResultadoParcialInterpretadorInterface;
+                expect(resultado.valorRetornado).toContain('declara um novo tipo');
+                expect(resultado.valorRetornado).toContain('Ver também');
+            });
+
+            it("ajuda('classe abstrata') - documentação de classe abstrata", async () => {
+                const retornoLexador = lexador.mapear(["ajuda('classe abstrata')"], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                const resultado = retornoInterpretador.resultado[0] as ResultadoParcialInterpretadorInterface;
+                expect(resultado.valorRetornado).toContain('não pode ser instanciada');
+                expect(resultado.valorRetornado).toContain('abstrato');
+            });
+
+            it("ajuda('classe estrangeira') - documentação de classe estrangeira", async () => {
+                const retornoLexador = lexador.mapear(["ajuda('classe estrangeira')"], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                const resultado = retornoInterpretador.resultado[0] as ResultadoParcialInterpretadorInterface;
+                expect(resultado.valorRetornado).toContain('JavaScript externa');
+            });
+
+            it("ajuda('herda') - documentação da palavra-chave herda", async () => {
+                const retornoLexador = lexador.mapear(["ajuda('herda')"], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                const resultado = retornoInterpretador.resultado[0] as ResultadoParcialInterpretadorInterface;
+                expect(resultado.valorRetornado).toContain('herança');
+                expect(resultado.valorRetornado).toContain('C3');
+            });
+
+            it("ajuda('mescla') - documentação da palavra-chave mescla", async () => {
+                const retornoLexador = lexador.mapear(["ajuda('mescla')"], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                const resultado = retornoInterpretador.resultado[0] as ResultadoParcialInterpretadorInterface;
+                expect(resultado.valorRetornado).toContain('mixin');
+                expect(resultado.valorRetornado).toContain('prioridade');
+            });
+
+            it("ajuda('extensão') - documentação da declaração extensão (com acento)", async () => {
+                const retornoLexador = lexador.mapear(["ajuda('extensão')"], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                const resultado = retornoInterpretador.resultado[0] as ResultadoParcialInterpretadorInterface;
+                expect(resultado.valorRetornado).toContain('adiciona métodos');
+            });
+
+            it("ajuda('extensao') - documentação da declaração extensão (sem acento)", async () => {
+                const retornoLexador = lexador.mapear(["ajuda('extensao')"], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                const resultado = retornoInterpretador.resultado[0] as ResultadoParcialInterpretadorInterface;
+                expect(resultado.valorRetornado).toContain('adiciona métodos');
+            });
         });
 
         describe('Cenários de falha', () => {

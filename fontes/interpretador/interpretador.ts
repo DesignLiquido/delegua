@@ -344,6 +344,22 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
     }
 
     async visitarDeclaracaoAjuda(declaracao: Ajuda): Promise<any> {
+        if (declaracao.funcao && declaracao.elemento) {
+            try {
+                const resultado = await this.avaliar(declaracao.elemento);
+                const valorAvaliado = this.resolverValor(resultado);
+                if (
+                    typeof valorAvaliado === 'string' ||
+                    valorAvaliado instanceof DeleguaFuncao ||
+                    valorAvaliado instanceof ObjetoDeleguaClasse ||
+                    valorAvaliado instanceof DescritorTipoClasse
+                ) {
+                    return Promise.resolve(pontoEntradaAjuda(declaracao.funcao, valorAvaliado));
+                }
+            } catch {
+                // Se a avaliação falhar, usa o comportamento padrão
+            }
+        }
         return Promise.resolve(pontoEntradaAjuda(declaracao.funcao, declaracao.elemento));
     }
 
@@ -1453,6 +1469,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 const resultado = await this.avaliar(expressao.valor);
                 const valorAvaliado = this.resolverValor(resultado);
                 if (
+                    typeof valorAvaliado === 'string' ||
                     valorAvaliado instanceof DeleguaFuncao ||
                     valorAvaliado instanceof ObjetoDeleguaClasse ||
                     valorAvaliado instanceof DescritorTipoClasse
