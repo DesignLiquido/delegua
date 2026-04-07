@@ -122,6 +122,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         [nomeTipo: string]: ClasseDeModulo;
     };
     pilhaEscopos: PilhaEscopos;
+    tiposDeFerramentasExternas: { [nomeFerramenta: string]: { [nomeTipo: string]: string } };
     primitivasConhecidas: {
         [nomeModuloOuClasse: string]: { [nomePrimitiva: string]: InformacaoElementoSintatico };
     };
