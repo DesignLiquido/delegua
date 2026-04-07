@@ -209,7 +209,7 @@ export function obterTopicoAjuda(topico: any): string {
             return obterAjudaDescritor(topico as DescritorTipoClasse, true);
 
         default:
-            globalThis.console.log(topico);
+            console.log(topico);
             return `Desculpe, não há documentação disponível para o tópico solicitado no momento.`;
     }
 }

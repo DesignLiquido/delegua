@@ -993,14 +993,14 @@ export async function mapear(
             valorVetor[indice],
         ]);
         if (!informacoesRetorno.hasOwnProperty('valorRetornado')) {
-            globalThis.console.warn(
+            console.warn(
                 `Retorno inconsistente em mapear(): ${JSON.stringify(informacoesRetorno)}.`
             );
             continue;
         }
 
         if (!(informacoesRetorno.valorRetornado instanceof RetornoQuebra)) {
-            globalThis.console.warn(
+            console.warn(
                 `mapear() finalizado com valor retornado diferente do esperado: ${JSON.stringify(informacoesRetorno)}.`
             );
             continue;

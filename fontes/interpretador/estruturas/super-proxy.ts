@@ -22,16 +22,25 @@ export class SuperProxy extends Chamavel {
     }
 
     aridade(): number {
-        return 0;
+        const inicializador = this.proximaClasse.encontrarMetodo('construtor');
+        if (!inicializador) return 0;
+        return inicializador.aridade();
     }
 
     /**
-     * `super()` retorna o próprio proxy, permitindo encadeamento: `super().meuMetodo()`.
+     * `super()` executa o construtor da próxima classe no OReM e retorna
+     * o próprio proxy para permitir encadeamento: `super().meuMetodo()`.
      */
     async chamar(
-        _visitante: InterpretadorInterface,
-        _argumentos: ArgumentoInterface[]
+        visitante: InterpretadorInterface,
+        argumentos: ArgumentoInterface[]
     ): Promise<SuperProxy> {
+        const inicializador = this.proximaClasse.encontrarMetodo('construtor');
+        if (inicializador) {
+            const construtorVinculado = inicializador.funcaoPorMetodoDeClasse(this.instancia);
+            await construtorVinculado.chamar(visitante, argumentos);
+        }
+
         return this;
     }
 }
