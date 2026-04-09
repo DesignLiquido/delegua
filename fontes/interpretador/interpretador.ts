@@ -403,6 +403,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             this.eVerdadeiro(await this.avaliar(enquanto.condicao))
         ) {
             try {
+                if (this.funcaoVerificarIteracao) { await this.funcaoVerificarIteracao(); }
                 retornoExecucao = await this.executar(enquanto.corpo);
                 if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                     if (acumularRetornos) {
@@ -451,6 +452,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         const retornos = [];
         do {
             try {
+                if (this.funcaoVerificarIteracao) { await this.funcaoVerificarIteracao(); }
                 retornoExecucao = await this.executar(fazer.caminhoFazer);
                 if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                     if (acumularRetornos) {
@@ -518,6 +520,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 break;
             }
 
+            if (this.funcaoVerificarIteracao) { await this.funcaoVerificarIteracao(); }
             retornoExecucao = await this.executar(para.corpo);
             if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                 if (acumularRetornos) {
@@ -605,6 +608,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             paraCada.posicaoAtual < valorVetorOuDicionarioResolvido.length
         ) {
             try {
+                if (this.funcaoVerificarIteracao) { await this.funcaoVerificarIteracao(); }
                 if (paraCada.variavelIteracao instanceof Variavel) {
                     this.pilhaEscoposExecucao.definirVariavel(
                         paraCada.variavelIteracao.simbolo.lexema,

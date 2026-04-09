@@ -144,6 +144,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     funcaoDeRetornoMesmaLinha: Function = null;
     interfaceDeEntrada: any = null; // Originalmente é `readline.Interface`
     interfaceEntradaSaida: any = null;
+    funcaoVerificarIteracao: (() => Promise<void>) | null = null;
     emDeclaracaoTente: boolean = false;
 
     pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
