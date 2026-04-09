@@ -1668,6 +1668,31 @@ describe('Analisador semântico', () => {
             });
         });
 
+        describe('Cenários de diagnósticos zerados', () => {
+            it('Sucesso - variável declarada fora, atribuída e lida dentro do fazer', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'var j: inteiro',
+                        'var i = 0',
+                        'fazer {',
+                        '    escreva(i)',
+                        '    j = 42',
+                        '    escreva(j)',
+                        '    i = i + 1',
+                        '} enquanto (i < 5)',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+        });
+
         describe('Cenários de diagnósticos detectados', () => {
             it('Erro - condição não booleana', async () => {
                 const retornoLexador = lexador.mapear(

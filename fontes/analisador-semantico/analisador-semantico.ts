@@ -562,7 +562,12 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    override visitarDeclaracaoFazer(declaracao: Fazer) {
+    override async visitarDeclaracaoFazer(declaracao: Fazer) {
+        // Visita corpo para que usos/atribuições dentro do bloco sejam analisados.
+        for (const declaracaoCorpo of declaracao.caminhoFazer.declaracoes) {
+            await declaracaoCorpo.aceitar(this);
+        }
+
         // Marca variáveis usadas na condição
         this.marcarVariaveisUsadasEmExpressao(declaracao.condicaoEnquanto);
         // Verifica a condição
