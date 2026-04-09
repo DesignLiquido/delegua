@@ -1,34 +1,6 @@
 import { Declaracao } from '../../declaracoes';
 import { Var, Const, FuncaoDeclaracao } from '../../declaracoes';
-import { RegraEstilizacaoInterface } from '../../interfaces/estilizador';
-
-/**
- * Opções de convenção de nomenclatura.
- */
-export interface OpcoesConvencaoNomenclatura {
-    /**
-     * Convenção para variáveis.
-     * - 'caixaCamelo': primeiraPalavraMinuscula
-     * - 'caixa_cobra': primeira_palavra_minuscula
-     * - 'CaixaPascal': PrimeiraPalavraMaiuscula
-     */
-    variavel?: 'caixaCamelo' | 'caixa_cobra' | 'CaixaPascal';
-
-    /**
-     * Convenção para constantes.
-     * - 'CAIXA_ALTA': TODAS_MAIUSCULAS
-     * - 'caixaCamelo': primeiraPalavraMinuscula
-     */
-    constante?: 'CAIXA_ALTA' | 'caixaCamelo';
-
-    /**
-     * Convenção para funções.
-     * - 'caixaCamelo': primeiraPalavraMinuscula
-     * - 'caixa_cobra': primeira_palavra_minuscula
-     * - 'CaixaPascal': PrimeiraPalavraMaiuscula
-     */
-    funcao?: 'caixaCamelo' | 'caixa_cobra' | 'CaixaPascal';
-}
+import { OpcoesConvencaoNomenclaturaInterface, RegraEstilizacaoInterface } from '../../interfaces/estilizador';
 
 /**
  * Regra que enforça convenções de nomenclatura.
@@ -42,9 +14,9 @@ export class RegraConvencaoNomenclatura implements RegraEstilizacaoInterface {
     nome = 'convencao-nomenclatura';
     descricao = 'Enforça convenções de nomenclatura para variáveis, constantes e funções';
 
-    private opcoes: OpcoesConvencaoNomenclatura;
+    private opcoes: OpcoesConvencaoNomenclaturaInterface;
 
-    constructor(opcoes: OpcoesConvencaoNomenclatura = {}) {
+    constructor(opcoes: OpcoesConvencaoNomenclaturaInterface = {}) {
         this.opcoes = {
             variavel: opcoes.variavel || 'caixaCamelo',
             constante: opcoes.constante || 'CAIXA_ALTA',

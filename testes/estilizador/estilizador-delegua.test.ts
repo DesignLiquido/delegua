@@ -1,8 +1,9 @@
 import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
 import { Lexador } from '../../fontes/lexador';
 import { EstilizadorDelegua } from '../../fontes/estilizador/estilizador-delegua';
-import { RegraFortalecerTipos } from '../../fontes/estilizador/regras/fortalecer-tipos';
-import { RegraConvencaoNomenclatura } from '../../fontes/estilizador/regras/convencao-nomenclatura';
+import { QuebradorDeLinha } from '../../fontes/estilizador/quebrador-linha';
+import { RegraFortalecerTipos } from '../../fontes/estilizador/regras/regra-fortalecer-tipos';
+import { RegraConvencaoNomenclatura } from '../../fontes/estilizador/regras/regra-convencao-nomenclatura';
 import { Var, Const } from '../../fontes/declaracoes';
 
 describe('Estilizador Delégua', () => {
@@ -710,6 +711,143 @@ describe('Estilizador Delégua', () => {
 
             // Não deve gerar violações se não houver mudança
             expect(violacoes.length).toBe(0);
+        });
+    });
+
+    describe('Limite de colunas (maximoCaracteresPorLinha)', () => {
+        beforeEach(() => {
+            estilizador = new EstilizadorDelegua();
+        });
+
+        it('Linha dentro do limite não é alterada', async () => {
+            const retornoLexador = lexador.mapear(['var x = 5'], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const semLimite = estilizador.estilizarEFormatar(retornoAvaliadorSintatico.declaracoes);
+            const comLimite = estilizador.estilizarEFormatar(retornoAvaliadorSintatico.declaracoes, {
+                maximoCaracteresPorLinha: 80,
+            });
+
+            expect(comLimite).toBe(semLimite);
+        });
+
+        it('Ausência da opção não altera o comportamento padrão', async () => {
+            const retornoLexador = lexador.mapear(
+                ['escreva("valor_a", "valor_b", "valor_c")'],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const semOpcao = estilizador.estilizarEFormatar(retornoAvaliadorSintatico.declaracoes);
+            const comOpcaoAusente = estilizador.estilizarEFormatar(
+                retornoAvaliadorSintatico.declaracoes,
+                { quebraLinha: '\n' }
+            );
+
+            expect(comOpcaoAusente).toBe(semOpcao);
+        });
+
+        it('Quebra chamada de função com muitos argumentos após vírgulas', async () => {
+            const retornoLexador = lexador.mapear(
+                ['escreva("argumento_um", "argumento_dois", "argumento_tres")'],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = estilizador.estilizarEFormatar(retornoAvaliadorSintatico.declaracoes, {
+                maximoCaracteresPorLinha: 40,
+                quebraLinha: '\n',
+            });
+
+            const linhas = resultado.split('\n');
+            expect(linhas.length).toBeGreaterThan(1);
+            linhas.filter((l) => l.trim().length > 0).forEach((linha) => {
+                expect(linha.length).toBeLessThanOrEqual(40);
+            });
+        });
+
+        it('QuebradordeLinha quebra linha com operador " e " antes do operador', () => {
+            // O formatador converte && para " e ". Testamos o QuebradordeLinha diretamente
+            // com a saída que o formatador produziria para uma condição composta.
+            const quebrador = new QuebradorDeLinha(40, 4, '\n');
+            // "se (verdadeiro e verdadeiro e verdadeiro) {" = 43 chars
+            const input = 'se (verdadeiro e verdadeiro e verdadeiro) {';
+            const resultado = quebrador.quebrar(input);
+            const linhas = resultado.split('\n');
+            expect(linhas.length).toBeGreaterThan(1);
+            linhas.filter((l) => l.trim().length > 0).forEach((linha) => {
+                expect(linha.length).toBeLessThanOrEqual(40);
+            });
+        });
+
+        it('QuebradordeLinha quebra linha com operador " ou " antes do operador', () => {
+            // O formatador converte || para " ou ". Testamos o QuebradordeLinha diretamente.
+            const quebrador = new QuebradorDeLinha(40, 4, '\n');
+            // "se (verdadeiro ou verdadeiro ou verdadeiro) {" = 45 chars
+            const input = 'se (verdadeiro ou verdadeiro ou verdadeiro) {';
+            const resultado = quebrador.quebrar(input);
+            const linhas = resultado.split('\n');
+            expect(linhas.length).toBeGreaterThan(1);
+            linhas.filter((l) => l.trim().length > 0).forEach((linha) => {
+                expect(linha.length).toBeLessThanOrEqual(40);
+            });
+        });
+
+        it('Vírgulas dentro de strings não são pontos de quebra', async () => {
+            const retornoLexador = lexador.mapear(
+                ["escreva('primeiro, valor', 'segundo, valor')"],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = estilizador.estilizarEFormatar(retornoAvaliadorSintatico.declaracoes, {
+                maximoCaracteresPorLinha: 30,
+                quebraLinha: '\n',
+            });
+
+            // Strings originais devem estar intactas (sem quebra interna)
+            expect(resultado).toContain("'primeiro, valor'");
+            expect(resultado).toContain("'segundo, valor'");
+        });
+
+        it('Linha sem ponto de quebra válido é preservada intacta', async () => {
+            // "var x = 1" não tem ponto de quebra (nenhuma vírgula nem operadores lógicos)
+            // e é muito menor que o limite, mas se o limite fosse impossível de cumprir
+            // a linha seria preservada. Aqui testamos com um literal de texto sem vírgulas.
+            const retornoLexador = lexador.mapear(
+                ['var identificador = "abcdefghijklmnopqrstuvwxyz"'],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = estilizador.estilizarEFormatar(retornoAvaliadorSintatico.declaracoes, {
+                maximoCaracteresPorLinha: 10,
+                quebraLinha: '\n',
+            });
+
+            // Deve conter o literal intacto, sem truncamento
+            expect(resultado).toContain('abcdefghijklmnopqrstuvwxyz');
+        });
+
+        it('Indentação de continuação respeita tamanhoIndentacao', async () => {
+            const retornoLexador = lexador.mapear(
+                ['escreva("argumento_um", "argumento_dois", "argumento_tres")'],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = estilizador.estilizarEFormatar(retornoAvaliadorSintatico.declaracoes, {
+                maximoCaracteresPorLinha: 35,
+                tamanhoIndentacao: 2,
+                quebraLinha: '\n',
+            });
+
+            const linhas = resultado.split('\n');
+            // Linhas de continuação devem começar com 2 espaços (tamanhoIndentacao=2)
+            const linhasContinuacao = linhas.slice(1).filter((l) => l.trim().length > 0);
+            if (linhasContinuacao.length > 0) {
+                expect(linhasContinuacao[0]).toMatch(/^ {2}/);
+            }
         });
     });
 });

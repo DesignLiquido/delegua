@@ -1,3 +1,3 @@
-export * from './fortalecer-tipos';
-export * from './convencao-nomenclatura';
-export * from './paradigma-consistente';
+export * from './regra-fortalecer-tipos';
+export * from './regra-convencao-nomenclatura';
+export * from './regra-paradigma-consistente';

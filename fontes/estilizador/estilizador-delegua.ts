@@ -7,6 +7,7 @@ import {
     RegraEstilizacaoInterface,
     ViolacaoEstiloInterface,
 } from '../interfaces/estilizador';
+import { QuebradorDeLinha } from './quebrador-linha';
 
 /**
  * Estilizador de código para Delégua.
@@ -274,14 +275,24 @@ export class EstilizadorDelegua implements EstilizadorInterface {
         opcoesFormatacao: OpcoesFormatacaoEstilizadorInterface = {}
     ): string {
         const declaracoesEstilizadas = this.estilizar(declaracoes);
-        const formatador = new FormatadorDelegua(
-            opcoesFormatacao.quebraLinha || '\n',
-            opcoesFormatacao.tamanhoIndentacao ?? 4,
-            {
-                delimitadorTexto: opcoesFormatacao.delimitadorTexto,
-            }
-        );
+        const separadorLinha = opcoesFormatacao.quebraLinha || '\n';
+        const tamanhoIndentacao = opcoesFormatacao.tamanhoIndentacao ?? 4;
 
-        return formatador.formatar(declaracoesEstilizadas);
+        const formatador = new FormatadorDelegua(separadorLinha, tamanhoIndentacao, {
+            delimitadorTexto: opcoesFormatacao.delimitadorTexto,
+        });
+
+        let codigo = formatador.formatar(declaracoesEstilizadas);
+
+        if (opcoesFormatacao.maximoCaracteresPorLinha !== undefined) {
+            const quebrador = new QuebradorDeLinha(
+                opcoesFormatacao.maximoCaracteresPorLinha,
+                tamanhoIndentacao,
+                separadorLinha
+            );
+            codigo = quebrador.quebrar(codigo);
+        }
+
+        return codigo;
     }
 }

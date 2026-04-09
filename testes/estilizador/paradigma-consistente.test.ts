@@ -1,7 +1,7 @@
 import { AvaliadorSintaticoPitugues } from '../../fontes/avaliador-sintatico/dialetos/avaliador-sintatico-pitugues';
 import { Lexador } from '../../fontes/lexador';
 import { EstilizadorDelegua } from '../../fontes/estilizador/estilizador-delegua';
-import { RegraParadigmaConsistente } from '../../fontes/estilizador/regras/paradigma-consistente';
+import { RegraParadigmaConsistente } from '../../fontes/estilizador/regras/regra-paradigma-consistente';
 import { Escreva } from '../../fontes/declaracoes';
 
 describe('Regra Paradigma Consistente', () => {

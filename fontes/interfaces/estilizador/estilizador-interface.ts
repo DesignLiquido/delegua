@@ -1,14 +1,7 @@
 import { Declaracao } from '../../declaracoes/declaracao';
+import { OpcoesFormatacaoEstilizadorInterface } from './opcoes-formatacao-estilizador-interface';
 import { RegraEstilizacaoInterface } from './regra-estilizacao-interface';
 import { ViolacaoEstiloInterface } from './violacao-estilo-interface';
-
-export type DelimitadorTextoEstilizador = 'aspas-simples' | 'aspas-duplas' | 'preservar';
-
-export interface OpcoesFormatacaoEstilizadorInterface {
-    delimitadorTexto?: DelimitadorTextoEstilizador;
-    quebraLinha?: string;
-    tamanhoIndentacao?: number;
-}
 
 /**
  * Interface base para estilizadores de código.
