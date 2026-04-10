@@ -1,9 +1,9 @@
 import { AvaliadorSintaticoCalango } from '../../fontes/avaliador-sintatico/dialetos/avaliador-sintatico-calango';
 import { LexadorCalango } from '../../fontes/lexador/dialetos';
-import { TradutorCalango } from '../../fontes/tradutores';
+import { TradutorReversoCalango } from '../../fontes/tradutores';
 
 describe('Tradutor Calango -> Delégua', () => {
-    const tradutor: TradutorCalango = new TradutorCalango();
+    const tradutor: TradutorReversoCalango = new TradutorReversoCalango();
     const lexador = new LexadorCalango();
     const avaliadorSintatico = new AvaliadorSintaticoCalango();
 

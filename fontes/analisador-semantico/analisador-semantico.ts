@@ -158,6 +158,13 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         return this.verificarTipoDe(expressao.valor);
     }
 
+    /**
+     * Método recursivo para verificar o tipo de um construto, usado principalmente para validar 
+     * o uso de `tipoDe` e `falhar()`.
+     * @param {Construto} valor O construto a ser avaliado.
+     * @returns {Promise<any>} O tipo do construto, ou `Promise.resolve()` se o tipo não puder ser 
+     * determinado neste estágio da análise.
+     */
     private verificarTipoDe(valor: Construto): Promise<any> {
         switch (valor.constructor) {
             case Agrupamento:
@@ -180,6 +187,13 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         return this.verificarFalhar(expressao.explicacao);
     }
 
+    /**
+     * Método recursivo para verificar se um construto passado para `falhar()` é válido, ou seja, se é 
+     * do tipo texto ou pode ser avaliado como texto.
+     * @param {Construto} valor O construto a ser avaliado.
+     * @returns {Promise<any>} O tipo do construto, ou `Promise.resolve()` se o tipo não puder ser 
+     * determinado neste estágio da análise.
+     */
     private verificarFalhar(valor: Construto): Promise<any> {
         if (valor instanceof Binario) {
             this.verificarFalhar(valor.direita);
@@ -491,7 +505,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         if (expressao.valor) {
             this.marcarVariaveisUsadasEmExpressao(expressao.valor);
         }
-        
+
         return Promise.resolve();
     }
 

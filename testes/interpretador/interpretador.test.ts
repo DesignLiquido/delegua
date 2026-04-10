@@ -3684,6 +3684,30 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('leia().dividir() - encadeamento direto de método em leia()', async () => {
+                    const respostas = ['hello world'];
+                    interpretador.interfaceEntradaSaida = {
+                        question: (mensagem: string, callback: Function) => {
+                            callback(respostas.shift());
+                        },
+                    };
+
+                    const codigo = [
+                        'var s = leia().dividir(" ")',
+                        'var a = s[0]',
+                        'var b = s[1]',
+                        'escreva("${a} ${b}")',
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('hello world');
+                });
+
                 it('escreva() de dicionários com vetores aninhados não deve escrever metadados de vetor', async () => {
                     const codigo = [
                         'var reservasDeBananas = {',

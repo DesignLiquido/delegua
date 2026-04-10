@@ -3,7 +3,7 @@ import { FormatacaoEscrita, Literal } from '../construtos';
 import { Declaracao, Escreva, EscrevaMesmaLinha } from '../declaracoes';
 import { LexadorCalango } from '../lexador/dialetos';
 
-export class TradutorCalango {
+export class TradutorReversoCalango {
     indentacao: number = 0;
     lexador: LexadorCalango;
     avaliadorSintatico: AvaliadorSintaticoCalango;

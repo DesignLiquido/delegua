@@ -266,6 +266,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             case AcessoMetodoOuPropriedade:
             case AcessoIndiceVariavel:
             case Dicionario:
+            case Leia:
             case Literal:
             case Vetor:
                 return '';
