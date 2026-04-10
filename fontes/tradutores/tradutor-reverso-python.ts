@@ -41,6 +41,10 @@ import {
     TfpdefContext,
     ClassdefContext,
     DecoratedContext,
+    Testlist_compContext,
+    DictorsetmakerContext,
+    SubscriptlistContext,
+    SubscriptContext,
 } from './python/python3-parser';
 
 /**
@@ -342,8 +346,26 @@ export class TradutorReversoPython
 
         if (ctx.OPEN_PAREN()) {
             const testlistComp = ctx.testlist_comp();
-            if (testlistComp) return `(${this.visit(testlistComp)})`;
+            if (testlistComp) {
+                // Tupla com vírgula → vetor em Delégua
+                if (testlistComp.COMMA().length > 0) {
+                    return `[${this.visitTestlist_comp(testlistComp)}]`;
+                }
+                return `(${this.visitTestlist_comp(testlistComp)})`;
+            }
             return '()';
+        }
+
+        if (ctx.OPEN_BRACK()) {
+            const testlistComp = ctx.testlist_comp();
+            const items = testlistComp ? this.visitTestlist_comp(testlistComp) : '';
+            return `[${items}]`;
+        }
+
+        if (ctx.OPEN_BRACE()) {
+            const dictorsetmaker = ctx.dictorsetmaker();
+            if (dictorsetmaker) return `{${this.visitDictorsetmaker(dictorsetmaker)}}`;
+            return '{}';
         }
 
         return ctx.text;
@@ -363,6 +385,40 @@ export class TradutorReversoPython
             return `${this.visit(testes[0])} = ${this.visit(testes[1])}`;
         }
         return this.visitChildren(ctx);
+    }
+
+    visitTestlist_comp(ctx: Testlist_compContext): string {
+        return ctx.test().map((t) => this.visit(t)).join(', ');
+    }
+
+    visitDictorsetmaker(ctx: DictorsetmakerContext): string {
+        const tests = ctx.test();
+        if (ctx.COLON().length > 0) {
+            // Dicionário: testes alternados como chave/valor
+            const pares: string[] = [];
+            for (let i = 0; i + 1 < tests.length; i += 2) {
+                pares.push(`${this.visit(tests[i])}: ${this.visit(tests[i + 1])}`);
+            }
+            return pares.join(', ');
+        }
+        // Conjunto (set) — representado como lista em Delégua
+        return tests.map((t) => this.visit(t)).join(', ');
+    }
+
+    visitSubscriptlist(ctx: SubscriptlistContext): string {
+        return ctx.subscript().map((s) => this.visitSubscript(s)).join(', ');
+    }
+
+    visitSubscript(ctx: SubscriptContext): string {
+        const tests = ctx.test();
+        if (!ctx.COLON()) {
+            // Índice simples
+            return tests.length > 0 ? this.visit(tests[0]) : '';
+        }
+        // Fatia: inicio:fim → inicio..fim
+        const inicio = tests.length > 0 ? this.visit(tests[0]) : '';
+        const fim = tests.length > 1 ? this.visit(tests[1]) : '';
+        return `${inicio}..${fim}`;
     }
 
     // Traduz um bloco indentado (suite) para o corpo entre chaves de Delégua.
