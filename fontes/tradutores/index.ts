@@ -3,7 +3,7 @@ export * from './tradutor-assembly-risc-v';
 export * from './tradutor-webassembly';
 export * from './tradutor-assembly-x64';
 export * from './tradutor-assemblyscript';
-export * from './tradutor-calango';
+export * from './tradutor-reverso-calango';
 export * from './tradutor-elixir';
 export * from './tradutor-javascript';
 export * from './tradutor-mermaidjs';
