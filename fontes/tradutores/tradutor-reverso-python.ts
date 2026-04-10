@@ -45,6 +45,9 @@ import {
     DictorsetmakerContext,
     SubscriptlistContext,
     SubscriptContext,
+    Try_stmtContext,
+    Except_clauseContext,
+    Raise_stmtContext,
 } from './python/python3-parser';
 
 /**
@@ -415,17 +418,18 @@ export class TradutorReversoPython
             // Índice simples
             return tests.length > 0 ? this.visit(tests[0]) : '';
         }
-        // Fatia: inicio:fim → inicio..fim
-        const inicio = tests.length > 0 ? this.visit(tests[0]) : '';
-        const fim = tests.length > 1 ? this.visit(tests[1]) : '';
+        // Fatia: [inicio]:fim → inicio..fim
+        // Se o primeiro filho é ':', não há início (ex: texto[:3])
+        const temInicio = ctx.childCount > 0 && ctx.getChild(0).text !== ':';
+        const inicio = temInicio ? this.visit(tests[0]) : '';
+        const fimIdx = temInicio ? 1 : 0;
+        const fim = tests.length > fimIdx ? this.visit(tests[fimIdx]) : '';
         return `${inicio}..${fim}`;
     }
 
-    // Traduz um bloco indentado (suite) para o corpo entre chaves de Delégua.
-    private visitCorpo(ctx: SuiteContext): string {
+    // Retorna as linhas já indentadas de um bloco, sem os colchetes externos.
+    private visitLinhasCorpo(ctx: SuiteContext): string[] {
         const linhas: string[] = [];
-
-        // suite: simple_stmt  |  NEWLINE INDENT stmt+ DEDENT
         const simpleStmt = ctx.simple_stmt();
         if (simpleStmt) {
             linhas.push(`    ${this.visit(simpleStmt)}`);
@@ -437,8 +441,49 @@ export class TradutorReversoPython
                 }
             }
         }
+        return linhas;
+    }
 
-        return `{\n${linhas.join('\n')}\n}`;
+    // Traduz um bloco indentado (suite) para o corpo entre chaves de Delégua.
+    private visitCorpo(ctx: SuiteContext): string {
+        return `{\n${this.visitLinhasCorpo(ctx).join('\n')}\n}`;
+    }
+
+    visitTry_stmt(ctx: Try_stmtContext): string {
+        const corpoTente = this.visitCorpo(ctx.suite(0));
+        let resultado = `tente ${corpoTente}`;
+
+        const excepts = ctx.except_clause();
+        if (excepts.length > 0) {
+            // Detecta alias do erro na primeira cláusula except com `as nome`
+            const alias = excepts.find((e) => e.NAME())?.NAME()?.text;
+
+            // Junta todos os corpos except num único bloco pegue
+            const todasLinhas: string[] = [];
+            for (let i = 0; i < excepts.length; i++) {
+                todasLinhas.push(...this.visitLinhasCorpo(ctx.suite(i + 1)));
+            }
+            const corpoPegue = `{\n${todasLinhas.join('\n')}\n}`;
+
+            resultado += alias ? ` pegue (${alias}) ${corpoPegue}` : ` pegue ${corpoPegue}`;
+        }
+
+        // Índice da suite do else/finally começa após as suites de except
+        let suiteIdx = 1 + excepts.length;
+        if (ctx.ELSE()) {
+            suiteIdx++; // else não tem equivalente em Delégua — ignora
+        }
+        if (ctx.FINALLY()) {
+            resultado += ` finalmente ${this.visitCorpo(ctx.suite(suiteIdx))}`;
+        }
+
+        return resultado;
+    }
+
+    visitRaise_stmt(ctx: Raise_stmtContext): string {
+        const tests = ctx.test();
+        if (tests.length === 0) return 'levante';
+        return `levante ${this.visit(tests[0])}`;
     }
 
     visitIf_stmt(ctx: If_stmtContext): string {

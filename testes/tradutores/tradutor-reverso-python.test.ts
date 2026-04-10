@@ -502,4 +502,144 @@ describe('Tradutor Reverso Python -> Delégua', () => {
             expect(resultado).toMatch(/sustar/);
         });
     });
+
+    describe('Estruturas de dados — listas', () => {
+        it('lista vazia', () => {
+            const resultado = tradutor.traduzir('a = []');
+            expect(resultado).toBe('var a = []');
+        });
+
+        it('lista com inteiros', () => {
+            const resultado = tradutor.traduzir('a = [1, 2, 3]');
+            expect(resultado).toBe('var a = [1, 2, 3]');
+        });
+
+        it('lista com strings', () => {
+            const resultado = tradutor.traduzir(`a = ['x', 'y', 'z']`);
+            expect(resultado).toBe(`var a = ['x', 'y', 'z']`);
+        });
+
+        it('lista com expressões', () => {
+            const resultado = tradutor.traduzir('a = [x + 1, y * 2]');
+            expect(resultado).toBe('var a = [x + 1, y * 2]');
+        });
+
+        it('acesso a índice', () => {
+            const resultado = tradutor.traduzir('x = lista[0]');
+            expect(resultado).toBe('var x = lista[0]');
+        });
+
+        it('atribuição a índice não usa var', () => {
+            const resultado = tradutor.traduzir('lista[0] = 99');
+            expect(resultado).toBe('lista[0] = 99');
+        });
+
+        it('fatia inicio:fim → inicio..fim', () => {
+            const resultado = tradutor.traduzir('s = texto[1:3]');
+            expect(resultado).toBe('var s = texto[1..3]');
+        });
+
+        it('fatia desde o início :fim → ..fim', () => {
+            const resultado = tradutor.traduzir('s = texto[:3]');
+            expect(resultado).toBe('var s = texto[..3]');
+        });
+
+        it('fatia até o fim inicio: → inicio..', () => {
+            const resultado = tradutor.traduzir('s = texto[2:]');
+            expect(resultado).toBe('var s = texto[2..]');
+        });
+    });
+
+    describe('Estruturas de dados — dicionários', () => {
+        it('dicionário vazio', () => {
+            const resultado = tradutor.traduzir('d = {}');
+            expect(resultado).toBe('var d = {}');
+        });
+
+        it('dicionário com um par', () => {
+            const resultado = tradutor.traduzir(`d = {'a': 1}`);
+            expect(resultado).toBe(`var d = {'a': 1}`);
+        });
+
+        it('dicionário com múltiplos pares', () => {
+            const resultado = tradutor.traduzir(`d = {'x': 1, 'y': 2}`);
+            expect(resultado).toBe(`var d = {'x': 1, 'y': 2}`);
+        });
+
+        it('acesso a chave de dicionário', () => {
+            const resultado = tradutor.traduzir(`v = d['chave']`);
+            expect(resultado).toBe(`var v = d['chave']`);
+        });
+    });
+
+    describe('Tratamento de erros — tente/pegue/finalmente', () => {
+        it('try/except básico → tente/pegue', () => {
+            const codigo = 'try:\n    x = 1\nexcept:\n    x = 0\n';
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBe('tente {\n    var x = 1\n} pegue {\n    var x = 0\n}');
+        });
+
+        it('try/except com alias (as e) → pegue (e)', () => {
+            const codigo = 'try:\n    x = 1\nexcept Exception as e:\n    print(e)\n';
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBe('tente {\n    var x = 1\n} pegue (e) {\n    escreva(e)\n}');
+        });
+
+        it('try/except com tipo mas sem alias → pegue', () => {
+            const codigo = 'try:\n    x = 1\nexcept ValueError:\n    x = 0\n';
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBe('tente {\n    var x = 1\n} pegue {\n    var x = 0\n}');
+        });
+
+        it('try/finally sem except → tente/finalmente', () => {
+            const codigo = 'try:\n    x = 1\nfinally:\n    print("fim")\n';
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBe('tente {\n    var x = 1\n} finalmente {\n    escreva("fim")\n}');
+        });
+
+        it('try/except/finally → tente/pegue/finalmente', () => {
+            const codigo = 'try:\n    x = 1\nexcept:\n    x = 0\nfinally:\n    print("fim")\n';
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBe(
+                'tente {\n    var x = 1\n} pegue {\n    var x = 0\n} finalmente {\n    escreva("fim")\n}'
+            );
+        });
+
+        it('múltiplos except → corpo mesclado num único pegue', () => {
+            const codigo =
+                'try:\n    x = 1\nexcept ValueError:\n    x = 0\nexcept TypeError:\n    x = -1\n';
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toMatch(/tente \{/);
+            expect(resultado).toMatch(/pegue \{/);
+            expect(resultado).toMatch(/var x = 0/);
+            expect(resultado).toMatch(/var x = -1/);
+        });
+
+        it('raise com expressão → levante', () => {
+            const resultado = tradutor.traduzir('raise ValueError("msg")\n');
+            expect(resultado).toBe('levante ValueError("msg")');
+        });
+
+        it('raise bare → levante', () => {
+            const resultado = tradutor.traduzir('raise\n');
+            expect(resultado).toBe('levante');
+        });
+    });
+
+    describe('Estruturas de dados — tuplas', () => {
+        it('tupla com dois elementos → vetor', () => {
+            const resultado = tradutor.traduzir('t = (1, 2)');
+            expect(resultado).toBe('var t = [1, 2]');
+        });
+
+        it('tupla com três elementos → vetor', () => {
+            const resultado = tradutor.traduzir('t = (1, 2, 3)');
+            expect(resultado).toBe('var t = [1, 2, 3]');
+        });
+
+        it('expressão entre parênteses (não é tupla) mantém parênteses', () => {
+            const resultado = tradutor.traduzir('a = (x + 1)');
+            expect(resultado).toBe('var a = (x + 1)');
+        });
+    });
 });
