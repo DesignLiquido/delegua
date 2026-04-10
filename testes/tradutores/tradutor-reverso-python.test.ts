@@ -626,6 +626,71 @@ describe('Tradutor Reverso Python -> Delégua', () => {
         });
     });
 
+    describe('Lambda', () => {
+        it('lambda sem parâmetros', () => {
+            const resultado = tradutor.traduzir('f = lambda: 42');
+            expect(resultado).toBe('var f = funcao() { retorna 42 }');
+        });
+
+        it('lambda com um parâmetro', () => {
+            const resultado = tradutor.traduzir('f = lambda x: x * 2');
+            expect(resultado).toBe('var f = funcao(x) { retorna x * 2 }');
+        });
+
+        it('lambda com dois parâmetros', () => {
+            const resultado = tradutor.traduzir('f = lambda x, y: x + y');
+            expect(resultado).toBe('var f = funcao(x, y) { retorna x + y }');
+        });
+
+        it('lambda com valor padrão', () => {
+            const resultado = tradutor.traduzir('f = lambda x, y=10: x + y');
+            expect(resultado).toBe('var f = funcao(x, y = 10) { retorna x + y }');
+        });
+
+        it('lambda passada para função', () => {
+            const resultado = tradutor.traduzir('r = sorted(lista, key=lambda x: x)\n');
+            expect(resultado).toMatch(/funcao\(x\) \{ retorna x \}/);
+        });
+    });
+
+    describe('Compreensão de lista', () => {
+        it('compreensão simples → mapear', () => {
+            const resultado = tradutor.traduzir('r = [x * 2 for x in lista]');
+            expect(resultado).toBe('var r = lista.mapear(funcao(x) { retorna x * 2 })');
+        });
+
+        it('compreensão com identidade → mapear', () => {
+            const resultado = tradutor.traduzir('r = [x for x in lista]');
+            expect(resultado).toBe('var r = lista.mapear(funcao(x) { retorna x })');
+        });
+
+        it('compreensão com filtro → filtrarPor + mapear', () => {
+            const resultado = tradutor.traduzir('r = [x for x in lista if x > 0]');
+            expect(resultado).toBe(
+                'var r = filtrarPor(lista, funcao(x) { retorna x > 0 }).mapear(funcao(x) { retorna x })'
+            );
+        });
+
+        it('compreensão com transformação e filtro', () => {
+            const resultado = tradutor.traduzir('r = [x * 2 for x in lista if x > 0]');
+            expect(resultado).toBe(
+                'var r = filtrarPor(lista, funcao(x) { retorna x > 0 }).mapear(funcao(x) { retorna x * 2 })'
+            );
+        });
+    });
+
+    describe('F-strings', () => {
+        it('f-string com aspas duplas passa direto', () => {
+            const resultado = tradutor.traduzir(`a = f"Olá {nome}"`);
+            expect(resultado).toBe(`var a = f"Olá {nome}"`);
+        });
+
+        it('f-string com aspas simples passa direto', () => {
+            const resultado = tradutor.traduzir(`a = f'Olá {nome}'`);
+            expect(resultado).toBe(`var a = f'Olá {nome}'`);
+        });
+    });
+
     describe('Estruturas de dados — tuplas', () => {
         it('tupla com dois elementos → vetor', () => {
             const resultado = tradutor.traduzir('t = (1, 2)');

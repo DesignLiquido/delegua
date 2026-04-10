@@ -48,6 +48,10 @@ import {
     Try_stmtContext,
     Except_clauseContext,
     Raise_stmtContext,
+    LambdefContext,
+    VarargslistContext,
+    Comp_forContext,
+    Comp_ifContext,
 } from './python/python3-parser';
 
 /**
@@ -361,8 +365,14 @@ export class TradutorReversoPython
 
         if (ctx.OPEN_BRACK()) {
             const testlistComp = ctx.testlist_comp();
-            const items = testlistComp ? this.visitTestlist_comp(testlistComp) : '';
-            return `[${items}]`;
+            if (testlistComp) {
+                // Compreensão de lista: resultado já é um vetor, não envolve em []
+                if (testlistComp.comp_for()) {
+                    return this.visitTestlist_comp(testlistComp);
+                }
+                return `[${this.visitTestlist_comp(testlistComp)}]`;
+            }
+            return '[]';
         }
 
         if (ctx.OPEN_BRACE()) {
@@ -391,7 +401,53 @@ export class TradutorReversoPython
     }
 
     visitTestlist_comp(ctx: Testlist_compContext): string {
+        const compFor = ctx.comp_for();
+        if (compFor) {
+            return this.traduzirCompreensao(ctx.test(0), compFor);
+        }
         return ctx.test().map((t) => this.visit(t)).join(', ');
+    }
+
+    private traduzirCompreensao(exprCtx: TestContext, compFor: Comp_forContext): string {
+        const variavel = this.visit(compFor.exprlist());
+        const iteravel = this.visit(compFor.or_test());
+        const expr = this.visit(exprCtx);
+
+        const compIter = compFor.comp_iter();
+        const compIf: Comp_ifContext | undefined = compIter?.comp_if();
+
+        if (compIf) {
+            const cond = this.visitChildren(compIf.test_nocond());
+            return `filtrarPor(${iteravel}, funcao(${variavel}) { retorna ${cond} }).mapear(funcao(${variavel}) { retorna ${expr} })`;
+        }
+
+        return `${iteravel}.mapear(funcao(${variavel}) { retorna ${expr} })`;
+    }
+
+    visitLambdef(ctx: LambdefContext): string {
+        const varargslist = ctx.varargslist();
+        const params = varargslist ? this.visitVarargslist(varargslist) : '';
+        const corpo = this.visit(ctx.test());
+        return `funcao(${params}) { retorna ${corpo} }`;
+    }
+
+    visitVarargslist(ctx: VarargslistContext): string {
+        const params: string[] = [];
+        for (let i = 0; i < ctx.childCount; ) {
+            const texto = ctx.getChild(i).text;
+            if (texto === ',') { i++; continue; }
+            if (texto === '*' || texto === '**') break;
+            const nomeParam = texto;
+            if (i + 1 < ctx.childCount && ctx.getChild(i + 1).text === '=') {
+                const valorPadrao = this.visit(ctx.getChild(i + 2));
+                params.push(`${nomeParam} = ${valorPadrao}`);
+                i += 3;
+            } else {
+                params.push(nomeParam);
+                i++;
+            }
+        }
+        return params.join(', ');
     }
 
     visitDictorsetmaker(ctx: DictorsetmakerContext): string {
