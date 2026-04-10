@@ -28,6 +28,13 @@ import {
     TrailerContext,
     ArglistContext,
     ArgumentContext,
+    If_stmtContext,
+    While_stmtContext,
+    For_stmtContext,
+    SuiteContext,
+    Break_stmtContext,
+    Continue_stmtContext,
+    Return_stmtContext,
 } from './python/python3-parser';
 
 /**
@@ -348,6 +355,74 @@ export class TradutorReversoPython
             return `${this.visit(testes[0])} = ${this.visit(testes[1])}`;
         }
         return this.visitChildren(ctx);
+    }
+
+    // Traduz um bloco indentado (suite) para o corpo entre chaves de Delégua.
+    private visitCorpo(ctx: SuiteContext): string {
+        const linhas: string[] = [];
+
+        // suite: simple_stmt  |  NEWLINE INDENT stmt+ DEDENT
+        const simpleStmt = ctx.simple_stmt();
+        if (simpleStmt) {
+            linhas.push(`    ${this.visit(simpleStmt)}`);
+        } else {
+            for (const stmt of ctx.stmt()) {
+                const traduzido = this.visit(stmt);
+                for (const linha of traduzido.split('\n')) {
+                    linhas.push(`    ${linha}`);
+                }
+            }
+        }
+
+        return `{\n${linhas.join('\n')}\n}`;
+    }
+
+    visitIf_stmt(ctx: If_stmtContext): string {
+        const testes = ctx.test();
+        const suites = ctx.suite();
+        const elifs = ctx.ELIF();
+
+        // Primeiro bloco: se (cond) { ... }
+        let resultado = `se (${this.visit(testes[0])}) ${this.visitCorpo(suites[0])}`;
+
+        // Blocos elif: senão se (cond) { ... }
+        for (let i = 0; i < elifs.length; i++) {
+            resultado += ` senão se (${this.visit(testes[i + 1])}) ${this.visitCorpo(suites[i + 1])}`;
+        }
+
+        // Bloco else: senão { ... }
+        if (ctx.ELSE()) {
+            resultado += ` senão ${this.visitCorpo(suites[suites.length - 1])}`;
+        }
+
+        return resultado;
+    }
+
+    visitWhile_stmt(ctx: While_stmtContext): string {
+        const cond = this.visit(ctx.test());
+        const corpo = this.visitCorpo(ctx.suite(0));
+        return `enquanto (${cond}) ${corpo}`;
+    }
+
+    visitFor_stmt(ctx: For_stmtContext): string {
+        const variavel = this.visit(ctx.exprlist());
+        const iteravel = this.visit(ctx.testlist());
+        const corpo = this.visitCorpo(ctx.suite(0));
+        return `para cada ${variavel} em ${iteravel} ${corpo}`;
+    }
+
+    visitBreak_stmt(_ctx: Break_stmtContext): string {
+        return 'sustar';
+    }
+
+    visitContinue_stmt(_ctx: Continue_stmtContext): string {
+        return 'continua';
+    }
+
+    visitReturn_stmt(ctx: Return_stmtContext): string {
+        const testlist = ctx.testlist();
+        if (testlist) return `retorna ${this.visit(testlist)}`;
+        return 'retorna';
     }
 
     traduzir(codigo: string): string {

@@ -315,4 +315,99 @@ describe('Tradutor Reverso Python -> Delégua', () => {
             expect(resultado).toBe('a %= 3');
         });
     });
+
+    describe('Controle de fluxo — se', () => {
+        it('if simples', () => {
+            const codigo = `if a > 0:\n    print(a)\n`;
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBe('se (a > 0) {\n    escreva(a)\n}');
+        });
+
+        it('if / else', () => {
+            const codigo = `if a > 0:\n    print('positivo')\nelse:\n    print('negativo')\n`;
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBe(
+                `se (a > 0) {\n    escreva('positivo')\n} senão {\n    escreva('negativo')\n}`
+            );
+        });
+
+        it('if / elif / else', () => {
+            const codigo = `if a > 0:\n    print('positivo')\nelif a == 0:\n    print('zero')\nelse:\n    print('negativo')\n`;
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBe(
+                `se (a > 0) {\n    escreva('positivo')\n} senão se (a == 0) {\n    escreva('zero')\n} senão {\n    escreva('negativo')\n}`
+            );
+        });
+
+        it('if com condição lógica', () => {
+            const codigo = `if a > 0 and b > 0:\n    print(a)\n`;
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBe('se (a > 0 e b > 0) {\n    escreva(a)\n}');
+        });
+    });
+
+    describe('Controle de fluxo — enquanto', () => {
+        it('while simples', () => {
+            const codigo = `while i < 10:\n    i += 1\n`;
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBe('enquanto (i < 10) {\n    i += 1\n}');
+        });
+
+        it('while com break', () => {
+            const codigo = `while verdadeiro:\n    break\n`;
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toMatch(/enquanto \(verdadeiro\)/);
+            expect(resultado).toMatch(/sustar/);
+        });
+
+        it('while com continue', () => {
+            const codigo = `while i < 10:\n    i += 1\n    continue\n`;
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toMatch(/enquanto \(i < 10\)/);
+            expect(resultado).toMatch(/continua/);
+        });
+    });
+
+    describe('Controle de fluxo — para cada', () => {
+        it('for...in lista literal', () => {
+            const codigo = `for item in lista:\n    print(item)\n`;
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBe('para cada item em lista {\n    escreva(item)\n}');
+        });
+
+        it('for...in com range', () => {
+            const codigo = `for i in range(10):\n    print(i)\n`;
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBe('para cada i em intervalo(10) {\n    escreva(i)\n}');
+        });
+
+        it('for...in com break', () => {
+            const codigo = `for item in lista:\n    break\n`;
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toMatch(/para cada item em lista/);
+            expect(resultado).toMatch(/sustar/);
+        });
+    });
+
+    describe('Controle de fluxo — retorna', () => {
+        it('return com valor', () => {
+            const resultado = tradutor.traduzir('return x\n');
+            expect(resultado).toBe('retorna x');
+        });
+
+        it('return sem valor', () => {
+            const resultado = tradutor.traduzir('return\n');
+            expect(resultado).toBe('retorna');
+        });
+    });
+
+    describe('Estruturas aninhadas', () => {
+        it('if dentro de while', () => {
+            const codigo = `while i < 10:\n    if i == 5:\n        break\n    i += 1\n`;
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toMatch(/enquanto \(i < 10\)/);
+            expect(resultado).toMatch(/se \(i == 5\)/);
+            expect(resultado).toMatch(/sustar/);
+        });
+    });
 });
