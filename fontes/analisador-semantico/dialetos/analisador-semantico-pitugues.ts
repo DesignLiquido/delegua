@@ -20,6 +20,7 @@ import {
     Vetor,
     TuplaN,
     AcessoIndiceVariavel,
+    Dupla,
 } from '../../construtos';
 import {
     Const,
@@ -30,6 +31,7 @@ import {
     Expressao,
     Falhar,
     FuncaoDeclaracao,
+    ParaCada,
     Retorna,
     Var,
 } from '../../declaracoes';
@@ -196,39 +198,40 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         return this.verificarTipoDe(expressao.valor);
     }
 
-    private verificarTipoDe(valor: Construto): Promise<any> {
+    private async verificarTipoDe(valor: Construto): Promise<any> {
         switch (valor.constructor) {
             case Agrupamento:
                 const valorAgrupamento = valor as Agrupamento;
-                return this.verificarTipoDe(valorAgrupamento.expressao);
+                return await this.verificarTipoDe(valorAgrupamento.expressao);
             case Binario:
                 const valorBinario = valor as Binario;
-                this.verificarTipoDe(valorBinario.direita);
-                this.verificarTipoDe(valorBinario.esquerda);
+                await this.verificarTipoDe(valorBinario.direita);
+                await this.verificarTipoDe(valorBinario.esquerda);
                 break;
             case Variavel:
                 const valorVariavel = valor as Variavel;
-                return this.verificarVariavel(valorVariavel);
+                return await this.verificarVariavel(valorVariavel);
         }
 
         return Promise.resolve();
     }
 
-    visitarExpressaoFalhar(expressao: Falhar): Promise<any> {
-        return this.verificarFalhar(expressao.explicacao);
+    async visitarExpressaoFalhar(expressao: Falhar): Promise<any> {
+        return await this.verificarFalhar(expressao.explicacao);
     }
 
-    private verificarFalhar(valor: Construto): Promise<any> {
+    private async verificarFalhar(valor: Construto): Promise<any> {
         if (valor instanceof Binario) {
-            this.verificarFalhar(valor.direita);
-            this.verificarFalhar(valor.esquerda);
+            await this.verificarFalhar(valor.direita);
+            await this.verificarFalhar(valor.esquerda);
         }
         if (valor instanceof Agrupamento) {
-            return this.verificarFalhar(valor.expressao);
+            return await this.verificarFalhar(valor.expressao);
         }
         if (valor instanceof Variavel) {
-            return this.verificarVariavel(valor);
+            return await this.verificarVariavel(valor);
         }
+
         return Promise.resolve();
     }
 
@@ -288,6 +291,8 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
     }
 
     visitarExpressaoDeChamada(expressao: Chamada) {
+        this.marcarVariaveisUsadasEmExpressao(expressao.entidadeChamada);
+
         // Garante que toda a árvore de argumentos seja validada e marcada como usada.
         for (const argumento of expressao.argumentos) {
             this.marcarVariaveisUsadasEmExpressao(argumento);
@@ -506,6 +511,86 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
 
     override visitarDeclaracaoEnquanto(declaracao: Enquanto) {
         return this.verificarCondicao(declaracao.condicao);
+    }
+
+    override async visitarDeclaracaoParaCada(declaracao: ParaCada) {
+        this.marcarVariaveisUsadasEmExpressao(declaracao.vetorOuDicionario);
+
+        if (declaracao.vetorOuDicionario) {
+            await declaracao.vetorOuDicionario.aceitar(this);
+        }
+
+        this.gerenciadorEscopos.empilharEscopo();
+
+        try {
+            if (declaracao.variavelIteracao) {
+                if (declaracao.variavelIteracao instanceof Variavel) {
+                    const nomeVariavel = declaracao.variavelIteracao.simbolo.lexema;
+
+                    this.gerenciadorEscopos.declarar(nomeVariavel, {
+                        nome: nomeVariavel,
+                        tipo: 'qualquer',
+                        imutavel: false,
+                        valor: null,
+                        inicializada: true,
+                        usada: false,
+                        hashArquivo: declaracao.hashArquivo,
+                        linha: declaracao.linha
+                    });
+                } else if (declaracao.variavelIteracao instanceof Dupla) {
+                    const dupla = declaracao.variavelIteracao;
+
+                    const primeiraVariavel = dupla.primeiro;
+                    const segundaVariavel = dupla.segundo;
+
+                    if (primeiraVariavel instanceof Variavel) {
+                        const nome = primeiraVariavel.simbolo.lexema;
+                        this.gerenciadorEscopos.declarar(nome, {
+                            nome,
+                            tipo: 'qualquer',
+                            imutavel: false,
+                            valor: null,
+                            inicializada: true,
+                            usada: false,
+                            hashArquivo: declaracao.hashArquivo,
+                            linha: declaracao.linha
+                        });
+                    }
+
+                    if (segundaVariavel instanceof Variavel) {
+                        const nome = segundaVariavel.simbolo.lexema;
+                        this.gerenciadorEscopos.declarar(nome, {
+                            nome,
+                            tipo: 'qualquer',
+                            imutavel: false,
+                            valor: null,
+                            inicializada: true,
+                            usada: false,
+                            hashArquivo: declaracao.hashArquivo,
+                            linha: declaracao.linha
+                        });
+                    }
+                }
+            }
+
+            if (declaracao.corpo) {
+                if (Array.isArray(declaracao.corpo)) {
+                    for (const instrucao of declaracao.corpo) {
+                        await instrucao.aceitar(this);
+                    }
+                } else if ((declaracao.corpo as any).declaracoes) {
+                    for (const instrucao of (declaracao.corpo as any).declaracoes) {
+                        await instrucao.aceitar(this);
+                    }
+                } else {
+                    await declaracao.corpo.aceitar(this);
+                }
+            }
+        } finally {
+            this.gerenciadorEscopos.desempilharEscopo();
+        }
+
+        return Promise.resolve();
     }
 
     private verificarCondicao(condicao: Construto): Promise<void> {
