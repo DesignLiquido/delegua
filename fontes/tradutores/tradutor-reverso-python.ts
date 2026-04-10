@@ -35,6 +35,12 @@ import {
     Break_stmtContext,
     Continue_stmtContext,
     Return_stmtContext,
+    FuncdefContext,
+    ParametersContext,
+    TypedargslistContext,
+    TfpdefContext,
+    ClassdefContext,
+    DecoratedContext,
 } from './python/python3-parser';
 
 /**
@@ -117,7 +123,9 @@ export class TradutorReversoPython
         const simpleAssign = ctx.simple_assign();
         if (simpleAssign && simpleAssign.childCount > 0) {
             const rhs = this.visitSimple_assign(simpleAssign);
-            return `var ${lhs} = ${rhs}`;
+            // Atribuições a atributos (a.b = x) ou índices (a[i] = x) não usam 'var'
+            const prefixo = lhs.includes('.') || lhs.includes('[') ? '' : 'var ';
+            return `${prefixo}${lhs} = ${rhs}`;
         }
 
         if (ctx.augassign()) {
@@ -320,7 +328,7 @@ export class TradutorReversoPython
 
     visitAtom(ctx: AtomContext): string {
         const nome = ctx.NAME();
-        if (nome) return nome.text;
+        if (nome) return nome.text === 'self' ? 'isto' : nome.text;
 
         const numero = ctx.NUMBER();
         if (numero) return numero.text;
@@ -423,6 +431,73 @@ export class TradutorReversoPython
         const testlist = ctx.testlist();
         if (testlist) return `retorna ${this.visit(testlist)}`;
         return 'retorna';
+    }
+
+    visitTfpdef(ctx: TfpdefContext): string {
+        // Ignora anotação de tipo (: Tipo) — retorna apenas o nome
+        return ctx.NAME().text;
+    }
+
+    visitTypedargslist(ctx: TypedargslistContext): string {
+        const params: string[] = [];
+
+        for (let i = 0; i < ctx.childCount; ) {
+            const filho = ctx.getChild(i);
+            const texto = filho.text;
+
+            if (texto === ',') { i++; continue; }
+            // Para em *args ou **kwargs — suporte básico suficiente para fase 4
+            if (texto === '*' || texto === '**') break;
+
+            const nomeParam = this.visit(filho); // → visitTfpdef → NAME
+            if (nomeParam === 'self') { i++; continue; } // Remove self
+
+            // Verifica se há valor padrão: tfpdef '=' test
+            if (i + 1 < ctx.childCount && ctx.getChild(i + 1).text === '=') {
+                const valorPadrao = this.visit(ctx.getChild(i + 2));
+                params.push(`${nomeParam} = ${valorPadrao}`);
+                i += 3;
+            } else {
+                params.push(nomeParam);
+                i++;
+            }
+        }
+
+        return params.join(', ');
+    }
+
+    visitParameters(ctx: ParametersContext): string {
+        const argslist = ctx.typedargslist();
+        if (!argslist) return '';
+        return this.visitTypedargslist(argslist);
+    }
+
+    visitFuncdef(ctx: FuncdefContext): string {
+        const nomePython = ctx.NAME().text;
+        const params = this.visitParameters(ctx.parameters());
+        const corpo = this.visitCorpo(ctx.suite());
+
+        if (nomePython === '__init__') {
+            return `construtor(${params}) ${corpo}`;
+        }
+        return `funcao ${nomePython}(${params}) ${corpo}`;
+    }
+
+    visitClassdef(ctx: ClassdefContext): string {
+        const nome = ctx.NAME().text;
+        const arglist = ctx.arglist();
+        const heranca = arglist ? ` herda ${this.visit(arglist)}` : '';
+        const corpo = this.visitCorpo(ctx.suite());
+        return `classe ${nome}${heranca} ${corpo}`;
+    }
+
+    visitDecorated(ctx: DecoratedContext): string {
+        // Ignora decoradores — traduz apenas o funcdef ou classdef subjacente
+        const funcdef = ctx.funcdef();
+        if (funcdef) return this.visitFuncdef(funcdef);
+        const classdef = ctx.classdef();
+        if (classdef) return this.visitClassdef(classdef);
+        return this.visitChildren(ctx);
     }
 
     traduzir(codigo: string): string {

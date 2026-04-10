@@ -401,6 +401,98 @@ describe('Tradutor Reverso Python -> Delégua', () => {
         });
     });
 
+    describe('Funções', () => {
+        it('função sem parâmetros', () => {
+            const codigo = 'def ola():\n    print("Ola")\n';
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBe('funcao ola() {\n    escreva("Ola")\n}');
+        });
+
+        it('função com parâmetros simples', () => {
+            const codigo = 'def soma(a, b):\n    return a + b\n';
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBe('funcao soma(a, b) {\n    retorna a + b\n}');
+        });
+
+        it('função com parâmetro de valor padrão', () => {
+            const codigo = "def saudar(nome, saudacao='Ola'):\n    print(saudacao)\n";
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBe("funcao saudar(nome, saudacao = 'Ola') {\n    escreva(saudacao)\n}");
+        });
+
+        it('função com múltiplos valores padrão', () => {
+            const codigo = 'def f(a, b=1, c=2):\n    return a + b + c\n';
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBe('funcao f(a, b = 1, c = 2) {\n    retorna a + b + c\n}');
+        });
+
+        it('função com corpo de múltiplas linhas', () => {
+            const codigo = 'def dobro(n):\n    resultado = n * 2\n    return resultado\n';
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBe('funcao dobro(n) {\n    var resultado = n * 2\n    retorna resultado\n}');
+        });
+
+        it('duas funções no mesmo arquivo', () => {
+            const codigo = 'def soma(a, b):\n    return a + b\ndef sub(a, b):\n    return a - b\n';
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBe(
+                'funcao soma(a, b) {\n    retorna a + b\n}\nfuncao sub(a, b) {\n    retorna a - b\n}'
+            );
+        });
+    });
+
+    describe('Classes', () => {
+        it('classe vazia', () => {
+            const codigo = 'class Vazia:\n    pass\n';
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toMatch(/^classe Vazia \{/);
+        });
+
+        it('classe com construtor (__init__)', () => {
+            const codigo = 'class Animal:\n    def __init__(self, nome):\n        self.nome = nome\n';
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBe(
+                'classe Animal {\n    construtor(nome) {\n        isto.nome = nome\n    }\n}'
+            );
+        });
+
+        it('self → isto em atribuição de atributo', () => {
+            const codigo = 'class A:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n';
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toMatch(/isto\.x = x/);
+            expect(resultado).toMatch(/isto\.y = y/);
+        });
+
+        it('self → isto em chamada de método', () => {
+            const codigo = 'class A:\n    def falar(self):\n        print(self.nome)\n';
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toMatch(/escreva\(isto\.nome\)/);
+        });
+
+        it('self removido dos parâmetros', () => {
+            const codigo = 'class A:\n    def metodo(self, a, b):\n        return a + b\n';
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toMatch(/funcao metodo\(a, b\)/);
+        });
+
+        it('classe com herança simples', () => {
+            const codigo = 'class Cachorro(Animal):\n    def latir(self):\n        print("Au")\n';
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toMatch(/^classe Cachorro herda Animal \{/);
+            expect(resultado).toMatch(/funcao latir\(\)/);
+        });
+
+        it('classe com construtor e método', () => {
+            const codigo =
+                'class Contador:\n    def __init__(self):\n        self.n = 0\n    def incrementar(self):\n        self.n += 1\n';
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toMatch(/construtor\(\)/);
+            expect(resultado).toMatch(/funcao incrementar\(\)/);
+            expect(resultado).toMatch(/isto\.n = 0/);
+            expect(resultado).toMatch(/isto\.n \+= 1/);
+        });
+    });
+
     describe('Estruturas aninhadas', () => {
         it('if dentro de while', () => {
             const codigo = `while i < 10:\n    if i == 5:\n        break\n    i += 1\n`;
