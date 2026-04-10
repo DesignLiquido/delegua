@@ -1332,6 +1332,36 @@ describe('Interpretador (Pituguês)', () => {
                         expect(_saidas[2]).toBe('3');
                     });
 
+                    it('retorna dentro de para cada dentro de funcao encerra a funcao (issue #1180)', async () => {
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'funcao encontrar_indice(frase, caractere):',
+                                '    indice = 0',
+                                '    para cada letra em frase:',
+                                '        se letra == caractere:',
+                                '            retorna indice',
+                                '        indice = indice + 1',
+                                '    retorna -1',
+                                'resultado = encontrar_indice("opa", "p")',
+                                'escreva(resultado)',
+                            ],
+                            -1
+                        );
+
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('1');
+                    });
+
                     describe('Dicionários', () => {
                         it('Iterando dicionários com duas variáveis usando o método itens()', async () => {
                             const retornoLexador = lexador.mapear(

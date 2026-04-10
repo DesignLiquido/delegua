@@ -64,6 +64,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     classeAtualEmAnalise: Classe | null;
     atual: number;
     diagnosticos: DiagnosticoAnalisadorSemantico[];
+
     protected readonly microLexador = new MicroLexador();
     protected readonly microAvaliadorSintatico = new MicroAvaliadorSintatico();
 
@@ -234,8 +235,8 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         argumentos: Construto[]
     ) {
         const variavelCorrespondente: FuncaoConstruto =
-            // this.variaveis[argumentoReferenciaFuncao.simboloFuncao.lexema].valor;
             this.gerenciadorEscopos.buscar(argumentoReferenciaFuncao.simboloFuncao.lexema)?.valor;
+
         if (!variavelCorrespondente) {
             return;
         }
@@ -444,15 +445,6 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             }
         }
 
-        /* if (valor.imutavel) {
-            this.erro(simboloAlvo, `Constante ${simboloAlvo.lexema} não pode ser modificada.`);
-            return Promise.resolve();
-        } else {
-            if (this.variaveis[simboloAlvo.lexema]) {
-                this.variaveis[simboloAlvo.lexema].valor = expressao.valor;
-            }
-        } */
-
         return Promise.resolve();
     }
 
@@ -491,6 +483,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         if (declaracao.elemento) {
             this.marcarVariaveisUsadasEmExpressao(declaracao.elemento);
         }
+
         return Promise.resolve();
     }
 
@@ -498,6 +491,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         if (expressao.valor) {
             this.marcarVariaveisUsadasEmExpressao(expressao.valor);
         }
+        
         return Promise.resolve();
     }
 

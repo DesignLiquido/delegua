@@ -268,7 +268,7 @@ export class InterpretadorPitugues extends Interpretador {
         }
 
         while (
-            !(retornoExecucao instanceof Quebra) &&
+            !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
             declaracao.posicaoAtual < listaParaIterar.length
         ) {
             try {
@@ -278,8 +278,8 @@ export class InterpretadorPitugues extends Interpretador {
 
                 retornoExecucao = await this.executar(declaracao.corpo);
 
-                if (retornoExecucao instanceof SustarQuebra) return null;
-                if (retornoExecucao instanceof ContinuarQuebra) retornoExecucao = null;
+                if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) return null;
+                if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) retornoExecucao = null;
 
                 declaracao.posicaoAtual++;
             } catch (erro: any) {
