@@ -25,6 +25,7 @@ import {
     PowerContext,
     Atom_exprContext,
     AtomContext,
+    TrailerContext,
     ArglistContext,
     ArgumentContext,
 } from './python/python3-parser';
@@ -38,9 +39,49 @@ export class TradutorReversoPython
     extends AbstractParseTreeVisitor<string>
     implements Python3Visitor<string>
 {
+    // Funções globais Python → Delégua
     private readonly mapeamentoFuncoes: Record<string, string> = {
         print: 'escreva',
         input: 'leia',
+        len: 'tamanho',
+        int: 'inteiro',
+        float: 'real',
+        str: 'texto',
+        bool: 'logico',
+        type: 'tipoDe',
+        range: 'intervalo',
+        abs: 'absoluto',
+        round: 'arredondar',
+        min: 'minimo',
+        max: 'maximo',
+        sum: 'somar',
+    };
+
+    // Métodos de instância Python → Delégua
+    private readonly mapeamentoMetodos: Record<string, string> = {
+        // Lista / vetor
+        append: 'adicionar',
+        pop: 'removerUltimo',
+        reverse: 'inverter',
+        sort: 'ordenar',
+        clear: 'limpar',
+        // Texto / string
+        upper: 'maiusculo',
+        lower: 'minusculo',
+        strip: 'aparar',
+        lstrip: 'aparar',
+        rstrip: 'aparar',
+        split: 'dividir',
+        join: 'juntar',
+        startswith: 'iniciaCom',
+        endswith: 'terminaCom',
+        replace: 'substituir',
+        find: 'encontrar',
+        count: 'contar',
+        // Dicionário
+        keys: 'chaves',
+        values: 'valores',
+        items: 'itens',
     };
 
     protected defaultResult(): string {
@@ -224,12 +265,50 @@ export class TradutorReversoPython
             return `${nomeFuncao}(${args})`;
         }
 
-        // Fallback: acesso a atributo, índice, chamadas encadeadas
+        // Chamada de método: obj.metodo(args)  →  dois trailers: .nome e (args)
+        if (
+            trailers.length === 2 &&
+            trailers[0].DOT() &&
+            trailers[0].NAME() &&
+            trailers[1].OPEN_PAREN()
+        ) {
+            const nomeMetodoPython = trailers[0].NAME()!.text;
+            const arglist = trailers[1].arglist();
+            const args = arglist ? this.visit(arglist) : '';
+
+            // join é invertido: sep.join(iteravel) → iteravel.juntar(sep)
+            if (nomeMetodoPython === 'join') {
+                return `${args}.juntar(${textoAtomo})`;
+            }
+
+            const nomeMetodoDelégua =
+                this.mapeamentoMetodos[nomeMetodoPython] ?? nomeMetodoPython;
+            return `${textoAtomo}.${nomeMetodoDelégua}(${args})`;
+        }
+
+        // Fallback: acesso a atributo, índice ou chamadas encadeadas
         let resultado = textoAtomo;
         for (const trailer of trailers) {
-            resultado += this.visit(trailer);
+            resultado += this.visitTrailer(trailer);
         }
         return resultado;
+    }
+
+    visitTrailer(ctx: TrailerContext): string {
+        if (ctx.DOT() && ctx.NAME()) {
+            return `.${ctx.NAME()!.text}`;
+        }
+        if (ctx.OPEN_BRACK()) {
+            const subscriptlist = ctx.subscriptlist();
+            const conteudo = subscriptlist ? this.visit(subscriptlist) : '';
+            return `[${conteudo}]`;
+        }
+        if (ctx.OPEN_PAREN()) {
+            const arglist = ctx.arglist();
+            const args = arglist ? this.visit(arglist) : '';
+            return `(${args})`;
+        }
+        return ctx.text;
     }
 
     visitAtom(ctx: AtomContext): string {

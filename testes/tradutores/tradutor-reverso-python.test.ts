@@ -161,6 +161,134 @@ describe('Tradutor Reverso Python -> Delégua', () => {
         });
     });
 
+    describe('Funções globais built-in', () => {
+        it('len -> tamanho', () => {
+            const resultado = tradutor.traduzir('n = len(lista)');
+            expect(resultado).toBe('var n = tamanho(lista)');
+        });
+
+        it('int -> inteiro', () => {
+            const resultado = tradutor.traduzir('n = int(x)');
+            expect(resultado).toBe('var n = inteiro(x)');
+        });
+
+        it('float -> real', () => {
+            const resultado = tradutor.traduzir('n = float(x)');
+            expect(resultado).toBe('var n = real(x)');
+        });
+
+        it('str -> texto', () => {
+            const resultado = tradutor.traduzir('s = str(n)');
+            expect(resultado).toBe('var s = texto(n)');
+        });
+
+        it('type -> tipoDe', () => {
+            const resultado = tradutor.traduzir('t = type(x)');
+            expect(resultado).toBe('var t = tipoDe(x)');
+        });
+
+        it('abs -> absoluto', () => {
+            const resultado = tradutor.traduzir('n = abs(x)');
+            expect(resultado).toBe('var n = absoluto(x)');
+        });
+
+        it('round -> arredondar', () => {
+            const resultado = tradutor.traduzir('n = round(x)');
+            expect(resultado).toBe('var n = arredondar(x)');
+        });
+
+        it('min -> minimo', () => {
+            const resultado = tradutor.traduzir('n = min(a, b)');
+            expect(resultado).toBe('var n = minimo(a, b)');
+        });
+
+        it('max -> maximo', () => {
+            const resultado = tradutor.traduzir('n = max(a, b)');
+            expect(resultado).toBe('var n = maximo(a, b)');
+        });
+    });
+
+    describe('Métodos de lista / vetor', () => {
+        it('append -> adicionar', () => {
+            const resultado = tradutor.traduzir('lista.append(x)');
+            expect(resultado).toBe('lista.adicionar(x)');
+        });
+
+        it('pop -> removerUltimo', () => {
+            const resultado = tradutor.traduzir('lista.pop()');
+            expect(resultado).toBe('lista.removerUltimo()');
+        });
+
+        it('reverse -> inverter', () => {
+            const resultado = tradutor.traduzir('lista.reverse()');
+            expect(resultado).toBe('lista.inverter()');
+        });
+
+        it('sort -> ordenar', () => {
+            const resultado = tradutor.traduzir('lista.sort()');
+            expect(resultado).toBe('lista.ordenar()');
+        });
+
+        it('clear -> limpar', () => {
+            const resultado = tradutor.traduzir('lista.clear()');
+            expect(resultado).toBe('lista.limpar()');
+        });
+    });
+
+    describe('Métodos de texto / string', () => {
+        it('upper -> maiusculo', () => {
+            const resultado = tradutor.traduzir('s = nome.upper()');
+            expect(resultado).toBe('var s = nome.maiusculo()');
+        });
+
+        it('lower -> minusculo', () => {
+            const resultado = tradutor.traduzir('s = nome.lower()');
+            expect(resultado).toBe('var s = nome.minusculo()');
+        });
+
+        it('strip -> aparar', () => {
+            const resultado = tradutor.traduzir('s = texto.strip()');
+            expect(resultado).toBe('var s = texto.aparar()');
+        });
+
+        it('split -> dividir', () => {
+            const resultado = tradutor.traduzir(`partes = frase.split(' ')`);
+            expect(resultado).toBe(`var partes = frase.dividir(' ')`);
+        });
+
+        it('join inverte receptor e argumento', () => {
+            const resultado = tradutor.traduzir(`s = ', '.join(lista)`);
+            expect(resultado).toBe(`var s = lista.juntar(', ')`);
+        });
+
+        it('startswith -> iniciaCom', () => {
+            const resultado = tradutor.traduzir(`b = s.startswith('http')`);
+            expect(resultado).toBe(`var b = s.iniciaCom('http')`);
+        });
+
+        it('endswith -> terminaCom', () => {
+            const resultado = tradutor.traduzir(`b = s.endswith('.py')`);
+            expect(resultado).toBe(`var b = s.terminaCom('.py')`);
+        });
+
+        it('replace -> substituir', () => {
+            const resultado = tradutor.traduzir(`s = frase.replace('a', 'b')`);
+            expect(resultado).toBe(`var s = frase.substituir('a', 'b')`);
+        });
+    });
+
+    describe('Acesso a atributo e índice (fallback)', () => {
+        it('acesso a atributo passa direto', () => {
+            const resultado = tradutor.traduzir('n = obj.nome');
+            expect(resultado).toBe('var n = obj.nome');
+        });
+
+        it('acesso a índice passa direto', () => {
+            const resultado = tradutor.traduzir('x = lista[0]');
+            expect(resultado).toBe('var x = lista[0]');
+        });
+    });
+
     describe('Atribuição composta (augmented assignment)', () => {
         it('+=', () => {
             const resultado = tradutor.traduzir('a += 1');
