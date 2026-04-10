@@ -482,6 +482,12 @@ describe('Tradutor Reverso Python -> Delégua', () => {
             expect(resultado).toMatch(/funcao latir\(\)/);
         });
 
+        it('classe com herança múltipla', () => {
+            const codigo = 'class C(A, B):\n    pass\n';
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toMatch(/^classe C herda A, B \{/);
+        });
+
         it('classe com construtor e método', () => {
             const codigo =
                 'class Contador:\n    def __init__(self):\n        self.n = 0\n    def incrementar(self):\n        self.n += 1\n';
@@ -569,6 +575,28 @@ describe('Tradutor Reverso Python -> Delégua', () => {
         it('acesso a chave de dicionário', () => {
             const resultado = tradutor.traduzir(`v = d['chave']`);
             expect(resultado).toBe(`var v = d['chave']`);
+        });
+    });
+
+    describe('Gerenciadores de contexto — tendo/como', () => {
+        it('with simples com as → tendo como', () => {
+            const codigo = `with open('f.txt') as f:\n    x = f.read()\n`;
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBe(`tendo open('f.txt') como f {\n    var x = f.read()\n}`);
+        });
+
+        it('with múltiplos itens → tendo aninhados', () => {
+            const codigo = `with open('a') as fa, open('b') as fb:\n    x = 1\n`;
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBe(
+                `tendo open('a') como fa {\n    tendo open('b') como fb {\n        var x = 1\n    }\n}`
+            );
+        });
+
+        it('with sem as → traduz apenas o corpo', () => {
+            const codigo = `with lock:\n    x = 1\n`;
+            const resultado = tradutor.traduzir(codigo);
+            expect(resultado).toBe('var x = 1');
         });
     });
 

@@ -46,12 +46,13 @@ import {
     SubscriptlistContext,
     SubscriptContext,
     Try_stmtContext,
-    Except_clauseContext,
     Raise_stmtContext,
     LambdefContext,
     VarargslistContext,
     Comp_forContext,
     Comp_ifContext,
+    With_stmtContext,
+    With_itemContext,
 } from './python/python3-parser';
 
 /**
@@ -540,6 +541,46 @@ export class TradutorReversoPython
         const tests = ctx.test();
         if (tests.length === 0) return 'levante';
         return `levante ${this.visit(tests[0])}`;
+    }
+
+    visitWith_stmt(ctx: With_stmtContext): string {
+        const linhasCorpo = this.visitLinhasCorpo(ctx.suite());
+        // Apenas itens com `as` podem ser traduzidos para `tendo...como`
+        const itemsComAs = ctx.with_item().filter((item) => item.expr());
+        if (itemsComAs.length === 0) {
+            // Nenhum item com `as`: traduz apenas o corpo, sem tendo
+            return linhasCorpo.map((l) => l.trimStart()).join('\n');
+        }
+        return this.construirTendo(itemsComAs, 0, linhasCorpo);
+    }
+
+    // Constrói blocos `tendo` aninhados para cada item do `with`.
+    // Items sem `as` são ignorados (Delégua exige um identificador).
+    private construirTendo(items: With_itemContext[], i: number, linhas: string[]): string {
+        if (i >= items.length) {
+            return `{\n${linhas.join('\n')}\n}`;
+        }
+        const item = items[i];
+        const varExpr = item.expr();
+        const expr = this.visit(item.test());
+
+        if (!varExpr) {
+            // Sem `as`: sem variável para ligar — pula este item
+            return this.construirTendo(items, i + 1, linhas);
+        }
+
+        const nomeVar = this.visit(varExpr);
+
+        // Para múltiplos itens, o próximo nível é indentado dentro deste bloco
+        let linhasInternas: string[];
+        if (i + 1 < items.length) {
+            const blocoInterno = this.construirTendo(items, i + 1, linhas);
+            linhasInternas = blocoInterno.split('\n').map((l) => `    ${l}`);
+        } else {
+            linhasInternas = linhas;
+        }
+
+        return `tendo ${expr} como ${nomeVar} {\n${linhasInternas.join('\n')}\n}`;
     }
 
     visitIf_stmt(ctx: If_stmtContext): string {
