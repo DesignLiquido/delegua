@@ -683,6 +683,55 @@ export async function intervalo(
 }
 
 /**
+ * Dado um vetor e, opcionalmente, um valor de início, retorna um vetor de dicionários, 
+ * onde cada dicionário contém o índice e o valor correspondente do vetor original.
+ * @param {InterpretadorInterface} interpretador A instância do interpretador.
+ * @param {VariavelInterface | any} vetor Uma variável de Delégua ou um vetor nativo de JavaScript.
+ * @param {number | undefined} inicio O valor de início (opcional).
+ * @returns {Promise<any[]>} Um vetor de dicionários com índice e valor.
+ */
+export async function enumerar(
+    interpretador: InterpretadorInterface,
+    vetor: VariavelInterface | any,
+    inicio?: number | undefined
+): Promise<any[]> {
+    if (vetor === null || vetor === undefined) {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                {
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual,
+                } as SimboloInterface,
+                'Parâmetro inválido. O primeiro parâmetro da função enumerar() não pode ser nulo.'
+            )
+        );
+    }
+    if (inicio !== undefined && (typeof inicio !== 'number' || isNaN(inicio))) {
+        return Promise.reject(
+            new ErroEmTempoDeExecucao(
+                {
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual,
+                } as SimboloInterface,
+                'O parâmetro de início deve ser do tipo número ou inteiro.'
+            )
+        );
+    }
+
+
+    const valorVetor = interpretador.resolverValor(vetor);
+    const inicioInteiro = typeof inicio === 'number' && !isNaN(inicio) ? Math.floor(inicio) : 0;
+
+    const resultados = [];
+    for (let i = inicioInteiro; i < valorVetor.length; ++i) {
+        resultados.push({ indice: i, valor: valorVetor[i] });
+    }
+
+    return Promise.resolve(resultados);
+}
+
+
+/**
  * Dado um vetor e uma função de mapeamento, executa a função de mapeamento
  * passando como argumento cada elemento do vetor.
  * @param interpretador A instância do interpretador.

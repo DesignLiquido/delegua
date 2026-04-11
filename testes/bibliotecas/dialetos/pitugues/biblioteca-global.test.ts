@@ -18,6 +18,7 @@ import {
     encontrar_indice,
     encontrar_ultimo,
     encontrar_ultimo_indice,
+    enumerar,
     filtrar_por,
     incluido,
     inteiro,
@@ -1441,6 +1442,26 @@ describe('para_cada', () => {
         await expect(para_cada(interpretador as any, null as any, {} as any)).rejects.toBeDefined();
     });
     
+});
+describe('enumerar', () => {
+    it('retorna vetor de pares [índice, valor]', async () => {
+        const interpretador = criarInterpretadorMock();
+        const resultado = await enumerar(interpretador as any, [9,8,7]);
+        expect(resultado).toEqual([{ indice: 0, valor: 9 }, { indice: 1, valor: 8 }, { indice: 2, valor: 7 }]);
+    });
+    it('enumerar rejeita quando primeiro parâmetro não é vetor', async () => {
+        const interpretador = criarInterpretadorMock();
+        await expect(enumerar(interpretador as any, null as any)).rejects.toBeDefined();
+    });
+    it('enumerar com início personalizado', async () => {
+        const interpretador = criarInterpretadorMock();
+        const resultado = await enumerar(interpretador as any, [9,8,7], 1);
+        expect(resultado).toEqual([ { indice: 1, valor: 8 }, { indice: 2, valor: 7 }]);
+    });
+    it('enumerar com início personalizado rejeita quando início não é número', async () => {
+        const interpretador = criarInterpretadorMock();
+        await expect(enumerar(interpretador as any, [9,8,7], '1' as any)).rejects.toBeDefined();
+    });
 });
 
 describe('texto', () => {
