@@ -3,14 +3,13 @@ import { Declaracao } from '../declaracoes';
 import { EspacoMemoria } from '../interpretador/espaco-memoria';
 import { ErroInterpretadorInterface } from './erros/erro-interpretador-interface';
 import { PilhaEscoposExecucaoInterface } from './pilha-escopos-execucao-interface';
-
 import { RetornoInterpretadorInterface } from './retornos/retorno-interpretador-interface';
 import { VisitanteComumInterface } from './visitante-comum-interface';
 
 export interface InterpretadorInterface extends VisitanteComumInterface {
     erros: ErroInterpretadorInterface[];
     diretorioBase: any;
-    funcaoDeRetorno: Function;
+    funcaoDeRetorno: Function | undefined;
     pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
     interfaceEntradaSaida: any;
     hashArquivoDeclaracaoAtual: number;

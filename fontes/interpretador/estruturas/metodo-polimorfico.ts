@@ -41,7 +41,7 @@ function tiposCompativeisParaDespacho(tipoParametro: string, tipoArgumento: stri
 export class MetodoPolimorfico extends Chamavel {
     nome: string;
     sobrecargas: DeleguaFuncao[];
-    instancia: ObjetoDeleguaClasse;
+    instancia: ObjetoDeleguaClasse | undefined;
 
     constructor(nome: string, sobrecargas: DeleguaFuncao[], instancia?: ObjetoDeleguaClasse) {
         super();
@@ -79,7 +79,7 @@ export class MetodoPolimorfico extends Chamavel {
     resolverSobrecarga(argumentos: ArgumentoInterface[]): DeleguaFuncao {
         const numArgs = argumentos.length;
         let melhorPontuacao = -1;
-        let melhorSobrecarga: DeleguaFuncao = null;
+        let melhorSobrecarga: DeleguaFuncao | undefined = undefined;
 
         for (const sobrecarga of this.sobrecargas) {
             const parametros = sobrecarga.declaracao?.parametros || [];
@@ -157,7 +157,7 @@ export class MetodoPolimorfico extends Chamavel {
             });
 
             throw new ErroEmTempoDeExecucao(
-                null,
+                this.instancia?.classe.simboloOriginal,
                 `Nenhuma sobrecarga do método "${this.nome}" corresponde aos argumentos fornecidos (${tiposArgs.join(', ')}). ` +
                     `Sobrecargas disponíveis: ${assinaturas.join('; ')}.`
             );

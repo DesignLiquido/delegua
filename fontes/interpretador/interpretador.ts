@@ -41,6 +41,7 @@ import {
     MetodoPrimitiva,
     ObjetoDeleguaClasse,
     ObjetoPadrao,
+    OBJETO_BASE,
     ReferenciaMontao,
     SuperProxy,
 } from './estruturas';
@@ -319,7 +320,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         declaracao: Const | ConstMultiplo | Var | VarMultiplo
     ): Promise<any> {
         let valorOuOutraVariavel = null;
-        if (declaracao.inicializador !== null) {
+        if (declaracao.inicializador != null) {
             valorOuOutraVariavel = await this.avaliar(declaracao.inicializador);
         }
 
@@ -841,22 +842,175 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         );
     }
 
-    /**
-     * Marca a `classeDefinidora` nos métodos próprios do descritor retornado pelo
-     * interpretador base. Isso é necessário para que `super()` localize corretamente
-     * a posição da classe em execução dentro do OReM (herança cooperativa).
-     */
-    override async visitarDeclaracaoClasse(declaracao: Classe): Promise<DescritorTipoClasse> {
-        const descritor = await super.visitarDeclaracaoClasse(declaracao);
-        for (const funcaoOuSobrecargas of Object.values(descritor.metodos)) {
+
+    protected logicaPropriedadesEMetodosDeClasse(
+        declaracao: Classe,
+        superClassesResolvidas: DescritorTipoClasse[],
+        mesclaResolvidas: DescritorTipoClasse[]
+    ): DescritorTipoClasse {
+        const metodos: { [nome: string]: DeleguaFuncao | DeleguaFuncao[] } = {};
+        const metodosEstaticos: { [nome: string]: DeleguaFuncao | DeleguaFuncao[] } = {};
+        const obtenedores: { [nome: string]: DeleguaFuncao } = {};
+        const definidores: { [nome: string]: DeleguaFuncao } = {};
+        const obtenedoresEstaticos: { [nome: string]: DeleguaFuncao } = {};
+        const definidoresEstaticos: { [nome: string]: DeleguaFuncao } = {};
+        const metodosAbstratos: string[] = [];
+        const acessoMetodos: { [nome: string]: 'privado' | 'protegido' | 'publico' } = {};
+        const acessoPropriedades: { [nome: string]: 'privado' | 'protegido' | 'publico' } = {};
+
+        for (const metodoAtual of declaracao.metodos) {
+            const nomeMetodo = metodoAtual.simbolo.lexema;
+
+            if (metodoAtual.acesso && metodoAtual.acesso !== 'publico') {
+                acessoMetodos[nomeMetodo] = metodoAtual.acesso;
+            }
+
+            if (metodoAtual.abstrato) {
+                metodosAbstratos.push(nomeMetodo);
+                continue;
+            }
+
+            const eInicializador = nomeMetodo === 'construtor';
+            const funcao = new DeleguaFuncao(
+                nomeMetodo,
+                metodoAtual.funcao,
+                undefined,
+                eInicializador
+            );
+            funcao.documentacao = metodoAtual.documentacao;
+
+            // Numa classe estática, todos os métodos (exceto construtor) são estáticos.
+            const ehEstatico = declaracao.classeEstatica ? !eInicializador : metodoAtual.estatico;
+
+            if (metodoAtual.eObtenedor) {
+                if (ehEstatico) {
+                    obtenedoresEstaticos[nomeMetodo] = funcao;
+                } else {
+                    obtenedores[nomeMetodo] = funcao;
+                }
+                continue;
+            }
+
+            if (metodoAtual.eDefinidor) {
+                if (ehEstatico) {
+                    definidoresEstaticos[nomeMetodo] = funcao;
+                } else {
+                    definidores[nomeMetodo] = funcao;
+                }
+                continue;
+            }
+
+            const destino = ehEstatico && !eInicializador ? metodosEstaticos : metodos;
+            if (destino[nomeMetodo]) {
+                if (!Array.isArray(destino[nomeMetodo])) {
+                    destino[nomeMetodo] = [destino[nomeMetodo] as DeleguaFuncao];
+                }
+                (destino[nomeMetodo] as DeleguaFuncao[]).push(funcao);
+            } else {
+                destino[nomeMetodo] = funcao;
+            }
+        }
+
+        // Registrar propriedades estáticas no mapa de membros estáticos e níveis de acesso.
+        // Numa classe estática, todas as propriedades são tratadas como estáticas.
+        const membrosEstaticos: { [nome: string]: any } = {};
+        for (const prop of declaracao.propriedades) {
+            if (prop.estatico || declaracao.classeEstatica) {
+                membrosEstaticos[prop.nome.lexema] = undefined;
+            }
+            if (prop.acesso && prop.acesso !== 'publico') {
+                acessoPropriedades[prop.nome.lexema] = prop.acesso;
+            }
+        }
+
+        const descritorTipoClasse = new DescritorTipoClasse(
+            declaracao.simbolo,
+            superClassesResolvidas,
+            metodos,
+            declaracao.propriedades
+        );
+
+        descritorTipoClasse.metodosEstaticos = metodosEstaticos;
+        descritorTipoClasse.membrosEstaticos = membrosEstaticos;
+        descritorTipoClasse.obtenedores = obtenedores;
+        descritorTipoClasse.definidores = definidores;
+        descritorTipoClasse.obtenedoresEstaticos = obtenedoresEstaticos;
+        descritorTipoClasse.definidoresEstaticos = definidoresEstaticos;
+        descritorTipoClasse.abstrata = declaracao.abstrata;
+        descritorTipoClasse.estrangeira = declaracao.estrangeira;
+        descritorTipoClasse.classeEstatica = declaracao.classeEstatica;
+        descritorTipoClasse.metodosAbstratos = metodosAbstratos;
+        descritorTipoClasse.acessoMetodos = acessoMetodos;
+        descritorTipoClasse.acessoPropriedades = acessoPropriedades;
+
+        // Toda classe sem superclasse explícita herda implicitamente de `Objeto`.
+        if (
+            descritorTipoClasse.superClasses.length === 0 &&
+            OBJETO_BASE &&
+            descritorTipoClasse !== OBJETO_BASE
+        ) {
+            descritorTipoClasse.superClasses = [OBJETO_BASE];
+        }
+
+        // Calcular o OReM (linearização C3) após os pais estarem definidos.
+        descritorTipoClasse.orem = DescritorTipoClasse.computarOReM(descritorTipoClasse);
+
+        // Mesclar métodos e propriedades dos misturávels (primeiro misturável ganha se não definido na classe).
+        for (const misturável of mesclaResolvidas) {
+            for (const [nome, funcao] of Object.entries(misturável.metodos)) {
+                if (!descritorTipoClasse.metodos.hasOwnProperty(nome)) {
+                    descritorTipoClasse.metodos[nome] = funcao;
+                }
+            }
+            for (const [nome, funcao] of Object.entries(misturável.obtenedores)) {
+                if (!descritorTipoClasse.obtenedores.hasOwnProperty(nome)) {
+                    descritorTipoClasse.obtenedores[nome] = funcao;
+                }
+            }
+            for (const [nome, funcao] of Object.entries(misturável.definidores)) {
+                if (!descritorTipoClasse.definidores.hasOwnProperty(nome)) {
+                    descritorTipoClasse.definidores[nome] = funcao;
+                }
+            }
+            for (const prop of misturável.propriedades) {
+                const jaDeclarada = descritorTipoClasse.propriedades.some(
+                    (p) => p.nome.lexema === prop.nome.lexema
+                );
+                if (!jaDeclarada) {
+                    descritorTipoClasse.propriedades.push(prop);
+                }
+            }
+        }
+
+        // Verifica se a subclasse concreta implementa todos os métodos abstratos
+        // da(s) superclasse(s) abstrata(s).
+        if (!declaracao.abstrata && !declaracao.estrangeira) {
+            for (const superClasse of superClassesResolvidas) {
+                if (superClasse.abstrata || superClasse.estrangeira) {
+                    superClasse.verificarImplementacaoAbstrata(descritorTipoClasse);
+                }
+            }
+        }
+
+        // Marcar classeDefinidora em todos os métodos para que `super()` funcione.
+        for (const funcaoOuSobrecargas of Object.values(descritorTipoClasse.metodos)) {
             const lista = Array.isArray(funcaoOuSobrecargas)
                 ? funcaoOuSobrecargas
                 : [funcaoOuSobrecargas];
             for (const funcao of lista) {
-                funcao.classeDefinidora = descritor;
+                funcao.classeDefinidora = descritorTipoClasse;
             }
         }
-        return descritor;
+
+        return descritorTipoClasse;
+    }
+
+    protected override resolverMetodoDeClasse(
+        declaracao: Classe,
+        superClassesResolvidas: DescritorTipoClasse[],
+        mesclaResolvidas: DescritorTipoClasse[]
+    ): DescritorTipoClasse {
+        return this.logicaPropriedadesEMetodosDeClasse(declaracao, superClassesResolvidas, mesclaResolvidas);
     }
 
     /**

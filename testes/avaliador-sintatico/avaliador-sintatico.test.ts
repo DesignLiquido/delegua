@@ -2215,6 +2215,40 @@ describe('Avaliador sintático', () => {
                     expect(listaCompreensao.tipo).toBe('qualquer[]');
                 });
             });
+
+            describe('Espalhamento (...)', () => {
+                it('Deve processar parâmetro de espalhamento com ...', async () => {
+                    const retornoLexador = lexador.mapear(
+                        ['função teste(...argumentos) {', '   escreva(argumentos)', '}'],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    const funcao = retornoAvaliadorSintatico.declaracoes[0] as FuncaoDeclaracao;
+                    const parametros = (funcao.funcao as FuncaoConstruto).parametros;
+                    expect(parametros).toHaveLength(1);
+                    expect(parametros[0].nome.lexema).toBe('argumentos');
+                    expect(parametros[0].abrangencia).toBe('multiplo');
+                });
+
+                it('Deve processar parâmetros normais antes do parâmetro de espalhamento', async () => {
+                    const retornoLexador = lexador.mapear(
+                        ['função teste(a, b, ...resto) {', '   escreva(resto)', '}'],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    const funcao = retornoAvaliadorSintatico.declaracoes[0] as FuncaoDeclaracao;
+                    const parametros = (funcao.funcao as FuncaoConstruto).parametros;
+                    expect(parametros).toHaveLength(3);
+                    expect(parametros[0].abrangencia).toBe('padrao');
+                    expect(parametros[1].abrangencia).toBe('padrao');
+                    expect(parametros[2].nome.lexema).toBe('resto');
+                    expect(parametros[2].abrangencia).toBe('multiplo');
+                });
+            });
         });
     });
 });

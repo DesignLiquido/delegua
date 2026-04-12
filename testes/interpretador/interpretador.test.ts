@@ -3311,7 +3311,7 @@ describe('Interpretador', () => {
 
             describe('Declaração e chamada de funções', () => {
                 it('Aglutinação de argumentos', async () => {
-                    const codigo = ['função teste(*argumentos) {', '   escreva(argumentos)', '}', 'teste(1, 2, 3)'];
+                    const codigo = ['função teste(...argumentos) {', '   escreva(argumentos)', '}', 'teste(1, 2, 3)'];
 
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
@@ -3451,7 +3451,7 @@ describe('Interpretador', () => {
 
                 it('Definição de chamadas e funções anônimas', async () => {
                     const codigo = [
-                        'escreva((função (*argumentos) {',
+                        'escreva((função (...argumentos) {',
                         '   retorna argumentos',
                         '})(1, 2, 3))'
                     ];
@@ -3464,6 +3464,65 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(_saidas).toHaveLength(1);
                     expect(_saidas[0]).toBe('[1, 2, 3]');
+                });
+
+                describe('Espalhamento (...)', () => {
+                    it('Espalhamento coleta todos os argumentos em vetor', async () => {
+                        const codigo = [
+                            'função soma(...nums) {',
+                            '   var total = 0',
+                            '   para cada n em nums {',
+                            '       total = total + n',
+                            '   }',
+                            '   retorna total',
+                            '}',
+                            'escreva(soma(1, 2, 3, 4))',
+                        ];
+
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('10');
+                    });
+
+                    it('Espalhamento com parâmetros posicionais antes', async () => {
+                        const codigo = [
+                            'função primeiro_e_resto(a, ...resto) {',
+                            '   escreva(a)',
+                            '   escreva(resto)',
+                            '}',
+                            'primeiro_e_resto(1, 2, 3)',
+                        ];
+
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(2);
+                        expect(_saidas[0]).toBe('1');
+                        expect(_saidas[1]).toBe('[2, 3]');
+                    });
+
+                    it('Espalhamento com zero argumentos extras resulta em vetor vazio', async () => {
+                        const codigo = [
+                            'função teste(a, ...resto) {',
+                            '   escreva(resto)',
+                            '}',
+                            'teste(42)',
+                        ];
+
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('[]');
+                    });
                 });
 
                 it('Fibonacci', async () => {

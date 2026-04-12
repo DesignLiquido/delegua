@@ -2,7 +2,7 @@ import { Chamavel } from './chamavel';
 import { EspacoMemoria } from '../espaco-memoria';
 import { DescritorTipoClasse } from './descritor-tipo-classe';
 
-import { InterpretadorInterface } from '../../interfaces';
+import { InterpretadorInterface, ParametroInterface } from '../../interfaces';
 import { RetornoQuebra } from '../../quebras';
 import { ObjetoDeleguaClasse } from './objeto-delegua-classe';
 import { ComentarioComoConstruto, FuncaoConstruto } from '../../construtos';
@@ -14,7 +14,7 @@ import { Retorna } from '../../declaracoes';
  * Qualquer função declarada em código é uma DeleguaFuncao.
  */
 export class DeleguaFuncao extends Chamavel {
-    nome: string;
+    nome: string | null;
     declaracao: FuncaoConstruto;
     eInicializador: boolean;
     instancia: any;
@@ -23,7 +23,7 @@ export class DeleguaFuncao extends Chamavel {
     classeDefinidora: DescritorTipoClasse | null = null;
 
     constructor(
-        nome: string,
+        nome: string | null,
         declaracao: FuncaoConstruto,
         instancia: any = undefined,
         eInicializador = false
@@ -36,7 +36,7 @@ export class DeleguaFuncao extends Chamavel {
     }
 
     aridade(): number {
-        return this.declaracao?.parametros?.length || 0;
+        return this.declaracao?.parametros?.filter(p => p.abrangencia !== 'multiplo').length || 0;
     }
 
     /**
@@ -120,7 +120,7 @@ export class DeleguaFuncao extends Chamavel {
             } else {
                 let argumento = argumentos[i];
                 if (argumento.valor === null) {
-                    argumentos[i].valor = parametro['padrao'] ? parametro['padrao'].valor : null;
+                    argumentos[i].valor = parametro.valorPadrao ? parametro.valorPadrao : null;
                 }
 
                 ambiente.valores[nome] =
@@ -180,7 +180,7 @@ export class DeleguaFuncao extends Chamavel {
             interpretador.classeAtualEmExecucao = classeAnteriorEmExecucao;
         }
 
-        const referencias = this.declaracao.parametros
+        const referencias: { indice: number, parametro: ParametroInterface }[] = this.declaracao.parametros
             .map((p, indice) => {
                 if (p.referencia) {
                     return {
@@ -189,7 +189,8 @@ export class DeleguaFuncao extends Chamavel {
                     };
                 }
             })
-            .filter((r) => r);
+            .filter((r) => r) as { indice: number, parametro: ParametroInterface }[];
+            
         const pilha = interpretador.pilhaEscoposExecucao as PilhaEscoposExecucaoInterface;
 
         for (let referencia of referencias) {
