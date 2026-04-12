@@ -2866,9 +2866,9 @@ export class AvaliadorSintatico
                 new InformacaoElementoSintatico(
                     identificador.lexema,
                     this.logicaComumInferenciaTiposVariaveisEConstantes(
-                        inicializador, 
+                        inicializador,
                         'qualquer'
-                    ) as string
+                    ) ?? 'qualquer'
                 )
             );
             const declaracaoVar = new Var(
@@ -3134,7 +3134,7 @@ export class AvaliadorSintatico
             tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(
                 inicializadores[indice],
                 tipo
-            ) as string;
+            ) ?? tipo;
 
             if (tipo !== 'dicionário') {
                 this.pilhaEscopos.definirInformacoesVariavel(
@@ -3268,7 +3268,7 @@ export class AvaliadorSintatico
             tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(
                 inicializadores[indice],
                 tipo
-            ) as string;
+            ) ?? tipo;
 
             if (tipo !== 'dicionário') {
                 this.pilhaEscopos.definirInformacoesVariavel(

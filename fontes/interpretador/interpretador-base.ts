@@ -1174,7 +1174,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             let valor = await this.avaliar(variavelArgumento);
 
             argumentos.push({
-                nome: nomeArgumento as string,
+                nome: nomeArgumento ?? null,
                 valor,
             });
         }

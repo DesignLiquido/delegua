@@ -460,6 +460,7 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
                             caractere: this.simboloAtual(),
                             mensagem: 'Esperado ou apenas um ponto, ou três pontos em sequência.',
                         } as ErroLexador);
+                        this.adicionarSimbolo(tiposDeSimbolos.PONTO, '.');
                     } else {
                         this.avancar();
                         this.adicionarSimbolo(tiposDeSimbolos.RETICENCIAS, '...');
