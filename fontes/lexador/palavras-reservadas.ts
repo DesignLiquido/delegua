@@ -81,7 +81,7 @@ export const palavrasReservadasDelegua = {
     variavel: tiposDeSimbolos.VARIAVEL,
     variável: tiposDeSimbolos.VARIAVEL,
     verdadeiro: tiposDeSimbolos.VERDADEIRO,
-};
+} as {[palavra: string]: string};
 
 export const palavrasReservadasMicroGramatica = {
     e: tiposDeSimbolos.E,
@@ -90,4 +90,4 @@ export const palavrasReservadasMicroGramatica = {
     nulo: tiposDeSimbolos.NULO,
     ou: tiposDeSimbolos.OU,
     verdadeiro: tiposDeSimbolos.VERDADEIRO,
-};
+} as {[palavra: string]: string};

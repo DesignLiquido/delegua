@@ -7,7 +7,7 @@ import { Declaracao } from './declaracao';
  */
 export class Var extends Declaracao {
     simbolo: SimboloInterface;
-    inicializador: Construto;
+    inicializador: Construto | undefined;
     tipo: string;
     tipoOriginal: string; // Tipo originalmente especificado pelo usuário (antes da inferência)
     tipoExplicito: boolean;
@@ -17,7 +17,7 @@ export class Var extends Declaracao {
 
     constructor(
         simbolo: SimboloInterface,
-        inicializador: Construto,
+        inicializador: Construto | undefined,
         tipo: string = 'qualquer',
         tipoExplicito: boolean = false,
         decoradores: Decorador[] = [],

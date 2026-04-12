@@ -6,6 +6,7 @@ import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
 import { Simbolo } from './simbolo';
 
 import { palavrasReservadasDelegua } from './palavras-reservadas';
+
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
 /**
@@ -15,7 +16,7 @@ import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
  * estruturas, tais como nomes de variáveis, funções, literais, classes e assim por diante.
  */
 export class Lexador implements LexadorInterface<SimboloInterface> {
-    codigo: string[];
+    codigo: string[] = [];
     hashArquivo: number;
     simbolos: SimboloInterface[];
     erros: ErroLexador[];
@@ -449,8 +450,24 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
                 this.avancar();
                 break;
             case '.':
-                this.adicionarSimbolo(tiposDeSimbolos.PONTO, '.');
+                this.inicioSimbolo = this.atual;
                 this.avancar();
+                if (this.simboloAtual() === '.') {
+                    this.avancar();
+                    if (this.simboloAtual() !== '.') {
+                        this.erros.push({
+                            linha: this.linha + 1,
+                            caractere: this.simboloAtual(),
+                            mensagem: 'Esperado ou apenas um ponto, ou três pontos em sequência.',
+                        } as ErroLexador);
+                    } else {
+                        this.avancar();
+                        this.adicionarSimbolo(tiposDeSimbolos.RETICENCIAS, '...');
+                    }
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.PONTO, '.');
+                }
+
                 break;
             case '-':
                 this.inicioSimbolo = this.atual;

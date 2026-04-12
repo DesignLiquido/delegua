@@ -8,7 +8,7 @@ import { Chamavel } from './chamavel';
 export class FuncaoPadrao extends Chamavel {
     valorAridade: number;
     funcao: Function;
-    simbolo: SimboloInterface;
+    simbolo: SimboloInterface | undefined;
     argumentos?: { nome: string; tipo: string }[];
     tipoRetorno?: string;
     documentacao?: string;
@@ -23,9 +23,12 @@ export class FuncaoPadrao extends Chamavel {
     async chamar(
         visitante: InterpretadorInterface,
         argumentos: any[],
-        simbolo: SimboloInterface
+        simbolo: SimboloInterface | null
     ): Promise<any> {
-        this.simbolo = simbolo;
+        if (simbolo) {
+            this.simbolo = simbolo;
+        }
+
         return await this.funcao.apply(this, [visitante, ...argumentos]);
     }
 
@@ -34,7 +37,7 @@ export class FuncaoPadrao extends Chamavel {
      * @returns {string} A representação da função como texto.
      */
     paraTexto(): string {
-        return `<função-padrão nome=${this.simbolo.lexema} />`;
+        return `<função-padrão nome=${this.simbolo?.lexema || '(função anônima)'} />`;
     }
 
     /**

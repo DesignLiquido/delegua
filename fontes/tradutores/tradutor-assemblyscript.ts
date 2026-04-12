@@ -650,7 +650,7 @@ export class TradutorAssemblyScript {
             declaracaoSe.caminhoEntao
         );
 
-        if (declaracaoSe.caminhoSenao !== null) {
+        if (declaracaoSe.caminhoSenao != null) {
             resultado += ' '.repeat(this.indentacao);
             resultado += 'else ';
             const se = declaracaoSe?.caminhoSenao as Se;

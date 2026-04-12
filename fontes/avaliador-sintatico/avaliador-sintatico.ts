@@ -42,7 +42,7 @@ import {
     Variavel,
     Vetor,
 } from '../construtos';
-import { AvaliadorSintaticoInterface, ParametroInterface, SimboloInterface } from '../interfaces';
+import { AvaliadorSintaticoInterface, CaminhoEscolha, ParametroInterface, SimboloInterface } from '../interfaces';
 
 import {
     CorrecaoImplementacaoInterface,
@@ -137,19 +137,19 @@ export class AvaliadorSintatico
     extends AvaliadorSintaticoBase
     implements AvaliadorSintaticoInterface<SimboloInterface, Declaracao>
 {
-    pilhaDecoradores: Decorador[];
-    simbolos: SimboloInterface[];
-    erros: ErroAvaliadorSintatico[];
-    tiposDefinidosEmCodigo: { [nomeTipo: string]: Declaracao };
-    interfacesDeclaradas: { [nomeInterface: string]: InterfaceDeclaracao };
+    pilhaDecoradores: Decorador[] = [];
+    simbolos: SimboloInterface[] = [];
+    erros: ErroAvaliadorSintatico[] = [];
+    tiposDefinidosEmCodigo: { [nomeTipo: string]: Declaracao } = {};
+    interfacesDeclaradas: { [nomeInterface: string]: InterfaceDeclaracao } = {};
     tiposDefinidosPorBibliotecas: {
         [nomeTipo: string]: ClasseDeModulo;
-    };
+    } = {};
     pilhaEscopos: PilhaEscopos;
-    tiposDeFerramentasExternas: { [nomeFerramenta: string]: { [nomeTipo: string]: string } };
+    tiposDeFerramentasExternas: { [nomeFerramenta: string]: { [nomeTipo: string]: string } } = {};
     primitivasConhecidas: {
         [nomeModuloOuClasse: string]: { [nomePrimitiva: string]: InformacaoElementoSintatico };
-    };
+    } = {};
     montaoTipos: MontaoTipos;
 
     hashArquivo: number;
@@ -494,9 +494,9 @@ export class AvaliadorSintatico
         return new ParaComoConstruto(
             simboloPara.hashArquivo,
             simboloPara.linha,
-            inicializador,
-            condicao,
-            incrementar,
+            inicializador as Expressao | Var[] | Const[],
+            condicao as Construto,
+            incrementar as Construto,
             corpo
         );
     }
@@ -584,7 +584,7 @@ export class AvaliadorSintatico
                             new Retorna(simboloVariavelIteracao, retornoExpressao),
                         ]),
                         [],
-                        null
+                        undefined
                     ),
                 ])
             ),
@@ -951,7 +951,7 @@ export class AvaliadorSintatico
                                 );
                                 break;
                             default:
-                                if (construtoTipado.tipo in this.tiposDefinidosEmCodigo) {
+                                if (construtoTipado.tipo && construtoTipado.tipo in this.tiposDefinidosEmCodigo) {
                                     const tipoCorrespondente = this.tiposDefinidosEmCodigo[
                                         construtoTipado.tipo
                                     ] as Classe;
@@ -1099,7 +1099,7 @@ export class AvaliadorSintatico
     protected async resolverCadeiaChamadas(
         expressaoAnterior: Construto,
         tipoAnterior: string = 'qualquer'
-    ) {
+    ): Promise<Construto> {
         if (!this.simbolos[this.atual]) {
             return expressaoAnterior;
         }
@@ -1292,7 +1292,7 @@ export class AvaliadorSintatico
     private resolverAcessoMetodoConhecido(
         construtoTipado: AcessoMetodoOuPropriedade
     ): AcessoMetodo | null {
-        const tiposParaConsulta = this.obterTiposParaConsultaPrimitiva(construtoTipado.tipo);
+        const tiposParaConsulta = this.obterTiposParaConsultaPrimitiva(construtoTipado.tipo as string);
 
         for (const tipoConsulta of tiposParaConsulta) {
             const primitivasPorTipo = this.primitivasConhecidas[tipoConsulta];
@@ -1451,12 +1451,12 @@ export class AvaliadorSintatico
 
             if (
                 tipoPrimitiva !== 'qualquer' &&
-                this.primitivasConhecidas[tipoPrimitiva].hasOwnProperty(
+                this.primitivasConhecidas[tipoPrimitiva as string].hasOwnProperty(
                     entidadeChamadaResolvidaVariavel.simbolo.lexema
                 )
             ) {
                 var informacoesPrimitiva =
-                    this.primitivasConhecidas[tipoPrimitiva][
+                    this.primitivasConhecidas[tipoPrimitiva as string][
                         entidadeChamadaResolvidaVariavel.simbolo.lexema
                     ];
                 const erros = this.validarArgumentosEntidadeChamada(
@@ -1590,7 +1590,7 @@ export class AvaliadorSintatico
             if (
                 operando instanceof Vetor ||
                 operando.tipo === 'vetor' ||
-                operando.tipo.endsWith('[]')
+                (operando.tipo as string).endsWith('[]')
             ) {
                 return true;
             }
@@ -1622,8 +1622,8 @@ export class AvaliadorSintatico
             );
         }
 
-        if (esquerdo.tipo === 'vetor' || esquerdo.tipo.endsWith('[]')) {
-            if (['dicionario', 'dicionário', 'nulo'].includes(direito.tipo)) {
+        if (esquerdo.tipo === 'vetor' || (esquerdo.tipo as string).endsWith('[]')) {
+            if (['dicionario', 'dicionário', 'nulo'].includes(direito.tipo as string)) {
                 throw this.erro(
                     operador,
                     `Operação inválida: não é possível realizar operação ${operador.lexema} entre vetor e ${direito.tipo}.`
@@ -1631,8 +1631,8 @@ export class AvaliadorSintatico
             }
         }
 
-        if (direito.tipo === 'vetor' || direito.tipo.endsWith('[]')) {
-            if (['dicionario', 'dicionário', 'nulo'].includes(esquerdo.tipo)) {
+        if (direito.tipo === 'vetor' || (direito.tipo as string).endsWith('[]')) {
+            if (['dicionario', 'dicionário', 'nulo'].includes(esquerdo.tipo as string)) {
                 throw this.erro(
                     operador,
                     `Operação inválida: não é possível realizar operação ${operador.lexema} entre vetor e ${esquerdo.tipo}.`
@@ -1641,7 +1641,7 @@ export class AvaliadorSintatico
         }
 
         if (esquerdo.tipo === 'dicionario' || esquerdo.tipo === 'dicionário') {
-            if (['vetor', 'nulo'].includes(direito.tipo)) {
+            if (['vetor', 'nulo'].includes(direito.tipo as string)) {
                 throw this.erro(
                     operador,
                     `Operação inválida: não é possível realizar operação ${operador.lexema} entre dicionário e ${direito.tipo}.`
@@ -1650,7 +1650,7 @@ export class AvaliadorSintatico
         }
 
         if (direito.tipo === 'dicionario' || direito.tipo === 'dicionário') {
-            if (['vetor', 'nulo'].includes(esquerdo.tipo)) {
+            if (['vetor', 'nulo'].includes(esquerdo.tipo as string)) {
                 throw this.erro(
                     operador,
                     `Operação inválida: não é possível realizar operação ${operador.lexema} entre dicionário e ${esquerdo.tipo}.`
@@ -2062,7 +2062,7 @@ export class AvaliadorSintatico
             const retornoDeclaracao = await this.resolverDeclaracaoForaDeBloco();
             if (Array.isArray(retornoDeclaracao)) {
                 declaracoes = declaracoes.concat(retornoDeclaracao);
-            } else if (retornoDeclaracao !== null) {
+            } else if (retornoDeclaracao != null) {
                 declaracoes.push(retornoDeclaracao as Declaracao);
             }
         }
@@ -2157,7 +2157,7 @@ export class AvaliadorSintatico
                     this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após o 'caso'.");
 
                     while (this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO)) {
-                        this.consumir(tiposDeSimbolos.CASO, null);
+                        this.avancarEDevolverAnterior();
                         caminhoCondicoes.push(await this.expressao());
                         this.consumir(
                             tiposDeSimbolos.DOIS_PONTOS,
@@ -2165,7 +2165,7 @@ export class AvaliadorSintatico
                         );
                     }
 
-                    let declaracoes = [];
+                    let declaracoes: Declaracao[] = [];
                     do {
                         const retornoDeclaracao = await this.resolverDeclaracao();
                         if (Array.isArray(retornoDeclaracao)) {
@@ -2198,9 +2198,9 @@ export class AvaliadorSintatico
                         "Esperado ':' após declaração do 'padrao'."
                     );
 
-                    const declaracoes = [];
+                    const declaracoes: Declaracao[] = [];
                     do {
-                        declaracoes.push(await this.resolverDeclaracao());
+                        declaracoes.push(await this.resolverDeclaracao() as Declaracao);
                     } while (
                         !this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO) &&
                         !this.verificarTipoSimboloAtual(tiposDeSimbolos.PADRAO) &&
@@ -2213,7 +2213,7 @@ export class AvaliadorSintatico
                 }
             }
 
-            return new Escolha(condicao, caminhos, caminhoPadrao);
+            return new Escolha(condicao, caminhos, caminhoPadrao as CaminhoEscolha);
         } finally {
             this.blocos -= 1;
         }
@@ -2361,6 +2361,11 @@ export class AvaliadorSintatico
                 );
 
                 break;
+            default:
+                throw this.erro(
+                    this.simbolos[this.atual],
+                    "Esperado caminho do módulo como texto ou identificador em declaração de importação."
+                );
         }
 
         const importar = new Importar(construtoCaminhoModulo);
@@ -2549,7 +2554,7 @@ export class AvaliadorSintatico
             tiposDeSimbolos.PARENTESE_ESQUERDO
         );
 
-        let inicializador: Var | Expressao | Const[];
+        let inicializador: Var | Var[] | Expressao | Const[] | null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA)) {
             inicializador = null;
         } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VARIAVEL)) {
@@ -2600,9 +2605,9 @@ export class AvaliadorSintatico
         return new Para(
             this.hashArquivo,
             Number(simboloPara.linha),
-            inicializador,
-            condicao,
-            incrementar,
+            inicializador as Expressao,
+            condicao as Construto,
+            incrementar as Construto,
             corpo
         );
     }
@@ -2635,7 +2640,7 @@ export class AvaliadorSintatico
 
         // Ponto-e-vírgula é opcional aqui.
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-        return new Retorna(simboloChave, valor);
+        return new Retorna(simboloChave, valor as Construto);
     }
 
     override async declaracaoSe(): Promise<Se> {
@@ -2643,9 +2648,9 @@ export class AvaliadorSintatico
 
         const caminhoEntao: Declaracao = (await this.resolverDeclaracao()) as Declaracao;
 
-        let caminhoSenao = null;
+        let caminhoSenao: Declaracao | undefined = undefined;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO, tiposDeSimbolos.SENÃO)) {
-            caminhoSenao = await this.resolverDeclaracao();
+            caminhoSenao = await this.resolverDeclaracao() as Declaracao;
         }
 
         return new Se(condicao, caminhoEntao, [], caminhoSenao);
@@ -2670,7 +2675,7 @@ export class AvaliadorSintatico
 
         const blocoTente: any[] = await this.blocoEscopo();
 
-        let blocoPegue: FuncaoConstruto | Declaracao[] = null;
+        let blocoPegue: FuncaoConstruto | Declaracao[] | null = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PEGUE)) {
             if (this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
                 // Caso 1: com parâmetro de erro.
@@ -2687,7 +2692,7 @@ export class AvaliadorSintatico
             }
         }
 
-        let blocoSenao: any[] = null;
+        let blocoSenao: any[] | null = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO, tiposDeSimbolos.SENÃO)) {
             this.consumir(
                 tiposDeSimbolos.CHAVE_ESQUERDA,
@@ -2697,7 +2702,7 @@ export class AvaliadorSintatico
             blocoSenao = await this.blocoEscopo();
         }
 
-        let blocoFinalmente: any[] = null;
+        let blocoFinalmente: any[] | null = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FINALMENTE)) {
             this.consumir(
                 tiposDeSimbolos.CHAVE_ESQUERDA,
@@ -2711,9 +2716,9 @@ export class AvaliadorSintatico
             simboloTente.hashArquivo,
             Number(simboloTente.linha),
             blocoTente,
-            blocoPegue,
-            blocoSenao,
-            blocoFinalmente
+            blocoPegue as FuncaoConstruto | Declaracao[],
+            blocoSenao as Declaracao[],
+            blocoFinalmente as Declaracao[]
         );
     }
 
@@ -2794,13 +2799,13 @@ export class AvaliadorSintatico
                             construtoChamada.entidadeChamada as AcessoMetodo;
                         tipoInicializacao = entidadeChamadaAcessoMetodo.tipoRetornoMetodo.replace(
                             '<T>',
-                            entidadeChamadaAcessoMetodo.objeto.tipo
+                            entidadeChamadaAcessoMetodo.objeto.tipo as string
                         );
                         break;
                     case Variavel:
                         const entidadeChamadaVariavel =
                             construtoChamada.entidadeChamada as Variavel;
-                        tipoInicializacao = entidadeChamadaVariavel.tipo;
+                        tipoInicializacao = entidadeChamadaVariavel.tipo as string;
                         break;
                     // TODO: Demais casos
                     default:
@@ -2860,7 +2865,10 @@ export class AvaliadorSintatico
                 identificador.lexema,
                 new InformacaoElementoSintatico(
                     identificador.lexema,
-                    this.logicaComumInferenciaTiposVariaveisEConstantes(inicializador, 'qualquer')
+                    this.logicaComumInferenciaTiposVariaveisEConstantes(
+                        inicializador, 
+                        'qualquer'
+                    ) as string
                 )
             );
             const declaracaoVar = new Var(
@@ -2933,7 +2941,7 @@ export class AvaliadorSintatico
     protected logicaComumInferenciaTiposVariaveisEConstantes(
         inicializador: Construto,
         tipo: string
-    ): string {
+    ): string | undefined {
         if (tipo !== 'qualquer') {
             return tipo;
         }
@@ -2951,8 +2959,9 @@ export class AvaliadorSintatico
                     );
                 }
 
-                if (entidadeChamadaAcessoIndiceVariavel.tipo.endsWith('[]')) {
-                    return entidadeChamadaAcessoIndiceVariavel.tipo.slice(0, -2);
+                const tipoEntidadeChamadaAcessoIndiceVariavel = entidadeChamadaAcessoIndiceVariavel.tipo as string;
+                if (tipoEntidadeChamadaAcessoIndiceVariavel.endsWith('[]')) {
+                    return tipoEntidadeChamadaAcessoIndiceVariavel.slice(0, -2);
                 }
 
                 // Normalmente, `entidadeChamadaAcessoIndiceVariavel.tipo` aqui será 'vetor'.
@@ -2965,7 +2974,7 @@ export class AvaliadorSintatico
                         const tipoRetornoAcessoMetodoResolvido =
                             entidadeChamadaAcessoMetodo.tipoRetornoMetodo.replace(
                                 '<T>',
-                                entidadeChamadaAcessoMetodo.objeto.tipo
+                                entidadeChamadaAcessoMetodo.objeto.tipo as string
                             );
                         return tipoRetornoAcessoMetodoResolvido;
                     case AcessoMetodoOuPropriedade:
@@ -3014,7 +3023,7 @@ export class AvaliadorSintatico
                         return 'módulo';
                 }
 
-                return inicializador.tipo;
+                return inicializador.tipo as string;
         }
     }
 
@@ -3035,7 +3044,7 @@ export class AvaliadorSintatico
         let retorno: ElementoMontaoTipos;
         if (construto instanceof Dicionario) {
             retorno = new ElementoMontaoTipos('dicionário');
-            const subElementos = {};
+            const subElementos = {} as { [key: string]: ElementoMontaoTipos };
             for (var i = 0; i < construto.valores.length; i++) {
                 const chaveCorrespondente = this.resolverValorConstruto(construto.chaves[i]);
                 const valorCorrespondente = construto.valores[i];
@@ -3045,7 +3054,7 @@ export class AvaliadorSintatico
 
             retorno.subElementos = subElementos;
         } else {
-            retorno = new ElementoMontaoTipos(construto.tipo);
+            retorno = new ElementoMontaoTipos(construto.tipo as string);
         }
 
         const endereco = this.montaoTipos.adicionarReferencia(retorno);
@@ -3095,7 +3104,7 @@ export class AvaliadorSintatico
                 retorno.push(
                     new Var(
                         identificador,
-                        null,
+                        undefined,
                         tipo,
                         tipoExplicito,
                         Array.from(this.pilhaDecoradores)
@@ -3125,7 +3134,7 @@ export class AvaliadorSintatico
             tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(
                 inicializadores[indice],
                 tipo
-            );
+            ) as string;
 
             if (tipo !== 'dicionário') {
                 this.pilhaEscopos.definirInformacoesVariavel(
@@ -3259,7 +3268,7 @@ export class AvaliadorSintatico
             tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(
                 inicializadores[indice],
                 tipo
-            );
+            ) as string;
 
             if (tipo !== 'dicionário') {
                 this.pilhaEscopos.definirInformacoesVariavel(
@@ -3334,8 +3343,7 @@ export class AvaliadorSintatico
         do {
             const parametro: Partial<ParametroInterface> = {};
 
-            if (this.simbolos[this.atual].tipo === tiposDeSimbolos.MULTIPLICACAO) {
-                this.consumir(tiposDeSimbolos.MULTIPLICACAO, null);
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.RETICENCIAS)) {
                 parametro.abrangencia = 'multiplo';
             } else {
                 parametro.abrangencia = 'padrao';
@@ -3391,7 +3399,7 @@ export class AvaliadorSintatico
             `Esperado '(' após o nome ${tipo}.`
         );
 
-        let parametros = [];
+        let parametros: ParametroInterface[] = [];
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             parametros = await this.logicaComumParametros();
         }
@@ -3452,7 +3460,7 @@ export class AvaliadorSintatico
                 // este avaliador sintático pode restringir o tipo baseado nos construtos
                 // de retornos encontrados nos blocos internos da função.
                 const tipoRetornoDeduzido = tiposRetornos.values().next().value;
-                tipoRetorno = tipoRetornoDeduzido;
+                tipoRetorno = tipoRetornoDeduzido as string;
             } else if (!retornaChamadoExplicitamente && !definicaoExplicitaDeTipo) {
                 // Ou, se esses retornos sequer existem, e o tipo explícito não é
                 // 'qualquer', o tipo inferido é 'vazio'.
@@ -3609,8 +3617,8 @@ export class AvaliadorSintatico
         this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' antes do escopo da classe.");
 
         this.pilhaDecoradores = [];
-        const metodos = [];
-        const propriedades = [];
+        const metodos: FuncaoDeclaracao[] = [];
+        const propriedades: PropriedadeClasse[] = [];
 
         /**
          * Analisa membros do corpo da classe com um contexto de acesso e estático padrão.
@@ -3635,7 +3643,7 @@ export class AvaliadorSintatico
                 }
 
                 // Documentário (/** ... */)
-                let docAtual: ComentarioComoConstruto | null = null;
+                let docAtual: ComentarioComoConstruto | undefined = undefined;
                 if (this.simbolos[this.atual].tipo === tiposDeSimbolos.DOCUMENTARIO) {
                     const simboloDoc = this.avancarEDevolverAnterior();
                     docAtual = new ComentarioComoConstruto(simboloDoc);
@@ -4254,17 +4262,17 @@ export class AvaliadorSintatico
      * @see resolverDeclaracao
      * @see resolverDecoradores
      */
-    override async resolverDeclaracaoForaDeBloco(): Promise<Declaracao | Declaracao[]> {
+    override async resolverDeclaracaoForaDeBloco(): Promise<Declaracao | Declaracao[] | undefined> {
         try {
             while (this.verificarTipoSimboloAtual(tiposDeSimbolos.ARROBA)) {
                 await this.resolverDecoradores();
             }
 
             // Documentário (/** ... */) antes de uma declaração de função.
-            let docTopLevel: ComentarioComoConstruto | null = null;
+            let documentacaoTopo: ComentarioComoConstruto | undefined = undefined;
             if (this.verificarTipoSimboloAtual(tiposDeSimbolos.DOCUMENTARIO)) {
                 const simboloDoc = this.avancarEDevolverAnterior();
-                docTopLevel = new ComentarioComoConstruto(simboloDoc);
+                documentacaoTopo = new ComentarioComoConstruto(simboloDoc);
             }
 
             // Decoradores podem aparecer após um documentário.
@@ -4290,14 +4298,14 @@ export class AvaliadorSintatico
 
                     const declaracaoFuncao = (await this.funcao('funcao')) as FuncaoDeclaracao;
                     declaracaoFuncao.eFuncaoDeDecorador = true;
-                    declaracaoFuncao.documentacao = docTopLevel;
+                    declaracaoFuncao.documentacao = documentacaoTopo;
                     return declaracaoFuncao;
                 }
 
                 if (this.verificarTipoProximoSimbolo(tiposDeSimbolos.IDENTIFICADOR)) {
                     this.avancarEDevolverAnterior();
                     const declaracaoFuncao = (await this.funcao('funcao')) as FuncaoDeclaracao;
-                    declaracaoFuncao.documentacao = docTopLevel;
+                    declaracaoFuncao.documentacao = documentacaoTopo;
                     return declaracaoFuncao;
                 }
             }
@@ -4318,7 +4326,7 @@ export class AvaliadorSintatico
         } catch (erro: any) {
             this.sincronizar();
             this.erros.push(erro);
-            return null;
+            return undefined;
         }
     }
 
@@ -4800,7 +4808,7 @@ export class AvaliadorSintatico
             const retornoDeclaracao = await this.resolverDeclaracaoForaDeBloco();
             if (Array.isArray(retornoDeclaracao)) {
                 declaracoes = declaracoes.concat(retornoDeclaracao);
-            } else if (retornoDeclaracao !== null) {
+            } else if (retornoDeclaracao != null) {
                 declaracoes.push(retornoDeclaracao as Declaracao);
             }
         }
