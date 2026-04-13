@@ -319,6 +319,42 @@ describe('Avaliador sintático', () => {
                     });
                 });
 
+                it('definição completa de Liquido com todos os 12 métodos HTTP e parâmetros rest funcao<Requisicao, Resposta>[]', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            '@definicao',
+                            'classe estrangeira Liquido {',
+                            '    rotaGet(...sequenciaExecucao: funcao<Requisicao, Resposta>[])',
+                            '    rotaPost(...sequenciaExecucao: funcao<Requisicao, Resposta>[])',
+                            '    rotaPut(...sequenciaExecucao: funcao<Requisicao, Resposta>[])',
+                            '    rotaDelete(...sequenciaExecucao: funcao<Requisicao, Resposta>[])',
+                            '    rotaPatch(...sequenciaExecucao: funcao<Requisicao, Resposta>[])',
+                            '    rotaOptions(...sequenciaExecucao: funcao<Requisicao, Resposta>[])',
+                            '    rotaCopy(...sequenciaExecucao: funcao<Requisicao, Resposta>[])',
+                            '    rotaHead(...sequenciaExecucao: funcao<Requisicao, Resposta>[])',
+                            '    rotaLock(...sequenciaExecucao: funcao<Requisicao, Resposta>[])',
+                            '    rotaUnlock(...sequenciaExecucao: funcao<Requisicao, Resposta>[])',
+                            '    rotaPurge(...sequenciaExecucao: funcao<Requisicao, Resposta>[])',
+                            '    rotaPropfind(...sequenciaExecucao: funcao<Requisicao, Resposta>[])',
+                            '}',
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    const declaracaoClasse = retornoAvaliadorSintatico.declaracoes[0] as Classe;
+                    expect(declaracaoClasse.estrangeira).toBe(true);
+                    expect(declaracaoClasse.decoradores[0].nome).toBe('@definicao');
+                    expect(declaracaoClasse.metodos).toHaveLength(12);
+                    declaracaoClasse.metodos.forEach((metodo) => {
+                        const parametro = metodo.funcao.parametros[0];
+                        expect(parametro.abrangencia).toBe('multiplo');
+                        expect(parametro.tipoDado).toBe('funcao<Requisicao, Resposta>[]');
+                    });
+                });
+
                 it('Método sem corpo em classe concreta lança erro de sintaxe', async () => {
                     const retornoLexador = lexador.mapear(
                         [
