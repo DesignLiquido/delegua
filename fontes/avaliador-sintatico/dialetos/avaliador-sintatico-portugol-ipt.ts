@@ -171,6 +171,10 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
             case tiposDeSimbolos.NUMERO:
             case tiposDeSimbolos.TEXTO: {
                 const simboloAnterior: SimboloInterface = this.avancarEDevolverAnterior();
+                if (simboloAnterior.literal === null) {
+                    throw this.erro(simboloAnterior, 'Esperado expressão.');
+                }
+
                 return new Literal(
                     this.hashArquivo,
                     Number(simboloAnterior.linha),
@@ -188,6 +192,8 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
                 );
             }
         }
+
+        throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
     }
 
     /**

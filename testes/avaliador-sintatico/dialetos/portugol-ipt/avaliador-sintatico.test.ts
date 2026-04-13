@@ -34,6 +34,12 @@ describe('Avaliador sintático (Portugol IPT)', () => {
             expect(r.declaracoes).toHaveLength(1);
             expect(r.declaracoes[0]).toBeInstanceOf(EscrevaMesmaLinha);
         });
+
+        it('não trata palavra-chave de tipo como literal em expressão', async () => {
+            await expect(analisar(['inicio', 'escrever texto', 'fim'])).rejects.toThrow(
+                'Esperado expressão.'
+            );
+        });
     });
 
     describe('Declarações de variáveis', () => {

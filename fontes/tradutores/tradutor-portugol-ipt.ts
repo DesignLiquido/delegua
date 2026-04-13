@@ -124,8 +124,12 @@ export class TradutorPortugolIpt {
 
     traduzirConstrutoLogico(logico: Logico): string {
         const esq = this.traduzirConstruto(logico.esquerda);
-        const op = this.traduzirOperador(logico.operador.tipo);
         const dir = this.traduzirConstruto(logico.direita);
+        if (logico.operador.tipo === tiposDeSimbolos.XOU) {
+            return `((${esq} && !(${dir})) || (!(${esq}) && ${dir}))`;
+        }
+
+        const op = this.traduzirOperador(logico.operador.tipo);
         return `${esq} ${op} ${dir}`;
     }
 
@@ -166,7 +170,7 @@ export class TradutorPortugolIpt {
     }
 
     traduzirConstrutoVetor(vetor: Vetor): string {
-        const elementos = vetor.valores.map((v) => this.traduzirConstruto(v)).join(', ');
+        const elementos = vetor.elementos.map((v) => this.traduzirConstruto(v)).join(', ');
         return `[${elementos}]`;
     }
 

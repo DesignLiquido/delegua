@@ -1,4 +1,7 @@
 import { TradutorPortugolIpt } from '../../fontes/tradutores';
+import { Literal, Separador, Vetor } from '../../fontes/construtos';
+import { Simbolo } from '../../fontes/lexador/simbolo';
+import tiposDeSimbolos from '../../fontes/tipos-de-simbolos/portugol-ipt';
 
 describe('Tradutor Portugol IPT -> Delégua', () => {
     let tradutor: TradutorPortugolIpt;
@@ -150,6 +153,19 @@ describe('Tradutor Portugol IPT -> Delégua', () => {
                 'fim',
             ]);
             expect(resultado).toMatch(/x == 0 \|\| x == 1/);
+        });
+
+        it('se com operador lógico xou', async () => {
+            const resultado = await traduzir([
+                'inicio',
+                'inteiro x = 0',
+                'inteiro y = 1',
+                'se x = 0 xou y = 1 entao',
+                'escrever "ok"',
+                'fimse',
+                'fim',
+            ]);
+            expect(resultado).toMatch(/\(\(x == 0 && !\(y == 1\)\) \|\| \(!\(x == 0\) && y == 1\)\)/);
         });
 
         it('se com nao', async () => {
@@ -542,6 +558,19 @@ describe('Tradutor Portugol IPT -> Delégua', () => {
                 'fim',
             ]);
             expect(resultado).toMatch(/v\[0\] = 42/);
+        });
+
+        it('ignora separadores sintáticos ao traduzir vetor', () => {
+            const separador = new Separador(
+                new Simbolo(tiposDeSimbolos.VIRGULA, ',', null, 1, -1)
+            );
+            const vetor = new Vetor(0, 1, [
+                new Literal(0, 1, 1),
+                separador,
+                new Literal(0, 1, 2),
+            ]);
+
+            expect(tradutor.traduzirConstrutoVetor(vetor)).toBe('[1, 2]');
         });
     });
 
