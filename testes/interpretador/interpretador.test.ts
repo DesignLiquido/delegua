@@ -3892,6 +3892,31 @@ describe('Interpretador', () => {
 
                         expect(retornoInterpretador.erros).toHaveLength(0);
                     });
+
+                    it('Encadeamento de métodos de dicionário (chaves().tamanho())', async () => {
+                        const retornoLexador = lexador.mapear(
+                            [
+                                `const d = { "a": 1, "b": 2 }`,
+                                `escreva(d.chaves().tamanho())`,
+                            ],
+                            -1
+                        );
+
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                        const saidas: string[] = [];
+
+                        interpretador.funcaoDeRetorno = (saida: string) => {
+                            saidas.push(saida);
+                        };
+
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(saidas).toHaveLength(1);
+                        expect(saidas[0]).toEqual('2');
+                    });
                 });
 
                 describe('Vetores ou listas', () => {

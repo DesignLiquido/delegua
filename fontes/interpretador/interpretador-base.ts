@@ -271,6 +271,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 );
             case Constante:
                 return (objetoAcessado as Constante).simbolo.lexema;
+            case AcessoMetodo:
             case AcessoMetodoOuPropriedade:
             case AcessoIndiceVariavel:
             case Binario:
