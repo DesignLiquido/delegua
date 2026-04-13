@@ -252,6 +252,73 @@ describe('Avaliador sintático', () => {
                     expect(declaracaoClasse.decoradores[0].nome).toBe('@definicao');
                 });
 
+                it('tipo funcao<T1, T2> como anotação de parâmetro é aceito', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            '@definicao',
+                            'classe estrangeira Roteador {',
+                            '    registrar(manipulador: funcao<Requisicao, Resposta>)',
+                            '}',
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    const declaracaoClasse = retornoAvaliadorSintatico.declaracoes[0] as Classe;
+                    expect(declaracaoClasse.estrangeira).toBe(true);
+                    const parametro = declaracaoClasse.metodos[0].funcao.parametros[0];
+                    expect(parametro.tipoDado).toBe('funcao<Requisicao, Resposta>');
+                });
+
+                it('tipo funcao<T1, T2>[] como anotação de parâmetro rest é aceito', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            '@definicao',
+                            'classe estrangeira Roteador {',
+                            '    registrar(...manipuladores: funcao<Requisicao, Resposta>[])',
+                            '}',
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    const declaracaoClasse = retornoAvaliadorSintatico.declaracoes[0] as Classe;
+                    const parametro = declaracaoClasse.metodos[0].funcao.parametros[0];
+                    expect(parametro.abrangencia).toBe('multiplo');
+                    expect(parametro.tipoDado).toBe('funcao<Requisicao, Resposta>[]');
+                });
+
+                it('@definicao classe estrangeira Liquido com todos os métodos HTTP aceita parâmetros rest funcao<Requisicao, Resposta>[]', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            '@definicao',
+                            'classe estrangeira Liquido {',
+                            '    rotaGet(...sequenciaExecucao: funcao<Requisicao, Resposta>[])',
+                            '    rotaPost(...sequenciaExecucao: funcao<Requisicao, Resposta>[])',
+                            '    rotaPut(...sequenciaExecucao: funcao<Requisicao, Resposta>[])',
+                            '    rotaDelete(...sequenciaExecucao: funcao<Requisicao, Resposta>[])',
+                            '}',
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    const declaracaoClasse = retornoAvaliadorSintatico.declaracoes[0] as Classe;
+                    expect(declaracaoClasse.estrangeira).toBe(true);
+                    expect(declaracaoClasse.metodos).toHaveLength(4);
+                    declaracaoClasse.metodos.forEach((metodo) => {
+                        const parametro = metodo.funcao.parametros[0];
+                        expect(parametro.abrangencia).toBe('multiplo');
+                        expect(parametro.tipoDado).toBe('funcao<Requisicao, Resposta>[]');
+                    });
+                });
+
                 it('Método sem corpo em classe concreta lança erro de sintaxe', async () => {
                     const retornoLexador = lexador.mapear(
                         [

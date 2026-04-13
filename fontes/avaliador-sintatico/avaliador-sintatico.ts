@@ -202,6 +202,39 @@ export class AvaliadorSintatico
             );
         }
 
+        if (
+            (tipoElementarResolvido === 'funcao' || tipoElementarResolvido === 'função') &&
+            this.verificarTipoProximoSimbolo(tiposDeSimbolos.MENOR)
+        ) {
+            this.avancarEDevolverAnterior(); // avança por 'funcao'
+            this.avancarEDevolverAnterior(); // avança por '<'
+
+            const tiposParametros: string[] = [];
+            do {
+                tiposParametros.push(this.simbolos[this.atual].lexema);
+                this.avancarEDevolverAnterior();
+            } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+            // this.atual aponta para '>'
+
+            const tipoFuncaoGenerico = `${tipoElementarResolvido}<${tiposParametros.join(', ')}>`;
+
+            if (this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
+                this.avancarEDevolverAnterior(); // avança por '>'
+                // this.atual aponta para '['
+                if (!this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_DIREITO)) {
+                    throw this.erro(
+                        this.simbolos[this.atual],
+                        `Esperado símbolo de fechamento do vetor: ']'. Atual: ${this.simbolos[this.atual].lexema}`
+                    );
+                }
+                this.avancarEDevolverAnterior(); // avança por '['
+                // this.atual aponta para ']'
+                return `${tipoFuncaoGenerico}[]`;
+            }
+
+            return tipoFuncaoGenerico;
+        }
+
         if (this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
             const tiposVetores = [
                 'inteiro[]',
