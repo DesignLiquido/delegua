@@ -137,13 +137,13 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
     }
 
     /**
-     * Override de `unario()` para incluir o operador lógico `NAO`.
+     * Override de `unario()` para incluir operadores unários aritméticos.
+     * `NAO` é tratado em `e()` para ter precedência menor que comparações.
      */
     protected async unario(): Promise<Construto> {
         if (
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.NEGACAO,
-                tiposDeSimbolos.NAO,
                 tiposDeSimbolos.SUBTRACAO
             )
         ) {
@@ -152,6 +152,30 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
             return new Unario(this.hashArquivo, operador, direito, 'ANTES');
         }
         return await this.chamar();
+    }
+
+    /**
+     * Override de `e()` para suportar o operador lógico `NAO` com precedência
+     * menor que comparações: `nao x = 0` → `nao (x = 0)`.
+     */
+    protected async e(): Promise<Construto> {
+        let expressao: Construto;
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NAO)) {
+            const operador = this.simbolos[this.atual - 1];
+            const operando = await this.comparacaoIgualdade();
+            expressao = new Unario(this.hashArquivo, operador, operando, 'ANTES');
+        } else {
+            expressao = await this.comparacaoIgualdade();
+        }
+
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.E)) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = await this.comparacaoIgualdade();
+            expressao = new Logico(this.hashArquivo, expressao, operador, direito);
+        }
+
+        return expressao;
     }
 
     /**
@@ -464,7 +488,7 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
                     valorInicial = await this.expressao();
                 }
-                inicializacoes.push(new Var(identificador, valorInicial));
+                inicializacoes.push(new Var(identificador, valorInicial, tipoDelegua));
             }
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 

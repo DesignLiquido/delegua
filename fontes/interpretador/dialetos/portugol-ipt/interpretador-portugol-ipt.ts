@@ -144,13 +144,17 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         direita: VariavelInterface | any,
         esquerda: VariavelInterface | any
     ): void {
-        const tipoDireita: string = direita?.tipo ?? (typeof direita === 'number' ? 'número' : String(NaN));
-        const tipoEsquerda: string = esquerda?.tipo ?? (typeof esquerda === 'number' ? 'número' : String(NaN));
+        const valorDireita = this.resolverValor(direita);
+        const valorEsquerda = this.resolverValor(esquerda);
+        const tipoDireita: string = direita?.tipo ?? (typeof valorDireita === 'number' ? 'número' : String(NaN));
+        const tipoEsquerda: string = esquerda?.tipo ?? (typeof valorEsquerda === 'number' ? 'número' : String(NaN));
         const tiposNumericos = ['inteiro', 'numero', 'número', 'real'];
-        if (
-            tiposNumericos.includes(tipoDireita.toLowerCase()) &&
-            tiposNumericos.includes(tipoEsquerda.toLowerCase())
-        )
+
+        const eNumericoOuQualquer = (tipo: string, valor: any) =>
+            tiposNumericos.includes(tipo.toLowerCase()) ||
+            tipo === 'qualquer' && typeof valor === 'number';
+
+        if (eNumericoOuQualquer(tipoDireita, valorDireita) && eNumericoOuQualquer(tipoEsquerda, valorEsquerda))
             return;
         throw new ErroEmTempoDeExecucao(operador, 'Operadores precisam ser números.', operador.linha);
     }
@@ -190,6 +194,11 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
                 ? direita.tipo
                 : inferirTipoVariavel(direita);
 
+            const tiposNumericos = ['inteiro', 'numero', 'número', 'real'];
+            const ambosNumericos =
+                (tiposNumericos.includes(tipoEsquerdo) || tipoEsquerdo === 'qualquer' && typeof valorEsquerdo === 'number') &&
+                (tiposNumericos.includes(tipoDireito) || tipoDireito === 'qualquer' && typeof valorDireito === 'number');
+
             switch (expressao.operador.tipo) {
                 case tiposDeSimbolos.EXPONENCIACAO:
                     this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
@@ -216,7 +225,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
                     return Number(valorEsquerdo) - Number(valorDireito);
 
                 case tiposDeSimbolos.ADICAO:
-                    if (tipoEsquerdo === 'número' && tipoDireito === 'número') {
+                    if (ambosNumericos) {
                         return Number(valorEsquerdo) + Number(valorDireito);
                     }
                     return String(valorEsquerdo) + String(valorDireito);
@@ -308,13 +317,24 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
     }
 
     async visitarExpressaoLeia(expressao: Leia): Promise<any> {
-        const mensagem =
-            expressao.argumentos && expressao.argumentos[0] ? expressao.argumentos[0].valor : '> ';
-        return new Promise((resolucao) =>
-            this.interfaceEntradaSaida.question(mensagem, (resposta: any) => {
-                resolucao(resposta);
-            })
-        );
+        for (const arg of expressao.argumentos) {
+            const resposta = await new Promise<any>((resolve) =>
+                this.interfaceEntradaSaida.question('> ', (r: any) => resolve(r))
+            );
+
+            // arg é um Expressao (declaração) envolvendo um Variavel
+            const construto = (arg as any) instanceof Expressao
+                ? (arg as any).expressao
+                : arg;
+
+            if (construto instanceof Variavel) {
+                const valorConvertido = typeof resposta === 'string' && !Number.isNaN(Number(resposta))
+                    ? Number(resposta)
+                    : resposta;
+                this.pilhaEscoposExecucao.atribuirVariavel(construto.simbolo, valorConvertido);
+            }
+        }
+        return null;
     }
 
     async visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita): Promise<string> {
@@ -747,9 +767,13 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
     visitarExpressaoDicionario(_expressao: any): never {
         throw new Error('Método não implementado.');
     }
-    /* istanbul ignore next */
-    visitarExpressaoVetor(_expressao: any): never {
-        throw new Error('Método não implementado.');
+    async visitarExpressaoVetor(expressao: any): Promise<any[]> {
+        const valores: any[] = [];
+        for (const elemento of expressao.valores) {
+            const avaliado = await this.avaliar(elemento);
+            valores.push(this.resolverValor(avaliado));
+        }
+        return valores;
     }
     /* istanbul ignore next */
     visitarExpressaoSuper(_expressao: Super): never {
