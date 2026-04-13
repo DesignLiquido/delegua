@@ -29,6 +29,11 @@ describe('Tradutor Portugol IPT -> Delégua', () => {
             expect(resultado).toMatch(/var y: real = 0/);
         });
 
+        it('texto simples', async () => {
+            const resultado = await traduzir(['inicio', 'texto t', 'fim']);
+            expect(resultado).toMatch(/var t: texto = ''/);
+        });
+
         it('logico simples', async () => {
             const resultado = await traduzir(['inicio', 'logico b', 'fim']);
             expect(resultado).toMatch(/var b: logico = falso/);
@@ -61,6 +66,11 @@ describe('Tradutor Portugol IPT -> Delégua', () => {
         it('constante inteira', async () => {
             const resultado = await traduzir(['inicio', 'constante inteiro PI = 3', 'fim']);
             expect(resultado).toMatch(/const PI = 3/);
+        });
+
+        it('constante texto', async () => {
+            const resultado = await traduzir(['inicio', 'constante texto MSG = "oi"', 'fim']);
+            expect(resultado).toMatch(/const MSG = 'oi'/);
         });
     });
 
@@ -151,7 +161,7 @@ describe('Tradutor Portugol IPT -> Delégua', () => {
                 'fimse',
                 'fim',
             ]);
-            expect(resultado).toMatch(/!x == 0/);
+            expect(resultado).toMatch(/!\(x == 0\)/);
         });
     });
 
@@ -329,6 +339,186 @@ describe('Tradutor Portugol IPT -> Delégua', () => {
                 'fim',
             ]);
             expect(resultado).toMatch(/aleatorio\(\)/);
+        });
+
+        it('SEN -> seno', async () => {
+            const resultado = await traduzir([
+                'inicio',
+                'real x',
+                'x <- SEN(0)',
+                'fim',
+            ]);
+            expect(resultado).toMatch(/seno\(0\)/);
+        });
+
+        it('COS -> cosseno', async () => {
+            const resultado = await traduzir([
+                'inicio',
+                'real x',
+                'x <- COS(0)',
+                'fim',
+            ]);
+            expect(resultado).toMatch(/cosseno\(0\)/);
+        });
+
+        it('TAN -> tangente', async () => {
+            const resultado = await traduzir([
+                'inicio',
+                'real x',
+                'x <- TAN(0)',
+                'fim',
+            ]);
+            expect(resultado).toMatch(/tangente\(0\)/);
+        });
+
+        it('CTG -> cotangente', async () => {
+            const resultado = await traduzir([
+                'inicio',
+                'real x',
+                'x <- CTG(1)',
+                'fim',
+            ]);
+            expect(resultado).toMatch(/cotangente\(1\)/);
+        });
+
+        it('ASEN -> arco_seno', async () => {
+            const resultado = await traduzir([
+                'inicio',
+                'real x',
+                'x <- ASEN(0)',
+                'fim',
+            ]);
+            expect(resultado).toMatch(/arco_seno\(0\)/);
+        });
+
+        it('ACOS -> arco_cosseno', async () => {
+            const resultado = await traduzir([
+                'inicio',
+                'real x',
+                'x <- ACOS(1)',
+                'fim',
+            ]);
+            expect(resultado).toMatch(/arco_cosseno\(1\)/);
+        });
+
+        it('ATAN -> arco_tangente', async () => {
+            const resultado = await traduzir([
+                'inicio',
+                'real x',
+                'x <- ATAN(1)',
+                'fim',
+            ]);
+            expect(resultado).toMatch(/arco_tangente\(1\)/);
+        });
+
+        it('ACTG -> arco_cotangente', async () => {
+            const resultado = await traduzir([
+                'inicio',
+                'real x',
+                'x <- ACTG(1)',
+                'fim',
+            ]);
+            expect(resultado).toMatch(/arco_cotangente\(1\)/);
+        });
+
+        it('SENH -> seno_hiperbolico', async () => {
+            const resultado = await traduzir([
+                'inicio',
+                'real x',
+                'x <- SENH(0)',
+                'fim',
+            ]);
+            expect(resultado).toMatch(/seno_hiperbolico\(0\)/);
+        });
+
+        it('COSH -> cosseno_hiperbolico', async () => {
+            const resultado = await traduzir([
+                'inicio',
+                'real x',
+                'x <- COSH(0)',
+                'fim',
+            ]);
+            expect(resultado).toMatch(/cosseno_hiperbolico\(0\)/);
+        });
+
+        it('TANH -> tangente_hiperbolica', async () => {
+            const resultado = await traduzir([
+                'inicio',
+                'real x',
+                'x <- TANH(0)',
+                'fim',
+            ]);
+            expect(resultado).toMatch(/tangente_hiperbolica\(0\)/);
+        });
+
+        it('CTGH -> cotangente_hiperbolica', async () => {
+            const resultado = await traduzir([
+                'inicio',
+                'real x',
+                'x <- CTGH(1)',
+                'fim',
+            ]);
+            expect(resultado).toMatch(/cotangente_hiperbolica\(1\)/);
+        });
+
+        it('EXP -> exponencial', async () => {
+            const resultado = await traduzir([
+                'inicio',
+                'real x',
+                'x <- EXP(1)',
+                'fim',
+            ]);
+            expect(resultado).toMatch(/exponencial\(1\)/);
+        });
+
+        it('LOG -> logaritmo', async () => {
+            const resultado = await traduzir([
+                'inicio',
+                'real x',
+                'x <- LOG(100)',
+                'fim',
+            ]);
+            expect(resultado).toMatch(/logaritmo\(100\)/);
+        });
+
+        it('LN -> logaritmo_natural', async () => {
+            const resultado = await traduzir([
+                'inicio',
+                'real x',
+                'x <- LN(2.718281828)',
+                'fim',
+            ]);
+            expect(resultado).toMatch(/logaritmo_natural\(2\.718281828\)/);
+        });
+
+        it('FRAC -> parte_fracionaria', async () => {
+            const resultado = await traduzir([
+                'inicio',
+                'real x',
+                'x <- FRAC(3.75)',
+                'fim',
+            ]);
+            expect(resultado).toMatch(/parte_fracionaria\(3\.75\)/);
+        });
+
+        it('ARRED -> arredondar', async () => {
+            const resultado = await traduzir([
+                'inicio',
+                'inteiro x',
+                'x <- ARRED(3.2)',
+                'fim',
+            ]);
+            expect(resultado).toMatch(/arredondar\(3\.2\)/);
+        });
+
+        it('LETRA -> letra', async () => {
+            const resultado = await traduzir([
+                'inicio',
+                'caracter c',
+                'c <- LETRA("abc", 1)',
+                'fim',
+            ]);
+            expect(resultado).toMatch(/letra\('abc', 1\)/);
         });
     });
 

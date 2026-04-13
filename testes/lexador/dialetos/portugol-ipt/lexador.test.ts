@@ -24,6 +24,14 @@ describe('Lexador (Portugol IPT)', () => {
                 expect(tipos).toContain(tiposDeSimbolos.FIM);
             });
 
+            it('palavras-chave em maiúsculas', () => {
+                const resultado = lexador.mapear(['INICIO', 'FIM'], -1);
+                expect(resultado.erros).toHaveLength(0);
+                const tipos = resultado.simbolos.map((s) => s.tipo);
+                expect(tipos).toContain(tiposDeSimbolos.INICIO);
+                expect(tipos).toContain(tiposDeSimbolos.FIM);
+            });
+
             it('Olá Mundo', () => {
                 const resultado = lexador.mapear([
                     'inicio',
@@ -273,6 +281,33 @@ describe('Lexador (Portugol IPT)', () => {
                 expect(tipos).toContain(tiposDeSimbolos.DEFEITO);
                 expect(tipos).toContain(tiposDeSimbolos.FIMESCOLHE);
             });
+
+            it('fim enquanto (com espaço)', () => {
+                const resultado = lexador.mapear([
+                    'inicio',
+                    'enquanto x > 0 faz',
+                    'fim enquanto',
+                    'fim',
+                ], -1);
+                expect(resultado.erros).toHaveLength(0);
+                const tipos = resultado.simbolos.map((s) => s.tipo);
+                expect(tipos).toContain(tiposDeSimbolos.FIM);
+                expect(tipos).toContain(tiposDeSimbolos.ENQUANTO);
+            });
+
+            it('fim escolhe (com espaço)', () => {
+                const resultado = lexador.mapear([
+                    'inicio',
+                    'escolhe x',
+                    'caso 1: escrever "um"',
+                    'fim escolhe',
+                    'fim',
+                ], -1);
+                expect(resultado.erros).toHaveLength(0);
+                const tipos = resultado.simbolos.map((s) => s.tipo);
+                expect(tipos).toContain(tiposDeSimbolos.FIM);
+                expect(tipos).toContain(tiposDeSimbolos.ESCOLHE);
+            });
         });
 
         describe('Tipos de variáveis', () => {
@@ -288,6 +323,13 @@ describe('Lexador (Portugol IPT)', () => {
                 expect(resultado.erros).toHaveLength(0);
                 const tipos = resultado.simbolos.map((s) => s.tipo);
                 expect(tipos).toContain(tiposDeSimbolos.REAL);
+            });
+
+            it('texto', () => {
+                const resultado = lexador.mapear(['inicio', 'texto t', 'fim'], -1);
+                expect(resultado.erros).toHaveLength(0);
+                const tipos = resultado.simbolos.map((s) => s.tipo);
+                expect(tipos).toContain(tiposDeSimbolos.TEXTO);
             });
 
             it('logico', () => {

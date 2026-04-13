@@ -206,15 +206,17 @@ export class LexadorPortugolIpt implements LexadorInterface<SimboloInterface> {
             textoPalavraChave = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
         }
 
+        const palavrasReservadasNormalizadas = palavrasReservadas as Record<string, string>;
+        const palavraNormalizada = textoPalavraChave.toLowerCase();
         let tipo: string =
-            textoPalavraChave in palavrasReservadas
-                ? palavrasReservadas[textoPalavraChave]
+            palavraNormalizada in palavrasReservadasNormalizadas
+                ? palavrasReservadasNormalizadas[palavraNormalizada]
                 : tiposDeSimbolos.IDENTIFICADOR;
 
         // 'enquanto' sem 'faz' no final da linha é o fechamento de um faz...enquanto.
         if (tipo === tiposDeSimbolos.ENQUANTO) {
-            const linhaAtual = this.codigo[linhaPrimeiroCaracter].toUpperCase().trimEnd();
-            if (!linhaAtual.endsWith('FAZ')) {
+            const linhaAtual = this.codigo[linhaPrimeiroCaracter].trim().toUpperCase();
+            if (!linhaAtual.startsWith('FIM ') && !linhaAtual.endsWith('FAZ')) {
                 tipo = tiposDeSimbolos.FAZENQUANTO;
             }
         }

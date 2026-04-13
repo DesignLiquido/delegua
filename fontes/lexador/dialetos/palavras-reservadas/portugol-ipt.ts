@@ -42,6 +42,7 @@ export const palavrasReservadas = {
 
     // Tipos de variáveis
     inteiro: tiposDeSimbolos.INTEIRO,
+    texto: tiposDeSimbolos.TEXTO,
     real: tiposDeSimbolos.REAL,
     logico: tiposDeSimbolos.LOGICO,
     lógico: tiposDeSimbolos.LOGICO,

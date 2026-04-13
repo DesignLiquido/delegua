@@ -134,8 +134,8 @@ export class TradutorPortugolIpt {
         switch (unario.operador.tipo) {
             case tiposDeSimbolos.SUBTRACAO: return `-${operando}`;
             case tiposDeSimbolos.NEGACAO:
-            case tiposDeSimbolos.NAO:       return `!${operando}`;
-            default:                        return `!${operando}`;
+            case tiposDeSimbolos.NAO:       return `!(${operando})`;
+            default:                        return `!(${operando})`;
         }
     }
 
@@ -191,6 +191,7 @@ export class TradutorPortugolIpt {
     private tipoParaDelégua(tipo: string): string {
         switch (tipo) {
             case 'inteiro':  return 'inteiro';
+            case 'texto':    return 'texto';
             case 'real':     return 'real';
             case 'lógico':
             case 'logico':   return 'logico';
@@ -202,6 +203,7 @@ export class TradutorPortugolIpt {
     private valorPadraoPorTipo(tipo: string): string {
         switch (tipo) {
             case 'inteiro':  return '0';
+            case 'texto':    return "''";
             case 'real':     return '0.0';
             case 'lógico':
             case 'logico':   return 'falso';

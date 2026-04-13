@@ -41,6 +41,91 @@ import { TipoInferencia } from '../../inferenciador';
 
 export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
 
+    private simboloAtualEh(tipo: string): boolean {
+        return !this.estaNoFinal() && this.simbolos[this.atual].tipo === tipo;
+    }
+
+    private fechamentoEnquantoAtual(): boolean {
+        return (
+            this.simboloAtualEh(tiposDeSimbolos.FIMENQUANTO) ||
+            (this.simboloAtualEh(tiposDeSimbolos.FIM) &&
+                this.simbolos[this.atual + 1]?.tipo === tiposDeSimbolos.ENQUANTO)
+        );
+    }
+
+    private consumirFechamentoEnquanto(): void {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FIMENQUANTO)) {
+            return;
+        }
+
+        this.consumir(tiposDeSimbolos.FIM, "Esperado 'fimenquanto' ou 'fim enquanto'.");
+        this.consumir(tiposDeSimbolos.ENQUANTO, "Esperado 'enquanto' após 'fim'.");
+    }
+
+    private fechamentoEscolheAtual(): boolean {
+        return (
+            this.simboloAtualEh(tiposDeSimbolos.FIMESCOLHE) ||
+            (this.simboloAtualEh(tiposDeSimbolos.FIM) &&
+                this.simbolos[this.atual + 1]?.tipo === tiposDeSimbolos.ESCOLHE)
+        );
+    }
+
+    private consumirFechamentoEscolhe(): void {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FIMESCOLHE)) {
+            return;
+        }
+
+        this.consumir(tiposDeSimbolos.FIM, "Esperado 'fimescolhe' ou 'fim escolhe'.");
+        this.consumir(tiposDeSimbolos.ESCOLHE, "Esperado 'escolhe' após 'fim'.");
+    }
+
+    private avaliarExpressaoNumericaConstante(expressao: Construto): number | null {
+        if (expressao instanceof Literal && typeof expressao.valor === 'number') {
+            return Number(expressao.valor);
+        }
+
+        if (expressao instanceof Agrupamento) {
+            return this.avaliarExpressaoNumericaConstante(expressao.expressao);
+        }
+
+        if (expressao instanceof Unario) {
+            const operando = this.avaliarExpressaoNumericaConstante(expressao.operando);
+            if (operando === null) return null;
+
+            switch (expressao.operador.tipo) {
+                case tiposDeSimbolos.SUBTRACAO:
+                    return -operando;
+                default:
+                    return null;
+            }
+        }
+
+        if (expressao instanceof Binario) {
+            const esquerda = this.avaliarExpressaoNumericaConstante(expressao.esquerda);
+            const direita = this.avaliarExpressaoNumericaConstante(expressao.direita);
+            if (esquerda === null || direita === null) return null;
+
+            switch (expressao.operador.tipo) {
+                case tiposDeSimbolos.ADICAO:
+                    return esquerda + direita;
+                case tiposDeSimbolos.SUBTRACAO:
+                    return esquerda - direita;
+                case tiposDeSimbolos.MULTIPLICACAO:
+                    return esquerda * direita;
+                case tiposDeSimbolos.DIVISAO:
+                    return esquerda / direita;
+                case tiposDeSimbolos.MODULO:
+                    return esquerda % direita;
+                case tiposDeSimbolos.EXPONENCIACAO:
+                    return Math.pow(esquerda, direita);
+                default:
+                    return null;
+            }
+        }
+
+        return null;
+    }
+
     // ── Helpers ────────────────────────────────────────────────────────────────
 
     /**
@@ -278,9 +363,24 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
         this.consumir(tiposDeSimbolos.FAZ, "Esperado 'faz' após condição do enquanto.");
         this.consumirQuebrasLinha();
 
-        const corpo = await this.resolverBloco([tiposDeSimbolos.FIMENQUANTO]);
+        const declaracoes: Declaracao[] = [];
+        const primeiroSimbolo = this.simbolos[this.atual];
+        while (!this.estaNoFinal() && !this.fechamentoEnquantoAtual()) {
+            const resolucao = await this.resolverDeclaracaoForaDeBloco();
+            if (Array.isArray(resolucao)) {
+                declaracoes.push(...resolucao);
+            } else if (resolucao !== null && resolucao !== undefined) {
+                declaracoes.push(resolucao);
+            }
+        }
 
-        this.consumir(tiposDeSimbolos.FIMENQUANTO, "Esperado 'fimenquanto' para fechar o laço.");
+        const corpo = new Bloco(
+            this.hashArquivo,
+            Number(primeiroSimbolo?.linha ?? 0),
+            declaracoes.filter((d) => d)
+        );
+
+        this.consumirFechamentoEnquanto();
 
         return new Enquanto(condicao, corpo);
     }
@@ -391,12 +491,9 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
         const caminhos: CaminhoEscolha[] = [];
         let caminhoPadrao: CaminhoEscolha = null;
 
-        while (
-            !this.estaNoFinal() &&
-            this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIMESCOLHE
-        ) {
+        while (!this.estaNoFinal() && !this.fechamentoEscolheAtual()) {
             this.consumirQuebrasLinha();
-            if (this.estaNoFinal() || this.simbolos[this.atual].tipo === tiposDeSimbolos.FIMESCOLHE) {
+            if (this.estaNoFinal() || this.fechamentoEscolheAtual()) {
                 break;
             }
 
@@ -414,6 +511,7 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
                     tiposDeSimbolos.CASO,
                     tiposDeSimbolos.DEFEITO,
                     tiposDeSimbolos.FIMESCOLHE,
+                    tiposDeSimbolos.FIM,
                 ]);
                 caminhos.push({ condicoes, declaracoes: bloco.declaracoes });
 
@@ -421,14 +519,14 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
                 this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após 'defeito'.");
                 this.consumirQuebrasLinha();
 
-                const bloco = await this.resolverBloco([tiposDeSimbolos.FIMESCOLHE]);
+                const bloco = await this.resolverBloco([tiposDeSimbolos.FIMESCOLHE, tiposDeSimbolos.FIM]);
                 caminhoPadrao = { condicoes: [], declaracoes: bloco.declaracoes };
             } else {
                 break;
             }
         }
 
-        this.consumir(tiposDeSimbolos.FIMESCOLHE, "Esperado 'fimescolhe' para fechar o escolhe.");
+        this.consumirFechamentoEscolhe();
 
         return new Escolha(identificador, caminhos, caminhoPadrao);
     }
@@ -466,11 +564,20 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
 
             // Array: `inteiro v[10]`
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
-                const tamanhoSimbolo = this.consumir(
-                    tiposDeSimbolos.INTEIRO,
-                    'Esperado tamanho do vetor.'
-                );
-                const tamanho = Number(tamanhoSimbolo.literal);
+                const expressaoTamanho = await this.expressao();
+                const tamanhoConstante = this.avaliarExpressaoNumericaConstante(expressaoTamanho);
+                if (
+                    tamanhoConstante === null ||
+                    !Number.isInteger(tamanhoConstante) ||
+                    tamanhoConstante < 0
+                ) {
+                    throw this.erro(
+                        identificador,
+                        'Tamanho do vetor deve ser expressão numérica inteira constante e não-negativa.'
+                    );
+                }
+
+                const tamanho = Number(tamanhoConstante);
                 this.consumir(tiposDeSimbolos.COLCHETE_DIREITO, "Esperado ']' após tamanho do vetor.");
 
                 const elementos: Literal[] = Array.from(
@@ -503,20 +610,22 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
 
         // Tipo obrigatório após 'constante'
         const tipoSimbolo = this.simbolos[this.atual];
-        const mapaValosPadrao: Record<string, any> = {
+        const mapaValoresPadrao: Record<string, any> = {
             [tiposDeSimbolos.INTEIRO]: 0,
+            [tiposDeSimbolos.TEXTO]: '',
             [tiposDeSimbolos.REAL]: 0.0,
             [tiposDeSimbolos.LOGICO]: false,
             [tiposDeSimbolos.CARACTER]: '',
         };
         const mapaTipos: Record<string, TipoInferencia> = {
             [tiposDeSimbolos.INTEIRO]: 'inteiro',
+            [tiposDeSimbolos.TEXTO]: 'texto',
             [tiposDeSimbolos.REAL]: 'real',
             [tiposDeSimbolos.LOGICO]: 'lógico',
             [tiposDeSimbolos.CARACTER]: 'caracter',
         };
 
-        if (!(tipoSimbolo.tipo in mapaValosPadrao)) {
+        if (!(tipoSimbolo.tipo in mapaValoresPadrao)) {
             throw this.erro(tipoSimbolo, "Esperado tipo após 'constante'.");
         }
 
@@ -560,6 +669,14 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
                 return await this.declaracaoEscolhaAsync();
             case tiposDeSimbolos.INTEIRO:
                 return await this.declaracaoVariaveis(tiposDeSimbolos.INTEIRO, 'inteiro', 0);
+            case tiposDeSimbolos.TEXTO:
+                if (
+                    simboloAtual.literal === null &&
+                    String(simboloAtual.lexema).toLowerCase() === 'texto'
+                ) {
+                    return await this.declaracaoVariaveis(tiposDeSimbolos.TEXTO, 'texto', '');
+                }
+                return new Expressao(await this.expressao());
             case tiposDeSimbolos.REAL:
                 return await this.declaracaoVariaveis(tiposDeSimbolos.REAL, 'real', 0.0);
             case tiposDeSimbolos.LOGICO:

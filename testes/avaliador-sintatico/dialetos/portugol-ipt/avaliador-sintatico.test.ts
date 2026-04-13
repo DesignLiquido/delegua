@@ -55,6 +55,12 @@ describe('Avaliador sintático (Portugol IPT)', () => {
             expect(r.declaracoes[0]).toBeInstanceOf(Var);
         });
 
+        it('texto', async () => {
+            const r = await analisar(['inicio', 'texto t', 'fim']);
+            expect(r.erros).toHaveLength(0);
+            expect(r.declaracoes[0]).toBeInstanceOf(Var);
+        });
+
         it('logico', async () => {
             const r = await analisar(['inicio', 'logico b', 'fim']);
             expect(r.erros).toHaveLength(0);
@@ -85,8 +91,23 @@ describe('Avaliador sintático (Portugol IPT)', () => {
             expect(r.declaracoes[0]).toBeInstanceOf(Const);
         });
 
+        it('constante texto', async () => {
+            const r = await analisar(['inicio', 'constante texto MSG = "oi"', 'fim']);
+            expect(r.erros).toHaveLength(0);
+            expect(r.declaracoes[0]).toBeInstanceOf(Const);
+        });
+
         it('array inteiro com tamanho', async () => {
             const r = await analisar(['inicio', 'inteiro v[5]', 'fim']);
+            expect(r.erros).toHaveLength(0);
+            const declaracao = r.declaracoes[0] as Var;
+            expect(declaracao).toBeInstanceOf(Var);
+            expect(declaracao.inicializador).toBeInstanceOf(Vetor);
+            expect((declaracao.inicializador as Vetor).valores).toHaveLength(5);
+        });
+
+        it('array com expressão constante no tamanho', async () => {
+            const r = await analisar(['inicio', 'inteiro v[2 + 3]', 'fim']);
             expect(r.erros).toHaveLength(0);
             const declaracao = r.declaracoes[0] as Var;
             expect(declaracao).toBeInstanceOf(Var);
@@ -198,6 +219,19 @@ describe('Avaliador sintático (Portugol IPT)', () => {
             const externo = r.declaracoes[2] as Enquanto;
             expect(externo).toBeInstanceOf(Enquanto);
             expect(externo.corpo.declaracoes[0]).toBeInstanceOf(Enquanto);
+        });
+
+        it('enquanto com fechamento "fim enquanto"', async () => {
+            const r = await analisar([
+                'inicio',
+                'inteiro x',
+                'enquanto x > 0 faz',
+                'escrever x',
+                'fim enquanto',
+                'fim',
+            ]);
+            expect(r.erros).toHaveLength(0);
+            expect(r.declaracoes[1]).toBeInstanceOf(Enquanto);
         });
     });
 
@@ -328,6 +362,20 @@ describe('Avaliador sintático (Portugol IPT)', () => {
             expect(r.erros).toHaveLength(0);
             const escolha = r.declaracoes[1] as Escolha;
             expect(escolha.caminhos[0].condicoes).toHaveLength(3);
+        });
+
+        it('escolhe com fechamento "fim escolhe"', async () => {
+            const r = await analisar([
+                'inicio',
+                'inteiro x',
+                'escolhe x',
+                'caso 1:',
+                'escrever "um"',
+                'fim escolhe',
+                'fim',
+            ]);
+            expect(r.erros).toHaveLength(0);
+            expect(r.declaracoes[1]).toBeInstanceOf(Escolha);
         });
     });
 

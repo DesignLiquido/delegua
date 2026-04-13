@@ -29,6 +29,12 @@ describe('Interpretador (Portugol IPT)', () => {
             expect(erros).toHaveLength(0);
             expect(saidas[0]).toEqual('Olá mundo');
         });
+
+        it('palavras-chave em maiúsculas', async () => {
+            const { saidas, erros } = await interpretar(['INICIO', 'ESCREVER "ok"', 'FIM']);
+            expect(erros).toHaveLength(0);
+            expect(saidas[0]).toEqual('ok');
+        });
     });
 
     describe('Variáveis', () => {
@@ -55,6 +61,18 @@ describe('Interpretador (Portugol IPT)', () => {
             expect(saidas[0]).toEqual('7');
         });
 
+        it('declaração de texto e atribuição', async () => {
+            const { saidas, erros } = await interpretar([
+                'inicio',
+                'texto t',
+                't <- "ola"',
+                'escrever t',
+                'fim',
+            ]);
+            expect(erros).toHaveLength(0);
+            expect(saidas[0]).toEqual('ola');
+        });
+
         it('constante inteira', async () => {
             const { saidas, erros } = await interpretar([
                 'inicio',
@@ -64,6 +82,17 @@ describe('Interpretador (Portugol IPT)', () => {
             ]);
             expect(erros).toHaveLength(0);
             expect(saidas[0]).toEqual('3');
+        });
+
+        it('constante texto', async () => {
+            const { saidas, erros } = await interpretar([
+                'inicio',
+                'constante texto MSG = "oi"',
+                'escrever MSG',
+                'fim',
+            ]);
+            expect(erros).toHaveLength(0);
+            expect(saidas[0]).toEqual('oi');
         });
 
         it('múltiplas variáveis na mesma linha', async () => {
@@ -253,6 +282,20 @@ describe('Interpretador (Portugol IPT)', () => {
             expect(erros).toHaveLength(0);
             expect(saidas).toEqual(['0', '1', '2']);
         });
+
+        it('enquanto com fechamento fim enquanto', async () => {
+            const { saidas, erros } = await interpretar([
+                'inicio',
+                'inteiro x = 0',
+                'enquanto x < 3 faz',
+                'escrever x',
+                'x <- x + 1',
+                'fim enquanto',
+                'fim',
+            ]);
+            expect(erros).toHaveLength(0);
+            expect(saidas).toEqual(['0', '1', '2']);
+        });
     });
 
     describe('Laço para', () => {
@@ -349,6 +392,20 @@ describe('Interpretador (Portugol IPT)', () => {
             expect(erros).toHaveLength(0);
             expect(saidas[0]).toEqual('outro');
         });
+
+        it('fecha com fim escolhe', async () => {
+            const { saidas, erros } = await interpretar([
+                'inicio',
+                'inteiro x = 1',
+                'escolhe x',
+                'caso 1:',
+                'escrever "um"',
+                'fim escolhe',
+                'fim',
+            ]);
+            expect(erros).toHaveLength(0);
+            expect(saidas[0]).toEqual('um');
+        });
     });
 
     describe('Arrays', () => {
@@ -439,6 +496,222 @@ describe('Interpretador (Portugol IPT)', () => {
             expect(erros).toHaveLength(0);
             expect(Number(saidas[0])).toBeGreaterThanOrEqual(0);
             expect(Number(saidas[0])).toBeLessThan(1);
+        });
+
+        it('SEN calcula seno', async () => {
+            const { saidas, erros } = await interpretar([
+                'inicio',
+                'real x',
+                'x <- SEN(0)',
+                'escrever x',
+                'fim',
+            ]);
+            expect(erros).toHaveLength(0);
+            expect(Number(saidas[0])).toBeCloseTo(0, 8);
+        });
+
+        it('CTG calcula cotangente', async () => {
+            const { saidas, erros } = await interpretar([
+                'inicio',
+                'real x',
+                'x <- CTG(1)',
+                'escrever x',
+                'fim',
+            ]);
+            expect(erros).toHaveLength(0);
+            expect(Number(saidas[0])).toBeCloseTo(1 / Math.tan(1), 8);
+        });
+
+        it('COS calcula cosseno', async () => {
+            const { saidas, erros } = await interpretar([
+                'inicio',
+                'real x',
+                'x <- COS(0)',
+                'escrever x',
+                'fim',
+            ]);
+            expect(erros).toHaveLength(0);
+            expect(Number(saidas[0])).toBeCloseTo(1, 8);
+        });
+
+        it('TAN calcula tangente', async () => {
+            const { saidas, erros } = await interpretar([
+                'inicio',
+                'real x',
+                'x <- TAN(0)',
+                'escrever x',
+                'fim',
+            ]);
+            expect(erros).toHaveLength(0);
+            expect(Number(saidas[0])).toBeCloseTo(0, 8);
+        });
+
+        it('ASEN calcula arco seno', async () => {
+            const { saidas, erros } = await interpretar([
+                'inicio',
+                'real x',
+                'x <- ASEN(0)',
+                'escrever x',
+                'fim',
+            ]);
+            expect(erros).toHaveLength(0);
+            expect(Number(saidas[0])).toBeCloseTo(0, 8);
+        });
+
+        it('ACOS calcula arco cosseno', async () => {
+            const { saidas, erros } = await interpretar([
+                'inicio',
+                'real x',
+                'x <- ACOS(1)',
+                'escrever x',
+                'fim',
+            ]);
+            expect(erros).toHaveLength(0);
+            expect(Number(saidas[0])).toBeCloseTo(0, 8);
+        });
+
+        it('ATAN calcula arco tangente', async () => {
+            const { saidas, erros } = await interpretar([
+                'inicio',
+                'real x',
+                'x <- ATAN(0)',
+                'escrever x',
+                'fim',
+            ]);
+            expect(erros).toHaveLength(0);
+            expect(Number(saidas[0])).toBeCloseTo(0, 8);
+        });
+
+        it('ACTG calcula arco cotangente', async () => {
+            const { saidas, erros } = await interpretar([
+                'inicio',
+                'real x',
+                'x <- ACTG(1)',
+                'escrever x',
+                'fim',
+            ]);
+            expect(erros).toHaveLength(0);
+            expect(Number(saidas[0])).toBeCloseTo(1 / Math.atan(1), 8);
+        });
+
+        it('SENH calcula seno hiperbólico', async () => {
+            const { saidas, erros } = await interpretar([
+                'inicio',
+                'real x',
+                'x <- SENH(0)',
+                'escrever x',
+                'fim',
+            ]);
+            expect(erros).toHaveLength(0);
+            expect(Number(saidas[0])).toBeCloseTo(0, 8);
+        });
+
+        it('COSH calcula cosseno hiperbólico', async () => {
+            const { saidas, erros } = await interpretar([
+                'inicio',
+                'real x',
+                'x <- COSH(0)',
+                'escrever x',
+                'fim',
+            ]);
+            expect(erros).toHaveLength(0);
+            expect(Number(saidas[0])).toBeCloseTo(1, 8);
+        });
+
+        it('TANH calcula tangente hiperbólica', async () => {
+            const { saidas, erros } = await interpretar([
+                'inicio',
+                'real x',
+                'x <- TANH(0)',
+                'escrever x',
+                'fim',
+            ]);
+            expect(erros).toHaveLength(0);
+            expect(Number(saidas[0])).toBeCloseTo(0, 8);
+        });
+
+        it('CTGH calcula cotangente hiperbólica', async () => {
+            const { saidas, erros } = await interpretar([
+                'inicio',
+                'real x',
+                'x <- CTGH(1)',
+                'escrever x',
+                'fim',
+            ]);
+            expect(erros).toHaveLength(0);
+            expect(Number(saidas[0])).toBeCloseTo(1 / Math.tanh(1), 8);
+        });
+
+        it('EXP calcula exponencial', async () => {
+            const { saidas, erros } = await interpretar([
+                'inicio',
+                'real x',
+                'x <- EXP(1)',
+                'escrever x',
+                'fim',
+            ]);
+            expect(erros).toHaveLength(0);
+            expect(Number(saidas[0])).toBeCloseTo(Math.E, 8);
+        });
+
+        it('LOG calcula logaritmo base 10', async () => {
+            const { saidas, erros } = await interpretar([
+                'inicio',
+                'real x',
+                'x <- LOG(100)',
+                'escrever x',
+                'fim',
+            ]);
+            expect(erros).toHaveLength(0);
+            expect(Number(saidas[0])).toBeCloseTo(2, 8);
+        });
+
+        it('LN calcula logaritmo natural', async () => {
+            const { saidas, erros } = await interpretar([
+                'inicio',
+                'real x',
+                'x <- LN(EXP(1))',
+                'escrever x',
+                'fim',
+            ]);
+            expect(erros).toHaveLength(0);
+            expect(Number(saidas[0])).toBeCloseTo(1, 8);
+        });
+
+        it('FRAC retorna parte fracionária', async () => {
+            const { saidas, erros } = await interpretar([
+                'inicio',
+                'real x',
+                'x <- FRAC(3.75)',
+                'escrever x',
+                'fim',
+            ]);
+            expect(erros).toHaveLength(0);
+            expect(Number(saidas[0])).toBeCloseTo(0.75, 8);
+        });
+
+        it('ARRED arredonda para inteiro mais próximo', async () => {
+            const { saidas, erros } = await interpretar([
+                'inicio',
+                'inteiro x',
+                'x <- ARRED(3.6)',
+                'escrever x',
+                'fim',
+            ]);
+            expect(erros).toHaveLength(0);
+            expect(saidas[0]).toEqual('4');
+        });
+
+        it('LETRA retorna caractere pela posição', async () => {
+            const { saidas, erros } = await interpretar([
+                'inicio',
+                'caracter c',
+                'c <- LETRA("abc", 1)',
+                'escrever c',
+                'fim',
+            ]);
+            expect(erros).toHaveLength(0);
+            expect(saidas[0]).toEqual('b');
         });
     });
 
