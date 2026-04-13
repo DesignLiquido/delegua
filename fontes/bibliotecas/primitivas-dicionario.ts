@@ -34,6 +34,69 @@ const contemComum = (nome: string) => {
 };
 
 export default {
+    mesclar: {
+        tipoRetorno: 'dicionário',
+        argumentos: [
+            new InformacaoElementoSintatico(
+                'outroDicionario',
+                'dicionário',
+                true,
+                [],
+                'Outro dicionário a ser mesclado com este dicionário.'
+            ),
+        ],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            valor: object,
+            outroDicionario: any
+        ): Promise<any> => {
+            if (
+                !outroDicionario ||
+                Array.isArray(outroDicionario) ||
+                outroDicionario.constructor !== Object
+            ) {
+                return Promise.reject(
+                    new Error('O argumento de dicionário.mesclar() deve ser um dicionário.')
+                );
+            }
+
+            return Promise.resolve(Object.assign({}, valor, outroDicionario));
+        },
+        assinaturaFormato: 'dicionário.mesclar(outroDicionario: dicionário)',
+    },
+
+    // Compatibilidade retroativa com versões anteriores.
+    concatenar: {
+        tipoRetorno: 'dicionário',
+        argumentos: [
+            new InformacaoElementoSintatico(
+                'outroDicionario',
+                'dicionário',
+                true,
+                [],
+                'Outro dicionário a ser mesclado com este dicionário.'
+            ),
+        ],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            valor: object,
+            outroDicionario: any
+        ): Promise<any> => {
+            if (
+                !outroDicionario ||
+                Array.isArray(outroDicionario) ||
+                outroDicionario.constructor !== Object
+            ) {
+                return Promise.reject(
+                    new Error('O argumento de dicionário.mesclar() deve ser um dicionário.')
+                );
+            }
+
+            return Promise.resolve(Object.assign({}, valor, outroDicionario));
+        },
+        assinaturaFormato: 'dicionário.concatenar(outroDicionario: dicionário)',
+    },
+
     chaves: {
         tipoRetorno: 'texto[]',
         argumentos: [],

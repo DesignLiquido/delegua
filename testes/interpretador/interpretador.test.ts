@@ -2045,7 +2045,39 @@ describe('Interpretador', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(_saidas).toHaveLength(1);
-                    expect(_saidas[0]).toBe('{\"chave1\":1}{\"chave2\":2}');
+                    expect(_saidas[0]).toBe('{\"chave1\":1,\"chave2\":2}');
+                });
+
+                it('Dicionário.mesclar(dicionário)', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var d = { "a": 1, "b": 2 }',
+                            'escreva(d.mesclar({ "b": 9, "c": 3 }))',
+                        ],
+                    -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('{\"a\":1,\"b\":9,\"c\":3}');
+                });
+
+                it('Dicionário + dicionário encadeado com mesclar()', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var d = { "a": 1, "b": 2 }',
+                            'escreva((d + { "c": 3 }).mesclar({ "b": 9, "d": 4 }))',
+                        ],
+                    -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('{\"a\":1,\"b\":9,\"c\":3,\"d\":4}');
                 });
             });
 

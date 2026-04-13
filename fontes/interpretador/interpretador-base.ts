@@ -265,10 +265,15 @@ export class InterpretadorBase implements InterpretadorInterface {
                 return this.resolverNomeObjectoAcessado(
                     (objetoAcessado as Chamada).entidadeChamada
                 );
+            case Agrupamento:
+                return this.resolverNomeObjectoAcessado(
+                    (objetoAcessado as Agrupamento).expressao
+                );
             case Constante:
                 return (objetoAcessado as Constante).simbolo.lexema;
             case AcessoMetodoOuPropriedade:
             case AcessoIndiceVariavel:
+            case Binario:
             case Dicionario:
             case Leia:
             case Literal:
@@ -915,6 +920,19 @@ export class InterpretadorBase implements InterpretadorInterface {
                     return valorEsquerdo.concat(valorDireito);
                 }
 
+                // Se ambos os operandos são dicionários, mescla-os.
+                // Em caso de chaves duplicadas, valores à direita sobrescrevem os da esquerda.
+                if (
+                    valorEsquerdo &&
+                    valorDireito &&
+                    !Array.isArray(valorEsquerdo) &&
+                    !Array.isArray(valorDireito) &&
+                    valorEsquerdo.constructor === Object &&
+                    valorDireito.constructor === Object
+                ) {
+                    return Object.assign({}, valorEsquerdo, valorDireito);
+                }
+
                 // Auto-promove para BigInt se qualquer operando for BigInt
                 if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
                     const valorResolvidoEsquerdo =
@@ -1193,7 +1211,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 expressao.entidadeChamada
             );
 
-            if (variavelEntidadeChamada === null) {
+            if (variavelEntidadeChamada === null || variavelEntidadeChamada === undefined) {
                 return Promise.reject(
                     new ErroEmTempoDeExecucao(
                         (expressao as any).parentese,
@@ -1204,7 +1222,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 );
             }
 
-            if (variavelEntidadeChamada.hasOwnProperty('valorRetornado')) {
+            if (Object.prototype.hasOwnProperty.call(variavelEntidadeChamada, 'valorRetornado')) {
                 variavelEntidadeChamada = variavelEntidadeChamada.valorRetornado;
             }
 

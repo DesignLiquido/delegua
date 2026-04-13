@@ -19,6 +19,39 @@ describe('Primitivas de dicionário', () => {
         });
     });
 
+    describe('mesclar()', () => {
+        it('Mescla dois dicionários', async () => {
+            const meuDicionario = { "a": 1, "b": 2 };
+            const resultado = await primitivasDicionario.mesclar.implementacao(
+                interpretador,
+                meuDicionario,
+                { "c": 3 }
+            );
+
+            expect(resultado).toStrictEqual({ "a": 1, "b": 2, "c": 3 });
+            expect(meuDicionario).toStrictEqual({ "a": 1, "b": 2 });
+        });
+
+        it('Sobrescreve chaves com valor da direita', async () => {
+            const meuDicionario = { "a": 1, "b": 2 };
+            const resultado = await primitivasDicionario.mesclar.implementacao(
+                interpretador,
+                meuDicionario,
+                { "b": 999, "c": 3 }
+            );
+
+            expect(resultado).toStrictEqual({ "a": 1, "b": 999, "c": 3 });
+        });
+
+        it('Falha quando argumento não é dicionário', async () => {
+            const meuDicionario = { "a": 1, "b": 2 };
+
+            await expect(
+                primitivasDicionario.mesclar.implementacao(interpretador, meuDicionario, [1, 2, 3])
+            ).rejects.toThrow('O argumento de dicionário.mesclar() deve ser um dicionário.');
+        });
+    });
+
     describe('contém() ou contem()', () => {
         it('Trivial', async () => {
             const meuDicionario = { "a": 1, "b": 2, "c": 3 };
