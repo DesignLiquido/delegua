@@ -3,67 +3,172 @@ import {
     Agrupamento,
     AtribuicaoPorIndice,
     Atribuir,
+    Binario,
+    Chamada,
     Construto,
     FormatacaoEscrita,
     FuncaoConstruto,
     Leia,
     Literal,
+    Logico,
+    Unario,
     Variavel,
+    Vetor,
 } from '../../construtos';
+import { Simbolo } from '../../lexador/simbolo';
 import {
-    Escreva,
-    Declaracao,
-    Se,
-    Enquanto,
-    Para,
-    Escolha,
-    Fazer,
-    EscrevaMesmaLinha,
-    Var,
-    Expressao,
     Bloco,
+    Const,
+    Declaracao,
+    Enquanto,
+    Escolha,
+    Escreva,
+    EscrevaMesmaLinha,
+    Expressao,
+    Fazer,
+    FuncaoDeclaracao,
+    Para,
+    Se,
+    Var,
 } from '../../declaracoes';
 import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
-
 import { SimboloInterface } from '../../interfaces';
+import { CaminhoEscolha } from '../../interfaces/construtos';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/portugol-ipt';
+import { TipoInferencia } from '../../inferenciador';
 
 export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
+
+    // ── Helpers ────────────────────────────────────────────────────────────────
+
+    /**
+     * Consome quebras de linha opcionais.
+     */
+    private consumirQuebrasLinha(): void {
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA));
+    }
+
+    /**
+     * Coleta declarações até encontrar um token cujo tipo esteja em `tiposParada`.
+     * O token de parada NÃO é consumido.
+     */
+    private async resolverBloco(tiposParada: string[]): Promise<Bloco> {
+        const declaracoes: Declaracao[] = [];
+        const primeiroSimbolo = this.simbolos[this.atual];
+
+        while (!this.estaNoFinal() && !tiposParada.includes(this.simbolos[this.atual].tipo)) {
+            const resolucao = await this.resolverDeclaracaoForaDeBloco();
+            if (Array.isArray(resolucao)) {
+                declaracoes.push(...resolucao);
+            } else if (resolucao !== null && resolucao !== undefined) {
+                declaracoes.push(resolucao);
+            }
+        }
+
+        return new Bloco(
+            this.hashArquivo,
+            Number(primeiroSimbolo?.linha ?? 0),
+            declaracoes.filter((d) => d)
+        );
+    }
+
+    // ── Expressões ─────────────────────────────────────────────────────────────
+
     async primario(): Promise<Construto> {
         switch (this.simbolos[this.atual].tipo) {
-            case tiposDeSimbolos.IDENTIFICADOR:
+            case tiposDeSimbolos.IDENTIFICADOR: {
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
-
                 return new Variavel(this.hashArquivo, simboloIdentificador);
+            }
             case tiposDeSimbolos.INTEIRO:
-            case tiposDeSimbolos.TEXTO:
+            case tiposDeSimbolos.NUMERO:
+            case tiposDeSimbolos.TEXTO: {
                 const simboloAnterior: SimboloInterface = this.avancarEDevolverAnterior();
                 return new Literal(
                     this.hashArquivo,
                     Number(simboloAnterior.linha),
                     simboloAnterior.literal
                 );
-            case tiposDeSimbolos.PARENTESE_ESQUERDO:
+            }
+            case tiposDeSimbolos.PARENTESE_ESQUERDO: {
                 this.avancarEDevolverAnterior();
                 const expressao = await this.expressao();
                 this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
-
                 return new Agrupamento(
                     this.hashArquivo,
                     Number(this.simbolos[this.atual].linha),
                     expressao
                 );
+            }
         }
     }
 
     /**
-     * Aparentemente, o Portugol IPT não suporta chamadas de função.
-     * @returns O retorno da chamada de `primario()`.
+     * Suporta chamadas de funções embutidas: SEN(x), COS(x), POTENCIA(b,e), etc.
      */
     async chamar(): Promise<Construto> {
-        return await this.primario();
+        let expressao = await this.primario();
+
+        while (true) {
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
+                const argumentos: Construto[] = [];
+                if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+                    do {
+                        argumentos.push(await this.expressao());
+                    } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+                }
+                this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após argumentos.");
+                expressao = new Chamada(this.hashArquivo, expressao, argumentos);
+            } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
+                const indice = await this.expressao();
+                const fechamento = this.consumir(
+                    tiposDeSimbolos.COLCHETE_DIREITO,
+                    "Esperado ']' após índice."
+                );
+                expressao = new AcessoIndiceVariavel(this.hashArquivo, expressao, indice, fechamento);
+            } else {
+                break;
+            }
+        }
+
+        return expressao;
+    }
+
+    /**
+     * Override de `unario()` para incluir o operador lógico `NAO`.
+     */
+    protected async unario(): Promise<Construto> {
+        if (
+            this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.NEGACAO,
+                tiposDeSimbolos.NAO,
+                tiposDeSimbolos.SUBTRACAO
+            )
+        ) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = await this.unario();
+            return new Unario(this.hashArquivo, operador, direito, 'ANTES');
+        }
+        return await this.chamar();
+    }
+
+    /**
+     * Override de `ou()` para incluir o operador lógico `XOU`.
+     */
+    protected async ou(): Promise<Construto> {
+        let expressao = await this.e();
+
+        while (
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.OU, tiposDeSimbolos.XOU)
+        ) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = await this.e();
+            expressao = new Logico(this.hashArquivo, expressao, operador, direito);
+        }
+
+        return expressao;
     }
 
     async atribuir(): Promise<Construto> {
@@ -93,17 +198,17 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
         return expressao;
     }
 
+    // ── Declarações ────────────────────────────────────────────────────────────
+
     /**
-     * A declaração escreva (ou escrever) do Portugol IPT é sempre na mesma linha.
+     * `escrever expr [, expr ...]`
      */
     async declaracaoEscreva(): Promise<Escreva> {
         const simboloAtual = this.avancarEDevolverAnterior();
 
-        // const argumentos = this.logicaComumEscreva();
         const argumentos: FormatacaoEscrita[] = [];
         do {
             const valor = await this.expressao();
-
             argumentos.push(
                 new FormatacaoEscrita(this.hashArquivo, Number(simboloAtual.linha), valor)
             );
@@ -112,140 +217,357 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
         return new EscrevaMesmaLinha(Number(simboloAtual.linha), this.hashArquivo, argumentos);
     }
 
-    blocoEscopo(): Promise<Declaracao[]> {
-        throw new Error('Método não implementado.');
-    }
-
+    /**
+     * `se cond entao ... [senao ...] fimse`
+     */
     async declaracaoSe(): Promise<Se> {
-        this.avancarEDevolverAnterior();
+        this.avancarEDevolverAnterior(); // consome 'se'
         const condicao = await this.expressao();
-        this.consumir(tiposDeSimbolos.ENTAO, "Esperado 'então' ou 'entao' após condição do se.");
-        this.consumir(
-            tiposDeSimbolos.QUEBRA_LINHA,
-            "Esperado quebra de linha após palavra reservada 'então' ou 'entao' em condição se."
-        );
+        this.consumir(tiposDeSimbolos.ENTAO, "Esperado 'então' após condição do se.");
+        this.consumirQuebrasLinha();
 
-        const caminhoEntao = (await this.resolverDeclaracaoForaDeBloco()) as Bloco;
+        const caminhoEntao = await this.resolverBloco([
+            tiposDeSimbolos.SENAO,
+            tiposDeSimbolos.FIMSE,
+        ]);
 
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA));
+        this.consumirQuebrasLinha();
 
-        let caminhoSenao = null;
+        let caminhoSenao: Bloco | null = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO)) {
-            this.consumir(
-                tiposDeSimbolos.QUEBRA_LINHA,
-                "Esperado quebra de linha após palavra reservada 'senão' ou 'senao' em instrução se."
-            );
-            caminhoSenao = await this.resolverDeclaracaoForaDeBloco();
+            this.consumirQuebrasLinha();
+            caminhoSenao = await this.resolverBloco([tiposDeSimbolos.FIMSE]);
         }
 
-        this.consumir(
-            tiposDeSimbolos.QUEBRA_LINHA,
-            "Esperado quebra de linha após palavra reservada 'então' ou 'entao' em condição se."
-        );
-        this.consumir(
-            tiposDeSimbolos.FIMSE,
-            "Esperado 'fimse' para finalização de uma instrução se."
-        );
+        this.consumirQuebrasLinha();
+        this.consumir(tiposDeSimbolos.FIMSE, "Esperado 'fimse' para fechar instrução se.");
 
         return new Se(condicao, caminhoEntao, [], caminhoSenao);
     }
 
-    declaracaoEnquanto(): Promise<Enquanto> {
-        throw new Error('Método não implementado.');
-    }
+    /**
+     * `enquanto cond faz ... fimenquanto`
+     */
+    async declaracaoEnquanto(): Promise<Enquanto> {
+        this.avancarEDevolverAnterior(); // consome 'enquanto'
+        const condicao = await this.expressao();
+        this.consumir(tiposDeSimbolos.FAZ, "Esperado 'faz' após condição do enquanto.");
+        this.consumirQuebrasLinha();
 
-    declaracaoPara(): Promise<Para> {
-        throw new Error('Método não implementado.');
-    }
+        const corpo = await this.resolverBloco([tiposDeSimbolos.FIMENQUANTO]);
 
-    declaracaoEscolha(): Escolha {
-        throw new Error('Método não implementado.');
-    }
+        this.consumir(tiposDeSimbolos.FIMENQUANTO, "Esperado 'fimenquanto' para fechar o laço.");
 
-    declaracaoFazer(): Fazer {
-        throw new Error('Método não implementado.');
-    }
-
-    async declaracaoInteiros(): Promise<Var[]> {
-        const simboloInteiro = this.consumir(tiposDeSimbolos.INTEIRO, '');
-
-        const inicializacoes = [];
-        do {
-            const identificador = this.consumir(
-                tiposDeSimbolos.IDENTIFICADOR,
-                "Esperado identificador após palavra reservada 'inteiro'."
-            );
-
-            // Inicializações de variáveis podem ter valores definidos.
-            let valorInicializacao = 0;
-            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-                const literalInicializacao = this.consumir(
-                    tiposDeSimbolos.INTEIRO,
-                    'Esperado literal inteiro após símbolo de igual em declaração de variável.'
-                );
-                valorInicializacao = Number(literalInicializacao.literal);
-            }
-
-            inicializacoes.push(
-                new Var(
-                    identificador,
-                    new Literal(
-                        this.hashArquivo,
-                        Number(simboloInteiro.linha),
-                        valorInicializacao,
-                        'inteiro'
-                    )
-                )
-            );
-        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
-
-        return Promise.resolve(inicializacoes);
+        return new Enquanto(condicao, corpo);
     }
 
     /**
-     * Análise de uma declaração `leia()`. No VisuAlg, `leia()` aceita 1..N argumentos.
-     * @returns Uma declaração `Leia`.
+     * `para v de ini ate fim [passo p]` + corpo + `proximo`
+     */
+    async declaracaoPara(): Promise<Para> {
+        const simboloPara = this.avancarEDevolverAnterior(); // consome 'para'
+        const linha = Number(simboloPara.linha);
+
+        const identificador = this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            "Esperado identificador após 'para'."
+        );
+
+        this.consumir(tiposDeSimbolos.DE, "Esperado 'de' após variável do 'para'.");
+        const inicioExpr = await this.expressao();
+
+        this.consumir(tiposDeSimbolos.ATE, "Esperado 'ate' após valor inicial do 'para'.");
+        const fimExpr = await this.expressao();
+
+        let passoExpr: Construto = new Literal(this.hashArquivo, linha, 1, 'inteiro');
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PASSO)) {
+            passoExpr = await this.expressao();
+        }
+
+        this.consumirQuebrasLinha();
+
+        const corpo = await this.resolverBloco([tiposDeSimbolos.PROXIMO]);
+        this.consumir(tiposDeSimbolos.PROXIMO, "Esperado 'proximo' para fechar o laço 'para'.");
+
+        const varIteracao = new Variavel(this.hashArquivo, identificador, 'inteiro');
+        const simboloMenorIgual = new Simbolo(
+            tiposDeSimbolos.MENOR_IGUAL, '<=', null, linha, this.hashArquivo
+        );
+        const simboloAdicao = new Simbolo(
+            tiposDeSimbolos.ADICAO, '+', null, linha, this.hashArquivo
+        );
+
+        const inicializador = new Expressao(new Atribuir(this.hashArquivo, varIteracao, inicioExpr));
+        const condicao = new Binario(this.hashArquivo, varIteracao, simboloMenorIgual, fimExpr);
+        const incrementar = new Atribuir(
+            this.hashArquivo,
+            varIteracao,
+            new Binario(this.hashArquivo, varIteracao, simboloAdicao, passoExpr)
+        );
+
+        return new Para(this.hashArquivo, linha, inicializador, condicao, incrementar, corpo);
+    }
+
+    /**
+     * `repete ... ate cond`
+     * Semântica: executa o corpo e repete enquanto a condição for FALSA (repeat-until).
+     * Mapeado para `Fazer` com a condição invertida via `nao`.
+     */
+    private async declaracaoRepete(): Promise<Fazer> {
+        const simboloRepete = this.avancarEDevolverAnterior(); // consome 'repete'
+        this.consumirQuebrasLinha();
+
+        const corpo = await this.resolverBloco([tiposDeSimbolos.ATE]);
+        this.consumir(tiposDeSimbolos.ATE, "Esperado 'ate' para fechar o laço 'repete'.");
+
+        const condicaoAte = await this.expressao();
+
+        // Inverte a condição: o loop continua enquanto `ate cond` for falso
+        const operadorNao = new Simbolo(
+            tiposDeSimbolos.NAO, 'nao', null, condicaoAte.linha, this.hashArquivo
+        );
+        const condicaoInvertida = new Unario(this.hashArquivo, operadorNao, condicaoAte, 'ANTES');
+
+        return new Fazer(this.hashArquivo, Number(simboloRepete.linha), corpo, condicaoInvertida);
+    }
+
+    /**
+     * `faz ... enquanto cond`
+     * O `enquanto` de fechamento é distinguido no lexer (FAZENQUANTO) do `enquanto` de abertura.
+     */
+    async declaracaoFazer(): Promise<Fazer> {
+        const simboloFaz = this.avancarEDevolverAnterior(); // consome 'faz'
+        this.consumirQuebrasLinha();
+
+        const corpo = await this.resolverBloco([tiposDeSimbolos.FAZENQUANTO]);
+        this.consumir(tiposDeSimbolos.FAZENQUANTO, "Esperado 'enquanto' para fechar o laço 'faz'.");
+
+        const condicao = await this.expressao();
+
+        return new Fazer(this.hashArquivo, Number(simboloFaz.linha), corpo, condicao);
+    }
+
+    /**
+     * `escolhe expr caso v[, v...]: instr ... [defeito: instr] fimescolhe`
+     */
+    declaracaoEscolha(): Escolha {
+        this.avancarEDevolverAnterior(); // consome 'escolhe'
+        const identificador = this.primario() as unknown as Construto;
+
+        // A versão síncrona é necessária porque a interface do base declara este como não-async.
+        // Fazemos o cast após — o analisar() é async e usa await nos callers.
+        throw new Error('Use declaracaoEscolhaAsync() internamente.');
+    }
+
+    private async declaracaoEscolhaAsync(): Promise<Escolha> {
+        this.avancarEDevolverAnterior(); // consome 'escolhe'
+        const identificador = await this.expressao();
+        this.consumirQuebrasLinha();
+
+        const caminhos: CaminhoEscolha[] = [];
+        let caminhoPadrao: CaminhoEscolha = null;
+
+        while (
+            !this.estaNoFinal() &&
+            this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIMESCOLHE
+        ) {
+            this.consumirQuebrasLinha();
+            if (this.estaNoFinal() || this.simbolos[this.atual].tipo === tiposDeSimbolos.FIMESCOLHE) {
+                break;
+            }
+
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CASO)) {
+                // Múltiplos valores por caso: `caso 1, 2, 3:`
+                const condicoes: Construto[] = [];
+                do {
+                    condicoes.push(await this.expressao());
+                } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+                this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após valor do 'caso'.");
+                this.consumirQuebrasLinha();
+
+                const bloco = await this.resolverBloco([
+                    tiposDeSimbolos.CASO,
+                    tiposDeSimbolos.DEFEITO,
+                    tiposDeSimbolos.FIMESCOLHE,
+                ]);
+                caminhos.push({ condicoes, declaracoes: bloco.declaracoes });
+
+            } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DEFEITO)) {
+                this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após 'defeito'.");
+                this.consumirQuebrasLinha();
+
+                const bloco = await this.resolverBloco([tiposDeSimbolos.FIMESCOLHE]);
+                caminhoPadrao = { condicoes: [], declaracoes: bloco.declaracoes };
+            } else {
+                break;
+            }
+        }
+
+        this.consumir(tiposDeSimbolos.FIMESCOLHE, "Esperado 'fimescolhe' para fechar o escolhe.");
+
+        return new Escolha(identificador, caminhos, caminhoPadrao);
+    }
+
+    /**
+     * `ler var [, var ...]`
      */
     async expressaoLeia(): Promise<Leia> {
         const simboloAtual = this.avancarEDevolverAnterior();
-
         const argumentos = [];
         do {
             argumentos.push(await this.resolverDeclaracaoForaDeBloco());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
-
         return new Leia(simboloAtual, argumentos);
     }
 
-    corpoDaFuncao(tipo: string): Promise<FuncaoConstruto> {
-        throw new Error('Método não implementado.');
+    /**
+     * Declara variáveis de um dado tipo, com suporte a arrays e valor inicial.
+     * Ex: `inteiro x`, `real y = 3.14`, `logico v[5]`
+     */
+    private async declaracaoVariaveis(
+        tipoToken: string,
+        tipoDelegua: TipoInferencia,
+        valorPadrao: any
+    ): Promise<Var[]> {
+        const simboloTipo = this.avancarEDevolverAnterior();
+        const linha = Number(simboloTipo.linha);
+        const inicializacoes: Var[] = [];
+
+        do {
+            const identificador = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                `Esperado identificador após '${simboloTipo.lexema}'.`
+            );
+
+            // Array: `inteiro v[10]`
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
+                const tamanhoSimbolo = this.consumir(
+                    tiposDeSimbolos.INTEIRO,
+                    'Esperado tamanho do vetor.'
+                );
+                const tamanho = Number(tamanhoSimbolo.literal);
+                this.consumir(tiposDeSimbolos.COLCHETE_DIREITO, "Esperado ']' após tamanho do vetor.");
+
+                const elementos: Literal[] = Array.from(
+                    { length: tamanho },
+                    () => new Literal(this.hashArquivo, linha, valorPadrao, tipoDelegua)
+                );
+                inicializacoes.push(
+                    new Var(identificador, new Vetor(this.hashArquivo, linha, elementos, `${tipoDelegua}[]` as TipoInferencia))
+                );
+            } else {
+                // Inicialização opcional: `inteiro x = 5` (usa = como igualdade aqui, não seta)
+                let valorInicial: Construto = new Literal(
+                    this.hashArquivo, linha, valorPadrao, tipoDelegua
+                );
+                if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+                    valorInicial = await this.expressao();
+                }
+                inicializacoes.push(new Var(identificador, valorInicial));
+            }
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        return inicializacoes;
     }
+
+    /**
+     * `constante tipo nome = valor`
+     */
+    private async declaracaoConstante(): Promise<Const[]> {
+        this.avancarEDevolverAnterior(); // consome 'constante'
+
+        // Tipo obrigatório após 'constante'
+        const tipoSimbolo = this.simbolos[this.atual];
+        const mapaValosPadrao: Record<string, any> = {
+            [tiposDeSimbolos.INTEIRO]: 0,
+            [tiposDeSimbolos.REAL]: 0.0,
+            [tiposDeSimbolos.LOGICO]: false,
+            [tiposDeSimbolos.CARACTER]: '',
+        };
+        const mapaTipos: Record<string, TipoInferencia> = {
+            [tiposDeSimbolos.INTEIRO]: 'inteiro',
+            [tiposDeSimbolos.REAL]: 'real',
+            [tiposDeSimbolos.LOGICO]: 'lógico',
+            [tiposDeSimbolos.CARACTER]: 'caracter',
+        };
+
+        if (!(tipoSimbolo.tipo in mapaValosPadrao)) {
+            throw this.erro(tipoSimbolo, "Esperado tipo após 'constante'.");
+        }
+
+        this.avancarEDevolverAnterior(); // consome o tipo
+        const tipoDelegua = mapaTipos[tipoSimbolo.tipo];
+
+        const constantes: Const[] = [];
+        do {
+            const identificador = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                `Esperado identificador após '${tipoSimbolo.lexema}'.`
+            );
+            this.consumir(tiposDeSimbolos.IGUAL, "Esperado '=' após nome da constante.");
+            const valor = await this.expressao();
+            constantes.push(new Const(identificador, valor, tipoDelegua, true));
+        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
+
+        return constantes;
+    }
+
+    // ── Ponto de entrada de declarações ────────────────────────────────────────
 
     async resolverDeclaracaoForaDeBloco(): Promise<Declaracao | Declaracao[]> {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.ESCREVER:
                 return await this.declaracaoEscreva();
-            case tiposDeSimbolos.INTEIRO:
-                return await this.declaracaoInteiros();
             case tiposDeSimbolos.LER:
                 return new Expressao(await this.expressaoLeia());
+            case tiposDeSimbolos.SE:
+                return await this.declaracaoSe();
+            case tiposDeSimbolos.ENQUANTO:
+                return await this.declaracaoEnquanto();
+            case tiposDeSimbolos.PARA:
+                return await this.declaracaoPara();
+            case tiposDeSimbolos.REPETE:
+                return await this.declaracaoRepete();
+            case tiposDeSimbolos.FAZ:
+                return await this.declaracaoFazer();
+            case tiposDeSimbolos.ESCOLHE:
+                return await this.declaracaoEscolhaAsync();
+            case tiposDeSimbolos.INTEIRO:
+                return await this.declaracaoVariaveis(tiposDeSimbolos.INTEIRO, 'inteiro', 0);
+            case tiposDeSimbolos.REAL:
+                return await this.declaracaoVariaveis(tiposDeSimbolos.REAL, 'real', 0.0);
+            case tiposDeSimbolos.LOGICO:
+                return await this.declaracaoVariaveis(tiposDeSimbolos.LOGICO, 'lógico', false);
+            case tiposDeSimbolos.CARACTER:
+                return await this.declaracaoVariaveis(tiposDeSimbolos.CARACTER, 'caracter', '');
+            case tiposDeSimbolos.CONSTANTE:
+                return await this.declaracaoConstante();
+            case tiposDeSimbolos.VARIAVEL: {
+                // 'variavel' é apenas um modificador opcional; avança e processa o tipo
+                this.avancarEDevolverAnterior();
+                return await this.resolverDeclaracaoForaDeBloco();
+            }
             case tiposDeSimbolos.QUEBRA_LINHA:
                 this.avancarEDevolverAnterior();
                 return null;
-            case tiposDeSimbolos.SE:
-                return await this.declaracaoSe();
             default:
                 return new Expressao(await this.expressao());
         }
     }
 
-    private validarSegmentoInicio(): void {
-        this.consumir(
-            tiposDeSimbolos.INICIO,
-            `Esperada expressão 'inicio' para marcar escopo do algoritmo.`
-        );
+    // ── Métodos obrigatórios não usados em Portugol IPT ────────────────────────
+
+    blocoEscopo(): Promise<Declaracao[]> {
+        throw new Error('Método não implementado.');
     }
+
+    corpoDaFuncao(_tipo: string): Promise<FuncaoConstruto> {
+        throw new Error('Portugol IPT não suporta funções definidas pelo utilizador.');
+    }
+
+    // ── Ponto de entrada principal ─────────────────────────────────────────────
 
     async analisar(
         retornoLexador: RetornoLexador<SimboloInterface>,
@@ -258,19 +580,21 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
         this.hashArquivo = hashArquivo || 0;
         this.simbolos = retornoLexador?.simbolos || [];
 
-        while (this.verificarTipoSimboloAtual(tiposDeSimbolos.QUEBRA_LINHA)) {
-            this.avancarEDevolverAnterior();
-        }
+        this.consumirQuebrasLinha();
 
-        let declaracoes = [];
-        this.validarSegmentoInicio();
+        this.consumir(
+            tiposDeSimbolos.INICIO,
+            "Esperado 'inicio' para marcar o início do algoritmo."
+        );
+
+        let declaracoes: Declaracao[] = [];
 
         while (!this.estaNoFinal() && this.simbolos[this.atual].tipo !== tiposDeSimbolos.FIM) {
-            const resolucaoDeclaracao = await this.resolverDeclaracaoForaDeBloco();
-            if (Array.isArray(resolucaoDeclaracao)) {
-                declaracoes = declaracoes.concat(resolucaoDeclaracao);
-            } else {
-                declaracoes.push(resolucaoDeclaracao);
+            const resolucao = await this.resolverDeclaracaoForaDeBloco();
+            if (Array.isArray(resolucao)) {
+                declaracoes = declaracoes.concat(resolucao);
+            } else if (resolucao !== null && resolucao !== undefined) {
+                declaracoes.push(resolucao);
             }
         }
 

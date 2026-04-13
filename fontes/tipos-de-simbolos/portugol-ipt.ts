@@ -58,6 +58,8 @@ export default {
     ENQUANTO: 'ENQUANTO',
     FAZ: 'FAZ',
     FIMENQUANTO: 'FIMENQUANTO',
+    // Token especial: 'enquanto' sem 'faz' no final da linha = fechamento do faz...enquanto
+    FAZENQUANTO: 'FAZENQUANTO',
 
     // Laço para
     PARA: 'PARA',
