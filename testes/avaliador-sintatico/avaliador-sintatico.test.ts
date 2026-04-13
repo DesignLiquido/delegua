@@ -2315,6 +2315,51 @@ describe('Avaliador sintático', () => {
                     expect(parametros[2].nome.lexema).toBe('resto');
                     expect(parametros[2].abrangencia).toBe('multiplo');
                 });
+
+                it('parâmetro de espalhamento com tipo qualquer[] preserva abrangência e tipoDado', async () => {
+                    const retornoLexador = lexador.mapear(
+                        ['funcao teste(...args: qualquer[]) {', '   escreva(args)', '}'],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    const funcao = retornoAvaliadorSintatico.declaracoes[0] as FuncaoDeclaracao;
+                    const parametros = (funcao.funcao as FuncaoConstruto).parametros;
+                    expect(parametros).toHaveLength(1);
+                    expect(parametros[0].abrangencia).toBe('multiplo');
+                    expect(parametros[0].tipoDado).toBe('qualquer[]');
+                });
+
+                it('parâmetro de espalhamento com tipo texto[] preserva abrangência e tipoDado', async () => {
+                    const retornoLexador = lexador.mapear(
+                        ['funcao teste(...args: texto[]) {', '   escreva(args)', '}'],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    const funcao = retornoAvaliadorSintatico.declaracoes[0] as FuncaoDeclaracao;
+                    const parametros = (funcao.funcao as FuncaoConstruto).parametros;
+                    expect(parametros).toHaveLength(1);
+                    expect(parametros[0].abrangencia).toBe('multiplo');
+                    expect(parametros[0].tipoDado).toBe('texto[]');
+                });
+
+                it('parâmetro de espalhamento com tipo funcao[] preserva abrangência e tipoDado', async () => {
+                    const retornoLexador = lexador.mapear(
+                        ['funcao teste(...callbacks: funcao[]) {', '   escreva(callbacks)', '}'],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    const funcao = retornoAvaliadorSintatico.declaracoes[0] as FuncaoDeclaracao;
+                    const parametros = (funcao.funcao as FuncaoConstruto).parametros;
+                    expect(parametros).toHaveLength(1);
+                    expect(parametros[0].abrangencia).toBe('multiplo');
+                    expect(parametros[0].tipoDado).toBe('funcao[]');
+                });
             });
         });
     });

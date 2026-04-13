@@ -237,6 +237,8 @@ export class AvaliadorSintatico
 
         if (this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
             const tiposVetores = [
+                'funcao[]',
+                'função[]',
                 'inteiro[]',
                 'numero[]',
                 'número[]',
