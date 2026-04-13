@@ -221,7 +221,8 @@ export class LexadorPortugolIpt implements LexadorInterface<SimboloInterface> {
 
         switch (caractere) {
             case ';':
-                // TODO: Ponto-e-vírgula não é exatamente tolerado em Portugol IPT.
+                // Ponto-e-vírgula não é exatamente tolerado em Portugol IPT,
+                // mas toleramos para evitar erros desnecessários.
                 this.avancar();
                 break;
             case ' ':
@@ -239,6 +240,41 @@ export class LexadorPortugolIpt implements LexadorInterface<SimboloInterface> {
                 this.analisarTexto('"');
                 this.avancar();
                 break;
+            case '+':
+                this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
+                this.avancar();
+                break;
+            case '-':
+                this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
+                this.avancar();
+                break;
+            case '*':
+                this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
+                this.avancar();
+                break;
+            case '/':
+                this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
+                this.avancar();
+                break;
+            case '%':
+                this.adicionarSimbolo(tiposDeSimbolos.MODULO);
+                this.avancar();
+                break;
+            case '^':
+                this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
+                this.avancar();
+                break;
+            case '=':
+                this.avancar();
+                // Operador de diferença: =/=
+                if (this.simboloAtual() === '/' && this.proximoSimbolo() === '=') {
+                    this.avancar(); // consome '/'
+                    this.avancar(); // consome '='
+                    this.adicionarSimbolo(tiposDeSimbolos.DIFERENTE);
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.IGUAL);
+                }
+                break;
             case '<':
                 this.avancar();
                 switch (this.simboloAtual()) {
@@ -250,32 +286,19 @@ export class LexadorPortugolIpt implements LexadorInterface<SimboloInterface> {
                         this.adicionarSimbolo(tiposDeSimbolos.MENOR_IGUAL);
                         this.avancar();
                         break;
-                    /* case '>':
-                        this.adicionarSimbolo(tiposDeSimbolos.DIFERENTE);
-                        this.avancar();
-                        break; */
                     default:
                         this.adicionarSimbolo(tiposDeSimbolos.MENOR);
                         break;
                 }
-
                 break;
             case '>':
                 this.avancar();
-                switch (this.simboloAtual()) {
-                    case '=':
-                        this.adicionarSimbolo(tiposDeSimbolos.MAIOR_IGUAL);
-                        this.avancar();
-                        break;
-                    /* case '>':
-                        this.adicionarSimbolo(tiposDeSimbolos.DIFERENTE);
-                        this.avancar();
-                        break; */
-                    default:
-                        this.adicionarSimbolo(tiposDeSimbolos.MAIOR);
-                        break;
+                if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.MAIOR_IGUAL);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.MAIOR);
                 }
-
                 break;
             case '(':
                 this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_ESQUERDO);
@@ -283,6 +306,22 @@ export class LexadorPortugolIpt implements LexadorInterface<SimboloInterface> {
                 break;
             case ')':
                 this.adicionarSimbolo(tiposDeSimbolos.PARENTESE_DIREITO);
+                this.avancar();
+                break;
+            case '[':
+                this.adicionarSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO);
+                this.avancar();
+                break;
+            case ']':
+                this.adicionarSimbolo(tiposDeSimbolos.COLCHETE_DIREITO);
+                this.avancar();
+                break;
+            case ',':
+                this.adicionarSimbolo(tiposDeSimbolos.VIRGULA);
+                this.avancar();
+                break;
+            case ':':
+                this.adicionarSimbolo(tiposDeSimbolos.DOIS_PONTOS);
                 this.avancar();
                 break;
             default:
