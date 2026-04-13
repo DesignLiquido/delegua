@@ -1,5 +1,6 @@
 import { Declaracao } from '../../declaracoes';
 import { Var, Const, FuncaoDeclaracao } from '../../declaracoes';
+import { Construto } from '../../construtos';
 import { OpcoesConvencaoNomenclaturaInterface, RegraEstilizacaoInterface } from '../../interfaces/estilizador';
 
 /**
@@ -25,22 +26,13 @@ export class RegraConvencaoNomenclatura implements RegraEstilizacaoInterface {
     }
 
     aplicarEmDeclaracao(declaracao: Declaracao): Declaracao {
-        // Valida/transforma nomes de variáveis
-        if (declaracao instanceof Var) {
-            return this.aplicarConvencaoVar(declaracao);
-        }
-
-        // Valida/transforma nomes de constantes
-        if (declaracao instanceof Const) {
-            return this.aplicarConvencaoConst(declaracao);
-        }
-
-        // Valida/transforma nomes de funções
-        if (declaracao instanceof FuncaoDeclaracao) {
-            return this.aplicarConvencaoFuncao(declaracao);
-        }
-
+        this.visitarObjeto(declaracao, new Set<any>());
         return declaracao;
+    }
+
+    aplicarEmConstruto(construto: Construto): Construto {
+        this.visitarObjeto(construto, new Set<any>());
+        return construto;
     }
 
     /**
@@ -140,14 +132,44 @@ export class RegraConvencaoNomenclatura implements RegraEstilizacaoInterface {
     private paraSnakeCase(nome: string): string {
         return (
             nome
-                // Adiciona underscore antes de letras maiúsculas
-                .replace(/([A-Z])/g, '_$1')
+                // Separa limites entre minúsculas/dígitos e maiúsculas.
+                .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+                // Separa blocos maiúsculos quando o último inicia uma palavra normal.
+                .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
+                .replace(/[\s-]+/g, '_')
                 .toLowerCase()
                 // Remove underscores duplicados
                 .replace(/__+/g, '_')
                 // Remove underscore inicial se houver
                 .replace(/^_/, '')
         );
+    }
+
+    private visitarObjeto(objeto: unknown, visitados: Set<any>): void {
+        if (!objeto || typeof objeto !== 'object' || visitados.has(objeto)) {
+            return;
+        }
+
+        visitados.add(objeto);
+
+        if (objeto instanceof Var) {
+            this.aplicarConvencaoVar(objeto);
+        } else if (objeto instanceof Const) {
+            this.aplicarConvencaoConst(objeto);
+        } else if (objeto instanceof FuncaoDeclaracao) {
+            this.aplicarConvencaoFuncao(objeto);
+        }
+
+        if (Array.isArray(objeto)) {
+            for (const item of objeto) {
+                this.visitarObjeto(item, visitados);
+            }
+            return;
+        }
+
+        for (const valor of Object.values(objeto as Record<string, unknown>)) {
+            this.visitarObjeto(valor, visitados);
+        }
     }
 
     /**

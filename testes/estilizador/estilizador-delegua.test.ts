@@ -162,6 +162,31 @@ describe('Estilizador Delégua', () => {
             const varDeclaracao = declaracoesEstilizadas[0] as Var;
             expect(varDeclaracao.simbolo.lexema).toBe('meu_nome_completo');
         });
+
+        it('Deve transformar variáveis locais com acrônimos para caixa_cobra ao formatar', async () => {
+            estilizador = new EstilizadorDelegua([
+                new RegraConvencaoNomenclatura({
+                    variavel: 'caixa_cobra',
+                    funcao: 'caixa_cobra',
+                }),
+            ]);
+
+            const retornoLexador = lexador.mapear(
+                [
+                    'funcao calcule_area_do_escudo(base, altura) {',
+                    "    var eitaFFF = ''",
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = estilizador.estilizarEFormatar(retornoAvaliadorSintatico.declaracoes, {
+                quebraLinha: '\n',
+            });
+
+            expect(resultado).toContain("var eita_fff = ''");
+        });
     });
 
     describe('Explicitar Tipos de Parâmetros', () => {
@@ -870,6 +895,39 @@ describe('Estilizador Delégua', () => {
 
             // Deve conter o literal intacto, sem truncamento
             expect(resultado).toContain('abcdefghijklmnopqrstuvwxyz');
+        });
+
+        it('Comentários de linha longos não são quebrados', () => {
+            const quebrador = new QuebradorDeLinha(40, 4, '\n');
+            const input =
+                '// Digite código em Delégua aqui, ou utilize o menu do topo superior esquerdo para selecionar exemplos de código em Delégua';
+
+            const resultado = quebrador.quebrar(input);
+
+            expect(resultado).toBe(input);
+        });
+
+        it('Não quebra comentário de linha em código formatado', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    '// Digite código em Delégua aqui, ou utilize o menu do topo superior esquerdo para selecionar exemplos de código em Delégua',
+                    "constante minhaVar = ''",
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = estilizador.estilizarEFormatar(retornoAvaliadorSintatico.declaracoes, {
+                maximoCaracteresPorLinha: 40,
+                quebraLinha: '\n',
+            });
+
+            expect(resultado).toContain(
+                '// Digite código em Delégua aqui, ou utilize o menu do topo superior esquerdo para selecionar exemplos de código em Delégua'
+            );
+            expect(resultado).not.toContain(
+                '\n    ou utilize o menu do topo superior esquerdo para selecionar exemplos de código em Delégua'
+            );
         });
 
         it('Indentação de continuação respeita tamanhoIndentacao', async () => {

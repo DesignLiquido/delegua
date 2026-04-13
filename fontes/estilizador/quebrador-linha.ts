@@ -49,6 +49,20 @@ function obterIndentacao(linha: string): string {
 }
 
 /**
+ * Detecta linhas de comentário que devem ser preservadas intactas.
+ */
+function ehLinhaComentario(linha: string): boolean {
+    const semIndentacao = linha.trimStart();
+    return (
+        semIndentacao.startsWith('//') ||
+        semIndentacao.startsWith('#') ||
+        semIndentacao.startsWith('/*') ||
+        semIndentacao.startsWith('*') ||
+        semIndentacao.startsWith('*/')
+    );
+}
+
+/**
  * Encontra todos os pontos de quebra válidos em uma linha, retornando os índices
  * onde a próxima linha de continuação deve começar (já avançado o espaço separador).
  *
@@ -106,6 +120,7 @@ function encontrarPontosDeQuebra(linha: string): number[] {
  * Se a linha não puder ser melhorada (apenas 1 segmento), retorna a original intacta.
  */
 function quebrarLinha(linha: string, maximo: number, indentacaoContinuacao: string): string[] {
+    if (ehLinhaComentario(linha)) return [linha];
     if (linha.length <= maximo) return [linha];
 
     const pontos = encontrarPontosDeQuebra(linha);
