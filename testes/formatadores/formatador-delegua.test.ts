@@ -80,6 +80,20 @@ describe('Formatadores > Delégua', () => {
         expect(linhasResultado).toHaveLength(5);
         expect(linhasResultado[0]).toBe("função teste(a: inteiro, b: inteiro): inteiro {");
     });
+
+    it('Não deve explicitar tipo qualquer em parâmetros sem anotação', async () => {
+        const resultadoLexador = lexador.mapear([
+            'funcao calcularPerimetro(altura, largura) {',
+            '    retorna 80',
+            '}',
+        ], -1);
+
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        const linhasResultado = resultado.split(quebraLinha);
+
+        expect(linhasResultado[0]).toBe('função calcularPerimetro(altura, largura) {');
+    });
     
     it('Classes', async () => {
         const resultadoLexador = lexador.mapear([

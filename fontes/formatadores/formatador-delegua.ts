@@ -139,7 +139,7 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
         for (let metodo of declaracao.metodos) {
             this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}${metodo.nome.lexema}(`;
             for (let parametro of metodo.parametros) {
-                this.codigoFormatado += `${parametro.nome.lexema}: ${parametro.tipoDado || 'qualquer'}, `;
+                this.codigoFormatado += `${this.formatarParametro(parametro)}, `;
             }
             if (metodo.parametros.length > 0) {
                 this.codigoFormatado = this.codigoFormatado.slice(0, -2);
@@ -373,7 +373,7 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
                 // Métodos estrangeiros: emitir apenas a assinatura, sem corpo.
                 this.codigoFormatado += `(`;
                 for (let argumento of metodo.funcao.parametros) {
-                    this.codigoFormatado += `${argumento.nome.lexema}: ${argumento.tipoDado || 'qualquer'}, `;
+                    this.codigoFormatado += `${this.formatarParametro(argumento)}, `;
                 }
                 if (metodo.funcao.parametros.length > 0) {
                     this.codigoFormatado = this.codigoFormatado.slice(0, -2);
@@ -852,7 +852,7 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
     visitarExpressaoFuncaoConstruto(expressao: FuncaoConstruto) {
         this.codigoFormatado += `(`;
         for (let argumento of expressao.parametros) {
-            this.codigoFormatado += `${argumento.nome.lexema}: ${argumento.tipoDado || 'qualquer'}, `;
+            this.codigoFormatado += `${this.formatarParametro(argumento)}, `;
         }
 
         if (expressao.parametros.length > 0) {
@@ -866,6 +866,14 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
 
         this.codigoFormatado += ' ';
         this.formatarBlocoOuVetorDeclaracoes(expressao.corpo);
+    }
+
+    private formatarParametro(parametro: { nome: { lexema: string }; tipoDado?: string }): string {
+        if (parametro.tipoDado) {
+            return `${parametro.nome.lexema}: ${parametro.tipoDado}`;
+        }
+
+        return parametro.nome.lexema;
     }
 
     visitarExpressaoImportar(expressao: ImportarComoConstruto) {

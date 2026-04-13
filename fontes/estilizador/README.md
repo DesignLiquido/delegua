@@ -5,6 +5,7 @@ O Estilizador é uma ferramenta de transformação de código que aplica regras 
 ## Características
 
 - ✅ **Fortalecimento de Tipos**: Converte tipos genéricos (`qualquer`) para tipos inferidos
+- ✅ **Explicitação de Parâmetros**: Materializa `: qualquer` em parâmetros sem anotação quando desejado
 - ✅ **Convenções de Nomenclatura**: Enforça padrões de nomes para variáveis, constantes e funções
 - ✅ **Paradigma Consistente**: Enforça uso consistente de imperativo ou infinitivo em palavras reservadas
 - ✅ **Regras Plugáveis**: Adicione suas próprias regras de transformação
@@ -64,7 +65,34 @@ const regra = new RegraFortalecerTipos();
 estilizador.adicionarRegra(regra);
 ```
 
-### 2. Convenção de Nomenclatura (`RegraConvencaoNomenclatura`)
+### 2. Explicitar Tipos de Parâmetros (`RegraExplicitarTiposParametros`)
+
+Explicita o tipo `qualquer` em parâmetros de função e método que não tenham anotação.
+
+**Exemplos:**
+
+```typescript
+// Antes
+funcao calcularPerimetro(altura, largura) {
+    retorna 80
+}
+
+// Depois
+funcao calcularPerimetro(altura: qualquer, largura: qualquer) {
+    retorna 80
+}
+```
+
+**Uso:**
+
+```typescript
+import { RegraExplicitarTiposParametros } from '@designliquido/delegua/estilizador';
+
+const regra = new RegraExplicitarTiposParametros();
+estilizador.adicionarRegra(regra);
+```
+
+### 3. Convenção de Nomenclatura (`RegraConvencaoNomenclatura`)
 
 Enforça padrões de nomenclatura para variáveis, constantes e funções.
 
@@ -102,7 +130,7 @@ const regra = new RegraConvencaoNomenclatura({
 estilizador.adicionarRegra(regra);
 ```
 
-### 3. Paradigma Consistente (`RegraParadigmaConsistente`)
+### 4. Paradigma Consistente (`RegraParadigmaConsistente`)
 
 Enforça consistência de paradigma (imperativo vs infinitivo) em palavras reservadas.
 

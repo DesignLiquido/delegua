@@ -4,6 +4,7 @@ import { EstilizadorDelegua } from '../../fontes/estilizador/estilizador-delegua
 import { QuebradorDeLinha } from '../../fontes/estilizador/quebrador-linha';
 import { RegraFortalecerTipos } from '../../fontes/estilizador/regras/regra-fortalecer-tipos';
 import { RegraConvencaoNomenclatura } from '../../fontes/estilizador/regras/regra-convencao-nomenclatura';
+import { RegraExplicitarTiposParametros } from '../../fontes/estilizador/regras/regra-explicitar-tipos-parametros';
 import { Var, Const } from '../../fontes/declaracoes';
 
 describe('Estilizador Delégua', () => {
@@ -160,6 +161,48 @@ describe('Estilizador Delégua', () => {
             expect(declaracoesEstilizadas.length).toBe(1);
             const varDeclaracao = declaracoesEstilizadas[0] as Var;
             expect(varDeclaracao.simbolo.lexema).toBe('meu_nome_completo');
+        });
+    });
+
+    describe('Explicitar Tipos de Parâmetros', () => {
+        it('Deve explicitar tipo qualquer em parâmetros sem anotação ao formatar', async () => {
+            estilizador = new EstilizadorDelegua([new RegraExplicitarTiposParametros()]);
+
+            const retornoLexador = lexador.mapear(
+                [
+                    'funcao calcularPerimetro(altura, largura) {',
+                    '    retorna 80',
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = estilizador.estilizarEFormatar(retornoAvaliadorSintatico.declaracoes, {
+                quebraLinha: '\n',
+            });
+
+            expect(resultado).toContain('função calcularPerimetro(altura: qualquer, largura: qualquer) {');
+        });
+
+        it('Não deve sobrescrever tipos já declarados', async () => {
+            estilizador = new EstilizadorDelegua([new RegraExplicitarTiposParametros()]);
+
+            const retornoLexador = lexador.mapear(
+                [
+                    'funcao calcularPerimetro(altura: numero, largura) {',
+                    '    retorna 80',
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = estilizador.estilizarEFormatar(retornoAvaliadorSintatico.declaracoes, {
+                quebraLinha: '\n',
+            });
+
+            expect(resultado).toContain('função calcularPerimetro(altura: numero, largura: qualquer) {');
         });
     });
 
