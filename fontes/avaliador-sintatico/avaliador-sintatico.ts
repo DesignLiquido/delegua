@@ -2306,6 +2306,7 @@ export class AvaliadorSintatico
             "Esperado declaração do 'enquanto' após o escopo do 'fazer'."
         );
         const condicaoEnquanto = await this.expressao();
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
 
         return {
             caminhoFazer,

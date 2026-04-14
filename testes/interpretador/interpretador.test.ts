@@ -2323,6 +2323,22 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('fazer ... enquanto com ponto-e-vírgula e sem espaço antes do parêntese', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var a = 0',
+                        'fazer {',
+                        '    a = a + 1',
+                        '} enquanto(a < 5);',
+                        'se (a == 5)',
+                        '    escreva("OK");',
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('fazer ... enquanto com retorno pelo escopo', async () => {
                     const retornoLexador = lexador.mapear(
                         [
