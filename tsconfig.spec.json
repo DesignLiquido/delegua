@@ -10,6 +10,7 @@
         "declarationMap": true,
         "esModuleInterop": true,
         "experimentalDecorators": true,
+        "strict": false,
         "types": ["node", "jest"]
     },
     "include": [
