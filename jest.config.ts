@@ -12,7 +12,8 @@ export default async (): Promise<Config.InitialOptions> => {
                 tsconfig: {
                     sourceMap: true,
                     inlineSourceMap: true,
-                    inlineSources: true
+                    inlineSources: true,
+                    types: ['node', 'jest']
                 }
             }]
         },
