@@ -270,14 +270,22 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
 
     visitarChamadaPorVariavel(entidadeChamadaVariavel: Variavel, argumentos: Construto[]) {
         const variavel = entidadeChamadaVariavel as Variavel;
+        const nomeFuncao = variavel.simbolo.lexema;
+        const funcoesNativas = ['inteiro', 'real', 'numero', 'número', 'texto', 'leia', 'escreva', 'tipo'];
+        const pareceSerClasse = nomeFuncao[0] === nomeFuncao[0].toUpperCase();
+
+        if (funcoesNativas.includes(nomeFuncao) || pareceSerClasse) {
+            return Promise.resolve();
+        }
+
         const funcaoChamada =
-            this.gerenciadorEscopos.buscar(variavel.simbolo.lexema) ||
-            this.funcoes[variavel.simbolo.lexema];
+            this.gerenciadorEscopos.buscar(nomeFuncao) ||
+            this.funcoes[nomeFuncao];
 
         if (!funcaoChamada) {
             this.erro(
                 entidadeChamadaVariavel.simbolo,
-                `Chamada da função '${entidadeChamadaVariavel.simbolo.lexema}' não existe.`
+                `Chamada da função '${nomeFuncao}' não existe.`
             );
             return Promise.resolve();
         }

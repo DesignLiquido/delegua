@@ -36,6 +36,25 @@ describe('Analisador semântico', () => {
             expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
         });
 
+        it('Chamada de função embutida com argumento de acesso a índice de vetor', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var vetor = [1, 2, 3]',
+                    'para (var i = 0; i < 3; i = i + 1) {',
+                    '    escreva(texto(vetor[i]))',
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+
         it('Definição Tipo Variável', async () => {
             const retornoLexador = lexador.mapear(
                 [
