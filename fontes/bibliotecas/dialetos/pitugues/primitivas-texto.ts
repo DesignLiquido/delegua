@@ -253,46 +253,166 @@ export default {
         tipoRetorno: 'texto',
         argumentos: [
             new InformacaoElementoSintatico(
-                'elemento',
+                'elementos',
                 'qualquer',
                 true,
                 [],
-                'O elemento a ser formatado.'
+                'Os elementos a serem formatados.'
             ),
         ],
-        implementacao: (
+        implementacao: async (
             interpretador: InterpretadorInterface,
             mascara: string,
-            elemento: any
+            ...argumentos: any[]
         ): Promise<string> => {
-            const valor = interpretador.resolverValor(elemento);
-            const matchMascara = mascara.match(/\{:(.*?)\}/);
+            const extrairElementos = (args: any[]): any[] => {
+                if (args.length !== 1) return args;
 
-            if (matchMascara) {
-                const configuracao = matchMascara[1];
+                const primeiro = args[0];
 
-                if (configuracao.includes('f') && typeof valor !== 'number') {
-                    return Promise.reject(
-                        new ErroEmTempoDeExecucao(
-                            null,
-                            `Erro: Código de formato 'f' desconhecido para objeto do tipo '${typeof valor === 'string' ? 'texto' : typeof valor}'`,
-                            interpretador.linhaDeclaracaoAtual
-                        )
+                if (Array.isArray(primeiro)) return primeiro;
+
+                if (primeiro?.elementos) return primeiro.elementos;
+
+                if (primeiro?.valores) return primeiro.valores;
+
+                return args;
+            };
+
+            const aplicarAlinhamento = (
+                texto: string,
+                configuracao: string
+            ): string => {
+                const match = configuracao.match(/^(.*?)([<>^])(\d+)$/);
+                if (!match) return texto;
+
+                const preenchimento = match[1] || ' ';
+                const alinhamento = match[2];
+                const largura = parseInt(match[3], 10);
+
+                if (texto.length >= largura) return texto;
+
+                switch (alinhamento) {
+                    case '<': return texto.padEnd(largura, preenchimento);
+                    case '>': return texto.padStart(largura, preenchimento);
+                    case '^': {
+                        const total = largura - texto.length;
+                        const esquerda = Math.floor(total / 2);
+                        const direita = total - esquerda;
+
+                        return preenchimento.repeat(esquerda) + texto + preenchimento.repeat(direita);
+                    }
+                    default: return texto;
+                }
+            };
+
+            const processarConfiguracaoNumerica = (
+                valor: any,
+                configuracao: string
+            ): string => {
+                const formatadoresNumericos = ['f', '%', 'x', 'X', 'b'];
+                const ehNumerico = formatadoresNumericos
+                    .some(f => configuracao.includes(f))
+                    || /^0\d+$/.test(configuracao);
+
+                if (ehNumerico && typeof valor !== 'number') {
+                    const tipoExibido = typeof valor === 'string'
+                        ? 'texto'
+                        : typeof valor;
+
+                    throw new ErroEmTempoDeExecucao(
+                        null,
+                        `Erro: Código de formato desconhecido para objeto do tipo '${tipoExibido}'.`,
+                        interpretador.linhaDeclaracaoAtual
                     );
                 }
 
-                if (typeof valor === 'number') {
-                    const matchCasas = configuracao.match(/\.(\d+)f/);
-                    const casas = matchCasas ? parseInt(matchCasas[1]) : 2;
-                    return Promise.resolve(mascara.replace(matchMascara[0], valor.toFixed(casas)));
-                }
-            }
+                if (typeof valor !== 'number') return String(valor);
 
-            return Promise.resolve(mascara.replace(/\{.*?\}/, String(valor)));
+                // Bases
+                if (configuracao === 'x') return Math.trunc(valor).toString(16);
+
+                if (configuracao === 'X') return Math.trunc(valor).toString(16).toUpperCase();
+
+                if (configuracao === 'b') return Math.trunc(valor).toString(2);
+
+                // Zero padding (ex: 05)
+                const matchZero = configuracao.match(/^0(\d+)$/);
+                if (matchZero) {
+                    const largura = parseInt(matchZero[1], 10);
+                    const negativo = valor < 0;
+                    const strAbs = Math
+                        .abs(valor)
+                        .toString()
+                        .padStart(negativo ? largura - 1 : largura, '0');
+
+                    return negativo ? `-${strAbs}` : strAbs;
+                }
+
+                // Casas decimais / percentual (ex: .2f, .1%)
+                const matchCasas = configuracao.match(/\.(\d+)([f%])/);
+                if (matchCasas) {
+                    const casas = parseInt(matchCasas[1], 10);
+                    const tipo = matchCasas[2];
+
+                    let numero = tipo === '%' ? valor * 100 : valor;
+                    let formatado = numero.toFixed(casas);
+
+                    if (configuracao.includes(',')) {
+                        const [inteiro, decimal] = formatado.split('.');
+                        formatado = inteiro.replace(
+                            /\B(?=(\d{3})+(?!\d))/g,
+                            ','
+                        ) + (decimal ? '.' + decimal : '');
+                    }
+
+                    return tipo === '%' ? `${formatado}%` : formatado;
+                }
+
+                // Padrão: duas casas decimais
+                return valor.toFixed(2);
+            };
+
+            const ehMascaraDepuracao = (miolo: string): boolean => {
+                return miolo.endsWith('=') && !/^(?:[!=<>]=|[<>])$/.test(miolo.slice(-2));
+            };
+
+            const elementos = extrairElementos(argumentos);
+            let indice = 0;
+
+            return mascara.replace(/\{([^}]*)\}/g, (matchLiteral, miolo) => {
+                if (indice >= elementos.length) return matchLiteral;
+
+                const valor = interpretador.resolverValor(elementos[indice]);
+                const mioloLimpo = miolo.trimEnd();
+
+                let resultado: string;
+
+                if (mioloLimpo.startsWith(':')) {
+                    const configuracao = mioloLimpo.substring(1);
+                    const ehAlinhamento = /^(.*?)([<>^])(\d+)$/.test(configuracao);
+
+                    resultado = ehAlinhamento
+                        ? aplicarAlinhamento(String(valor), configuracao)
+                        : processarConfiguracaoNumerica(valor, configuracao);
+                } else if (ehMascaraDepuracao(mioloLimpo)) {
+                    const representacao = (typeof valor === 'string')
+                        ? `'${valor}'`
+                        : String(valor);
+
+                    resultado = miolo + representacao;
+                } else {
+                    resultado = String(valor);
+                }
+
+                indice++;
+
+                return resultado;
+            });
         },
-        assinaturaFormato: 'texto.formatar(elemento: qualquer)',
+        assinaturaFormato: 'texto.formatar(...elementos: qualquer)',
         documentacao:
-            '# `texto.formatar(valor)` \n\n Formata um valor com base na máscara de texto.',
+            '# `texto.formatar(...valores)` \n\n Formata valores com base na máscara de texto.',
         exemploCodigo: '"{:.2f}".formatar(1.2345)',
     },
     inclui: {

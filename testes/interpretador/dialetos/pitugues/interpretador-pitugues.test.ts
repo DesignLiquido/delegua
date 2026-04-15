@@ -219,7 +219,6 @@ describe('Interpretador (Pituguês)', () => {
                             -1
                         );
 
-                        
                         const retornoInterpretador = await interpretador.interpretar(
                             retornoAvaliadorSintatico.declaracoes
                         );
@@ -3033,7 +3032,136 @@ describe('Interpretador (Pituguês)', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(_saidas).toHaveLength(1);
-                    expect(_saidas[0]).toBe('Duas casas decimais: 1234.57')
+                    expect(_saidas[0]).toBe('Duas casas decimais: 1234.57');
+                });
+
+                it('Formatação de moedas', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        valor = 1000000
+                        escreva(f"R\${valor:,.2f}")
+                    `], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes,
+                        true
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('R$1,000,000.00');
+                });
+
+                it('Formatação de percentuais', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        percentual = 0.75
+                        escreva(f"{percentual:.1%}")
+                    `], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes,
+                        true
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('75.0%');
+                });
+
+                it('Formatação de zero-padding', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        n = 42
+                        escreva(f"{n:05}")
+                    `], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes,
+                        true
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('00042');
+                });
+
+                it('Formatação de conversão de bases', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        variavelLegal = 255
+                        escreva(f"Hex: {variavelLegal:x}, Bin: {variavelLegal:b}")
+                    `], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes,
+                        true
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('Hex: ff, Bin: 11111111');
+                });
+
+                it('Alinhamento e preenchimento customizado', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        txt = "oi"
+                        escreva(f"|{txt:<10}|")
+                        escreva(f"|{txt:^10}|")
+                        escreva(f"|{txt:>10}|")
+                        escreva(f"{txt:*^10}")
+                    `], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes,
+                        true
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas.length).toBeGreaterThan(1);
+                    expect(_saidas[0]).toBe('|oi        |');
+                    expect(_saidas[1]).toBe('|    oi    |');
+                    expect(_saidas[2]).toBe('|        oi|');
+                    expect(_saidas[3]).toBe('****oi****');
+                });
+
+                it('Formatação de depuração rápida', async () => {
+                    const retornoLexador = lexador.mapear([`
+                        usuario = "admin"
+                        tentativas = 3
+                        escreva(f"{usuario=}, {tentativas=}")
+                        escreva(f"{tentativas * 2 = }")
+                    `], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes,
+                        true
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas.length).toBeGreaterThan(1);
+                    expect(_saidas[0]).toBe('usuario=\'admin\', tentativas=3');
+                    expect(_saidas[1]).toBe('tentativas * 2 = 6');
                 });
             });
 
