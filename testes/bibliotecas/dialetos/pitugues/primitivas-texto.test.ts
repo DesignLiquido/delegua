@@ -299,32 +299,32 @@ describe('Primitivas de Texto (Pituguês)', () => {
         it('deve lançar erro quando usar formato de float (f) com tipo texto', async () => {
             const texto = "Valor: {:.2f}";
             const valorTexto = "texto";
-            
+
             await expect(
                 primitivasTexto.formatar.implementacao(
                     interpretador,
                     texto,
                     valorTexto
                 )
-            ).rejects.toThrow("Erro: Código de formato 'f' desconhecido para objeto do tipo 'texto'");
+            ).rejects.toThrow("Erro: Código de formato desconhecido para objeto do tipo 'texto'");
         });
-        
+
         it('deve lançar erro quando usar formato de float (f) com tipo booleano', async () => {
             const texto = "Valor: {:.2f}";
             const valorBooleano = true;
-            
+
             await expect(
                 primitivasTexto.formatar.implementacao(
                     interpretador,
                     texto,
                     valorBooleano
                 )
-            ).rejects.toThrow("Erro: Código de formato 'f' desconhecido para objeto do tipo 'boolean'");
+            ).rejects.toThrow("Erro: Código de formato desconhecido para objeto do tipo 'boolean'");
         });
         it('deve lançar erro quando usar formato de float (f) com tipo não numérico', async () => {
             const texto = "Valor: {:.2f}";
             const valorTexto = "texto";
-            
+
             await expect(
                 primitivasTexto.formatar.implementacao(
                     interpretador,
@@ -343,7 +343,7 @@ describe('Primitivas de Texto (Pituguês)', () => {
             );
             expect(resultado).toBe("O valor é 3.14");
         });
-        
+
         it('deve formatar o número com uma casa decimal', async () => {
             const texto = "Valor: {:.1f}";
             const numero = 3.14159;
@@ -354,7 +354,7 @@ describe('Primitivas de Texto (Pituguês)', () => {
             );
             expect(resultado).toBe("Valor: 3.1");
         });
-    
+
         it('deve formatar o número com cinco casas decimais', async () => {
             const texto = "Precisão: {:.5f}";
             const numero = 3.14159;
@@ -365,7 +365,7 @@ describe('Primitivas de Texto (Pituguês)', () => {
             );
             expect(resultado).toBe("Precisão: 3.14159");
         });
-    
+
         it('deve formatar sem casas decimais', async () => {
             const texto = "Inteiro: {:.0f}";
             const numero = 3.7;
@@ -376,7 +376,7 @@ describe('Primitivas de Texto (Pituguês)', () => {
             );
             expect(resultado).toBe("Inteiro: 4");
         });
-    
+
         it('deve formatar com valor negativo', async () => {
             const texto = "Negativo: {:.2f}";
             const numero = -15.789;
@@ -397,7 +397,7 @@ describe('Primitivas de Texto (Pituguês)', () => {
             );
             expect(resultado).toBe("Valor: teste");
         });
-    
+
         it('deve formatar texto simples sem formato especial', async () => {
             const texto = "Olá {}";
             const valor = 'Mundo';
@@ -408,7 +408,7 @@ describe('Primitivas de Texto (Pituguês)', () => {
             );
             expect(resultado).toBe("Olá Mundo");
         });
-    
+
         it('deve formatar número zero', async () => {
             const texto = "Zero: {:.2f}";
             const numero = 0;
@@ -419,7 +419,7 @@ describe('Primitivas de Texto (Pituguês)', () => {
             );
             expect(resultado).toBe("Zero: 0.00");
         });
-    
+
         it('deve manter múltiplos placeholders se houver apenas um valor', async () => {
             const texto = "Valor: {:.2f} e {:.2f}";
             const numero = 3.14159;
@@ -428,7 +428,7 @@ describe('Primitivas de Texto (Pituguês)', () => {
                 texto,
                 numero
             );
-    
+
             expect(resultado).toBe("Valor: 3.14 e {:.2f}");
         });
         it('deve formatar número com formato f sem especificar casas decimais', async () => {

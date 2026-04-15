@@ -727,6 +727,47 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return false;
     }
 
+    /**
+     * Transforma uma string com interpolações (f-string) em código equivalente usando o método formatar.
+     * Exemplo: f"Olá {nome}, você tem {idade} anos" -> "Olá " + nome + " você tem " + idade + " anos"
+     * Com formatadores: f"{valor:.2f}" -> "" + "{:.2f}".formatar(valor) + ""
+     * Com depuração: f"{usuario=}" -> "" + "{usuario=}".formatar(usuario) + ""
+     */
+    private transformarInterpolacaoEmFormatacao(
+        conteudoOriginal: string
+    ): string {
+        const ehDepuracao = (mioloLimpo: string): boolean => {
+            return mioloLimpo.endsWith('=') && !/^(?:[!=<>]=|[<>])$/.test(mioloLimpo.slice(-2));
+        };
+
+        const processarParte = (_: string, miolo: string): string => {
+            const mioloLimpo = miolo.trimEnd();
+
+            // Modo depuração: {expressao=}
+            if (ehDepuracao(mioloLimpo)) {
+                const expressao = mioloLimpo.slice(0, -1).trim();
+
+                return `" + "{${miolo}}".formatar(${expressao}) + "`;
+            }
+
+            // Modo formatação: {expressao:formato}
+            if (mioloLimpo.includes(':')) {
+                const [variavel, formato] = mioloLimpo
+                    .split(':')
+                    .map(s => s.trim());
+
+                if (variavel) {
+                    return `" + "{:${formato}}".formatar(${variavel}) + "`;
+                }
+            }
+
+            // Interpolação simples: {expressao}
+            return `" + (${miolo}) + "`;
+        };
+
+        return '"' + conteudoOriginal.replace(/\{(.*?)\}/g, processarParte) + '"';
+    }
+
     async primario(): Promise<Construto> {
         const simboloAtual = this.simbolos[this.atual];
 
@@ -892,28 +933,16 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                 const simboloInterpolacao = this.avancarEDevolverAnterior();
                 const conteudoOriginal = simboloInterpolacao.literal as string;
 
-                const codigoTransformado =
-                    '"' +
-                    conteudoOriginal.replace(/\{(.*?)\}/g, (_, miolo) => {
-                        // 'miolo' é o texto que estava dentro das chaves. Ex: "valor" ou "valor:.2f"
-                        if (miolo.includes(':')) {
-                            const [variavel, formato] = miolo.split(':').map((s) => s.trim());
-
-                            if (variavel !== '') {
-                                // Transforma {valor:.2f} em "{:.2f}".formatar(valor)
-                                return '" + "{:' + formato + '}".formatar(' + variavel + ') + "';
-                            }
-                        }
-                        return '" + (' + miolo.trim() + ') + "';
-                    }) +
-                    '"';
+                const codigoTransformado = this
+                    .transformarInterpolacaoEmFormatacao(conteudoOriginal);
 
                 const microLexador = new MicroLexadorPitugues();
-                const retornoMicroLexador = microLexador.mapear(codigoTransformado);
-
+                const retornoMicroLexador = microLexador.mapear(
+                    codigoTransformado
+                );
                 const microAvaliadorSintatico = new MicroAvaliadorSintaticoPitugues();
-                let retornoMicroAvaliador: RetornoAvaliadorSintatico<Declaracao>;
 
+                let retornoMicroAvaliador: RetornoAvaliadorSintatico<Declaracao>;
                 try {
                     retornoMicroAvaliador = microAvaliadorSintatico.analisar(
                         retornoMicroLexador,
@@ -925,10 +954,16 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                     }
                 } catch (erro: any) {
                     this.erros.push(erro);
-                    return new Literal(this.hashArquivo, simboloInterpolacao.linha, '');
+
+                    return new Literal(
+                        this.hashArquivo,
+                        simboloInterpolacao.linha,
+                        ''
+                    );
                 }
 
                 const declaracao = retornoMicroAvaliador.declaracoes[0] as Expressao;
+
                 return declaracao.expressao;
             case tiposDeSimbolos.PARENTESE_ESQUERDO:
                 this.avancarEDevolverAnterior();
