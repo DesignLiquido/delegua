@@ -186,7 +186,19 @@ export class AvaliadorSintatico
         const tipos = [...Object.values(tipoDeDadosDelegua)];
 
         if (this.simbolos[this.atual].lexema in this.tiposDefinidosEmCodigo) {
-            return this.simbolos[this.atual].lexema;
+            const nomeBase = this.simbolos[this.atual].lexema;
+            if (this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
+                this.avancarEDevolverAnterior(); // avança do tipo para '['
+                if (!this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_DIREITO)) {
+                    throw this.erro(
+                        this.simbolos[this.atual],
+                        `Esperado símbolo de fechamento do vetor: ']'. Atual: ${this.simbolos[this.atual].lexema}`
+                    );
+                }
+                this.avancarEDevolverAnterior(); // avança de '[' para ']'
+                return `${nomeBase}[]`;
+            }
+            return nomeBase;
         }
 
         if (this.simbolos[this.atual].lexema in this.interfacesDeclaradas) {
