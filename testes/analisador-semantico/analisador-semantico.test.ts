@@ -1124,6 +1124,31 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
             });
 
+            it('Sucesso - asserção sem parênteses com variável booleana', async () => {
+                const retornoLexador = lexador.mapear(['const condicao = verdadeiro', 'asserção condicao'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+
+            it('Sucesso - asserção com mensagem em expressão', async () => {
+                const retornoLexador = lexador.mapear(
+                    ['const valor = "teste"', 'asserção(falso, "falhar " + valor)'],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+
             it('Sucesso - falhar tipo de binario com variável não definida e agrupamento', async () => {
                 const retornoLexador = lexador.mapear(
                     ['const a = 1      ', 'const b = 1      ', 'falhar (a + b)  '],

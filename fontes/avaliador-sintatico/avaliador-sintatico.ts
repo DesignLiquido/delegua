@@ -102,6 +102,7 @@ import { buscarRetornos, registrarPrimitiva } from './comum';
 import { MontaoTipos } from './montao-tipos';
 import { ElementoMontaoTipos } from './elemento-montao-tipos';
 import { ClasseDeModulo } from '../interpretador/estruturas';
+import { Simbolo } from '../lexador/simbolo';
 
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
@@ -358,6 +359,10 @@ export class AvaliadorSintatico
             case tiposDeSimbolos.EXTENSAO:
                 this.avancarEDevolverAnterior();
                 return new Literal(this.hashArquivo, Number(simboloAtual.linha), 'extensao', 'texto');
+
+            case tiposDeSimbolos.ASSERCAO:
+                this.avancarEDevolverAnterior();
+                return new Literal(this.hashArquivo, Number(simboloAtual.linha), 'assercao', 'texto');
 
             default:
                 return undefined;
@@ -2309,6 +2314,86 @@ export class AvaliadorSintatico
         const simboloFalha: SimboloInterface = this.simbolos[this.atual - 1];
         const expressaoFalha = await this.expressao();
         return new Falhar(simboloFalha, expressaoFalha);
+    }
+
+    protected async declaracaoAssercao(): Promise<Se> {
+        const simboloAssercao: SimboloInterface = this.simbolos[this.atual - 1];
+        let condicao: Construto;
+        let mensagemFalha: Construto;
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
+            condicao = await this.expressao();
+
+            if (this.verificarTipoSimboloAtual(tiposDeSimbolos.VIRGULA)) {
+                this.avancarEDevolverAnterior();
+                mensagemFalha = await this.expressao();
+
+                if (this.verificarTipoSimboloAtual(tiposDeSimbolos.VIRGULA)) {
+                    throw this.erro(
+                        this.simbolos[this.atual],
+                        "'asserção' aceita apenas condição obrigatória e mensagem opcional."
+                    );
+                }
+            } else {
+                mensagemFalha = new Literal(
+                    simboloAssercao.hashArquivo,
+                    Number(simboloAssercao.linha),
+                    'A asserção falhou.',
+                    'texto',
+                    "'"
+                );
+            }
+
+            this.consumir(
+                tiposDeSimbolos.PARENTESE_DIREITO,
+                "Esperado ')' após argumentos de 'asserção'."
+            );
+        } else {
+            condicao = await this.expressao();
+
+            if (this.verificarTipoSimboloAtual(tiposDeSimbolos.VIRGULA)) {
+                throw this.erro(
+                    this.simbolos[this.atual],
+                    "Mensagem em 'asserção' exige uso de parênteses."
+                );
+            }
+
+            mensagemFalha = new Literal(
+                simboloAssercao.hashArquivo,
+                Number(simboloAssercao.linha),
+                'A asserção falhou.',
+                'texto',
+                "'"
+            );
+        }
+
+        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+
+        const simboloNao = new Simbolo(
+            tiposDeSimbolos.NEGACAO,
+            'nao',
+            null,
+            Number(simboloAssercao.linha),
+            simboloAssercao.hashArquivo,
+            simboloAssercao.colunaInicio,
+            simboloAssercao.colunaFim
+        );
+
+        const condicaoNegada = new Unario(
+            simboloAssercao.hashArquivo,
+            simboloNao,
+            condicao,
+            'ANTES'
+        );
+
+        const declaracaoFalhar = new Falhar(simboloAssercao, mensagemFalha);
+        const blocoFalha = new Bloco(
+            simboloAssercao.hashArquivo,
+            Number(simboloAssercao.linha),
+            [declaracaoFalhar]
+        );
+
+        return new Se(condicaoNegada, blocoFalha);
     }
 
     protected async logicaComumFazer() {
@@ -4422,6 +4507,9 @@ export class AvaliadorSintatico
         switch (this.simbolos[this.atual].tipo) {
             case tiposDeSimbolos.AJUDA:
                 return await this.declaracaoAjuda();
+            case tiposDeSimbolos.ASSERCAO:
+                this.avancarEDevolverAnterior();
+                return await this.declaracaoAssercao();
             case tiposDeSimbolos.CHAVE_ESQUERDA:
                 return await this.declaracaoBloco();
             case tiposDeSimbolos.COMENTARIO:

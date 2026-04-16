@@ -1,6 +1,6 @@
 import { Lexador } from '../../fontes/lexador';
 import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
-import { Ajuda, Bloco, Classe, Const, Escreva, Expressao, FuncaoDeclaracao, Importar, ParaCada, Retorna, TendoComo, Tente, Var } from '../../fontes/declaracoes';
+import { Ajuda, Bloco, Classe, Const, Escreva, Expressao, FuncaoDeclaracao, Importar, ParaCada, Retorna, Se, TendoComo, Tente, Var } from '../../fontes/declaracoes';
 import { Binario, Chamada, DefinirValor, Elvis, FuncaoConstruto, Leia, ListaCompreensao, Literal, Logico, SeTernario, Variavel } from '../../fontes/construtos';
 
 describe('Avaliador sintático', () => {
@@ -46,6 +46,63 @@ describe('Avaliador sintático', () => {
 
                 expect(retornoAvaliadorSintatico).toBeTruthy();
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            });
+
+            describe('Asserção', () => {
+                it('Sem parênteses', async () => {
+                    const retornoLexador = lexador.mapear(['asserção verdadeiro'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                    expect(retornoAvaliadorSintatico.declaracoes[0]).toBeInstanceOf(Se);
+                });
+
+                it('Com parênteses e mensagem', async () => {
+                    const retornoLexador = lexador.mapear(['asserção(1 < 2, "ok")'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                    expect(retornoAvaliadorSintatico.declaracoes[0]).toBeInstanceOf(Se);
+                });
+
+                it('Falha quando falta parêntese direito', async () => {
+                    const retornoLexador = lexador.mapear(['asserção(verdadeiro'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                    expect(retornoAvaliadorSintatico.erros[0].message).toBe(
+                        "Esperado ')' após argumentos de 'asserção'."
+                    );
+                });
+
+                it('Falha quando não há condição', async () => {
+                    const retornoLexador = lexador.mapear(['asserção()'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                });
+
+                it('Falha com argumentos demais', async () => {
+                    const retornoLexador = lexador.mapear(['asserção(verdadeiro, "a", "b")'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                    expect(retornoAvaliadorSintatico.erros[0].message).toBe(
+                        "'asserção' aceita apenas condição obrigatória e mensagem opcional."
+                    );
+                });
+
+                it('Falha com mensagem sem parênteses', async () => {
+                    const retornoLexador = lexador.mapear(['asserção verdadeiro, "falhou"'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                    expect(retornoAvaliadorSintatico.erros[0].message).toBe(
+                        "Mensagem em 'asserção' exige uso de parênteses."
+                    );
+                });
             });
 
             describe('Comentários', () => {

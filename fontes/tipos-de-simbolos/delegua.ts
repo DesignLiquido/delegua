@@ -1,5 +1,6 @@
 export default {
     ADICAO: 'ADICAO',
+    ASSERCAO: 'ASSERCAO',
     ABSTRATO: 'ABSTRATO',
     AJUDA: 'AJUDA',
     ARROBA: 'ARROBA',

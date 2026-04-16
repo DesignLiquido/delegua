@@ -4120,6 +4120,46 @@ describe('Interpretador', () => {
                 });
             });
 
+            describe('Asserção', () => {
+                it('Sem parênteses não falha quando condição é verdadeira', async () => {
+                    const retornoLexador = lexador.mapear(['asserção verdadeiro'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Com parênteses falha quando condição é falsa', async () => {
+                    const retornoLexador = lexador.mapear(['asserção(falso)'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(1);
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe('A asserção falhou.');
+                });
+
+                it('Com mensagem customizada propaga texto', async () => {
+                    const retornoLexador = lexador.mapear(['asserção(2 < 1, "falhou")'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(1);
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe('falhou');
+                });
+
+                it('Com mensagem customizada não falha quando condição é verdadeira', async () => {
+                    const retornoLexador = lexador.mapear(['asserção(2 > 1, "não deve falhar")'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+            });
+
             describe('Retornos externos', () => {
                 it('Literal devolvido em retorno de função', async () => {
                     const retornoLexador = lexador.mapear([
@@ -4514,6 +4554,27 @@ describe('Interpretador', () => {
                 const resultado = retornoInterpretador.resultado[0] as ResultadoParcialInterpretadorInterface;
                 expect(resultado.valorRetornado).toContain('declara um novo tipo');
                 expect(resultado.valorRetornado).toContain('Ver também');
+            });
+
+            it("ajuda('assercao') - documentação da instrução asserção", async () => {
+                const retornoLexador = lexador.mapear(["ajuda('assercao')"], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                const resultado = retornoInterpretador.resultado[0] as ResultadoParcialInterpretadorInterface;
+                expect(resultado.valorRetornado).toContain('valida uma condição');
+                expect(resultado.valorRetornado).toContain('falhar');
+            });
+
+            it('ajuda(assercao) - documentação da instrução asserção sem aspas', async () => {
+                const retornoLexador = lexador.mapear(['ajuda(assercao)'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                const resultado = retornoInterpretador.resultado[0] as ResultadoParcialInterpretadorInterface;
+                expect(resultado.valorRetornado).toContain('valida uma condição');
             });
 
             it('ajuda(classe) - documentação da palavra-chave classe sem aspas', async () => {

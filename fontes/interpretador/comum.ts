@@ -335,6 +335,22 @@ function obterAjudaTemaClasse(chave: string): string {
                 `Ver também: 'classe'.`
             );
 
+        case 'assercao':
+            return (
+                `A instrução 'asserção' valida uma condição em tempo de execução.\n` +
+                `Se condição for falsa, execução falha com erro.\n\n` +
+                `Sintaxe:\n` +
+                `\tasserção condicao\n` +
+                `\tasserção(condicao)\n` +
+                `\tasserção(condicao, "mensagem de erro")\n\n` +
+                `Exemplo:\n` +
+                `\tvar idade = 20\n` +
+                `\tasserção idade >= 18\n` +
+                `\tasserção(idade >= 18, "idade precisa ser maior de idade")\n\n` +
+                `Internamente, primeira implementação usa fluxo equivalente a 'se' + 'falhar'.\n\n` +
+                `Ver também: 'falhar'.`
+            );
+
         default:
             return `Desculpe, não há documentação disponível para o tópico '${chave}' no momento.`;
     }

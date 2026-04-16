@@ -48,6 +48,19 @@ describe('Lexador', () => {
                 );
             });
 
+            it('Asserção com e sem acento', () => {
+                const resultado = lexador.mapear(['assercao verdadeiro', 'asserção falso'], -1);
+
+                expect(resultado).toBeTruthy();
+                expect(resultado.erros).toHaveLength(0);
+                expect(resultado.simbolos).toEqual(
+                    expect.arrayContaining([
+                        expect.objectContaining({ tipo: tiposDeSimbolos.ASSERCAO, lexema: 'assercao' }),
+                        expect.objectContaining({ tipo: tiposDeSimbolos.ASSERCAO, lexema: 'asserção' }),
+                    ])
+                );
+            });
+
             it('Soma - Maior Igual', () => {
                 const resultado = lexador.mapear(["var valor = 1", "valor += 2"], -1);
 

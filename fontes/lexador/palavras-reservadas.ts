@@ -3,6 +3,8 @@ import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 export const palavrasReservadasDelegua = {
     abstrata: tiposDeSimbolos.ABSTRATO,
     abstrato: tiposDeSimbolos.ABSTRATO,
+    assercao: tiposDeSimbolos.ASSERCAO,
+    asserção: tiposDeSimbolos.ASSERCAO,
     ajuda: tiposDeSimbolos.AJUDA,
     cada: tiposDeSimbolos.CADA,
     caso: tiposDeSimbolos.CASO,
