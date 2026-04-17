@@ -4465,7 +4465,7 @@ export class AvaliadorSintatico
 
     /**
      * Usado quando há erros na avaliação sintática.
-     * Garante que o código não entre em _loop_ infinito.
+     * Garante que o avaliador sintático não entre em _loop_ infinito.
      * @returns Sempre retorna `void`.
      */
     protected sincronizar(): void {
@@ -4473,7 +4473,7 @@ export class AvaliadorSintatico
 
         while (!this.estaNoFinal()) {
             // Um ponto-e-vírgula já consumido indica fronteira limpa entre declarações.
-            if (this.simbolos[this.atual - 1].tipo === tiposDeSimbolos.PONTO_E_VIRGULA) return;
+            if (this.simbolos[this.atual].tipo === tiposDeSimbolos.PONTO_E_VIRGULA) return;
 
             // Uma palavra-chave de início de declaração ou fecha-chave à frente:
             // retorna SEM consumir o token, para que o chamador o analise normalmente.
