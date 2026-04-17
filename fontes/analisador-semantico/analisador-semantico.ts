@@ -1404,6 +1404,18 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         this.classesDeclaradas.add(declaracao.simbolo.lexema);
         this.classesRegistradas.set(declaracao.simbolo.lexema, declaracao);
 
+        // Marca tipos usados em anotações de propriedades e parâmetros de métodos como usados.
+        for (const propriedade of declaracao.propriedades) {
+            const tipoBase = propriedade.tipo?.replace('[]', '');
+            if (tipoBase) this.gerenciadorEscopos.marcarComoUsada(tipoBase);
+        }
+        for (const metodo of declaracao.metodos) {
+            for (const parametro of metodo.funcao.parametros) {
+                const tipoBase = parametro.tipoDado?.replace('[]', '');
+                if (tipoBase) this.gerenciadorEscopos.marcarComoUsada(tipoBase);
+            }
+        }
+
         // Visita corpos dos métodos com contexto de classe ativo.
         // Métodos abstratos implícitos e métodos de classes estrangeiras têm corpo vazio —
         // não há declarações para visitar.
