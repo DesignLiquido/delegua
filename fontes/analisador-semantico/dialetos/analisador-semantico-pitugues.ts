@@ -48,6 +48,42 @@ import { FuncaoHipoteticaInterface } from '../funcao-hipotetica-interface';
 import { GerenciadorEscopos } from '../gerenciador-escopos';
 import { PilhaVariaveis } from '../pilha-variaveis';
 
+const FUNCOES_NATIVAS_PITUGUES = [
+    'aleatorio',
+    'aleatorio_entre',
+    'algum',
+    'arredondar',
+    'encontrar',
+    'encontrar_indice',
+    'encontrar_ultimo',
+    'encontrar_ultimo_indice',
+    'filtrar_por',
+    'incluido',
+    'inteiro',
+    'intervalo',
+    'enumerar',
+    'mapear',
+    'maximo',
+    'minimo',
+    'numero',
+    'número',
+    'ordenar',
+    'para_cada',
+    'primeiro_em_condicao',
+    'real',
+    'reduzir',
+    'somar',
+    'tamanho',
+    'texto',
+    'todos',
+    'todos_em_condicao',
+    'tupla',
+    'vetor',
+    'leia',
+    'escreva',
+    'tipo',
+];
+
 /**
  * O Analisador Semântico de Pituguês.
  */
@@ -271,7 +307,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
     visitarChamadaPorVariavel(entidadeChamadaVariavel: Variavel, argumentos: Construto[]) {
         const variavel = entidadeChamadaVariavel as Variavel;
         const nomeFuncao = variavel.simbolo.lexema;
-        const funcoesNativas = ['inteiro', 'real', 'numero', 'número', 'texto', 'leia', 'escreva', 'tipo'];
+        const funcoesNativas = FUNCOES_NATIVAS_PITUGUES;
         const pareceSerClasse = nomeFuncao[0] === nomeFuncao[0].toUpperCase();
 
         if (funcoesNativas.includes(nomeFuncao) || pareceSerClasse) {
@@ -929,17 +965,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
             case Variavel:
                 let entidadeChamadaVariavel = chamada.entidadeChamada as Variavel;
                 const nomeFuncao = entidadeChamadaVariavel.simbolo.lexema;
-
-                const funcoesBuiltIn = [
-                    'inteiro',
-                    'real',
-                    'numero',
-                    'número',
-                    'texto',
-                    'leia',
-                    'escreva',
-                    'tipo',
-                ];
+                const funcoesBuiltIn = FUNCOES_NATIVAS_PITUGUES;
 
                 const pareceSerClasse = nomeFuncao[0] === nomeFuncao[0].toUpperCase();
 
