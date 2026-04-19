@@ -997,10 +997,14 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 // Classes/construtores geralmente começam com letra maiúscula
                 const pareceSerClasse = nomeFuncao[0] === nomeFuncao[0].toUpperCase();
 
+                if (pareceSerClasse) {
+                    this.gerenciadorEscopos.marcarComoUsada(nomeFuncao);
+                    break;
+                }
+
                 // Só verifica se a função existe se não for embutidas e não parecer ser classe
                 if (
                     !funcoesEmbutidas.includes(nomeFuncao) &&
-                    !pareceSerClasse &&
                     !this.funcoes[nomeFuncao] &&
                     !this.gerenciadorEscopos.buscar(nomeFuncao)
                 ) {
@@ -1410,6 +1414,8 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             if (tipoBase) this.gerenciadorEscopos.marcarComoUsada(tipoBase);
         }
         for (const metodo of declaracao.metodos) {
+            const tipoRetorno = metodo.funcao.tipo?.replace('[]', '');
+            if (tipoRetorno) this.gerenciadorEscopos.marcarComoUsada(tipoRetorno);
             for (const parametro of metodo.funcao.parametros) {
                 const tipoBase = parametro.tipoDado?.replace('[]', '');
                 if (tipoBase) this.gerenciadorEscopos.marcarComoUsada(tipoBase);
@@ -1424,6 +1430,17 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         if (!declaracao.estrangeira) {
             for (const metodo of declaracao.metodos) {
                 if (metodo.abstrato) continue;
+                const tipoRetornoMetodo = metodo.funcao.tipo;
+                if (
+                    tipoRetornoMetodo &&
+                    !['vazio', 'qualquer'].includes(tipoRetornoMetodo) &&
+                    metodo.funcao.corpo.length === 0
+                ) {
+                    this.aviso(
+                        metodo.simbolo,
+                        `Método especifica tipo de retorno '${tipoRetornoMetodo}', mas não há qualquer retorno correspondente no corpo do método.`
+                    );
+                }
                 for (const stmt of metodo.funcao.corpo) {
                     await stmt.aceitar(this);
                 }
@@ -1443,16 +1460,25 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
 
         let tipoRetornoFuncao = declaracao.funcao.tipo;
         if (tipoRetornoFuncao) {
-            if (!['vazio', 'qualquer'].includes(tipoRetornoFuncao)) {
-                const todosOsCaminhosRetornam = this.todosOsCaminhosRetornam(
-                    declaracao.funcao.corpo
-                );
+            this.gerenciadorEscopos.marcarComoUsada(tipoRetornoFuncao);
 
-                if (!todosOsCaminhosRetornam) {
-                    this.erro(
+            if (!['vazio', 'qualquer'].includes(tipoRetornoFuncao)) {
+                if (declaracao.funcao.corpo.length === 0) {
+                    this.aviso(
                         declaracao.simbolo,
-                        `Função '${declaracao.simbolo.lexema}' deve retornar '${tipoRetornoFuncao}' em todos os caminhos de execução.`
+                        `Método especifica tipo de retorno '${tipoRetornoFuncao}', mas não há qualquer retorno correspondente no corpo do método.`
                     );
+                } else {
+                    const todosOsCaminhosRetornam = this.todosOsCaminhosRetornam(
+                        declaracao.funcao.corpo
+                    );
+
+                    if (!todosOsCaminhosRetornam) {
+                        this.erro(
+                            declaracao.simbolo,
+                            `Função '${declaracao.simbolo.lexema}' deve retornar '${tipoRetornoFuncao}' em todos os caminhos de execução.`
+                        );
+                    }
                 }
             }
 
