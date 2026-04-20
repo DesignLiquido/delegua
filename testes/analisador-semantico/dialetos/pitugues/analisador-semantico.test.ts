@@ -28,6 +28,25 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
             });
 
+            it('Funções globais do dialeto Pituguês não geram erro de inexistência', async () => {
+                const retornoLexador = lexador.mapear([
+                    `numeros = [1, 2, 3]`,
+                    `numero_aleatorio = aleatorio()`,
+                    `numero_aleatorio_entre = aleatorio_entre(1, 9)`,
+                    `soma = somar(numeros)`,
+                    `todos_resultado = todos(numeros)`,
+                    `escreva(numero_aleatorio, numero_aleatorio_entre, soma, todos_resultado)`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                const diagnosticosDeInexistencia = retornoAnalisadorSemantico.diagnosticos.filter((d) =>
+                    d.mensagem?.includes("não existe")
+                );
+                expect(diagnosticosDeInexistencia).toHaveLength(0);
+            });
+
             it('Função sem corpo', async () => {
                 const retornoLexador = lexador.mapear([
                     `funcao minhaFuncao():`
