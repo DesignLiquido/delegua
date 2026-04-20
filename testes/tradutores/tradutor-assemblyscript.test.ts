@@ -1,8 +1,8 @@
 import { Lexador, Simbolo } from "../../fontes/lexador";
 import { AvaliadorSintatico } from "../../fontes/avaliador-sintatico";
 import { TradutorAssemblyScript } from '../../fontes/tradutores/tradutor-assemblyscript';
-import { Bloco, Escreva, Se } from "../../fontes/declaracoes";
-import { Binario, Literal, TipoDe, Variavel } from "../../fontes/construtos";
+import { Ajuda, Bloco, ConstMultiplo, Escreva, EscrevaMesmaLinha, Importar, Se, TextoDocumentacao, VarMultiplo } from "../../fontes/declaracoes";
+import { Binario, Elvis, ExpressaoRegular, Leia, Literal, TipoDe, Variavel } from "../../fontes/construtos";
 
 import tiposDeSimbolos from '../../fontes/tipos-de-simbolos/delegua';
 
@@ -630,6 +630,409 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
                 expect(resultado).toContain('[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]');
+            });
+        });
+
+        describe('traduzirFuncoesNativas', () => {
+            it('métodos de array', () => {
+                expect(tradutor.traduzirFuncoesNativas('adicionar')).toBe('push');
+                expect(tradutor.traduzirFuncoesNativas('empilhar')).toBe('push');
+                expect(tradutor.traduzirFuncoesNativas('concatenar')).toBe('concat');
+                expect(tradutor.traduzirFuncoesNativas('fatiar')).toBe('slice');
+                expect(tradutor.traduzirFuncoesNativas('inclui')).toBe('includes');
+                expect(tradutor.traduzirFuncoesNativas('incluido')).toBe('includes');
+                expect(tradutor.traduzirFuncoesNativas('inverter')).toBe('reverse');
+                expect(tradutor.traduzirFuncoesNativas('juntar')).toBe('join');
+                expect(tradutor.traduzirFuncoesNativas('ordenar')).toBe('sort');
+                expect(tradutor.traduzirFuncoesNativas('removerprimeiro')).toBe('shift');
+                expect(tradutor.traduzirFuncoesNativas('removerultimo')).toBe('pop');
+                expect(tradutor.traduzirFuncoesNativas('tamanho')).toBe('length');
+                expect(tradutor.traduzirFuncoesNativas('indice')).toBe('indexOf');
+                expect(tradutor.traduzirFuncoesNativas('indiceode')).toBe('indexOf');
+            });
+
+            it('métodos de string', () => {
+                expect(tradutor.traduzirFuncoesNativas('maiusculo')).toBe('toUpperCase');
+                expect(tradutor.traduzirFuncoesNativas('minusculo')).toBe('toLowerCase');
+                expect(tradutor.traduzirFuncoesNativas('substituir')).toBe('replace');
+                expect(tradutor.traduzirFuncoesNativas('trimcomeco')).toBe('trimStart');
+                expect(tradutor.traduzirFuncoesNativas('trimfim')).toBe('trimEnd');
+                expect(tradutor.traduzirFuncoesNativas('trim')).toBe('trim');
+                expect(tradutor.traduzirFuncoesNativas('comeca')).toBe('startsWith');
+                expect(tradutor.traduzirFuncoesNativas('termina')).toBe('endsWith');
+                expect(tradutor.traduzirFuncoesNativas('contem')).toBe('includes');
+                expect(tradutor.traduzirFuncoesNativas('contém')).toBe('includes');
+            });
+
+            it('funções matemáticas', () => {
+                expect(tradutor.traduzirFuncoesNativas('abs')).toBe('Math.abs');
+                expect(tradutor.traduzirFuncoesNativas('absoluto')).toBe('Math.abs');
+                expect(tradutor.traduzirFuncoesNativas('ceil')).toBe('Math.ceil');
+                expect(tradutor.traduzirFuncoesNativas('teto')).toBe('Math.ceil');
+                expect(tradutor.traduzirFuncoesNativas('floor')).toBe('Math.floor');
+                expect(tradutor.traduzirFuncoesNativas('piso')).toBe('Math.floor');
+                expect(tradutor.traduzirFuncoesNativas('round')).toBe('Math.round');
+                expect(tradutor.traduzirFuncoesNativas('arredondar')).toBe('Math.round');
+                expect(tradutor.traduzirFuncoesNativas('sqrt')).toBe('Math.sqrt');
+                expect(tradutor.traduzirFuncoesNativas('raizquadrada')).toBe('Math.sqrt');
+                expect(tradutor.traduzirFuncoesNativas('pow')).toBe('Math.pow');
+                expect(tradutor.traduzirFuncoesNativas('potencia')).toBe('Math.pow');
+                expect(tradutor.traduzirFuncoesNativas('max')).toBe('Math.max');
+                expect(tradutor.traduzirFuncoesNativas('maximo')).toBe('Math.max');
+                expect(tradutor.traduzirFuncoesNativas('min')).toBe('Math.min');
+                expect(tradutor.traduzirFuncoesNativas('minimo')).toBe('Math.min');
+                expect(tradutor.traduzirFuncoesNativas('sin')).toBe('Math.sin');
+                expect(tradutor.traduzirFuncoesNativas('seno')).toBe('Math.sin');
+                expect(tradutor.traduzirFuncoesNativas('cos')).toBe('Math.cos');
+                expect(tradutor.traduzirFuncoesNativas('cosseno')).toBe('Math.cos');
+                expect(tradutor.traduzirFuncoesNativas('tan')).toBe('Math.tan');
+                expect(tradutor.traduzirFuncoesNativas('tangente')).toBe('Math.tan');
+                expect(tradutor.traduzirFuncoesNativas('pi')).toBe('Math.PI');
+                expect(tradutor.traduzirFuncoesNativas('e')).toBe('Math.E');
+            });
+
+            it('método desconhecido retorna o mesmo nome', () => {
+                expect(tradutor.traduzirFuncoesNativas('minhaFuncao')).toBe('minhaFuncao');
+            });
+        });
+
+        describe('traduzirFuncaoNativaGlobal', () => {
+            it('aleatorio -> Math.random()', () => {
+                expect(tradutor.traduzirFuncaoNativaGlobal('aleatorio', [])).toBe('Math.random()');
+            });
+
+            it('aleatorioEntre com 2 args -> fórmula aleatória', () => {
+                const resultado = tradutor.traduzirFuncaoNativaGlobal('aleatorioEntre', ['1', '10']);
+                expect(resultado).toContain('Math.random()');
+                expect(resultado).toContain('1');
+                expect(resultado).toContain('10');
+            });
+
+            it('aleatorioEntre com menos de 2 args -> null', () => {
+                expect(tradutor.traduzirFuncaoNativaGlobal('aleatorioEntre', ['1'])).toBeNull();
+            });
+
+            it('arredondar -> Math.round()', () => {
+                expect(tradutor.traduzirFuncaoNativaGlobal('arredondar', ['x'])).toBe('Math.round(x)');
+                expect(tradutor.traduzirFuncaoNativaGlobal('arredondar', [])).toBeNull();
+            });
+
+            it('inteiro -> Math.trunc()', () => {
+                expect(tradutor.traduzirFuncaoNativaGlobal('inteiro', ['x'])).toBe('Math.trunc(x)');
+                expect(tradutor.traduzirFuncaoNativaGlobal('inteiro', [])).toBeNull();
+            });
+
+            it('numero -> Number()', () => {
+                expect(tradutor.traduzirFuncaoNativaGlobal('numero', ['x'])).toBe('Number(x)');
+            });
+
+            it('texto -> String()', () => {
+                expect(tradutor.traduzirFuncaoNativaGlobal('texto', ['x'])).toBe('String(x)');
+            });
+
+            it('longo -> parseInt()', () => {
+                expect(tradutor.traduzirFuncaoNativaGlobal('longo', ['x'])).toBe('parseInt(x)');
+            });
+
+            it('real -> parseFloat()', () => {
+                expect(tradutor.traduzirFuncaoNativaGlobal('real', ['x'])).toBe('parseFloat(x)');
+            });
+
+            it('tamanho -> .length', () => {
+                expect(tradutor.traduzirFuncaoNativaGlobal('tamanho', ['arr'])).toBe('(arr).length');
+            });
+
+            it('intervalo com 2 args -> Array.from', () => {
+                const resultado = tradutor.traduzirFuncaoNativaGlobal('intervalo', ['0', '10']);
+                expect(resultado).toContain('Array.from');
+                expect(resultado).toContain('0');
+                expect(resultado).toContain('10');
+            });
+
+            it('intervalo com 3 args -> Array.from com passo', () => {
+                const resultado = tradutor.traduzirFuncaoNativaGlobal('intervalo', ['0', '10', '2']);
+                expect(resultado).toContain('Array.from');
+                expect(resultado).toContain('2');
+            });
+
+            it('intervalo com 1 arg -> null', () => {
+                expect(tradutor.traduzirFuncaoNativaGlobal('intervalo', ['0'])).toBeNull();
+            });
+
+            it('maximo -> Math.max(...spread)', () => {
+                expect(tradutor.traduzirFuncaoNativaGlobal('maximo', ['arr'])).toBe('Math.max(...arr)');
+            });
+
+            it('minimo -> Math.min(...spread)', () => {
+                expect(tradutor.traduzirFuncaoNativaGlobal('minimo', ['arr'])).toBe('Math.min(...arr)');
+            });
+
+            it('funções complexas (mapear etc.) -> null', () => {
+                expect(tradutor.traduzirFuncaoNativaGlobal('mapear', [])).toBeNull();
+                expect(tradutor.traduzirFuncaoNativaGlobal('filtrarPor', [])).toBeNull();
+                expect(tradutor.traduzirFuncaoNativaGlobal('reduzir', [])).toBeNull();
+            });
+
+            it('função desconhecida -> null', () => {
+                expect(tradutor.traduzirFuncaoNativaGlobal('funcaoDesconhecida', [])).toBeNull();
+            });
+        });
+
+        describe('resolveTipoDeclaracaoVarEContante - tipos adicionais', () => {
+            it('inteiro_curto/inteiroCurto -> i16', () => {
+                expect(tradutor.resolveTipoDeclaracaoVarEContante('inteiro_curto')).toBe(': i16');
+                expect(tradutor.resolveTipoDeclaracaoVarEContante('inteiroCurto')).toBe(': i16');
+            });
+
+            it('byte -> i8', () => {
+                expect(tradutor.resolveTipoDeclaracaoVarEContante('byte')).toBe(': i8');
+            });
+
+            it('numero/número -> f64', () => {
+                expect(tradutor.resolveTipoDeclaracaoVarEContante('numero')).toBe(': f64');
+                expect(tradutor.resolveTipoDeclaracaoVarEContante('número')).toBe(': f64');
+            });
+
+            it('real_curto/realCurto -> f32', () => {
+                expect(tradutor.resolveTipoDeclaracaoVarEContante('real_curto')).toBe(': f32');
+                expect(tradutor.resolveTipoDeclaracaoVarEContante('realCurto')).toBe(': f32');
+            });
+
+            it('logico/lógico -> bool', () => {
+                expect(tradutor.resolveTipoDeclaracaoVarEContante('logico')).toBe(': bool');
+                expect(tradutor.resolveTipoDeclaracaoVarEContante('lógico')).toBe(': bool');
+            });
+
+            it('nada -> void', () => {
+                expect(tradutor.resolveTipoDeclaracaoVarEContante('nada')).toBe(': void');
+            });
+
+            it('inteiro[] -> i32[]', () => {
+                expect(tradutor.resolveTipoDeclaracaoVarEContante('inteiro[]')).toBe(': i32[]');
+            });
+
+            it('longo[] -> i64[]', () => {
+                expect(tradutor.resolveTipoDeclaracaoVarEContante('longo[]')).toBe(': i64[]');
+            });
+
+            it('real[]/numero[]/número[] -> f64[]', () => {
+                expect(tradutor.resolveTipoDeclaracaoVarEContante('real[]')).toBe(': f64[]');
+                expect(tradutor.resolveTipoDeclaracaoVarEContante('numero[]')).toBe(': f64[]');
+                expect(tradutor.resolveTipoDeclaracaoVarEContante('número[]')).toBe(': f64[]');
+            });
+
+            it('texto[] -> string[]', () => {
+                expect(tradutor.resolveTipoDeclaracaoVarEContante('texto[]')).toBe(': string[]');
+            });
+
+            it('logico[]/lógico[] -> bool[]', () => {
+                expect(tradutor.resolveTipoDeclaracaoVarEContante('logico[]')).toBe(': bool[]');
+                expect(tradutor.resolveTipoDeclaracaoVarEContante('lógico[]')).toBe(': bool[]');
+            });
+
+            it('tipos de tupla -> i32[]', () => {
+                for (const tipo of ['dupla', 'trio', 'quarteto', 'quinteto', 'sexteto', 'septeto', 'octeto', 'noneto', 'deceto', 'tupla']) {
+                    expect(tradutor.resolveTipoDeclaracaoVarEContante(tipo)).toBe(': i32[]');
+                }
+            });
+
+            it('dicionario/dicionário -> Map<string, i32>', () => {
+                expect(tradutor.resolveTipoDeclaracaoVarEContante('dicionario')).toBe(': Map<string, i32>');
+                expect(tradutor.resolveTipoDeclaracaoVarEContante('dicionário')).toBe(': Map<string, i32>');
+            });
+        });
+
+        describe('Construtos e declarações programáticos', () => {
+            it('EscrevaMesmaLinha -> trace()', () => {
+                const decl = new EscrevaMesmaLinha(1, -1, [new Literal(-1, 1, 'Olá')]);
+                const resultado = tradutor.traduzir([decl]);
+                expect(resultado).toContain('trace(');
+                expect(resultado).toContain('"Olá"');
+            });
+
+            it('Ajuda -> comentário // ajuda', () => {
+                const decl = new Ajuda(-1, 1);
+                const resultado = tradutor.traduzir([decl]);
+                expect(resultado).toContain('// ajuda');
+            });
+
+            it('TextoDocumentacao -> comentário JSDoc', () => {
+                const decl = new TextoDocumentacao(-1, 1, 'Documentação da função');
+                const resultado = tradutor.traduzir([decl]);
+                expect(resultado).toContain('/**');
+            });
+
+            it('VarMultiplo -> let com múltiplos símbolos', () => {
+                const simbolos = [
+                    new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'a', null, 1, -1),
+                    new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'b', null, 1, -1),
+                ];
+                const decl = new VarMultiplo(simbolos, new Literal(-1, 1, 0), 'inteiro');
+                const resultado = tradutor.traduzir([decl]);
+                expect(resultado).toContain('let a, b: i32 = 0');
+            });
+
+            it('ConstMultiplo -> const com múltiplos símbolos', () => {
+                const simbolos = [
+                    new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', null, 1, -1),
+                    new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'y', null, 1, -1),
+                ];
+                const decl = new ConstMultiplo(simbolos, new Literal(-1, 1, 1), 'inteiro');
+                const resultado = tradutor.traduzir([decl]);
+                expect(resultado).toContain('const x, y: i32 = 1');
+            });
+
+            it('Elvis -> ||', () => {
+                const elvis = new Elvis(
+                    -1,
+                    new Variavel(-1, new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'a', null, 1, -1)),
+                    new Literal(-1, 1, 10)
+                );
+                const resultado = tradutor.dicionarioConstrutos['Elvis'](elvis);
+                expect(resultado).toBe('a || 10');
+            });
+
+            it('ExpressaoRegular com string -> string entre aspas', () => {
+                const regex = new ExpressaoRegular(
+                    -1,
+                    new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'r', null, 1, -1),
+                    '[a-z]+'
+                );
+                const resultado = tradutor.dicionarioConstrutos['ExpressaoRegular'](regex);
+                expect(resultado).toBe('"[a-z]+"');
+            });
+
+            it('ExpressaoRegular com não-string -> String(valor)', () => {
+                const regex = new ExpressaoRegular(
+                    -1,
+                    new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'r', null, 1, -1),
+                    42
+                );
+                const resultado = tradutor.dicionarioConstrutos['ExpressaoRegular'](regex);
+                expect(resultado).toBe('42');
+            });
+        });
+
+        describe('Fluxo de controle adicional', () => {
+            it('tente com finally', async () => {
+                const retornoLexador = lexador.mapear([
+                    'tente {',
+                    '    escreva("tente")',
+                    '} pegue (erro) {',
+                    '    escreva("pegue")',
+                    '} finalmente {',
+                    '    escreva("finalmente")',
+                    '}'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('finally');
+                expect(resultado).toContain('trace("finalmente")');
+            });
+
+            it('se com senão se (else if chain)', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var x: inteiro = 5',
+                    'se (x == 1) {',
+                    '    escreva("um")',
+                    '} senao se (x == 2) {',
+                    '    escreva("dois")',
+                    '} senao {',
+                    '    escreva("outro")',
+                    '}'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('else if (');
+                expect(resultado).toContain('x == 2');
+            });
+
+            it('importar -> mensagem de não suporte', () => {
+                const decl = new Importar(new Literal(-1, 1, 'modulo'));
+                const resultado = tradutor.traduzir([decl]);
+                expect(resultado).toContain('importar() não é suportado');
+            });
+
+            it('leia -> mensagem de não suporte', () => {
+                const decl = new Leia(
+                    new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'leia', null, 1, -1),
+                    []
+                );
+                const resultado = tradutor.dicionarioDeclaracoes['Leia'](decl);
+                expect(resultado).toContain('leia() não é suportado');
+            });
+        });
+
+        describe('Classes', () => {
+            it('classe simples', async () => {
+                const retornoLexador = lexador.mapear([
+                    'classe Animal {',
+                    '    construtor() { }',
+                    '}'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('export class Animal');
+                expect(resultado).toContain('constructor(');
+            });
+
+            it('classe com herança -> extends', async () => {
+                const retornoLexador = lexador.mapear([
+                    'classe Animal {',
+                    '    construtor() { }',
+                    '}',
+                    'classe Cachorro herda Animal {',
+                    '    construtor() { }',
+                    '}'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('extends Animal');
+            });
+        });
+
+        describe('Comentários', () => {
+            it('comentário multilinha -> /* ... */', async () => {
+                const retornoLexador = lexador.mapear(['/*', 'comentário multilinha', '*/'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('/*');
+                expect(resultado).toContain('*/');
+            });
+        });
+
+        describe('Acesso a métodos nativos', () => {
+            it('array.adicionar -> array.push', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var nums: inteiro[] = [1, 2, 3]',
+                    'nums.adicionar(4)'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('nums.push');
+            });
+
+            it('array.tamanho -> array.length', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var nums: inteiro[] = [1, 2, 3]',
+                    'escreva(nums.tamanho())'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('nums.length');
+            });
+        });
+
+        describe('Operador Elvis', () => {
+            it('nulo ?: valor -> || alternativo', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var a: inteiro = 0',
+                    'var b: inteiro = a ?: 10'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('||');
+                expect(resultado).toContain('10');
             });
         });
 

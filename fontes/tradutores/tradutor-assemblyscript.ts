@@ -212,7 +212,7 @@ export class TradutorAssemblyScript {
             case 'aleatorio':
                 return `Math.random()`;
             case 'aleatorioEntre':
-            case 'aleatorioente':
+            case 'aleatorioentre':
                 if (argumentos.length >= 2) {
                     return `(Math.random() * (${argumentos[1]} - ${argumentos[0]}) + ${argumentos[0]})`;
                 }
@@ -1380,12 +1380,22 @@ export class TradutorAssemblyScript {
         return resultado;
     }
 
-    traduzirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodoOuPropriedade): string {
+    traduzirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodo): string {
+        const nomeMetodo = acessoMetodo.nomeMetodo;
         if (acessoMetodo.objeto instanceof Variavel) {
             let objetoVariavel = acessoMetodo.objeto as Variavel;
-            return `${objetoVariavel.simbolo.lexema}.${this.traduzirFuncoesNativas(acessoMetodo.simbolo.lexema)}`;
+            return `${objetoVariavel.simbolo.lexema}.${this.traduzirFuncoesNativas(nomeMetodo)}`;
         }
-        return `this.${acessoMetodo.simbolo.lexema}`;
+        return `this.${nomeMetodo}`;
+    }
+
+    traduzirConstrutoAcessoMetodoOuPropriedade(acessoMetodoOuPropriedade: AcessoMetodoOuPropriedade): string {
+        const nomeMetodo = acessoMetodoOuPropriedade.simbolo?.lexema;
+        if (acessoMetodoOuPropriedade.objeto instanceof Variavel) {
+            let objetoVariavel = acessoMetodoOuPropriedade.objeto as Variavel;
+            return `${objetoVariavel.simbolo.lexema}.${this.traduzirFuncoesNativas(nomeMetodo)}`;
+        }
+        return `this.${nomeMetodo}`;
     }
 
     traduzirConstrutoAcessoIndiceVariavel(acessoIndiceVariavel: AcessoIndiceVariavel): string {
@@ -1410,7 +1420,7 @@ export class TradutorAssemblyScript {
     dicionarioConstrutos = {
         AcessoIndiceVariavel: this.traduzirConstrutoAcessoIndiceVariavel.bind(this),
         AcessoMetodo: this.traduzirConstrutoAcessoMetodo.bind(this),
-        AcessoMetodoOuPropriedade: this.traduzirConstrutoAcessoMetodo.bind(this),
+        AcessoMetodoOuPropriedade: this.traduzirConstrutoAcessoMetodoOuPropriedade.bind(this),
         AcessoPropriedade: this.traduzirConstrutoAcessoPropriedade.bind(this),
         Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
         ArgumentoReferenciaFuncao: this.traduzirConstrutoArgumentoReferenciaFuncao.bind(this),
