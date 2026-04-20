@@ -815,7 +815,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     async visitarExpressaoAtribuicaoPorIndice(expressao: any) {
-        const objeto = await this.avaliar(expressao.objeto);
+        const objeto = this.resolverValor(await this.avaliar(expressao.objeto));
         let indice = await this.avaliar(expressao.indice);
         const valor = await this.avaliar(expressao.valor);
 
@@ -918,7 +918,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     async visitarExpressaoDefinirValor(expressao: any) {
-        const objeto = await this.avaliar(expressao.objeto);
+        const objeto = this.resolverValor(await this.avaliar(expressao.objeto));
 
         if (!(objeto instanceof ObjetoDeleguaClasse) && objeto.constructor !== Object) {
             throw new ErroEmTempoDeExecucao(
