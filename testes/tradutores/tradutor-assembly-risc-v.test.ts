@@ -1,27 +1,42 @@
 import {
+    AcessoIndiceVariavel,
+    AcessoMetodo,
     Agrupamento,
+    AtribuicaoPorIndice,
     Atribuir,
     Binario,
+    Chamada,
+    DefinirValor,
     FuncaoConstruto,
+    Leia,
     Literal,
     Logico,
+    TipoDe,
     Unario,
     Variavel,
     Vetor,
 } from '../../fontes/construtos';
 import {
     Bloco,
+    Classe,
     Const,
     Declaracao,
     Enquanto,
+    Escolha,
     Escreva,
     Expressao,
+    Falhar,
+    Fazer,
     FuncaoDeclaracao,
+    Importar,
     Para,
+    ParaCada,
     Retorna,
     Se,
+    Tente,
     Var,
 } from '../../fontes/declaracoes';
+import { CaminhoEscolha } from '../../fontes/interfaces/construtos';
 import { SimboloInterface } from '../../fontes/interfaces';
 import { Simbolo } from '../../fontes/lexador';
 import { TradutorAssemblyRISCV } from '../../fontes/tradutores';
@@ -628,6 +643,373 @@ describe('Tradutor (Assembly RISC-V)', () => {
 
             tradutor.traduzirConstrutoBinario(binario);
             expect(tradutor.text).toContain('# Operador ** não implementado');
+        });
+    });
+
+    describe('Construtos - Operações Binárias adicionais', () => {
+        it('deve traduzir igualdade estrita (===) com sub e seqz', () => {
+            const esquerda = new Literal(-1, 1, 7);
+            const direita = new Literal(-1, 1, 7);
+            const simbolo = new Simbolo('===', '===', null, 1, 1);
+            const binario = new Binario(1, esquerda, simbolo, direita);
+            tradutor.traduzirConstrutoBinario(binario);
+            expect(tradutor.text).toContain('sub a0, a0,');
+            expect(tradutor.text).toContain('seqz a0, a0');
+        });
+
+        it('deve traduzir diferença estrita (!==) com sub e snez', () => {
+            const esquerda = new Literal(-1, 1, 7);
+            const direita = new Literal(-1, 1, 3);
+            const simbolo = new Simbolo('!==', '!==', null, 1, 1);
+            const binario = new Binario(1, esquerda, simbolo, direita);
+            tradutor.traduzirConstrutoBinario(binario);
+            expect(tradutor.text).toContain('sub a0, a0,');
+            expect(tradutor.text).toContain('snez a0, a0');
+        });
+
+        it('deve usar a0 diretamente quando esquerda já está em a0', () => {
+            const simboloVar = new Simbolo('IDENTIFICADOR', 'x', null, 1, 1);
+            tradutor.variaveis.set('x', 'var_x');
+            const variavel = new Variavel(1, simboloVar);
+            const direita = new Literal(-1, 1, 5);
+            const simbolo = new Simbolo('+', '+', null, 1, 1);
+            const binario = new Binario(1, variavel, simbolo, direita);
+            const resultado = tradutor.traduzirConstrutoBinario(binario);
+            expect(resultado).toBe('a0');
+        });
+    });
+
+    describe('Construtos - Acesso a índice e método', () => {
+        it('deve traduzir acesso a índice de variável com slli', () => {
+            const simboloVar = new Simbolo('IDENTIFICADOR', 'arr', null, 1, 1);
+            const variavel = new Variavel(1, simboloVar);
+            const indice = new Literal(-1, 1, 2);
+            const simboloFechamento = new Simbolo(']', ']', null, 1, 1);
+            const acesso = new AcessoIndiceVariavel(-1, variavel, indice, simboloFechamento);
+            const resultado = tradutor.traduzirAcessoIndiceVariavel(acesso);
+            expect(resultado).toBe('a0');
+            expect(tradutor.text).toContain('slli a0, a0, 3');
+        });
+
+        it('deve traduzir acesso a índice quando entidade não é Variável', () => {
+            const literal = new Literal(-1, 1, 'arr');
+            const indice = new Literal(-1, 1, 0);
+            const simboloFechamento = new Simbolo(']', ']', null, 1, 1);
+            const acesso = new AcessoIndiceVariavel(-1, literal, indice, simboloFechamento);
+            const resultado = tradutor.traduzirAcessoIndiceVariavel(acesso);
+            expect(resultado).toBe('a0');
+            expect(tradutor.text).toContain('la s9, unknown');
+        });
+
+        it('deve traduzir acesso a método de objeto', () => {
+            const simboloVar = new Simbolo('IDENTIFICADOR', 'obj', null, 1, 1);
+            const variavel = new Variavel(1, simboloVar);
+            const acesso = new AcessoMetodo(-1, variavel, 'tamanho');
+            const resultado = tradutor.traduzirConstrutoAcessoMetodo(acesso);
+            expect(resultado).toContain('tamanho');
+        });
+    });
+
+    describe('Construtos - Atribuição por índice', () => {
+        it('deve traduzir atribuição por índice em variável com slli', () => {
+            const simboloVar = new Simbolo('IDENTIFICADOR', 'arr', null, 1, 1);
+            const variavel = new Variavel(1, simboloVar);
+            const indice = new Literal(-1, 1, 0);
+            const valor = new Literal(-1, 1, 99);
+            const atribuicao = new AtribuicaoPorIndice(-1, 1, variavel, indice, valor);
+            tradutor.traduzirConstrutoAtribuicaoPorIndice(atribuicao);
+            expect(tradutor.text).toContain('slli a1, a1, 3');
+            expect(tradutor.text).toContain('sd a1, 0(');
+        });
+
+        it('deve traduzir atribuição por índice quando objeto não é Variável', () => {
+            const objeto = new Literal(-1, 1, 'arr');
+            const indice = new Literal(-1, 1, 1);
+            const valor = new Literal(-1, 1, 42);
+            const atribuicao = new AtribuicaoPorIndice(-1, 1, objeto, indice, valor);
+            tradutor.traduzirConstrutoAtribuicaoPorIndice(atribuicao);
+            expect(tradutor.text).toContain('la s9, unknown');
+        });
+    });
+
+    describe('Construtos - Chamada, DefinirValor, FuncaoConstruto, TipoDe', () => {
+        it('deve traduzir chamada de função com argumentos usando call', () => {
+            const simboloFunc = new Simbolo('IDENTIFICADOR', 'minhaFuncao', null, 1, 1);
+            const funcaoVar = new Variavel(1, simboloFunc);
+            const args = [new Literal(-1, 1, 1), new Literal(-1, 1, 2)];
+            const chamada = new Chamada(-1, funcaoVar, args);
+            tradutor.traduzirConstrutoChamada(chamada);
+            expect(tradutor.text).toContain('call minhaFuncao');
+            expect(tradutor.text).toContain('li a0');
+        });
+
+        it('deve traduzir chamada com mais de 8 argumentos (extras ignorados)', () => {
+            const simboloFunc = new Simbolo('IDENTIFICADOR', 'func9', null, 1, 1);
+            const funcaoVar = new Variavel(1, simboloFunc);
+            const args = [1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => new Literal(-1, 1, n));
+            const chamada = new Chamada(-1, funcaoVar, args);
+            tradutor.traduzirConstrutoChamada(chamada);
+            expect(tradutor.text).toContain('call func9');
+        });
+
+        it('deve traduzir chamada sem Variável como entidade', () => {
+            const literal = new Literal(-1, 1, 'func');
+            const chamada = new Chamada(-1, literal, []);
+            tradutor.traduzirConstrutoChamada(chamada);
+            expect(tradutor.text).toContain('call funcao');
+        });
+
+        it('deve traduzir DefinirValor com sd', () => {
+            const simboloVar = new Simbolo('IDENTIFICADOR', 'obj', null, 1, 1);
+            const variavel = new Variavel(1, simboloVar);
+            tradutor.variaveis.set('obj', 'var_obj');
+            const nomeSimbolo = new Simbolo('IDENTIFICADOR', 'prop', null, 1, 1);
+            const valor = new Literal(-1, 1, 42);
+            const definirValor = new DefinirValor(-1, 1, variavel, nomeSimbolo, valor);
+            tradutor.traduzirConstrutoDefinirValor(definirValor);
+            expect(tradutor.text).toContain('sd a0, 0(a1)');
+        });
+
+        it('deve traduzir FuncaoConstruto com corpo e prologue RISC-V', () => {
+            const varDecl = new Var(
+                new Simbolo('IDENTIFICADOR', 'a', null, 1, 1),
+                new Literal(-1, 1, 1)
+            );
+            const funcaoConstruto = new FuncaoConstruto(-1, 1, [], [varDecl]);
+            tradutor.traduzirFuncaoConstruto(funcaoConstruto);
+            expect(tradutor.text).toContain('addi sp, sp, -16');
+            expect(tradutor.text).toContain('sd   ra, 8(sp)');
+            expect(tradutor.text).toContain('ret');
+        });
+
+        it('deve traduzir TipoDe retornando valor do operando', () => {
+            const simbolo = new Simbolo('IDENTIFICADOR', 'x', null, 1, 1);
+            const literal = new Literal(-1, 1, 42);
+            const tipoDe = new TipoDe(-1, simbolo, literal);
+            const resultado = tradutor.traduzirConstrutoTipoDe(tipoDe);
+            expect(resultado).toBe('42');
+        });
+
+        it('dicionarioConstrutos Isto -> this', () => {
+            const resultado = (tradutor.dicionarioConstrutos['Isto'] as () => string)();
+            expect(resultado).toBe('this');
+        });
+
+        it('dicionarioDeclaracoes Continua -> j .continue_label', () => {
+            const resultado = (tradutor.dicionarioDeclaracoes['Continua'] as () => string)();
+            expect(resultado).toBe('j .continue_label');
+        });
+
+        it('dicionarioDeclaracoes Sustar -> j .break_label', () => {
+            const resultado = (tradutor.dicionarioDeclaracoes['Sustar'] as () => string)();
+            expect(resultado).toBe('j .break_label');
+        });
+    });
+
+    describe('Declarações - Bloco com conteúdo', () => {
+        it('deve traduzir bloco com declarações internas', () => {
+            const simboloVar = new Simbolo('IDENTIFICADOR', 'x', null, 1, 1);
+            const varDecl = new Var(simboloVar, new Literal(-1, 1, 5));
+            const bloco = new Bloco(-1, 1, [varDecl]);
+            tradutor.traduzirDeclaracaoBloco(bloco);
+            expect(tradutor.variaveis.has('x')).toBe(true);
+        });
+    });
+
+    describe('Declarações - Expressão', () => {
+        it('deve traduzir declaração de expressão', () => {
+            const literal = new Literal(-1, 1, 42);
+            const expressao = new Expressao(literal);
+            tradutor.traduzirDeclaracaoExpressao(expressao);
+            expect(tradutor.text).toContain('li a0, 42');
+        });
+    });
+
+    describe('Declarações - Escolha', () => {
+        it('deve traduzir escolha com caminhos usando bne', () => {
+            const identificador = new Literal(-1, 1, 5);
+            const caminho: CaminhoEscolha = {
+                condicoes: [new Literal(-1, 1, 5)],
+                declaracoes: [new Escreva(1, 1, [new Literal(-1, 1, 'cinco')])],
+            };
+            const escolha = new Escolha(identificador, [caminho], null);
+            tradutor.traduzirDeclaracaoEscolha(escolha);
+            expect(tradutor.text).toContain('bne a0, a1,');
+            expect(tradutor.text).toContain('j .L');
+        });
+
+        it('deve traduzir escolha vazia sem caminhos', () => {
+            const identificador = new Literal(-1, 1, 1);
+            const escolha = new Escolha(identificador, [], null);
+            tradutor.traduzirDeclaracaoEscolha(escolha);
+            expect(tradutor.text).toContain('.L');
+        });
+    });
+
+    describe('Declarações - Fazer', () => {
+        it('deve traduzir fazer/enquanto com bnez', () => {
+            const corpo = new Bloco(1, 1, []);
+            const condicao = new Literal(-1, 1, true);
+            const fazer = new Fazer(-1, 1, corpo, condicao);
+            tradutor.traduzirDeclaracaoFazer(fazer);
+            expect(tradutor.text).toMatch(/\.L\d+:/);
+            expect(tradutor.text).toContain('bnez a0,');
+        });
+
+        it('deve traduzir fazer sem corpo com condição false', () => {
+            const corpo = new Bloco(1, 1, []);
+            const condicao = new Literal(-1, 1, false);
+            const fazer = new Fazer(-1, 1, corpo, condicao);
+            tradutor.traduzirDeclaracaoFazer(fazer);
+            expect(tradutor.text).toMatch(/\.L\d+:/);
+        });
+    });
+
+    describe('Declarações - Falhar', () => {
+        it('deve traduzir falhar com mensagem usando sys_exit', () => {
+            const simbolo = new Simbolo('IDENTIFICADOR', 'falhar', null, 1, 1);
+            const explicacao = new Literal(-1, 1, 'Erro crítico');
+            const falhar = new Falhar(simbolo, explicacao);
+            tradutor.traduzirDeclaracaoFalhar(falhar);
+            expect(tradutor.text).toContain('# Falhar com mensagem:');
+            expect(tradutor.text).toContain('li a0, 1');
+            expect(tradutor.text).toContain('li a7, 93');
+            expect(tradutor.text).toContain('ecall');
+        });
+
+        it('deve traduzir falhar sem explicacao com mensagem padrão', () => {
+            const simbolo = new Simbolo('IDENTIFICADOR', 'falhar', null, 1, 1);
+            const falhar = new Falhar(simbolo, null);
+            tradutor.traduzirDeclaracaoFalhar(falhar);
+            expect(tradutor.text).toContain('# Falhar com mensagem: "Erro"');
+        });
+    });
+
+    describe('Declarações - Importar e Leia', () => {
+        it('deve traduzir importar com comentário RISC-V', () => {
+            const importar = new Importar(new Literal(-1, 1, 'modulo'));
+            tradutor.traduzirDeclaracaoImportar(importar);
+            expect(tradutor.text).toContain('# Importar:');
+        });
+
+        it('deve traduzir leia com variável como argumento usando sys_read', () => {
+            const simbolo = new Simbolo('IDENTIFICADOR', 'leia', null, 1, 1);
+            const varSimbolo = new Simbolo('IDENTIFICADOR', 'entrada', null, 1, 1);
+            const variavel = new Variavel(1, varSimbolo);
+            const leia = new Leia(simbolo, [variavel]);
+            tradutor.traduzirDeclaracaoLeia(leia);
+            expect(tradutor.text).toContain('li a7, 63');
+            expect(tradutor.text).toContain('ecall');
+            expect(tradutor.bss).toContain('var_entrada: .space 256');
+        });
+
+        it('deve traduzir leia com variável já registrada', () => {
+            const simbolo = new Simbolo('IDENTIFICADOR', 'leia', null, 1, 1);
+            const varSimbolo = new Simbolo('IDENTIFICADOR', 'entrada', null, 1, 1);
+            const variavel = new Variavel(1, varSimbolo);
+            tradutor.variaveis.set('entrada', 'var_entrada');
+            const leia = new Leia(simbolo, [variavel]);
+            tradutor.traduzirDeclaracaoLeia(leia);
+            expect(tradutor.text).toContain('la a1, var_entrada');
+        });
+
+        it('deve ignorar leia sem argumentos do tipo Variável', () => {
+            const simbolo = new Simbolo('IDENTIFICADOR', 'leia', null, 1, 1);
+            const textoAntes = tradutor.text;
+            const leia = new Leia(simbolo, []);
+            tradutor.traduzirDeclaracaoLeia(leia);
+            expect(tradutor.text).toBe(textoAntes);
+        });
+    });
+
+    describe('Declarações - ParaCada', () => {
+        it('deve traduzir paraCada com vetor usando bge', () => {
+            const varSimbolo = new Simbolo('IDENTIFICADOR', 'item', null, 1, 1);
+            const variavel = new Variavel(1, varSimbolo);
+            const vetor = new Vetor(1, 1, [new Literal(-1, 1, 1), new Literal(-1, 1, 2)]);
+            const corpo = new Bloco(1, 1, []);
+            const paraCada = new ParaCada(-1, 1, variavel, vetor, corpo);
+            tradutor.traduzirDeclaracaoParaCada(paraCada);
+            expect(tradutor.text).toContain('li t0, 0');
+            expect(tradutor.text).toContain('bge t0, t1,');
+            expect(tradutor.text).toContain('addi t0, t0, 1');
+        });
+    });
+
+    describe('Declarações - Classe e Tente', () => {
+        it('deve traduzir declaração de classe com comentário', () => {
+            const simboloClasse = new Simbolo('IDENTIFICADOR', 'MinhaClasse', null, 1, 1);
+            const classe = new Classe(simboloClasse, [], [], [], []);
+            tradutor.traduzirDeclaracaoClasse(classe);
+            expect(tradutor.text).toContain('# Classe: MinhaClasse');
+        });
+
+        it('deve traduzir tente com declarações no caminho', () => {
+            const varDecl = new Var(
+                new Simbolo('IDENTIFICADOR', 'x', null, 1, 1),
+                new Literal(-1, 1, 1)
+            );
+            const tente = new Tente(-1, 1, [varDecl], null, null, null);
+            tradutor.traduzirDeclaracaoTente(tente);
+            expect(tradutor.text).toContain('# Tente-pegue');
+            expect(tradutor.variaveis.has('x')).toBe(true);
+        });
+
+        it('deve traduzir tente vazio', () => {
+            const tente = new Tente(-1, 1, [], null, null, null);
+            tradutor.traduzirDeclaracaoTente(tente);
+            expect(tradutor.text).toContain('# Tente-pegue');
+        });
+    });
+
+    describe('Declarações - Para com inicializador Atribuir', () => {
+        it('deve traduzir para com Atribuir como inicializador (caminho construto)', () => {
+            const simboloJ = new Simbolo('IDENTIFICADOR', 'j', null, 1, 1);
+            const varJ = new Variavel(1, simboloJ);
+            const inicializador = new Atribuir(1, varJ, new Literal(-1, 1, 0));
+            const condicao = new Binario(
+                1,
+                varJ,
+                new Simbolo('<', '<', null, 1, 1),
+                new Literal(-1, 1, 5)
+            );
+            const incremento = new Atribuir(
+                1,
+                varJ,
+                new Binario(1, varJ, new Simbolo('+', '+', null, 1, 1), new Literal(-1, 1, 1))
+            );
+            const corpo = new Bloco(1, 1, []);
+            const para = new Para(-1, 1, inicializador as any, condicao, incremento, corpo);
+            tradutor.traduzirDeclaracaoPara(para);
+            expect(tradutor.text).toMatch(/\.L\d+:/);
+            expect(tradutor.text).toContain('beqz a0,');
+        });
+    });
+
+    describe('Utilitários - criaTamanhoNaMemoriaReferenteAVar', () => {
+        it('deve retornar label de tamanho para string literal', () => {
+            const resultado = tradutor.criarTamanhoNaMemoriaReferenteAVar('minhaString');
+            expect(resultado).toBe('tam_minhaString');
+        });
+    });
+
+    describe('emitirCarga - ponto flutuante via .data', () => {
+        it('deve armazenar float em .data e usar la (via traduzirConstrutoLiteral)', () => {
+            const literal = new Literal(-1, 1, 3.14);
+            const resultado = tradutor.traduzirConstrutoLiteral(literal);
+            expect(resultado).toMatch(/^Delegua_\d{5}$/);
+            expect(tradutor.data).toContain('.double 3.14');
+        });
+    });
+
+    describe('Declarações - Escreva com não-Literal', () => {
+        it('deve emitir ecall mesmo sem literal (argumentos vazios de string)', () => {
+            const simboloVar = new Simbolo('IDENTIFICADOR', 'msg', null, 1, 1);
+            const variavel = new Variavel(1, simboloVar);
+            const escreva = new Escreva(1, 1, [variavel]);
+            tradutor.traduzirDeclaracaoEscreva(escreva);
+            expect(tradutor.text).toContain('li a7, 64');
+            expect(tradutor.text).toContain('ecall');
         });
     });
 });

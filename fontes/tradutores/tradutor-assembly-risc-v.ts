@@ -367,8 +367,17 @@ ${labelFuncao}:
 
     traduzirConstrutoLiteral(construto: Literal): string {
         if (typeof construto.valor === 'string') {
-            return this.criaStringLiteral(construto);
+            return this.criarStringLiteral(construto);
         }
+
+        if (
+            typeof construto.valor === 'number' &&
+            Number.isFinite(construto.valor) &&
+            !Number.isInteger(construto.valor)
+        ) {
+            return this.criarLiteralPontoFlutuante(construto.valor);
+        }
+
         return String(construto.valor);
     }
 
@@ -541,7 +550,13 @@ ${labelProximo}:`;
             declaracao.expressao &&
             this.dicionarioConstrutos[declaracao.expressao.constructor.name]
         ) {
-            this.dicionarioConstrutos[declaracao.expressao.constructor.name](declaracao.expressao);
+            const resultado = this.dicionarioConstrutos[declaracao.expressao.constructor.name](
+                declaracao.expressao
+            );
+
+            if (typeof resultado === 'string' && resultado && resultado !== 'a0') {
+                this.emitirCarga('a0', resultado);
+            }
         }
     }
 
@@ -821,13 +836,19 @@ ${labelSenao}:`;
         }
     }
 
-    criaStringLiteral(literal: Literal): string {
+    criarStringLiteral(literal: Literal): string {
         const varLiteral = `Delegua_${this.gerarDigitoAleatorio()}`;
         this.data += `    ${varLiteral}: .asciz "${literal.valor}"\n`;
         return varLiteral;
     }
 
-    criaTamanhoNaMemoriaReferenteAVar(nomeStringLiteral: string): string {
+    criarLiteralPontoFlutuante(valor: number): string {
+        const varLiteral = `Delegua_${this.gerarDigitoAleatorio()}`;
+        this.data += `    ${varLiteral}: .double ${valor}\n`;
+        return varLiteral;
+    }
+
+    criarTamanhoNaMemoriaReferenteAVar(nomeStringLiteral: string): string {
         return `tam_${nomeStringLiteral}`;
     }
 
@@ -836,7 +857,7 @@ ${labelSenao}:`;
         let tamanhoString = '';
 
         if (declaracaoEscreva.argumentos[0] instanceof Literal) {
-            nomeStringLiteral = this.criaStringLiteral(declaracaoEscreva.argumentos[0]);
+            nomeStringLiteral = this.criarStringLiteral(declaracaoEscreva.argumentos[0]);
             const stringValue = (declaracaoEscreva.argumentos[0] as Literal).valor as string;
             tamanhoString = String(stringValue.length);
         }
