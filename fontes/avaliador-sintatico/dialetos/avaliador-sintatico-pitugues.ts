@@ -2601,8 +2601,8 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             new InformacaoElementoSintatico('aleatorio', 'número')
         );
         this.pilhaEscopos.definirInformacoesVariavel(
-            'aleatorioEntre',
-            new InformacaoElementoSintatico('aleatorioEntre', 'número', true, [
+            'aleatorio_entre',
+            new InformacaoElementoSintatico('aleatorio_entre', 'número', true, [
                 new InformacaoElementoSintatico('minimo', 'número'),
                 new InformacaoElementoSintatico('maximo', 'número'),
             ])
@@ -2629,29 +2629,29 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
-            'encontrarIndice',
-            new InformacaoElementoSintatico('encontrarIndice', 'inteiro', true, [
+            'encontrar_indice',
+            new InformacaoElementoSintatico('encontrar_indice', 'inteiro', true, [
                 new InformacaoElementoSintatico('vetor', 'qualquer[]'),
                 new InformacaoElementoSintatico('funcaoPesquisa', 'função'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
-            'encontrarUltimo',
-            new InformacaoElementoSintatico('encontrarUltimo', 'inteiro', true, [
+            'encontrar_ultimo',
+            new InformacaoElementoSintatico('encontrar_ultimo', 'inteiro', true, [
                 new InformacaoElementoSintatico('vetor', 'qualquer[]'),
                 new InformacaoElementoSintatico('funcaoPesquisa', 'função'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
-            'encontrarUltimoIndice',
-            new InformacaoElementoSintatico('encontrarUltimoIndice', 'inteiro', true, [
+            'encontrar_ultimo_indice',
+            new InformacaoElementoSintatico('encontrar_ultimo_indice', 'inteiro', true, [
                 new InformacaoElementoSintatico('vetor', 'qualquer[]'),
                 new InformacaoElementoSintatico('funcaoPesquisa', 'função'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
-            'filtrarPor',
-            new InformacaoElementoSintatico('filtrarPor', 'qualquer[]', true, [
+            'filtrar_por',
+            new InformacaoElementoSintatico('filtrar_por', 'qualquer[]', true, [
                 new InformacaoElementoSintatico('vetor', 'qualquer[]'),
                 new InformacaoElementoSintatico('funcaoFiltragem', 'função'),
             ])
@@ -2722,15 +2722,15 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
-            'paraCada',
-            new InformacaoElementoSintatico('paraCada', 'qualquer[]', true, [
+            'para_cada',
+            new InformacaoElementoSintatico('para_cada', 'qualquer[]', true, [
                 new InformacaoElementoSintatico('vetor', 'qualquer[]'),
                 new InformacaoElementoSintatico('funcaoFiltragem', 'função'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
-            'primeiroEmCondicao',
-            new InformacaoElementoSintatico('primeiroEmCondicao', 'qualquer', true, [
+            'primeiro_em_condicao',
+            new InformacaoElementoSintatico('primeiro_em_condicao', 'qualquer', true, [
                 new InformacaoElementoSintatico('vetor', 'qualquer[]'),
                 new InformacaoElementoSintatico('funcaoFiltragem', 'função'),
             ])
@@ -2780,8 +2780,8 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
-            'todosEmCondicao',
-            new InformacaoElementoSintatico('todosEmCondicao', 'lógico', true, [
+            'todos_em_condicao',
+            new InformacaoElementoSintatico('todos_em_condicao', 'lógico', true, [
                 new InformacaoElementoSintatico('iteravel', 'qualquer'),
                 new InformacaoElementoSintatico('funcaoCondicional', 'função'),
             ])

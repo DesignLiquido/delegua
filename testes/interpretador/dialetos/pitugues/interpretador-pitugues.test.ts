@@ -4072,8 +4072,8 @@ describe('Interpretador (Pituguês)', () => {
                     });
                 });
 
-                describe('todosEmCondicao()', () => {
-                    it('Chama a função nativa "todosEmCondicao()" para verificar se os elementos do array são par.', async () => {
+                describe('todos_em_condicao()', () => {
+                    it('Chama a função nativa "todos_em_condicao()" para verificar se os elementos do array são par.', async () => {
                         let _saida: string = '';
 
                         const retornoLexador = lexador.mapear(
@@ -4081,7 +4081,7 @@ describe('Interpretador (Pituguês)', () => {
                                 'listaDeNumeros = [1, 2, 3, 4, 5]',
                                 'funcao eh_par(valor):',
                                 '    retorna valor % 2 == 0',
-                                'escreva(todosEmCondicao(listaDeNumeros, eh_par))'
+                                'escreva(todos_em_condicao(listaDeNumeros, eh_par))'
                             ],
                             -1
                         );
@@ -4091,12 +4091,14 @@ describe('Interpretador (Pituguês)', () => {
                             _saida = saida;
                         };
 
-                        await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                        await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
 
                         expect(_saida).toBe('falso');
                     });
 
-                    it('Chama a função nativa "todosEmCondicao()" para verificar se todos os nomes começam com "V"', async () => {
+                    it('Chama a função nativa "todos_em_condicao()" para verificar se todos os nomes começam com "V"', async () => {
                         let _saida: string = '';
 
                         const retornoLexador = lexador.mapear(
@@ -4104,7 +4106,7 @@ describe('Interpretador (Pituguês)', () => {
                                 'listaDeNomes = ["Victor", "Verônica", "Vanessa"]',
                                 'funcao verificar_nomes(nome):',
                                 '    retorna nome[0] == "V"',
-                                'escreva(todosEmCondicao(listaDeNomes, verificar_nomes))'
+                                'escreva(todos_em_condicao(listaDeNomes, verificar_nomes))'
                             ],
                             -1
                         );
@@ -4176,6 +4178,28 @@ describe('Interpretador (Pituguês)', () => {
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
                 expect(_saidas).toEqual(['Antes', 'Olá, Mundo!', 'Depois']);
+            });
+
+            it('aleatorio_entre()', async () => {
+                const codigo = [
+                    'numero_aleatorio = aleatorio_entre(1, 9)',
+                    'escreva(numero_aleatorio)'
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliador = await avaliadorSintatico.analisar(
+                    retornoLexador,
+                    -1
+                );
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliador.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+
+                const resultado = Number(_saidas[0]);
+
+                expect(resultado).toBeGreaterThanOrEqual(1);
+                expect(resultado).toBeLessThanOrEqual(9);
             });
         });
 
@@ -5250,14 +5274,14 @@ describe('Interpretador (Pituguês)', () => {
                 });
             });
 
-            describe('todosEmCondicao()', () => {
-                it('Chama a função nativa "todosEmCondicao()" passando dados que não são iteráveis', async () => {
+            describe('todos_em_condicao()', () => {
+                it('Chama a função nativa "todos_em_condicao()" passando dados que não são iteráveis', async () => {
                     const retornoLexador = lexador.mapear(
                         [
                             'listaDeNumeros = 67',
                             'funcao eh_par(valor):',
                             '    retorna valor % 2 == 0',
-                            'escreva(todosEmCondicao(listaDeNumeros, eh_par))'
+                            'escreva(todos_em_condicao(listaDeNumeros, eh_par))'
                         ],
                         -1
                     );
