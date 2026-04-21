@@ -53,10 +53,18 @@ export async function aleatorio(interpretador: InterpretadorInterface): Promise<
  */
 export async function aleatorio_entre(
     interpretador: InterpretadorInterface,
-    minimo: VariavelInterface | number,
-    maximo: VariavelInterface | number
+    ...argumentos: any[]
 ): Promise<number> {
-    if (arguments.length <= 0) {
+    const argumentosUsuario = argumentos.filter(
+        (arg) => !(
+            arg &&
+            typeof arg === 'object' &&
+            'lexema' in arg &&
+            'linha' in arg
+        )
+    );
+
+    if (argumentosUsuario.length <= 0) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 {
@@ -68,27 +76,7 @@ export async function aleatorio_entre(
         );
     }
 
-    const valorMinimo = minimo.hasOwnProperty('valor')
-        ? (minimo as VariavelInterface).valor
-        : minimo;
-
-    if (arguments.length === 2) {
-        if (typeof valorMinimo !== 'number') {
-            return Promise.reject(
-                new ErroEmTempoDeExecucao(
-                    {
-                        hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                        linha: interpretador.linhaDeclaracaoAtual,
-                    } as SimboloInterface,
-                    'O parâmetro deve ser um número.'
-                )
-            );
-        }
-
-        return Math.floor(Math.random() * (0 - valorMinimo)) + valorMinimo;
-    }
-
-    if (arguments.length > 3) {
+    if (argumentosUsuario.length > 2) {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 {
@@ -100,11 +88,27 @@ export async function aleatorio_entre(
         );
     }
 
-    const valorMaximo = maximo.hasOwnProperty('valor')
-        ? (maximo as VariavelInterface).valor
-        : maximo;
+    const minimo = interpretador.resolverValor(argumentosUsuario[0]);
 
-    if (typeof valorMinimo !== 'number' || typeof valorMaximo !== 'number') {
+    if (argumentosUsuario.length === 1) {
+        if (typeof minimo !== 'number') {
+            return Promise.reject(
+                new ErroEmTempoDeExecucao(
+                    {
+                        hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                        linha: interpretador.linhaDeclaracaoAtual,
+                    } as SimboloInterface,
+                    'O parâmetro deve ser um número.'
+                )
+            );
+        }
+
+        return Math.floor(Math.random() * (0 - minimo)) + minimo;
+    }
+
+    const maximo = interpretador.resolverValor(argumentosUsuario[1]);
+
+    if (typeof minimo !== 'number' || typeof maximo !== 'number') {
         return Promise.reject(
             new ErroEmTempoDeExecucao(
                 {
@@ -116,7 +120,9 @@ export async function aleatorio_entre(
         );
     }
 
-    return Promise.resolve(Math.floor(Math.random() * (valorMaximo - valorMinimo)) + valorMinimo);
+    return Promise.resolve(
+        Math.floor(Math.random() * (maximo - minimo)) + minimo
+    );
 }
 
 /**
@@ -683,7 +689,7 @@ export async function intervalo(
 }
 
 /**
- * Dado um vetor e, opcionalmente, um valor de início, retorna um vetor de dicionários, 
+ * Dado um vetor e, opcionalmente, um valor de início, retorna um vetor de dicionários,
  * onde cada dicionário contém o índice e o valor correspondente do vetor original.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
  * @param {VariavelInterface | any} vetor Uma variável de Delégua ou um vetor nativo de JavaScript.

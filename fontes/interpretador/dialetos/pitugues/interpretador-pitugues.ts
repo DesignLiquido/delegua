@@ -21,6 +21,8 @@ import { Declaracao, ParaCada, Retorna } from '../../../declaracoes';
 import { inferirTipoVariavel } from '../../../inferenciador';
 import { ContinuarQuebra, Quebra, SustarQuebra, RetornoQuebra } from '../../../quebras';
 import { PilhaEscoposExecucaoPitugues } from './pilha-escopos-execucao-pitugues';
+import * as bibliotecaGlobalPitugues from '../../../bibliotecas/dialetos/pitugues/biblioteca-global';
+import { FuncaoPadrao } from '../../estruturas';
 
 export class InterpretadorPitugues extends Interpretador {
     constructor(
@@ -38,6 +40,17 @@ export class InterpretadorPitugues extends Interpretador {
         }
         this.pilhaEscoposExecucao = pilhaPitugues;
         this.lancarErroPorDivisaoPorZero = true;
+    }
+
+    protected override pontoInicializacaoBibliotecasGlobais() {
+        for (const [nome, valor] of Object.entries(bibliotecaGlobalPitugues)) {
+            if (typeof valor === 'function') {
+                this.pilhaEscoposExecucao.definirVariavel(
+                    nome,
+                    new FuncaoPadrao(valor.length, valor)
+                );
+            }
+        }
     }
 
     /**
