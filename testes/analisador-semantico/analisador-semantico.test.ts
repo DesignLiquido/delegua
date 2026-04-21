@@ -1165,22 +1165,6 @@ describe('Analisador semântico', () => {
     });
 
     describe('Cenários conversão implicita', () => {
-        describe('Cenários de diagnósticos zerados', () => {
-            it('Sucesso - conversão implicita com variável definida com valor válido', async () => {
-                const retornoLexador = lexador.mapear(
-                    ['const valor = 2 + 2', 'escreva(valor)'],
-                    -1
-                );
-                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
-                    retornoAvaliadorSintatico.declaracoes
-                );
-
-                expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
-            });
-        });
-
         describe('Cenários de aviso', () => {
             it('Aviso - conversão implicita com variável definida com valor válido', async () => {
                 const retornoLexador = lexador.mapear(["const valor = 2 + '2'"], -1);

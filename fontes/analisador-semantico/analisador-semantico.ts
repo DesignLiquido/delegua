@@ -1108,7 +1108,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                     continue;
                 }
 
-                if (possivelVariavel && possivelVariavel.valor === undefined) {
+                if (possivelVariavel && !possivelVariavel.inicializada) {
                     this.aviso(
                         argumento.simbolo,
                         `Variável '${argumento.simbolo.lexema}' não foi inicializada.`

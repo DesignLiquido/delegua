@@ -3024,12 +3024,31 @@ export class AvaliadorSintatico
         // Isso ocorre quando a importação é feita de uma biblioteca Node.js.
         // Nesse caso, o tipo de `entidadeChamada.objeto` começa com uma letra maiúscula.
         if (entidadeChamada.objeto.tipo && entidadeChamada.objeto.tipo.match(/^[A-Z]/)) {
+            const tipoObjeto = entidadeChamada.objeto.tipo;
+
+            // Classe definida em código (local ou importada de arquivo .delegua) tem precedência.
+            if (tipoObjeto in this.tiposDefinidosEmCodigo) {
+                const classeDefinida = this.tiposDefinidosEmCodigo[tipoObjeto];
+                if (classeDefinida instanceof Classe) {
+                    const nomeMembro = entidadeChamada.simbolo.lexema;
+                    const metodo = classeDefinida.metodos?.find(m => m.simbolo.lexema === nomeMembro);
+                    if (metodo) {
+                        return metodo.tipo || 'qualquer';
+                    }
+                    const propriedade = classeDefinida.propriedades?.find(p => p.nome.lexema === nomeMembro);
+                    if (propriedade) {
+                        return propriedade.tipo || 'qualquer';
+                    }
+                    return 'qualquer';
+                }
+            }
+
             const tipoCorrespondente =
-                this.tiposDefinidosPorBibliotecas[entidadeChamada.objeto.tipo];
+                this.tiposDefinidosPorBibliotecas[tipoObjeto];
             if (!tipoCorrespondente) {
                 throw new ErroAvaliadorSintatico(
                     entidadeChamada.simbolo,
-                    `Tipo '${entidadeChamada.objeto.tipo}' não foi encontrado entre os tipos definidos por bibliotecas.`
+                    `Tipo '${tipoObjeto}' não foi encontrado entre os tipos definidos por bibliotecas.`
                 );
             }
 
