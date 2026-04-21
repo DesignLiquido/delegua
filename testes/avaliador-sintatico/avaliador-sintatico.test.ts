@@ -2256,6 +2256,15 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.declaracoes.length).toBeGreaterThanOrEqual(1);
                 });
 
+                it('Recuperação - chave direita solta no nível superior não entra em loop', async () => {
+                    const retornoLexador = lexador.mapear(['}'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThanOrEqual(1);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(0);
+                });
+
                 it('Recuperação - declaração quebrada dentro de bloco não impede análise das demais', async () => {
                     const retornoLexador = lexador.mapear([
                         'funcao teste() {',
@@ -2268,6 +2277,45 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThanOrEqual(1);
                     // A declaração de função deve ter sido recuperada
                     expect(retornoAvaliadorSintatico.declaracoes.length).toBeGreaterThanOrEqual(1);
+                });
+
+                it('Recuperação - erro dentro de método de classe preserva a classe e os demais métodos', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'classe Lexador {',
+                            '    linha: inteiro',
+                            '',
+                            '    mapear(codigo: texto) {',
+                            '        isto.linha = 1',
+                            '        var retornoSimbolos = []',
+                            '        para cada elemento em codigo {',
+                            '            escreva(elemento)',
+                            '            retornoSimbolos.',
+                            '        }',
+                            '',
+                            '        retorna retornoSimbolos',
+                            '    }',
+                            '',
+                            '    avancar() {',
+                            '        retorna 1',
+                            '    }',
+                            '}',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThanOrEqual(1);
+
+                    const classeLexador = retornoAvaliadorSintatico.declaracoes.find(
+                        (declaracao) => declaracao instanceof Classe
+                    ) as Classe;
+
+                    expect(classeLexador).toBeTruthy();
+                    expect(classeLexador.metodos.map((metodo) => metodo.simbolo.lexema)).toEqual(
+                        expect.arrayContaining(['mapear', 'avancar'])
+                    );
                 });
             });
 
