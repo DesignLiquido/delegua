@@ -520,6 +520,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     override visitarDeclaracaoEscolha(declaracao: Escolha) {
         const identificadorOuLiteral = declaracao.identificadorOuLiteral as Construto;
         const tipo = identificadorOuLiteral.tipo || 'qualquer';
+        const tiposLiteraisCasos: string[] = [];
 
         for (let caminho of declaracao.caminhos) {
             for (let condicao of caminho.condicoes) {
@@ -531,7 +532,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                             tiposNumericos.includes(condicaoLiteral.tipo) &&
                             tiposNumericos.includes(tipo);
 
-                        if (condicaoLiteral.tipo !== tipo && !ambosSaoNumericos) {
+                        if (condicaoLiteral.tipo !== tipo && !ambosSaoNumericos && tipo !== 'qualquer') {
                             this.erro(
                                 {
                                     lexema: condicaoLiteral.valor,
@@ -542,6 +543,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                                 `'caso ${condicaoLiteral.valor}:' não é do mesmo tipo esperado em 'escolha' (esperado: ${tipo}, atual: ${condicaoLiteral.tipo}).`
                             );
                         }
+                        tiposLiteraisCasos.push(condicaoLiteral.tipo);
                         break;
                     case Variavel:
                         const condicaoVariavel = condicao as Variavel;
@@ -556,6 +558,28 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                             );
                         }
                         break;
+                }
+            }
+        }
+
+        if (tipo === 'qualquer' && tiposLiteraisCasos.length > 0 && identificadorOuLiteral instanceof Variavel) {
+            const tiposUnicos = [...new Set(tiposLiteraisCasos)];
+            if (tiposUnicos.length === 1) {
+                const tipoInferido = tiposUnicos[0];
+                const variavelEscopo = this.gerenciadorEscopos.buscar(identificadorOuLiteral.simbolo.lexema);
+                if (variavelEscopo) {
+                    this.sugestao(
+                        identificadorOuLiteral.simbolo,
+                        `Um tipo melhor pode ser inferido para '${identificadorOuLiteral.simbolo.lexema}': '${tipoInferido}'`,
+                        [{
+                            titulo: `Alterar tipo de '${identificadorOuLiteral.simbolo.lexema}' para '${tipoInferido}'`,
+                            textoOriginal: 'qualquer',
+                            textoSubstituto: tipoInferido,
+                            linha: variavelEscopo.linha,
+                            colunaInicio: 0,
+                            colunaFim: 0,
+                        }]
+                    );
                 }
             }
         }
