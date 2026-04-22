@@ -158,6 +158,7 @@ export class AvaliadorSintatico
     blocos: number;
     performance: boolean;
     superclasseAtual: string | undefined;
+    metodosClasseAtualEmAnalise: FuncaoDeclaracao[] | undefined;
     intuirTipoQualquerParaIdentificadores: boolean;
     emAjuda: boolean;
 
@@ -3073,6 +3074,18 @@ export class AvaliadorSintatico
             return propriedadeCorrespondente.tipo;
         }
 
+        // Chamada via 'isto': verificar métodos da classe em análise antes de checar primitivas.
+        if (entidadeChamada.objeto instanceof Isto) {
+            if (this.metodosClasseAtualEmAnalise) {
+                const nomeMembro = entidadeChamada.simbolo.lexema;
+                const metodo = this.metodosClasseAtualEmAnalise.find(m => m.simbolo.lexema === nomeMembro);
+                if (metodo) {
+                    return metodo.tipo || 'qualquer';
+                }
+            }
+            return 'qualquer';
+        }
+
         // Este caso ocorre quando a variável/constante é do tipo 'qualquer',
         // e a chamada normalmente é feita para uma primitiva.
         // A inferência, portanto, ocorre pelo uso da primitiva.
@@ -4249,6 +4262,7 @@ export class AvaliadorSintatico
             }
         };
 
+        this.metodosClasseAtualEmAnalise = metodos;
         await compreenderMembros('publico', false);
 
         this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após o escopo da classe.");
@@ -4331,6 +4345,7 @@ export class AvaliadorSintatico
         );
         this.tiposDefinidosEmCodigo[definicaoClasse.simbolo.lexema] = definicaoClasse;
         this.superclasseAtual = undefined;
+        this.metodosClasseAtualEmAnalise = undefined;
         return definicaoClasse;
     }
 

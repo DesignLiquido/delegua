@@ -2375,6 +2375,70 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 });
+
+                it('isto.método() chamando método definido anteriormente na classe não gera erro', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'classe Calculadora {',
+                            '    dobrar(n: número): número {',
+                            '        retorna n * 2',
+                            '    }',
+                            '    ',
+                            '    quadruplicar(n: número): número {',
+                            '        retorna isto.dobrar(isto.dobrar(n))',
+                            '    }',
+                            '}'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+
+                it('isto.método() chamando método definido posteriormente na classe não gera erro', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'classe Calculadora {',
+                            '    quadruplicar(n: número): número {',
+                            '        retorna isto.dobrar(isto.dobrar(n))',
+                            '    }',
+                            '    ',
+                            '    dobrar(n: número): número {',
+                            '        retorna n * 2',
+                            '    }',
+                            '}'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+
+                it('isto.método() com múltiplas chamadas encadeadas na mesma classe não gera erro', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'classe Construtor {',
+                            '    valor: texto',
+                            '    ',
+                            '    definirValor(v: texto) {',
+                            '        isto.valor = v',
+                            '    }',
+                            '    ',
+                            '    limpar() {',
+                            '        isto.definirValor("")',
+                            '    }',
+                            '    ',
+                            '    reiniciar() {',
+                            '        isto.limpar()',
+                            '        isto.definirValor("padrão")',
+                            '    }',
+                            '}'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
             });
 
             describe('Compreensão de listas', () => {
