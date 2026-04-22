@@ -40,6 +40,7 @@ export class InterpretadorPitugues extends Interpretador {
         }
         this.pilhaEscoposExecucao = pilhaPitugues;
         this.lancarErroPorDivisaoPorZero = true;
+        this.requerDeclaracaoPropriedades = false;
     }
 
     protected override pontoInicializacaoBibliotecasGlobais() {
