@@ -1529,6 +1529,36 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas[0]).toBe('Amigo, onde está você?');
                     expect(_saidas[1]).toBe('Amigo, estou aqui!');
                 });
+
+                it('Classes - declaração de propriedades', async () => {
+                    const codigo = [
+                        'classe Animal:',
+                        '    construtor(nome, idade):',
+                        '        isto.nome = nome',
+                        '        isto.idade = idade',
+                        '    função meuNome():',
+                        '        escreva(isto.nome)',
+                        '    função minhaIdade():',
+                        '        escreva(isto.idade)',
+                        'animalLegal = Animal("animal1", 10)',
+                        'animalLegal.meuNome()',
+                        'animalLegal.minhaIdade()',
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(2);
+                    expect(_saidas[0]).toBe('animal1');
+                    expect(_saidas[1]).toBe('10');
+                });
             });
 
             describe('Declaração e chamada de funções', () => {
