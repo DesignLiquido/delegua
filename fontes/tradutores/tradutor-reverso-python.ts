@@ -122,11 +122,17 @@ export class TradutorReversoPython
     }
 
     visitFile_input(ctx: File_inputContext): string {
-        return ctx.stmt().map((s) => this.visit(s)).join('\n');
+        return ctx
+            .stmt()
+            .map((s) => this.visit(s))
+            .join('\n');
     }
 
     visitSimple_stmt(ctx: Simple_stmtContext): string {
-        return ctx.small_stmt().map((s) => this.visit(s)).join('; ');
+        return ctx
+            .small_stmt()
+            .map((s) => this.visit(s))
+            .join('; ');
     }
 
     visitExpr_stmt(ctx: Expr_stmtContext): string {
@@ -144,11 +150,7 @@ export class TradutorReversoPython
             const op = this.visitAugassign(ctx.augassign()!);
             const testlist = ctx.testlist();
             const yieldExpr = ctx.yield_expr();
-            const rhs = testlist
-                ? this.visit(testlist)
-                : yieldExpr
-                ? this.visit(yieldExpr)
-                : '';
+            const rhs = testlist ? this.visit(testlist) : yieldExpr ? this.visit(yieldExpr) : '';
             return `${lhs} ${op} ${rhs}`;
         }
 
@@ -177,11 +179,17 @@ export class TradutorReversoPython
     }
 
     visitTestlist_star_expr(ctx: Testlist_star_exprContext): string {
-        return ctx.test().map((t) => this.visit(t)).join(', ');
+        return ctx
+            .test()
+            .map((t) => this.visit(t))
+            .join(', ');
     }
 
     visitTestlist(ctx: TestlistContext): string {
-        return ctx.test().map((t) => this.visit(t)).join(', ');
+        return ctx
+            .test()
+            .map((t) => this.visit(t))
+            .join(', ');
     }
 
     visitTest(ctx: TestContext): string {
@@ -194,11 +202,17 @@ export class TradutorReversoPython
     }
 
     visitOr_test(ctx: Or_testContext): string {
-        return ctx.and_test().map((t) => this.visit(t)).join(' ou ');
+        return ctx
+            .and_test()
+            .map((t) => this.visit(t))
+            .join(' ou ');
     }
 
     visitAnd_test(ctx: And_testContext): string {
-        return ctx.not_test().map((t) => this.visit(t)).join(' e ');
+        return ctx
+            .not_test()
+            .map((t) => this.visit(t))
+            .join(' e ');
     }
 
     visitNot_test(ctx: Not_testContext): string {
@@ -308,8 +322,7 @@ export class TradutorReversoPython
                 return `${args}.juntar(${textoAtomo})`;
             }
 
-            const nomeMetodoDelégua =
-                this.mapeamentoMetodos[nomeMetodoPython] ?? nomeMetodoPython;
+            const nomeMetodoDelégua = this.mapeamentoMetodos[nomeMetodoPython] ?? nomeMetodoPython;
             return `${textoAtomo}.${nomeMetodoDelégua}(${args})`;
         }
 
@@ -386,7 +399,10 @@ export class TradutorReversoPython
     }
 
     visitArglist(ctx: ArglistContext): string {
-        return ctx.argument().map((a) => this.visit(a)).join(', ');
+        return ctx
+            .argument()
+            .map((a) => this.visit(a))
+            .join(', ');
     }
 
     visitArgument(ctx: ArgumentContext): string {
@@ -406,7 +422,10 @@ export class TradutorReversoPython
         if (compFor) {
             return this.traduzirCompreensao(ctx.test(0), compFor);
         }
-        return ctx.test().map((t) => this.visit(t)).join(', ');
+        return ctx
+            .test()
+            .map((t) => this.visit(t))
+            .join(', ');
     }
 
     private traduzirCompreensao(exprCtx: TestContext, compFor: Comp_forContext): string {
@@ -436,7 +455,10 @@ export class TradutorReversoPython
         const params: string[] = [];
         for (let i = 0; i < ctx.childCount; ) {
             const texto = ctx.getChild(i).text;
-            if (texto === ',') { i++; continue; }
+            if (texto === ',') {
+                i++;
+                continue;
+            }
             if (texto === '*' || texto === '**') break;
             const nomeParam = texto;
             if (i + 1 < ctx.childCount && ctx.getChild(i + 1).text === '=') {
@@ -466,7 +488,10 @@ export class TradutorReversoPython
     }
 
     visitSubscriptlist(ctx: SubscriptlistContext): string {
-        return ctx.subscript().map((s) => this.visitSubscript(s)).join(', ');
+        return ctx
+            .subscript()
+            .map((s) => this.visitSubscript(s))
+            .join(', ');
     }
 
     visitSubscript(ctx: SubscriptContext): string {
@@ -643,12 +668,18 @@ export class TradutorReversoPython
             const filho = ctx.getChild(i);
             const texto = filho.text;
 
-            if (texto === ',') { i++; continue; }
+            if (texto === ',') {
+                i++;
+                continue;
+            }
             // Para em *args ou **kwargs — suporte básico suficiente para fase 4
             if (texto === '*' || texto === '**') break;
 
             const nomeParam = this.visit(filho); // → visitTfpdef → NAME
-            if (nomeParam === 'self') { i++; continue; } // Remove self
+            if (nomeParam === 'self') {
+                i++;
+                continue;
+            } // Remove self
 
             // Verifica se há valor padrão: tfpdef '=' test
             if (i + 1 < ctx.childCount && ctx.getChild(i + 1).text === '=') {

@@ -204,7 +204,9 @@ export class TradutorReversoCalango implements TradutorInterface<Declaracao | Co
 
     traduzirConstrutoChamada(chamada: Chamada): string {
         const entidade = this.traduzirQualquer(chamada.entidadeChamada);
-        const argumentos = (chamada.argumentos || []).map((argumento) => this.traduzirQualquer(argumento));
+        const argumentos = (chamada.argumentos || []).map((argumento) =>
+            this.traduzirQualquer(argumento)
+        );
         return `${entidade}(${argumentos.join(', ')})`;
     }
 
@@ -225,7 +227,9 @@ export class TradutorReversoCalango implements TradutorInterface<Declaracao | Co
     }
 
     traduzirConstrutoLeia(leia: Leia): string {
-        const argumentos = (leia.argumentos || []).map((argumento) => this.traduzirQualquer(argumento));
+        const argumentos = (leia.argumentos || []).map((argumento) =>
+            this.traduzirQualquer(argumento)
+        );
         return `leia(${argumentos.join(', ')})`;
     }
 
@@ -272,7 +276,9 @@ export class TradutorReversoCalango implements TradutorInterface<Declaracao | Co
     }
 
     traduzirConstrutoVetor(vetor: Vetor): string {
-        const elementos = (vetor.elementos || []).map((elemento) => this.traduzirQualquer(elemento));
+        const elementos = (vetor.elementos || []).map((elemento) =>
+            this.traduzirQualquer(elemento)
+        );
         return `[${elementos.join(', ')}]`;
     }
 
@@ -368,7 +374,9 @@ export class TradutorReversoCalango implements TradutorInterface<Declaracao | Co
             .join(', ');
 
         const tipoRetorno =
-            declaracaoFuncao.tipo && declaracaoFuncao.tipo !== 'qualquer' && declaracaoFuncao.tipo !== 'vazio'
+            declaracaoFuncao.tipo &&
+            declaracaoFuncao.tipo !== 'qualquer' &&
+            declaracaoFuncao.tipo !== 'vazio'
                 ? `: ${declaracaoFuncao.tipo}`
                 : '';
 

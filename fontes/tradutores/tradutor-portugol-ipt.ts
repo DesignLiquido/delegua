@@ -72,22 +72,38 @@ export class TradutorPortugolIpt {
 
     private traduzirOperador(tipo: string): string {
         switch (tipo) {
-            case tiposDeSimbolos.ADICAO:        return '+';
-            case tiposDeSimbolos.SUBTRACAO:     return '-';
-            case tiposDeSimbolos.MULTIPLICACAO: return '*';
-            case tiposDeSimbolos.DIVISAO:       return '/';
-            case tiposDeSimbolos.MODULO:        return '%';
-            case tiposDeSimbolos.EXPONENCIACAO: return '**';
-            case tiposDeSimbolos.IGUAL:         return '==';
-            case tiposDeSimbolos.DIFERENTE:     return '!=';
-            case tiposDeSimbolos.MAIOR:         return '>';
-            case tiposDeSimbolos.MAIOR_IGUAL:   return '>=';
-            case tiposDeSimbolos.MENOR:         return '<';
-            case tiposDeSimbolos.MENOR_IGUAL:   return '<=';
-            case tiposDeSimbolos.E:             return '&&';
-            case tiposDeSimbolos.OU:            return '||';
-            case tiposDeSimbolos.XOU:           return '^^';
-            default:                            return tipo;
+            case tiposDeSimbolos.ADICAO:
+                return '+';
+            case tiposDeSimbolos.SUBTRACAO:
+                return '-';
+            case tiposDeSimbolos.MULTIPLICACAO:
+                return '*';
+            case tiposDeSimbolos.DIVISAO:
+                return '/';
+            case tiposDeSimbolos.MODULO:
+                return '%';
+            case tiposDeSimbolos.EXPONENCIACAO:
+                return '**';
+            case tiposDeSimbolos.IGUAL:
+                return '==';
+            case tiposDeSimbolos.DIFERENTE:
+                return '!=';
+            case tiposDeSimbolos.MAIOR:
+                return '>';
+            case tiposDeSimbolos.MAIOR_IGUAL:
+                return '>=';
+            case tiposDeSimbolos.MENOR:
+                return '<';
+            case tiposDeSimbolos.MENOR_IGUAL:
+                return '<=';
+            case tiposDeSimbolos.E:
+                return '&&';
+            case tiposDeSimbolos.OU:
+                return '||';
+            case tiposDeSimbolos.XOU:
+                return '^^';
+            default:
+                return tipo;
         }
     }
 
@@ -136,10 +152,13 @@ export class TradutorPortugolIpt {
     traduzirConstrutoUnario(unario: Unario): string {
         const operando = this.traduzirConstruto(unario.operando);
         switch (unario.operador.tipo) {
-            case tiposDeSimbolos.SUBTRACAO: return `-${operando}`;
+            case tiposDeSimbolos.SUBTRACAO:
+                return `-${operando}`;
             case tiposDeSimbolos.NEGACAO:
-            case tiposDeSimbolos.NAO:       return `!(${operando})`;
-            default:                        return `!(${operando})`;
+            case tiposDeSimbolos.NAO:
+                return `!(${operando})`;
+            default:
+                return `!(${operando})`;
         }
     }
 
@@ -194,25 +213,37 @@ export class TradutorPortugolIpt {
 
     private tipoParaDelégua(tipo: string): string {
         switch (tipo) {
-            case 'inteiro':  return 'inteiro';
-            case 'texto':    return 'texto';
-            case 'real':     return 'real';
+            case 'inteiro':
+                return 'inteiro';
+            case 'texto':
+                return 'texto';
+            case 'real':
+                return 'real';
             case 'lógico':
-            case 'logico':   return 'logico';
-            case 'caracter': return 'caracter';
-            default:         return tipo;
+            case 'logico':
+                return 'logico';
+            case 'caracter':
+                return 'caracter';
+            default:
+                return tipo;
         }
     }
 
     private valorPadraoPorTipo(tipo: string): string {
         switch (tipo) {
-            case 'inteiro':  return '0';
-            case 'texto':    return "''";
-            case 'real':     return '0.0';
+            case 'inteiro':
+                return '0';
+            case 'texto':
+                return "''";
+            case 'real':
+                return '0.0';
             case 'lógico':
-            case 'logico':   return 'falso';
-            case 'caracter': return "' '";
-            default:         return 'nulo';
+            case 'logico':
+                return 'falso';
+            case 'caracter':
+                return "' '";
+            default:
+                return 'nulo';
         }
     }
 
@@ -256,9 +287,10 @@ export class TradutorPortugolIpt {
         if (expr instanceof Leia) {
             const linhas: string[] = [];
             for (const arg of expr.argumentos) {
-                const alvo = arg instanceof Expressao
-                    ? this.traduzirConstruto((arg as Expressao).expressao)
-                    : this.traduzirConstruto(arg);
+                const alvo =
+                    arg instanceof Expressao
+                        ? this.traduzirConstruto((arg as Expressao).expressao)
+                        : this.traduzirConstruto(arg);
                 linhas.push(`${alvo} = leia()`);
             }
             return linhas.join('\n' + ' '.repeat(this.indentacao));
@@ -295,7 +327,9 @@ export class TradutorPortugolIpt {
         resultado += this.traduzirDeclaracaoBloco(declaracaoSe.caminhoEntao as unknown as Bloco);
         if (declaracaoSe.caminhoSenao) {
             resultado += ' senão ';
-            resultado += this.traduzirDeclaracaoBloco(declaracaoSe.caminhoSenao as unknown as Bloco);
+            resultado += this.traduzirDeclaracaoBloco(
+                declaracaoSe.caminhoSenao as unknown as Bloco
+            );
         }
         return resultado;
     }
@@ -318,9 +352,7 @@ export class TradutorPortugolIpt {
                 init = this.traduzirDeclaracao(ini);
             }
         }
-        const cond = declaracaoPara.condicao
-            ? this.traduzirConstruto(declaracaoPara.condicao)
-            : '';
+        const cond = declaracaoPara.condicao ? this.traduzirConstruto(declaracaoPara.condicao) : '';
         const incr = declaracaoPara.incrementar
             ? this.traduzirConstruto(declaracaoPara.incrementar)
             : '';
@@ -343,7 +375,8 @@ export class TradutorPortugolIpt {
         this.indentacao += 4;
         if (caminho.condicoes && caminho.condicoes.length > 0) {
             for (const cond of caminho.condicoes) {
-                resultado += ' '.repeat(this.indentacao) + `caso ${this.traduzirConstruto(cond)}:\n`;
+                resultado +=
+                    ' '.repeat(this.indentacao) + `caso ${this.traduzirConstruto(cond)}:\n`;
             }
         } else {
             resultado += ' '.repeat(this.indentacao) + 'padrão:\n';
@@ -372,33 +405,33 @@ export class TradutorPortugolIpt {
     // ── Dicionários ──────────────────────────────────────────────────────────────
 
     dicionarioConstrutos: Record<string, (c: any) => string> = {
-        AcessoIndiceVariavel:  this.traduzirConstrutoAcessoIndiceVariavel.bind(this),
-        Agrupamento:           this.traduzirConstrutoAgrupamento.bind(this),
-        AtribuicaoPorIndice:   this.traduzirConstrutoAtribuicaoPorIndice.bind(this),
-        Atribuir:              this.traduzirConstrutoAtribuir.bind(this),
-        Binario:               this.traduzirConstrutoBinario.bind(this),
-        Chamada:               this.traduzirConstrutoChamada.bind(this),
-        FormatacaoEscrita:     this.traduzirConstrutoFormatacaoEscrita.bind(this),
-        Leia:                  this.traduzirConstrutoLeia.bind(this),
-        Literal:               this.traduzirConstrutoLiteral.bind(this),
-        Logico:                this.traduzirConstrutoLogico.bind(this),
-        Unario:                this.traduzirConstrutoUnario.bind(this),
-        Variavel:              this.traduzirConstrutoVariavel.bind(this),
-        Vetor:                 this.traduzirConstrutoVetor.bind(this),
+        AcessoIndiceVariavel: this.traduzirConstrutoAcessoIndiceVariavel.bind(this),
+        Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
+        AtribuicaoPorIndice: this.traduzirConstrutoAtribuicaoPorIndice.bind(this),
+        Atribuir: this.traduzirConstrutoAtribuir.bind(this),
+        Binario: this.traduzirConstrutoBinario.bind(this),
+        Chamada: this.traduzirConstrutoChamada.bind(this),
+        FormatacaoEscrita: this.traduzirConstrutoFormatacaoEscrita.bind(this),
+        Leia: this.traduzirConstrutoLeia.bind(this),
+        Literal: this.traduzirConstrutoLiteral.bind(this),
+        Logico: this.traduzirConstrutoLogico.bind(this),
+        Unario: this.traduzirConstrutoUnario.bind(this),
+        Variavel: this.traduzirConstrutoVariavel.bind(this),
+        Vetor: this.traduzirConstrutoVetor.bind(this),
     };
 
     dicionarioDeclaracoes: Record<string, (d: any) => string> = {
-        Bloco:               this.traduzirDeclaracaoBloco.bind(this),
-        Const:               this.traduzirDeclaracaoConst.bind(this),
-        Enquanto:            this.traduzirDeclaracaoEnquanto.bind(this),
-        Escolha:             this.traduzirDeclaracaoEscolha.bind(this),
-        Escreva:             this.traduzirDeclaracaoEscreva.bind(this),
-        EscrevaMesmaLinha:   this.traduzirDeclaracaoEscrevaMesmaLinha.bind(this),
-        Expressao:           this.traduzirDeclaracaoExpressao.bind(this),
-        Fazer:               this.traduzirDeclaracaoFazer.bind(this),
-        Para:                this.traduzirDeclaracaoPara.bind(this),
-        Se:                  this.traduzirDeclaracaoSe.bind(this),
-        Var:                 this.traduzirDeclaracaoVar.bind(this),
+        Bloco: this.traduzirDeclaracaoBloco.bind(this),
+        Const: this.traduzirDeclaracaoConst.bind(this),
+        Enquanto: this.traduzirDeclaracaoEnquanto.bind(this),
+        Escolha: this.traduzirDeclaracaoEscolha.bind(this),
+        Escreva: this.traduzirDeclaracaoEscreva.bind(this),
+        EscrevaMesmaLinha: this.traduzirDeclaracaoEscrevaMesmaLinha.bind(this),
+        Expressao: this.traduzirDeclaracaoExpressao.bind(this),
+        Fazer: this.traduzirDeclaracaoFazer.bind(this),
+        Para: this.traduzirDeclaracaoPara.bind(this),
+        Se: this.traduzirDeclaracaoSe.bind(this),
+        Var: this.traduzirDeclaracaoVar.bind(this),
     };
 
     // ── Ponto de entrada ─────────────────────────────────────────────────────────
