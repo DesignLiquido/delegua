@@ -126,7 +126,9 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     protected abstract declaracaoSe(): Promise<Se>;
     protected abstract expressaoLeia(): Promise<Leia>;
     protected abstract primario(): Promise<Construto>;
-    protected abstract resolverDeclaracaoForaDeBloco(): Promise<Declaracao | Declaracao[] | undefined>;
+    protected abstract resolverDeclaracaoForaDeBloco(): Promise<
+        Declaracao | Declaracao[] | undefined
+    >;
 
     protected async declaracaoBloco(): Promise<Bloco> {
         const simboloInicioBloco: SimboloInterface = this.consumir(

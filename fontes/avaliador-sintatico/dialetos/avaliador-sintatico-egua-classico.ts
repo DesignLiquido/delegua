@@ -219,7 +219,11 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NULO))
             return new Literal(this.hashArquivo, 0, null);
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ISTO))
-            return new Isto(this.hashArquivo, Number(this.simboloAnterior().linha), this.simboloAnterior());
+            return new Isto(
+                this.hashArquivo,
+                Number(this.simboloAnterior().linha),
+                this.simboloAnterior()
+            );
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NUMERO, tiposDeSimbolos.TEXTO)) {
             return new Literal(this.hashArquivo, 0, this.simboloAnterior().literal);
         }

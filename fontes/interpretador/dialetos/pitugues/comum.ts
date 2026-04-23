@@ -24,12 +24,8 @@ export async function visitarExpressaoAcessoMetodo(
     interpretador: InterpretadorInterface,
     expressao: AcessoMetodo
 ): Promise<any> {
-    const nomeObjeto = (interpretador as any).resolverNomeObjectoAcessado(
-        expressao.objeto
-    );
-    let variavelObjeto: VariavelInterface = await interpretador.avaliar(
-        expressao.objeto
-    );
+    const nomeObjeto = (interpretador as any).resolverNomeObjectoAcessado(expressao.objeto);
+    let variavelObjeto: VariavelInterface = await interpretador.avaliar(expressao.objeto);
 
     // Este caso acontece quando há encadeamento de métodos.
     // Por exemplo, `objeto1.metodo1().metodo2()`.
@@ -42,9 +38,7 @@ export async function visitarExpressaoAcessoMetodo(
     const objeto = interpretador.resolverValor(variavelObjeto);
 
     if (objeto instanceof ObjetoDeleguaClasse) {
-        return (objeto as ObjetoDeleguaClasse).obterMetodo(
-            expressao.nomeMetodo
-        ) || null;
+        return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomeMetodo) || null;
     }
 
     let tipoObjeto = variavelObjeto.tipo;
@@ -54,10 +48,7 @@ export async function visitarExpressaoAcessoMetodo(
 
     if (Array.isArray(objeto)) {
         tipoObjeto = 'vetor';
-    } else if (
-        objeto instanceof TuplaN ||
-        objeto.constructor.name === 'TuplaN'
-    ) {
+    } else if (objeto instanceof TuplaN || objeto.constructor.name === 'TuplaN') {
         tipoObjeto = 'tupla';
     } else if (objeto.constructor === Object) {
         tipoObjeto = 'dicionário';
@@ -65,11 +56,7 @@ export async function visitarExpressaoAcessoMetodo(
         tipoObjeto = 'texto';
     }
 
-    const primitiva = resolverPrimitiva(
-        interpretador,
-        tipoObjeto,
-        expressao.nomeMetodo
-    );
+    const primitiva = resolverPrimitiva(interpretador, tipoObjeto, expressao.nomeMetodo);
     if (primitiva) {
         return new MetodoPrimitiva(
             nomeObjeto,
@@ -125,12 +112,8 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
     interpretador: InterpretadorInterface,
     expressao: AcessoMetodoOuPropriedade
 ): Promise<any> {
-    const nomeObjeto = (interpretador as any).resolverNomeObjectoAcessado(
-        expressao.objeto
-    );
-    let variavelObjeto: VariavelInterface = await interpretador.avaliar(
-        expressao.objeto
-    );
+    const nomeObjeto = (interpretador as any).resolverNomeObjectoAcessado(expressao.objeto);
+    let variavelObjeto: VariavelInterface = await interpretador.avaliar(expressao.objeto);
 
     // Este caso acontece quando há encadeamento de métodos.
     // Por exemplo, `objeto1.metodo1().metodo2()`.
@@ -154,10 +137,7 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
 
     if (Array.isArray(objeto)) {
         tipoObjeto = 'vetor';
-    } else if (
-        objeto instanceof TuplaN ||
-        objeto.constructor.name === 'TuplaN'
-    ) {
+    } else if (objeto instanceof TuplaN || objeto.constructor.name === 'TuplaN') {
         tipoObjeto = 'tupla';
     } else if (objeto.constructor === Object) {
         tipoObjeto = 'dicionário';
@@ -165,11 +145,7 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
         tipoObjeto = 'texto';
     }
 
-    const primitiva = resolverPrimitiva(
-        interpretador,
-        tipoObjeto,
-        expressao.simbolo.lexema
-    );
+    const primitiva = resolverPrimitiva(interpretador, tipoObjeto, expressao.simbolo.lexema);
     if (primitiva) {
         return new MetodoPrimitiva(
             nomeObjeto,
@@ -181,10 +157,7 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
     }
 
     // Fallback para propriedades simples do objeto
-    if (
-        objeto.hasOwnProperty &&
-        objeto.hasOwnProperty(expressao.simbolo.lexema)
-    ) {
+    if (objeto.hasOwnProperty && objeto.hasOwnProperty(expressao.simbolo.lexema)) {
         return objeto[expressao.simbolo.lexema];
     }
 
@@ -206,12 +179,8 @@ export async function visitarExpressaoAcessoPropriedade(
     interpretador: InterpretadorInterface,
     expressao: AcessoPropriedade
 ): Promise<any> {
-    const nomeObjeto = (interpretador as any).resolverNomeObjectoAcessado(
-        expressao.objeto
-    );
-    let variavelObjeto: VariavelInterface = await interpretador.avaliar(
-        expressao.objeto
-    );
+    const nomeObjeto = (interpretador as any).resolverNomeObjectoAcessado(expressao.objeto);
+    let variavelObjeto: VariavelInterface = await interpretador.avaliar(expressao.objeto);
 
     // Este caso acontece quando há encadeamento de métodos.
     // Por exemplo, `objeto1.metodo1().metodo2()`.
@@ -224,9 +193,7 @@ export async function visitarExpressaoAcessoPropriedade(
     const objeto = interpretador.resolverValor(variavelObjeto);
 
     if (objeto instanceof ObjetoDeleguaClasse) {
-        return (objeto as ObjetoDeleguaClasse).obterMetodo(
-            expressao.nomePropriedade
-        ) || null;
+        return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomePropriedade) || null;
     }
 
     let tipoObjeto = variavelObjeto.tipo;
@@ -236,10 +203,7 @@ export async function visitarExpressaoAcessoPropriedade(
 
     if (Array.isArray(objeto)) {
         tipoObjeto = 'vetor';
-    } else if (
-        objeto instanceof TuplaN ||
-        objeto.constructor.name === 'TuplaN'
-    ) {
+    } else if (objeto instanceof TuplaN || objeto.constructor.name === 'TuplaN') {
         tipoObjeto = 'tupla';
     } else if (objeto.constructor === Object) {
         tipoObjeto = 'dicionário';
@@ -247,11 +211,7 @@ export async function visitarExpressaoAcessoPropriedade(
         tipoObjeto = 'texto';
     }
 
-    const primitiva = resolverPrimitiva(
-        interpretador,
-        tipoObjeto,
-        expressao.nomePropriedade
-    );
+    const primitiva = resolverPrimitiva(interpretador, tipoObjeto, expressao.nomePropriedade);
     if (primitiva) {
         return new MetodoPrimitiva(
             nomeObjeto,
@@ -430,12 +390,12 @@ function resolverPrimitiva(
     if (viaMapa) return viaMapa;
 
     const modulos: Record<string, any> = {
-        'dicionário': primitivasDicionario,
-        'número': primitivasNumero,
-        'numero': primitivasNumero,
-        'texto': primitivasTexto,
-        'vetor': primitivasVetor,
-        'tupla': primitivasTupla,
+        dicionário: primitivasDicionario,
+        número: primitivasNumero,
+        numero: primitivasNumero,
+        texto: primitivasTexto,
+        vetor: primitivasVetor,
+        tupla: primitivasTupla,
     };
 
     return modulos[tipo]?.[nomeMetodo] ?? undefined;

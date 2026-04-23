@@ -140,7 +140,11 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
         const linhaPrimeiroCaracter: number = this.linha;
         // Restringe leitura à linha atual (como analisarNumero), evitando
         // que avancar() mude this.linha e corrompa o cálculo do substring.
-        while (this.simboloAtual() !== "'" && this.linha === linhaPrimeiroCaracter && !this.eFinalDoCodigo()) {
+        while (
+            this.simboloAtual() !== "'" &&
+            this.linha === linhaPrimeiroCaracter &&
+            !this.eFinalDoCodigo()
+        ) {
             this.avancar();
         }
 
@@ -153,7 +157,10 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
             return;
         }
 
-        const valorCaracter = this.codigo[linhaPrimeiroCaracter].substring(this.inicioSimbolo + 1, this.atual);
+        const valorCaracter = this.codigo[linhaPrimeiroCaracter].substring(
+            this.inicioSimbolo + 1,
+            this.atual
+        );
 
         this.simbolos.push(
             new Simbolo(

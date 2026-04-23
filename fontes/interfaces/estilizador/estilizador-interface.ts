@@ -50,4 +50,3 @@ export interface EstilizadorInterface {
         opcoesFormatacao?: OpcoesFormatacaoEstilizadorInterface
     ): string;
 }
-

@@ -261,14 +261,30 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
                 this.avancar();
                 const proximoCaractere = this.simboloAtual();
                 switch (proximoCaractere) {
-                    case 'n': valor += '\n'; break;
-                    case 't': valor += '\t'; break;
-                    case 'r': valor += '\r'; break;
-                    case 'b': valor += '\b'; break;
-                    case "'": valor += "'"; break;
-                    case '"': valor += '"'; break;
-                    case '\\': valor += '\\'; break;
-                    case 'e': valor += '\x1B'; break;
+                    case 'n':
+                        valor += '\n';
+                        break;
+                    case 't':
+                        valor += '\t';
+                        break;
+                    case 'r':
+                        valor += '\r';
+                        break;
+                    case 'b':
+                        valor += '\b';
+                        break;
+                    case "'":
+                        valor += "'";
+                        break;
+                    case '"':
+                        valor += '"';
+                        break;
+                    case '\\':
+                        valor += '\\';
+                        break;
+                    case 'e':
+                        valor += '\x1B';
+                        break;
                     case 'x': {
                         let hex = '';
                         for (let i = 0; i < 2; i++) {
@@ -280,11 +296,15 @@ export class Lexador implements LexadorInterface<SimboloInterface> {
                                 break;
                             }
                         }
-                        valor += hex.length === 2 ? String.fromCharCode(parseInt(hex, 16)) : '\\x' + hex;
+                        valor +=
+                            hex.length === 2 ? String.fromCharCode(parseInt(hex, 16)) : '\\x' + hex;
                         break;
                     }
-                    case '\0': break; // barra invertida no fim de linha: ignora e continua na próxima linha
-                    default: valor += '\\' + proximoCaractere; break;
+                    case '\0':
+                        break; // barra invertida no fim de linha: ignora e continua na próxima linha
+                    default:
+                        valor += '\\' + proximoCaractere;
+                        break;
                 }
             } else {
                 valor += caractere;

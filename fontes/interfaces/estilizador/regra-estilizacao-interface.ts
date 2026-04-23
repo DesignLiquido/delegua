@@ -1,5 +1,5 @@
-import { Construto } from "../../construtos";
-import { Declaracao } from "../../declaracoes";
+import { Construto } from '../../construtos';
+import { Declaracao } from '../../declaracoes';
 
 /**
  * Define uma regra de transformação/estilização de código.

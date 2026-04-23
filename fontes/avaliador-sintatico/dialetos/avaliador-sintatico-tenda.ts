@@ -360,7 +360,12 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
 
             case tiposDeSimbolos.INFINITO:
                 this.avancarEDevolverAnterior();
-                return new Literal(this.hashArquivo, Number(simboloAtual.linha), Infinity, 'número');
+                return new Literal(
+                    this.hashArquivo,
+                    Number(simboloAtual.linha),
+                    Infinity,
+                    'número'
+                );
 
             case tiposDeSimbolos.NAN:
                 this.avancarEDevolverAnterior();

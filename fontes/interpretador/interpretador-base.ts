@@ -266,9 +266,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                     (objetoAcessado as Chamada).entidadeChamada
                 );
             case Agrupamento:
-                return this.resolverNomeObjectoAcessado(
-                    (objetoAcessado as Agrupamento).expressao
-                );
+                return this.resolverNomeObjectoAcessado((objetoAcessado as Agrupamento).expressao);
             case Constante:
                 return (objetoAcessado as Constante).simbolo.lexema;
             case AcessoMetodo:
@@ -403,7 +401,10 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         const valores = [];
         for (let propriedade of propriedadesValidas) {
-            if (expressao.hasOwnProperty(propriedade) && (expressao as any)[propriedade] !== undefined) {
+            if (
+                expressao.hasOwnProperty(propriedade) &&
+                (expressao as any)[propriedade] !== undefined
+            ) {
                 const valor = await this.avaliar((expressao as any)[propriedade]);
                 valores.push(valor);
             }
@@ -855,7 +856,9 @@ export class InterpretadorBase implements InterpretadorInterface {
                               valor: valorDireito,
                               imutavel: false,
                           };
-                return await metodoASerChamado.chamar(this, [{ nome: null, valor: argumentoOperador }]);
+                return await metodoASerChamado.chamar(this, [
+                    { nome: null, valor: argumentoOperador },
+                ]);
             }
         }
 
@@ -871,7 +874,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 // Auto-promove para BigInt se qualquer operando for BigInt
                 if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
-                    return this.converterParaBigInt(valorEsquerdo) ** this.converterParaBigInt(valorDireito);
+                    return (
+                        this.converterParaBigInt(valorEsquerdo) **
+                        this.converterParaBigInt(valorDireito)
+                    );
                 }
 
                 const resultadoExponenciacao = Math.pow(valorEsquerdo, valorDireito);
@@ -910,7 +916,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 // Auto-promove para BigInt se qualquer operando for BigInt
                 if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
-                    return this.converterParaBigInt(valorEsquerdo) - this.converterParaBigInt(valorDireito);
+                    return (
+                        this.converterParaBigInt(valorEsquerdo) -
+                        this.converterParaBigInt(valorDireito)
+                    );
                 }
                 return Number(valorEsquerdo) - Number(valorDireito);
 
@@ -957,8 +966,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                 // TODO: Se tipo for 'qualquer', seria uma boa confiar nos operadores
                 // tradicionais do JavaScript?
                 if (
-                    tipoEsquerdo === 'qualquer' || tipoDireito === 'qualquer' ||
-                    tipoEsquerdo === 'nulo' || tipoDireito === 'nulo'
+                    tipoEsquerdo === 'qualquer' ||
+                    tipoDireito === 'qualquer' ||
+                    tipoEsquerdo === 'nulo' ||
+                    tipoDireito === 'nulo'
                 ) {
                     return valorEsquerdo + valorDireito;
                 }
@@ -1109,7 +1120,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 // Auto-promove para BigInt se qualquer operando for BigInt
                 if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
-                    return this.converterParaBigInt(valorEsquerdo) & this.converterParaBigInt(valorDireito);
+                    return (
+                        this.converterParaBigInt(valorEsquerdo) &
+                        this.converterParaBigInt(valorDireito)
+                    );
                 }
                 return Number(valorEsquerdo) & Number(valorDireito);
 
@@ -1121,7 +1135,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 // Auto-promove para BigInt se qualquer operando for BigInt
                 if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
-                    return this.converterParaBigInt(valorEsquerdo) ^ this.converterParaBigInt(valorDireito);
+                    return (
+                        this.converterParaBigInt(valorEsquerdo) ^
+                        this.converterParaBigInt(valorDireito)
+                    );
                 }
                 return Number(valorEsquerdo) ^ Number(valorDireito);
 
@@ -1133,23 +1150,40 @@ export class InterpretadorBase implements InterpretadorInterface {
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 // Auto-promove para BigInt se qualquer operando for BigInt
                 if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
-                    return this.converterParaBigInt(valorEsquerdo) | this.converterParaBigInt(valorDireito);
+                    return (
+                        this.converterParaBigInt(valorEsquerdo) |
+                        this.converterParaBigInt(valorDireito)
+                    );
                 }
                 return Number(valorEsquerdo) | Number(valorDireito);
 
             case tiposDeSimbolos.MENOR_MENOR:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 // Auto-promove para BigInt (interno para longo) se qualquer operando for BigInt ou se deslocamento >= 32
-                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint' || Number(valorDireito) >= 32) {
-                    return this.converterParaBigInt(valorEsquerdo) << this.converterParaBigInt(valorDireito);
+                if (
+                    typeof valorEsquerdo === 'bigint' ||
+                    typeof valorDireito === 'bigint' ||
+                    Number(valorDireito) >= 32
+                ) {
+                    return (
+                        this.converterParaBigInt(valorEsquerdo) <<
+                        this.converterParaBigInt(valorDireito)
+                    );
                 }
                 return Number(valorEsquerdo) << Number(valorDireito);
 
             case tiposDeSimbolos.MAIOR_MAIOR:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 // Auto-promove para BigInt (interno para longo) se qualquer operando for BigInt ou se deslocamento >= 32
-                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint' || Number(valorDireito) >= 32) {
-                    return this.converterParaBigInt(valorEsquerdo) >> this.converterParaBigInt(valorDireito);
+                if (
+                    typeof valorEsquerdo === 'bigint' ||
+                    typeof valorDireito === 'bigint' ||
+                    Number(valorDireito) >= 32
+                ) {
+                    return (
+                        this.converterParaBigInt(valorEsquerdo) >>
+                        this.converterParaBigInt(valorDireito)
+                    );
                 }
                 return Number(valorEsquerdo) >> Number(valorDireito);
 
@@ -1306,7 +1340,9 @@ export class InterpretadorBase implements InterpretadorInterface {
             if (expressao.entidadeChamada instanceof Super) {
                 const descritorSuperclasse: DescritorTipoClasse =
                     variavelEntidadeChamada.classe.superClasse;
-                const metodoConstrutor = descritorSuperclasse.encontrarMetodo('construtor') as MetodoPolimorfico | DeleguaFuncao;
+                const metodoConstrutor = descritorSuperclasse.encontrarMetodo('construtor') as
+                    | MetodoPolimorfico
+                    | DeleguaFuncao;
                 await metodoConstrutor.chamar(this, argumentos);
                 return null;
             }
@@ -2247,7 +2283,11 @@ export class InterpretadorBase implements InterpretadorInterface {
             this.pilhaEscoposExecucao.definirVariavel('super', superClassesResolvidas[0]);
         }
 
-        const descritorTipoClasse = this.resolverMetodoDeClasse(declaracao, superClassesResolvidas, mesclaResolvidas);
+        const descritorTipoClasse = this.resolverMetodoDeClasse(
+            declaracao,
+            superClassesResolvidas,
+            mesclaResolvidas
+        );
 
         // TODO: Até então, a única exceção a isso é Égua Clássico.
         // Por enquanto, tudo bem deixar isso aqui.
@@ -2362,7 +2402,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                         declaracao.linha
                     );
                 }
-                
+
                 if (!mapa.has(tipoNome)) {
                     mapa?.set(tipoNome, new Map());
                 }
@@ -2480,7 +2520,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     async visitarExpressaoDicionario(expressao: Dicionario): Promise<any> {
-        const dicionario: {[chave: string]: any} = {};
+        const dicionario: { [chave: string]: any } = {};
         for (let i = 0; i < expressao.chaves.length; i++) {
             if (expressao.esSpread && expressao.esSpread[i]) {
                 const dicionarioParaDesempacotar = this.resolverValor(
@@ -2846,7 +2886,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         if (typeof objeto === tipoDeDadosPrimitivos.OBJETO) {
-            const objetoEscrita: {[chave: string]: any} = {};
+            const objetoEscrita: { [chave: string]: any } = {};
             for (const propriedade in objeto) {
                 let valor = objeto[propriedade];
                 if (typeof valor === tipoDeDadosPrimitivos.BOOLEANO) {

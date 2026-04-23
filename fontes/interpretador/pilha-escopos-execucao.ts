@@ -48,8 +48,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         if (tipoVariavel === tipoValor) return true;
         if (tiposNumericos.includes(tipoVariavel) && tiposNumericos.includes(tipoValor as string))
             return true;
-        if (tiposLogicos.includes(tipoVariavel) && tiposLogicos.includes(tipoValor))
-            return true;
+        if (tiposLogicos.includes(tipoVariavel) && tiposLogicos.includes(tipoValor)) return true;
         return false;
     }
 
@@ -182,9 +181,10 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
 
         espacoMemoriaAncestral.valores[simbolo.lexema] = {
             valor,
-            tipo: (variavel.tipo === 'nulo' && !variavel.tipoExplicito)
-                ? inferirTipoVariavel(valor) as string
-                : (variavel.tipo || inferirTipoVariavel(valor) as string),
+            tipo:
+                variavel.tipo === 'nulo' && !variavel.tipoExplicito
+                    ? (inferirTipoVariavel(valor) as string)
+                    : variavel.tipo || (inferirTipoVariavel(valor) as string),
             imutavel: false,
             tipoExplicito: variavel.tipoExplicito,
         };
@@ -212,12 +212,11 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
                     }
                 }
 
-                const tipoAtual = variavel && variavel.hasOwnProperty('tipo') ? variavel.tipo : null;
+                const tipoAtual =
+                    variavel && variavel.hasOwnProperty('tipo') ? variavel.tipo : null;
                 const deveLiberarTipo = tipoAtual === 'nulo' && !variavel.tipoExplicito;
                 const tipoInferido =
-                    tipoAtual && !deveLiberarTipo
-                        ? tipoAtual
-                        : inferirTipoVariavel(valor);
+                    tipoAtual && !deveLiberarTipo ? tipoAtual : inferirTipoVariavel(valor);
                 const tipo = (tipoInferido || 'objeto').toLowerCase() as TipoInferencia;
 
                 const valorResolvido = this.converterValor(tipo, valor);

@@ -193,7 +193,11 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
                         // Chave nomeada: {nome = "João"}
                         const chaveIdentificador = this.avancarEDevolverAnterior();
                         this.avancarEDevolverAnterior(); // consume IGUAL
-                        chave = new Literal(this.hashArquivo, simboloAtual.linha, chaveIdentificador.lexema);
+                        chave = new Literal(
+                            this.hashArquivo,
+                            simboloAtual.linha,
+                            chaveIdentificador.lexema
+                        );
                     } else {
                         chave = new Literal(this.hashArquivo, simboloAtual.linha, String(indice));
                     }
@@ -883,11 +887,9 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         const blocoTente = [];
         while (
             !this.estaNoFinal() &&
-            ![
-                tiposDeSimbolos.PEGUE,
-                tiposDeSimbolos.FINALMENTE,
-                tiposDeSimbolos.FIM,
-            ].includes(this.simbolos[this.atual].tipo)
+            ![tiposDeSimbolos.PEGUE, tiposDeSimbolos.FINALMENTE, tiposDeSimbolos.FIM].includes(
+                this.simbolos[this.atual].tipo
+            )
         ) {
             blocoTente.push(await this.resolverDeclaracaoForaDeBloco());
         }
@@ -1177,7 +1179,10 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             "Esperado identificador de variável após 'para cada'."
         );
 
-        this.consumir(tiposDeSimbolos.EM, "Esperado palavra reservada 'em' após variável de iteração.");
+        this.consumir(
+            tiposDeSimbolos.EM,
+            "Esperado palavra reservada 'em' após variável de iteração."
+        );
 
         const vetorOuDicionario = await this.expressao();
 
@@ -1255,7 +1260,9 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
                 passo = await this.adicaoOuSubtracao();
             }
 
-            if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INICIO, tiposDeSimbolos.FAZER)) {
+            if (
+                !this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INICIO, tiposDeSimbolos.FAZER)
+            ) {
                 throw this.erro(
                     this.simbolos[this.atual],
                     `espera-se 'inicio' ou 'fazer' proximo a '${this.simbolos[this.atual].lexema}'.`
@@ -1353,10 +1360,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
               )
             : this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome do método.');
 
-        this.consumir(
-            tiposDeSimbolos.PARENTESE_ESQUERDO,
-            "Esperado '(' após nome do método."
-        );
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após nome do método.");
 
         let parametros = [];
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
@@ -1364,20 +1368,17 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         }
 
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
-        this.consumir(
-            tiposDeSimbolos.CHAVE_ESQUERDA,
-            "Esperado '{' antes do corpo do método."
-        );
+        this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' antes do corpo do método.");
 
         const declaracoesCorpo = [];
-        while (!this.estaNoFinal() && !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA)) {
+        while (
+            !this.estaNoFinal() &&
+            !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA)
+        ) {
             declaracoesCorpo.push(await this.resolverDeclaracaoForaDeBloco());
         }
 
-        this.consumir(
-            tiposDeSimbolos.CHAVE_DIREITA,
-            "Esperado '}' após o corpo do método."
-        );
+        this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após o corpo do método.");
 
         const corpoDaFuncao = new FuncaoConstruto(
             this.hashArquivo,

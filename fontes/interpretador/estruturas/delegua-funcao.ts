@@ -36,7 +36,7 @@ export class DeleguaFuncao extends Chamavel {
     }
 
     aridade(): number {
-        return this.declaracao?.parametros?.filter(p => p.abrangencia !== 'multiplo').length || 0;
+        return this.declaracao?.parametros?.filter((p) => p.abrangencia !== 'multiplo').length || 0;
     }
 
     /**
@@ -180,17 +180,18 @@ export class DeleguaFuncao extends Chamavel {
             interpretador.classeAtualEmExecucao = classeAnteriorEmExecucao;
         }
 
-        const referencias: { indice: number, parametro: ParametroInterface }[] = this.declaracao.parametros
-            .map((p, indice) => {
-                if (p.referencia) {
-                    return {
-                        indice: indice,
-                        parametro: p,
-                    };
-                }
-            })
-            .filter((r) => r) as { indice: number, parametro: ParametroInterface }[];
-            
+        const referencias: { indice: number; parametro: ParametroInterface }[] =
+            this.declaracao.parametros
+                .map((p, indice) => {
+                    if (p.referencia) {
+                        return {
+                            indice: indice,
+                            parametro: p,
+                        };
+                    }
+                })
+                .filter((r) => r) as { indice: number; parametro: ParametroInterface }[];
+
         const pilha = interpretador.pilhaEscoposExecucao as PilhaEscoposExecucaoInterface;
 
         for (let referencia of referencias) {

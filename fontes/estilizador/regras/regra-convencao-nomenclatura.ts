@@ -1,7 +1,10 @@
 import { Declaracao } from '../../declaracoes';
 import { Var, Const, FuncaoDeclaracao } from '../../declaracoes';
 import { Construto } from '../../construtos';
-import { OpcoesConvencaoNomenclaturaInterface, RegraEstilizacaoInterface } from '../../interfaces/estilizador';
+import {
+    OpcoesConvencaoNomenclaturaInterface,
+    RegraEstilizacaoInterface,
+} from '../../interfaces/estilizador';
 
 /**
  * Regra que enforça convenções de nomenclatura.

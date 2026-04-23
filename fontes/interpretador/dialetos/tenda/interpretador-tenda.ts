@@ -20,7 +20,9 @@ export class InterpretadorTenda extends InterpretadorBase implements Interpretad
      * confundidos com dicionários de Delégua. Assim, métodos como `contém` não são
      * interceptados pelas primitivas de dicionário.
      */
-    async visitarExpressaoAcessoMetodoOuPropriedade(expressao: AcessoMetodoOuPropriedade): Promise<any> {
+    async visitarExpressaoAcessoMetodoOuPropriedade(
+        expressao: AcessoMetodoOuPropriedade
+    ): Promise<any> {
         const nomeObjeto = this.resolverNomeObjectoAcessado(expressao.objeto);
         if (NAMESPACES_TENDA.has(nomeObjeto)) {
             const variavelObjeto = await this.avaliar(expressao.objeto);

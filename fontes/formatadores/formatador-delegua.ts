@@ -215,7 +215,7 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
                 this.formatarDeclaracaoOuConstruto(expressao.inicializador);
             }
         }
-        
+
         this.codigoFormatado += `; `;
         this.formatarDeclaracaoOuConstruto(expressao.condicao);
         this.codigoFormatado += `; `;

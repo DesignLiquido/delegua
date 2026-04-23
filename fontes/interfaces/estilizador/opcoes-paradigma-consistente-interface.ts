@@ -1,4 +1,4 @@
-import { TipoParadigma } from "../../tipos";
+import { TipoParadigma } from '../../tipos';
 
 /**
  * Opções para a regra de paradigma consistente.

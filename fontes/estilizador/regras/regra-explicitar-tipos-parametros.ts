@@ -43,7 +43,9 @@ export class RegraExplicitarTiposParametros implements RegraEstilizacaoInterface
         }
     }
 
-    private ehAssinaturaComParametros(objeto: unknown): objeto is { parametros: ParametroInterface[] } {
+    private ehAssinaturaComParametros(
+        objeto: unknown
+    ): objeto is { parametros: ParametroInterface[] } {
         return 'parametros' in (objeto as any) && Array.isArray((objeto as any).parametros);
     }
 

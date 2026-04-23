@@ -96,12 +96,23 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
                         argumentos.push(await this.expressao());
                     } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
                 }
-                this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após argumentos da chamada.");
+                this.consumir(
+                    tiposDeSimbolos.PARENTESE_DIREITO,
+                    "Esperado ')' após argumentos da chamada."
+                );
                 expressao = new Chamada(this.hashArquivo, expressao, argumentos);
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
                 const indice = await this.expressao();
-                const fechamento = this.consumir(tiposDeSimbolos.COLCHETE_DIREITO, "Esperado ']' após índice.");
-                expressao = new AcessoIndiceVariavel(this.hashArquivo, expressao, indice, fechamento);
+                const fechamento = this.consumir(
+                    tiposDeSimbolos.COLCHETE_DIREITO,
+                    "Esperado ']' após índice."
+                );
+                expressao = new AcessoIndiceVariavel(
+                    this.hashArquivo,
+                    expressao,
+                    indice,
+                    fechamento
+                );
             } else {
                 break;
             }
@@ -119,14 +130,20 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
             this.emContextoCondicao = true;
             const condicao = await this.ou();
             this.emContextoCondicao = false;
-            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após condição do 'enquanto'.");
+            this.consumir(
+                tiposDeSimbolos.PARENTESE_DIREITO,
+                "Esperado ')' após condição do 'enquanto'."
+            );
             this.consumir(tiposDeSimbolos.FACA, "Esperado 'faca' após condição do 'enquanto'.");
 
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
 
             const corpo = await this.resolverBloco(['fimEnquanto']);
 
-            this.consumir(tiposDeSimbolos.FIM_ENQUANTO, "Esperado 'fimEnquanto' para fechar o laço.");
+            this.consumir(
+                tiposDeSimbolos.FIM_ENQUANTO,
+                "Esperado 'fimEnquanto' para fechar o laço."
+            );
 
             return new Enquanto(condicao, corpo);
         } finally {
@@ -139,7 +156,10 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
 
         this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'escolha'.");
         const identificador = await this.expressao();
-        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após expressão do 'escolha'.");
+        this.consumir(
+            tiposDeSimbolos.PARENTESE_DIREITO,
+            "Esperado ')' após expressão do 'escolha'."
+        );
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
 
         const caminhos: CaminhoEscolha[] = [];
@@ -165,7 +185,10 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
             }
         }
 
-        this.consumir(tiposDeSimbolos.FIM_ESCOLHA, "Esperado 'fimEscolha' para fechar o 'escolha'.");
+        this.consumir(
+            tiposDeSimbolos.FIM_ESCOLHA,
+            "Esperado 'fimEscolha' para fechar o 'escolha'."
+        );
 
         return new Escolha(identificador, caminhos, caminhoPadrao);
     }
@@ -236,7 +259,11 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         return new EscrevaMesmaLinha(Number(simboloAtual.linha), this.hashArquivo, argumentos);
     }
 
-    private declaracaoVariaveis(_tipoToken: string, tipoDelégua: TipoInferencia, valorPadrao: any): Var[] {
+    private declaracaoVariaveis(
+        _tipoToken: string,
+        tipoDelégua: TipoInferencia,
+        valorPadrao: any
+    ): Var[] {
         const simboloTipo = this.avancarEDevolverAnterior();
 
         const inicializacoes = [];
@@ -248,21 +275,39 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
 
             // Vetor com tamanho fixo: inteiro v[10];
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
-                const tamanhoSimbolo = this.consumir(tiposDeSimbolos.NUMERO, 'Esperado tamanho do vetor.');
+                const tamanhoSimbolo = this.consumir(
+                    tiposDeSimbolos.NUMERO,
+                    'Esperado tamanho do vetor.'
+                );
                 const tamanho = Number(tamanhoSimbolo.literal);
                 if (!Number.isInteger(tamanho) || tamanho < 0) {
-                    throw this.erro(tamanhoSimbolo, 'Tamanho do vetor deve ser um inteiro não-negativo.');
+                    throw this.erro(
+                        tamanhoSimbolo,
+                        'Tamanho do vetor deve ser um inteiro não-negativo.'
+                    );
                 }
-                this.consumir(tiposDeSimbolos.COLCHETE_DIREITO, "Esperado ']' após tamanho do vetor.");
+                this.consumir(
+                    tiposDeSimbolos.COLCHETE_DIREITO,
+                    "Esperado ']' após tamanho do vetor."
+                );
 
                 const elementos: Literal[] = Array.from(
                     { length: tamanho },
-                    () => new Literal(this.hashArquivo, Number(simboloTipo.linha), valorPadrao, tipoDelégua)
+                    () =>
+                        new Literal(
+                            this.hashArquivo,
+                            Number(simboloTipo.linha),
+                            valorPadrao,
+                            tipoDelégua
+                        )
                 );
                 const tipoVetor = `${tipoDelégua}[]` as TipoInferencia;
 
                 inicializacoes.push(
-                    new Var(identificador, new Vetor(this.hashArquivo, Number(simboloTipo.linha), elementos, tipoVetor))
+                    new Var(
+                        identificador,
+                        new Vetor(this.hashArquivo, Number(simboloTipo.linha), elementos, tipoVetor)
+                    )
                 );
 
                 this.pilhaEscopos.definirInformacoesVariavel(
@@ -273,7 +318,12 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
                 inicializacoes.push(
                     new Var(
                         identificador,
-                        new Literal(this.hashArquivo, Number(simboloTipo.linha), valorPadrao, tipoDelégua)
+                        new Literal(
+                            this.hashArquivo,
+                            Number(simboloTipo.linha),
+                            valorPadrao,
+                            tipoDelégua
+                        )
                     )
                 );
 
@@ -327,11 +377,17 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
             const corpo = await this.resolverBloco(['enquanto']);
 
             this.consumir(tiposDeSimbolos.ENQUANTO, "Esperado 'enquanto' após corpo do 'faca'.");
-            this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'enquanto' no 'faca'.");
+            this.consumir(
+                tiposDeSimbolos.PARENTESE_ESQUERDO,
+                "Esperado '(' após 'enquanto' no 'faca'."
+            );
             this.emContextoCondicao = true;
             const condicao = await this.ou();
             this.emContextoCondicao = false;
-            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após condição do 'faca'.");
+            this.consumir(
+                tiposDeSimbolos.PARENTESE_DIREITO,
+                "Esperado ')' após condição do 'faca'."
+            );
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
 
             return new Fazer(this.hashArquivo, Number(simboloFaca.linha), corpo, condicao);
@@ -370,15 +426,32 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
 
             const corpo = await this.resolverBloco(['fimPara']);
-            this.consumir(tiposDeSimbolos.FIM_PARA, "Esperado 'fimPara' para fechar o laço 'para'.");
+            this.consumir(
+                tiposDeSimbolos.FIM_PARA,
+                "Esperado 'fimPara' para fechar o laço 'para'."
+            );
 
             const linha = Number(simboloPara.linha);
             const varIteracao = new Variavel(this.hashArquivo, identificador, 'inteiro');
 
-            const simboloMenorIgual = new Simbolo(tiposDeSimbolos.MENOR_IGUAL, '<=', null, linha, this.hashArquivo);
-            const simboloAdicao = new Simbolo(tiposDeSimbolos.ADICAO, '+', null, linha, this.hashArquivo);
+            const simboloMenorIgual = new Simbolo(
+                tiposDeSimbolos.MENOR_IGUAL,
+                '<=',
+                null,
+                linha,
+                this.hashArquivo
+            );
+            const simboloAdicao = new Simbolo(
+                tiposDeSimbolos.ADICAO,
+                '+',
+                null,
+                linha,
+                this.hashArquivo
+            );
 
-            const inicializador = new Expressao(new Atribuir(this.hashArquivo, varIteracao, inicioExpr));
+            const inicializador = new Expressao(
+                new Atribuir(this.hashArquivo, varIteracao, inicioExpr)
+            );
             const condicao = new Binario(this.hashArquivo, varIteracao, simboloMenorIgual, fimExpr);
             const incrementar = new Atribuir(
                 this.hashArquivo,
@@ -405,11 +478,19 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
                 tiposDeSimbolos.DIFERENTE,
                 tiposDeSimbolos.IGUAL,
                 tiposDeSimbolos.IGUAL_IGUAL
-            ) || (this.emContextoCondicao && this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL_ATRIBUICAO))
+            ) ||
+            (this.emContextoCondicao &&
+                this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL_ATRIBUICAO))
         ) {
             let operador = this.simbolos[this.atual - 1];
             if (operador.tipo === tiposDeSimbolos.IGUAL_ATRIBUICAO) {
-                operador = new Simbolo(tiposDeSimbolos.IGUAL_IGUAL, '=', null, operador.linha, operador.hashArquivo);
+                operador = new Simbolo(
+                    tiposDeSimbolos.IGUAL_IGUAL,
+                    '=',
+                    null,
+                    operador.linha,
+                    operador.hashArquivo
+                );
             }
             const direito = await this.comparar();
             expressao = new Binario(this.hashArquivo, expressao, operador, direito);
@@ -521,13 +602,28 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
                 );
             case tiposDeSimbolos.TEXTO:
                 const simboloTexto: SimboloInterface = this.avancarEDevolverAnterior();
-                return new Literal(this.hashArquivo, Number(simboloTexto.linha), simboloTexto.literal, 'texto');
+                return new Literal(
+                    this.hashArquivo,
+                    Number(simboloTexto.linha),
+                    simboloTexto.literal,
+                    'texto'
+                );
             case tiposDeSimbolos.LITERAL_CARACTER:
                 const simboloCaracter: SimboloInterface = this.avancarEDevolverAnterior();
-                return new Literal(this.hashArquivo, Number(simboloCaracter.linha), simboloCaracter.literal, 'caracter');
+                return new Literal(
+                    this.hashArquivo,
+                    Number(simboloCaracter.linha),
+                    simboloCaracter.literal,
+                    'caracter'
+                );
             case tiposDeSimbolos.VERDADEIRO:
                 const simboloVerdadeiro: SimboloInterface = this.avancarEDevolverAnterior();
-                return new Literal(this.hashArquivo, Number(simboloVerdadeiro.linha), true, 'lógico');
+                return new Literal(
+                    this.hashArquivo,
+                    Number(simboloVerdadeiro.linha),
+                    true,
+                    'lógico'
+                );
             case tiposDeSimbolos.FALSO:
                 const simboloFalso: SimboloInterface = this.avancarEDevolverAnterior();
                 return new Literal(this.hashArquivo, Number(simboloFalso.linha), false, 'lógico');
@@ -597,12 +693,18 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
     /** Mapeia um tipo de token Calango para a string de tipo da Delégua. */
     private mapearTipo(tipoToken: string): string {
         switch (tipoToken) {
-            case tiposDeSimbolos.INTEIRO:   return 'inteiro';
-            case tiposDeSimbolos.REAL:      return 'real';
-            case tiposDeSimbolos.LOGICO:    return 'lógico';
-            case tiposDeSimbolos.CARACTER:  return 'caracter';
-            case tiposDeSimbolos.TIPO_TEXTO: return 'texto';
-            default:                        return 'qualquer';
+            case tiposDeSimbolos.INTEIRO:
+                return 'inteiro';
+            case tiposDeSimbolos.REAL:
+                return 'real';
+            case tiposDeSimbolos.LOGICO:
+                return 'lógico';
+            case tiposDeSimbolos.CARACTER:
+                return 'caracter';
+            case tiposDeSimbolos.TIPO_TEXTO:
+                return 'texto';
+            default:
+                return 'qualquer';
         }
     }
 
@@ -614,7 +716,10 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         do {
             const tipoTipo = this.mapearTipo(this.simbolos[this.atual].tipo);
             this.avancarEDevolverAnterior(); // consome o token de tipo
-            const nome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome de parâmetro.');
+            const nome = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                'Esperado nome de parâmetro.'
+            );
             this.pilhaEscopos.definirInformacoesVariavel(
                 nome.lexema,
                 new InformacaoElementoSintatico(nome.lexema, tipoTipo)
@@ -626,7 +731,10 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
 
     protected async declaracaoFuncao(): Promise<FuncaoDeclaracao> {
         this.avancarEDevolverAnterior(); // consome 'funcao'
-        const simboloNome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome da função.");
+        const simboloNome = this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            'Esperado nome da função.'
+        );
         this.pilhaEscopos.definirInformacoesVariavel(
             simboloNome.lexema,
             new InformacaoElementoSintatico(simboloNome.lexema, 'qualquer')
@@ -657,19 +765,28 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
 
     protected async declaracaoProcedimento(): Promise<FuncaoDeclaracao> {
         this.avancarEDevolverAnterior(); // consome 'procedimento'
-        const simboloNome = this.consumir(tiposDeSimbolos.IDENTIFICADOR, "Esperado nome do procedimento.");
+        const simboloNome = this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            'Esperado nome do procedimento.'
+        );
         this.pilhaEscopos.definirInformacoesVariavel(
             simboloNome.lexema,
             new InformacaoElementoSintatico(simboloNome.lexema, 'qualquer')
         );
 
-        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após nome do procedimento.");
+        this.consumir(
+            tiposDeSimbolos.PARENTESE_ESQUERDO,
+            "Esperado '(' após nome do procedimento."
+        );
         const parametros = await this.analisarParametrosCalango();
         this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.QUEBRA_LINHA);
 
         const bloco = await this.resolverBloco(['fimProcedimento']);
-        this.consumir(tiposDeSimbolos.FIM_PROCEDIMENTO, "Esperado 'fimProcedimento' para fechar o procedimento.");
+        this.consumir(
+            tiposDeSimbolos.FIM_PROCEDIMENTO,
+            "Esperado 'fimProcedimento' para fechar o procedimento."
+        );
 
         const funcaoConstruto = new FuncaoConstruto(
             this.hashArquivo,

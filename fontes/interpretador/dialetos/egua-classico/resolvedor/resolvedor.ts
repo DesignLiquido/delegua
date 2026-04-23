@@ -702,6 +702,8 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
     }
 
     async executarChamavel(_chamavel: any, _argumentos: any[]): Promise<any> {
-        return Promise.reject(new Error('ResolvedorEguaClassico não suporta execução de chamáveis.'));
+        return Promise.reject(
+            new Error('ResolvedorEguaClassico não suporta execução de chamáveis.')
+        );
     }
 }

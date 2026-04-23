@@ -1,4 +1,4 @@
-import { DelimitadorTextoFormatacao } from "../../tipos";
+import { DelimitadorTextoFormatacao } from '../../tipos';
 
 export interface OpcoesFormatadorDeleguaInterface {
     delimitadorTexto?: DelimitadorTextoFormatacao;

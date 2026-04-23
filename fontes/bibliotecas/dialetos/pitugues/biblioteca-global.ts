@@ -56,12 +56,7 @@ export async function aleatorio_entre(
     ...argumentos: any[]
 ): Promise<number> {
     const argumentosUsuario = argumentos.filter(
-        (arg) => !(
-            arg &&
-            typeof arg === 'object' &&
-            'lexema' in arg &&
-            'linha' in arg
-        )
+        (arg) => !(arg && typeof arg === 'object' && 'lexema' in arg && 'linha' in arg)
     );
 
     if (argumentosUsuario.length <= 0) {
@@ -120,9 +115,7 @@ export async function aleatorio_entre(
         );
     }
 
-    return Promise.resolve(
-        Math.floor(Math.random() * (maximo - minimo)) + minimo
-    );
+    return Promise.resolve(Math.floor(Math.random() * (maximo - minimo)) + minimo);
 }
 
 /**
@@ -724,7 +717,6 @@ export async function enumerar(
         );
     }
 
-
     const valorVetor = interpretador.resolverValor(vetor);
     const inicioInteiro = typeof inicio === 'number' && !isNaN(inicio) ? Math.floor(inicio) : 0;
 
@@ -735,7 +727,6 @@ export async function enumerar(
 
     return Promise.resolve(resultados);
 }
-
 
 /**
  * Dado um vetor e uma função de mapeamento, executa a função de mapeamento

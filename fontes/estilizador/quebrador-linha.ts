@@ -206,7 +206,9 @@ export class QuebradorDeLinha {
             } else {
                 const indentacaoBase = obterIndentacao(linha);
                 const indentacaoContinuacao = indentacaoBase + ' '.repeat(this.tamanhoIndentacao);
-                resultado.push(...quebrarLinha(linha, this.maximoCaracteres, indentacaoContinuacao));
+                resultado.push(
+                    ...quebrarLinha(linha, this.maximoCaracteres, indentacaoContinuacao)
+                );
             }
         }
 

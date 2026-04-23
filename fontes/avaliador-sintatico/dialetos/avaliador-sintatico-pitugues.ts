@@ -733,9 +733,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
      * Com formatadores: f"{valor:.2f}" -> "" + "{:.2f}".formatar(valor) + ""
      * Com depuração: f"{usuario=}" -> "" + "{usuario=}".formatar(usuario) + ""
      */
-    private transformarInterpolacaoEmFormatacao(
-        conteudoOriginal: string
-    ): string {
+    private transformarInterpolacaoEmFormatacao(conteudoOriginal: string): string {
         const ehDepuracao = (mioloLimpo: string): boolean => {
             return mioloLimpo.endsWith('=') && !/^(?:[!=<>]=|[<>])$/.test(mioloLimpo.slice(-2));
         };
@@ -752,9 +750,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
 
             // Modo formatação: {expressao:formato}
             if (mioloLimpo.includes(':')) {
-                const [variavel, formato] = mioloLimpo
-                    .split(':')
-                    .map(s => s.trim());
+                const [variavel, formato] = mioloLimpo.split(':').map((s) => s.trim());
 
                 if (variavel) {
                     return `" + "{:${formato}}".formatar(${variavel}) + "`;
@@ -933,13 +929,11 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                 const simboloInterpolacao = this.avancarEDevolverAnterior();
                 const conteudoOriginal = simboloInterpolacao.literal as string;
 
-                const codigoTransformado = this
-                    .transformarInterpolacaoEmFormatacao(conteudoOriginal);
+                const codigoTransformado =
+                    this.transformarInterpolacaoEmFormatacao(conteudoOriginal);
 
                 const microLexador = new MicroLexadorPitugues();
-                const retornoMicroLexador = microLexador.mapear(
-                    codigoTransformado
-                );
+                const retornoMicroLexador = microLexador.mapear(codigoTransformado);
                 const microAvaliadorSintatico = new MicroAvaliadorSintaticoPitugues();
 
                 let retornoMicroAvaliador: RetornoAvaliadorSintatico<Declaracao>;
@@ -955,11 +949,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                 } catch (erro: any) {
                     this.erros.push(erro);
 
-                    return new Literal(
-                        this.hashArquivo,
-                        simboloInterpolacao.linha,
-                        ''
-                    );
+                    return new Literal(this.hashArquivo, simboloInterpolacao.linha, '');
                 }
 
                 const declaracao = retornoMicroAvaliador.declaracoes[0] as Expressao;

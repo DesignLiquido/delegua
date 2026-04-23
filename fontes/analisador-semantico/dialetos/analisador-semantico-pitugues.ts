@@ -315,8 +315,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         }
 
         const funcaoChamada =
-            this.gerenciadorEscopos.buscar(nomeFuncao) ||
-            this.funcoes[nomeFuncao];
+            this.gerenciadorEscopos.buscar(nomeFuncao) || this.funcoes[nomeFuncao];
 
         if (!funcaoChamada) {
             this.erro(
@@ -579,7 +578,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                         inicializada: true,
                         usada: false,
                         hashArquivo: declaracao.hashArquivo,
-                        linha: declaracao.linha
+                        linha: declaracao.linha,
                     });
                 } else if (declaracao.variavelIteracao instanceof Dupla) {
                     const dupla = declaracao.variavelIteracao;
@@ -597,7 +596,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                             inicializada: true,
                             usada: false,
                             hashArquivo: declaracao.hashArquivo,
-                            linha: declaracao.linha
+                            linha: declaracao.linha,
                         });
                     }
 
@@ -611,7 +610,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                             inicializada: true,
                             usada: false,
                             hashArquivo: declaracao.hashArquivo,
-                            linha: declaracao.linha
+                            linha: declaracao.linha,
                         });
                     }
                 }
@@ -1005,7 +1004,10 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
             const expressaoInterpolacao = match[1].trim();
             try {
                 const retornoMicroLexador = this.microLexador.mapear(expressaoInterpolacao);
-                const retornoMicro = this.microAvaliadorSintatico.analisar(retornoMicroLexador, literal.linha);
+                const retornoMicro = this.microAvaliadorSintatico.analisar(
+                    retornoMicroLexador,
+                    literal.linha
+                );
                 for (const construto of retornoMicro.declaracoes) {
                     this.marcarVariaveisUsadasEmExpressao(construto as unknown as Construto);
                 }
@@ -1292,7 +1294,10 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
             this.erro(declaracao.simbolo, 'Função não pode ter mais de 255 parâmetros.');
         }
 
-        const todosRetornos = declaracao.funcao.corpo.reduce((acc: any[], c) => acc.concat(buscarRetornos(c)), []);
+        const todosRetornos = declaracao.funcao.corpo.reduce(
+            (acc: any[], c) => acc.concat(buscarRetornos(c)),
+            []
+        );
         for (const instrucao of todosRetornos) {
             if (instrucao.valor) {
                 this.verificarBinarioEmExpressao(instrucao.valor);
@@ -1314,7 +1319,10 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                 }
             }
 
-            const retornos = declaracao.funcao.corpo.reduce((acc: any[], c) => acc.concat(buscarRetornos(c)), []);
+            const retornos = declaracao.funcao.corpo.reduce(
+                (acc: any[], c) => acc.concat(buscarRetornos(c)),
+                []
+            );
             // Filtra retornos com tipo 'qualquer' (não determinado em tempo de análise sintática)
             const retornosComTipoIndeterminado = retornos.filter(
                 (retorno) =>

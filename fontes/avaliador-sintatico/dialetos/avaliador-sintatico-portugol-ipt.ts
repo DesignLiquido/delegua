@@ -40,7 +40,6 @@ import tiposDeSimbolos from '../../tipos-de-simbolos/portugol-ipt';
 import { TipoInferencia } from '../../inferenciador';
 
 export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
-
     private simboloAtualEh(tipo: string): boolean {
         return !this.estaNoFinal() && this.simbolos[this.atual].tipo === tipo;
     }
@@ -218,7 +217,12 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
                     tiposDeSimbolos.COLCHETE_DIREITO,
                     "Esperado ']' após índice."
                 );
-                expressao = new AcessoIndiceVariavel(this.hashArquivo, expressao, indice, fechamento);
+                expressao = new AcessoIndiceVariavel(
+                    this.hashArquivo,
+                    expressao,
+                    indice,
+                    fechamento
+                );
             } else {
                 break;
             }
@@ -233,10 +237,7 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
      */
     protected async unario(): Promise<Construto> {
         if (
-            this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.NEGACAO,
-                tiposDeSimbolos.SUBTRACAO
-            )
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NEGACAO, tiposDeSimbolos.SUBTRACAO)
         ) {
             const operador = this.simbolos[this.atual - 1];
             const direito = await this.unario();
@@ -275,9 +276,7 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
     protected async ou(): Promise<Construto> {
         let expressao = await this.e();
 
-        while (
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.OU, tiposDeSimbolos.XOU)
-        ) {
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.OU, tiposDeSimbolos.XOU)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = await this.e();
             expressao = new Logico(this.hashArquivo, expressao, operador, direito);
@@ -421,13 +420,23 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
 
         const varIteracao = new Variavel(this.hashArquivo, identificador, 'inteiro');
         const simboloMenorIgual = new Simbolo(
-            tiposDeSimbolos.MENOR_IGUAL, '<=', null, linha, this.hashArquivo
+            tiposDeSimbolos.MENOR_IGUAL,
+            '<=',
+            null,
+            linha,
+            this.hashArquivo
         );
         const simboloAdicao = new Simbolo(
-            tiposDeSimbolos.ADICAO, '+', null, linha, this.hashArquivo
+            tiposDeSimbolos.ADICAO,
+            '+',
+            null,
+            linha,
+            this.hashArquivo
         );
 
-        const inicializador = new Expressao(new Atribuir(this.hashArquivo, varIteracao, inicioExpr));
+        const inicializador = new Expressao(
+            new Atribuir(this.hashArquivo, varIteracao, inicioExpr)
+        );
         const condicao = new Binario(this.hashArquivo, varIteracao, simboloMenorIgual, fimExpr);
         const incrementar = new Atribuir(
             this.hashArquivo,
@@ -454,7 +463,11 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
 
         // Inverte a condição: o loop continua enquanto `ate cond` for falso
         const operadorNao = new Simbolo(
-            tiposDeSimbolos.NAO, 'nao', null, condicaoAte.linha, this.hashArquivo
+            tiposDeSimbolos.NAO,
+            'nao',
+            null,
+            condicaoAte.linha,
+            this.hashArquivo
         );
         const condicaoInvertida = new Unario(this.hashArquivo, operadorNao, condicaoAte, 'ANTES');
 
@@ -520,12 +533,14 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
                     tiposDeSimbolos.FIM,
                 ]);
                 caminhos.push({ condicoes, declaracoes: bloco.declaracoes });
-
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DEFEITO)) {
                 this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após 'defeito'.");
                 this.consumirQuebrasLinha();
 
-                const bloco = await this.resolverBloco([tiposDeSimbolos.FIMESCOLHE, tiposDeSimbolos.FIM]);
+                const bloco = await this.resolverBloco([
+                    tiposDeSimbolos.FIMESCOLHE,
+                    tiposDeSimbolos.FIM,
+                ]);
                 caminhoPadrao = { condicoes: [], declaracoes: bloco.declaracoes };
             } else {
                 break;
@@ -584,19 +599,33 @@ export class AvaliadorSintaticoPortugolIpt extends AvaliadorSintaticoBase {
                 }
 
                 const tamanho = Number(tamanhoConstante);
-                this.consumir(tiposDeSimbolos.COLCHETE_DIREITO, "Esperado ']' após tamanho do vetor.");
+                this.consumir(
+                    tiposDeSimbolos.COLCHETE_DIREITO,
+                    "Esperado ']' após tamanho do vetor."
+                );
 
                 const elementos: Literal[] = Array.from(
                     { length: tamanho },
                     () => new Literal(this.hashArquivo, linha, valorPadrao, tipoDelegua)
                 );
                 inicializacoes.push(
-                    new Var(identificador, new Vetor(this.hashArquivo, linha, elementos, `${tipoDelegua}[]` as TipoInferencia))
+                    new Var(
+                        identificador,
+                        new Vetor(
+                            this.hashArquivo,
+                            linha,
+                            elementos,
+                            `${tipoDelegua}[]` as TipoInferencia
+                        )
+                    )
                 );
             } else {
                 // Inicialização opcional: `inteiro x = 5` (usa = como igualdade aqui, não seta)
                 let valorInicial: Construto = new Literal(
-                    this.hashArquivo, linha, valorPadrao, tipoDelegua
+                    this.hashArquivo,
+                    linha,
+                    valorPadrao,
+                    tipoDelegua
                 );
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
                     valorInicial = await this.expressao();

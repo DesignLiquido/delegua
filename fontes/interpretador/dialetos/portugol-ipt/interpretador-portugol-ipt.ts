@@ -146,24 +146,35 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
     ): void {
         const valorDireita = this.resolverValor(direita);
         const valorEsquerda = this.resolverValor(esquerda);
-        const tipoDireita: string = direita?.tipo ?? (typeof valorDireita === 'number' ? 'número' : String(NaN));
-        const tipoEsquerda: string = esquerda?.tipo ?? (typeof valorEsquerda === 'number' ? 'número' : String(NaN));
+        const tipoDireita: string =
+            direita?.tipo ?? (typeof valorDireita === 'number' ? 'número' : String(NaN));
+        const tipoEsquerda: string =
+            esquerda?.tipo ?? (typeof valorEsquerda === 'number' ? 'número' : String(NaN));
         const tiposNumericos = ['inteiro', 'numero', 'número', 'real'];
 
         const eNumericoOuQualquer = (tipo: string, valor: any) =>
             tiposNumericos.includes(tipo.toLowerCase()) ||
-            tipo === 'qualquer' && typeof valor === 'number';
+            (tipo === 'qualquer' && typeof valor === 'number');
 
-        if (eNumericoOuQualquer(tipoDireita, valorDireita) && eNumericoOuQualquer(tipoEsquerda, valorEsquerda))
+        if (
+            eNumericoOuQualquer(tipoDireita, valorDireita) &&
+            eNumericoOuQualquer(tipoEsquerda, valorEsquerda)
+        )
             return;
-        throw new ErroEmTempoDeExecucao(operador, 'Operadores precisam ser números.', operador.linha);
+        throw new ErroEmTempoDeExecucao(
+            operador,
+            'Operadores precisam ser números.',
+            operador.linha
+        );
     }
 
     paraTexto(objeto: any) {
         if (objeto === null || objeto === undefined) return 'nulo';
         if (typeof objeto === 'boolean') return objeto ? 'verdadeiro' : 'falso';
         if (objeto instanceof Date) {
-            return Intl.DateTimeFormat('pt', { dateStyle: 'full', timeStyle: 'full' }).format(objeto);
+            return Intl.DateTimeFormat('pt', { dateStyle: 'full', timeStyle: 'full' }).format(
+                objeto
+            );
         }
         if (Array.isArray(objeto)) return objeto;
         if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
@@ -196,8 +207,10 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
 
             const tiposNumericos = ['inteiro', 'numero', 'número', 'real'];
             const ambosNumericos =
-                (tiposNumericos.includes(tipoEsquerdo) || tipoEsquerdo === 'qualquer' && typeof valorEsquerdo === 'number') &&
-                (tiposNumericos.includes(tipoDireito) || tipoDireito === 'qualquer' && typeof valorDireito === 'number');
+                (tiposNumericos.includes(tipoEsquerdo) ||
+                    (tipoEsquerdo === 'qualquer' && typeof valorEsquerdo === 'number')) &&
+                (tiposNumericos.includes(tipoDireito) ||
+                    (tipoDireito === 'qualquer' && typeof valorDireito === 'number'));
 
             switch (expressao.operador.tipo) {
                 case tiposDeSimbolos.EXPONENCIACAO:
@@ -243,7 +256,8 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
                         if (tipoEsquerdo === 'texto' && tipoDireito === 'texto') {
                             return Number(valorEsquerdo) * Number(valorDireito);
                         }
-                        if (tipoEsquerdo === 'texto') return valorEsquerdo.repeat(Number(valorDireito));
+                        if (tipoEsquerdo === 'texto')
+                            return valorEsquerdo.repeat(Number(valorDireito));
                         return valorDireito.repeat(Number(valorEsquerdo));
                     }
                     return Number(valorEsquerdo) * Number(valorDireito);
@@ -323,14 +337,13 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
             );
 
             // arg é um Expressao (declaração) envolvendo um Variavel
-            const construto = (arg as any) instanceof Expressao
-                ? (arg as any).expressao
-                : arg;
+            const construto = (arg as any) instanceof Expressao ? (arg as any).expressao : arg;
 
             if (construto instanceof Variavel) {
-                const valorConvertido = typeof resposta === 'string' && !Number.isNaN(Number(resposta))
-                    ? Number(resposta)
-                    : resposta;
+                const valorConvertido =
+                    typeof resposta === 'string' && !Number.isNaN(Number(resposta))
+                        ? Number(resposta)
+                        : resposta;
                 this.pilhaEscoposExecucao.atribuirVariavel(construto.simbolo, valorConvertido);
             }
         }
@@ -340,7 +353,9 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
     async visitarExpressaoFormatacaoEscrita(declaracao: FormatacaoEscrita): Promise<string> {
         const conteudo: VariavelInterface | any = await this.avaliar(declaracao.expressao);
         const valorConteudo: any = this.resolverValor(conteudo);
-        const tipoConteudo: string = conteudo.hasOwnProperty('tipo') ? conteudo.tipo : typeof conteudo;
+        const tipoConteudo: string = conteudo.hasOwnProperty('tipo')
+            ? conteudo.tipo
+            : typeof conteudo;
 
         let resultado = valorConteudo;
         if (['número', 'number'].includes(tipoConteudo) && declaracao.casasDecimais > 0) {
@@ -428,36 +443,60 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
     private chamarFuncaoEmbutida(nome: string, args: any[], linha: number): any {
         switch (nome) {
             // ── 0 argumentos ──
-            case 'ALEATORIO': return Math.random();
+            case 'ALEATORIO':
+                return Math.random();
 
             // ── 1 argumento ──
-            case 'SEN':    return Math.sin(args[0]);
-            case 'COS':    return Math.cos(args[0]);
-            case 'TAN':    return Math.tan(args[0]);
-            case 'CTG':    return 1 / Math.tan(args[0]);
-            case 'ASEN':   return Math.asin(args[0]);
-            case 'ACOS':   return Math.acos(args[0]);
-            case 'ATAN':   return Math.atan(args[0]);
-            case 'ACTG':   return 1 / Math.atan(args[0]);
-            case 'SENH':   return Math.sinh(args[0]);
-            case 'COSH':   return Math.cosh(args[0]);
-            case 'TANH':   return Math.tanh(args[0]);
-            case 'CTGH':   return 1 / Math.tanh(args[0]);
-            case 'EXP':    return Math.exp(args[0]);
-            case 'ABS':    return Math.abs(args[0]);
-            case 'RAIZ':   return Math.sqrt(args[0]);
-            case 'LOG':    return Math.log10(args[0]);
-            case 'LN':     return Math.log(args[0]);
-            case 'INT':    return Math.trunc(args[0]);
-            case 'FRAC':   return args[0] - Math.trunc(args[0]);
-            case 'ARRED':  return Math.round(args[0]);
+            case 'SEN':
+                return Math.sin(args[0]);
+            case 'COS':
+                return Math.cos(args[0]);
+            case 'TAN':
+                return Math.tan(args[0]);
+            case 'CTG':
+                return 1 / Math.tan(args[0]);
+            case 'ASEN':
+                return Math.asin(args[0]);
+            case 'ACOS':
+                return Math.acos(args[0]);
+            case 'ATAN':
+                return Math.atan(args[0]);
+            case 'ACTG':
+                return 1 / Math.atan(args[0]);
+            case 'SENH':
+                return Math.sinh(args[0]);
+            case 'COSH':
+                return Math.cosh(args[0]);
+            case 'TANH':
+                return Math.tanh(args[0]);
+            case 'CTGH':
+                return 1 / Math.tanh(args[0]);
+            case 'EXP':
+                return Math.exp(args[0]);
+            case 'ABS':
+                return Math.abs(args[0]);
+            case 'RAIZ':
+                return Math.sqrt(args[0]);
+            case 'LOG':
+                return Math.log10(args[0]);
+            case 'LN':
+                return Math.log(args[0]);
+            case 'INT':
+                return Math.trunc(args[0]);
+            case 'FRAC':
+                return args[0] - Math.trunc(args[0]);
+            case 'ARRED':
+                return Math.round(args[0]);
 
             // ── 2 argumentos ──
-            case 'POTENCIA': return Math.pow(args[0], args[1]);
+            case 'POTENCIA':
+                return Math.pow(args[0], args[1]);
 
             // ── Texto ──
-            case 'COMPRIMENTO': return String(args[0]).length;
-            case 'LETRA':       return String(args[0]).charAt(Number(args[1]));
+            case 'COMPRIMENTO':
+                return String(args[0]).length;
+            case 'LETRA':
+                return String(args[0]).charAt(Number(args[1]));
 
             default:
                 throw new ErroEmTempoDeExecucao(
@@ -480,7 +519,11 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
             this.funcaoDeRetorno(formatoTexto);
             return null;
         } catch (erro: any) {
-            this.erros.push({ erroInterno: erro, linha: declaracao.linha, hashArquivo: declaracao.hashArquivo });
+            this.erros.push({
+                erroInterno: erro,
+                linha: declaracao.linha,
+                hashArquivo: declaracao.hashArquivo,
+            });
         }
     }
 
@@ -490,7 +533,11 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
             this.funcaoDeRetornoMesmaLinha(formatoTexto);
             return null;
         } catch (erro: any) {
-            this.erros.push({ erroInterno: erro, linha: declaracao.linha, hashArquivo: declaracao.hashArquivo });
+            this.erros.push({
+                erroInterno: erro,
+                linha: declaracao.linha,
+                hashArquivo: declaracao.hashArquivo,
+            });
         }
     }
 
@@ -512,7 +559,9 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
             }
         }
         this.pilhaEscoposExecucao.definirVariavel(
-            declaracao.simbolo.lexema, valorFinal, declaracao.tipo
+            declaracao.simbolo.lexema,
+            valorFinal,
+            declaracao.tipo
         );
         return null;
     }
@@ -526,7 +575,9 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
             }
         }
         this.pilhaEscoposExecucao.definirConstante(
-            declaracao.simbolo.lexema, valorFinal, declaracao.tipo
+            declaracao.simbolo.lexema,
+            valorFinal,
+            declaracao.tipo
         );
         return null;
     }
@@ -549,7 +600,11 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
                 if (resultado instanceof ContinuarQuebra) continue;
                 if (resultado instanceof Quebra) break;
             } catch (erro: any) {
-                this.erros.push({ erroInterno: erro, linha: declaracao.linha, hashArquivo: declaracao.hashArquivo });
+                this.erros.push({
+                    erroInterno: erro,
+                    linha: declaracao.linha,
+                    hashArquivo: declaracao.hashArquivo,
+                });
                 return Promise.reject(erro);
             }
         }
@@ -564,15 +619,21 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         if (inicializador) await this.avaliar(inicializador);
 
         while (true) {
-            if (declaracao.condicao && !this.eVerdadeiro(await this.avaliar(declaracao.condicao))) break;
+            if (declaracao.condicao && !this.eVerdadeiro(await this.avaliar(declaracao.condicao)))
+                break;
 
             try {
                 const resultado = await this.executar(declaracao.corpo);
                 if (resultado instanceof SustarQuebra) return null;
-                if (resultado instanceof ContinuarQuebra) { /* continua para incremento */ }
-                else if (resultado instanceof Quebra) break;
+                if (resultado instanceof ContinuarQuebra) {
+                    /* continua para incremento */
+                } else if (resultado instanceof Quebra) break;
             } catch (erro: any) {
-                this.erros.push({ erroInterno: erro, linha: declaracao.linha, hashArquivo: declaracao.hashArquivo });
+                this.erros.push({
+                    erroInterno: erro,
+                    linha: declaracao.linha,
+                    hashArquivo: declaracao.hashArquivo,
+                });
                 return Promise.reject(erro);
             }
 
@@ -589,7 +650,11 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
                 if (resultado instanceof ContinuarQuebra) continue;
                 if (resultado instanceof Quebra) break;
             } catch (erro: any) {
-                this.erros.push({ erroInterno: erro, linha: declaracao.linha, hashArquivo: declaracao.hashArquivo });
+                this.erros.push({
+                    erroInterno: erro,
+                    linha: declaracao.linha,
+                    hashArquivo: declaracao.hashArquivo,
+                });
                 return Promise.reject(erro);
             }
         } while (this.eVerdadeiro(await this.avaliar(declaracao.condicaoEnquanto)));
@@ -597,7 +662,9 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
     }
 
     async visitarDeclaracaoEscolha(declaracao: Escolha): Promise<any> {
-        const valorCondicao = this.resolverValor(await this.avaliar(declaracao.identificadorOuLiteral));
+        const valorCondicao = this.resolverValor(
+            await this.avaliar(declaracao.identificadorOuLiteral)
+        );
         let encontrado = false;
 
         for (const caminho of declaracao.caminhos) {
@@ -648,7 +715,9 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         throw new Error('Método não implementado.');
     }
     /* istanbul ignore next */
-    visitarExpressaoAcessoIntervaloVariavel(_expressao: AcessoIntervaloVariavel): Promise<any> | void {
+    visitarExpressaoAcessoIntervaloVariavel(
+        _expressao: AcessoIntervaloVariavel
+    ): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
     /* istanbul ignore next */
@@ -664,7 +733,9 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         throw new Error('Método não implementado.');
     }
     /* istanbul ignore next */
-    visitarExpressaoArgumentoReferenciaFuncao(_expressao: ArgumentoReferenciaFuncao): Promise<any> | void {
+    visitarExpressaoArgumentoReferenciaFuncao(
+        _expressao: ArgumentoReferenciaFuncao
+    ): Promise<any> | void {
         throw new Error('Método não implementado.');
     }
     /* istanbul ignore next */
@@ -844,7 +915,10 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         if (chamavel instanceof FuncaoPadrao) {
             return chamavel.chamar(this, argumentos, null);
         }
-        const argumentosFormatados: ArgumentoInterface[] = argumentos.map((valor) => ({ nome: null, valor }));
+        const argumentosFormatados: ArgumentoInterface[] = argumentos.map((valor) => ({
+            nome: null,
+            valor,
+        }));
         return chamavel.chamar(this, argumentosFormatados, null);
     }
 

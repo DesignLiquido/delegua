@@ -2,7 +2,10 @@ import { Declaracao } from '../../declaracoes';
 import { Construto } from '../../construtos';
 import { Leia } from '../../construtos/leia';
 import { Escreva, EscrevaMesmaLinha } from '../../declaracoes';
-import { OpcoesParadigmaConsistenteInterface, RegraEstilizacaoInterface } from '../../interfaces/estilizador';
+import {
+    OpcoesParadigmaConsistenteInterface,
+    RegraEstilizacaoInterface,
+} from '../../interfaces/estilizador';
 import {
     obterFormaAlternativa,
     pertenceAoParadigma,

@@ -61,7 +61,10 @@ export class InterpretadorPitugues extends Interpretador {
      * Isso permite que `PilhaEscoposExecucaoPitugues` identifique fronteiras de
      * função e aplique a semântica LEGB corretamente.
      */
-    override async executarBloco(declaracoes: Declaracao[], ambiente?: EspacoMemoria): Promise<any> {
+    override async executarBloco(
+        declaracoes: Declaracao[],
+        ambiente?: EspacoMemoria
+    ): Promise<any> {
         if (ambiente !== undefined && ambiente !== null) {
             const escopoFuncao = {
                 declaracoes,
@@ -292,8 +295,10 @@ export class InterpretadorPitugues extends Interpretador {
 
                 retornoExecucao = await this.executar(declaracao.corpo);
 
-                if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) return null;
-                if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) retornoExecucao = null;
+                if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra)
+                    return null;
+                if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra)
+                    retornoExecucao = null;
 
                 declaracao.posicaoAtual++;
             } catch (erro: any) {

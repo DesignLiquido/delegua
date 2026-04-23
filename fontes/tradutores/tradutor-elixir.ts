@@ -143,13 +143,19 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
 
     protected mapearTipoParaTypespec(tipo: string | undefined): string {
         switch (tipo) {
-            case 'texto':    return 'String.t()';
+            case 'texto':
+                return 'String.t()';
             case 'numero':
-            case 'inteiro':  return 'integer()';
-            case 'real':     return 'float()';
-            case 'logico':   return 'boolean()';
-            case 'vazio':    return 'no_return()';
-            default:         return 'term()';
+            case 'inteiro':
+                return 'integer()';
+            case 'real':
+                return 'float()';
+            case 'logico':
+                return 'boolean()';
+            case 'vazio':
+                return 'no_return()';
+            default:
+                return 'term()';
         }
     }
 
@@ -254,11 +260,15 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
 
         if (declaracao.estrangeira) {
             // Classe estrangeira: emitir @callback para cada método, definindo a interface esperada do módulo.
-            resultado += this.adicionarIndentacao() + `@moduledoc "Classe estrangeira — implementação externa."\n`;
+            resultado +=
+                this.adicionarIndentacao() +
+                `@moduledoc "Classe estrangeira — implementação externa."\n`;
             for (const metodo of declaracao.metodos) {
                 const params = metodo.funcao.parametros.map(() => 'term()').join(', ');
                 const retorno = this.mapearTipoParaTypespec(metodo.funcao.tipo);
-                resultado += this.adicionarIndentacao() + `@callback ${metodo.simbolo.lexema}(${params}) :: ${retorno}\n`;
+                resultado +=
+                    this.adicionarIndentacao() +
+                    `@callback ${metodo.simbolo.lexema}(${params}) :: ${retorno}\n`;
             }
         } else {
             // Extrair campos do struct do construtor

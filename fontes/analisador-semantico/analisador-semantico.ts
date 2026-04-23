@@ -160,10 +160,10 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     }
 
     /**
-     * Método recursivo para verificar o tipo de um construto, usado principalmente para validar 
+     * Método recursivo para verificar o tipo de um construto, usado principalmente para validar
      * o uso de `tipoDe` e `falhar()`.
      * @param {Construto} valor O construto a ser avaliado.
-     * @returns {Promise<any>} O tipo do construto, ou `Promise.resolve()` se o tipo não puder ser 
+     * @returns {Promise<any>} O tipo do construto, ou `Promise.resolve()` se o tipo não puder ser
      * determinado neste estágio da análise.
      */
     private verificarTipoDe(valor: Construto): Promise<any> {
@@ -189,10 +189,10 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     }
 
     /**
-     * Método recursivo para verificar se um construto passado para `falhar()` é válido, ou seja, se é 
+     * Método recursivo para verificar se um construto passado para `falhar()` é válido, ou seja, se é
      * do tipo texto ou pode ser avaliado como texto.
      * @param {Construto} valor O construto a ser avaliado.
-     * @returns {Promise<any>} O tipo do construto, ou `Promise.resolve()` se o tipo não puder ser 
+     * @returns {Promise<any>} O tipo do construto, ou `Promise.resolve()` se o tipo não puder ser
      * determinado neste estágio da análise.
      */
     private verificarFalhar(valor: Construto): Promise<any> {
@@ -249,8 +249,9 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         argumentoReferenciaFuncao: ArgumentoReferenciaFuncao,
         argumentos: Construto[]
     ) {
-        const variavelCorrespondente: FuncaoConstruto =
-            this.gerenciadorEscopos.buscar(argumentoReferenciaFuncao.simboloFuncao.lexema)?.valor;
+        const variavelCorrespondente: FuncaoConstruto = this.gerenciadorEscopos.buscar(
+            argumentoReferenciaFuncao.simboloFuncao.lexema
+        )?.valor;
 
         if (!variavelCorrespondente) {
             return;
@@ -281,12 +282,40 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         const variavel = entidadeChamadaVariavel as Variavel;
         const nomeFuncao = variavel.simbolo.lexema;
         const funcoesNativas = [
-            'aleatorio', 'aleatorioEntre', 'algum', 'arredondar', 'clonar',
-            'encontrar', 'encontrarIndice', 'encontrarUltimo', 'encontrarUltimoIndice',
-            'escreva', 'filtrarPor', 'incluido', 'inteiro', 'intervalo', 'leia', 'longo',
-            'mapear', 'maximo', 'minimo', 'numero', 'número', 'ordenar', 'paraCada',
-            'primeiroEmCondicao', 'real', 'reduzir', 'somar', 'tamanho', 'texto', 'tipo',
-            'todos', 'todosEmCondicao', 'tupla', 'vetor',
+            'aleatorio',
+            'aleatorioEntre',
+            'algum',
+            'arredondar',
+            'clonar',
+            'encontrar',
+            'encontrarIndice',
+            'encontrarUltimo',
+            'encontrarUltimoIndice',
+            'escreva',
+            'filtrarPor',
+            'incluido',
+            'inteiro',
+            'intervalo',
+            'leia',
+            'longo',
+            'mapear',
+            'maximo',
+            'minimo',
+            'numero',
+            'número',
+            'ordenar',
+            'paraCada',
+            'primeiroEmCondicao',
+            'real',
+            'reduzir',
+            'somar',
+            'tamanho',
+            'texto',
+            'tipo',
+            'todos',
+            'todosEmCondicao',
+            'tupla',
+            'vetor',
         ];
         const pareceSerClasse = nomeFuncao[0] === nomeFuncao[0].toUpperCase();
 
@@ -295,8 +324,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         }
 
         const funcaoChamada =
-            this.gerenciadorEscopos.buscar(nomeFuncao) ||
-            this.funcoes[nomeFuncao];
+            this.gerenciadorEscopos.buscar(nomeFuncao) || this.funcoes[nomeFuncao];
 
         if (!funcaoChamada) {
             this.erro(
@@ -545,7 +573,11 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                             tiposNumericos.includes(condicaoLiteral.tipo) &&
                             tiposNumericos.includes(tipo);
 
-                        if (condicaoLiteral.tipo !== tipo && !ambosSaoNumericos && tipo !== 'qualquer') {
+                        if (
+                            condicaoLiteral.tipo !== tipo &&
+                            !ambosSaoNumericos &&
+                            tipo !== 'qualquer'
+                        ) {
                             this.erro(
                                 {
                                     lexema: condicaoLiteral.valor,
@@ -575,23 +607,31 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             }
         }
 
-        if (tipo === 'qualquer' && tiposLiteraisCasos.length > 0 && identificadorOuLiteral instanceof Variavel) {
+        if (
+            tipo === 'qualquer' &&
+            tiposLiteraisCasos.length > 0 &&
+            identificadorOuLiteral instanceof Variavel
+        ) {
             const tiposUnicos = [...new Set(tiposLiteraisCasos)];
             if (tiposUnicos.length === 1) {
                 const tipoInferido = tiposUnicos[0];
-                const variavelEscopo = this.gerenciadorEscopos.buscar(identificadorOuLiteral.simbolo.lexema);
+                const variavelEscopo = this.gerenciadorEscopos.buscar(
+                    identificadorOuLiteral.simbolo.lexema
+                );
                 if (variavelEscopo) {
                     this.sugestao(
                         identificadorOuLiteral.simbolo,
                         `Um tipo melhor pode ser inferido para '${identificadorOuLiteral.simbolo.lexema}': '${tipoInferido}'`,
-                        [{
-                            titulo: `Alterar tipo de '${identificadorOuLiteral.simbolo.lexema}' para '${tipoInferido}'`,
-                            textoOriginal: 'qualquer',
-                            textoSubstituto: tipoInferido,
-                            linha: variavelEscopo.linha,
-                            colunaInicio: 0,
-                            colunaFim: 0,
-                        }]
+                        [
+                            {
+                                titulo: `Alterar tipo de '${identificadorOuLiteral.simbolo.lexema}' para '${tipoInferido}'`,
+                                textoOriginal: 'qualquer',
+                                textoSubstituto: tipoInferido,
+                                linha: variavelEscopo.linha,
+                                colunaInicio: 0,
+                                colunaFim: 0,
+                            },
+                        ]
                     );
                 }
             }
@@ -1068,12 +1108,40 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
 
                 // Lista de funções embutidas que não precisam ser declaradas
                 const funcoesEmbutidas = [
-                    'aleatorio', 'aleatorioEntre', 'algum', 'arredondar', 'clonar',
-                    'encontrar', 'encontrarIndice', 'encontrarUltimo', 'encontrarUltimoIndice',
-                    'escreva', 'filtrarPor', 'incluido', 'inteiro', 'intervalo', 'leia', 'longo',
-                    'mapear', 'maximo', 'minimo', 'numero', 'número', 'ordenar', 'paraCada',
-                    'primeiroEmCondicao', 'real', 'reduzir', 'somar', 'tamanho', 'texto', 'tipo',
-                    'todos', 'todosEmCondicao', 'tupla', 'vetor',
+                    'aleatorio',
+                    'aleatorioEntre',
+                    'algum',
+                    'arredondar',
+                    'clonar',
+                    'encontrar',
+                    'encontrarIndice',
+                    'encontrarUltimo',
+                    'encontrarUltimoIndice',
+                    'escreva',
+                    'filtrarPor',
+                    'incluido',
+                    'inteiro',
+                    'intervalo',
+                    'leia',
+                    'longo',
+                    'mapear',
+                    'maximo',
+                    'minimo',
+                    'numero',
+                    'número',
+                    'ordenar',
+                    'paraCada',
+                    'primeiroEmCondicao',
+                    'real',
+                    'reduzir',
+                    'somar',
+                    'tamanho',
+                    'texto',
+                    'tipo',
+                    'todos',
+                    'todosEmCondicao',
+                    'tupla',
+                    'vetor',
                 ];
 
                 // Classes/construtores geralmente começam com letra maiúscula
@@ -1147,7 +1215,10 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             const expressaoInterpolacao = match[1].trim();
             try {
                 const retornoMicroLexador = this.microLexador.mapear(expressaoInterpolacao);
-                const retornoMicro = this.microAvaliadorSintatico.analisar(retornoMicroLexador, literal.linha);
+                const retornoMicro = this.microAvaliadorSintatico.analisar(
+                    retornoMicroLexador,
+                    literal.linha
+                );
                 for (const construto of retornoMicro.declaracoes) {
                     this.marcarVariaveisUsadasEmExpressao(construto as unknown as Construto);
                 }
@@ -1482,7 +1553,10 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                     superClasseVariavel.simbolo,
                     `A classe '${declaracao.simbolo.lexema}' não pode herdar de si mesma.`
                 );
-            } else if (!this.classesDeclaradas.has(nomeSuperclasse) && !this.classesExternasConhecidas.has(nomeSuperclasse)) {
+            } else if (
+                !this.classesDeclaradas.has(nomeSuperclasse) &&
+                !this.classesExternasConhecidas.has(nomeSuperclasse)
+            ) {
                 this.erro(
                     superClasseVariavel.simbolo,
                     `Superclasse '${nomeSuperclasse}' não foi declarada.`

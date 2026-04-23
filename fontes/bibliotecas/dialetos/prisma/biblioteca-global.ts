@@ -19,9 +19,10 @@ export default function carregarBibliotecaGlobalPrisma(
     globals.definirVariavel(
         'tipo',
         new FuncaoPadrao(1, function (_: any, valor: any) {
-            const v = valor !== null && valor !== undefined && valor.hasOwnProperty('valor')
-                ? valor.valor
-                : valor;
+            const v =
+                valor !== null && valor !== undefined && valor.hasOwnProperty('valor')
+                    ? valor.valor
+                    : valor;
 
             if (v === null || v === undefined) {
                 return 'nulo';
@@ -60,9 +61,10 @@ export default function carregarBibliotecaGlobalPrisma(
         'poe',
         new FuncaoPadrao(1, function (_visitante: any, ...args: any[]) {
             for (const arg of args) {
-                const v = arg !== null && arg !== undefined && arg.hasOwnProperty('valor')
-                    ? arg.valor
-                    : arg;
+                const v =
+                    arg !== null && arg !== undefined && arg.hasOwnProperty('valor')
+                        ? arg.valor
+                        : arg;
 
                 const texto = v !== null && v !== undefined ? String(v) : 'nulo';
                 interpretador.funcaoDeRetorno(texto);
@@ -77,9 +79,7 @@ export default function carregarBibliotecaGlobalPrisma(
     globals.definirVariavel(
         'pares',
         new FuncaoPadrao(1, function (interp: any, tabela: any) {
-            const t = tabela !== null && tabela !== undefined
-                ? interp.resolverValor(tabela)
-                : null;
+            const t = tabela !== null && tabela !== undefined ? interp.resolverValor(tabela) : null;
 
             const resultado = [];
             if (Array.isArray(t)) {
@@ -104,9 +104,7 @@ export default function carregarBibliotecaGlobalPrisma(
     globals.definirVariavel(
         'ipares',
         new FuncaoPadrao(1, function (interp: any, tabela: any) {
-            const t = tabela !== null && tabela !== undefined
-                ? interp.resolverValor(tabela)
-                : null;
+            const t = tabela !== null && tabela !== undefined ? interp.resolverValor(tabela) : null;
 
             const resultado = [];
             if (Array.isArray(t)) {
@@ -131,9 +129,10 @@ export default function carregarBibliotecaGlobalPrisma(
     globals.definirVariavel(
         'convnumero',
         new FuncaoPadrao(1, function (_: any, valor: any) {
-            const v = valor !== null && valor !== undefined && valor.hasOwnProperty('valor')
-                ? valor.valor
-                : valor;
+            const v =
+                valor !== null && valor !== undefined && valor.hasOwnProperty('valor')
+                    ? valor.valor
+                    : valor;
 
             if (typeof v === 'number') {
                 return v;
@@ -159,9 +158,10 @@ export default function carregarBibliotecaGlobalPrisma(
     globals.definirVariavel(
         'convstring',
         new FuncaoPadrao(1, function (_: any, valor: any) {
-            const v = valor !== null && valor !== undefined && valor.hasOwnProperty('valor')
-                ? valor.valor
-                : valor;
+            const v =
+                valor !== null && valor !== undefined && valor.hasOwnProperty('valor')
+                    ? valor.valor
+                    : valor;
 
             if (v === null || v === undefined) {
                 return 'nulo';
@@ -181,9 +181,10 @@ export default function carregarBibliotecaGlobalPrisma(
     globals.definirVariavel(
         'tamanho',
         new FuncaoPadrao(1, function (_: any, valor: any) {
-            const v = valor !== null && valor !== undefined && valor.hasOwnProperty('valor')
-                ? valor.valor
-                : valor;
+            const v =
+                valor !== null && valor !== undefined && valor.hasOwnProperty('valor')
+                    ? valor.valor
+                    : valor;
 
             if (Array.isArray(v)) {
                 return v.length;
@@ -241,12 +242,10 @@ export default function carregarBibliotecaGlobalPrisma(
     globals.definirVariavel(
         'aleatorio_entre',
         new FuncaoPadrao(2, function (_: any, min: any, max: any) {
-            const minVal = min !== null && min !== undefined && min.hasOwnProperty('valor')
-                ? min.valor
-                : min;
-            const maxVal = max !== null && max !== undefined && max.hasOwnProperty('valor')
-                ? max.valor
-                : max;
+            const minVal =
+                min !== null && min !== undefined && min.hasOwnProperty('valor') ? min.valor : min;
+            const maxVal =
+                max !== null && max !== undefined && max.hasOwnProperty('valor') ? max.valor : max;
 
             if (typeof minVal !== 'number' || typeof maxVal !== 'number') {
                 return null;
@@ -270,9 +269,10 @@ export default function carregarBibliotecaGlobalPrisma(
     globals.definirVariavel(
         'coletelixo',
         new FuncaoPadrao(1, function (_: any, acao: any) {
-            const acaoVal = acao !== null && acao !== undefined && acao.hasOwnProperty('valor')
-                ? acao.valor
-                : acao;
+            const acaoVal =
+                acao !== null && acao !== undefined && acao.hasOwnProperty('valor')
+                    ? acao.valor
+                    : acao;
 
             const acaoStr = typeof acaoVal === 'string' ? acaoVal : 'coletar';
 

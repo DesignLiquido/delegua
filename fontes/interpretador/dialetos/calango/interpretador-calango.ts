@@ -12,7 +12,11 @@ export class InterpretadorCalango extends InterpretadorBase implements Interpret
                 indice = await this.avaliar(expressao.indice);
             }
             const alvoVariavel = expressao.alvo as Variavel;
-            this.pilhaEscoposExecucao.atribuirVariavel(alvoVariavel.simbolo, valorResolvido, indice);
+            this.pilhaEscoposExecucao.atribuirVariavel(
+                alvoVariavel.simbolo,
+                valorResolvido,
+                indice
+            );
             return valorResolvido;
         }
         return super.visitarExpressaoDeAtribuicao(expressao);

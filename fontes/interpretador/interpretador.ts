@@ -404,7 +404,9 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             this.eVerdadeiro(await this.avaliar(enquanto.condicao))
         ) {
             try {
-                if (this.funcaoVerificarIteracao) { await this.funcaoVerificarIteracao(); }
+                if (this.funcaoVerificarIteracao) {
+                    await this.funcaoVerificarIteracao();
+                }
                 retornoExecucao = await this.executar(enquanto.corpo);
                 if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                     if (acumularRetornos) {
@@ -453,7 +455,9 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         const retornos = [];
         do {
             try {
-                if (this.funcaoVerificarIteracao) { await this.funcaoVerificarIteracao(); }
+                if (this.funcaoVerificarIteracao) {
+                    await this.funcaoVerificarIteracao();
+                }
                 retornoExecucao = await this.executar(fazer.caminhoFazer);
                 if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                     if (acumularRetornos) {
@@ -521,7 +525,9 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 break;
             }
 
-            if (this.funcaoVerificarIteracao) { await this.funcaoVerificarIteracao(); }
+            if (this.funcaoVerificarIteracao) {
+                await this.funcaoVerificarIteracao();
+            }
             retornoExecucao = await this.executar(para.corpo);
             if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                 if (acumularRetornos) {
@@ -609,7 +615,9 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             paraCada.posicaoAtual < valorVetorOuDicionarioResolvido.length
         ) {
             try {
-                if (this.funcaoVerificarIteracao) { await this.funcaoVerificarIteracao(); }
+                if (this.funcaoVerificarIteracao) {
+                    await this.funcaoVerificarIteracao();
+                }
                 if (paraCada.variavelIteracao instanceof Variavel) {
                     this.pilhaEscoposExecucao.definirVariavel(
                         paraCada.variavelIteracao.simbolo.lexema,
@@ -842,7 +850,6 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         );
     }
 
-
     protected logicaPropriedadesEMetodosDeClasse(
         declaracao: Classe,
         superClassesResolvidas: DescritorTipoClasse[],
@@ -1010,7 +1017,11 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         superClassesResolvidas: DescritorTipoClasse[],
         mesclaResolvidas: DescritorTipoClasse[]
     ): DescritorTipoClasse {
-        return this.logicaPropriedadesEMetodosDeClasse(declaracao, superClassesResolvidas, mesclaResolvidas);
+        return this.logicaPropriedadesEMetodosDeClasse(
+            declaracao,
+            superClassesResolvidas,
+            mesclaResolvidas
+        );
     }
 
     /**
@@ -1025,8 +1036,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
         const variavelClasseExecutora =
             this.pilhaEscoposExecucao.obterVariavelPorNome('classeExecutora');
-        const classeExecutora: DescritorTipoClasse | null =
-            variavelClasseExecutora?.valor ?? null;
+        const classeExecutora: DescritorTipoClasse | null = variavelClasseExecutora?.valor ?? null;
 
         const orem = instancia.classe.orem;
 
@@ -1092,9 +1102,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         // Objeto simples do JavaScript, ou dicionário de Delégua.
         if (objeto.constructor === Object) {
             if (expressao.nomeMetodo in primitivasDicionario) {
-                const metodoDePrimitivaDicionario = primitivasDicionario[
-                    expressao.nomeMetodo
-                ].implementacao as (...argumentos: any[]) => any;
+                const metodoDePrimitivaDicionario = primitivasDicionario[expressao.nomeMetodo]
+                    .implementacao as (...argumentos: any[]) => any;
                 return new MetodoPrimitiva(
                     nomeObjeto,
                     objeto,
@@ -1146,9 +1155,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             case tipoDeDadosDelegua.NUMERO:
             case tipoDeDadosDelegua.NÚMERO:
                 if (expressao.nomeMetodo in primitivasNumero) {
-                    const metodoDePrimitivaNumero = primitivasNumero[
-                        expressao.nomeMetodo
-                    ].implementacao as (...argumentos: any[]) => any;
+                    const metodoDePrimitivaNumero = primitivasNumero[expressao.nomeMetodo]
+                        .implementacao as (...argumentos: any[]) => any;
                     if (metodoDePrimitivaNumero) {
                         return new MetodoPrimitiva(
                             nomeObjeto,
@@ -1169,9 +1177,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 break;
             case tipoDeDadosDelegua.TEXTO:
                 if (expressao.nomeMetodo in primitivasTexto) {
-                    const metodoDePrimitivaTexto = primitivasTexto[
-                        expressao.nomeMetodo
-                    ].implementacao as (...argumentos: any[]) => any;
+                    const metodoDePrimitivaTexto = primitivasTexto[expressao.nomeMetodo]
+                        .implementacao as (...argumentos: any[]) => any;
                     if (metodoDePrimitivaTexto) {
                         return new MetodoPrimitiva(
                             nomeObjeto,
@@ -1199,9 +1206,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             case tipoDeDadosDelegua.VETOR_QUALQUER:
             case tipoDeDadosDelegua.VETOR_TEXTO:
                 if (expressao.nomeMetodo in primitivasVetor) {
-                    const metodoDePrimitivaVetor = primitivasVetor[
-                        expressao.nomeMetodo
-                    ].implementacao as (...argumentos: any[]) => any;
+                    const metodoDePrimitivaVetor = primitivasVetor[expressao.nomeMetodo]
+                        .implementacao as (...argumentos: any[]) => any;
                     if (metodoDePrimitivaVetor) {
                         return new MetodoPrimitiva(
                             nomeObjeto,
@@ -1355,9 +1361,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         // Objeto simples do JavaScript, ou dicionário de Delégua.
         if (objeto.constructor === Object) {
             if (expressao.simbolo.lexema in primitivasDicionario) {
-                const metodoDePrimitivaDicionario = primitivasDicionario[
-                    expressao.simbolo.lexema
-                ].implementacao as (...argumentos: any[]) => any;
+                const metodoDePrimitivaDicionario = primitivasDicionario[expressao.simbolo.lexema]
+                    .implementacao as (...argumentos: any[]) => any;
                 return new MetodoPrimitiva(
                     nomeObjeto,
                     objeto,
@@ -1385,9 +1390,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 );
             }
 
-            const metodoDePrimitivaTexto = primitivasTexto[
-                expressao.simbolo.lexema
-            ].implementacao as (...argumentos: any[]) => any;
+            const metodoDePrimitivaTexto = primitivasTexto[expressao.simbolo.lexema]
+                .implementacao as (...argumentos: any[]) => any;
             return new MetodoPrimitiva(
                 nomeObjeto,
                 objeto,
@@ -1428,9 +1432,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                     );
                 }
 
-                const metodoDePrimitivaNumero = primitivasNumero[
-                    expressao.simbolo.lexema
-                ].implementacao as (...argumentos: any[]) => any;
+                const metodoDePrimitivaNumero = primitivasNumero[expressao.simbolo.lexema]
+                    .implementacao as (...argumentos: any[]) => any;
                 if (metodoDePrimitivaNumero) {
                     return new MetodoPrimitiva(
                         nomeObjeto,
@@ -1456,9 +1459,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                     );
                 }
 
-                const metodoDePrimitivaTexto = primitivasTexto[
-                    expressao.simbolo.lexema
-                ].implementacao as (...argumentos: any[]) => any;
+                const metodoDePrimitivaTexto = primitivasTexto[expressao.simbolo.lexema]
+                    .implementacao as (...argumentos: any[]) => any;
                 if (metodoDePrimitivaTexto) {
                     return new MetodoPrimitiva(
                         nomeObjeto,
@@ -1491,9 +1493,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                     );
                 }
 
-                const metodoDePrimitivaVetor = primitivasVetor[
-                    expressao.simbolo.lexema
-                ].implementacao as (...argumentos: any[]) => any;
+                const metodoDePrimitivaVetor = primitivasVetor[expressao.simbolo.lexema]
+                    .implementacao as (...argumentos: any[]) => any;
                 if (metodoDePrimitivaVetor) {
                     return new MetodoPrimitiva(
                         nomeObjeto,
@@ -1572,9 +1573,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         // Objeto simples do JavaScript, ou dicionário de Delégua.
         if (objeto.constructor === Object) {
             if (expressao.nomePropriedade in primitivasDicionario) {
-                const metodoDePrimitivaDicionario = primitivasDicionario[
-                    expressao.nomePropriedade
-                ].implementacao as (...argumentos: any[]) => any;
+                const metodoDePrimitivaDicionario = primitivasDicionario[expressao.nomePropriedade]
+                    .implementacao as (...argumentos: any[]) => any;
                 return new MetodoPrimitiva(
                     nomeObjeto,
                     objeto,

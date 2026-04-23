@@ -1,1 +1,1 @@
-export * from "./opcoes-formatador-delegua-interface";
+export * from './opcoes-formatador-delegua-interface';

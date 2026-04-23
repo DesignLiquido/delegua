@@ -42,7 +42,12 @@ import {
     Variavel,
     Vetor,
 } from '../construtos';
-import { AvaliadorSintaticoInterface, CaminhoEscolha, ParametroInterface, SimboloInterface } from '../interfaces';
+import {
+    AvaliadorSintaticoInterface,
+    CaminhoEscolha,
+    ParametroInterface,
+    SimboloInterface,
+} from '../interfaces';
 
 import {
     CorrecaoImplementacaoInterface,
@@ -359,11 +364,21 @@ export class AvaliadorSintatico
 
             case tiposDeSimbolos.EXTENSAO:
                 this.avancarEDevolverAnterior();
-                return new Literal(this.hashArquivo, Number(simboloAtual.linha), 'extensao', 'texto');
+                return new Literal(
+                    this.hashArquivo,
+                    Number(simboloAtual.linha),
+                    'extensao',
+                    'texto'
+                );
 
             case tiposDeSimbolos.ASSERCAO:
                 this.avancarEDevolverAnterior();
-                return new Literal(this.hashArquivo, Number(simboloAtual.linha), 'assercao', 'texto');
+                return new Literal(
+                    this.hashArquivo,
+                    Number(simboloAtual.linha),
+                    'assercao',
+                    'texto'
+                );
 
             default:
                 return undefined;
@@ -1004,7 +1019,10 @@ export class AvaliadorSintatico
                                 );
                                 break;
                             default:
-                                if (construtoTipado.tipo && construtoTipado.tipo in this.tiposDefinidosEmCodigo) {
+                                if (
+                                    construtoTipado.tipo &&
+                                    construtoTipado.tipo in this.tiposDefinidosEmCodigo
+                                ) {
                                     const tipoCorrespondente = this.tiposDefinidosEmCodigo[
                                         construtoTipado.tipo
                                     ] as Classe;
@@ -1345,7 +1363,9 @@ export class AvaliadorSintatico
     private resolverAcessoMetodoConhecido(
         construtoTipado: AcessoMetodoOuPropriedade
     ): AcessoMetodo | null {
-        const tiposParaConsulta = this.obterTiposParaConsultaPrimitiva(construtoTipado.tipo as string);
+        const tiposParaConsulta = this.obterTiposParaConsultaPrimitiva(
+            construtoTipado.tipo as string
+        );
 
         for (const tipoConsulta of tiposParaConsulta) {
             const primitivasPorTipo = this.primitivasConhecidas[tipoConsulta];
@@ -2253,7 +2273,7 @@ export class AvaliadorSintatico
 
                     const declaracoes: Declaracao[] = [];
                     do {
-                        declaracoes.push(await this.resolverDeclaracao() as Declaracao);
+                        declaracoes.push((await this.resolverDeclaracao()) as Declaracao);
                     } while (
                         !this.verificarTipoSimboloAtual(tiposDeSimbolos.CASO) &&
                         !this.verificarTipoSimboloAtual(tiposDeSimbolos.PADRAO) &&
@@ -2388,11 +2408,9 @@ export class AvaliadorSintatico
         );
 
         const declaracaoFalhar = new Falhar(simboloAssercao, mensagemFalha);
-        const blocoFalha = new Bloco(
-            simboloAssercao.hashArquivo,
-            Number(simboloAssercao.linha),
-            [declaracaoFalhar]
-        );
+        const blocoFalha = new Bloco(simboloAssercao.hashArquivo, Number(simboloAssercao.linha), [
+            declaracaoFalhar,
+        ]);
 
         return new Se(condicaoNegada, blocoFalha);
     }
@@ -2498,7 +2516,7 @@ export class AvaliadorSintatico
             default:
                 throw this.erro(
                     this.simbolos[this.atual],
-                    "Esperado caminho do módulo como texto ou identificador em declaração de importação."
+                    'Esperado caminho do módulo como texto ou identificador em declaração de importação.'
                 );
         }
 
@@ -2784,7 +2802,7 @@ export class AvaliadorSintatico
 
         let caminhoSenao: Declaracao | undefined = undefined;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAO, tiposDeSimbolos.SENÃO)) {
-            caminhoSenao = await this.resolverDeclaracao() as Declaracao;
+            caminhoSenao = (await this.resolverDeclaracao()) as Declaracao;
         }
 
         return new Se(condicao, caminhoEntao, [], caminhoSenao);
@@ -3032,11 +3050,15 @@ export class AvaliadorSintatico
                 const classeDefinida = this.tiposDefinidosEmCodigo[tipoObjeto];
                 if (classeDefinida instanceof Classe) {
                     const nomeMembro = entidadeChamada.simbolo.lexema;
-                    const metodo = classeDefinida.metodos?.find(m => m.simbolo.lexema === nomeMembro);
+                    const metodo = classeDefinida.metodos?.find(
+                        (m) => m.simbolo.lexema === nomeMembro
+                    );
                     if (metodo) {
                         return metodo.tipo || 'qualquer';
                     }
-                    const propriedade = classeDefinida.propriedades?.find(p => p.nome.lexema === nomeMembro);
+                    const propriedade = classeDefinida.propriedades?.find(
+                        (p) => p.nome.lexema === nomeMembro
+                    );
                     if (propriedade) {
                         return propriedade.tipo || 'qualquer';
                     }
@@ -3044,8 +3066,7 @@ export class AvaliadorSintatico
                 }
             }
 
-            const tipoCorrespondente =
-                this.tiposDefinidosPorBibliotecas[tipoObjeto];
+            const tipoCorrespondente = this.tiposDefinidosPorBibliotecas[tipoObjeto];
             if (!tipoCorrespondente) {
                 throw new ErroAvaliadorSintatico(
                     entidadeChamada.simbolo,
@@ -3078,7 +3099,9 @@ export class AvaliadorSintatico
         if (entidadeChamada.objeto instanceof Isto) {
             if (this.metodosClasseAtualEmAnalise) {
                 const nomeMembro = entidadeChamada.simbolo.lexema;
-                const metodo = this.metodosClasseAtualEmAnalise.find(m => m.simbolo.lexema === nomeMembro);
+                const metodo = this.metodosClasseAtualEmAnalise.find(
+                    (m) => m.simbolo.lexema === nomeMembro
+                );
                 if (metodo) {
                     return metodo.tipo || 'qualquer';
                 }
@@ -3124,7 +3147,8 @@ export class AvaliadorSintatico
                     );
                 }
 
-                const tipoEntidadeChamadaAcessoIndiceVariavel = entidadeChamadaAcessoIndiceVariavel.tipo as string;
+                const tipoEntidadeChamadaAcessoIndiceVariavel =
+                    entidadeChamadaAcessoIndiceVariavel.tipo as string;
                 if (tipoEntidadeChamadaAcessoIndiceVariavel.endsWith('[]')) {
                     return tipoEntidadeChamadaAcessoIndiceVariavel.slice(0, -2);
                 }
@@ -3296,10 +3320,11 @@ export class AvaliadorSintatico
 
         for (let [indice, identificador] of identificadores.entries()) {
             const tipoOriginal = tipo; // Preserva o tipo antes da inferência
-            tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(
-                inicializadores[indice],
-                tipo
-            ) ?? tipo;
+            tipo =
+                this.logicaComumInferenciaTiposVariaveisEConstantes(
+                    inicializadores[indice],
+                    tipo
+                ) ?? tipo;
 
             if (tipo !== 'dicionário') {
                 this.pilhaEscopos.definirInformacoesVariavel(
@@ -3430,10 +3455,11 @@ export class AvaliadorSintatico
         let retorno: Const[] = [];
         for (let [indice, identificador] of identificadores.entries()) {
             // Se tipo ainda não foi definido, infere.
-            tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(
-                inicializadores[indice],
-                tipo
-            ) ?? tipo;
+            tipo =
+                this.logicaComumInferenciaTiposVariaveisEConstantes(
+                    inicializadores[indice],
+                    tipo
+                ) ?? tipo;
 
             if (tipo !== 'dicionário') {
                 this.pilhaEscopos.definirInformacoesVariavel(
@@ -3912,9 +3938,8 @@ export class AvaliadorSintatico
                         this.erros.push(erro);
                     }
                     if (this.erros.length > quantidadeErrosAntesCorpoOp) {
-                        this.atual = this.encontrarIndiceAposFechamentoDeBloco(
-                            indiceAberturaCorpoOp
-                        );
+                        this.atual =
+                            this.encontrarIndiceAposFechamentoDeBloco(indiceAberturaCorpoOp);
                         corpoOp = [];
                         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
                     }
@@ -3975,7 +4000,7 @@ export class AvaliadorSintatico
                         ) {
                             throw this.erro(
                                 this.simbolos[this.atual],
-                                "Métodos de classe estrangeira não podem ter corpo."
+                                'Métodos de classe estrangeira não podem ter corpo.'
                             );
                         }
 
@@ -4024,11 +4049,12 @@ export class AvaliadorSintatico
                                 this.erros.push(erro);
                             }
                             if (this.erros.length > quantidadeErrosAntesCorpo) {
-                                this.atual = this.encontrarIndiceAposFechamentoDeBloco(
-                                    indiceAberturaCorpo
-                                );
+                                this.atual =
+                                    this.encontrarIndiceAposFechamentoDeBloco(indiceAberturaCorpo);
                                 corpo = [];
-                                this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+                                this.verificarSeSimboloAtualEIgualA(
+                                    tiposDeSimbolos.PONTO_E_VIRGULA
+                                );
                             }
 
                             let expressoesRetorna: any[] = [];
@@ -4156,18 +4182,14 @@ export class AvaliadorSintatico
                                             "Esperado '{' antes do corpo do acessor."
                                         );
                                         const indiceAberturaCorpoAcessor = this.atual - 1;
-                                        const quantidadeErrosAntesCorpoAcessor =
-                                            this.erros.length;
+                                        const quantidadeErrosAntesCorpoAcessor = this.erros.length;
                                         let corpoAcessor: Declaracao[] = [];
                                         try {
                                             corpoAcessor = await this.blocoEscopo();
                                         } catch (erro: any) {
                                             this.erros.push(erro);
                                         }
-                                        if (
-                                            this.erros.length >
-                                            quantidadeErrosAntesCorpoAcessor
-                                        ) {
+                                        if (this.erros.length > quantidadeErrosAntesCorpoAcessor) {
                                             this.atual = this.encontrarIndiceAposFechamentoDeBloco(
                                                 indiceAberturaCorpoAcessor
                                             );

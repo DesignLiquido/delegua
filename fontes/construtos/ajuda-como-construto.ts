@@ -12,7 +12,12 @@ export class AjudaComoConstruto implements Construto {
     valor: Construto | undefined;
     funcao: boolean;
 
-    constructor(hashArquivo: number, linha: number, elemento: Construto | undefined, funcao: boolean = true) {
+    constructor(
+        hashArquivo: number,
+        linha: number,
+        elemento: Construto | undefined,
+        funcao: boolean = true
+    ) {
         this.hashArquivo = hashArquivo;
         this.linha = linha;
         this.valor = elemento;

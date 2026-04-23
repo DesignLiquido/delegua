@@ -1389,7 +1389,9 @@ export class TradutorAssemblyScript {
         return `this.${nomeMetodo}`;
     }
 
-    traduzirConstrutoAcessoMetodoOuPropriedade(acessoMetodoOuPropriedade: AcessoMetodoOuPropriedade): string {
+    traduzirConstrutoAcessoMetodoOuPropriedade(
+        acessoMetodoOuPropriedade: AcessoMetodoOuPropriedade
+    ): string {
         const nomeMetodo = acessoMetodoOuPropriedade.simbolo?.lexema;
         if (acessoMetodoOuPropriedade.objeto instanceof Variavel) {
             let objetoVariavel = acessoMetodoOuPropriedade.objeto as Variavel;

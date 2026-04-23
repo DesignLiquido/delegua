@@ -279,10 +279,7 @@ export default {
                 return args;
             };
 
-            const aplicarAlinhamento = (
-                texto: string,
-                configuracao: string
-            ): string => {
+            const aplicarAlinhamento = (texto: string, configuracao: string): string => {
                 const match = configuracao.match(/^(.*?)([<>^])(\d+)$/);
                 if (!match) return texto;
 
@@ -293,32 +290,32 @@ export default {
                 if (texto.length >= largura) return texto;
 
                 switch (alinhamento) {
-                    case '<': return texto.padEnd(largura, preenchimento);
-                    case '>': return texto.padStart(largura, preenchimento);
+                    case '<':
+                        return texto.padEnd(largura, preenchimento);
+                    case '>':
+                        return texto.padStart(largura, preenchimento);
                     case '^': {
                         const total = largura - texto.length;
                         const esquerda = Math.floor(total / 2);
                         const direita = total - esquerda;
 
-                        return preenchimento.repeat(esquerda) + texto + preenchimento.repeat(direita);
+                        return (
+                            preenchimento.repeat(esquerda) + texto + preenchimento.repeat(direita)
+                        );
                     }
-                    default: return texto;
+                    default:
+                        return texto;
                 }
             };
 
-            const processarConfiguracaoNumerica = (
-                valor: any,
-                configuracao: string
-            ): string => {
+            const processarConfiguracaoNumerica = (valor: any, configuracao: string): string => {
                 const formatadoresNumericos = ['f', '%', 'x', 'X', 'b'];
-                const ehNumerico = formatadoresNumericos
-                    .some(f => configuracao.includes(f))
-                    || /^0\d+$/.test(configuracao);
+                const ehNumerico =
+                    formatadoresNumericos.some((f) => configuracao.includes(f)) ||
+                    /^0\d+$/.test(configuracao);
 
                 if (ehNumerico && typeof valor !== 'number') {
-                    const tipoExibido = typeof valor === 'string'
-                        ? 'texto'
-                        : typeof valor;
+                    const tipoExibido = typeof valor === 'string' ? 'texto' : typeof valor;
 
                     throw new ErroEmTempoDeExecucao(
                         null,
@@ -341,8 +338,7 @@ export default {
                 if (matchZero) {
                     const largura = parseInt(matchZero[1], 10);
                     const negativo = valor < 0;
-                    const strAbs = Math
-                        .abs(valor)
+                    const strAbs = Math.abs(valor)
                         .toString()
                         .padStart(negativo ? largura - 1 : largura, '0');
 
@@ -360,10 +356,9 @@ export default {
 
                     if (configuracao.includes(',')) {
                         const [inteiro, decimal] = formatado.split('.');
-                        formatado = inteiro.replace(
-                            /\B(?=(\d{3})+(?!\d))/g,
-                            ','
-                        ) + (decimal ? '.' + decimal : '');
+                        formatado =
+                            inteiro.replace(/\B(?=(\d{3})+(?!\d))/g, ',') +
+                            (decimal ? '.' + decimal : '');
                     }
 
                     return tipo === '%' ? `${formatado}%` : formatado;
@@ -396,9 +391,7 @@ export default {
                         ? aplicarAlinhamento(String(valor), configuracao)
                         : processarConfiguracaoNumerica(valor, configuracao);
                 } else if (ehMascaraDepuracao(mioloLimpo)) {
-                    const representacao = (typeof valor === 'string')
-                        ? `'${valor}'`
-                        : String(valor);
+                    const representacao = typeof valor === 'string' ? `'${valor}'` : String(valor);
 
                     resultado = miolo + representacao;
                 } else {
