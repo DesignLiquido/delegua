@@ -17,6 +17,7 @@ import {
     Logico,
     ReferenciaFuncao,
     TipoDe,
+    Dupla,
     Variavel,
     Vetor,
 } from '../construtos';
@@ -279,7 +280,14 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     visitarChamadaPorVariavel(entidadeChamadaVariavel: Variavel, argumentos: Construto[]) {
         const variavel = entidadeChamadaVariavel as Variavel;
         const nomeFuncao = variavel.simbolo.lexema;
-        const funcoesNativas = ['inteiro', 'real', 'numero', 'número', 'texto', 'leia', 'escreva', 'tipo'];
+        const funcoesNativas = [
+            'aleatorio', 'aleatorioEntre', 'algum', 'arredondar', 'clonar',
+            'encontrar', 'encontrarIndice', 'encontrarUltimo', 'encontrarUltimoIndice',
+            'escreva', 'filtrarPor', 'incluido', 'inteiro', 'intervalo', 'leia', 'longo',
+            'mapear', 'maximo', 'minimo', 'numero', 'número', 'ordenar', 'paraCada',
+            'primeiroEmCondicao', 'real', 'reduzir', 'somar', 'tamanho', 'texto', 'tipo',
+            'todos', 'todosEmCondicao', 'tupla', 'vetor',
+        ];
         const pareceSerClasse = nomeFuncao[0] === nomeFuncao[0].toUpperCase();
 
         if (funcoesNativas.includes(nomeFuncao) || pareceSerClasse) {
@@ -517,12 +525,17 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    override visitarDeclaracaoEscolha(declaracao: Escolha) {
+    override async visitarDeclaracaoEscolha(declaracao: Escolha) {
         const identificadorOuLiteral = declaracao.identificadorOuLiteral as Construto;
         const tipo = identificadorOuLiteral.tipo || 'qualquer';
         const tiposLiteraisCasos: string[] = [];
 
+        this.marcarVariaveisUsadasEmExpressao(identificadorOuLiteral);
+
         for (let caminho of declaracao.caminhos) {
+            for (const declaracao of caminho.declaracoes) {
+                await declaracao.aceitar(this);
+            }
             for (let condicao of caminho.condicoes) {
                 switch (condicao.constructor) {
                     case Literal:
@@ -581,6 +594,12 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                         }]
                     );
                 }
+            }
+        }
+
+        if (declaracao.caminhoPadrao) {
+            for (const decl of declaracao.caminhoPadrao.declaracoes) {
+                await decl.aceitar(this);
             }
         }
 
@@ -647,9 +666,50 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    override visitarDeclaracaoParaCada(declaracao: ParaCada) {
-        // Marca o vetor/dicionário como usado
+    override async visitarDeclaracaoParaCada(declaracao: ParaCada) {
         this.marcarVariaveisUsadasEmExpressao(declaracao.vetorOuDicionario);
+
+        this.gerenciadorEscopos.empilharEscopo();
+
+        try {
+            if (declaracao.variavelIteracao instanceof Variavel) {
+                const nome = declaracao.variavelIteracao.simbolo.lexema;
+                this.gerenciadorEscopos.declarar(nome, {
+                    nome,
+                    tipo: 'qualquer',
+                    imutavel: false,
+                    valor: null,
+                    inicializada: true,
+                    usada: false,
+                    hashArquivo: declaracao.hashArquivo,
+                    linha: declaracao.linha,
+                });
+            } else if (declaracao.variavelIteracao instanceof Dupla) {
+                const dupla = declaracao.variavelIteracao;
+                for (const parte of [dupla.primeiro, dupla.segundo]) {
+                    if (parte instanceof Variavel) {
+                        const nome = parte.simbolo.lexema;
+                        this.gerenciadorEscopos.declarar(nome, {
+                            nome,
+                            tipo: 'qualquer',
+                            imutavel: false,
+                            valor: null,
+                            inicializada: true,
+                            usada: false,
+                            hashArquivo: declaracao.hashArquivo,
+                            linha: declaracao.linha,
+                        });
+                    }
+                }
+            }
+
+            if (declaracao.corpo) {
+                await declaracao.corpo.aceitar(this);
+            }
+        } finally {
+            this.gerenciadorEscopos.desempilharEscopo();
+        }
+
         return Promise.resolve();
     }
 
@@ -1008,14 +1068,12 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
 
                 // Lista de funções embutidas que não precisam ser declaradas
                 const funcoesEmbutidas = [
-                    'inteiro',
-                    'real',
-                    'numero',
-                    'número',
-                    'texto',
-                    'leia',
-                    'escreva',
-                    'tipo',
+                    'aleatorio', 'aleatorioEntre', 'algum', 'arredondar', 'clonar',
+                    'encontrar', 'encontrarIndice', 'encontrarUltimo', 'encontrarUltimoIndice',
+                    'escreva', 'filtrarPor', 'incluido', 'inteiro', 'intervalo', 'leia', 'longo',
+                    'mapear', 'maximo', 'minimo', 'numero', 'número', 'ordenar', 'paraCada',
+                    'primeiroEmCondicao', 'real', 'reduzir', 'somar', 'tamanho', 'texto', 'tipo',
+                    'todos', 'todosEmCondicao', 'tupla', 'vetor',
                 ];
 
                 // Classes/construtores geralmente começam com letra maiúscula
@@ -1328,6 +1386,9 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     }
 
     override visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
+        if (declaracao.valor) {
+            this.marcarVariaveisUsadasEmExpressao(declaracao.valor);
+        }
         return Promise.resolve(undefined as unknown as RetornoQuebra);
     }
 
@@ -1465,8 +1526,25 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                         `Método especifica tipo de retorno '${tipoRetornoMetodo}', mas não há qualquer retorno correspondente no corpo do método.`
                     );
                 }
-                for (const stmt of metodo.funcao.corpo) {
-                    await stmt.aceitar(this);
+                this.gerenciadorEscopos.empilharEscopo();
+                try {
+                    for (const parametro of metodo.funcao.parametros) {
+                        this.gerenciadorEscopos.declarar(parametro.nome.lexema, {
+                            nome: parametro.nome.lexema,
+                            tipo: parametro.tipoDado || 'qualquer',
+                            imutavel: false,
+                            valor: undefined,
+                            inicializada: true,
+                            usada: true,
+                            hashArquivo: parametro.nome.hashArquivo,
+                            linha: parametro.nome.linha,
+                        });
+                    }
+                    for (const declaracao of metodo.funcao.corpo) {
+                        await declaracao.aceitar(this);
+                    }
+                } finally {
+                    this.gerenciadorEscopos.desempilharEscopo();
                 }
             }
         }

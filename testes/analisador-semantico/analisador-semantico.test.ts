@@ -498,15 +498,12 @@ describe('Analisador semântico', () => {
             );
 
             expect(retornoAnalisadorSemantico).toBeTruthy();
-            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(3);
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(2);
             expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe(
                 "'caso 0:' não é do mesmo tipo esperado em 'escolha' (esperado: texto, atual: número)."
             );
             expect(retornoAnalisadorSemantico.diagnosticos[1].mensagem).toBe(
                 "'caso 1:' não é do mesmo tipo esperado em 'escolha' (esperado: texto, atual: número)."
-            );
-            expect(retornoAnalisadorSemantico.diagnosticos[2].mensagem).toBe(
-                "Variável 'opcao' foi declarada mas nunca usada."
             );
         });
 
