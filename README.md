@@ -12,6 +12,10 @@
   </p>
 
   <p align="center">
+    <a href="https://designliquido.github.io/delegua-script/" target="_blank">Página Web com Delégua sendo executada dentro de tags script</a>
+  </p>
+
+  <p align="center">
     <img src="./recursos/imagens/badge-statements.svg" />
     <img src="./recursos/imagens/badge-lines.svg" />
     <img src="./recursos/imagens/badge-functions.svg" />
@@ -121,7 +125,7 @@ Delégua executa em qualquer dispositivo que interprete JavaScript, ou seja, com
 
 Para instalar no seu computador ou na sua aplicação, veja o projeto [`delegua-node`](https://github.com/DesignLiquido/delegua-node).
 
-Para usar dentro de uma página de internet, entre _tags_ `<script>`, , veja o projeto [`delegua-script`](https://github.com/DesignLiquido/delegua-script).
+Para usar dentro de uma página de internet, entre _tags_ `<script>`, veja o projeto [`delegua-script`](https://github.com/DesignLiquido/delegua-script).
 
 ## Documentação
 
