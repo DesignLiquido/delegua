@@ -121,6 +121,8 @@ Delégua executa em qualquer dispositivo que interprete JavaScript, ou seja, com
 
 Para instalar no seu computador ou na sua aplicação, veja o projeto [`delegua-node`](https://github.com/DesignLiquido/delegua-node).
 
+Para usar dentro de uma página de internet, entre _tags_ `<script>`, , veja o projeto [`delegua-script`](https://github.com/DesignLiquido/delegua-script).
+
 ## Documentação
 
 - [Delégua é documentada na Wiki deste GitHub](https://github.com/DesignLiquido/delegua/wiki).
