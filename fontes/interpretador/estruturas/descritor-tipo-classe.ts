@@ -59,6 +59,7 @@ export class DescritorTipoClasse extends Chamavel {
     metodosAbstratos: string[];
     acessoMetodos: { [nome: string]: 'privado' | 'protegido' | 'publico' };
     acessoPropriedades: { [nome: string]: 'privado' | 'protegido' | 'publico' };
+    sombrearPropriedadesDeClasse: boolean = false;
 
     /** Obtenedor de compat: primeiro pai direto (usado por tradutores e partes do interpretador). */
     get superClasse(): DescritorTipoClasse | null {
