@@ -174,6 +174,25 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         return expressao;
     }
 
+    private verificarOperandoNegacao(operador: any, operando: Construto): void {
+        if (operando instanceof Literal) {
+            if (operando.tipo !== 'lógico') {
+                this.erro(
+                    operador,
+                    `Operador '!' só pode ser usado com valores lógicos. Tipo recebido: ${operando.tipo}.`
+                );
+            }
+            return;
+        }
+        if (operando instanceof Unario) {
+            const tipoOp = operando.operador.tipo as string;
+            if (tipoOp === tiposDeSimbolos.NEGACAO) {
+                return;
+            }
+            this.verificarOperandoNegacao(operador, operando.operando);
+        }
+    }
+
     override unario(): Construto {
         if (
             this.verificarSeSimboloAtualEIgualA(
@@ -186,6 +205,9 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         ) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.unario();
+            if (operador.tipo === tiposDeSimbolos.NEGACAO) {
+                this.verificarOperandoNegacao(operador, direito);
+            }
             return new Unario(-1, operador, direito, 'ANTES');
         }
 
