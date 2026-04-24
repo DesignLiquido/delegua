@@ -677,6 +677,9 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         const variavelEscopo = this.gerenciadorEscopos.buscar(variavel.simbolo.lexema);
 
         if (!variavelEscopo) {
+            if (this.funcoes[variavel.simbolo.lexema]) {
+                return Promise.resolve();
+            }
             this.erro(
                 variavel.simbolo,
                 `Variável '${variavel.simbolo.lexema}' ainda não foi declarada até este ponto.`
