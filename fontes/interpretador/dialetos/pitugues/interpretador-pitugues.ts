@@ -10,18 +10,21 @@ import {
     Dupla,
     Variavel,
     Atribuir,
+    DefinirValor,
+    AcessoPropriedade,
 } from '../../../construtos';
 import { Interpretador } from '../../interpretador';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
 import { EspacoMemoria } from '../../espaco-memoria';
 
-import * as comum from './comum';
 import { Classe, Declaracao, ParaCada, Retorna } from '../../../declaracoes';
 import { inferirTipoVariavel } from '../../../inferenciador';
 import { ContinuarQuebra, Quebra, SustarQuebra, RetornoQuebra } from '../../../quebras';
 import { PilhaEscoposExecucaoPitugues } from './pilha-escopos-execucao-pitugues';
-import * as bibliotecaGlobalPitugues from '../../../bibliotecas/dialetos/pitugues/biblioteca-global';
 import { DescritorTipoClasse, FuncaoPadrao } from '../../estruturas';
+
+import * as bibliotecaGlobalPitugues from '../../../bibliotecas/dialetos/pitugues/biblioteca-global';
+import * as comum from './comum';
 
 export class InterpretadorPitugues extends Interpretador {
     constructor(
@@ -108,13 +111,13 @@ export class InterpretadorPitugues extends Interpretador {
     }
 
     override async visitarExpressaoAcessoPropriedade(
-        expressao: any
+        expressao: AcessoPropriedade
     ): Promise<any> {
         const variavelObjeto = await this.avaliar(expressao.objeto);
         const objeto = this.resolverValor(variavelObjeto, true);
 
         if (objeto instanceof DescritorTipoClasse) {
-            return await objeto.obterEstatico(expressao.simbolo.lexema, this);
+            return await objeto.obterEstatico(expressao.nomePropriedade, this);
         }
 
         return super.visitarExpressaoAcessoPropriedade(expressao);
@@ -374,7 +377,7 @@ export class InterpretadorPitugues extends Interpretador {
         return descritor;
     }
 
-    override async visitarExpressaoDefinirValor(expressao: any): Promise<any> {
+    override async visitarExpressaoDefinirValor(expressao: DefinirValor): Promise<any> {
         const variavelObjeto = await this.avaliar(expressao.objeto);
         const objeto = this.resolverValor(variavelObjeto, true);
 
