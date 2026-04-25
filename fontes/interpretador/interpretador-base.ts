@@ -2593,6 +2593,10 @@ export class InterpretadorBase implements InterpretadorInterface {
             tipoResolvido = tipoResolvido.replace('função<', '').replace('>', '');
         }
 
+        if (!declaracao.tipoExplicito && tipoResolvido === tipoDeDadosDelegua.QUALQUER && valorFinal instanceof Array) {
+            tipoResolvido = inferirTipoVariavel(valorFinal) as string;
+        }
+
         this.pilhaEscoposExecucao.definirVariavel(
             declaracao.simbolo.lexema,
             valorFinal,

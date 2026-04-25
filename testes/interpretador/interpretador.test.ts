@@ -3958,6 +3958,31 @@ describe('Interpretador', () => {
                         expect(_saidas[0]).toEqual('[12, 8, 4, 2]');
                     });
 
+                    it('ordenar() em variável local com valor de parâmetro vetor (issue 1216)', async () => {
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'funcao ordenarConvidados(convidados) {',
+                                '    var resultado = convidados',
+                                '    resultado.ordenar(funcao(a, b) {',
+                                '        retorna tamanho(a) - tamanho(b)',
+                                '    })',
+                                '    retorna resultado',
+                                '}',
+                                'escreva(ordenarConvidados(["Joao", "Ana", "Beatriz"]))',
+                            ],
+                            -1
+                        );
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toEqual("['Ana', 'Joao', 'Beatriz']");
+                    });
+
                     it('função que retorna lista', async () => {
                         const retornoLexador = lexador.mapear(
                             [

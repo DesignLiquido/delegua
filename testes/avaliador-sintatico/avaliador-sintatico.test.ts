@@ -2568,4 +2568,69 @@ describe('Avaliador sintático', () => {
             });
         });
     });
+
+    describe('Operador de negação !', () => {
+        let lexador = new Lexador();
+        let avaliadorSintatico = new AvaliadorSintatico();
+
+        describe('Cenários de erro', () => {
+            it('! com número literal gera erro', async () => {
+                const retornoLexador = lexador.mapear(['var x = !10'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
+            });
+
+            it('! com número negativo literal gera erro', async () => {
+                const retornoLexador = lexador.mapear(['var x = !-5'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
+            });
+
+            it('! com texto literal gera erro', async () => {
+                const retornoLexador = lexador.mapear(['var x = !"abc"'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
+            });
+
+            it('! com texto vazio literal gera erro', async () => {
+                const retornoLexador = lexador.mapear(['var x = !""'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
+            });
+        });
+
+        describe('Cenários de sucesso', () => {
+            it('! com verdadeiro não gera erro', async () => {
+                const retornoLexador = lexador.mapear(['var x = !verdadeiro'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            });
+
+            it('! com falso não gera erro', async () => {
+                const retornoLexador = lexador.mapear(['var x = !falso'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            });
+
+            it('!! com lógico não gera erro', async () => {
+                const retornoLexador = lexador.mapear(['var x = !!verdadeiro'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            });
+
+            it('! com variável não gera erro', async () => {
+                const retornoLexador = lexador.mapear(['var a = verdadeiro', 'var x = !a'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            });
+        });
+    });
 });

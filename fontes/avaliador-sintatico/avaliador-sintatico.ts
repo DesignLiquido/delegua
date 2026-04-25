@@ -1629,10 +1629,37 @@ export class AvaliadorSintatico
         ) {
             const operador = this.simbolos[this.atual - 1];
             const direito = await this.unario();
+            if (
+                operador.tipo === tiposDeSimbolos.NEGACAO ||
+                operador.tipo === tiposDeSimbolos.NAO
+            ) {
+                this.verificarOperandoNegacao(operador, direito);
+            }
             return new Unario(this.hashArquivo, operador, direito, 'ANTES');
         }
 
         return await this.chamar();
+    }
+
+    private verificarOperandoNegacao(operador: any, operando: Construto): void {
+        if (operando instanceof Literal) {
+            if (operando.tipo !== 'lógico') {
+                this.erros.push(
+                    this.erro(
+                        operador,
+                        `Operador '!' só pode ser usado com valores lógicos. Tipo recebido: ${operando.tipo}.`
+                    )
+                );
+            }
+            return;
+        }
+        if (operando instanceof Unario) {
+            const tipoOp = operando.operador.tipo as string;
+            if (tipoOp === tiposDeSimbolos.NEGACAO || tipoOp === tiposDeSimbolos.NAO) {
+                return;
+            }
+            this.verificarOperandoNegacao(operador, operando.operando);
+        }
     }
 
     /**
