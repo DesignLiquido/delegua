@@ -1,4 +1,4 @@
-import { ComentarioComoConstruto, Decorador } from '../construtos';
+import { ComentarioComoConstruto, Construto, Decorador } from '../construtos';
 import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
@@ -11,13 +11,15 @@ export class PropriedadeClasse extends Declaracao {
     autoObter: boolean;
     autoDefinir: boolean;
     documentacao?: ComentarioComoConstruto;
+    valorInicial?: Construto;
 
     constructor(
         nome: SimboloInterface,
         tipo?: string,
         decoradores: Decorador[] = [],
         acesso: 'privado' | 'protegido' | 'publico' = 'publico',
-        estatico: boolean = false
+        estatico: boolean = false,
+        valorInicial?: Construto
     ) {
         super(Number(nome.linha), nome.hashArquivo);
         this.nome = nome;
@@ -27,6 +29,7 @@ export class PropriedadeClasse extends Declaracao {
         this.estatico = estatico;
         this.autoObter = false;
         this.autoDefinir = false;
+        this.valorInicial = valorInicial;
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {

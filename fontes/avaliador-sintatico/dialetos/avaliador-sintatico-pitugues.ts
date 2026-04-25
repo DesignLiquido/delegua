@@ -2310,6 +2310,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         );
 
         let superClasse = null;
+
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
             const simboloSuperclasse = this.consumir(
                 tiposDeSimbolos.IDENTIFICADOR,
@@ -2317,17 +2318,30 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             );
 
             this.superclasseAtual = simboloSuperclasse.lexema;
-            superClasse = new Variavel(this.hashArquivo, this.simboloAnterior());
 
-            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após declaração.");
+            superClasse = new Variavel(
+                this.hashArquivo,
+                this.simboloAnterior()
+            );
+
+            this.consumir(
+                tiposDeSimbolos.PARENTESE_DIREITO,
+                "Esperado ')' após declaração."
+            );
         }
 
-        this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' antes do escopo da classe.");
-        const possivelDocumentacao = this.declaracaoTextoDeDocumentacao();
+        this.consumir(
+            tiposDeSimbolos.DOIS_PONTOS,
+            "Esperado ':' antes do escopo da classe."
+        );
 
+        const possivelDocumentacao = this.declaracaoTextoDeDocumentacao();
         const metodos = [];
-        const propriedades = [];
-        const indentacaoLinha = this.localizacoes[this.simboloAtual().linha].espacosIndentacao;
+        const propriedadesDeClasse: PropriedadeClasse[] = [];
+        const indentacaoLinha = this
+            .localizacoes[this.simboloAtual().linha]
+            .espacosIndentacao;
+
         while (
             !this.estaNoFinal() &&
             this.localizacoes[this.simboloAtual().linha].espacosIndentacao === indentacaoLinha &&
@@ -2339,44 +2353,67 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             )
         ) {
             const simboloAnterior = this.simbolos[this.atual - 1];
+
             if (simboloAnterior.tipo === tiposDeSimbolos.IDENTIFICADOR) {
-                this.consumir(
-                    tiposDeSimbolos.DOIS_PONTOS,
-                    "Esperado ':' antes do escopo da classe."
-                );
-                const tipoPropriedade = this.consumir(
-                    tiposDeSimbolos.IDENTIFICADOR,
-                    'Esperado tipo de propriedade após dois-pontos, em declaração de classe.'
+                if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+                    const simboloTipo = this.consumir(
+                        tiposDeSimbolos.IDENTIFICADOR,
+                        'Esperado tipo da propriedade após os dois pontos.'
+                    );
+                    const propriedade = new PropriedadeClasse(
+                        simboloAnterior,
+                        simboloTipo.lexema,
+                        [],
+                        'publico',
+                        false,
+                        undefined
+                    );
+
+                    propriedadesDeClasse.push(propriedade);
+                } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+                    const valorPropriedade = await this.expressao();
+                    const propriedade = new PropriedadeClasse(
+                        simboloAnterior,
+                        undefined,
+                        [],
+                        'publico',
+                        true,
+                        valorPropriedade
+                    );
+
+                    propriedadesDeClasse.push(propriedade);
+                } else {
+                    throw this.erro(
+                        this.simboloAtual(),
+                        "Esperado ':' (para tipo) ou '=' (para valor) após o nome da propriedade."
+                    );
+                }
+            } else {
+                const ehConstrutor = simboloAnterior.tipo === tiposDeSimbolos.CONSTRUTOR;
+                const metodoResolvido = await this.funcao(
+                    'método',
+                    ehConstrutor
                 );
 
-                const propriedade = new PropriedadeClasse(
-                    simboloAnterior,
-                    tipoPropriedade.lexema,
-                    []
-                );
-                propriedades.push(propriedade);
-            } else {
-                metodos.push(
-                    await this.funcao(
-                        'método',
-                        this.simbolos[this.atual - 1].tipo === tiposDeSimbolos.CONSTRUTOR
-                    )
-                );
+                metodos.push(metodoResolvido);
             }
         }
 
         this.superclasseAtual = undefined;
+
         const definicaoClasse = new Classe(
             simbolo,
             superClasse ? [superClasse] : [],
             metodos,
-            propriedades
+            propriedadesDeClasse
         );
+
         if (possivelDocumentacao) {
             definicaoClasse.documentacao = possivelDocumentacao;
         }
 
         this.tiposDefinidosEmCodigo[definicaoClasse.simbolo.lexema] = definicaoClasse;
+
         return definicaoClasse;
     }
 

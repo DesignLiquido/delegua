@@ -197,7 +197,17 @@ export class ObjetoDeleguaClasse {
         }
 
         if (Object.prototype.hasOwnProperty.call(this.classe.membrosEstaticos, simbolo.lexema)) {
-            await this.classe.definirEstatico(simbolo.lexema, valor, visitante);
+            if (this.classe.sombrearPropriedadesDeClasse) {
+                this.verificarAcessoLeitura(simbolo.lexema, simbolo, visitante);
+                this.propriedades[simbolo.lexema] = valor;
+            } else {
+                await this.classe.definirEstatico(
+                    simbolo.lexema,
+                    valor,
+                    visitante
+                );
+            }
+
             return;
         }
 

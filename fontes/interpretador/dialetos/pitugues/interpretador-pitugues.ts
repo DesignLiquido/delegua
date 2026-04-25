@@ -1,7 +1,6 @@
 import {
     AcessoMetodo,
     AcessoMetodoOuPropriedade,
-    AcessoPropriedade,
     AcessoIntervaloVariavel,
     TuplaN,
     Literal,
@@ -11,18 +10,21 @@ import {
     Dupla,
     Variavel,
     Atribuir,
+    DefinirValor,
+    AcessoPropriedade,
 } from '../../../construtos';
 import { Interpretador } from '../../interpretador';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
 import { EspacoMemoria } from '../../espaco-memoria';
 
-import * as comum from './comum';
-import { Declaracao, ParaCada, Retorna } from '../../../declaracoes';
+import { Classe, Declaracao, ParaCada, Retorna } from '../../../declaracoes';
 import { inferirTipoVariavel } from '../../../inferenciador';
 import { ContinuarQuebra, Quebra, SustarQuebra, RetornoQuebra } from '../../../quebras';
 import { PilhaEscoposExecucaoPitugues } from './pilha-escopos-execucao-pitugues';
+import { DescritorTipoClasse, FuncaoPadrao } from '../../estruturas';
+
 import * as bibliotecaGlobalPitugues from '../../../bibliotecas/dialetos/pitugues/biblioteca-global';
-import { FuncaoPadrao } from '../../estruturas';
+import * as comum from './comum';
 
 export class InterpretadorPitugues extends Interpretador {
     constructor(
@@ -85,17 +87,40 @@ export class InterpretadorPitugues extends Interpretador {
     }
 
     override async visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> {
+        const variavelObjeto = await this.avaliar(expressao.objeto);
+        const objeto = this.resolverValor(variavelObjeto, true);
+
+        if (objeto instanceof DescritorTipoClasse) {
+            return await objeto.obterEstatico(expressao.nomeMetodo, this);
+        }
+
         return comum.visitarExpressaoAcessoMetodo(this, expressao);
     }
 
     override async visitarExpressaoAcessoMetodoOuPropriedade(
         expressao: AcessoMetodoOuPropriedade
     ): Promise<any> {
+        const variavelObjeto = await this.avaliar(expressao.objeto);
+        const objeto = this.resolverValor(variavelObjeto, true);
+
+        if (objeto instanceof DescritorTipoClasse) {
+            return await objeto.obterEstatico(expressao.simbolo.lexema, this);
+        }
+
         return comum.visitarExpressaoAcessoMetodoOuPropriedade(this, expressao);
     }
 
-    override async visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> {
-        return comum.visitarExpressaoAcessoPropriedade(this, expressao);
+    override async visitarExpressaoAcessoPropriedade(
+        expressao: AcessoPropriedade
+    ): Promise<any> {
+        const variavelObjeto = await this.avaliar(expressao.objeto);
+        const objeto = this.resolverValor(variavelObjeto, true);
+
+        if (objeto instanceof DescritorTipoClasse) {
+            return await objeto.obterEstatico(expressao.nomePropriedade, this);
+        }
+
+        return super.visitarExpressaoAcessoPropriedade(expressao);
     }
 
     override async visitarExpressaoAcessoIntervaloVariavel(
@@ -330,5 +355,39 @@ export class InterpretadorPitugues extends Interpretador {
         }
 
         return retornoQuebra;
+    }
+
+    override async visitarDeclaracaoClasse(
+        declaracao: Classe
+    ): Promise<DescritorTipoClasse> {
+        const descritor = await super.visitarDeclaracaoClasse(declaracao);
+        descritor.sombrearPropriedadesDeClasse = true;
+
+        for (const propriedade of declaracao.propriedades) {
+            if (propriedade.estatico) {
+                const propriedadeNome = propriedade.nome.lexema;
+                const propriedadeValor = await this.avaliar(
+                    propriedade.valorInicial
+                );
+
+                descritor.membrosEstaticos[propriedadeNome] = propriedadeValor;
+            }
+        }
+
+        return descritor;
+    }
+
+    override async visitarExpressaoDefinirValor(expressao: DefinirValor): Promise<any> {
+        const variavelObjeto = await this.avaliar(expressao.objeto);
+        const objeto = this.resolverValor(variavelObjeto, true);
+
+        if (objeto instanceof DescritorTipoClasse) {
+            const valor = await this.avaliar(expressao.valor);
+            await objeto.definirEstatico(expressao.nome.lexema, valor, this);
+
+            return valor;
+        }
+
+        return super.visitarExpressaoDefinirValor(expressao);
     }
 }
