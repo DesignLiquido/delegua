@@ -1292,6 +1292,18 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
+    async visitarExpressaoMorsa(expressao: any): Promise<any> {
+        if (expressao.valor) {
+            await expressao.valor.aceitar(this);
+        }
+
+        if (expressao.variavel) {
+            await expressao.variavel.aceitar(this);
+        }
+
+        return Promise.resolve();
+    }
+
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> {
         if (declaracao.funcao.parametros.length >= 255) {
             this.erro(declaracao.simbolo, 'Função não pode ter mais de 255 parâmetros.');

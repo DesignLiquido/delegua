@@ -684,6 +684,10 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         return null;
     }
 
+    async visitarExpressaoMorsa(expressao: any): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+
     async resolver(declaracoes: Construto | Declaracao | Declaracao[]): Promise<RetornoResolvedor> {
         if (Array.isArray(declaracoes)) {
             for (let i = 0; i < declaracoes.length; i++) {

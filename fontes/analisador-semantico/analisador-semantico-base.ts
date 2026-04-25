@@ -693,4 +693,8 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     visitarExpressaoVetor(expressao: Vetor): Promise<any> {
         return Promise.resolve();
     }
+
+    async visitarExpressaoMorsa(expressao: any): Promise<any> {
+        return Promise.resolve();
+    }
 }

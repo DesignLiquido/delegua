@@ -4261,6 +4261,29 @@ describe('Interpretador (Pituguês)', () => {
                 expect(resultado).toBeGreaterThanOrEqual(1);
                 expect(resultado).toBeLessThanOrEqual(9);
             });
+
+            describe('Operador Morsa (:=)', () => {
+                it('Deve retornar valor atribuído a uma variável para a expressão', async () => {
+                    const codigo = [
+                        'lista_de_linguagens = ["Delégua", "Pituguês"]',
+                        'se ((n := tamanho(lista_de_linguagens)) > 1):',
+                        '    escreva("Você é um programador muito bom!")',
+                        'escreva(n)'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliador = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliador.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('Você é um programador muito bom!');
+                    expect(_saidas[1]).toBe('2');
+                });
+            });
         });
 
         it('termina_com - sufixo encontrado no final', async () => {

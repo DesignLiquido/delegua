@@ -996,6 +996,7 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao>, Visitan
                 return Promise.resolve(`devolver valor de ${textoOperando}, ${textoOperador}`);
         }
     }
+
     async visitarExpressaoVetor(expressao: Vetor): Promise<string> {
         let texto = `vetor: `;
         for (const elemento of expressao.valores) {
@@ -1003,6 +1004,13 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao>, Visitan
         }
 
         return Promise.resolve(texto);
+    }
+
+    async visitarExpressaoMorsa(expressao: any): Promise<any> {
+        const variavel = await expressao.variavel.aceitar(this);
+        const valor = await expressao.valor.aceitar(this);
+
+        return `${variavel} := ${valor}`;
     }
 
     /**

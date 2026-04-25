@@ -278,6 +278,58 @@ describe('Lexador (Pituguês)', () => {
 
                 expect(resultado.erros).toHaveLength(0);
             });
+
+            describe('Operador Morsa (:=)', () => {
+                it('Deve mapear o operador morsa em uma atribuição simples', async () => {
+                    const codigo = ['n := 10'];
+                    const resultado = lexador.mapear(codigo, -1);
+
+                    expect(resultado.erros).toHaveLength(0);
+                    expect(resultado.simbolos).toEqual(
+                        expect.arrayContaining([
+                            expect.objectContaining({
+                                lexema: 'n', tipo: tiposDeSimbolos.IDENTIFICADOR
+                            }),
+                            expect.objectContaining({
+                                tipo: tiposDeSimbolos.MORSA
+                            }),
+                            expect.objectContaining({
+                                lexema: '10', tipo: tiposDeSimbolos.NUMERO
+                            })
+                        ])
+                    );
+                });
+
+                it('Deve mapear o operador morsa aninhado em uma chamada de função', () => {
+                    const codigo = ['escreva(n := 2)'];
+                    const resultado = lexador.mapear(codigo, -1);
+
+                    expect(resultado.erros).toHaveLength(0);
+
+                    expect(resultado.simbolos).toEqual(
+                        expect.arrayContaining([
+                            expect.objectContaining({
+                                lexema: 'escreva', tipo: tiposDeSimbolos.ESCREVA
+                            }),
+                            expect.objectContaining({
+                                tipo: tiposDeSimbolos.PARENTESE_ESQUERDO
+                            }),
+                            expect.objectContaining({
+                                lexema: 'n', tipo: tiposDeSimbolos.IDENTIFICADOR
+                            }),
+                            expect.objectContaining({
+                                tipo: tiposDeSimbolos.MORSA
+                            }),
+                            expect.objectContaining({
+                                lexema: '2', tipo: tiposDeSimbolos.NUMERO
+                            }),
+                            expect.objectContaining({
+                                tipo: tiposDeSimbolos.PARENTESE_DIREITO
+                            })
+                        ])
+                    );
+                });
+            });
         });
 
         describe('Cenários de falha', () => {

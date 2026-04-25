@@ -32,6 +32,7 @@ export * from './leia';
 export * from './lista-compreensao';
 export * from './literal';
 export * from './logico';
+export * from './morsa';
 export * from './para-cada-como-construto';
 export * from './para-como-construto';
 export * from './referencia-biblioteca-global';

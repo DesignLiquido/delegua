@@ -863,6 +863,10 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         throw new Error('Método não implementado.');
     }
 
+    async visitarExpressaoMorsa(expressao: any): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
+
     // ── Motor de execução ────────────────────────────────────────────────────────
 
     async avaliar(expressao: Construto | Declaracao): Promise<any> {

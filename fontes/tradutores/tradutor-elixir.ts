@@ -1247,4 +1247,8 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
 
         return Promise.resolve(`[${valores.join(', ')}]`);
     }
+
+    async visitarExpressaoMorsa(expressao: any): Promise<any> {
+        throw new Error('Método não implementado.');
+    }
 }

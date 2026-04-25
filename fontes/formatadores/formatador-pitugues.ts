@@ -544,6 +544,13 @@ export class FormatadorPitugues implements VisitanteComumInterface {
         return `type(${valor})`;
     }
 
+    async visitarExpressaoMorsa(expressao: any): Promise<any> {
+        const variavel = await expressao.variavel.aceitar(this);
+        const valor = await expressao.valor.aceitar(this);
+
+        return `${variavel} := ${valor}`;
+    }
+
     private mapearOperador(tipo: any): string {
         const mapa: Record<string, string> = {
             [tiposDeSimbolos.ADICAO]: '+',
