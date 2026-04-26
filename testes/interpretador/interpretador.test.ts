@@ -1992,6 +1992,72 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Erro: operador ~ aplicado a vetor vazio', async () => {
+                    const retornoLexador = lexador.mapear(['escreva([(~[], 0)][0])'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(1);
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe('Operando precisa ser um número.');
+                });
+
+                it('Erro: operador ~ aplicado a vetor com elemento', async () => {
+                    const retornoLexador = lexador.mapear(['escreva(~[10])'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(1);
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe('Operando precisa ser um número.');
+                });
+
+                it('Erro: operador ~ aplicado a texto', async () => {
+                    const retornoLexador = lexador.mapear(["escreva(~'')"], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(1);
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe('Operando precisa ser um número.');
+                });
+
+                it('Erro: operador ~ aplicado a dicionário', async () => {
+                    const retornoLexador = lexador.mapear(['escreva(~{})'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(1);
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe('Operando precisa ser um número.');
+                });
+
+                it('Operador ~ em número válido', async () => {
+                    const retornoLexador = lexador.mapear(['escreva(~0)'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toBe('-1');
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Operador ~~ em número real (truncamento)', async () => {
+                    const retornoLexador = lexador.mapear(['escreva(~~3.1415)'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        expect(saida).toBe('3');
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
                 it('Subtração de número e texto', async () => {
                     const codigo = ["var a = 1 - '2'"];
                     const retornoLexador = lexador.mapear(codigo, -1);

@@ -671,10 +671,10 @@ export class InterpretadorBase implements InterpretadorInterface {
             case tiposDeSimbolos.NEGACAO:
                 return !this.eVerdadeiro(valor);
             case tiposDeSimbolos.BIT_NOT:
-                // Mantém BigInt como BigInt, converte outros para Number
                 if (typeof valor === 'bigint') {
                     return ~valor;
                 }
+                this.verificarOperandoNumero(expressao.operador, valor);
                 return ~Number(valor);
             // Para incrementar e decrementar, primeiro precisamos saber se o operador
             // veio antes do literal ou variável.
