@@ -1616,6 +1616,13 @@ export class AvaliadorSintatico
     }
 
     override async unario(): Promise<Construto> {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTERROGACAO)) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = await this.unario();
+            this.erros.push(this.erro(operador, "O operador '?' deve ser precedido de uma condição para uso como operador ternário (ex: condição ? então : senão)."));
+            return direito;
+        }
+
         if (
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.NAO,

@@ -1072,6 +1072,13 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
     }
 
     async unario(): Promise<Construto> {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTERROGACAO)) {
+            const operador = this.simboloAnterior();
+            const direito = await this.unario();
+            this.erro(operador, "O símbolo '?' não é um operador válido em Pituguês.");
+            return direito;
+        }
+
         if (
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.NEGACAO,

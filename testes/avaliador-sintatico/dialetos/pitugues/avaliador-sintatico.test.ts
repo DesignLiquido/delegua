@@ -807,5 +807,35 @@ describe('Avaliador sintático (Pituguês)', () => {
                 expect(retornoAvaliador.erros[0].message).toBe('Esperado nome da função.');
             });
         });
+
+        describe('Operador de interrogação (?)', () => {
+            it('? com texto literal gera erro', async () => {
+                const retornoLexador = lexador.mapear(["escreva(?'a')"], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
+            });
+
+            it('? com número literal gera erro', async () => {
+                const retornoLexador = lexador.mapear(['escreva(?10)'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
+            });
+
+            it('? com lógico literal gera erro', async () => {
+                const retornoLexador = lexador.mapear(['escreva(?verdadeiro)'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
+            });
+
+            it('? com vetor vazio gera erro', async () => {
+                const retornoLexador = lexador.mapear(['escreva(?[])'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
+            });
+        });
     });
 });

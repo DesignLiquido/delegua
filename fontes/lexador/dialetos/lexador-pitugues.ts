@@ -509,6 +509,11 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
                 }
 
                 break;
+            case '?':
+                this.adicionarSimbolo(tiposDeSimbolos.INTERROGACAO);
+                this.avancar();
+                break;
+
             case '!':
                 this.avancar();
                 if (this.simboloAtual() === '=') {

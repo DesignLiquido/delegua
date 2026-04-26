@@ -2633,4 +2633,44 @@ describe('Avaliador sintático', () => {
             });
         });
     });
+
+    describe('Operador de interrogação (?) sem contexto ternário', () => {
+        let lexador = new Lexador();
+        let avaliadorSintatico = new AvaliadorSintatico();
+
+        it('? com texto literal gera erro', async () => {
+            const retornoLexador = lexador.mapear(["escreva(?'a')"], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
+        });
+
+        it('? com número literal gera erro', async () => {
+            const retornoLexador = lexador.mapear(['escreva(?10)'], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
+        });
+
+        it('? com lógico literal gera erro', async () => {
+            const retornoLexador = lexador.mapear(['escreva(?verdadeiro)'], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
+        });
+
+        it('? com vetor vazio gera erro', async () => {
+            const retornoLexador = lexador.mapear(['escreva(?[])'], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
+        });
+
+        it('operador ternário válido não gera erro', async () => {
+            const retornoLexador = lexador.mapear(['var x = verdadeiro ? 1 : 2'], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+        });
+    });
 });

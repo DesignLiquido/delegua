@@ -181,6 +181,13 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
     }
 
     override unario(): Construto {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTERROGACAO)) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.unario();
+            this.erro(operador, "O símbolo '?' não é um operador válido em Pituguês.");
+            return direito;
+        }
+
         if (
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.NEGACAO,
