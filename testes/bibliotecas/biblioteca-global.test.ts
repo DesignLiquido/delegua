@@ -562,6 +562,26 @@ describe('Biblioteca Global', () => {
         });
     });
 
+    describe('encontrar()', () => {
+        it('Sucesso', async () => {
+            let _saida = "";
+            interpretador.funcaoDeRetorno = (saida: string) => {
+                _saida += saida;
+            };
+            
+            const retornoLexador = lexador.mapear([
+                "var numeros = [1, 3, 5, 8, 10]", 
+                "var pares = encontrar(numeros, funcao(n) { retorna n % 2 == 0 })", 
+                "escreva(pares)"
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saida).toBe("[8, 10]");
+        });
+    });
+
     describe('encontrarIndice()', () => {
         it('Sucesso', async () => {
             const retornoLexador = lexador.mapear(["escreva(encontrarIndice([1, 2, 3], funcao(a) { retorna(a == 1) }))"], -1);
