@@ -488,9 +488,9 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
 
             case ':':
                 if (this.proximoSimbolo() === '=') {
+                    this.avancar(); // consome ':'
+                    this.avancar(); // consome '='
                     this.adicionarSimbolo(tiposDeSimbolos.MORSA);
-                    this.avancar(); // Símbolo = (igual)
-                    this.avancar(); // Depois do símbolo = (igual)
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.DOIS_PONTOS);
                     this.avancar();

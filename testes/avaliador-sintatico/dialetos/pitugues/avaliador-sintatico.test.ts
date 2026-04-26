@@ -1,6 +1,6 @@
 import { AvaliadorSintaticoPitugues } from "../../../../fontes/avaliador-sintatico/dialetos";
-import { ExpressaoMorsa, Logico, Vetor } from "../../../../fontes/construtos";
-import { Escreva, Importar, Var } from "../../../../fontes/declaracoes";
+import { Morsa, Logico, Vetor } from "../../../../fontes/construtos";
+import { Escreva, Importar, Se, Var } from "../../../../fontes/declaracoes";
 import { LexadorPitugues } from "../../../../fontes/lexador/dialetos";
 
 describe('Avaliador sintático (Pituguês)', () => {
@@ -481,11 +481,9 @@ describe('Avaliador sintático (Pituguês)', () => {
                         .declaracoes[0] as Escreva;
 
                     expect(escreva.argumentos).toHaveLength(1);
-                    expect(escreva.argumentos[0].constructor).toBe(
-                        ExpressaoMorsa
-                    );
+                    expect(escreva.argumentos[0].constructor).toBe(Morsa);
 
-                    const morsa = escreva.argumentos[0] as ExpressaoMorsa;
+                    const morsa = escreva.argumentos[0] as Morsa;
 
                     expect(morsa.variavel.simbolo.lexema).toBe('n');
                     expect((morsa.valor as any).valor).toBe(10);
@@ -504,7 +502,7 @@ describe('Avaliador sintático (Pituguês)', () => {
                     expect(retornoAvaliadorSintatico).toBeTruthy();
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
-                    expect(retornoAvaliadorSintatico.declaracoes[0].constructor.name).toBe('Se');
+                    expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Se);
                 });
             });
         });
@@ -853,7 +851,7 @@ describe('Avaliador sintático (Pituguês)', () => {
             });
 
             describe('Operador Morsa (:=)', () => {
-                it('Deve falahr quando lado direito vazio (sem valor)', async () => {
+                it('Deve falhar quando lado direito vazio (sem valor)', async () => {
                     const retornoLexador = lexador.mapear(
                         ['escreva(n := )'],
                         -1

@@ -24,6 +24,7 @@ import {
     Leia,
     Literal,
     Logico,
+    Morsa,
     ReferenciaFuncao,
     Separador,
     Super,
@@ -1006,7 +1007,7 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao>, Visitan
         return Promise.resolve(texto);
     }
 
-    async visitarExpressaoMorsa(expressao: any): Promise<any> {
+    async visitarExpressaoMorsa(expressao: Morsa): Promise<any> {
         const variavel = await expressao.variavel.aceitar(this);
         const valor = await expressao.valor.aceitar(this);
 

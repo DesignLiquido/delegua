@@ -28,6 +28,7 @@ import {
     ListaCompreensao,
     Literal,
     Logico,
+    Morsa,
     ParaCadaComoConstruto,
     ParaComoConstruto,
     ReferenciaFuncao,
@@ -1018,7 +1019,7 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
         this.codigoFormatado += ']';
     }
 
-    async visitarExpressaoMorsa(expressao: any): Promise<any> {
+    async visitarExpressaoMorsa(expressao: Morsa): Promise<any> {
         throw new Error('Método não implementado.');
     }
 

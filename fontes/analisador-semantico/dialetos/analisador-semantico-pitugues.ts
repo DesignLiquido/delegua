@@ -21,6 +21,7 @@ import {
     TuplaN,
     AcessoIndiceVariavel,
     Dupla,
+    Morsa,
 } from '../../construtos';
 import {
     Const,
@@ -1292,13 +1293,57 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    async visitarExpressaoMorsa(expressao: any): Promise<any> {
+    private registrarVariavelExpressaoMorsa(variavel: Variavel): void {
+        const gerenciadorEscopos: any = this.gerenciadorEscopos as any;
+        const simbolo = variavel.simbolo;
+        const registroVariavel = {
+            nome: simbolo.lexema,
+            linha: simbolo.linha,
+            tipo: simbolo.tipo,
+            hashArquivo: simbolo.hashArquivo,
+            inicializada: true,
+            usada: false,
+        };
+
+        if (typeof gerenciadorEscopos?.declararVariavel === 'function') {
+            gerenciadorEscopos.declararVariavel(simbolo, true);
+            return;
+        }
+
+        if (typeof gerenciadorEscopos?.definirVariavel === 'function') {
+            gerenciadorEscopos.definirVariavel(simbolo, true);
+            return;
+        }
+
+        if (typeof gerenciadorEscopos?.adicionarVariavel === 'function') {
+            gerenciadorEscopos.adicionarVariavel(registroVariavel);
+            return;
+        }
+
+        const escopoAtual =
+            typeof gerenciadorEscopos?.obterEscopoAtual === 'function'
+                ? gerenciadorEscopos.obterEscopoAtual()
+                : gerenciadorEscopos?.escopoAtual ?? gerenciadorEscopos?.pilha?.[gerenciadorEscopos?.pilha?.length - 1];
+
+        if (escopoAtual) {
+            if (escopoAtual.variaveis instanceof Map) {
+                escopoAtual.variaveis.set(simbolo.lexema, registroVariavel);
+                return;
+            }
+
+            if (Array.isArray(escopoAtual.variaveis)) {
+                escopoAtual.variaveis.push(registroVariavel);
+            }
+        }
+    }
+
+    async visitarExpressaoMorsa(expressao: Morsa): Promise<any> {
         if (expressao.valor) {
             await expressao.valor.aceitar(this);
         }
 
         if (expressao.variavel) {
-            await expressao.variavel.aceitar(this);
+            this.registrarVariavelExpressaoMorsa(expressao.variavel);
         }
 
         return Promise.resolve();

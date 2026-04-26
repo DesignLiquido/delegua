@@ -42,7 +42,7 @@ import {
     TipoDe,
     Trio,
     TuplaN,
-    ExpressaoMorsa,
+    Morsa,
 } from '../../construtos';
 import {
     Escreva,
@@ -1350,7 +1350,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             const valor = await this.atribuir();
 
             if (expressao instanceof Variavel) {
-                return new ExpressaoMorsa(this.hashArquivo, expressao, valor);
+                return new Morsa(this.hashArquivo, expressao, valor);
             }
 
             throw this.erro(

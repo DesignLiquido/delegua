@@ -18,6 +18,7 @@ import {
     Leia,
     AcessoIntervaloVariavel,
     TuplaN,
+    Morsa,
 } from '../construtos';
 
 import {
@@ -544,7 +545,7 @@ export class FormatadorPitugues implements VisitanteComumInterface {
         return `type(${valor})`;
     }
 
-    async visitarExpressaoMorsa(expressao: any): Promise<any> {
+    async visitarExpressaoMorsa(expressao: Morsa): Promise<any> {
         const variavel = await expressao.variavel.aceitar(this);
         const valor = await expressao.valor.aceitar(this);
 

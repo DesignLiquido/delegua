@@ -77,7 +77,6 @@ import {
     Vetor,
     Isto,
     Binario,
-    ExpressaoMorsa,
 } from '../construtos';
 import { ErroInterpretadorInterface } from '../interfaces/erros/erro-interpretador-interface';
 import { RetornoInterpretadorInterface } from '../interfaces/retornos/retorno-interpretador-interface';
@@ -2631,10 +2630,6 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         return null;
-    }
-
-    async visitarExpressaoMorsa(_: ExpressaoMorsa): Promise<any> {
-        throw new Error('Método não implementado.');
     }
 
     /**

@@ -1,8 +1,8 @@
-import { Construto } from "./construto";
-import { Variavel } from "./variavel";
-import { VisitanteComumInterface } from "../interfaces";
+import { Construto } from './construto';
+import { Variavel } from './variavel';
+import { VisitantePituguesInterface } from '../interfaces/visitante-pitugues-interface';
 
-export class ExpressaoMorsa implements Construto {
+export class Morsa implements Construto {
     linha: number;
     hashArquivo: number;
     variavel: Variavel;
@@ -15,12 +15,12 @@ export class ExpressaoMorsa implements Construto {
         this.valor = valor;
     }
 
-    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
+    async aceitar(visitante: VisitantePituguesInterface): Promise<any> {
         return await visitante.visitarExpressaoMorsa(this);
     }
 
     paraTexto(): string {
-        return `<operador-morsa />`;
+        return `<morsa />`;
     }
 
     paraTextoSaida(): string {

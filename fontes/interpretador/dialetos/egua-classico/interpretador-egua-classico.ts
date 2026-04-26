@@ -1035,10 +1035,6 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return objeto.valor;
     }
 
-    async visitarExpressaoMorsa(expressao: any): Promise<any> {
-        throw new Error('Método não implementado.');
-    }
-
     paraTexto(objeto: any): any {
         if (objeto === null) return 'nulo';
         if (typeof objeto === 'boolean') {

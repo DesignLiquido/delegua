@@ -16,7 +16,6 @@ import {
     Constante,
     DefinirValor,
     Dicionario,
-    ExpressaoMorsa,
     ExpressaoRegular,
     FimPara,
     FormatacaoEscrita,
@@ -132,5 +131,4 @@ export interface VisitanteComumInterface {
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> | void;
     visitarExpressaoUnaria(expressao: Unario): Promise<any> | void;
     visitarExpressaoVetor(expressao: Vetor): Promise<any> | void;
-    visitarExpressaoMorsa(expressao: ExpressaoMorsa): Promise<any> | void;
 }
