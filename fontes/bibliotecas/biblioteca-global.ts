@@ -478,13 +478,16 @@ export async function encontrar(
         );
     }
 
+    const resultados: any[] = [];
     for (let indice = 0; indice < valorVetor.length; ++indice) {
-        if (await valorFuncaoPesquisa.chamar(interpretador, [valorVetor[indice]])) {
-            return valorVetor[indice];
+        const resultado = await valorFuncaoPesquisa.chamar(interpretador, [valorVetor[indice]]);
+        const valorResultado = resultado?.valorRetornado?.valor ?? resultado?.valor ?? resultado;
+        if (valorResultado) {
+            resultados.push(valorVetor[indice]);
         }
     }
-
-    return null;
+    
+    return resultados.length > 0 ? resultados : null;
 }
 
 /**
