@@ -1648,6 +1648,31 @@ export class AvaliadorSintatico
         return await this.chamar();
     }
 
+    private verificarOperandosComparacao(
+        operador: SimboloInterface,
+        esquerda: Construto,
+        direita: Construto
+    ): void {
+        if (esquerda instanceof Literal && direita instanceof Literal) {
+            const tipoEsquerda = (esquerda as Literal).tipo;
+            const tipoDireita = (direita as Literal).tipo;
+            if (
+                tipoEsquerda !== 'qualquer' &&
+                tipoEsquerda !== 'nulo' &&
+                tipoDireita !== 'qualquer' &&
+                tipoDireita !== 'nulo' &&
+                tipoEsquerda !== tipoDireita
+            ) {
+                this.erros.push(
+                    this.erro(
+                        operador,
+                        `Operadores de comparação não podem ser usados com tipos diferentes. Tipos recebidos: '${tipoEsquerda}' e '${tipoDireita}'.`
+                    )
+                );
+            }
+        }
+    }
+
     private verificarOperandoNegacao(operador: any, operando: Construto): void {
         if (operando instanceof Literal) {
             if (operando.tipo !== 'lógico') {
@@ -1908,10 +1933,12 @@ export class AvaliadorSintatico
             )
         ) {
             const operador = this.simbolos[this.atual - 1];
+            const esquerda = expressao;
             const direito = await this.bitOu();
+            this.verificarOperandosComparacao(operador, esquerda, direito);
             expressao = new Binario<TipoDeSimboloDelegua>(
                 this.hashArquivo,
-                expressao,
+                esquerda,
                 operador,
                 direito
             );
@@ -1930,10 +1957,12 @@ export class AvaliadorSintatico
             )
         ) {
             const operador = this.simbolos[this.atual - 1];
+            const esquerda = expressao;
             const direito = await this.comparar();
+            this.verificarOperandosComparacao(operador, esquerda, direito);
             expressao = new Binario<TipoDeSimboloDelegua>(
                 this.hashArquivo,
-                expressao,
+                esquerda,
                 operador,
                 direito
             );

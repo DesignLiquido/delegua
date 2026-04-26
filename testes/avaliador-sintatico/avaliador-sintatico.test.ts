@@ -2673,4 +2673,76 @@ describe('Avaliador sintático', () => {
             expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
         });
     });
+
+    describe('Operadores de comparação com tipos incompatíveis', () => {
+        let lexador = new Lexador();
+        let avaliadorSintatico = new AvaliadorSintatico();
+
+        describe('Cenários de erro', () => {
+            it('número != texto gera erro', async () => {
+                const retornoLexador = lexador.mapear(["escreva(10 != '10')"], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
+            });
+
+            it('número == texto gera erro', async () => {
+                const retornoLexador = lexador.mapear(["escreva(10 == '10')"], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
+            });
+
+            it('número > texto gera erro', async () => {
+                const retornoLexador = lexador.mapear(["escreva(10 > '10')"], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
+            });
+
+            it('número < texto gera erro', async () => {
+                const retornoLexador = lexador.mapear(["escreva(10 < '10')"], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
+            });
+
+            it('número >= texto gera erro', async () => {
+                const retornoLexador = lexador.mapear(["escreva(10 >= '10')"], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
+            });
+
+            it('número <= texto gera erro', async () => {
+                const retornoLexador = lexador.mapear(["escreva(10 <= '10')"], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
+            });
+        });
+
+        describe('Cenários de sucesso', () => {
+            it('número == número não gera erro', async () => {
+                const retornoLexador = lexador.mapear(['escreva(10 == 10)'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            });
+
+            it('texto == texto não gera erro', async () => {
+                const retornoLexador = lexador.mapear(["escreva('a' == 'b')"], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            });
+
+            it('número > número não gera erro', async () => {
+                const retornoLexador = lexador.mapear(['escreva(10 > 5)'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            });
+        });
+    });
 });
