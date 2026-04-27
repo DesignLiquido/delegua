@@ -2701,6 +2701,29 @@ describe('Interpretador', () => {
                         expect(_saidas).toHaveLength(1);
                         expect(_saidas[0]).toBe("['tomate', 'tomate', 'tomate', 'tomate', 'tomate', 'tomate', 'tomate', 'tomate', 'tomate']");
                     });
+
+                    it('para cada em carga dentro de função que monta vetor a partir de índice de parâmetro - issue 1225', async () => {
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'funcao encaixarNoMeio(compartimento, carga) {',
+                                '    var resultado = [compartimento[0]]',
+                                '    para cada item em carga {',
+                                '        resultado.adicionar(item)',
+                                '    }',
+                                '    resultado.adicionar(compartimento[1])',
+                                '    retorna resultado',
+                                '}',
+                                'escreva(encaixarNoMeio([15, 150], [45, 75, 35]))',
+                            ], -1
+                        );
+
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('[15, 45, 75, 35, 150]');
+                    });
                 });
 
                 describe('Para tradicional', () => {

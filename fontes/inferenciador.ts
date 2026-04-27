@@ -46,7 +46,10 @@ export enum TipoNativoSimbolo {
 }
 
 function inferirVetor(vetor: Array<any>): TipoInferencia {
-    const tiposEmVetor = new Set(vetor.map((elemento) => elemento.constructor.name));
+    const tiposEmVetor = new Set(vetor.map((elemento) => {
+        if (elemento === null || elemento === undefined) return 'nulo';
+        return elemento.constructor.name;
+    }));
     if (tiposEmVetor.size > 1) {
         return 'vetor';
     }
