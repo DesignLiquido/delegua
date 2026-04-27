@@ -1,6 +1,6 @@
 import { AvaliadorSintaticoPitugues } from "../../../../fontes/avaliador-sintatico/dialetos";
-import { Logico, Vetor } from "../../../../fontes/construtos";
-import { Escreva, Importar, Var } from "../../../../fontes/declaracoes";
+import { Morsa, Logico, Vetor } from "../../../../fontes/construtos";
+import { Escreva, Importar, Se, Var } from "../../../../fontes/declaracoes";
 import { LexadorPitugues } from "../../../../fontes/lexador/dialetos";
 
 describe('Avaliador sintático (Pituguês)', () => {
@@ -462,6 +462,49 @@ describe('Avaliador sintático (Pituguês)', () => {
                 expect(retornoAvaliador.erros).toHaveLength(0);
                 expect(retornoAvaliador.declaracoes).toHaveLength(5);
             });
+
+            describe('Operador Morsa (:=)', () => {
+                it('Uso básico aninhado em um escreva', async () => {
+                    const retornoLexador = lexador.mapear(
+                        ['escreva(n := 10)'], -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+
+                    const escreva = retornoAvaliadorSintatico
+                        .declaracoes[0] as Escreva;
+
+                    expect(escreva.argumentos).toHaveLength(1);
+                    expect(escreva.argumentos[0].constructor).toBe(Morsa);
+
+                    const morsa = escreva.argumentos[0] as Morsa;
+
+                    expect(morsa.variavel.simbolo.lexema).toBe('n');
+                    expect((morsa.valor as any).valor).toBe(10);
+                });
+
+                it('Uso em uma estrutura condicional (se)', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'se ((n := 5) > 2):',
+                        '    escreva(n)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                    expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Se);
+                });
+            });
         });
 
         describe('Casos de falha', () => {
@@ -805,6 +848,28 @@ describe('Avaliador sintático (Pituguês)', () => {
 
                 expect(retornoAvaliador.erros).toHaveLength(1);
                 expect(retornoAvaliador.erros[0].message).toBe('Esperado nome da função.');
+            });
+
+            describe('Operador Morsa (:=)', () => {
+                it('Deve falhar quando lado direito vazio (sem valor)', async () => {
+                    const retornoLexador = lexador.mapear(
+                        ['escreva(n := )'],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                });
+
+                it('Deve falhar quando alvo inválido à esquerda (literal no lugar da variável)', async () => {
+                    const retornoLexador = lexador.mapear(
+                        ['escreva(10 := 5)'],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                });
             });
         });
 

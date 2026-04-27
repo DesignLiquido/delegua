@@ -28,6 +28,7 @@ import {
     ListaCompreensao,
     Literal,
     Logico,
+    Morsa,
     ParaCadaComoConstruto,
     ParaComoConstruto,
     ReferenciaFuncao,

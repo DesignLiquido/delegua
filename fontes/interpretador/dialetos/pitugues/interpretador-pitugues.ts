@@ -12,6 +12,7 @@ import {
     Atribuir,
     DefinirValor,
     AcessoPropriedade,
+    Morsa,
 } from '../../../construtos';
 import { Interpretador } from '../../interpretador';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
@@ -389,5 +390,28 @@ export class InterpretadorPitugues extends Interpretador {
         }
 
         return super.visitarExpressaoDefinirValor(expressao);
+    }
+
+    async visitarExpressaoMorsa(expressao: Morsa): Promise<any> {
+        let valor = await this.avaliar(expressao.valor);
+
+        if (valor && valor.hasOwnProperty('valorRetornado')) {
+            valor = valor.valorRetornado;
+        }
+
+        const valorResolvido = this.resolverValor(valor);
+        const simbolo = expressao.variavel.simbolo;
+
+        try {
+            this.pilhaEscoposExecucao.obterValorVariavel(simbolo);
+            this.pilhaEscoposExecucao.atribuirVariavel(simbolo, valorResolvido);
+        } catch {
+            this.pilhaEscoposExecucao.definirVariavel(
+                simbolo.lexema,
+                valorResolvido
+            );
+        }
+
+        return valorResolvido;
     }
 }

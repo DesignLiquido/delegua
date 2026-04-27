@@ -42,6 +42,7 @@ import {
     TipoDe,
     Trio,
     TuplaN,
+    Morsa,
 } from '../../construtos';
 import {
     Escreva,
@@ -905,26 +906,48 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                 const simboloIdentificador = this.avancarEDevolverAnterior();
                 let tipoOperando: string;
 
+                if (this.verificarTipoSimboloAtual(tiposDeSimbolos.MORSA)) {
+                    this.pilhaEscopos.definirInformacoesVariavel(
+                        simboloIdentificador.lexema,
+                        new InformacaoElementoSintatico(
+                            simboloIdentificador.lexema,
+                            'qualquer'
+                        )
+                    );
+                }
+
                 if (this.intuirTipoQualquerParaIdentificadores) {
                     // Esta indicação é utilizada para compreensões de lista, onde o
                     // tipo do identificador de iteração é 'qualquer' por definição.
                     tipoOperando = 'qualquer';
                     this.pilhaEscopos.definirInformacoesVariavel(
                         simboloIdentificador.lexema,
-                        new InformacaoElementoSintatico(simboloIdentificador.lexema, 'qualquer')
+                        new InformacaoElementoSintatico(
+                            simboloIdentificador.lexema,
+                            'qualquer'
+                        )
                     );
-                } else if (simboloIdentificador.lexema in this.tiposDefinidosEmCodigo) {
+                } else if (
+                    simboloIdentificador.lexema in this.tiposDefinidosEmCodigo
+                ) {
                     tipoOperando = simboloIdentificador.lexema;
                 } else {
                     try {
-                        tipoOperando = this.pilhaEscopos.obterTipoVariavelPorNome(
-                            simboloIdentificador.lexema
-                        );
+                        tipoOperando = this
+                            .pilhaEscopos
+                            .obterTipoVariavelPorNome(
+                                simboloIdentificador.lexema
+                            );
                     } catch (erro: any) {
                         throw this.erro(simboloIdentificador, erro.message);
                     }
                 }
-                return new Variavel(this.hashArquivo, simboloIdentificador, tipoOperando);
+
+                return new Variavel(
+                    this.hashArquivo,
+                    simboloIdentificador,
+                    tipoOperando
+                );
             case tiposDeSimbolos.INTERPOLACAO:
                 const simboloInterpolacao = this.avancarEDevolverAnterior();
                 const conteudoOriginal = simboloInterpolacao.literal as string;
@@ -1301,7 +1324,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
     }
 
     async tupla(): Promise<Construto> {
-        let expressao = await this.seTernario();
+        let expressao = await this.atribuir();
 
         // Se não há vírgula, retorna a expressão simples
         if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)) {
@@ -1312,10 +1335,15 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         const elementos = [expressao];
 
         do {
-            if (this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+            if (
+                this.verificarTipoSimboloAtual(
+                    tiposDeSimbolos.PARENTESE_DIREITO
+                )
+            ) {
                 break;
             }
-            elementos.push(await this.seTernario());
+
+            elementos.push(await this.atribuir());
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         return new TuplaN(this.hashArquivo, expressao.linha, elementos);
@@ -1323,6 +1351,20 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
 
     async atribuir(): Promise<Construto> {
         const expressao = await this.seTernario();
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.MORSA)) {
+            const operadorMorsa = this.simboloAnterior();
+            const valor = await this.atribuir();
+
+            if (expressao instanceof Variavel) {
+                return new Morsa(this.hashArquivo, expressao, valor);
+            }
+
+            throw this.erro(
+                operadorMorsa,
+                'Operador Morsa (:=) só pode ser usado para atribuir a variáveis.'
+            );
+        }
 
         if (
             this.verificarSeSimboloAtualEIgualA(
@@ -1362,13 +1404,15 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                     );
                 }
 
-                throw this.erro(operadorAtribuicao, 'Tarefa de atribuição inválida');
+                throw this.erro(
+                    operadorAtribuicao,
+                    'Tarefa de atribuição inválida'
+                );
             }
 
             // Se for +=, -=, *=, /=
             // Transforma 'a += 1' em 'a = a + 1'
-
-            let tipoOperadorMatematico;
+            let tipoOperadorMatematico: string;
             switch (operadorAtribuicao.tipo) {
                 case tiposDeSimbolos.MAIS_IGUAL:
                     tipoOperadorMatematico = tiposDeSimbolos.ADICAO;
@@ -1400,7 +1444,11 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             );
 
             if (expressao instanceof Variavel) {
-                return new Atribuir(this.hashArquivo, expressao, operacaoBinaria);
+                return new Atribuir(
+                    this.hashArquivo,
+                    expressao,
+                    operacaoBinaria
+                );
             }
 
             if (expressao instanceof AcessoMetodoOuPropriedade) {
@@ -1423,7 +1471,10 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                 );
             }
 
-            throw this.erro(operadorAtribuicao, 'Tarefa de atribuição inválida');
+            throw this.erro(
+                operadorAtribuicao,
+                'Tarefa de atribuição inválida'
+            );
         }
 
         return expressao;

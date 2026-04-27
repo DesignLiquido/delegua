@@ -18,6 +18,7 @@ import {
     Leia,
     AcessoIntervaloVariavel,
     TuplaN,
+    Morsa,
 } from '../construtos';
 
 import {
@@ -45,10 +46,10 @@ import {
     TextoDocumentacao,
 } from '../declaracoes';
 
-import { VisitanteComumInterface } from '../interfaces';
+import { VisitantePituguesInterface } from '../interfaces/visitante-pitugues-interface';
 import tiposDeSimbolos from '../tipos-de-simbolos/pitugues';
 
-export class FormatadorPitugues implements VisitanteComumInterface {
+export class FormatadorPitugues implements VisitantePituguesInterface {
     private nívelIndentação = 0;
     private tamanhoIndentação = 4;
     private códigoFormatado = '';
@@ -542,6 +543,13 @@ export class FormatadorPitugues implements VisitanteComumInterface {
     async visitarExpressaoTipoDe(expressão: TipoDe): Promise<any> {
         const valor = await expressão.valor.aceitar(this);
         return `type(${valor})`;
+    }
+
+    async visitarExpressaoMorsa(expressao: Morsa): Promise<any> {
+        const variavel = await expressao.variavel.aceitar(this);
+        const valor = await expressao.valor.aceitar(this);
+
+        return `${variavel} := ${valor}`;
     }
 
     private mapearOperador(tipo: any): string {
