@@ -4284,6 +4284,26 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas[1]).toBe('2');
                 });
             });
+
+            describe('Operador Bote (~>)', () => {
+                it('Deve retornar quantidade de caracteres no nome', async () => {
+                    const codigo = [
+                        'resultado = "victor" ~> tamanho() ~> texto()',
+                        'escreva(resultado)'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliador = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliador.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('6');
+                });
+            });
         });
 
         it('termina_com - sufixo encontrado no final', async () => {

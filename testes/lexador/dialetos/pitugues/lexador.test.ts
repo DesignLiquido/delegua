@@ -330,6 +330,70 @@ describe('Lexador (Pituguês)', () => {
                     );
                 });
             });
+
+            describe('Operador Bote (~>)', () => {
+                it('Deve mapear o operador bote em uma atribuição simples', async () => {
+                    const codigo = [
+                        'resultado = "victor" ~> tamanho() ~> texto()',
+                        'escreva(resultado)'
+                    ];
+                    const resultado = lexador.mapear(codigo, -1);
+
+                    expect(resultado.erros).toHaveLength(0);
+                    expect(resultado.simbolos).toEqual(
+                        expect.arrayContaining([
+                            // Linha 1
+                            expect.objectContaining({
+                                lexema: 'resultado', tipo: tiposDeSimbolos.IDENTIFICADOR
+                            }),
+                            expect.objectContaining({
+                                lexema: '=', tipo: tiposDeSimbolos.IGUAL
+                            }),
+                            expect.objectContaining({
+                                tipo: tiposDeSimbolos.TEXTO
+                            }),
+                            expect.objectContaining({
+                                lexema: '~>', tipo: tiposDeSimbolos.BOTE
+                            }),
+                            expect.objectContaining({
+                                lexema: 'tamanho', tipo: tiposDeSimbolos.IDENTIFICADOR
+                            }),
+                            expect.objectContaining({
+                                tipo: tiposDeSimbolos.PARENTESE_ESQUERDO
+                            }),
+                            expect.objectContaining({
+                                tipo: tiposDeSimbolos.PARENTESE_DIREITO
+                            }),
+                            expect.objectContaining({
+                                lexema: '~>', tipo: tiposDeSimbolos.BOTE
+                            }),
+                            expect.objectContaining({
+                                lexema: 'texto', tipo: tiposDeSimbolos.IDENTIFICADOR
+                            }),
+                            expect.objectContaining({
+                                tipo: tiposDeSimbolos.PARENTESE_ESQUERDO
+                            }),
+                            expect.objectContaining({
+                                tipo: tiposDeSimbolos.PARENTESE_DIREITO
+                            }),
+
+                            // Linha 2
+                            expect.objectContaining({
+                                lexema: 'escreva', tipo: tiposDeSimbolos.ESCREVA
+                            }),
+                            expect.objectContaining({
+                                tipo: tiposDeSimbolos.PARENTESE_ESQUERDO
+                            }),
+                            expect.objectContaining({
+                                lexema: 'resultado', tipo: tiposDeSimbolos.IDENTIFICADOR
+                            }),
+                            expect.objectContaining({
+                                tipo: tiposDeSimbolos.PARENTESE_DIREITO
+                            }),
+                        ])
+                    );
+                });
+            });
         });
 
         describe('Cenários de falha', () => {

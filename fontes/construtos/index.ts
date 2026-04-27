@@ -11,6 +11,7 @@ export * from './atribuicao-por-indice';
 export * from './atribuicao-por-indices-matriz';
 export * from './atribuir';
 export * from './binario';
+export * from './bote';
 export * from './chamada';
 export * from './comentario-como-construto';
 export * from './componente-linguagem';

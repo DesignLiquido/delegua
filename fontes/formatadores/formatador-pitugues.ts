@@ -19,6 +19,7 @@ import {
     AcessoIntervaloVariavel,
     TuplaN,
     Morsa,
+    Bote,
 } from '../construtos';
 
 import {
@@ -550,6 +551,13 @@ export class FormatadorPitugues implements VisitantePituguesInterface {
         const valor = await expressao.valor.aceitar(this);
 
         return `${variavel} := ${valor}`;
+    }
+
+    async visitarExpressaoBote(expressao: Bote): Promise<any> {
+        const esquerda = await expressao.esquerda.aceitar(this);
+        const direita = await expressao.direita.aceitar(this);
+
+        return `${esquerda} ~> ${direita}`;
     }
 
     private mapearOperador(tipo: any): string {

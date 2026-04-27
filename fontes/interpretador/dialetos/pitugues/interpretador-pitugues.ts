@@ -13,6 +13,8 @@ import {
     DefinirValor,
     AcessoPropriedade,
     Morsa,
+    Bote,
+    Chamada,
 } from '../../../construtos';
 import { Interpretador } from '../../interpretador';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
@@ -87,7 +89,9 @@ export class InterpretadorPitugues extends Interpretador {
         return super.executarBloco(declaracoes, ambiente);
     }
 
-    override async visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> {
+    override async visitarExpressaoAcessoMetodo(
+        expressao: AcessoMetodo
+    ): Promise<any> {
         const variavelObjeto = await this.avaliar(expressao.objeto);
         const objeto = this.resolverValor(variavelObjeto, true);
 
@@ -134,7 +138,9 @@ export class InterpretadorPitugues extends Interpretador {
         return comum.visitarExpressaoTuplaN(this, expressao);
     }
 
-    override async visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> {
+    override async visitarExpressaoDeAtribuicao(
+        expressao: Atribuir
+    ): Promise<any> {
         if (expressao.alvo.constructor === Variavel) {
             const alvoVariavel = expressao.alvo as Variavel;
             try {
@@ -263,7 +269,10 @@ export class InterpretadorPitugues extends Interpretador {
      * Resolve a lógica de atribuição das variáveis no escopo.
      * Suporta variáveis simples ou pares (Dupla).
      */
-    private definirVariaveisIteracao(variavel: Variavel | Dupla, elemento: any): void {
+    private definirVariaveisIteracao(
+        variavel: Variavel | Dupla,
+        elemento: any
+    ): void {
         if (variavel instanceof Variavel) {
             this.pilhaEscoposExecucao.definirVariavel(
                 variavel.simbolo.lexema,
@@ -340,7 +349,9 @@ export class InterpretadorPitugues extends Interpretador {
         return retornoExecucao;
     }
 
-    override async visitarExpressaoRetornar(declaracao: Retorna): Promise<RetornoQuebra> {
+    override async visitarExpressaoRetornar(
+        declaracao: Retorna
+    ): Promise<RetornoQuebra> {
         let valor = null;
         if (declaracao.valor !== null && declaracao.valor !== undefined) {
             valor = await this.avaliar(declaracao.valor);
@@ -378,7 +389,9 @@ export class InterpretadorPitugues extends Interpretador {
         return descritor;
     }
 
-    override async visitarExpressaoDefinirValor(expressao: DefinirValor): Promise<any> {
+    override async visitarExpressaoDefinirValor(
+        expressao: DefinirValor
+    ): Promise<any> {
         const variavelObjeto = await this.avaliar(expressao.objeto);
         const objeto = this.resolverValor(variavelObjeto, true);
 
@@ -413,5 +426,30 @@ export class InterpretadorPitugues extends Interpretador {
         }
 
         return valorResolvido;
+    }
+
+    async visitarExpressaoBote(expressao: Bote): Promise<any> {
+        if (!(expressao.direita instanceof Chamada)) {
+            return Promise.reject(
+                new ErroEmTempoDeExecucao(
+                    {
+                        linha: expressao.linha,
+                        hashArquivo: expressao.hashArquivo,
+                        lexema: '~>'
+                    } as any,
+                    'O lado direito do operador bote (~>) deve ser uma chamada de função.',
+                    expressao.linha
+                )
+            );
+        }
+
+        const chamadaOriginal = expressao.direita as Chamada;
+        const novaChamada = new Chamada(
+            chamadaOriginal.hashArquivo,
+            chamadaOriginal.entidadeChamada,
+            [expressao.esquerda, ...chamadaOriginal.argumentos]
+        );
+
+        return await this.avaliar(novaChamada);
     }
 }

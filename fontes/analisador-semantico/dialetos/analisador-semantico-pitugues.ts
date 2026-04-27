@@ -22,6 +22,7 @@ import {
     AcessoIndiceVariavel,
     Dupla,
     Morsa,
+    Bote,
 } from '../../construtos';
 import {
     Const,
@@ -1344,6 +1345,18 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
 
         if (expressao.variavel) {
             this.registrarVariavelExpressaoMorsa(expressao.variavel);
+        }
+
+        return Promise.resolve();
+    }
+
+    async visitarExpressaoBote(expressao: Bote): Promise<any> {
+        if (expressao.esquerda) {
+            await expressao.esquerda.aceitar(this);
+        }
+
+        if (expressao.direita) {
+            await expressao.direita.aceitar(this);
         }
 
         return Promise.resolve();

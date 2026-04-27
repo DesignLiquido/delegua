@@ -1,5 +1,5 @@
 import { AvaliadorSintaticoPitugues } from "../../../../fontes/avaliador-sintatico/dialetos";
-import { Morsa, Logico, Vetor } from "../../../../fontes/construtos";
+import { Morsa, Logico, Vetor, Bote, Chamada, Variavel, Literal } from "../../../../fontes/construtos";
 import { Escreva, Importar, Se, Var } from "../../../../fontes/declaracoes";
 import { LexadorPitugues } from "../../../../fontes/lexador/dialetos";
 
@@ -503,6 +503,59 @@ describe('Avaliador sintático (Pituguês)', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                     expect(retornoAvaliadorSintatico.declaracoes[0].constructor).toBe(Se);
+                });
+            });
+
+            describe('Operador Bote (~>)', () => {
+                it('Uso básico', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'resultado = "victor" ~> tamanho() ~> texto()',
+                        'escreva(resultado)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    expect(retornoAvaliadorSintatico).toBeTruthy();
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(
+                        2
+                    );
+
+                    const declaracaoVar = retornoAvaliadorSintatico
+                        .declaracoes[0] as Var;
+
+                    expect(declaracaoVar.simbolo.lexema).toBe('resultado');
+
+                    const boteExterno = declaracaoVar.inicializador as Bote;
+
+                    expect(boteExterno.constructor.name).toBe('Bote');
+
+                    const chamadaTexto = boteExterno.direita as Chamada;
+
+                    expect(chamadaTexto.constructor.name).toBe('Chamada');
+                    expect((chamadaTexto.entidadeChamada as Variavel).simbolo.lexema).toBe('texto');
+
+                    const boteInterno = boteExterno.esquerda as Bote;
+
+                    expect(boteInterno.constructor.name).toBe('Bote');
+
+                    const chamadaTamanho = boteInterno.direita as Chamada;
+
+                    expect(chamadaTamanho.constructor.name).toBe('Chamada');
+                    expect((chamadaTamanho.entidadeChamada as Variavel).simbolo.lexema).toBe('tamanho');
+
+                    const literalOriginal = boteInterno.esquerda as Literal;
+
+                    expect(literalOriginal.constructor.name).toBe('Literal');
+                    expect(literalOriginal.valor).toBe('victor');
+
+                    const escreva = retornoAvaliadorSintatico
+                        .declaracoes[1] as Escreva;
+
+                    expect(escreva.argumentos).toHaveLength(1);
+                    expect((escreva.argumentos[0] as Variavel).simbolo.lexema).toBe('resultado');
                 });
             });
         });
