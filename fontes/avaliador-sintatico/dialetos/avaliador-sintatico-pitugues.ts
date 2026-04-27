@@ -43,6 +43,7 @@ import {
     Trio,
     TuplaN,
     Morsa,
+    Bote,
 } from '../../construtos';
 import {
     Escreva,
@@ -1349,8 +1350,26 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return new TuplaN(this.hashArquivo, expressao.linha, elementos);
     }
 
+    async bote(): Promise<Construto> {
+        let expressao = await this.seTernario();
+
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BOTE)) {
+            const operadorBote = this.simboloAnterior();
+            const direita = await this.seTernario();
+
+            expressao = new Bote(
+                this.hashArquivo,
+                Number(operadorBote.linha),
+                expressao,
+                direita
+            );
+        }
+
+        return expressao;
+    }
+
     async atribuir(): Promise<Construto> {
-        const expressao = await this.seTernario();
+        const expressao = await this.bote();
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.MORSA)) {
             const operadorMorsa = this.simboloAnterior();

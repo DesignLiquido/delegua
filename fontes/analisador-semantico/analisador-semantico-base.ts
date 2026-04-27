@@ -36,6 +36,7 @@ import {
     AcessoIntervaloVariavel,
     TuplaN,
     Morsa,
+    Bote,
 } from '../construtos';
 import {
     Declaracao,
@@ -695,7 +696,11 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
         return Promise.resolve();
     }
 
-    async visitarExpressaoMorsa(expressao: Morsa): Promise<any> {
+    visitarExpressaoMorsa(expressao: Morsa): Promise<any> {
+        return Promise.resolve();
+    }
+
+    visitarExpressaoBote(expressao: Bote): Promise<any> {
         return Promise.resolve();
     }
 }

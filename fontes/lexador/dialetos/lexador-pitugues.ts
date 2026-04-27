@@ -537,8 +537,15 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
                 break;
 
             case '~':
-                this.adicionarSimbolo(tiposDeSimbolos.BIT_NOT);
-                this.avancar();
+                if (this.proximoSimbolo() === '>') {
+                    this.avancar();
+                    this.avancar();
+                    this.adicionarSimbolo(tiposDeSimbolos.BOTE);
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.BIT_NOT);
+                    this.avancar();
+                }
+
                 break;
 
             case '|':
