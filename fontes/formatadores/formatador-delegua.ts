@@ -1019,10 +1019,6 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
         this.codigoFormatado += ']';
     }
 
-    async visitarExpressaoMorsa(expressao: Morsa): Promise<any> {
-        throw new Error('Método não implementado.');
-    }
-
     formatarDeclaracaoOuConstruto(declaracaoOuConstruto: Declaracao | Construto): void {
         switch (declaracaoOuConstruto.constructor) {
             case AcessoIndiceVariavel:

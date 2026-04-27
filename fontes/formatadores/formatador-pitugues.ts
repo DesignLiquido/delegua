@@ -46,10 +46,10 @@ import {
     TextoDocumentacao,
 } from '../declaracoes';
 
-import { VisitanteComumInterface } from '../interfaces';
+import { VisitantePituguesInterface } from '../interfaces/visitante-pitugues-interface';
 import tiposDeSimbolos from '../tipos-de-simbolos/pitugues';
 
-export class FormatadorPitugues implements VisitanteComumInterface {
+export class FormatadorPitugues implements VisitantePituguesInterface {
     private nívelIndentação = 0;
     private tamanhoIndentação = 4;
     private códigoFormatado = '';
