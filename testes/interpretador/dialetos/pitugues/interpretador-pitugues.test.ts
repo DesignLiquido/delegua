@@ -4240,9 +4240,9 @@ describe('Interpretador (Pituguês)', () => {
                 expect(_saidas).toEqual(['Antes', 'Olá, Mundo!', 'Depois']);
             });
 
-            it('aleatorio_entre()', async () => {
+            it('aleatorio()', async () => {
                 const codigo = [
-                    'numero_aleatorio = aleatorio_entre(1, 9)',
+                    'numero_aleatorio = aleatorio(1, 9)',
                     'escreva(numero_aleatorio)'
                 ];
                 const retornoLexador = lexador.mapear(codigo, -1);
@@ -4259,7 +4259,7 @@ describe('Interpretador (Pituguês)', () => {
                 const resultado = Number(_saidas[0]);
 
                 expect(resultado).toBeGreaterThanOrEqual(1);
-                expect(resultado).toBeLessThanOrEqual(9);
+                expect(resultado).toBeLessThan(9);
             });
 
             describe('Operador Morsa (:=)', () => {

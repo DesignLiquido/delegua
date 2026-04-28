@@ -37,131 +37,111 @@ function compararElementosRecursivamente(a: any, b: any): number {
 }
 
 /**
- * Retorna um número aleatório entre 0 e 1.
- * @returns {Promise<number>} Número real.
+ * Retorna um número aleatório.
+ * - Sem argumentos: retorna um número real entre 0 (inclusivo) e 1 (exclusivo).
+ * - Com um argumento: retorna um número real entre 0 (inclusivo) e `maximo` (exclusivo).
+ * - Com dois argumentos: retorna um número real entre `minimo` (inclusivo) e `maximo` (exclusivo).
+ * @param {number} [minimo] O número mínimo (inclusivo), ou o máximo quando único argumento.
+ * @param {number} [maximo] O número máximo (exclusivo).
+ * @returns {Promise<number>} O número real aleatório gerado.
  */
-export async function aleatorio(interpretador: InterpretadorInterface): Promise<number> {
-    return Promise.resolve(Math.random());
-}
-
-/**
- * Retorna um número aleatório de acordo com o parâmetro passado.
- * Mínimo(inclusivo) - Máximo(exclusivo).
- * @param {number} minimo O número mínimo.
- * @param {number} maximo O número máximo.
- * @returns {Promise<number>} Um número real entre os valores máximo e mínimo especificados.
- */
-export async function aleatorio_entre(
+export async function aleatorio(
     interpretador: InterpretadorInterface,
     ...argumentos: any[]
 ): Promise<number> {
+    const simboloAtual = {
+        linha: interpretador.linhaDeclaracaoAtual,
+        hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+    } as SimboloInterface;
+
     const argumentosUsuario = argumentos.filter(
-        (arg) => !(arg && typeof arg === 'object' && 'lexema' in arg && 'linha' in arg)
+        (arg) => !(
+            arg &&
+            typeof arg === 'object' &&
+            'lexema' in arg &&
+            'linha' in arg
+        )
     );
 
-    if (argumentosUsuario.length <= 0) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'A função recebe ao menos um parâmetro.'
-            )
-        );
-    }
+    if (argumentosUsuario.length === 0) return Math.random();
 
     if (argumentosUsuario.length > 2) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'A quantidade de parâmetros máxima para esta função é 2.'
-            )
+        throw new ErroEmTempoDeExecucao(
+            simboloAtual,
+            'A função aceita no máximo 2 parâmetros.'
         );
     }
 
     const minimo = interpretador.resolverValor(argumentosUsuario[0]);
-
-    if (argumentosUsuario.length === 1) {
-        if (typeof minimo !== 'number') {
-            return Promise.reject(
-                new ErroEmTempoDeExecucao(
-                    {
-                        hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                        linha: interpretador.linhaDeclaracaoAtual,
-                    } as SimboloInterface,
-                    'O parâmetro deve ser um número.'
-                )
-            );
-        }
-
-        return Math.floor(Math.random() * (0 - minimo)) + minimo;
-    }
-
-    const maximo = interpretador.resolverValor(argumentosUsuario[1]);
-
-    if (typeof minimo !== 'number' || typeof maximo !== 'number') {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Os dois parâmetros devem ser do tipo número.'
-            )
+    if (typeof minimo !== 'number') {
+        throw new ErroEmTempoDeExecucao(
+            simboloAtual,
+            'O primeiro parâmetro deve ser um número.'
         );
     }
 
-    return Promise.resolve(Math.floor(Math.random() * (maximo - minimo)) + minimo);
+    if (argumentosUsuario.length === 1) return Math.random() * minimo;
+
+    const maximo = interpretador.resolverValor(argumentosUsuario[1]);
+    if (typeof maximo !== 'number') {
+        throw new ErroEmTempoDeExecucao(
+            simboloAtual,
+            'O segundo parâmetro deve ser um número.'
+        );
+    }
+
+    return Math.random() * (maximo - minimo) + minimo;
 }
 
 /**
- * Verifica se algum dos elementos satisfaz à condição para por parâmetro.
+ * Verifica se algum dos elementos satisfaz a condição passada por parâmetro.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
- * @param {VariavelInterface | any} vetor Uma variável de Delégua ou um vetor nativo de JavaScript.
- * @param {VariavelInterface | any} funcaoPesquisa A função que ensina o método de pesquisa.
- * @returns {Promise<boolean>} Verdadeiro se há algum elemento no vetor com a condição. Falso caso contrário.
+ * @param {any} iteravel Um iterável.
+ * @param {any} funcaoPesquisa A função que ensina o método de pesquisa.
+ * @returns {Promise<boolean>} Verdadeiro se há algum elemento no iterável com a condição. Falso caso contrário.
  */
 export async function algum(
     interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | any,
-    funcaoPesquisa: VariavelInterface | any
+    iteravel: any,
+    funcaoPesquisa: any
 ): Promise<boolean> {
-    const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
+    const simboloAtual = {
+        linha: interpretador.linhaDeclaracaoAtual,
+        hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+    } as SimboloInterface;
 
-    const valorFuncaoPesquisa = funcaoPesquisa.hasOwnProperty('valor')
-        ? funcaoPesquisa.valor
-        : funcaoPesquisa;
+    const valorIteravel = interpretador.resolverValor(iteravel);
+    const ehIteravel = typeof valorIteravel?.[Symbol.iterator] === 'function';
+    const ehObjetoOuDicionario = typeof valorIteravel === 'object' &&
+        valorIteravel !== null;
 
-    if (!Array.isArray(valorVetor)) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor.'
-            )
+    let itens: Iterable<any>;
+
+    if (valorIteravel && ehIteravel) {
+        itens = valorIteravel;
+    } else if (valorIteravel && ehObjetoOuDicionario) {
+        itens = Object.values(valorIteravel);
+    } else {
+        throw new ErroEmTempoDeExecucao(
+            simboloAtual,
+            'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
         );
     }
 
-    if (valorFuncaoPesquisa.constructor !== DeleguaFuncao) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O segundo parâmetro da função deve ser uma função.'
-            )
-        );
+    const valorFuncao = funcaoPesquisa?.valor ?? funcaoPesquisa;
+
+    if (
+        !(valorFuncao instanceof DeleguaFuncao) &&
+        !(valorFuncao instanceof FuncaoPadrao)
+    ) {
+        throw new ErroEmTempoDeExecucao(
+            simboloAtual,
+            'Parâmetro inválido. O segundo parâmetro deve ser uma função.'
+        )
     }
 
-    for (let indice = 0; indice < valorVetor.length; ++indice) {
-        if (await valorFuncaoPesquisa.chamar(interpretador, [valorVetor[indice]])) {
+    for (const item of itens) {
+        if (await valorFuncao.chamar(interpretador, item, simboloAtual)) {
             return true;
         }
     }
