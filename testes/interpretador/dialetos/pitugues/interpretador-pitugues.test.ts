@@ -1,6 +1,7 @@
 import { AvaliadorSintaticoPitugues } from "../../../../fontes/avaliador-sintatico";
 import { LexadorPitugues } from "../../../../fontes/lexador";
 import { InterpretadorPitugues } from "../../../../fontes/interpretador/dialetos/pitugues"
+import { Iteravel } from "../../../../fontes/interpretador/estruturas/iteravel";
 
 describe('Interpretador (Pituguês)', () => {
     describe('interpretar()', () => {
@@ -4302,6 +4303,68 @@ describe('Interpretador (Pituguês)', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(_saidas[0]).toBe('6');
+                });
+            });
+
+            describe('iteravel', () => {
+                it('Deve extrair elementos de um Array nativo do JavaScript', () => {
+                    const iteravel = new Iteravel([1, 2, 3]);
+
+                    expect(iteravel.elementos).toEqual([1, 2, 3]);
+                });
+
+                it('Deve extrair elementos de uma String (Texto nativo)', () => {
+                    const iteravel = new Iteravel('Pituguês');
+                    expect(iteravel.elementos).toEqual(
+                        ['P', 'i', 't', 'u', 'g', 'u', 'ê', 's']
+                    );
+                });
+
+                it('Deve extrair elementos de um Construto Vetor', () => {
+                    const mockVetor = {
+                        valores: ['A', 'B', 'C']
+                    };
+                    const iteravel = new Iteravel(mockVetor);
+
+                    expect(iteravel.elementos).toEqual(['A', 'B', 'C']);
+                });
+
+                it('Deve extrair elementos de um Construto Tupla', () => {
+                    const mockVetor = {
+                        elementos: ['A', 'B', 'C']
+                    };
+                    const iteravel = new Iteravel(mockVetor);
+
+                    expect(iteravel.elementos).toEqual(['A', 'B', 'C']);
+                });
+
+                it('Deve extrair elementos em pares [chave, valor] de um Construto Dicionário', () => {
+                    const mockDicionario = {
+                        chaves: ['usuario', 'linguagem'],
+                        valores: ['Victor', 'Pituguês']
+                    };
+                    const iteravel = new Iteravel(mockDicionario);
+                    const esperado = [
+                        ['usuario', 'Victor'],
+                        ['linguagem', 'Pituguês']
+                    ];
+
+                    expect(iteravel.elementos).toEqual(esperado);
+                });
+
+                it('Deve extrair valores de um objeto puro nativo do JavaScript', () => {
+                    const mockObjeto = { a: 100, b: 200 };
+                    const iteravel = new Iteravel(mockObjeto);
+
+                    expect(iteravel.elementos).toEqual([100, 200]);
+                });
+
+                it('Deve retornar um array vazio se receber um dado inválido ou não iterável', () => {
+                    const iteravelNumerico = new Iteravel(42);
+                    const iteravelNulo = new Iteravel(null);
+
+                    expect(iteravelNumerico.elementos).toEqual([]);
+                    expect(iteravelNulo.elementos).toEqual([]);
                 });
             });
         });
