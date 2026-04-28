@@ -162,80 +162,80 @@ export async function arredondar(
     casasDecimais: any
 ): Promise<number> {
     const valorNumero = interpretador.resolverValor(numero);
-    const valorCasas = interpretador.resolverValor(casasDecimais);
+    const valorCasas = interpretador.resolverValor(casasDecimais) ?? 0;
 
-    if (numero == undefined || numero == null) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                null,
-                'Erro: arredondar() deve receber um número.',
-                interpretador.linhaDeclaracaoAtual
-            )
+    if (typeof valorNumero !== 'number') {
+        throw new ErroEmTempoDeExecucao(
+            null,
+            'Parâmetro inválido. O primeiro parâmetro deve ser um número.',
+            interpretador.linhaDeclaracaoAtual
         );
     }
 
-    if (typeof numero !== 'number') {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                null,
-                `Erro de Tipo: arredondar() espera um número, mas recebeu '${typeof valorNumero}'.`,
-                interpretador.linhaDeclaracaoAtual
-            )
+    if (typeof valorCasas !== 'number') {
+        throw new ErroEmTempoDeExecucao(
+            null,
+            `Parâmetro inválido. O segundo parâmetro deve ser um número.`,
+            interpretador.linhaDeclaracaoAtual
         );
     }
 
-    const fator = Math.pow(10, valorCasas);
-    const resultado = Math.round(valorNumero * fator) / fator;
+    const fator = 10 ** valorCasas;
 
-    return Promise.resolve(resultado);
+    return Math.round(valorNumero * fator) / fator;
 }
 
 /**
- * Encontra o primeiro elemento de um vetor cuja função de pesquisa retorne
- * verdadeiro na avaliação de cada elemento.
+ * Retorna o primeiro elemento de um iterável que satisfaça a condição definida na função de pesquisa.
+ * A execução é interrompida assim que o elemento for encontrado.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
- * @param {VariavelInterface | any} vetor Uma variável de Delégua ou um vetor nativo de JavaScript.
- * @param {VariavelInterface | any} funcaoPesquisa A função que ensina o método de pesquisa.
- * @returns {Promise<any>} Um elemento, caso o elemento seja encontraro, ou nulo em caso contrário.
+ * @param {any} iteravel O iterável a ser percorrido.
+ * @param {any} funcaoPesquisa A função que define a condição de busca.
+ * @returns {Promise<any>} O primeiro elemento encontrado, ou nulo caso nenhum elemento satisfaça a condição.
  */
 export async function encontrar(
     interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | any,
-    funcaoPesquisa: VariavelInterface | any
+    iteravel: any,
+    funcaoPesquisa: any
 ): Promise<any> {
-    const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
+    const simboloAtual = {
+        linha: interpretador.linhaDeclaracaoAtual,
+        hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+    } as SimboloInterface;
 
-    const valorFuncaoPesquisa = funcaoPesquisa.hasOwnProperty('valor')
-        ? funcaoPesquisa.valor
-        : funcaoPesquisa;
+    const valorIteravel = iteravel?.valor ?? iteravel;
+    const ehIteravel = typeof valorIteravel?.[Symbol.iterator] === 'function';
+    const ehObjetoOuDicionario = typeof valorIteravel === 'object' &&
+        valorIteravel !== null;
 
-    if (!Array.isArray(valorVetor)) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor.'
-            )
+    let itens: Iterable<any>;
+
+    if (valorIteravel && ehIteravel) {
+        itens = valorIteravel;
+    } else if (valorIteravel && ehObjetoOuDicionario) {
+        itens = Object.values(valorIteravel);
+    } else {
+        throw new ErroEmTempoDeExecucao(
+            simboloAtual,
+            'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
         );
     }
 
-    if (valorFuncaoPesquisa.constructor !== DeleguaFuncao) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O segundo parâmetro da função deve ser uma função.'
-            )
-        );
+    const valorFuncao = funcaoPesquisa?.valor ?? funcaoPesquisa;
+
+    if (
+        !(valorFuncao instanceof DeleguaFuncao) &&
+        !(valorFuncao instanceof FuncaoPadrao)
+    ) {
+        throw new ErroEmTempoDeExecucao(
+            simboloAtual,
+            'Parâmetro inválido. O segundo parâmetro deve ser uma função.'
+        )
     }
 
-    for (let indice = 0; indice < valorVetor.length; ++indice) {
-        if (await valorFuncaoPesquisa.chamar(interpretador, [valorVetor[indice]])) {
-            return valorVetor[indice];
+    for (const item of itens) {
+        if (await valorFuncao.chamar(interpretador, item, simboloAtual)) {
+            return item;
         }
     }
 
@@ -243,51 +243,62 @@ export async function encontrar(
 }
 
 /**
- * Encontra o índice do primeiro elemento de um vetor cuja função de pesquisa retorne
- * verdadeiro na avaliação de cada elemento.
+ * Retorna o índice do primeiro elemento de um iterável que satisfaça a condição definida na função de pesquisa.
+ * A execução é interrompida assim que o elemento for encontrado.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
- * @param {VariavelInterface | any} vetor Uma variável de Delégua ou um vetor nativo de JavaScript.
- * @param {VariavelInterface | any} funcaoPesquisa A função que ensina o método de pesquisa.
- * @returns {Promise<number>} O número correspondente ao índice se o elemento for encontrado, ou nulo em caso contrário.
+ * @param {any} iteravel O iterável a ser percorrido.
+ * @param {any} funcaoPesquisa A função que define a condição de busca.
+ * @returns {Promise<number>} O índice do primeiro elemento encontrado, ou -1 caso nenhum elemento satisfaça a condição.
  */
 export async function encontrar_indice(
     interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | any,
-    funcaoPesquisa: VariavelInterface | any
+    iteravel: any,
+    funcaoPesquisa: any
 ): Promise<number> {
-    const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
+    const simboloAtual = {
+        linha: interpretador.linhaDeclaracaoAtual,
+        hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+    } as SimboloInterface;
 
-    const valorFuncaoPesquisa = funcaoPesquisa.hasOwnProperty('valor')
-        ? funcaoPesquisa.valor
-        : funcaoPesquisa;
+    const valorIteravel = iteravel?.valor ?? iteravel;
+    const ehIteravel = typeof valorIteravel?.[Symbol.iterator] === 'function';
+    const ehObjetoOuDicionario = typeof valorIteravel === 'object' &&
+        valorIteravel !== null;
 
-    if (!Array.isArray(valorVetor)) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor.'
-            )
+    let itens: any[];
+
+    if (valorIteravel && ehIteravel) {
+        itens = Array.from(valorIteravel);
+    } else if (valorIteravel && ehObjetoOuDicionario) {
+        itens = Object.values(valorIteravel);
+    } else {
+        throw new ErroEmTempoDeExecucao(
+            simboloAtual,
+            'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
         );
     }
 
-    if (valorFuncaoPesquisa.constructor !== DeleguaFuncao) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O segundo parâmetro da função deve ser uma função.'
-            )
-        );
+    const valorFuncao = funcaoPesquisa?.valor ?? funcaoPesquisa;
+
+    if (
+        !(valorFuncao instanceof DeleguaFuncao) &&
+        !(valorFuncao instanceof FuncaoPadrao)
+    ) {
+        throw new ErroEmTempoDeExecucao(
+            simboloAtual,
+            'Parâmetro inválido. O segundo parâmetro deve ser uma função.'
+        )
     }
 
-    for (let indice = 0; indice < valorVetor.length; ++indice) {
-        if (await valorFuncaoPesquisa.chamar(interpretador, [valorVetor[indice]])) {
-            return indice;
+    for (let i = 0; i < itens.length; i++) {
+        if (
+            await valorFuncao.chamar(
+                interpretador,
+                itens[i],
+                simboloAtual
+            )
+        ) {
+            return i;
         }
     }
 
@@ -295,51 +306,56 @@ export async function encontrar_indice(
 }
 
 /**
- * Encontrar o último elemento de um vetor cuja função de pesquisa retorne
- * verdadeiro na avaliação de cada elemento.
+ * Retorna o último elemento de um iterável que satisfaça a condição definida na função de pesquisa.
+ * A execução é interrompida assim que o elemento for encontrado.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
- * @param {VariavelInterface | any} vetor Uma variável de Delégua ou um vetor nativo de JavaScript.
- * @param {VariavelInterface | any} funcaoPesquisa A função que ensina o método de pesquisa.
- * @returns {Promise<any>} O número correspondente ao índice se o elemento for encontrado, ou nulo em caso contrário.
+ * @param {any} iteravel O iterável a ser percorrido.
+ * @param {any} funcaoPesquisa A função que define a condição de busca.
+ * @returns {Promise<any>} O último elemento encontrado, ou nulo caso nenhum elemento satisfaça a condição.
  */
 export async function encontrar_ultimo(
     interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | any,
-    funcaoPesquisa: VariavelInterface | any
+    iteravel: any,
+    funcaoPesquisa: any
 ): Promise<any> {
-    const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
+    const simboloAtual = {
+        linha: interpretador.linhaDeclaracaoAtual,
+        hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+    } as SimboloInterface;
 
-    const valorFuncaoPesquisa = funcaoPesquisa.hasOwnProperty('valor')
-        ? funcaoPesquisa.valor
-        : funcaoPesquisa;
+    const valorIteravel = iteravel?.valor ?? iteravel;
+    const ehIteravel = typeof valorIteravel?.[Symbol.iterator] === 'function';
+    const ehObjetoOuDicionario = typeof valorIteravel === 'object' &&
+        valorIteravel !== null;
 
-    if (!Array.isArray(valorVetor)) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor.'
-            )
+    let itens: any[];
+
+    if (valorIteravel && ehIteravel) {
+        itens = Array.from(valorIteravel);
+    } else if (valorIteravel && ehObjetoOuDicionario) {
+        itens = Object.values(valorIteravel);
+    } else {
+        throw new ErroEmTempoDeExecucao(
+            simboloAtual,
+            'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
         );
     }
 
-    if (valorFuncaoPesquisa.constructor !== DeleguaFuncao) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O segundo parâmetro da função deve ser uma função.'
-            )
-        );
+    const valorFuncao = funcaoPesquisa?.valor ?? funcaoPesquisa;
+
+    if (
+        !(valorFuncao instanceof DeleguaFuncao) &&
+        !(valorFuncao instanceof FuncaoPadrao)
+    ) {
+        throw new ErroEmTempoDeExecucao(
+            simboloAtual,
+            'Parâmetro inválido. O segundo parâmetro deve ser uma função.'
+        )
     }
 
-    for (let indice = valorVetor.length - 1; indice >= 0; --indice) {
-        if (await valorFuncaoPesquisa.chamar(interpretador, [valorVetor[indice]])) {
-            return valorVetor[indice];
+    for (let i = itens.length - 1; i >= 0; i--) {
+        if (await valorFuncao.chamar(interpretador, itens[i], simboloAtual)) {
+            return itens[i];
         }
     }
 
@@ -347,54 +363,66 @@ export async function encontrar_ultimo(
 }
 
 /**
- *
+ * Retorna o índice do último elemento de um iterável que satisfaça a condição definida na função de pesquisa.
+ * A execução é interrompida assim que o elemento for encontrado.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
- * @param {VariavelInterface | any} vetor Uma variável de Delégua ou um vetor nativo de JavaScript.
- * @param {VariavelInterface | any} funcaoPesquisa A função que ensina o método de pesquisa.
- * @returns {Promise<number>} O número correspondente ao índice se o elemento for encontrado, ou nulo em caso contrário.
+ * @param {any} iteravel O iterável a ser percorrido.
+ * @param {any} funcaoPesquisa A função que define a condição de busca.
+ * @returns {Promise<number>} O índice do último elemento encontrado, ou -1 caso nenhum elemento satisfaça a condição.
  */
 export async function encontrar_ultimo_indice(
     interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | any,
-    funcaoPesquisa: VariavelInterface | any
+    iteravel: any,
+    funcaoPesquisa: any
 ): Promise<number> {
-    const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
+    const simboloAtual = {
+        linha: interpretador.linhaDeclaracaoAtual,
+        hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+    } as SimboloInterface;
 
-    const valorFuncaoPesquisa = funcaoPesquisa.hasOwnProperty('valor')
-        ? funcaoPesquisa.valor
-        : funcaoPesquisa;
+    const valorIteravel = iteravel?.valor ?? iteravel;
+    const ehIteravel = typeof valorIteravel?.[Symbol.iterator] === 'function';
+    const ehObjetoOuDicionario = typeof valorIteravel === 'object' &&
+        valorIteravel !== null;
 
-    if (!Array.isArray(valorVetor)) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor.'
-            )
+    let itens: any[];
+
+    if (valorIteravel && ehIteravel) {
+        itens = Array.from(valorIteravel);
+    } else if (valorIteravel && ehObjetoOuDicionario) {
+        itens = Object.values(valorIteravel);
+    } else {
+        throw new ErroEmTempoDeExecucao(
+            simboloAtual,
+            'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
         );
     }
 
-    if (valorFuncaoPesquisa.constructor !== DeleguaFuncao) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O segundo parâmetro da função deve ser uma função.'
-            )
-        );
+    const valorFuncao = funcaoPesquisa?.valor ?? funcaoPesquisa;
+
+    if (
+        !(valorFuncao instanceof DeleguaFuncao) &&
+        !(valorFuncao instanceof FuncaoPadrao)
+    ) {
+        throw new ErroEmTempoDeExecucao(
+            simboloAtual,
+            'Parâmetro inválido. O segundo parâmetro deve ser uma função.'
+        )
     }
 
-    for (let indice = valorVetor.length - 1; indice >= 0; --indice) {
-        if (await valorFuncaoPesquisa.chamar(interpretador, [valorVetor[indice]])) {
-            return indice;
+    for (let i = itens.length - 1; i >= 0; i--) {
+        if (
+            await valorFuncao.chamar(
+                interpretador,
+                itens[i],
+                simboloAtual
+            )
+        ) {
+            return i;
         }
     }
 
-    return null;
+    return -1;
 }
 
 /**
