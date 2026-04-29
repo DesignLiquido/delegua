@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import cloneDeep from 'lodash.clonedeep';
 
 import { Binario, Chamada, Construto, Leia, Literal } from '../../construtos';
 import {
@@ -260,7 +260,7 @@ export async function visitarDeclaracaoPara(
     // algumas propriedades que indicam o estado da execução dela.
     // Por exemplo, se chamamos uma função que tem dentro dela um bloco Para,
     // cada execução do bloco precisa de uma inicialização diferente.
-    const cloneDeclaracao = _.cloneDeep(declaracao) as Para;
+    const cloneDeclaracao = cloneDeep(declaracao) as Para;
     const corpoExecucao = cloneDeclaracao.corpo as Bloco;
 
     const declaracaoInicializador = Array.isArray(cloneDeclaracao.inicializador)
