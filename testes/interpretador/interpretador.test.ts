@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
 import { ResultadoParcialInterpretadorInterface } from '../../fontes/interfaces';
 import { Interpretador } from '../../fontes/interpretador';

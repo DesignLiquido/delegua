@@ -5,6 +5,7 @@ export * from './estilizador/estilizador-interface';
 export * from './formatador-comum-interface';
 export * from './interpretador-com-depuracao-interface';
 export * from './interpretador-interface';
+export * from './iteravel-interface';
 export * from './lexador-interface';
 export * from './modulo-interface';
 export * from './parametro-interface';

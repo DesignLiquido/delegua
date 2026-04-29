@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 import { Declaracao, Enquanto, Escreva, Fazer, Para, Retorna, Tente } from '../../declaracoes';
 import { PontoParada } from '../../depuracao';
 import { ComandoDepurador, InterpretadorComDepuracaoInterface } from '../../interfaces';
