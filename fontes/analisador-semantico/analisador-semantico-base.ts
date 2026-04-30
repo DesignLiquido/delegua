@@ -79,6 +79,7 @@ import { AnalisadorSemanticoInterface } from '../interfaces/analisador-semantico
 import { RetornoAnalisadorSemantico } from '../interfaces/retornos/retorno-analisador-semantico';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
 import { GerenciadorEscopos } from './gerenciador-escopos';
+import { inferirCodigoDiagnosticoSemantico } from './tabela-diagnosticos-semanticos';
 
 /**
  * Essa classe só existe para eliminar redundância entre todos os analisadores
@@ -100,49 +101,70 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
         );
     }
 
-    erro(simbolo: SimboloInterface, mensagem: string): void {
+    erro(
+        simbolo: SimboloInterface,
+        mensagem: string,
+        codigoDiagnostico?: string,
+        simboloRelacionado?: SimboloInterface
+    ): void {
         if (this.diagnosticoJaExiste(simbolo, mensagem)) {
             return;
         }
 
+        const severidade = DiagnosticoSeveridade.ERRO;
         this.diagnosticos.push({
             simbolo: simbolo,
+            simboloRelacionado: simboloRelacionado ?? simbolo,
             mensagem: mensagem,
+            codigoDiagnostico: codigoDiagnostico ?? inferirCodigoDiagnosticoSemantico(mensagem, severidade),
             hashArquivo: simbolo.hashArquivo,
             linha: simbolo.linha,
-            severidade: DiagnosticoSeveridade.ERRO,
+            severidade,
         });
     }
 
-    aviso(simbolo: SimboloInterface, mensagem: string): void {
+    aviso(
+        simbolo: SimboloInterface,
+        mensagem: string,
+        codigoDiagnostico?: string,
+        simboloRelacionado?: SimboloInterface
+    ): void {
         if (this.diagnosticoJaExiste(simbolo, mensagem)) {
             return;
         }
 
+        const severidade = DiagnosticoSeveridade.AVISO;
         this.diagnosticos.push({
             simbolo: simbolo,
+            simboloRelacionado: simboloRelacionado ?? simbolo,
             mensagem: mensagem,
+            codigoDiagnostico: codigoDiagnostico ?? inferirCodigoDiagnosticoSemantico(mensagem, severidade),
             hashArquivo: simbolo.hashArquivo,
             linha: simbolo.linha,
-            severidade: DiagnosticoSeveridade.AVISO,
+            severidade,
         });
     }
 
     sugestao(
         simbolo: SimboloInterface,
         mensagem: string,
-        correcoes: CorrecaoSugeridaInterface[]
+        correcoes: CorrecaoSugeridaInterface[],
+        codigoDiagnostico?: string,
+        simboloRelacionado?: SimboloInterface
     ): void {
         if (this.diagnosticoJaExiste(simbolo, mensagem)) {
             return;
         }
 
+        const severidade = DiagnosticoSeveridade.SUGESTAO;
         this.diagnosticos.push({
             simbolo: simbolo,
+            simboloRelacionado: simboloRelacionado ?? simbolo,
             mensagem: mensagem,
+            codigoDiagnostico: codigoDiagnostico ?? inferirCodigoDiagnosticoSemantico(mensagem, severidade),
             hashArquivo: simbolo.hashArquivo,
             linha: simbolo.linha,
-            severidade: DiagnosticoSeveridade.SUGESTAO,
+            severidade,
             colunaInicio: correcoes[0]?.colunaInicio,
             colunaFim: correcoes[0]?.colunaFim,
             correcoes: correcoes,
@@ -461,11 +483,15 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     adicionarDiagnostico(
         simbolo: SimboloInterface,
         mensagem: string,
-        severidade: DiagnosticoSeveridade = DiagnosticoSeveridade.AVISO
+        severidade: DiagnosticoSeveridade = DiagnosticoSeveridade.AVISO,
+        codigoDiagnostico?: string,
+        simboloRelacionado?: SimboloInterface
     ): void {
         this.diagnosticos.push({
             simbolo: simbolo,
+            simboloRelacionado: simboloRelacionado ?? simbolo,
             mensagem: mensagem,
+            codigoDiagnostico: codigoDiagnostico ?? inferirCodigoDiagnosticoSemantico(mensagem, severidade),
             hashArquivo: simbolo.hashArquivo,
             linha: simbolo.linha,
             severidade: severidade,

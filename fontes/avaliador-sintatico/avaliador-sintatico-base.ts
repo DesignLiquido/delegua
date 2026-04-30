@@ -47,8 +47,18 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     atual: number = 0;
     blocos: number = 0;
 
-    erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico {
-        const excecao = new ErroAvaliadorSintatico(simbolo, mensagemDeErro);
+    erro(
+        simbolo: SimboloInterface,
+        mensagemDeErro: string,
+        codigoDiagnostico?: string,
+        simboloRelacionado?: SimboloInterface
+    ): ErroAvaliadorSintatico {
+        const excecao = new ErroAvaliadorSintatico(
+            simbolo,
+            mensagemDeErro,
+            codigoDiagnostico,
+            simboloRelacionado
+        );
         return excecao;
     }
 

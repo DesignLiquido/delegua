@@ -3,7 +3,9 @@ import { CorrecaoSugeridaInterface } from './correcao-sugerida-interface';
 
 export interface DiagnosticoAnalisadorSemantico {
     simbolo?: SimboloInterface;
+    simboloRelacionado?: SimboloInterface;
     mensagem?: string;
+    codigoDiagnostico?: string;
     linha?: number;
     hashArquivo?: number;
     severidade: DiagnosticoSeveridade;

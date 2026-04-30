@@ -107,8 +107,18 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         }
     }
 
-    erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico {
-        const excecao = new ErroAvaliadorSintatico(simbolo, mensagemDeErro);
+    erro(
+        simbolo: SimboloInterface,
+        mensagemDeErro: string,
+        codigoDiagnostico?: string,
+        simboloRelacionado?: SimboloInterface
+    ): ErroAvaliadorSintatico {
+        const excecao = new ErroAvaliadorSintatico(
+            simbolo,
+            mensagemDeErro,
+            codigoDiagnostico,
+            simboloRelacionado
+        );
         this.erros.push(excecao);
         return excecao;
     }

@@ -673,9 +673,19 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         }
     }
 
-    erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico {
+    erro(
+        simbolo: SimboloInterface,
+        mensagemDeErro: string,
+        codigoDiagnostico?: string,
+        simboloRelacionado?: SimboloInterface
+    ): ErroAvaliadorSintatico {
         const simboloParaErro = simbolo || this.simboloAnterior();
-        const excecao = new ErroAvaliadorSintatico(simboloParaErro, mensagemDeErro);
+        const excecao = new ErroAvaliadorSintatico(
+            simboloParaErro,
+            mensagemDeErro,
+            codigoDiagnostico,
+            simboloRelacionado
+        );
         this.erros.push(excecao);
 
         return excecao;

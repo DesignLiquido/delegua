@@ -45,14 +45,14 @@ import {
 import {
     AvaliadorSintaticoInterface,
     CaminhoEscolha,
+    CorrecaoImplementacaoInterface,
+    MembroInterfaceFaltando,
     ParametroInterface,
     SimboloInterface,
 } from '../interfaces';
 
 import {
-    CorrecaoImplementacaoInterface,
-    ErroAvaliadorSintatico,
-    MembroInterfaceFaltando,
+    ErroAvaliadorSintatico
 } from './erro-avaliador-sintatico';
 
 import {
