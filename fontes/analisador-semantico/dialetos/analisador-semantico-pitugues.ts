@@ -1070,6 +1070,11 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
     override visitarDeclaracaoConst(declaracao: Const): Promise<any> {
         this.verificarTipoAtribuido(declaracao);
 
+        if (declaracao.tipoExplicito && declaracao.tipo) {
+            const tipoBase = declaracao.tipo.replace('[]', '');
+            this.gerenciadorEscopos.marcarComoUsada(tipoBase);
+        }
+
         if (declaracao.inicializador) {
             this.marcarVariaveisUsadasEmExpressao(declaracao.inicializador);
             this.verificarExpressao(declaracao.inicializador);
@@ -1102,6 +1107,11 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
 
     override visitarDeclaracaoVar(declaracao: Var): Promise<any> {
         this.verificarTipoAtribuido(declaracao);
+
+        if (declaracao.tipoExplicito && declaracao.tipoOriginal) {
+            const tipoBase = declaracao.tipoOriginal.replace('[]', '');
+            this.gerenciadorEscopos.marcarComoUsada(tipoBase);
+        }
 
         if (declaracao.inicializador) {
             this.marcarVariaveisUsadasEmExpressao(declaracao.inicializador);

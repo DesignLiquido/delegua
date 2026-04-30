@@ -1282,6 +1282,11 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     override visitarDeclaracaoConst(declaracao: Const): Promise<any> {
         this.verificarTipoAtribuido(declaracao);
 
+        if (declaracao.tipoExplicito && declaracao.tipo) {
+            const tipoBase = declaracao.tipo.replace('[]', '');
+            this.gerenciadorEscopos.marcarComoUsada(tipoBase);
+        }
+
         if (declaracao.inicializador) {
             this.marcarVariaveisUsadasEmExpressao(declaracao.inicializador);
             // Verifica operações binárias no inicializador
@@ -1315,6 +1320,11 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
 
     override visitarDeclaracaoVar(declaracao: Var): Promise<any> {
         this.verificarTipoAtribuido(declaracao);
+
+        if (declaracao.tipoExplicito && declaracao.tipoOriginal) {
+            const tipoBase = declaracao.tipoOriginal.replace('[]', '');
+            this.gerenciadorEscopos.marcarComoUsada(tipoBase);
+        }
 
         if (declaracao.inicializador) {
             this.marcarVariaveisUsadasEmExpressao(declaracao.inicializador);
