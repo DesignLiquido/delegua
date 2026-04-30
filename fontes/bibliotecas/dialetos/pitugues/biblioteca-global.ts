@@ -5,11 +5,12 @@ import { DescritorTipoClasse } from '../../../interpretador/estruturas/descritor
 import { SimboloInterface, VariavelInterface } from '../../../interfaces';
 import { InterpretadorInterface } from '../../../interfaces';
 import { DeleguaFuncao } from '../../../interpretador/estruturas';
-import { TuplaN, Literal } from '../../../construtos';
+import { TuplaN, Literal, Vetor } from '../../../construtos';
 import { RetornoQuebra } from '../../../quebras';
+import { Iteravel } from '../../../interpretador/estruturas/iteravel';
 
 /**
- * Compara dois valores (números ou vetores).
+ * Compara dois valores (números, textos, booleanos ou vetores).
  * Retorna:
  * > 0 se a > b
  * < 0 se a < b
@@ -19,6 +20,14 @@ import { RetornoQuebra } from '../../../quebras';
 function compararElementosRecursivamente(a: any, b: any): number {
     if (typeof a === 'number' && typeof b === 'number') {
         return a - b;
+    }
+
+    if (typeof a === 'string' && typeof b === 'string') {
+        return a.localeCompare(b);
+    }
+
+    if (typeof a === 'boolean' && typeof b === 'boolean') {
+        return (a === b) ? 0 : (a ? 1 : -1);
     }
 
     if (Array.isArray(a) && Array.isArray(b)) {
@@ -32,8 +41,32 @@ function compararElementosRecursivamente(a: any, b: any): number {
         return a.length - b.length;
     }
 
-    // Tipos incompatíveis (ex: comparar número com vetor)
+    // Tipos incompatíveis
     throw new Error('Tipos incompatíveis para comparação.');
+}
+
+function validacao_comum_numeros(
+    interpretador: InterpretadorInterface,
+    valorParaConverter: any,
+    nomeDaFuncao: string
+): void {
+    const numeroConvertido = Number(valorParaConverter);
+
+    if (
+        valorParaConverter === '' ||
+        valorParaConverter === null ||
+        valorParaConverter === undefined ||
+        typeof valorParaConverter === 'boolean' ||
+        Number.isNaN(numeroConvertido)
+    ) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                linha: interpretador.linhaDeclaracaoAtual,
+            } as SimboloInterface,
+            `Valor não parece estar estruturado como um número válido. Somente números ou textos com números podem ser convertidos na função ${nomeDaFuncao}().`
+        );
+    }
 }
 
 /**
@@ -49,11 +82,6 @@ export async function aleatorio(
     interpretador: InterpretadorInterface,
     ...argumentos: any[]
 ): Promise<number> {
-    const simboloAtual = {
-        linha: interpretador.linhaDeclaracaoAtual,
-        hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-    } as SimboloInterface;
-
     const argumentosUsuario = argumentos.filter(
         (arg) => !(
             arg &&
@@ -67,7 +95,10 @@ export async function aleatorio(
 
     if (argumentosUsuario.length > 2) {
         throw new ErroEmTempoDeExecucao(
-            simboloAtual,
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
             'A função aceita no máximo 2 parâmetros.'
         );
     }
@@ -75,7 +106,10 @@ export async function aleatorio(
     const minimo = interpretador.resolverValor(argumentosUsuario[0]);
     if (typeof minimo !== 'number') {
         throw new ErroEmTempoDeExecucao(
-            simboloAtual,
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
             'O primeiro parâmetro deve ser um número.'
         );
     }
@@ -85,7 +119,10 @@ export async function aleatorio(
     const maximo = interpretador.resolverValor(argumentosUsuario[1]);
     if (typeof maximo !== 'number') {
         throw new ErroEmTempoDeExecucao(
-            simboloAtual,
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
             'O segundo parâmetro deve ser um número.'
         );
     }
@@ -105,43 +142,41 @@ export async function algum(
     iteravel: any,
     funcaoPesquisa: any
 ): Promise<boolean> {
-    const simboloAtual = {
-        linha: interpretador.linhaDeclaracaoAtual,
-        hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-    } as SimboloInterface;
-
     const valorIteravel = interpretador.resolverValor(iteravel);
-    const ehIteravel = typeof valorIteravel?.[Symbol.iterator] === 'function';
-    const ehObjetoOuDicionario = typeof valorIteravel === 'object' &&
-        valorIteravel !== null;
-
-    let itens: Iterable<any>;
-
-    if (valorIteravel && ehIteravel) {
-        itens = valorIteravel;
-    } else if (valorIteravel && ehObjetoOuDicionario) {
-        itens = Object.values(valorIteravel);
-    } else {
+    const itens = new Iteravel(valorIteravel).elementos;
+    if (itens.length === 0) {
         throw new ErroEmTempoDeExecucao(
-            simboloAtual,
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
             'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
         );
     }
 
     const valorFuncao = funcaoPesquisa?.valor ?? funcaoPesquisa;
-
     if (
         !(valorFuncao instanceof DeleguaFuncao) &&
         !(valorFuncao instanceof FuncaoPadrao)
     ) {
         throw new ErroEmTempoDeExecucao(
-            simboloAtual,
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
             'Parâmetro inválido. O segundo parâmetro deve ser uma função.'
         )
     }
 
     for (const item of itens) {
-        if (await valorFuncao.chamar(interpretador, item, simboloAtual)) {
+        if (await valorFuncao.chamar(
+            interpretador,
+            item,
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface)
+        ) {
             return true;
         }
     }
@@ -166,7 +201,10 @@ export async function arredondar(
 
     if (typeof valorNumero !== 'number') {
         throw new ErroEmTempoDeExecucao(
-            null,
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
             'Parâmetro inválido. O primeiro parâmetro deve ser um número.',
             interpretador.linhaDeclaracaoAtual
         );
@@ -174,7 +212,10 @@ export async function arredondar(
 
     if (typeof valorCasas !== 'number') {
         throw new ErroEmTempoDeExecucao(
-            null,
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
             `Parâmetro inválido. O segundo parâmetro deve ser um número.`,
             interpretador.linhaDeclaracaoAtual
         );
@@ -198,43 +239,43 @@ export async function encontrar(
     iteravel: any,
     funcaoPesquisa: any
 ): Promise<any> {
-    const simboloAtual = {
-        linha: interpretador.linhaDeclaracaoAtual,
-        hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-    } as SimboloInterface;
-
     const valorIteravel = iteravel?.valor ?? iteravel;
-    const ehIteravel = typeof valorIteravel?.[Symbol.iterator] === 'function';
-    const ehObjetoOuDicionario = typeof valorIteravel === 'object' &&
-        valorIteravel !== null;
-
-    let itens: Iterable<any>;
-
-    if (valorIteravel && ehIteravel) {
-        itens = valorIteravel;
-    } else if (valorIteravel && ehObjetoOuDicionario) {
-        itens = Object.values(valorIteravel);
-    } else {
+    const itens = new Iteravel(valorIteravel).elementos;
+    if (itens.length === 0) {
         throw new ErroEmTempoDeExecucao(
-            simboloAtual,
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
             'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
         );
     }
 
     const valorFuncao = funcaoPesquisa?.valor ?? funcaoPesquisa;
-
     if (
         !(valorFuncao instanceof DeleguaFuncao) &&
         !(valorFuncao instanceof FuncaoPadrao)
     ) {
         throw new ErroEmTempoDeExecucao(
-            simboloAtual,
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
             'Parâmetro inválido. O segundo parâmetro deve ser uma função.'
         )
     }
 
     for (const item of itens) {
-        if (await valorFuncao.chamar(interpretador, item, simboloAtual)) {
+        if (
+            await valorFuncao.chamar(
+                interpretador,
+                item,
+                {
+                    linha: interpretador.linhaDeclaracaoAtual,
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                } as SimboloInterface
+            )
+        ) {
             return item;
         }
     }
@@ -255,37 +296,28 @@ export async function encontrar_indice(
     iteravel: any,
     funcaoPesquisa: any
 ): Promise<number> {
-    const simboloAtual = {
-        linha: interpretador.linhaDeclaracaoAtual,
-        hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-    } as SimboloInterface;
-
     const valorIteravel = iteravel?.valor ?? iteravel;
-    const ehIteravel = typeof valorIteravel?.[Symbol.iterator] === 'function';
-    const ehObjetoOuDicionario = typeof valorIteravel === 'object' &&
-        valorIteravel !== null;
-
-    let itens: any[];
-
-    if (valorIteravel && ehIteravel) {
-        itens = Array.from(valorIteravel);
-    } else if (valorIteravel && ehObjetoOuDicionario) {
-        itens = Object.values(valorIteravel);
-    } else {
+    const itens = new Iteravel(valorIteravel).elementos;
+    if (itens.length === 0) {
         throw new ErroEmTempoDeExecucao(
-            simboloAtual,
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
             'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
         );
     }
 
     const valorFuncao = funcaoPesquisa?.valor ?? funcaoPesquisa;
-
     if (
         !(valorFuncao instanceof DeleguaFuncao) &&
         !(valorFuncao instanceof FuncaoPadrao)
     ) {
         throw new ErroEmTempoDeExecucao(
-            simboloAtual,
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
             'Parâmetro inválido. O segundo parâmetro deve ser uma função.'
         )
     }
@@ -295,7 +327,10 @@ export async function encontrar_indice(
             await valorFuncao.chamar(
                 interpretador,
                 itens[i],
-                simboloAtual
+                {
+                    linha: interpretador.linhaDeclaracaoAtual,
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                } as SimboloInterface
             )
         ) {
             return i;
@@ -318,43 +353,43 @@ export async function encontrar_ultimo(
     iteravel: any,
     funcaoPesquisa: any
 ): Promise<any> {
-    const simboloAtual = {
-        linha: interpretador.linhaDeclaracaoAtual,
-        hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-    } as SimboloInterface;
-
     const valorIteravel = iteravel?.valor ?? iteravel;
-    const ehIteravel = typeof valorIteravel?.[Symbol.iterator] === 'function';
-    const ehObjetoOuDicionario = typeof valorIteravel === 'object' &&
-        valorIteravel !== null;
-
-    let itens: any[];
-
-    if (valorIteravel && ehIteravel) {
-        itens = Array.from(valorIteravel);
-    } else if (valorIteravel && ehObjetoOuDicionario) {
-        itens = Object.values(valorIteravel);
-    } else {
+    const itens = new Iteravel(valorIteravel).elementos;
+    if (itens.length) {
         throw new ErroEmTempoDeExecucao(
-            simboloAtual,
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
             'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
         );
     }
 
     const valorFuncao = funcaoPesquisa?.valor ?? funcaoPesquisa;
-
     if (
         !(valorFuncao instanceof DeleguaFuncao) &&
         !(valorFuncao instanceof FuncaoPadrao)
     ) {
         throw new ErroEmTempoDeExecucao(
-            simboloAtual,
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
             'Parâmetro inválido. O segundo parâmetro deve ser uma função.'
         )
     }
 
     for (let i = itens.length - 1; i >= 0; i--) {
-        if (await valorFuncao.chamar(interpretador, itens[i], simboloAtual)) {
+        if (
+            await valorFuncao.chamar(
+                interpretador,
+                itens[i],
+                {
+                    linha: interpretador.linhaDeclaracaoAtual,
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                } as SimboloInterface
+            )
+        ) {
             return itens[i];
         }
     }
@@ -375,37 +410,28 @@ export async function encontrar_ultimo_indice(
     iteravel: any,
     funcaoPesquisa: any
 ): Promise<number> {
-    const simboloAtual = {
-        linha: interpretador.linhaDeclaracaoAtual,
-        hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-    } as SimboloInterface;
-
     const valorIteravel = iteravel?.valor ?? iteravel;
-    const ehIteravel = typeof valorIteravel?.[Symbol.iterator] === 'function';
-    const ehObjetoOuDicionario = typeof valorIteravel === 'object' &&
-        valorIteravel !== null;
-
-    let itens: any[];
-
-    if (valorIteravel && ehIteravel) {
-        itens = Array.from(valorIteravel);
-    } else if (valorIteravel && ehObjetoOuDicionario) {
-        itens = Object.values(valorIteravel);
-    } else {
+    const itens = new Iteravel(valorIteravel).elementos;
+    if (itens.length === 0) {
         throw new ErroEmTempoDeExecucao(
-            simboloAtual,
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
             'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
         );
     }
 
     const valorFuncao = funcaoPesquisa?.valor ?? funcaoPesquisa;
-
     if (
         !(valorFuncao instanceof DeleguaFuncao) &&
         !(valorFuncao instanceof FuncaoPadrao)
     ) {
         throw new ErroEmTempoDeExecucao(
-            simboloAtual,
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
             'Parâmetro inválido. O segundo parâmetro deve ser uma função.'
         )
     }
@@ -415,7 +441,10 @@ export async function encontrar_ultimo_indice(
             await valorFuncao.chamar(
                 interpretador,
                 itens[i],
-                simboloAtual
+                {
+                    linha: interpretador.linhaDeclaracaoAtual,
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                } as SimboloInterface
             )
         ) {
             return i;
@@ -426,167 +455,121 @@ export async function encontrar_ultimo_indice(
 }
 
 /**
- *
- * @param interpretador
- * @param vetor
- * @param funcaoFiltragem
- * @returns
+ * Retorna os elementos que satisfazem a condição definida na função de pesquisa.
+ * @param {InterpretadorInterface} interpretador A instância do interpretador.
+ * @param {any} iteravel O iterável a ser percorrido.
+ * @param {any} funcaoPesquisa A função que define a condição de busca.
+ * @returns {Promise<any[]>} Os elementos que satisfazem a função de pesquisa.
  */
 export async function filtrar_por(
     interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | any,
-    funcaoFiltragem: VariavelInterface | any
-) {
-    if (vetor === null || vetor === undefined)
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O primeiro parâmetro da função filtrarPor() não pode ser nulo.'
-            )
-        );
-
-    const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
-    const valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor')
-        ? funcaoFiltragem.valor
-        : funcaoFiltragem;
-    if (!Array.isArray(valorVetor)) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O primeiro parâmetro da função filtrarPor() deve ser um vetor.'
-            )
+    iteravel: any,
+    funcaoPesquisa: any
+): Promise<any[]> {
+    const valorIteravel = iteravel?.valor ?? iteravel;
+    const itens = new Iteravel(valorIteravel).elementos;
+    if (itens.length === 0) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
         );
     }
 
-    if (valorFuncaoFiltragem.constructor !== DeleguaFuncao) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O segundo parâmetro da função filtrarPor() deve ser uma função.'
-            )
-        );
+    const valorFuncao = funcaoPesquisa?.valor ?? funcaoPesquisa;
+    if (
+        !(valorFuncao instanceof DeleguaFuncao) &&
+        !(valorFuncao instanceof FuncaoPadrao)
+    ) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. O segundo parâmetro deve ser uma função.'
+        )
     }
 
     const resultados = [];
-    for (let indice = 0; indice < valorVetor.length; ++indice) {
-        const informacoesValor = await valorFuncaoFiltragem.chamar(interpretador, [
-            valorVetor[indice],
-        ]);
 
-        if (informacoesValor === null || informacoesValor === undefined) {
-            continue;
-        }
+    for (const item of itens) {
+        const retornoFuncao = await valorFuncao.chamar(
+            interpretador,
+            item,
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface
+        );
 
-        const deveRetornarValor = informacoesValor.valorRetornado.valor;
-        if (deveRetornarValor === false) continue;
+        if (retornoFuncao === null || retornoFuncao === undefined) continue;
 
-        resultados.push(valorVetor[indice]);
+        const passouPeloFiltro = retornoFuncao.valorRetornado.valor;
+        if (passouPeloFiltro === false) continue;
+
+        resultados.push(item);
     }
 
     return resultados;
 }
 
 /**
- *
+ * Verifica se um valor específico está incluído dentro de um iterável.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
- * @param {VariavelInterface | any} vetor Uma variável de Delégua ou um vetor nativo de JavaScript.
- * @param valor
- * @returns
+ * @param {any} iteravel O iterável a ser percorrido.
+ * @param {any} valor O valor a ser buscado.
+ * @returns {Promise<boolean>} verdadeiro se o valor for encontrado, falso caso contrário.
  */
 export async function incluido(
     interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | any,
-    valor: VariavelInterface | any
+    iteravel: any,
+    valor: any
 ): Promise<boolean> {
-    const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
-    const valorValor = valor.hasOwnProperty('valor') ? valor.valor : valor;
-
-    if (!Array.isArray(valorVetor)) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor.'
-            )
+    const valorIteravel = iteravel?.valor ?? iteravel;
+    const itens = new Iteravel(valorIteravel).elementos;
+    if (itens.length === 0) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
         );
     }
 
-    for (let indice = 0; indice < valorVetor.length; ++indice) {
-        if (valorVetor[indice] == valorValor) {
-            return true;
-        }
+    const valorResolvido = interpretador.resolverValor(valor);
+
+    for (const item of itens) {
+        if (item == valorResolvido) return true;
     }
 
     return false;
 }
 
-function validacao_comum_numeros(
-    interpretador: InterpretadorInterface,
-    valorParaConverter: any
-): Promise<never> | null {
-    if (isNaN(valorParaConverter)) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Valor não parece ser um número. Somente números ou textos com números podem ser convertidos para inteiro.'
-            )
-        );
-    }
-
-    if (!/^(-)?\d+(\.\d+)?$/.test(valorParaConverter)) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Valor não parece estar estruturado como um número (texto vazio, falso ou não definido). Somente números ou textos com números podem ser convertidos para inteiro.'
-            )
-        );
-    }
-
-    return null;
-}
-
 /**
  * Converte um valor em um número inteiro.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
- * @param {VariavelInterface | any} valorParaConverter O valor a ser convertido.
- * @returns {Promise<any>} Uma Promise com o resultado da conversão.
+ * @param {any} valor O valor a ser convertido.
+ * @returns {Promise<number>} o resultado da conversão.
  */
 export async function inteiro(
     interpretador: InterpretadorInterface,
-    valorParaConverter: VariavelInterface | any
-): Promise<any> {
-    if (valorParaConverter === null || valorParaConverter === undefined) return Promise.resolve(0);
+    valor: any
+): Promise<number> {
+    const valorResolvido = interpretador.resolverValor(valor)
 
-    const valor = valorParaConverter.hasOwnProperty('valor')
-        ? valorParaConverter.valor
-        : valorParaConverter;
-    const resultadoValidacao = validacao_comum_numeros(interpretador, valor);
+    validacao_comum_numeros(interpretador, valorResolvido, 'inteiro');
 
-    return resultadoValidacao || Promise.resolve(parseInt(valor));
+    return parseInt(String(valorResolvido), 10);
 }
 
 /**
  * Cria um vetor com números inteiros no intervalo especificado.
  * O valor inicial é inclusivo e o valor final é exclusivo.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
- * @param {VariavelInterface | number} valorInicial O valor inicial (inclusivo).
+ * @param {VariavelInterface | number} valorInicial O valor inicial (inclusivo) ou o limite final se for o único parâmetro.
  * @param {VariavelInterface | number} valorFinal O valor final (exclusivo).
  * @param {VariavelInterface | number} valorPasso O valor do passo.
  * @returns {Promise<number[]>} Um vetor com os números no intervalo.
@@ -597,588 +580,589 @@ export async function intervalo(
     valorFinal?: VariavelInterface | number,
     valorPasso?: VariavelInterface | number
 ): Promise<number[]> {
-    const primeiroParam = interpretador.resolverValor(valorInicial);
-    const segundoParam = interpretador.resolverValor(valorFinal);
-    const terceiroParam = interpretador.resolverValor(valorPasso);
+    const validarEConverter = (
+        valorBruto: any,
+        mensagemErro: string
+    ): number | undefined => {
+        if (valorBruto === undefined || valorBruto === null) return undefined;
 
-    let inicioInteiro: number;
-    let fimInteiro: number;
-    let passoInteiro: number = 1;
-
-    // intervalo(parada) - apenas um parâmetro
-    if (segundoParam === undefined || segundoParam === null) {
-        if (typeof primeiroParam !== 'number' || isNaN(primeiroParam)) {
-            return Promise.reject(
-                new ErroEmTempoDeExecucao(
-                    {
-                        hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                        linha: interpretador.linhaDeclaracaoAtual,
-                    } as SimboloInterface,
-                    'O parâmetro deve ser do tipo número ou inteiro.'
-                )
-            );
-        }
-
-        inicioInteiro = 0;
-        fimInteiro = Math.floor(primeiroParam);
-    }
-    // intervalo(inicio, parada) ou intervalo(inicio, parada, passo)
-    else {
+        const valorResolvido = interpretador.resolverValor(valorBruto);
         if (
-            typeof primeiroParam !== 'number' ||
-            isNaN(primeiroParam) ||
-            typeof segundoParam !== 'number' ||
-            isNaN(segundoParam)
+            typeof valorResolvido !== 'number' ||
+            Number.isNaN(valorResolvido)
         ) {
-            return Promise.reject(
-                new ErroEmTempoDeExecucao(
-                    {
-                        hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                        linha: interpretador.linhaDeclaracaoAtual,
-                    } as SimboloInterface,
-                    'Os parâmetros de início e fim devem ser do tipo número ou inteiro.'
-                )
+            throw new ErroEmTempoDeExecucao(
+                {
+                    linha: interpretador.linhaDeclaracaoAtual,
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                } as SimboloInterface,
+                mensagemErro
             );
         }
 
-        inicioInteiro = Math.floor(primeiroParam);
-        fimInteiro = Math.floor(segundoParam);
-
-        // Se há um terceiro parâmetro (passo)
-        if (terceiroParam !== undefined && terceiroParam !== null) {
-            if (typeof terceiroParam !== 'number' || isNaN(terceiroParam)) {
-                return Promise.reject(
-                    new ErroEmTempoDeExecucao(
-                        {
-                            hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                            linha: interpretador.linhaDeclaracaoAtual,
-                        } as SimboloInterface,
-                        'O parâmetro de passo deve ser do tipo número ou inteiro.'
-                    )
-                );
-            }
-
-            passoInteiro = Math.floor(terceiroParam);
-            if (passoInteiro === 0) {
-                return Promise.reject(
-                    new ErroEmTempoDeExecucao(
-                        {
-                            hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                            linha: interpretador.linhaDeclaracaoAtual,
-                        } as SimboloInterface,
-                        'O passo não pode ser zero.'
-                    )
-                );
-            }
-        }
+        return Math.floor(valorResolvido);
     }
 
-    const resultado = [];
+    let inicio = validarEConverter(
+        valorInicial,
+        'O parâmetro de início deve ser do tipo número ou inteiro.'
+    ) as number;
+    let fim = validarEConverter(
+        valorFinal,
+        'O parâmetro de fim deve ser do tipo número ou inteiro.'
+    );
+    const passo = validarEConverter(
+        valorPasso,
+        'O parâmetro de passo deve ser do tipo número ou inteiro.'
+    ) ?? 1;
 
-    if (passoInteiro > 0) {
-        for (let i = inicioInteiro; i < fimInteiro; i += passoInteiro) {
+    if (passo === 0) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'O passo não pode ser zero.'
+        );
+    }
+
+    if (fim === undefined) {
+        fim = inicio;
+        inicio = 0;
+    }
+
+    const resultado: number[] = [];
+
+    if (passo > 0) {
+        for (let i = inicio; i < fim; i += passo) {
             resultado.push(i);
         }
     } else {
-        // Parâmetro passo sendo um número negativo
-        for (let i = inicioInteiro; i > fimInteiro; i += passoInteiro) {
+        // Passo negativo
+        for (let i = inicio; i > fim; i += passo) {
             resultado.push(i);
         }
     }
 
-    return Promise.resolve(resultado);
+    return resultado;
 }
 
 /**
  * Dado um vetor e, opcionalmente, um valor de início, retorna um vetor de dicionários,
  * onde cada dicionário contém o índice e o valor correspondente do vetor original.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
- * @param {VariavelInterface | any} vetor Uma variável de Delégua ou um vetor nativo de JavaScript.
- * @param {number | undefined} inicio O valor de início (opcional).
+ * @param {any} iteravel Um iterável.
+ * @param {any} [inicio] O valor inicial do contador de índices (opcional, padrão 0).
  * @returns {Promise<any[]>} Um vetor de dicionários com índice e valor.
  */
 export async function enumerar(
     interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | any,
-    inicio?: number | undefined
+    iteravel: any,
+    inicio?: any
 ): Promise<any[]> {
-    if (vetor === null || vetor === undefined) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O primeiro parâmetro da função enumerar() não pode ser nulo.'
-            )
-        );
-    }
-    if (inicio !== undefined && (typeof inicio !== 'number' || isNaN(inicio))) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'O parâmetro de início deve ser do tipo número ou inteiro.'
-            )
+    if (iteravel === null || iteravel === undefined) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. O primeiro parâmetro da função enumerar() não pode ser nulo.'
         );
     }
 
-    const valorVetor = interpretador.resolverValor(vetor);
-    const inicioInteiro = typeof inicio === 'number' && !isNaN(inicio) ? Math.floor(inicio) : 0;
+    const valorInicioResolvido = interpretador.resolverValor(inicio);
+    if (
+        valorInicioResolvido !== undefined &&
+        (typeof valorInicioResolvido !== 'number' || Number.isNaN(valorInicioResolvido))
+    ) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'O parâmetro de início deve ser do tipo número ou inteiro.'
+        );
+    }
 
+    const valorIteravel = interpretador.resolverValor(iteravel);
+    const itens = new Iteravel(valorIteravel).elementos;
+
+    if (
+        itens.length === 0 &&
+        valorIteravel !== '' &&
+        !Array.isArray(valorIteravel) &&
+        !(valorIteravel?.constructor?.name === 'TuplaN')
+    ) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
+        );
+    }
+
+    const inicioInteiro = typeof valorInicioResolvido === 'number'
+        ? Math.floor(valorInicioResolvido)
+        : 0;
     const resultados = [];
-    for (let i = inicioInteiro; i < valorVetor.length; ++i) {
-        resultados.push({ indice: i, valor: valorVetor[i] });
-    }
 
-    return Promise.resolve(resultados);
-}
+    for (let i = 0; i < itens.length; i++) {
+        const valorResolvido = interpretador.resolverValor(itens[i]);
 
-/**
- * Dado um vetor e uma função de mapeamento, executa a função de mapeamento
- * passando como argumento cada elemento do vetor.
- * @param interpretador A instância do interpretador.
- * @param vetor O vetor
- * @param funcaoMapeamento A função de mapeamento.
- * @returns O resultado acumulado da execução da função de mapeamento.
- */
-export async function mapear(
-    interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | any,
-    funcaoMapeamento: VariavelInterface | any
-): Promise<any[]> {
-    if (vetor === null || vetor === undefined)
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O primeiro parâmetro da função mapear() não pode ser nulo.'
-            )
-        );
-
-    const valorVetor = interpretador.resolverValor(vetor);
-    const valorFuncaoMapeamento = interpretador.resolverValor(funcaoMapeamento);
-
-    const resultados = [];
-    for (let indice = 0; indice < valorVetor.length; ++indice) {
-        const informacoesRetorno = await valorFuncaoMapeamento.chamar(interpretador, [
-            valorVetor[indice],
-        ]);
-        if (!informacoesRetorno.hasOwnProperty('valorRetornado')) {
-            console.warn(
-                `Retorno inconsistente em mapear(): ${JSON.stringify(informacoesRetorno)}.`
-            );
-            continue;
-        }
-
-        if (!(informacoesRetorno.valorRetornado instanceof RetornoQuebra)) {
-            console.warn(
-                `mapear() finalizado com valor retornado diferente do esperado: ${JSON.stringify(informacoesRetorno)}.`
-            );
-            continue;
-        }
-
-        resultados.push(informacoesRetorno.valorRetornado.valor);
+        resultados.push({
+            indice: i + inicioInteiro,
+            valor: valorResolvido
+        });
     }
 
     return resultados;
 }
 
 /**
- * Encontra o maior número dentro de um vetor.
+ * Dado um iterável e uma função de mapeamento, executa a função de mapeamento
+ * passando como argumento cada elemento do iterável.
+ * @param interpretador A instância do interpretador.
+ * @param iteravel O iteravel a ser mapeado.
+ * @param funcaoMapeamento A função de mapeamento.
+ * @returns {Promise<any[]>} O resultado acumulado em forma de vetor.
+ */
+export async function mapear(
+    interpretador: InterpretadorInterface,
+    iteravel: any,
+    funcaoMapeamento: any
+): Promise<any[]> {
+    if (iteravel === null || iteravel === undefined) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. O primeiro parâmetro da função mapear() não pode ser nulo.'
+        );
+    }
+
+    const valorIteravel = interpretador.resolverValor(iteravel);
+    const itens = new Iteravel(valorIteravel).elementos;
+
+    if (
+        itens.length === 0 &&
+        valorIteravel !== '' &&
+        !Array.isArray(valorIteravel) &&
+        !(valorIteravel?.constructor?.name === 'TuplaN')
+    ) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
+        );
+    }
+
+    const valorFuncao = interpretador.resolverValor(funcaoMapeamento);
+    const ehUmaFuncao = valorFuncao instanceof DeleguaFuncao ||
+        valorFuncao instanceof FuncaoPadrao;
+
+    if (!valorFuncao || !ehUmaFuncao) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. O segundo parâmetro da função mapear() deve ser uma função.'
+        );
+    }
+
+    const resultados = [];
+
+    for (const item of itens) {
+        const retornoFuncao = await valorFuncao.chamar(
+            interpretador,
+            item,
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface
+        );
+
+        let valorMapeado = retornoFuncao;
+
+        if (retornoFuncao !== null && retornoFuncao !== undefined) {
+            if (retornoFuncao.hasOwnProperty('valorRetornado')) {
+                valorMapeado = retornoFuncao.valorRetornado instanceof RetornoQuebra
+                    ? retornoFuncao.valorRetornado.valor
+                    : retornoFuncao.valorRetornado;
+            } else if (retornoFuncao instanceof RetornoQuebra) {
+                valorMapeado = retornoFuncao.valor;
+            }
+        }
+
+        // if (!retornoFuncao.hasOwnProperty('valorRetornado')) {
+        //     console.warn(
+        //         `Retorno inconsistente em mapear(): ${JSON.stringify(retornoFuncao)}.`
+        //     );
+        //     continue;
+        // }
+
+        // if (!(retornoFuncao.valorRetornado instanceof RetornoQuebra)) {
+        //     console.warn(
+        //         `mapear() finalizado com valor retornado diferente do esperado: ${JSON.stringify(retornoFuncao)}.`
+        //     );
+        //     continue;
+        // }
+
+        resultados.push(interpretador.resolverValor(valorMapeado));
+    }
+
+    return resultados;
+}
+
+/**
+ * Encontra o maior número dentro de um iterável.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
- * @param {VariavelInterface | any} vetor Uma variável de Pituguês ou um vetor nativo de JavaScript contendo números.
- * @returns {Promise<number>} O maior número encontrado no vetor.
+ * @param {any} iteravel O iterável a ser inspecionado.
+ * @returns {Promise<any>} O maior elemento encontrado.
  */
 export async function maximo(
     interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | any
+    iteravel: any
 ): Promise<number> {
-    if (vetor === null || vetor === undefined) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O parâmetro da função maximo() não pode ser nulo.'
-            )
+    if (iteravel === null || iteravel === undefined) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. O parâmetro da função maximo() não pode ser nulo.'
         );
     }
 
-    const valorVetor = interpretador.resolverValor(vetor);
+    const valorIteravel = interpretador.resolverValor(iteravel);
+    const itens = new Iteravel(valorIteravel).elementos;
 
-    if (!Array.isArray(valorVetor)) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O parâmetro da função maximo() deve ser um vetor.'
-            )
+    if (
+        itens.length === 0 &&
+        valorIteravel !== '' &&
+        !Array.isArray(valorIteravel) &&
+        !(valorIteravel?.constructor?.name === 'TuplaN')
+    ) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. A função maximo() espera um iterável.'
         );
     }
 
-    if (vetor.length == 0) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O vetor não pode estar vazio.'
-            )
+    if (itens.length === 0) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. O iterável não pode estar vazio.'
         );
     }
 
-    let maiorValor = valorVetor[0];
+    let maiorValor = interpretador.resolverValor(itens[0]);
 
     try {
-        for (let i = 1; i < valorVetor.length; i++) {
-            const elementoAtual = valorVetor[i];
-            if (compararElementosRecursivamente(elementoAtual, maiorValor) > 0) {
-                maiorValor = elementoAtual;
+        for (const item of itens) {
+            const itemResolvido = interpretador.resolverValor(item);
+
+            if (compararElementosRecursivamente(itemResolvido, maiorValor) > 0) {
+                maiorValor = itemResolvido;
             }
         }
     } catch (erro: any) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Não é possível comparar elementos de tipos diferentes dentro do vetor (ex: números com vetores).'
-            )
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Não é possível comparar elementos de tipos incompatíveis dentro do iterável.'
         );
     }
 
-    return Promise.resolve(maiorValor);
+    return maiorValor;
 }
 
 /**
- * Encontra o menor número dentro de um vetor.
+ * Encontra o menor número dentro de um iterável.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
- * @param {VariavelInterface | any} vetor Uma variável de Pituguês ou um vetor nativo de JavaScript contendo números.
- * @returns {Promise<number>} O menor número encontrado no vetor.
+ * @param {any} iteravel O iterável a ser inspecionado.
+ * @returns {Promise<any>} O menor elemento encontrado.
  */
 export async function minimo(
     interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | any
-): Promise<number> {
-    if (vetor === null || vetor === undefined) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O parâmetro da função minimo() não pode ser nulo.'
-            )
+    iteravel: any
+): Promise<any> {
+    if (iteravel === null || iteravel === undefined) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. O parâmetro da função minimo() não pode ser nulo.'
         );
     }
 
-    const valorVetor = interpretador.resolverValor(vetor);
+    const valorIteravel = interpretador.resolverValor(iteravel);
+    const itens = new Iteravel(valorIteravel).elementos;
 
-    if (!Array.isArray(valorVetor)) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O parâmetro da função minimo() deve ser um vetor.'
-            )
+    if (
+        itens.length === 0 &&
+        valorIteravel !== '' &&
+        !Array.isArray(valorIteravel) &&
+        !(valorIteravel?.constructor?.name === 'TuplaN')
+    ) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. A função minimo() espera um iterável.'
         );
     }
 
-    if (valorVetor.length == 0) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O vetor não pode estar vazio.'
-            )
+    if (itens.length === 0) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. O iterável não pode estar vazio.'
         );
     }
 
-    let menorValor = valorVetor[0];
+    let menorValor = interpretador.resolverValor(itens[0]);
 
     try {
-        for (let i = 1; i < valorVetor.length; i++) {
-            const elementoAtual = valorVetor[i];
-            if (compararElementosRecursivamente(elementoAtual, menorValor) < 0) {
-                menorValor = elementoAtual;
+        for (const item of itens) {
+            const itemResolvido = interpretador.resolverValor(item);
+
+            if (compararElementosRecursivamente(itemResolvido, menorValor) < 0) {
+                menorValor = itemResolvido;
             }
         }
     } catch (erro: any) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Não é possível comparar elementos de tipos diferentes dentro do vetor (ex: números com vetores).'
-            )
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Não é possível comparar elementos de tipos incompatíveis dentro do iterável.'
         );
     }
 
-    return Promise.resolve(menorValor);
+    return menorValor;
 }
 
 /**
- * Converte um valor em um número, com parte decimal ou não.
+ * Ordena os elementos de um iterável
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
- * @param {VariavelInterface | any} valorParaConverter O valor a ser convertido.
- * @returns {Promise<any>} Uma Promise com o resultado da conversão.
- */
-export async function numero(
-    interpretador: InterpretadorInterface,
-    valorParaConverter: VariavelInterface | any
-): Promise<any> {
-    if (valorParaConverter === null || valorParaConverter === undefined) return Promise.resolve(0);
-
-    const valor = valorParaConverter.hasOwnProperty('valor')
-        ? valorParaConverter.valor
-        : valorParaConverter;
-    const resultadoValidacao = validacao_comum_numeros(interpretador, valor);
-
-    return resultadoValidacao || Promise.resolve(Number(valor));
-}
-
-/**
- *
- * @param vetor
- * @returns
+ * @param {any} iteravel O iterável a ser ordenado.
+ * @returns {Promise<any[]>} Um novo vetor com os elementos ordenados.
  */
 export async function ordenar(
     interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | Array<any>
+    iteravel: any
 ): Promise<any[]> {
-    if (vetor === null || vetor === undefined)
+    if (iteravel === null || iteravel === undefined) {
         throw new ErroEmTempoDeExecucao(
             {
-                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
                 linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
             } as SimboloInterface,
             'Parâmetro inválido. O primeiro parâmetro da função ordenar() não pode ser nulo.'
         );
+    }
 
-    const objeto = vetor.hasOwnProperty('valor') ? (vetor as VariavelInterface).valor : vetor;
+    const valorIteravel = interpretador.resolverValor(iteravel);
+    const itens = new Iteravel(valorIteravel).elementos;
 
-    if (!Array.isArray(objeto)) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Valor inválido. Objeto inserido não é um vetor.'
-            )
+    if (
+        itens.length === 0 &&
+        valorIteravel !== '' &&
+        !Array.isArray(valorIteravel) &&
+        !(valorIteravel?.constructor?.name === 'TuplaN')
+    ) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. A função ordenar() espera um iterável.'
         );
     }
 
-    let trocado: boolean;
-    const tamanho = objeto.length;
-    do {
-        trocado = false;
-        for (let i = 0; i < tamanho - 1; i++) {
-            if (objeto[i] > objeto[i + 1]) {
-                [objeto[i], objeto[i + 1]] = [objeto[i + 1], objeto[i]];
-                trocado = true;
-            }
-        }
-    } while (trocado);
+    const itensParaOrdenar = [...itens];
 
-    return Promise.resolve(objeto);
+    try {
+        itensParaOrdenar.sort((a, b) => {
+            const valorA = interpretador.resolverValor(a);
+            const valorB = interpretador.resolverValor(b);
+
+            if (typeof valorA === 'string' && typeof valorB === 'string') {
+                return valorA.localeCompare(valorB);
+            }
+
+            return compararElementosRecursivamente(valorA, valorB);
+        });
+    } catch (erro) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Não é possível ordenar um iterável que contenha elementos de tipos incompatíveis.'
+        );
+    }
+
+    return itensParaOrdenar;
 }
 
 /**
- *
- * @param interpretador
- * @param vetor
- * @param funcaoFiltragem
- * @returns
+ * Executa uma função para cada elemento do iterável.
+ * @param {InterpretadorInterface} interpretador A instância do interpretador.
+ * @param {any} iteravel O iterável a ser percorrido.
+ * @param {any} funcaoExecucao A função que será chamada para cada elemento.
+ * @returns {Promise<void>}
  */
 export async function para_cada(
     interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | any,
-    funcaoFiltragem: VariavelInterface | any
-): Promise<any> {
-    if (vetor === null || vetor === undefined)
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O primeiro parâmetro da função paraCada() não pode ser nulo.'
-            )
+    iteravel: VariavelInterface | any,
+    funcaoExecucao: VariavelInterface | any
+): Promise<void> {
+    if (iteravel === null || iteravel === undefined) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. O primeiro parâmetro da função para_cada() não pode ser nulo.'
         );
+    }
 
-    const valorVetor = interpretador.resolverValor(vetor);
-    const valorFuncaoFiltragem = interpretador.resolverValor(funcaoFiltragem);
+    const valorIteravel = interpretador.resolverValor(iteravel);
+    const itens = new Iteravel(valorIteravel).elementos;
+    if (
+        itens.length === 0 &&
+        valorIteravel !== '' &&
+        !Array.isArray(valorIteravel) &&
+        !(valorIteravel?.constructor?.name === 'TuplaN')
+    ) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
+        );
+    }
 
-    for (let indice = 0; indice < valorVetor.length; ++indice) {
-        await valorFuncaoFiltragem.chamar(interpretador, [valorVetor[indice]]);
+    const valorFuncao = interpretador.resolverValor(funcaoExecucao);
+    const ehUmaFuncao = valorFuncao instanceof DeleguaFuncao ||
+        valorFuncao instanceof FuncaoPadrao;
+
+    if (!valorFuncao || !ehUmaFuncao) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. O segundo parâmetro da função para_cada() deve ser uma função.'
+        );
+    }
+
+    for (const item of itens) {
+        await valorFuncao.chamar(
+            interpretador,
+            item,
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface
+        );
     }
 }
 
 /**
- *
- * @param interpretador
- * @param vetor
- * @param funcaoFiltragem
- * @returns
- */
-export async function primeiro_em_condicao(
-    interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | any,
-    funcaoFiltragem: VariavelInterface | any
-) {
-    if (vetor === null || vetor === undefined)
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O primeiro parâmetro da função primeiroEmCondicao() não pode ser nulo.'
-            )
-        );
-
-    const valorVetor = interpretador.resolverValor(vetor);
-    const valorFuncaoFiltragem = interpretador.resolverValor(funcaoFiltragem);
-    if (!Array.isArray(valorVetor)) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O primeiro parâmetro da função primeiroEmCondicao() deve ser um vetor.'
-            )
-        );
-    }
-
-    if (valorFuncaoFiltragem.constructor.name !== 'DeleguaFuncao') {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O segundo parâmetro da função primeiroEmCondicao() deve ser uma função.'
-            )
-        );
-    }
-
-    for (let indice = 0; indice < valorVetor.length; ++indice) {
-        const valorResolvido = await valorFuncaoFiltragem.chamar(interpretador, [
-            valorVetor[indice],
-        ]);
-        if (valorResolvido !== null) {
-            return valorResolvido;
-        }
-    }
-
-    return undefined;
-}
-
-/**
- *
- * @param interpretador
- * @param numero
- * @returns
+ * Converte um valor em um número real (ponto flutuante).
+ * @param {InterpretadorInterface} interpretador A instância do interpretador.
+ * @param {any} valor O valor a ser convertido.
+ * @returns {Promise<number>} O resultado da conversão.
  */
 export async function real(
     interpretador: InterpretadorInterface,
-    numero: VariavelInterface | any
+    valor: any
 ): Promise<number> {
-    if (numero === null || numero === undefined) return Promise.resolve(parseFloat('0'));
+    const valorResolvido = interpretador.resolverValor(valor);
 
-    const valor = numero.hasOwnProperty('valor') ? numero.valor : numero;
-    if (!/^(-)?\d+(\.\d+)?$/.test(valor)) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Valor não parece estar estruturado como um número (texto/valor vazio, falso ou não definido). Somente números ou textos com números podem ser convertidos para real.'
-            )
-        );
-    }
+    validacao_comum_numeros(interpretador, valorResolvido, 'real');
 
-    return Promise.resolve(parseFloat(valor));
+    return parseFloat(String(valorResolvido));
 }
 
 /**
- *
- * @param interpretador
- * @param vetor
- * @param funcaoReducao
- * @param valorInicial
- * @returns
+ * Reduz um iterável a um único valor, executando uma função acumuladora em cada elemento.
+ * @param {InterpretadorInterface} interpretador A instância do interpretador.
+ * @param {any} iteravel O iterável a ser reduzido.
+ * @param {any} funcaoReducao A função que será chamada (acumulador, valorAtual).
+ * @param {any} [valorInicial=null] O valor inicial do acumulador.
+ * @returns {Promise<any>} O resultado acumulado.
  */
 export async function reduzir(
     interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | any,
-    funcaoReducao: VariavelInterface | any,
-    valorInicial: VariavelInterface | any = null
-) {
-    const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
-    const valorFuncaoReducao = funcaoReducao.hasOwnProperty('valor')
-        ? funcaoReducao.valor
-        : funcaoReducao;
-    const valorPadrao =
-        valorInicial && valorInicial.hasOwnProperty && valorInicial.hasOwnProperty('valor')
-            ? valorInicial.valor
-            : valorInicial;
+    iteravel: any,
+    funcaoReducao: any,
+    valorInicial: any = null
+): Promise<any> {
+    const valorIteravel = interpretador.resolverValor(iteravel);
+    const valorFuncaoReducao = interpretador.resolverValor(funcaoReducao);
+    const valorPadrao = interpretador.resolverValor(valorInicial);
+    const itens = new Iteravel(valorIteravel).elementos;
 
-    if (!Array.isArray(valorVetor)) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor.'
-            )
+    if (
+        itens.length === 0 &&
+        valorIteravel !== '' &&
+        !Array.isArray(valorIteravel) &&
+        !(valorIteravel?.constructor?.name === 'TuplaN')
+    ) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. O primeiro parâmetro da função deve ser um iterável.'
         );
     }
 
-    if (valorFuncaoReducao.constructor.name !== 'DeleguaFuncao') {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O segundo parâmetro da função deve ser uma função.'
-            )
+    const ehUmaFuncao = valorFuncaoReducao instanceof DeleguaFuncao ||
+        valorFuncaoReducao instanceof FuncaoPadrao;
+
+    if (!valorFuncaoReducao || !ehUmaFuncao) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. O segundo parâmetro da função deve ser uma função.'
         );
     }
 
-    // Se não houver valor inicial e vetor vazio, não é possível reduzir
     if (
         (valorPadrao === null || valorPadrao === undefined) &&
-        (!Array.isArray(valorVetor) || valorVetor.length === 0)
+        itens.length === 0
     ) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Não é possível reduzir um vetor vazio sem valor inicial.'
-            )
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Não é possível reduzir um iterável vazio sem valor inicial.'
         );
     }
 
@@ -1186,120 +1170,147 @@ export async function reduzir(
     let inicio = 0;
 
     if (resultado === null || resultado === undefined) {
-        resultado = valorVetor[0];
+        resultado = interpretador.resolverValor(itens[0]);
         inicio = 1;
     }
 
-    for (let index = inicio; index < valorVetor.length; ++index) {
-        resultado = await valorFuncaoReducao.chamar(interpretador, [resultado, valorVetor[index]]);
+    for (const item of itens) {
+        const elementoAtual = interpretador.resolverValor(item);
+
+        const resultadoFuncao = await valorFuncaoReducao.chamar(
+            interpretador,
+            [resultado, elementoAtual],
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface
+        );
+
+        resultado = interpretador.resolverValor(resultadoFuncao);
     }
 
     return resultado;
 }
 
 /**
- * Realiza a soma de todos os números dentro de um vetor.
+ * Realiza a soma de todos os números dentro de um iterável.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
- * @param {VariavelInterface | any} vetor Uma variável de Pituguês ou um vetor nativo de JavaScript contendo números.
- * @returns {Promise<number>} A soma de todos os elementos do vetor.
+ * @param {any} iteravel O iterável contendo os números.
+ * @returns {Promise<number>} A soma de todos os elementos.
  */
 export async function somar(
     interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | any
+    iteravel: any
 ): Promise<number> {
-    if (vetor === null || vetor === undefined) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O parâmetro da função somar() não pode ser nulo.'
-            )
+    if (iteravel === null || iteravel === undefined) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. O parâmetro da função somar() não pode ser nulo.'
         );
     }
 
-    const valorVetor = interpretador.resolverValor(vetor);
-
-    if (!Array.isArray(valorVetor)) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O parâmetro da função somar() deve ser um vetor.'
-            )
+    const valorIteravel = interpretador.resolverValor(iteravel);
+    const itens = new Iteravel(valorIteravel).elementos;
+    if (
+        itens.length === 0 &&
+        valorIteravel !== '' &&
+        !Array.isArray(valorIteravel) &&
+        !(valorIteravel instanceof TuplaN)
+    ) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. O parâmetro da função somar() deve ser um iterável.'
         );
     }
 
-    if (valorVetor.length === 0) return Promise.resolve(0);
+    if (itens.length === 0) return 0;
 
     let somaDosElementos = 0;
-    for (let elemento of valorVetor) {
-        if (typeof elemento !== 'number' || isNaN(elemento)) {
-            return Promise.reject(
-                new ErroEmTempoDeExecucao(
-                    {
-                        hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                        linha: interpretador.linhaDeclaracaoAtual,
-                    } as SimboloInterface,
-                    'A função somar() aceita apenas vetores contendo números.'
-                )
+
+    for (const item of itens) {
+        const itemResolvido = interpretador.resolverValor(item);
+
+        if (typeof itemResolvido !== 'number' || Number.isNaN(itemResolvido)) {
+            throw new ErroEmTempoDeExecucao(
+                {
+                    linha: interpretador.linhaDeclaracaoAtual,
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                } as SimboloInterface,
+                'A função somar() aceita apenas iteráveis contendo números.'
             );
         }
 
-        somaDosElementos += elemento;
+        somaDosElementos += itemResolvido;
     }
 
-    return Promise.resolve(somaDosElementos);
+    return somaDosElementos;
 }
 
 /**
- *
- * @param objeto
- * @returns
+ * Retorna o tamanho do objeto, vetor, texto ou número de parâmetros de uma função/classe.
+ * * @param {InterpretadorInterface} interpretador A instância do interpretador.
+ * @param {any} valor O valor a ser inspecionado.
+ * @returns {Promise<number>} O tamanho.
  */
-export async function tamanho(interpretador: InterpretadorInterface, objeto: any) {
-    const valorObjeto = objeto.hasOwnProperty('valor') ? objeto.valor : objeto;
+export async function tamanho(
+    interpretador: InterpretadorInterface,
+    valor: any
+): Promise<number> {
+    const valorResolvido = interpretador.resolverValor(valor);
 
-    if (typeof valorObjeto === 'number') {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Função global tamanho() não funciona com números.'
-            )
+    if (valorResolvido === null || valorResolvido === undefined) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Não é possível obter o tamanho de um valor nulo ou não definido.'
         );
     }
 
-    if (valorObjeto instanceof ObjetoDeleguaClasse) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Função global tamanho não funciona com objetos complexos.'
-            )
+    if (
+        typeof valorResolvido === 'number' ||
+        typeof valorResolvido === 'boolean'
+    ) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            `A função global tamanho() não funciona com ${typeof valorResolvido === 'number' ? 'números' : 'booleanos'}.`
         );
     }
 
-    if (valorObjeto instanceof DeleguaFuncao) {
-        return Promise.resolve(valorObjeto.declaracao.parametros.length);
+    if (valorResolvido instanceof ObjetoDeleguaClasse) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'A função global tamanho() não funciona com objetos complexos instanciados.'
+        );
     }
 
-    if (valorObjeto instanceof FuncaoPadrao) {
-        return Promise.resolve(valorObjeto.valorAridade);
+    if (valorResolvido instanceof DeleguaFuncao) {
+        return valorResolvido.declaracao.parametros.length;
     }
 
-    if (valorObjeto instanceof DescritorTipoClasse) {
-        const metodos = valorObjeto.metodos;
+    if (valorResolvido instanceof FuncaoPadrao) {
+        return valorResolvido.valorAridade;
+    }
+
+    if (valorResolvido instanceof DescritorTipoClasse) {
+        const metodos = valorResolvido.metodos;
+        const metodoInicializacao = metodos.inicializacao;
+
         let tamanho = 0;
 
-        const metodoInicializacao = metodos.inicializacao;
         if (
             metodoInicializacao &&
             !Array.isArray(metodoInicializacao) &&
@@ -1308,124 +1319,170 @@ export async function tamanho(interpretador: InterpretadorInterface, objeto: any
             tamanho = metodoInicializacao.declaracao.parametros.length;
         }
 
-        return Promise.resolve(tamanho);
+        return tamanho;
     }
 
-    return Promise.resolve(valorObjeto.length);
+    if (
+        valorResolvido.length === undefined &&
+        typeof valorResolvido === 'object'
+    ) {
+        if (valorResolvido.hasOwnProperty('elementos')) {
+            return valorResolvido.elementos.length;
+        }
+
+        return Object.keys(valorResolvido).length;
+    }
+
+    return valorResolvido.length;
 }
 
 /**
  * Transforma o valor ou variável em texto.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
- * @param {VariavelInterface | any} valorParaConverter O valor ou variável.
+ * @param {any} valor O valor ou variável a ser convertido em texto.
  * @returns {Promise<string>} O valor resolvido em texto.
  */
 export async function texto(
     interpretador: InterpretadorInterface,
-    valorParaConverter: VariavelInterface | any
+    valor: any
 ): Promise<string> {
-    return Promise.resolve(
-        `${valorParaConverter.hasOwnProperty('valor') ? valorParaConverter.valor : valorParaConverter}`
-    );
+    const valorResolvido = interpretador.resolverValor(valor);
+
+    if (valorResolvido === null || valorResolvido === undefined) {
+        return 'nulo';
+    }
+
+    if (typeof valorResolvido === 'boolean') {
+        return valorResolvido ? 'verdadeiro' : 'falso';
+    }
+
+    return String(valorResolvido);
 }
 
+// TODO: implementar função de pesquisa caso seja aprovado pela comunidade a fusão de todos() com todos_em_condicao()
 /**
- * Retorna verdadeiro se todos os elementos do iterável forem truly.
+ * Retorna verdadeiro se todos os elementos do iterável forem verdadeiros (truly).
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
- * @param {VariavelInterface | any} iteravel O primeiro parâmetro, qualquer dado que seja iterável (vetores, tuplas, dicionários etc.).
- * @returns {Promise<boolean>} Verdadeiro, se todos os valores do iterável forem Truly.
+ * @param {any} iteravel Qualquer dado que seja iterável
+ * @returns {Promise<boolean>} Verdadeiro, se todos os valores do iterável forem truly.
  */
 export async function todos(
     interpretador: InterpretadorInterface,
-    iteravel: VariavelInterface | any
+    iteravel: any
 ): Promise<boolean> {
-    const valorIteravel = interpretador.resolverValor(iteravel);
-    const ehObjetoOuDicionario =
-        valorIteravel && typeof valorIteravel === 'object' && !Array.isArray(valorIteravel);
-    const ehIteravelNativo = valorIteravel && typeof valorIteravel[Symbol.iterator] === 'function';
-
-    if (!ehIteravelNativo && !ehObjetoOuDicionario) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
-            )
+    if (iteravel === null || iteravel === undefined) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. O parâmetro da função todos() não pode ser nulo.'
         );
     }
 
-    const itens = ehIteravelNativo ? valorIteravel : Object.values(valorIteravel);
+    const valorIteravel = interpretador.resolverValor(iteravel);
+    const itens = new Iteravel(valorIteravel).elementos;
 
-    for (const valor of itens) {
-        const valorResolvido = interpretador.resolverValor(valor);
-        if (!interpretador.eVerdadeiro(valorResolvido)) return false;
+    if (
+        itens.length === 0 &&
+        valorIteravel !== '' &&
+        !Array.isArray(valorIteravel) &&
+        !(valorIteravel?.constructor?.name === 'TuplaN')
+    ) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
+        );
+    }
+
+    for (const item of itens) {
+        const itemResolvido = interpretador.resolverValor(item);
+        if (!interpretador.eVerdadeiro(itemResolvido)) return false;
     }
 
     return true;
 }
 
 /**
- * Retorna verdadeiro se todos os elementos do primeiro parâmetro retornam verdadeiro ao
- * serem aplicados como argumentos da função passada como segundo parâmetro.
+ * Retorna verdadeiro se todos os elementos do primeiro parâmetro retornam verdadeiro ao serem aplicados como argumentos da função passada como parâmetro.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
- * @param {VariavelInterface | any} iteravel O primeiro parâmetro, qualquer dado que seja iterável (vetores, tuplas, dicionários etc.).
- * @param {VariavelInterface | any} funcaoCondicional A função que será executada com cada
- *                                  valor do vetor passado como primeiro parâmetro.
- * @returns {Promise<boolean>} Verdadeiro, se todos os valores do iterável fazem a função passada
- *                             por parâmetro devolver verdadeiro, ou falso em caso contrário.
+ * @param {any} iteravel Qualquer dado que seja iterável.
+ * @param {any} funcaoCondicional A função que será executada com cada valor.
+ * @returns {Promise<boolean>} Verdadeiro, se todos os valores passarem na função.
  */
 export async function todos_em_condicao(
     interpretador: InterpretadorInterface,
-    iteravel: VariavelInterface | any,
-    funcaoCondicional: VariavelInterface | any
+    iteravel: any,
+    funcaoCondicional: any
 ): Promise<boolean> {
-    const simboloChamada = {
-        linha: interpretador.linhaDeclaracaoAtual,
-        hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-    } as SimboloInterface;
+    if (iteravel === null || iteravel === undefined) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. O primeiro parâmetro da função todos_em_condicao() não pode ser nulo.'
+        );
+    }
 
     const valorIteravel = interpretador.resolverValor(iteravel);
+    const itens = new Iteravel(valorIteravel).elementos;
 
-    const ehObjetoOuDicionario =
-        valorIteravel && typeof valorIteravel === 'object' && !Array.isArray(valorIteravel);
-    const ehIteravelNativo = valorIteravel && typeof valorIteravel[Symbol.iterator] === 'function';
-
-    if (!ehIteravelNativo && !ehObjetoOuDicionario) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
-            )
+    if (
+        itens.length === 0 &&
+        valorIteravel !== '' &&
+        !Array.isArray(valorIteravel) &&
+        !(valorIteravel?.constructor?.name === 'TuplaN')
+    ) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
         );
     }
 
     const valorFuncao = interpretador.resolverValor(funcaoCondicional);
-    const naoEhUmaFuncao = !(
-        valorFuncao instanceof DeleguaFuncao || valorFuncao instanceof FuncaoPadrao
-    );
+    const ehUmaFuncao = valorFuncao instanceof DeleguaFuncao ||
+        valorFuncao instanceof FuncaoPadrao;
 
-    if (!valorFuncao || naoEhUmaFuncao) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Parâmetro inválido. O segundo parâmetro deve ser uma função.'
-            )
+    if (!valorFuncao || !ehUmaFuncao) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. O segundo parâmetro deve ser uma função.'
         );
     }
 
-    const itens = ehIteravelNativo ? valorIteravel : Object.values(valorIteravel);
+    for (const item of itens) {
+        const resultadoChamada = await valorFuncao.chamar(
+            interpretador,
+            item,
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface
+        );
 
-    for (const valor of itens) {
-        const resultadoChamada = await valorFuncao.chamar(interpretador, [valor], simboloChamada);
-        const resultadoResolvido = interpretador.resolverValor(resultadoChamada);
+        let valorMapeado = resultadoChamada;
+
+        if (resultadoChamada !== null && resultadoChamada !== undefined) {
+            if (resultadoChamada.hasOwnProperty('valorRetornado')) {
+                valorMapeado = resultadoChamada.valorRetornado instanceof RetornoQuebra
+                    ? resultadoChamada.valorRetornado.valor
+                    : resultadoChamada.valorRetornado;
+            } else if (resultadoChamada instanceof RetornoQuebra) {
+                valorMapeado = resultadoChamada.valor;
+            }
+        }
+
+        const resultadoResolvido = interpretador.resolverValor(valorMapeado);
 
         if (!interpretador.eVerdadeiro(resultadoResolvido)) return false;
     }
@@ -1434,31 +1491,34 @@ export async function todos_em_condicao(
 }
 
 /**
- * Transforma um vetor de elementos em uma tupla de N elementos, sendo N a
- * largura do vetor.
+ * Transforma um iteravel em uma tupla.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
- * @param {VariavelInterface | any[]} vetor O vetor.
+ * @param {any} iteravel O iterável a ser convertido.
  * @returns A tupla resolvida.
  */
 export async function tupla(
     interpretador: InterpretadorInterface,
-    vetor: VariavelInterface | any[]
+    iteravel: any
 ): Promise<TuplaN> {
-    const valorVetor: any[] = interpretador.resolverValor(vetor);
+    const valorIteravel = interpretador.resolverValor(iteravel);
+    const itens = new Iteravel(valorIteravel).elementos;
 
-    if (!Array.isArray(valorVetor)) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Argumento de função nativa `tupla` não parece ser um vetor.'
-            )
+    if (
+        itens.length === 0 &&
+        valorIteravel !== '' &&
+        !(valorIteravel instanceof Vetor) &&
+        !Array.isArray(valorIteravel)
+    ) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                linha: interpretador.linhaDeclaracaoAtual,
+            } as SimboloInterface,
+            'O argumento passado para a função `tupla()` deve ser iterável.'
         );
     }
 
-    const elementos = valorVetor.map((item) => {
+    const itensDaTupla = itens.map(item => {
         const valorResolvido = interpretador.resolverValor(item);
 
         const literal = new Literal(
@@ -1477,31 +1537,31 @@ export async function tupla(
     return new TuplaN(
         interpretador.hashArquivoDeclaracaoAtual,
         interpretador.linhaDeclaracaoAtual,
-        elementos
+        itensDaTupla
     );
 }
 
 export async function vetor(
     interpretador: InterpretadorInterface,
-    tupla: TuplaN | any
+    iteravel: any
 ): Promise<any[]> {
-    const objetoTupla = interpretador.resolverValor(tupla);
+    const valorIteravel = interpretador.resolverValor(iteravel);
+    const itens = new Iteravel(valorIteravel).elementos;
 
-    if (!(objetoTupla instanceof TuplaN)) {
-        return Promise.reject(
-            new ErroEmTempoDeExecucao(
-                {
-                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-                    linha: interpretador.linhaDeclaracaoAtual,
-                } as SimboloInterface,
-                'Argumento de função nativa `vetor` não parece ser uma tupla.'
-            )
+    if (
+        itens.length === 0 &&
+        valorIteravel !== '' &&
+        !(valorIteravel instanceof TuplaN) &&
+        !Array.isArray(valorIteravel)
+    ) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                linha: interpretador.linhaDeclaracaoAtual,
+            } as SimboloInterface,
+            'O argumento passado para a função `vetor()` deve ser iterável.'
         );
     }
 
-    const resultado = objetoTupla.elementos.map((elemento: any) =>
-        interpretador.resolverValor(elemento)
-    );
-
-    return Promise.resolve(resultado);
+    return itens.map(elemento => interpretador.resolverValor(elemento));
 }

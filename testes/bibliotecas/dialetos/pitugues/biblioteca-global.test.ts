@@ -1,7 +1,6 @@
 import {
     reduzir,
     todos_em_condicao,
-    primeiro_em_condicao,
     tupla,
     vetor,
     tamanho,
@@ -22,7 +21,6 @@ import {
     incluido,
     inteiro,
     intervalo,
-    numero,
     para_cada,
     real,
     texto,
@@ -306,69 +304,6 @@ describe('biblioteca-global (pituguês)', () => {
             const resultado = await todos_em_condicao(interpretadorMock, { valor: [2, 3, 4] }, func);
 
             expect(resultado).toBe(false);
-        });
-    });
-
-
-    describe('primeiro_em_condicao', () => {
-        it('rejeita quando vetor for nulo', async () => {
-            await expect(primeiro_em_condicao(interpretadorMock, null as any, {} as any)).rejects.toMatchObject({
-                mensagem: 'Parâmetro inválido. O primeiro parâmetro da função primeiroEmCondicao() não pode ser nulo.',
-            });
-        });
-
-        it('rejeita quando segundo parâmetro não for função DeleguaFuncao', async () => {
-            await expect(primeiro_em_condicao(interpretadorMock, [1, 2], {} as any)).rejects.toMatchObject({
-                mensagem: 'Parâmetro inválido. O segundo parâmetro da função primeiroEmCondicao() deve ser uma função.',
-            });
-        });
-
-        it('rejeita quando primeiro parâmetro não for vetor', async () => {
-            await expect(primeiro_em_condicao(interpretadorMock, 'não é vetor' as any, {} as any)).rejects.toMatchObject({
-                mensagem: 'Parâmetro inválido. O primeiro parâmetro da função primeiroEmCondicao() deve ser um vetor.',
-            });
-        });
-
-        it('retorna o primeiro valor não-nulo retornado pela função', async () => {
-            class DeleguaFuncao {
-                private fn: (...args: any[]) => any;
-                constructor(fn: (...args: any[]) => any) {
-                    this.fn = fn;
-                }
-                async chamar(_interpretador: any, argumentos: any[]) {
-                    return this.fn(...argumentos);
-                }
-            }
-
-            const func = new DeleguaFuncao((n: number) => (n > 1 ? `v${n}` : null));
-            const resultado = await primeiro_em_condicao(
-                interpretadorMock,
-                [1, 2, 3],
-                func as any
-            );
-
-            expect(resultado).toBe('v2');
-        });
-
-        it('retorna undefined quando nenhum elemento satisfaz', async () => {
-            class DeleguaFuncao {
-                private fn: (...args: any[]) => any;
-                constructor(fn: (...args: any[]) => any) {
-                    this.fn = fn;
-                }
-                async chamar(_interpretador: any, argumentos: any[]) {
-                    return this.fn(...argumentos);
-                }
-            }
-
-            const func = new DeleguaFuncao(() => null);
-            const resultado = await primeiro_em_condicao(
-                interpretadorMock,
-                [1, 2, 3],
-                func as any
-            );
-
-            expect(resultado).toBeUndefined();
         });
     });
 
@@ -1109,7 +1044,7 @@ describe('biblioteca-global (pituguês)', () => {
                 fakeFunc
             );
 
-            expect(idx).toBeNull();
+            expect(idx).toBe(-1);
         });
 
         it('rejeita quando primeiro parâmetro não é vetor', async () => {
@@ -1219,20 +1154,6 @@ describe('biblioteca-global (pituguês)', () => {
         it('Rejeita quando for passado uma string vazia', async () => {
             await expect(inteiro(interpretadorMock as any, '' as any)).rejects.
                 toMatchObject({ mensagem: 'Valor não parece estar estruturado como um número (texto vazio, falso ou não definido). Somente números ou textos com números podem ser convertidos para inteiro.' });
-        });
-    });
-
-    describe('numero', () => {
-        it('converte para número com parte decimal', async () => {
-            expect(await numero(interpretadorMock as any, '3.14' as any)).toBe(3.14);
-        });
-
-        it('Converte null para número', async () => {
-            expect(await numero(interpretadorMock as any, null as any)).toBe(0);
-        });
-
-        it('Aceita VariavelInterface', async () => {
-            expect(await numero(interpretadorMock as any, { valor: '3.14' } as any)).toBe(3.14);
         });
     });
 

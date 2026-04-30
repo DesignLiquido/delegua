@@ -4955,46 +4955,6 @@ describe('Interpretador (Pituguês)', () => {
                 });
             });
 
-            describe('tupla() e vetor()', () => {
-                it('Erro em transformar vetor para vetor', async () => {
-                    const retornoLexador = lexador.mapear([`
-                    vetor_muito_legal = [1, 2, 3]
-                    vetor = vetor(vetor_muito_legal)
-                    escreva(vetor);
-                `], -1);
-                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
-                        retornoLexador,
-                        -1
-                    );
-
-                    const retornoInterpretador = await interpretador.interpretar(
-                        retornoAvaliadorSintatico.declaracoes,
-                        true
-                    );
-
-                    expect(retornoInterpretador.erros).toHaveLength(1);
-                });
-
-                it('Erro em transformar tupla para tupla', async () => {
-                    const retornoLexador = lexador.mapear([`
-                    tupla_muito_legal = (1, 2, 3)
-                    tupla = tupla(tupla_muito_legal)
-                    escreva(tupla);
-                `], -1);
-                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
-                        retornoLexador,
-                        -1
-                    );
-
-                    const retornoInterpretador = await interpretador.interpretar(
-                        retornoAvaliadorSintatico.declaracoes,
-                        true
-                    );
-
-                    expect(retornoInterpretador.erros).toHaveLength(1);
-                });
-            });
-
             describe('paraTupla() e paraVetor()', () => {
                 it('Erro em transformar vetor para vetor usando paraVetor()', async () => {
                     const retornoLexador = lexador.mapear([`
@@ -5143,7 +5103,7 @@ describe('Interpretador (Pituguês)', () => {
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
-                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toContain('deve ser um vetor');
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toContain('Parâmetro inválido. A função maximo() espera um iterável');
                 });
 
                 it('Deve falhar ao passar um vetor vazio', async () => {
@@ -5206,7 +5166,7 @@ describe('Interpretador (Pituguês)', () => {
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
-                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toContain('deve ser um vetor');
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toContain('Parâmetro inválido. O parâmetro da função somar() deve ser um iterável.');
                 });
 
                 it('Deve falhar se o vetor contiver textos', async () => {
@@ -5216,7 +5176,7 @@ describe('Interpretador (Pituguês)', () => {
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
-                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toContain('aceita apenas vetores contendo números');
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toContain('A função somar() aceita apenas iteráveis contendo números.');
                 });
 
                 it('Deve falhar se o vetor contiver booleanos', async () => {
@@ -5226,7 +5186,7 @@ describe('Interpretador (Pituguês)', () => {
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
-                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toContain('aceita apenas vetores contendo números');
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toContain('A função somar() aceita apenas iteráveis contendo números.');
                 });
             });
 
