@@ -1,6 +1,5 @@
 import {
     reduzir,
-    todos_em_condicao,
     tupla,
     vetor,
     tamanho,
@@ -39,6 +38,7 @@ import { AvaliadorSintaticoPitugues } from "../../../../fontes/avaliador-sintati
 import { InterpretadorPitugues } from "../../../../fontes/interpretador/dialetos/pitugues/interpretador-pitugues";
 import { LexadorPitugues } from "../../../../fontes/lexador/dialetos/lexador-pitugues";
 import { VariavelInterface } from '../../../../fontes';
+import { DeleguaFuncaoMock } from '../../../_mocks/delegua-funcao.mock';
 
 describe('biblioteca-global (pituguês)', () => {
     let interpretadorMock: ReturnType<typeof criarInterpretadorMock>;
@@ -50,7 +50,7 @@ describe('biblioteca-global (pituguês)', () => {
     describe('reduzir', () => {
         it('rejeita quando primeiro parâmetro não é vetor', async () => {
             await expect(reduzir(interpretadorMock, 1 as any, {} as any, 0)).rejects.toMatchObject({
-                mensagem: 'Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor.',
+                mensagem: 'Parâmetro inválido. O primeiro parâmetro da função deve ser um iterável.',
             });
         });
 
@@ -61,69 +61,50 @@ describe('biblioteca-global (pituguês)', () => {
         });
 
         it('reduz corretamente quando valor inicial é passado', async () => {
-            class DeleguaFuncao {
-                private fn: (...args: any[]) => any;
-                constructor(fn: (...args: any[]) => any) {
-                    this.fn = fn;
-                }
-                async chamar(_interpretador: any, argumentos: any[]) {
-                    return this.fn(...argumentos);
-                }
-            }
-
-            const func = new DeleguaFuncao((acc: number, n: number) => acc + n);
-            const resultado = await reduzir(interpretadorMock, [1, 2, 3], func as any, 10 as any);
+            const func = new DeleguaFuncaoMock(
+                (acc: number, n: number) => acc + n
+            );
+            const resultado = await reduzir(
+                interpretadorMock,
+                [1, 2, 3],
+                func as any,
+                10 as any
+            );
 
             expect(resultado).toBe(16);
         });
 
         it('reduz corretamente quando nenhum valor inicial é passado', async () => {
-            class DeleguaFuncao {
-                private fn: (...args: any[]) => any;
-                constructor(fn: (...args: any[]) => any) {
-                    this.fn = fn;
-                }
-                async chamar(_interpretador: any, argumentos: any[]) {
-                    return this.fn(...argumentos);
-                }
-            }
-
-            const func = new DeleguaFuncao((acc: number, n: number) => acc + n);
-            const resultado = await reduzir(interpretadorMock, [1, 2, 3], func as any, null as any);
+            const func = new DeleguaFuncaoMock(
+                (acc: number, n: number) => acc + n
+            );
+            const resultado = await reduzir(
+                interpretadorMock,
+                [1, 2, 3],
+                func as any,
+                null as any
+            );
 
             expect(resultado).toBe(6);
         });
 
         it('rejeita quando vetor vazio e nenhum valor inicial é passado', async () => {
-            class DeleguaFuncao {
-                private fn: (...args: any[]) => any;
-                constructor(fn: (...args: any[]) => any) {
-                    this.fn = fn;
-                }
-                async chamar(_interpretador: any, argumentos: any[]) {
-                    return this.fn(...argumentos);
-                }
-            }
+            const func = new DeleguaFuncaoMock((acc: any, n: any) => acc + n);
 
-            const func = new DeleguaFuncao((acc: any, n: any) => acc + n);
-
-            await expect(reduzir(interpretadorMock, [], func as any, null as any)).rejects.toMatchObject({
-                mensagem: 'Não é possível reduzir um vetor vazio sem valor inicial.',
-            });
+            await expect(reduzir(
+                interpretadorMock,
+                [],
+                func as any,
+                null as any
+            ))
+                .rejects
+                .toMatchObject({
+                    mensagem: 'Não é possível reduzir um iterável vazio sem valor inicial.',
+                });
         });
 
         it('usa valor inicial quando este for zero (falsy) e vetor vazio', async () => {
-            class DeleguaFuncao {
-                private fn: (...args: any[]) => any;
-                constructor(fn: (...args: any[]) => any) {
-                    this.fn = fn;
-                }
-                async chamar(_interpretador: any, argumentos: any[]) {
-                    return this.fn(...argumentos);
-                }
-            }
-
-            const func = new DeleguaFuncao((acc: any, n: any) => acc + n);
+            const func = new DeleguaFuncaoMock((acc: any, n: any) => acc + n);
             const resultado = await reduzir(
                 interpretadorMock,
                 [],
@@ -135,17 +116,9 @@ describe('biblioteca-global (pituguês)', () => {
         });
 
         it('usa valorInicial quando for VariavelInterface (com propriedade valor)', async () => {
-            class DeleguaFuncao {
-                private fn: (...args: any[]) => any;
-                constructor(fn: (...args: any[]) => any) {
-                    this.fn = fn;
-                }
-                async chamar(_interpretador: any, argumentos: any[]) {
-                    return this.fn(...argumentos);
-                }
-            }
-
-            const func = new DeleguaFuncao((acc: number, n: number) => acc + n);
+            const func = new DeleguaFuncaoMock(
+                (acc: number, n: number) => acc + n
+            );
             const resultado = await reduzir(
                 interpretadorMock,
                 [1, 2],
@@ -158,18 +131,9 @@ describe('biblioteca-global (pituguês)', () => {
 
         it('Aceita VariavelInterface como vetor', async () => {
             const arr = { valor: [3, 1, 2] };
-
-            class DeleguaFuncao {
-                private fn: (...args: any[]) => any;
-                constructor(fn: (...args: any[]) => any) {
-                    this.fn = fn;
-                }
-                async chamar(_interpretador: any, argumentos: any[]) {
-                    return this.fn(...argumentos);
-                }
-            }
-
-            const func = new DeleguaFuncao((acc: number, n: number) => acc + n);
+            const func = new DeleguaFuncaoMock(
+                (acc: number, n: number) => acc + n
+            );
             const resultado = await reduzir(
                 interpretadorMock as any,
                 arr as any,
@@ -182,18 +146,9 @@ describe('biblioteca-global (pituguês)', () => {
 
         it('Aceita VariavelInterface como função', async () => {
             const arr = [3, 1, 2];
-
-            class DeleguaFuncao {
-                private fn: (...args: any[]) => any;
-                constructor(fn: (...args: any[]) => any) {
-                    this.fn = fn;
-                }
-                async chamar(_interpretador: any, argumentos: any[]) {
-                    return this.fn(...argumentos);
-                }
-            }
-
-            const func = new DeleguaFuncao((acc: number, n: number) => acc + n);
+            const func = new DeleguaFuncaoMock(
+                (acc: number, n: number) => acc + n
+            );
             const resultado = await reduzir(
                 interpretadorMock as any,
                 arr as any,
@@ -205,17 +160,9 @@ describe('biblioteca-global (pituguês)', () => {
         });
 
         it('usa valorInicial quando for VariavelInterface igual a null (com propriedade valor)', async () => {
-            class DeleguaFuncao {
-                private fn: (...args: any[]) => any;
-                constructor(fn: (...args: any[]) => any) {
-                    this.fn = fn;
-                }
-                async chamar(_interpretador: any, argumentos: any[]) {
-                    return this.fn(...argumentos);
-                }
-            }
-
-            const func = new DeleguaFuncao((acc: number, n: number) => acc + n);
+            const func = new DeleguaFuncaoMock(
+                (acc: number, n: number) => acc + n
+            );
             const resultado = await reduzir(
                 interpretadorMock,
                 [1, 2],
@@ -230,7 +177,13 @@ describe('biblioteca-global (pituguês)', () => {
     describe('todos', () => {
         it('rejeita quando primeiro parâmetro for nulo', async () => {
             await expect(todos(interpretadorMock, null as any)).rejects.toMatchObject({
-                mensagem: 'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.',
+                mensagem: 'Parâmetro inválido. O parâmetro da função todos() não pode ser nulo.',
+            });
+        });
+
+        it('rejeita quando segundo parâmetro não for função DeleguaFuncao', async () => {
+            await expect(todos(interpretadorMock, [1, 2], {} as any)).rejects.toMatchObject({
+                mensagem: 'Parâmetro inválido. O segundo parâmetro deve ser uma função.',
             });
         });
 
@@ -258,20 +211,6 @@ describe('biblioteca-global (pituguês)', () => {
 
             expect(resultado).toBe(true);
         });
-    });
-
-    describe('todos_em_condicao', () => {
-        it('rejeita quando primeiro parâmetro for nulo', async () => {
-            await expect(todos_em_condicao(interpretadorMock, null as any, {} as any)).rejects.toMatchObject({
-                mensagem: 'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.',
-            });
-        });
-
-        it('rejeita quando segundo parâmetro não for função DeleguaFuncao', async () => {
-            await expect(todos_em_condicao(interpretadorMock, [1, 2], {} as any)).rejects.toMatchObject({
-                mensagem: 'Parâmetro inválido. O segundo parâmetro deve ser uma função.',
-            });
-        });
 
         it('retorna verdadeiro quando todos satisfazem condição', async () => {
             interpretadorMock.resolverValor = jest.fn(v => v);
@@ -279,7 +218,7 @@ describe('biblioteca-global (pituguês)', () => {
 
             const func = new FuncaoPadrao(1, (_interpretador: any, n: number) => n % 2 === 0);
 
-            const resultado = await todos_em_condicao(interpretadorMock, [2, 4, 6], func);
+            const resultado = await todos(interpretadorMock, [2, 4, 6], func);
 
             expect(resultado).toBe(true);
         });
@@ -290,7 +229,7 @@ describe('biblioteca-global (pituguês)', () => {
 
             const func = new FuncaoPadrao(1, (_interpretador: any, n: number) => n % 2 === 0);
 
-            const resultado = await todos_em_condicao(interpretadorMock, [2, 3, 4], func);
+            const resultado = await todos(interpretadorMock, [2, 3, 4], func);
 
             expect(resultado).toBe(false);
         });
@@ -301,7 +240,7 @@ describe('biblioteca-global (pituguês)', () => {
 
             const func = new FuncaoPadrao(1, (_interpretador: any, n: number) => n % 2 === 0);
 
-            const resultado = await todos_em_condicao(interpretadorMock, { valor: [2, 3, 4] }, func);
+            const resultado = await todos(interpretadorMock, { valor: [2, 3, 4] }, func);
 
             expect(resultado).toBe(false);
         });
@@ -310,7 +249,7 @@ describe('biblioteca-global (pituguês)', () => {
     describe('tupla', () => {
         it('rejeita quando argumento não é vetor', async () => {
             await expect(tupla(interpretadorMock, 1 as any)).rejects.toMatchObject({
-                mensagem: 'Argumento de função nativa `tupla` não parece ser um vetor.',
+                mensagem: 'O argumento passado para a função `tupla()` deve ser iterável.',
             });
         });
 
@@ -339,7 +278,7 @@ describe('biblioteca-global (pituguês)', () => {
     describe('vetor', () => {
         it('Rejeita quando argumento não é uma tupla', async () => {
             await expect(vetor(interpretadorMock, 1 as any)).rejects.toMatchObject({
-                mensagem: 'Argumento de função nativa `vetor` não parece ser uma tupla.'
+                mensagem: 'O argumento passado para a função `vetor()` deve ser iterável.'
             });
         });
 
@@ -387,7 +326,7 @@ describe('biblioteca-global (pituguês)', () => {
     describe('tamanho', () => {
         it('rejeita quando argumento for número', async () => {
             await expect(tamanho(interpretadorMock, 123 as any)).rejects.toMatchObject({
-                mensagem: 'Função global tamanho() não funciona com números.',
+                mensagem: 'A função global tamanho() não funciona com números.',
             });
         });
 
@@ -426,7 +365,7 @@ describe('biblioteca-global (pituguês)', () => {
             const objeto = new ObjetoDeleguaClasse(descritor);
 
             await expect(tamanho(interpretadorMock, objeto as any)).rejects.toMatchObject({
-                mensagem: 'Função global tamanho não funciona com objetos complexos.',
+                mensagem: 'A função global tamanho() não funciona com objetos complexos instanciados.',
             });
         });
 
@@ -464,7 +403,7 @@ describe('biblioteca-global (pituguês)', () => {
 
         it('rejeita quando argumento não é vetor nem texto', async () => {
             await expect(tamanho(interpretadorMock, 123)).rejects.toMatchObject({
-                mensagem: 'Função global tamanho() não funciona com números.',
+                mensagem: 'A função global tamanho() não funciona com números.',
             });
         });
     });
@@ -499,9 +438,9 @@ describe('biblioteca-global (pituguês)', () => {
         it('retorna valores quando valorRetornado é RetornoQuebra', async () => {
             const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
             fakeFunc.chamar = jest
-            .fn()
-            .mockResolvedValueOnce({ valorRetornado: new RetornoQuebra('a') })
-            .mockResolvedValueOnce({ valorRetornado: new RetornoQuebra('b') });
+                .fn()
+                .mockResolvedValueOnce({ valorRetornado: new RetornoQuebra('a') })
+                .mockResolvedValueOnce({ valorRetornado: new RetornoQuebra('b') });
 
             const resultado = await mapear(interpretadorMock, [1, 2], fakeFunc);
 
@@ -521,7 +460,7 @@ describe('biblioteca-global (pituguês)', () => {
     describe('ordenar', () => {
         it('rejeita quando argumento não é vetor', async () => {
             await expect(ordenar(interpretadorMock, 123 as any)).rejects.toMatchObject({
-                mensagem: 'Valor inválido. Objeto inserido não é um vetor.',
+                mensagem: 'Parâmetro inválido. A função ordenar() espera um iterável.',
             });
         });
 
@@ -583,19 +522,19 @@ describe('biblioteca-global (pituguês)', () => {
 
         it('Deve rejeitar se o parâmetro não for um vetor', async () => {
             await expect(maximo(interpretadorMock, 123 as any)).rejects.toMatchObject({
-                mensagem: 'Parâmetro inválido. O parâmetro da função maximo() deve ser um vetor.',
+                mensagem: 'Parâmetro inválido. A função maximo() espera um iterável.',
             });
         });
 
         it('Deve rejeitar vetor vazio', async () => {
             await expect(maximo(interpretadorMock, [])).rejects.toMatchObject({
-                mensagem: 'Parâmetro inválido. O vetor não pode estar vazio.',
+                mensagem: 'Parâmetro inválido. O iterável não pode estar vazio.',
             });
         });
 
         it('Deve rejeitar tipos misturados incompatíveis (número vs vetor)', async () => {
             await expect(maximo(interpretadorMock, [1, [2]])).rejects.toMatchObject({
-                mensagem: 'Não é possível comparar elementos de tipos diferentes dentro do vetor (ex: números com vetores).',
+                mensagem: 'Não é possível comparar elementos de tipos incompatíveis dentro do iterável.',
             });
         });
 
@@ -636,18 +575,18 @@ describe('biblioteca-global (pituguês)', () => {
 
         it('Deve rejeitar vetor vazio', async () => {
             await expect(minimo(interpretadorMock, [])).rejects.toMatchObject({
-                mensagem: 'Parâmetro inválido. O vetor não pode estar vazio.',
+                mensagem: 'Parâmetro inválido. O iterável não pode estar vazio.',
             });
         });
 
         it('Deve rejeitar tipos misturados (texto vs número)', async () => {
             await expect(minimo(interpretadorMock, [1, [2]])).rejects.toMatchObject({
-                mensagem: 'Não é possível comparar elementos de tipos diferentes dentro do vetor (ex: números com vetores).',
+                mensagem: 'Não é possível comparar elementos de tipos incompatíveis dentro do iterável.',
             });
         });
 
         it('minimo rejeita quando argumento não é vetor', async () => {
-            await expect(minimo(interpretadorMock as any, 'not array' as any)).rejects.toBeDefined();
+            await expect(minimo(interpretadorMock, 123 as any)).rejects.toBeDefined();
         });
     });
 
@@ -669,7 +608,7 @@ describe('biblioteca-global (pituguês)', () => {
 
         it('Deve rejeitar se o parâmetro não for vetor (ex: número)', async () => {
             await expect(somar(interpretadorMock, 123 as any)).rejects.toMatchObject({
-                mensagem: 'Parâmetro inválido. O parâmetro da função somar() deve ser um vetor.',
+                mensagem: 'Parâmetro inválido. O parâmetro da função somar() deve ser um iterável.',
             });
         });
 
@@ -681,7 +620,7 @@ describe('biblioteca-global (pituguês)', () => {
 
         it('Deve rejeitar se vetor contiver elementos não numéricos', async () => {
             await expect(somar(interpretadorMock, [1, '2'])).rejects.toMatchObject({
-                mensagem: 'A função somar() aceita apenas vetores contendo números.',
+                mensagem: 'A função somar() aceita apenas iteráveis contendo números.',
             });
         });
     });
@@ -753,8 +692,8 @@ describe('biblioteca-global (pituguês)', () => {
         it('retorna true quando algum elemento satisfaz', async () => {
             const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
             fakeFunc.chamar = jest.fn()
-            .mockResolvedValueOnce(false)
-            .mockResolvedValueOnce(true);
+                .mockResolvedValueOnce(false)
+                .mockResolvedValueOnce(true);
 
             const resultado = await algum(interpretadorMock, [1, 2], fakeFunc);
             expect(resultado).toBe(true);
@@ -770,7 +709,7 @@ describe('biblioteca-global (pituguês)', () => {
 
         it('rejeita quando primeiro argumento não é array', async () => {
             const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
-            await expect(algum(interpretadorMock as any, 'not array' as any, fakeFunc)).rejects.toBeDefined();
+            await expect(algum(interpretadorMock, 123 as any, fakeFunc)).rejects.toBeDefined();
         });
 
         it('rejeita quando segundo argumento não é função', async () => {
@@ -780,8 +719,8 @@ describe('biblioteca-global (pituguês)', () => {
         it('chama função para cada elemento até encontrar true', async () => {
             const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
             fakeFunc.chamar = jest.fn()
-            .mockResolvedValueOnce(false)
-            .mockResolvedValueOnce(true);
+                .mockResolvedValueOnce(false)
+                .mockResolvedValueOnce(true);
             const resultado = await algum(interpretadorMock, [1, 2, 3], fakeFunc);
             expect(resultado).toBe(true);
             expect(fakeFunc.chamar).toHaveBeenCalledTimes(2);
@@ -799,10 +738,10 @@ describe('biblioteca-global (pituguês)', () => {
             const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
             // Mock que retorna false para 3 primeiras chamadas, true na última
             fakeFunc.chamar = jest.fn()
-            .mockResolvedValueOnce(false)
-            .mockResolvedValueOnce(false)
-            .mockResolvedValueOnce(false)
-            .mockResolvedValueOnce(true);
+                .mockResolvedValueOnce(false)
+                .mockResolvedValueOnce(false)
+                .mockResolvedValueOnce(false)
+                .mockResolvedValueOnce(true);
             const resultado = await algum(interpretadorMock, [1, 2, 3, 4], fakeFunc);
             expect(resultado).toBe(true);
             expect(fakeFunc.chamar).toHaveBeenCalledTimes(4);
@@ -841,8 +780,8 @@ describe('biblioteca-global (pituguês)', () => {
         it('encontra primeiro elemento que satisfaz', async () => {
             const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
             fakeFunc.chamar = jest.fn()
-            .mockResolvedValueOnce(false)
-            .mockResolvedValueOnce(true);
+                .mockResolvedValueOnce(false)
+                .mockResolvedValueOnce(true);
 
             const valor = await encontrar(interpretadorMock, [1, 2, 3], fakeFunc);
 
@@ -898,8 +837,8 @@ describe('biblioteca-global (pituguês)', () => {
         it('encontra o índice do primeiro elemento que satisfaz', async () => {
             const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
             fakeFunc.chamar = jest.fn()
-            .mockResolvedValueOnce(false)
-            .mockResolvedValueOnce(true);
+                .mockResolvedValueOnce(false)
+                .mockResolvedValueOnce(true);
 
             const idx = await encontrar_indice(interpretadorMock, [1, 2, 3], fakeFunc);
 
@@ -1034,7 +973,7 @@ describe('biblioteca-global (pituguês)', () => {
             expect(idx).toBe(3);
         });
 
-        it('retorna null quando não encontra', async () => {
+        it('retorna -1 quando não encontra', async () => {
             const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
             fakeFunc.chamar = jest.fn().mockResolvedValue(false);
 
@@ -1077,9 +1016,9 @@ describe('biblioteca-global (pituguês)', () => {
         it('filtra valores conforme função de filtragem', async () => {
             const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
             fakeFunc.chamar = jest.fn()
-            .mockResolvedValueOnce({ valorRetornado: new RetornoQuebra(true) })
-            .mockResolvedValueOnce({ valorRetornado: new RetornoQuebra(false) })
-            .mockResolvedValueOnce({ valorRetornado: new RetornoQuebra(true) });
+                .mockResolvedValueOnce({ valorRetornado: new RetornoQuebra(true) })
+                .mockResolvedValueOnce({ valorRetornado: new RetornoQuebra(false) })
+                .mockResolvedValueOnce({ valorRetornado: new RetornoQuebra(true) });
 
             const resultado = await filtrar_por(interpretadorMock, [1, 2, 3], fakeFunc);
             expect(resultado).toEqual([1, 3]);
@@ -1089,8 +1028,8 @@ describe('biblioteca-global (pituguês)', () => {
         it('filtrar_por trata informacoesValor nulo e wrapper params', async () => {
             const fakeFunc = Object.create(DeleguaFuncao.prototype) as any;
             fakeFunc.chamar = jest.fn()
-            .mockResolvedValueOnce(null)
-            .mockResolvedValueOnce({ valorRetornado: { valor: true } });
+                .mockResolvedValueOnce(null)
+                .mockResolvedValueOnce({ valorRetornado: { valor: true } });
 
             const resultado = await filtrar_por(interpretadorMock as any, { valor: [5, 6] } as any, { valor: fakeFunc } as any);
             expect(resultado).toEqual([6]);
@@ -1109,7 +1048,7 @@ describe('biblioteca-global (pituguês)', () => {
         });
 
         it('filtrar_por rejeita quando primeiro parâmetro não é vetor', async () => {
-            await expect(filtrar_por(interpretadorMock as any, 'not array' as any, {} as any)).rejects.toBeDefined();
+            await expect(filtrar_por(interpretadorMock, 123 as any, {} as any)).rejects.toBeDefined();
         });
     });
 
@@ -1142,9 +1081,9 @@ describe('biblioteca-global (pituguês)', () => {
         });
 
         it('inteiro trata null/undefined e erros de validação', async () => {
-            expect(await inteiro(interpretadorMock as any, null as any)).toBe(0);
-            await expect(inteiro(interpretadorMock as any, 'abc' as any)).rejects.toBeDefined();
-            await expect(inteiro(interpretadorMock as any, NaN as any)).rejects.toBeDefined();
+            await expect(inteiro(interpretadorMock, null)).rejects.toBeDefined();
+            await expect(inteiro(interpretadorMock, 'abc' as any)).rejects.toBeDefined();
+            await expect(inteiro(interpretadorMock, NaN as any)).rejects.toBeDefined();
         });
 
         it('inteiro aceita VariavelInterface', async () => {
@@ -1153,7 +1092,7 @@ describe('biblioteca-global (pituguês)', () => {
 
         it('Rejeita quando for passado uma string vazia', async () => {
             await expect(inteiro(interpretadorMock as any, '' as any)).rejects.
-                toMatchObject({ mensagem: 'Valor não parece estar estruturado como um número (texto vazio, falso ou não definido). Somente números ou textos com números podem ser convertidos para inteiro.' });
+                toMatchObject({ mensagem: 'Valor não parece estar estruturado como um número válido. Somente números ou textos com números podem ser convertidos na função inteiro().' });
         });
     });
 
@@ -1182,29 +1121,35 @@ describe('biblioteca-global (pituguês)', () => {
         });
 
         it('quando número é null', async () => {
-            await expect(real(interpretadorMock, null as any)).resolves
+            await expect(real(interpretadorMock, null)).rejects.toBeDefined();
         });
 
         it('quando número é undefined', async () => {
-            await expect(real(interpretadorMock, undefined as any)).resolves
+            await expect(real(interpretadorMock, undefined)).rejects.toBeDefined();
         });
     });
 
     describe('intervalo', () => {
-        it('Cria intervalo correto (somente com fim)', async () => {
-            const resultado = await intervalo(interpretadorMock as any, 5 as any);
+        it('Rejeita quando início não é número', async () => {
+            await expect(intervalo(interpretadorMock, '1' as any, 5 as any)).rejects.toMatchObject({
+                mensagem: 'O parâmetro de início deve ser do tipo número ou inteiro.'
+            });
+        });
+
+        it('Rejeita quando início não é número (argumento único)', async () => {
+            await expect(intervalo(interpretadorMock, '10' as any)).rejects.toMatchObject({
+                mensagem: 'O parâmetro de início deve ser do tipo número ou inteiro.'
+            });
+        });
+
+        it('Cria intervalo correto', async () => {
+            const resultado = await intervalo(interpretadorMock, 5 as any);
             expect(resultado).toEqual([0, 1, 2, 3, 4]);
         });
 
         it('cria intervalo correto (inicio inclusivo, fim exclusivo)', async () => {
             const resultado = await intervalo(interpretadorMock as any, 1 as any, 5 as any);
             expect(resultado).toEqual([1, 2, 3, 4]);
-        });
-
-        it('Rejeita quando parâmetros não são números', async () => {
-            await expect(intervalo(interpretadorMock as any, '1' as any, 5 as any)).rejects.toMatchObject({
-                mensagem: 'Os parâmetros de início e fim devem ser do tipo número ou inteiro.'
-            });
         });
 
         it('Cria intervalo correto (com passo)', async () => {
@@ -1230,8 +1175,8 @@ describe('biblioteca-global (pituguês)', () => {
         });
 
         it('Rejeita quando fim não é número', async () => {
-            await expect(intervalo(interpretadorMock as any, '10' as any)).rejects.toMatchObject({
-                mensagem: 'O parâmetro deve ser do tipo número ou inteiro.'
+            await expect(intervalo(interpretadorMock, 1 as any, '10' as any)).rejects.toMatchObject({
+                mensagem: 'O parâmetro de fim deve ser do tipo número ou inteiro.'
             });
         });
     });
@@ -1257,8 +1202,12 @@ describe('biblioteca-global (pituguês)', () => {
 
     describe('enumerar', () => {
         it('retorna vetor de pares [índice, valor]', async () => {
-            const resultado = await enumerar(interpretadorMock as any, [9, 8, 7]);
-            expect(resultado).toEqual([{ indice: 0, valor: 9 }, { indice: 1, valor: 8 }, { indice: 2, valor: 7 }]);
+            const resultado = await enumerar(interpretadorMock, [9, 8, 7]);
+            expect(resultado).toEqual([
+                { indice: 0, valor: 9 },
+                { indice: 1, valor: 8 },
+                { indice: 2, valor: 7 }
+            ]);
         });
 
         it('enumerar rejeita quando primeiro parâmetro não é vetor', async () => {
@@ -1266,8 +1215,12 @@ describe('biblioteca-global (pituguês)', () => {
         });
 
         it('enumerar com início personalizado', async () => {
-            const resultado = await enumerar(interpretadorMock as any, [9, 8, 7], 1);
-            expect(resultado).toEqual([{ indice: 1, valor: 8 }, { indice: 2, valor: 7 }]);
+            const resultado = await enumerar(interpretadorMock, [9, 8, 7], 1);
+            expect(resultado).toEqual([
+                { indice: 1, valor: 9 },
+                { indice: 2, valor: 8 },
+                { indice: 3, valor: 7 }
+            ]);
         });
 
         it('enumerar com início personalizado rejeita quando início não é número', async () => {
@@ -1306,8 +1259,4 @@ describe('biblioteca-global (pituguês)', () => {
             expect(retornoInterpretador.erros).toHaveLength(0);
         });
     });
-})
-
-
-
-
+});

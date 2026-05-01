@@ -355,7 +355,7 @@ export async function encontrar_ultimo(
 ): Promise<any> {
     const valorIteravel = iteravel?.valor ?? iteravel;
     const itens = new Iteravel(valorIteravel).elementos;
-    if (itens.length) {
+    if (itens.length === 0) {
         throw new ErroEmTempoDeExecucao(
             {
                 linha: interpretador.linhaDeclaracaoAtual,
@@ -383,7 +383,7 @@ export async function encontrar_ultimo(
         if (
             await valorFuncao.chamar(
                 interpretador,
-                itens[i],
+                [itens[i]],
                 {
                     linha: interpretador.linhaDeclaracaoAtual,
                     hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
@@ -779,22 +779,20 @@ export async function mapear(
     for (const item of itens) {
         const retornoFuncao = await valorFuncao.chamar(
             interpretador,
-            item,
+            [item],
             {
                 linha: interpretador.linhaDeclaracaoAtual,
                 hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
             } as SimboloInterface
         );
 
-        let valorMapeado = retornoFuncao;
-
         if (retornoFuncao !== null && retornoFuncao !== undefined) {
             if (retornoFuncao.hasOwnProperty('valorRetornado')) {
-                valorMapeado = retornoFuncao.valorRetornado instanceof RetornoQuebra
-                    ? retornoFuncao.valorRetornado.valor
-                    : retornoFuncao.valorRetornado;
+                if (retornoFuncao.valorRetornado instanceof RetornoQuebra) {
+                    resultados.push(retornoFuncao.valorRetornado.valor);
+                }
             } else if (retornoFuncao instanceof RetornoQuebra) {
-                valorMapeado = retornoFuncao.valor;
+                resultados.push(retornoFuncao.valor);
             }
         }
 
@@ -811,8 +809,6 @@ export async function mapear(
         //     );
         //     continue;
         // }
-
-        resultados.push(interpretador.resolverValor(valorMapeado));
     }
 
     return resultados;
@@ -1080,7 +1076,7 @@ export async function para_cada(
     for (const item of itens) {
         await valorFuncao.chamar(
             interpretador,
-            item,
+            [item],
             {
                 linha: interpretador.linhaDeclaracaoAtual,
                 hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
@@ -1140,8 +1136,10 @@ export async function reduzir(
         );
     }
 
-    const ehUmaFuncao = valorFuncaoReducao instanceof DeleguaFuncao ||
-        valorFuncaoReducao instanceof FuncaoPadrao;
+    const ehUmaFuncao =
+        valorFuncaoReducao instanceof DeleguaFuncao ||
+        valorFuncaoReducao instanceof FuncaoPadrao ||
+        typeof valorFuncaoReducao?.chamar === 'function';
 
     if (!valorFuncaoReducao || !ehUmaFuncao) {
         throw new ErroEmTempoDeExecucao(
@@ -1174,8 +1172,8 @@ export async function reduzir(
         inicio = 1;
     }
 
-    for (const item of itens) {
-        const elementoAtual = interpretador.resolverValor(item);
+    for (let i = inicio; i < itens.length; i++) {
+        const elementoAtual = interpretador.resolverValor(itens[i]);
 
         const resultadoFuncao = await valorFuncaoReducao.chamar(
             interpretador,
@@ -1359,16 +1357,17 @@ export async function texto(
     return String(valorResolvido);
 }
 
-// TODO: implementar função de pesquisa caso seja aprovado pela comunidade a fusão de todos() com todos_em_condicao()
 /**
- * Retorna verdadeiro se todos os elementos do iterável forem verdadeiros (truly).
+ * Retorna verdadeiro se todos os elementos do iterável forem verdadeiros (truthy). Caso seja passado uma função como segundo parâmetro, cada elemento do iterável será passado para ela.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
  * @param {any} iteravel Qualquer dado que seja iterável
- * @returns {Promise<boolean>} Verdadeiro, se todos os valores do iterável forem truly.
+ * @param {any} funcaoCondicional A função que será executada com cada valor.
+ * @returns {Promise<boolean>} Verdadeiro, se todos os valores do iterável forem verdadeiros ou se satisfazerem a função condicional.
  */
 export async function todos(
     interpretador: InterpretadorInterface,
-    iteravel: any
+    iteravel: any,
+    funcaoCondicional?: any
 ): Promise<boolean> {
     if (iteravel === null || iteravel === undefined) {
         throw new ErroEmTempoDeExecucao(
@@ -1398,91 +1397,51 @@ export async function todos(
         );
     }
 
-    for (const item of itens) {
-        const itemResolvido = interpretador.resolverValor(item);
-        if (!interpretador.eVerdadeiro(itemResolvido)) return false;
-    }
-
-    return true;
-}
-
-/**
- * Retorna verdadeiro se todos os elementos do primeiro parâmetro retornam verdadeiro ao serem aplicados como argumentos da função passada como parâmetro.
- * @param {InterpretadorInterface} interpretador A instância do interpretador.
- * @param {any} iteravel Qualquer dado que seja iterável.
- * @param {any} funcaoCondicional A função que será executada com cada valor.
- * @returns {Promise<boolean>} Verdadeiro, se todos os valores passarem na função.
- */
-export async function todos_em_condicao(
-    interpretador: InterpretadorInterface,
-    iteravel: any,
-    funcaoCondicional: any
-): Promise<boolean> {
-    if (iteravel === null || iteravel === undefined) {
-        throw new ErroEmTempoDeExecucao(
-            {
-                linha: interpretador.linhaDeclaracaoAtual,
-                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-            } as SimboloInterface,
-            'Parâmetro inválido. O primeiro parâmetro da função todos_em_condicao() não pode ser nulo.'
-        );
-    }
-
-    const valorIteravel = interpretador.resolverValor(iteravel);
-    const itens = new Iteravel(valorIteravel).elementos;
-
-    if (
-        itens.length === 0 &&
-        valorIteravel !== '' &&
-        !Array.isArray(valorIteravel) &&
-        !(valorIteravel?.constructor?.name === 'TuplaN')
-    ) {
-        throw new ErroEmTempoDeExecucao(
-            {
-                linha: interpretador.linhaDeclaracaoAtual,
-                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-            } as SimboloInterface,
-            'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
-        );
-    }
-
     const valorFuncao = interpretador.resolverValor(funcaoCondicional);
-    const ehUmaFuncao = valorFuncao instanceof DeleguaFuncao ||
-        valorFuncao instanceof FuncaoPadrao;
+    if (valorFuncao) {
+        const ehUmaFuncao = valorFuncao instanceof DeleguaFuncao ||
+            valorFuncao instanceof FuncaoPadrao;
 
-    if (!valorFuncao || !ehUmaFuncao) {
-        throw new ErroEmTempoDeExecucao(
-            {
-                linha: interpretador.linhaDeclaracaoAtual,
-                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-            } as SimboloInterface,
-            'Parâmetro inválido. O segundo parâmetro deve ser uma função.'
-        );
+        if (!valorFuncao || !ehUmaFuncao) {
+            throw new ErroEmTempoDeExecucao(
+                {
+                    linha: interpretador.linhaDeclaracaoAtual,
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                } as SimboloInterface,
+                'Parâmetro inválido. O segundo parâmetro deve ser uma função.'
+            );
+        }
     }
 
     for (const item of itens) {
-        const resultadoChamada = await valorFuncao.chamar(
-            interpretador,
-            item,
-            {
-                linha: interpretador.linhaDeclaracaoAtual,
-                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-            } as SimboloInterface
-        );
+        let resultado: any;
 
-        let valorMapeado = resultadoChamada;
+        if (valorFuncao) {
+            const resultadoChamada = await valorFuncao.chamar(
+                interpretador,
+                [item],
+                {
+                    linha: interpretador.linhaDeclaracaoAtual,
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                } as SimboloInterface
+            );
 
-        if (resultadoChamada !== null && resultadoChamada !== undefined) {
-            if (resultadoChamada.hasOwnProperty('valorRetornado')) {
-                valorMapeado = resultadoChamada.valorRetornado instanceof RetornoQuebra
-                    ? resultadoChamada.valorRetornado.valor
-                    : resultadoChamada.valorRetornado;
-            } else if (resultadoChamada instanceof RetornoQuebra) {
-                valorMapeado = resultadoChamada.valor;
+            if (resultadoChamada !== null && resultadoChamada !== undefined) {
+                if (resultadoChamada.hasOwnProperty('valorRetornado')) {
+                    resultado = resultadoChamada.valorRetornado instanceof RetornoQuebra
+                        ? resultadoChamada.valorRetornado.valor
+                        : resultadoChamada.valorRetornado;
+                } else if (resultadoChamada instanceof RetornoQuebra) {
+                    resultado = resultadoChamada.valor;
+                } else {
+                    resultado = resultadoChamada;
+                }
             }
+        } else {
+            resultado = item;
         }
 
-        const resultadoResolvido = interpretador.resolverValor(valorMapeado);
+        const resultadoResolvido = interpretador.resolverValor(resultado);
 
         if (!interpretador.eVerdadeiro(resultadoResolvido)) return false;
     }
@@ -1541,6 +1500,12 @@ export async function tupla(
     );
 }
 
+/**
+ * Transforma um iteravel em um vetor.
+ * @param {InterpretadorInterface} interpretador A instância do interpretador.
+ * @param {any} iteravel O iterável a ser convertido.
+ * @returns O vetor resolvido.
+ */
 export async function vetor(
     interpretador: InterpretadorInterface,
     iteravel: any

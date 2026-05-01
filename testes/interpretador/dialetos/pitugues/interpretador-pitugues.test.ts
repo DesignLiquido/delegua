@@ -4131,10 +4131,8 @@ describe('Interpretador (Pituguês)', () => {
                         expect(_saida).toBeTruthy();
                         expect(_saida).toBe('falso');
                     });
-                });
 
-                describe('todos_em_condicao()', () => {
-                    it('Chama a função nativa "todos_em_condicao()" para verificar se os elementos do array são par.', async () => {
+                    it('Chama a função nativa "todos()" para verificar se os elementos do array são par.', async () => {
                         let _saida: string = '';
 
                         const retornoLexador = lexador.mapear(
@@ -4142,7 +4140,7 @@ describe('Interpretador (Pituguês)', () => {
                                 'listaDeNumeros = [1, 2, 3, 4, 5]',
                                 'funcao eh_par(valor):',
                                 '    retorna valor % 2 == 0',
-                                'escreva(todos_em_condicao(listaDeNumeros, eh_par))'
+                                'escreva(todos(listaDeNumeros, eh_par))'
                             ],
                             -1
                         );
@@ -4159,7 +4157,7 @@ describe('Interpretador (Pituguês)', () => {
                         expect(_saida).toBe('falso');
                     });
 
-                    it('Chama a função nativa "todos_em_condicao()" para verificar se todos os nomes começam com "V"', async () => {
+                    it('Chama a função nativa "todos()" para verificar se todos os nomes começam com "V"', async () => {
                         let _saida: string = '';
 
                         const retornoLexador = lexador.mapear(
@@ -4167,7 +4165,7 @@ describe('Interpretador (Pituguês)', () => {
                                 'listaDeNomes = ["Victor", "Verônica", "Vanessa"]',
                                 'funcao verificar_nomes(nome):',
                                 '    retorna nome[0] == "V"',
-                                'escreva(todos_em_condicao(listaDeNomes, verificar_nomes))'
+                                'escreva(todos(listaDeNomes, verificar_nomes))'
                             ],
                             -1
                         );
@@ -5128,14 +5126,14 @@ describe('Interpretador (Pituguês)', () => {
             });
 
             describe('minimo()', () => {
-                it('Deve falhar ao passar um argumento que não é vetor', async () => {
-                    const codigo = ['minimo("texto")'];
+                it('Deve falhar ao passar um argumento que não é iterável', async () => {
+                    const codigo = ['minimo(123)'];
                     const retornoLexador = lexador.mapear(codigo, -1);
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
-                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toContain('deve ser um vetor');
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toContain('Parâmetro inválido. A função minimo() espera um iterável.');
                 });
 
                 it('Deve falhar ao passar um vetor vazio', async () => {
@@ -5398,16 +5396,14 @@ describe('Interpretador (Pituguês)', () => {
                         'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
                     );
                 });
-            });
 
-            describe('todos_em_condicao()', () => {
-                it('Chama a função nativa "todos_em_condicao()" passando dados que não são iteráveis', async () => {
+                it('Chama a função nativa "todos()" passando dados que não são iteráveis', async () => {
                     const retornoLexador = lexador.mapear(
                         [
                             'listaDeNumeros = 67',
                             'funcao eh_par(valor):',
                             '    retorna valor % 2 == 0',
-                            'escreva(todos_em_condicao(listaDeNumeros, eh_par))'
+                            'escreva(todos(listaDeNumeros, eh_par))'
                         ],
                         -1
                     );
