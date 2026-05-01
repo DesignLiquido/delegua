@@ -10,7 +10,6 @@ import {
     somar,
     aleatorio,
     algum,
-    arredondar,
     encontrar,
     encontrar_indice,
     encontrar_ultimo,
@@ -761,18 +760,6 @@ describe('biblioteca-global (pituguês)', () => {
             const resultado = await algum(interpretadorMock as any, [1, 2, 3] as any, { valor: fakeFunc } as any);
             expect(resultado).toBe(true);
             expect(fakeFunc.chamar).toHaveBeenCalledTimes(1);
-        });
-    });
-
-    describe('arredondar', () => {
-        it('arredonda para N casas decimais', async () => {
-            const resultado = await arredondar(interpretadorMock as any, 1.2345 as any, 2 as any);
-            expect(resultado).toBe(1.23);
-        });
-
-        it('arredondar rejeita quando numero é null ou tipo inválido', async () => {
-            await expect(arredondar(interpretadorMock as any, null as any, 2 as any)).rejects.toBeDefined();
-            await expect(arredondar(interpretadorMock as any, 'x' as any, 2 as any)).rejects.toBeDefined();
         });
     });
 

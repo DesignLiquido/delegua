@@ -3876,34 +3876,6 @@ describe('Interpretador (Pituguês)', () => {
                 });
             });
 
-            describe('arredondar()', () => {
-                it('Arredondando número para duas casas decimais', async () => {
-                    const codigo = [
-                        "numeroLegal = 10.7561",
-                        "escreva(arredondar(numeroLegal, 2))"
-                    ];
-                    const retornoLexador = lexador.mapear(codigo, -1);
-                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
-
-                    expect(retornoInterpretador.erros).toHaveLength(0);
-                    expect(_saidas[0]).toBe('10.76');
-                });
-
-                it('Arredondando para o inteiro mais próximo', async () => {
-                    const codigo = [
-                        "numeroMuitoLegal = 10.75",
-                        "escreva(arredondar(numeroMuitoLegal))"
-                    ];
-                    const retornoLexador = lexador.mapear(codigo, -1);
-                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
-
-                    expect(retornoInterpretador.erros).toHaveLength(0);
-                    expect(_saidas[0]).toBe('11');
-                });
-            });
-
             it('Usando tipo() para saber o tipo de um dado', async () => {
                 const codigo = [
                     "escreva(tipo(10))",

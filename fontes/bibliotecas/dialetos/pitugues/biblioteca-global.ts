@@ -185,48 +185,6 @@ export async function algum(
 }
 
 /**
- * Arredonda um número para uma quantidade específica de casas decimais.
- * @param {InterpretadorInterface} interpretador A instância do interpretador.
- * @param {any} numero O número a ser arredondado.
- * @param {any} casasDecimais A quantidade de casas decimais para o arredondamento.
- * @returns {Promise<number>} O número arredondado.
- */
-export async function arredondar(
-    interpretador: InterpretadorInterface,
-    numero: any,
-    casasDecimais: any
-): Promise<number> {
-    const valorNumero = interpretador.resolverValor(numero);
-    const valorCasas = interpretador.resolverValor(casasDecimais) ?? 0;
-
-    if (typeof valorNumero !== 'number') {
-        throw new ErroEmTempoDeExecucao(
-            {
-                linha: interpretador.linhaDeclaracaoAtual,
-                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-            } as SimboloInterface,
-            'Parâmetro inválido. O primeiro parâmetro deve ser um número.',
-            interpretador.linhaDeclaracaoAtual
-        );
-    }
-
-    if (typeof valorCasas !== 'number') {
-        throw new ErroEmTempoDeExecucao(
-            {
-                linha: interpretador.linhaDeclaracaoAtual,
-                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
-            } as SimboloInterface,
-            `Parâmetro inválido. O segundo parâmetro deve ser um número.`,
-            interpretador.linhaDeclaracaoAtual
-        );
-    }
-
-    const fator = 10 ** valorCasas;
-
-    return Math.round(valorNumero * fator) / fator;
-}
-
-/**
  * Retorna o primeiro elemento de um iterável que satisfaça a condição definida na função de pesquisa.
  * A execução é interrompida assim que o elemento for encontrado.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
