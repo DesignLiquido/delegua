@@ -941,7 +941,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
 
     private verificarExistenciaConstruto(construto: ConstrutoInterface): void {
         if (construto instanceof Variavel) {
-            if (!this.gerenciadorEscopos.buscar(construto.simbolo.lexema)) {
+            if (!this.gerenciadorEscopos.buscar(construto.simbolo.lexema) && !this.funcoes[construto.simbolo.lexema]) {
                 this.erro(
                     construto.simbolo,
                     `Variável ${construto.simbolo.lexema} ainda não foi declarada até este ponto.`

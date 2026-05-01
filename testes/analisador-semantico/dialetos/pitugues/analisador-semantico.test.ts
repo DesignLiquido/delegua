@@ -2317,6 +2317,24 @@ describe('Analisador semântico', () => {
             expect(retornoAnalisadorSemantico).toBeTruthy();
             expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
         });
+
+        it('Sucesso - função passada por referência como argumento não gera falso positivo', async () => {
+            const retornoLexador = lexador.mapear([
+                `funcao rotaGet(req, res):`,
+                `    res.json({'status': 'ok'})`,
+                `funcao rotaPost(req, res):`,
+                `    res.json({'status': 'criado'})`,
+                `funcao registrar(fn):`,
+                `    nada`,
+                `registrar(rotaGet)`,
+                `registrar(rotaPost)`,
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
     });
 
     describe('Cenários de reutilização de instância do analisador', () => {
