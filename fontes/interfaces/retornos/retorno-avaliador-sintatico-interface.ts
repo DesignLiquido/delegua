@@ -1,6 +1,6 @@
 import { ErroAvaliadorSintatico } from '../../avaliador-sintatico/erro-avaliador-sintatico';
 
-export interface RetornoAvaliadorSintatico<T> {
+export interface RetornoAvaliadorSintaticoInterface<T> {
     declaracoes: T[];
     erros: ErroAvaliadorSintatico[];
 }

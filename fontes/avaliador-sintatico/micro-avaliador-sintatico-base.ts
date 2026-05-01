@@ -1,7 +1,8 @@
-import { Construto, Unario, Binario, Logico } from '../construtos';
+﻿import { Unario, Binario, Logico } from '../construtos';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 import { Declaracao } from '../declaracoes';
 import { SimboloInterface } from '../interfaces';
-import { RetornoAvaliadorSintatico, RetornoLexador } from '../interfaces/retornos';
+import { RetornoAvaliadorSintaticoInterface, RetornoLexadorInterface } from '../interfaces/retornos';
 import { ErroAvaliadorSintatico } from './erro-avaliador-sintatico';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/comum';
@@ -55,9 +56,9 @@ export abstract class MicroAvaliadorSintaticoBase {
         throw this.erro(this.simbolos[this.atual], mensagemDeErro);
     }
 
-    abstract chamar(): Construto;
+    abstract chamar(): ConstrutoInterface;
 
-    unario(): Construto {
+    unario(): ConstrutoInterface {
         if (
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NEGACAO, tiposDeSimbolos.SUBTRACAO)
         ) {
@@ -69,7 +70,7 @@ export abstract class MicroAvaliadorSintaticoBase {
         return this.chamar();
     }
 
-    exponenciacao(): Construto {
+    exponenciacao(): ConstrutoInterface {
         let expressao = this.unario();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EXPONENCIACAO)) {
@@ -81,7 +82,7 @@ export abstract class MicroAvaliadorSintaticoBase {
         return expressao;
     }
 
-    multiplicar(): Construto {
+    multiplicar(): ConstrutoInterface {
         let expressao = this.exponenciacao();
 
         while (
@@ -100,7 +101,7 @@ export abstract class MicroAvaliadorSintaticoBase {
         return expressao;
     }
 
-    adicaoOuSubtracao(): Construto {
+    adicaoOuSubtracao(): ConstrutoInterface {
         let expressao = this.multiplicar();
 
         while (
@@ -114,7 +115,7 @@ export abstract class MicroAvaliadorSintaticoBase {
         return expressao;
     }
 
-    comparar(): Construto {
+    comparar(): ConstrutoInterface {
         let expressao = this.adicaoOuSubtracao();
 
         while (
@@ -133,7 +134,7 @@ export abstract class MicroAvaliadorSintaticoBase {
         return expressao;
     }
 
-    comparacaoIgualdade(): Construto {
+    comparacaoIgualdade(): ConstrutoInterface {
         let expressao = this.comparar();
 
         while (
@@ -150,7 +151,7 @@ export abstract class MicroAvaliadorSintaticoBase {
         return expressao;
     }
 
-    e(): Construto {
+    e(): ConstrutoInterface {
         let expressao = this.comparacaoIgualdade();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.E)) {
@@ -162,7 +163,7 @@ export abstract class MicroAvaliadorSintaticoBase {
         return expressao;
     }
 
-    ou(): Construto {
+    ou(): ConstrutoInterface {
         let expressao = this.e();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.OU)) {
@@ -174,12 +175,14 @@ export abstract class MicroAvaliadorSintaticoBase {
         return expressao;
     }
 
-    declaracao(): Declaracao | Construto {
+    declaracao(): Declaracao | ConstrutoInterface {
         return this.ou();
     }
 
     abstract analisar(
-        retornoLexador: RetornoLexador<SimboloInterface>,
+        retornoLexador: RetornoLexadorInterface<SimboloInterface>,
         linha: number
-    ): RetornoAvaliadorSintatico<Declaracao>;
+    ): RetornoAvaliadorSintaticoInterface<Declaracao>;
 }
+
+

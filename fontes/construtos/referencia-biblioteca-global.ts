@@ -1,11 +1,11 @@
 import { VisitanteComumInterface } from '../interfaces';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
 /**
  * Um decorador é um construto especial que, em código, existe antes de uma declaração, e
  * na avaliação sintática, é colocado juntamente com a próxima declaração.
  */
-export class ReferenciaBibliotecaGlobal implements Construto {
+export class ReferenciaBibliotecaGlobal implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
     nome: string;

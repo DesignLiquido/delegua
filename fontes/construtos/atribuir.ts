@@ -1,24 +1,24 @@
 import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 import { Variavel } from './variavel';
 
 /**
  * Construto de atribuição de um valor a um símbolo.
  */
-export class Atribuir<TTipoSimbolo extends string = string> implements Construto {
+export class Atribuir<TTipoSimbolo extends string = string> implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
 
-    alvo: Construto;
-    indice?: Construto;
-    valor: Construto;
+    alvo: ConstrutoInterface;
+    indice?: ConstrutoInterface;
+    valor: ConstrutoInterface;
     simboloOperador?: SimboloInterface<TTipoSimbolo>;
 
     constructor(
         hashArquivo: number,
-        alvo: Construto,
-        valor: Construto,
-        indice?: Construto,
+        alvo: ConstrutoInterface,
+        valor: ConstrutoInterface,
+        indice?: ConstrutoInterface,
         simboloOperador?: SimboloInterface<TTipoSimbolo>
     ) {
         this.linha = Number(alvo.linha);

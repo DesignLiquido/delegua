@@ -1,4 +1,4 @@
-import {
+﻿import {
     Atribuir,
     AcessoIndiceVariavel,
     AcessoElementoMatriz,
@@ -32,7 +32,6 @@ import {
     Separador,
     Variavel,
     Constante,
-    Construto,
     AcessoIntervaloVariavel,
     TuplaN,
     Morsa,
@@ -70,13 +69,14 @@ import {
 } from '../declaracoes';
 import {
     CorrecaoSugeridaInterface,
-    DiagnosticoAnalisadorSemantico,
+    DiagnosticoAnalisadorSemanticoInterface,
     DiagnosticoSeveridade,
     ParametroInterface,
     SimboloInterface,
 } from '../interfaces';
 import { AnalisadorSemanticoInterface } from '../interfaces/analisador-semantico-interface';
-import { RetornoAnalisadorSemantico } from '../interfaces/retornos/retorno-analisador-semantico';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
+import { RetornoAnalisadorSemanticoInterface } from '../interfaces/retornos/retorno-analisador-semantico-interface';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
 import { GerenciadorEscopos } from './gerenciador-escopos';
 import { inferirCodigoDiagnosticoSemantico } from './tabela-diagnosticos-semanticos';
@@ -88,9 +88,9 @@ import { inferirCodigoDiagnosticoSemantico } from './tabela-diagnosticos-semanti
  */
 export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInterface {
     gerenciadorEscopos: GerenciadorEscopos = new GerenciadorEscopos();
-    diagnosticos: DiagnosticoAnalisadorSemantico[] = [];
+    diagnosticos: DiagnosticoAnalisadorSemanticoInterface[] = [];
 
-    abstract analisar(declaracoes: Declaracao[]): Promise<RetornoAnalisadorSemantico>;
+    abstract analisar(declaracoes: Declaracao[]): Promise<RetornoAnalisadorSemanticoInterface>;
 
     protected diagnosticoJaExiste(simbolo: SimboloInterface, mensagem: string): boolean {
         return this.diagnosticos.some(
@@ -174,7 +174,7 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     protected comparacaoArgumentosContraParametrosFuncao(
         simboloFuncao: SimboloInterface,
         parametros: ParametroInterface[],
-        argumentos: Construto[]
+        argumentos: ConstrutoInterface[]
     ) {
         if (parametros.length !== argumentos.length) {
             this.erro(
@@ -219,7 +219,7 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     /**
      * Obtém o tipo de uma expressão (pode ser Literal, Variavel, Binario, Leia, etc)
      */
-    protected obterTipoExpressao(expressao: Construto): string | null {
+    protected obterTipoExpressao(expressao: ConstrutoInterface): string | null {
         if (expressao instanceof Literal) {
             return expressao.tipo;
         }
@@ -300,7 +300,7 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     /**
      * Marca as variáveis usadas em uma expressão.
      */
-    protected marcarVariaveisUsadasEmExpressao(expressao: Construto): void {
+    protected marcarVariaveisUsadasEmExpressao(expressao: ConstrutoInterface): void {
         if ((expressao as unknown) instanceof Expressao) {
             this.marcarVariaveisUsadasEmExpressao((expressao as unknown as Expressao).expressao);
             return;
@@ -730,3 +730,5 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
         return Promise.resolve();
     }
 }
+
+

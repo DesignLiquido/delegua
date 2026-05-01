@@ -1,4 +1,4 @@
-import {
+﻿import {
     AcessoIndiceVariavel,
     AcessoMetodo,
     AcessoMetodoOuPropriedade,
@@ -9,7 +9,6 @@ import {
     Atribuir,
     Binario,
     Chamada,
-    Construto,
     FormatacaoEscrita,
     FuncaoConstruto,
     Leia,
@@ -41,8 +40,9 @@ import {
     Var,
 } from '../declaracoes';
 import { ParametroInterface, SimboloInterface } from '../interfaces';
-import { DiagnosticoAnalisadorSemantico, DiagnosticoSeveridade } from '../interfaces/erros';
-import { RetornoAnalisadorSemantico } from '../interfaces/retornos/retorno-analisador-semantico';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
+import { DiagnosticoAnalisadorSemanticoInterface, DiagnosticoSeveridade } from '../interfaces/erros';
+import { RetornoAnalisadorSemanticoInterface } from '../interfaces/retornos/retorno-analisador-semantico-interface';
 import { RetornoQuebra } from '../quebras';
 import { buscarRetornos } from '../avaliador-sintatico/comum';
 import { MicroAvaliadorSintatico } from '../avaliador-sintatico/micro-avaliador-sintatico';
@@ -64,7 +64,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     classesExternasConhecidas: Set<string>;
     classeAtualEmAnalise: Classe | null;
     atual: number;
-    diagnosticos: DiagnosticoAnalisadorSemantico[];
+    diagnosticos: DiagnosticoAnalisadorSemanticoInterface[];
 
     protected readonly microLexador = new MicroLexador();
     protected readonly microAvaliadorSintatico = new MicroAvaliadorSintatico();
@@ -162,11 +162,11 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     /**
      * Método recursivo para verificar o tipo de um construto, usado principalmente para validar
      * o uso de `tipoDe` e `falhar()`.
-     * @param {Construto} valor O construto a ser avaliado.
+     * @param {ConstrutoInterface} valor O construto a ser avaliado.
      * @returns {Promise<any>} O tipo do construto, ou `Promise.resolve()` se o tipo não puder ser
      * determinado neste estágio da análise.
      */
-    private verificarTipoDe(valor: Construto): Promise<any> {
+    private verificarTipoDe(valor: ConstrutoInterface): Promise<any> {
         switch (valor.constructor) {
             case Agrupamento:
                 const valorAgrupamento = valor as Agrupamento;
@@ -191,11 +191,11 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     /**
      * Método recursivo para verificar se um construto passado para `falhar()` é válido, ou seja, se é
      * do tipo texto ou pode ser avaliado como texto.
-     * @param {Construto} valor O construto a ser avaliado.
+     * @param {ConstrutoInterface} valor O construto a ser avaliado.
      * @returns {Promise<any>} O tipo do construto, ou `Promise.resolve()` se o tipo não puder ser
      * determinado neste estágio da análise.
      */
-    private verificarFalhar(valor: Construto): Promise<any> {
+    private verificarFalhar(valor: ConstrutoInterface): Promise<any> {
         if (valor instanceof Binario) {
             this.verificarFalhar(valor.direita);
             this.verificarFalhar(valor.esquerda);
@@ -212,7 +212,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     protected comparacaoArgumentosContraParametrosFuncao(
         simboloFuncao: SimboloInterface,
         parametros: ParametroInterface[],
-        argumentos: Construto[]
+        argumentos: ConstrutoInterface[]
     ) {
         if (parametros.length !== argumentos.length) {
             this.erro(
@@ -247,7 +247,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
 
     visitarChamadaPorArgumentoReferenciaFuncao(
         argumentoReferenciaFuncao: ArgumentoReferenciaFuncao,
-        argumentos: Construto[]
+        argumentos: ConstrutoInterface[]
     ) {
         const variavelCorrespondente: FuncaoConstruto = this.gerenciadorEscopos.buscar(
             argumentoReferenciaFuncao.simboloFuncao.lexema
@@ -264,7 +264,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         );
     }
 
-    visitarChamadaPorReferenciaFuncao(referenciaFuncao: ReferenciaFuncao, argumentos: Construto[]) {
+    visitarChamadaPorReferenciaFuncao(referenciaFuncao: ReferenciaFuncao, argumentos: ConstrutoInterface[]) {
         const funcaoCorrespondente: FuncaoHipoteticaInterface =
             this.funcoes[referenciaFuncao.simboloFuncao.lexema];
         if (!funcaoCorrespondente) {
@@ -278,7 +278,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         );
     }
 
-    visitarChamadaPorVariavel(entidadeChamadaVariavel: Variavel, argumentos: Construto[]) {
+    visitarChamadaPorVariavel(entidadeChamadaVariavel: Variavel, argumentos: ConstrutoInterface[]) {
         const variavel = entidadeChamadaVariavel as Variavel;
         const nomeFuncao = variavel.simbolo.lexema;
         const funcoesNativas = [
@@ -554,7 +554,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     }
 
     override async visitarDeclaracaoEscolha(declaracao: Escolha) {
-        const identificadorOuLiteral = declaracao.identificadorOuLiteral as Construto;
+        const identificadorOuLiteral = declaracao.identificadorOuLiteral as ConstrutoInterface;
         const tipo = identificadorOuLiteral.tipo || 'qualquer';
         const tiposLiteraisCasos: string[] = [];
 
@@ -781,7 +781,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     /**
      * Verifica uma expressão recursivamente, incluindo operações binárias
      */
-    private verificarExpressao(expressao: Construto): void {
+    private verificarExpressao(expressao: ConstrutoInterface): void {
         if (expressao instanceof Agrupamento) {
             this.verificarExpressao(expressao.expressao);
             return;
@@ -803,7 +803,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         }
     }
 
-    private verificarCondicao(condicao: Construto): Promise<void> {
+    private verificarCondicao(condicao: ConstrutoInterface): Promise<void> {
         if (condicao instanceof Agrupamento) {
             return this.verificarCondicao(condicao.expressao);
         }
@@ -1003,7 +1003,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
      * Tenta avaliar uma expressão em tempo de compilação para detectar valores constantes
      * Retorna o valor se puder ser determinado, ou null caso contrário
      */
-    private avaliarExpressaoConstante(expressao: Construto): any {
+    private avaliarExpressaoConstante(expressao: ConstrutoInterface): any {
         if (expressao instanceof Literal) {
             return expressao.valor;
         }
@@ -1078,7 +1078,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         }
     }
 
-    private verificarExistenciaConstruto(construto: Construto): void {
+    private verificarExistenciaConstruto(construto: ConstrutoInterface): void {
         if (construto instanceof Variavel) {
             if (!this.gerenciadorEscopos.buscar(construto.simbolo.lexema)) {
                 this.erro(
@@ -1172,7 +1172,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    private verificarLadoLogico(lado: Construto): void {
+    private verificarLadoLogico(lado: ConstrutoInterface): void {
         if (lado instanceof Variavel) {
             const variavel = lado as Variavel;
             const variavelEscopo = this.gerenciadorEscopos.buscar(variavel.simbolo.lexema);
@@ -1223,7 +1223,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                     literal.linha
                 );
                 for (const construto of retornoMicro.declaracoes) {
-                    this.marcarVariaveisUsadasEmExpressao(construto as unknown as Construto);
+                    this.marcarVariaveisUsadasEmExpressao(construto as unknown as ConstrutoInterface);
                 }
             } catch (_) {
                 // Erros de sintaxe na interpolação são tratados em tempo de execução
@@ -1476,7 +1476,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         return Promise.resolve(undefined as unknown as RetornoQuebra);
     }
 
-    override visitarExpressaoDeVariavel(expressao: Variavel | Construto): Promise<any> {
+    override visitarExpressaoDeVariavel(expressao: Variavel | ConstrutoInterface): Promise<any> {
         if (expressao instanceof Variavel) {
             return this.verificarVariavel(expressao);
         }
@@ -1484,7 +1484,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    protected override obterTipoExpressao(expressao: Construto): string | null {
+    protected override obterTipoExpressao(expressao: ConstrutoInterface): string | null {
         const tipoBase = super.obterTipoExpressao(expressao);
         if (tipoBase) return tipoBase;
 
@@ -1495,7 +1495,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         return null;
     }
 
-    private resolverTipoObjeto(objeto: Construto): string | null {
+    private resolverTipoObjeto(objeto: ConstrutoInterface): string | null {
         if (objeto instanceof Variavel) {
             if (objeto.simbolo.lexema === 'isto' && this.classeAtualEmAnalise) {
                 return this.classeAtualEmAnalise.simbolo.lexema;
@@ -1691,7 +1691,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 retornosComTipoIndeterminado.length > 0
             ) {
                 const retornoComValor = retornosComTipoIndeterminado[0];
-                const valorRetorno = retornoComValor.valor as Construto;
+                const valorRetorno = retornoComValor.valor as ConstrutoInterface;
                 const tipoInferido = this.obterTipoExpressao(valorRetorno);
 
                 if (tipoInferido && tipoInferido !== 'qualquer') {
@@ -1789,7 +1789,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         }
     }
 
-    async analisar(declaracoes: Declaracao[]): Promise<RetornoAnalisadorSemantico> {
+    async analisar(declaracoes: Declaracao[]): Promise<RetornoAnalisadorSemanticoInterface> {
         this.gerenciadorEscopos = new GerenciadorEscopos();
         this.classesDeclaradas = new Set<string>();
         this.classesRegistradas = new Map<string, Classe>();
@@ -1811,6 +1811,8 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
 
         return {
             diagnosticos: this.diagnosticos,
-        } as RetornoAnalisadorSemantico;
+        } as RetornoAnalisadorSemanticoInterface;
     }
 }
+
+

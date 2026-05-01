@@ -1,11 +1,10 @@
-import {
+﻿import {
     AcessoIndiceVariavel,
     Agrupamento,
     AtribuicaoPorIndice,
     Atribuir,
     Binario,
     Chamada,
-    Construto,
     FormatacaoEscrita,
     FuncaoConstruto,
     Leia,
@@ -14,6 +13,7 @@ import {
     Vetor,
 } from '../../construtos';
 import { Simbolo } from '../../lexador/simbolo';
+import { ConstrutoInterface } from '../../interfaces/construtos/construto-interface';
 import {
     Bloco,
     Declaracao,
@@ -30,7 +30,7 @@ import {
     Sustar,
     Var,
 } from '../../declaracoes';
-import { RetornoLexador, SimboloInterface, RetornoAvaliadorSintatico } from '../../interfaces';
+import { RetornoLexadorInterface, SimboloInterface, RetornoAvaliadorSintaticoInterface } from '../../interfaces';
 import { CaminhoEscolha } from '../../interfaces/construtos';
 import { ParametroInterface } from '../../interfaces/parametro-interface';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
@@ -53,7 +53,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         this.pilhaEscopos = new PilhaEscopos();
     }
 
-    protected async atribuir(): Promise<Construto> {
+    protected async atribuir(): Promise<ConstrutoInterface> {
         const expressao = await this.ou();
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL_ATRIBUICAO)) {
@@ -85,12 +85,12 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         throw new Error('Método não implementado.');
     }
 
-    protected async chamar(): Promise<Construto> {
+    protected async chamar(): Promise<ConstrutoInterface> {
         let expressao = await this.primario();
 
         while (true) {
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
-                const argumentos: Construto[] = [];
+                const argumentos: ConstrutoInterface[] = [];
                 if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
                     do {
                         argumentos.push(await this.expressao());
@@ -412,7 +412,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
             this.consumir(tiposDeSimbolos.ATE, "Esperado 'ate' após valor inicial do 'para'.");
             const fimExpr = await this.expressao();
 
-            let passoExpr: Construto = new Literal(
+            let passoExpr: ConstrutoInterface = new Literal(
                 this.hashArquivo,
                 Number(simboloPara.linha),
                 1,
@@ -470,7 +470,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
      * Este override só trata `IGUAL_ATRIBUICAO` como igualdade quando `emContextoCondicao` estiver ativo,
      * evitando que `i = i + 1` dentro de blocos seja erroneamente interpretado como comparação.
      */
-    protected override async comparacaoIgualdade(): Promise<Construto> {
+    protected override async comparacaoIgualdade(): Promise<ConstrutoInterface> {
         let expressao = await this.comparar();
 
         while (
@@ -577,7 +577,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         return new Leia(simboloAtual, argumentos);
     }
 
-    protected async primario(): Promise<Construto> {
+    protected async primario(): Promise<ConstrutoInterface> {
         switch (this.simbolos[this.atual].tipo) {
             case tiposDeSimbolos.IDENTIFICADOR:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
@@ -641,7 +641,7 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
     }
 
     override async resolverDeclaracaoForaDeBloco(): Promise<
-        Declaracao | Declaracao[] | Construto | Construto[] | any
+        Declaracao | Declaracao[] | ConstrutoInterface | ConstrutoInterface[] | any
     > {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
@@ -822,9 +822,9 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
     }
 
     async analisar(
-        retornoLexador: RetornoLexador<SimboloInterface>,
+        retornoLexador: RetornoLexadorInterface<SimboloInterface>,
         hashArquivo: number
-    ): Promise<RetornoAvaliadorSintatico<Declaracao>> {
+    ): Promise<RetornoAvaliadorSintaticoInterface<Declaracao>> {
         this.erros = [];
         this.atual = 0;
         this.blocos = 0;
@@ -874,6 +874,8 @@ export class AvaliadorSintaticoCalango extends AvaliadorSintaticoBase {
         return {
             declaracoes: declaracoes.filter((d) => d),
             erros: this.erros,
-        } as RetornoAvaliadorSintatico<Declaracao>;
+        } as RetornoAvaliadorSintaticoInterface<Declaracao>;
     }
 }
+
+

@@ -6,7 +6,6 @@ import {
     Atribuir,
     Binario,
     Chamada,
-    Construto,
     DefinirValor,
     FuncaoConstruto,
     Leia,
@@ -37,7 +36,7 @@ import {
     Tente,
     Var,
 } from '../declaracoes';
-import { CaminhoEscolha } from '../interfaces/construtos';
+import { CaminhoEscolha, ConstrutoInterface } from '../interfaces/construtos';
 
 export type PlataformaAlvoARM = 'linux-arm' | 'android';
 
@@ -329,16 +328,16 @@ ${entryLabel}:`;
         // ARM calling convention: r0-r3 for first 4 args, rest on stack
         const registrosArgs = ['r0', 'r1', 'r2', 'r3'];
 
-        construto.argumentos.forEach((arg: Construto, index: number) => {
-            if (index < registrosArgs.length) {
-                const valorArg = this.dicionarioConstrutos[arg.constructor.name](arg);
-                if (valorArg !== registrosArgs[index]) {
+        construto.argumentos.forEach((argumento: ConstrutoInterface, indice: number) => {
+            if (indice < registrosArgs.length) {
+                const valorArg = this.dicionarioConstrutos[argumento.constructor.name](argumento);
+                if (valorArg !== registrosArgs[indice]) {
                     this.text += `
-    ldr ${registrosArgs[index]}, =${valorArg}`;
+    ldr ${registrosArgs[indice]}, =${valorArg}`;
                 }
             } else {
                 // Push extra args on stack
-                const valorArg = this.dicionarioConstrutos[arg.constructor.name](arg);
+                const valorArg = this.dicionarioConstrutos[argumento.constructor.name](argumento);
                 this.text += `
     ldr r0, =${valorArg}
     push {r0}`;
@@ -480,7 +479,7 @@ ${labelFim}:`;
         this.bss += `    ${labelVetor}: .space ${tamanho * 4}\n`;
 
         if (construto.valores && Array.isArray(construto.valores)) {
-            construto.valores.forEach((valor: Construto, index: number) => {
+            construto.valores.forEach((valor: ConstrutoInterface, index: number) => {
                 if (this.dicionarioConstrutos[valor.constructor.name]) {
                     const valorTraduzido = this.dicionarioConstrutos[valor.constructor.name](valor);
                     this.text += `
@@ -609,7 +608,7 @@ ${labelInicio}:`;
             typeof declaracao.explicacao === 'object' &&
             'constructor' in declaracao.explicacao
         ) {
-            const explicacao = declaracao.explicacao as Construto;
+            const explicacao = declaracao.explicacao as ConstrutoInterface;
             if (explicacao.constructor && this.dicionarioConstrutos[explicacao.constructor.name]) {
                 mensagem = this.dicionarioConstrutos[explicacao.constructor.name](explicacao);
             }

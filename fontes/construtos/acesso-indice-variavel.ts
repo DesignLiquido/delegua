@@ -1,23 +1,23 @@
 import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
 /**
  * Definido como `Subscript` em Égua Clássico, esse construto serve para acessar índices de
  * vetores e dicionários.
  */
-export class AcessoIndiceVariavel<TTipoSimbolo extends string = string> implements Construto {
+export class AcessoIndiceVariavel<TTipoSimbolo extends string = string> implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
 
-    entidadeChamada: Construto;
+    entidadeChamada: ConstrutoInterface;
     simboloFechamento: SimboloInterface<TTipoSimbolo>;
-    indice: Construto;
+    indice: ConstrutoInterface;
     tipo: string = 'qualquer';
 
     constructor(
         hashArquivo: number,
-        entidadeChamada: Construto,
-        indice: Construto,
+        entidadeChamada: ConstrutoInterface,
+        indice: ConstrutoInterface,
         simboloFechamento: SimboloInterface<TTipoSimbolo>,
         tipo: string = 'qualquer'
     ) {

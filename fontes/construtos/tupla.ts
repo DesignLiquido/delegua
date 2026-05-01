@@ -1,7 +1,7 @@
 import { VisitanteComumInterface } from '../interfaces';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
-export abstract class Tupla implements Construto {
+export abstract class Tupla implements ConstrutoInterface {
     tipo?: string;
     linha: number;
     hashArquivo: number;

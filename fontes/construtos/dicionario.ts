@@ -1,12 +1,12 @@
 import { VisitanteComumInterface } from '../interfaces';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
-export class Dicionario implements Construto {
+export class Dicionario implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
 
     chaves: any[];
-    valores: Construto[];
+    valores: ConstrutoInterface[];
     tipo: 'dicionário';
     esSpread: boolean[];
 
@@ -14,7 +14,7 @@ export class Dicionario implements Construto {
         hashArquivo: number,
         linha: number,
         chaves: any[],
-        valores: Construto[],
+        valores: ConstrutoInterface[],
         esSpread?: boolean[]
     ) {
         this.linha = linha;

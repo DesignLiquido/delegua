@@ -1,6 +1,6 @@
-import { DiagnosticoSeveridade, EntradaTabelaDiagnosticoSemantico } from '../interfaces';
+import { DiagnosticoSeveridade, EntradaTabelaDiagnosticoSemanticoInterface } from '../interfaces';
 
-export const TABELA_ERROS_SEMANTICOS: EntradaTabelaDiagnosticoSemantico[] = [
+export const TABELA_ERROS_SEMANTICOS: EntradaTabelaDiagnosticoSemanticoInterface[] = [
     {
         codigoDiagnostico: 'SEMANTICO_TIPO_DESCONHECIDO',
         descricao: 'Tipo de dados desconhecido.',
@@ -28,7 +28,7 @@ export const TABELA_ERROS_SEMANTICOS: EntradaTabelaDiagnosticoSemantico[] = [
     },
 ];
 
-export const TABELA_AVISOS_SEMANTICOS: EntradaTabelaDiagnosticoSemantico[] = [
+export const TABELA_AVISOS_SEMANTICOS: EntradaTabelaDiagnosticoSemanticoInterface[] = [
     {
         codigoDiagnostico: 'SEMANTICO_VARIAVEL_NAO_UTILIZADA',
         descricao: 'Variavel declarada e nao utilizada.',

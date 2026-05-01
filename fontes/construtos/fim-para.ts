@@ -1,7 +1,7 @@
 import { Declaracao } from '../declaracoes';
 import { VisitanteComumInterface } from '../interfaces';
 import { Binario } from './binario';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
 /**
  * Construto especial para algumas linguagens como VisuAlg, que combina a
@@ -13,7 +13,7 @@ import { Construto } from './construto';
  * Considerando como o depurador executa, o efeito visualnusando apenas as
  * declarações já existentes causava umansérie de comportamentos estranhos.
  */
-export class FimPara implements Construto {
+export class FimPara implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
     condicaoPara: Binario;

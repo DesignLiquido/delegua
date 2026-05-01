@@ -1,19 +1,19 @@
 import { Bloco } from '../declaracoes';
 import { VisitanteDeleguaInterface } from '../interfaces';
 import { FazerInterface } from '../interfaces/delegua';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
-export class FazerComoConstruto implements Construto, FazerInterface {
+export class FazerComoConstruto implements ConstrutoInterface, FazerInterface {
     linha: number;
     hashArquivo: number;
     caminhoFazer: Bloco;
-    condicaoEnquanto: Construto;
+    condicaoEnquanto: ConstrutoInterface;
 
     constructor(
         hashArquivo: number,
         linha: number,
         caminhoFazer: Bloco,
-        condicaoEnquanto: Construto
+        condicaoEnquanto: ConstrutoInterface
     ) {
         this.hashArquivo = hashArquivo;
         this.linha = linha;

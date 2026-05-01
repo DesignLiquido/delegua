@@ -1,8 +1,9 @@
 import { Declaracao } from '../../declaracoes';
 import { Var, Const } from '../../declaracoes';
-import { Construto, Literal } from '../../construtos';
+import { Literal } from '../../construtos';
 import { inferirTipoVariavel } from '../../inferenciador';
 import { RegraEstilizacaoInterface } from '../../interfaces/estilizador';
+import { ConstrutoInterface } from '../../interfaces/construtos';
 
 /**
  * Regra que fortalece tipos, convertendo `qualquer` para tipos inferidos.
@@ -77,7 +78,7 @@ export class RegraFortalecerTipos implements RegraEstilizacaoInterface {
     /**
      * Infere o tipo de um construto.
      */
-    private inferirTipoDeConstruto(construto: Construto): string {
+    private inferirTipoDeConstruto(construto: ConstrutoInterface): string {
         // Se é um literal, usa o tipo do literal
         if (construto instanceof Literal) {
             const tipoInferido = inferirTipoVariavel(construto.valor);

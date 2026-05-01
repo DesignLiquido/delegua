@@ -1,27 +1,27 @@
-import { Construto } from '../construto';
+import { ConstrutoInterface } from '../../interfaces/construtos/construto-interface';
 import { Tupla } from '../tupla';
 
 export class Noneto extends Tupla {
-    primeiro: Construto;
-    segundo: Construto;
-    terceiro: Construto;
-    quarto: Construto;
-    quinto: Construto;
-    sexto: Construto;
-    setimo: Construto;
-    oitavo: Construto;
-    nono: Construto;
+    primeiro: ConstrutoInterface;
+    segundo: ConstrutoInterface;
+    terceiro: ConstrutoInterface;
+    quarto: ConstrutoInterface;
+    quinto: ConstrutoInterface;
+    sexto: ConstrutoInterface;
+    setimo: ConstrutoInterface;
+    oitavo: ConstrutoInterface;
+    nono: ConstrutoInterface;
 
     constructor(
-        primeiro: Construto,
-        segundo: Construto,
-        terceiro: Construto,
-        quarto: Construto,
-        quinto: Construto,
-        sexto: Construto,
-        setimo: Construto,
-        oitavo: Construto,
-        nono: Construto
+        primeiro: ConstrutoInterface,
+        segundo: ConstrutoInterface,
+        terceiro: ConstrutoInterface,
+        quarto: ConstrutoInterface,
+        quinto: ConstrutoInterface,
+        sexto: ConstrutoInterface,
+        setimo: ConstrutoInterface,
+        oitavo: ConstrutoInterface,
+        nono: ConstrutoInterface
     ) {
         super();
         this.primeiro = primeiro;

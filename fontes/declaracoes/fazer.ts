@@ -1,18 +1,17 @@
-import { Construto } from '../construtos';
-import { VisitanteComumInterface } from '../interfaces';
+import { ConstrutoInterface, VisitanteComumInterface } from '../interfaces';
 import { FazerInterface } from '../interfaces/delegua';
 import { Bloco } from './bloco';
 import { Declaracao } from './declaracao';
 
 export class Fazer extends Declaracao implements FazerInterface {
     caminhoFazer: Bloco;
-    condicaoEnquanto: Construto;
+    condicaoEnquanto: ConstrutoInterface;
 
     constructor(
         hashArquivo: number,
         linha: number,
         caminhoFazer: Bloco,
-        condicaoEnquanto: Construto
+        condicaoEnquanto: ConstrutoInterface
     ) {
         super(linha, hashArquivo);
         this.caminhoFazer = caminhoFazer;

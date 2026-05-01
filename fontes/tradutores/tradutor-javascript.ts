@@ -9,7 +9,6 @@ import {
     Atribuir,
     Binario,
     Chamada,
-    Construto,
     DefinirValor,
     Dicionario,
     FuncaoConstruto,
@@ -48,7 +47,7 @@ import {
     Var,
 } from '../declaracoes';
 import { SimboloInterface, TradutorInterface } from '../interfaces';
-import { CaminhoEscolha } from '../interfaces/construtos';
+import { CaminhoEscolha, ConstrutoInterface } from '../interfaces/construtos';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
@@ -107,7 +106,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
     traduzirFuncaoOuMetodo(
         nomeMetodo: string,
         objetoResolvido: string,
-        argumentos: Construto[]
+        argumentos: ConstrutoInterface[]
     ): string {
         const argumentosResolvidos: string[] = [];
         for (const argumento of argumentos) {
@@ -309,7 +308,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         return String(literal.valor);
     }
 
-    traduzirConstrutoVariavel(variavel: Variavel, argumentos: Construto[]): string {
+    traduzirConstrutoVariavel(variavel: Variavel, argumentos: ConstrutoInterface[]): string {
         const argumentosResolvidos: string[] = [];
         const argumentosValidados = argumentos || [];
         for (const argumento of argumentosValidados) {
@@ -717,7 +716,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         return resultado;
     }
 
-    traduzirFuncaoAnonimaParaLambda(argumento: Construto): string {
+    traduzirFuncaoAnonimaParaLambda(argumento: ConstrutoInterface): string {
         if (argumento instanceof FuncaoConstruto) {
             const params = argumento.parametros.map((p) => p.nome.lexema).join(', ');
 
@@ -749,9 +748,9 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
     }
 
     traduzirExpressaoAcessoMetodoVetor(
-        objeto: Construto,
+        objeto: ConstrutoInterface,
         nomeMetodo: string,
-        argumentos: Construto[]
+        argumentos: ConstrutoInterface[]
     ): string {
         const objetoResolvido = this.dicionarioConstrutos[objeto.constructor.name](objeto);
 
@@ -803,7 +802,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         }
     }
 
-    traduzirExpressaoAcessoMetodo(acessoMetodo: AcessoMetodo, argumentos: Construto[]): string {
+    traduzirExpressaoAcessoMetodo(acessoMetodo: AcessoMetodo, argumentos: ConstrutoInterface[]): string {
         switch (acessoMetodo.objeto.constructor.name) {
             case 'Isto':
                 return `this.${acessoMetodo.nomeMetodo}`;
@@ -830,7 +829,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
 
     traduzirExpressaoAcessoMetodoOuPropriedade(
         acessoMetodo: AcessoMetodoOuPropriedade,
-        argumentos: Construto[]
+        argumentos: ConstrutoInterface[]
     ): string {
         if (acessoMetodo.objeto instanceof Variavel) {
             let objetoVariavel = acessoMetodo.objeto as Variavel;
@@ -842,7 +841,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
 
     traduzirExpressaoAcessoPropriedade(
         acessoMetodo: AcessoPropriedade,
-        argumentos: Construto[]
+        argumentos: ConstrutoInterface[]
     ): string {
         if (acessoMetodo.objeto instanceof Variavel) {
             let objetoVariavel = acessoMetodo.objeto as Variavel;
@@ -912,7 +911,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
 
     traduzirExpressaoArgumentoReferenciaFuncao(
         argumentoReferenciaFuncao: ArgumentoReferenciaFuncao,
-        argumentos: Construto[]
+        argumentos: ConstrutoInterface[]
     ): string {
         const argumentosResolvidos: string[] = [];
         for (const argumento of argumentos) {
@@ -936,7 +935,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
 
     traduzirExpressaoReferenciaFuncao(
         referenciaFuncao: ReferenciaFuncao,
-        argumentos: Construto[]
+        argumentos: ConstrutoInterface[]
     ): string {
         const argumentosResolvidos: string[] = [];
         for (const argumento of argumentos) {

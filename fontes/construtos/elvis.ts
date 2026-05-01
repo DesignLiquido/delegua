@@ -1,14 +1,14 @@
 import { VisitanteDeleguaInterface } from '../interfaces';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
-export class Elvis implements Construto {
+export class Elvis implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
 
-    esquerda: Construto;
-    direita: Construto;
+    esquerda: ConstrutoInterface;
+    direita: ConstrutoInterface;
 
-    constructor(hashArquivo: number, esquerda: Construto, direita: Construto) {
+    constructor(hashArquivo: number, esquerda: ConstrutoInterface, direita: ConstrutoInterface) {
         this.linha = esquerda.linha;
         this.hashArquivo = hashArquivo;
 

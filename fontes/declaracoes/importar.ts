@@ -1,5 +1,4 @@
-import { Construto } from '../construtos';
-import { SimboloInterface, VisitanteDeleguaInterface } from '../interfaces';
+import { ConstrutoInterface, SimboloInterface, VisitanteDeleguaInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
 /**
@@ -8,11 +7,11 @@ import { Declaracao } from './declaracao';
  * no avaliador sintático, já que alguma resolução de tipo é necessária.
  */
 export class Importar extends Declaracao {
-    caminho: Construto;
+    caminho: ConstrutoInterface;
     simboloTudo: SimboloInterface | null = null;
     elementosImportacao: SimboloInterface[] = [];
 
-    constructor(caminho: Construto) {
+    constructor(caminho: ConstrutoInterface) {
         super(caminho.linha, caminho.hashArquivo);
         this.caminho = caminho;
     }

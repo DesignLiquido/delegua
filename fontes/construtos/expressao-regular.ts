@@ -1,7 +1,7 @@
 import { VisitanteComumInterface, SimboloInterface, VariavelInterface } from '../interfaces';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
-export class ExpressaoRegular<TTipoSimbolo extends string = string> implements Construto {
+export class ExpressaoRegular<TTipoSimbolo extends string = string> implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
     valor: any;

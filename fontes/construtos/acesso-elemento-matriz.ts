@@ -1,20 +1,20 @@
 import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
-export class AcessoElementoMatriz<TTipoSimbolo extends string = string> implements Construto {
+export class AcessoElementoMatriz<TTipoSimbolo extends string = string> implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
 
-    entidadeChamada: Construto;
+    entidadeChamada: ConstrutoInterface;
     simboloFechamento: SimboloInterface<TTipoSimbolo>;
-    indicePrimario: Construto;
-    indiceSecundario: Construto;
+    indicePrimario: ConstrutoInterface;
+    indiceSecundario: ConstrutoInterface;
 
     constructor(
         hashArquivo: number,
-        entidadeChamada: Construto,
-        indicePrimario: Construto,
-        indiceSegundario: Construto,
+        entidadeChamada: ConstrutoInterface,
+        indicePrimario: ConstrutoInterface,
+        indiceSegundario: ConstrutoInterface,
         simboloFechamento: SimboloInterface<TTipoSimbolo>
     ) {
         this.linha = entidadeChamada.linha;

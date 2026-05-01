@@ -1,4 +1,4 @@
-export interface EntradaTabelaDiagnosticoSintatico {
+export interface EntradaTabelaDiagnosticoSintaticoInterface {
     codigoDiagnostico: string;
     descricao: string;
     padroesMensagem: RegExp[];

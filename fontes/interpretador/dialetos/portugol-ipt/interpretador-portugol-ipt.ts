@@ -1,4 +1,4 @@
-import {
+﻿import {
     AcessoIndiceVariavel,
     AcessoIntervaloVariavel,
     AcessoMetodo,
@@ -9,7 +9,6 @@ import {
     Atribuir,
     Chamada,
     ComentarioComoConstruto,
-    Construto,
     ExpressaoRegular,
     FimPara,
     FormatacaoEscrita,
@@ -54,6 +53,7 @@ import {
     VarMultiplo,
 } from '../../../declaracoes';
 import { EspacoMemoria } from '../../espaco-memoria';
+import { ConstrutoInterface } from '../../../interfaces/construtos/construto-interface';
 import { Chamavel, FuncaoPadrao, ObjetoPadrao } from '../../estruturas';
 import { ArgumentoInterface } from '../../argumento-interface';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
@@ -64,7 +64,7 @@ import {
     VariavelInterface,
 } from '../../../interfaces';
 import { ErroInterpretadorInterface } from '../../../interfaces/erros/erro-interpretador-interface';
-import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
+import { EscopoExecucaoInterface } from '../../../interfaces/escopo-execucao';
 import { PilhaEscoposExecucaoInterface } from '../../../interfaces/pilha-escopos-execucao-interface';
 import { RetornoInterpretadorInterface } from '../../../interfaces/retornos';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../../../quebras';
@@ -107,7 +107,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         this.declaracoes = [];
 
         this.pilhaEscoposExecucao = new PilhaEscoposExecucao();
-        const escopoExecucao: EscopoExecucao = {
+        const escopoExecucao: EscopoExecucaoInterface = {
             declaracoes: [],
             declaracaoAtual: 0,
             espacoMemoria: new EspacoMemoria(),
@@ -541,7 +541,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         }
     }
 
-    protected async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
+    protected async avaliarArgumentosEscreva(argumentos: ConstrutoInterface[]): Promise<string> {
         let formatoTexto = '';
         for (const argumento of argumentos) {
             const resultado = await this.avaliar(argumento);
@@ -692,7 +692,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
     // ── Bloco e escopo ───────────────────────────────────────────────────────────
 
     async executarBloco(declaracoes: Declaracao[], ambiente?: EspacoMemoria): Promise<any> {
-        const escopoExecucao: EscopoExecucao = {
+        const escopoExecucao: EscopoExecucaoInterface = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
             espacoMemoria: ambiente || new EspacoMemoria(),
@@ -865,7 +865,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
 
     // ── Motor de execução ────────────────────────────────────────────────────────
 
-    async avaliar(expressao: Construto | Declaracao): Promise<any> {
+    async avaliar(expressao: ConstrutoInterface | Declaracao): Promise<any> {
         return await expressao.aceitar(this);
     }
 
@@ -928,7 +928,7 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
     ): Promise<RetornoInterpretadorInterface> {
         this.erros = [];
 
-        const escopoExecucao: EscopoExecucao = {
+        const escopoExecucao: EscopoExecucaoInterface = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
             espacoMemoria: new EspacoMemoria(),
@@ -955,3 +955,5 @@ export class InterpretadorPortugolIpt implements InterpretadorInterface {
         }
     }
 }
+
+

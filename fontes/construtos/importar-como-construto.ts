@@ -1,12 +1,12 @@
 import { VisitanteDeleguaInterface } from '../interfaces';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 import { Literal } from './literal';
 
 /**
  * Expressão usada para importação resolvida em tempo de execução.
  * Implementa a primeira forma de importação, também conhecida como importação dinâmica.
  */
-export class ImportarComoConstruto implements Construto {
+export class ImportarComoConstruto implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
     caminho: Literal;

@@ -1,12 +1,12 @@
-import { Construto } from '../../construtos';
 import { Bloco, Declaracao } from '../../declaracoes';
+import { ConstrutoInterface } from '../construtos';
 
 export interface ParaInterface {
     hashArquivo: number;
     linha: number;
     inicializador?: Declaracao | Declaracao[];
-    condicao: Construto;
-    incrementar: Construto;
+    condicao: ConstrutoInterface;
+    incrementar: ConstrutoInterface;
     corpo: Bloco;
     inicializada: boolean;
     blocoPosExecucao?: Bloco;

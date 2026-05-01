@@ -1,5 +1,5 @@
 import { ErroAvaliadorSintatico } from "../../avaliador-sintatico";
-import { RetornoAvaliadorSintatico, RetornoLexador } from "../retornos";
+import { RetornoAvaliadorSintaticoInterface, RetornoLexadorInterface } from "../retornos";
 import { SimboloInterface } from "../simbolo-interface";
 
 export interface AvaliadorSintaticoInterface<TSimbolo, TDeclaracao> {
@@ -16,7 +16,7 @@ export interface AvaliadorSintaticoInterface<TSimbolo, TDeclaracao> {
         simboloRelacionado?: SimboloInterface
     ): ErroAvaliadorSintatico;
     analisar(
-        retornoLexador: RetornoLexador<TSimbolo>,
+        retornoLexador: RetornoLexadorInterface<TSimbolo>,
         hashArquivo: number
-    ): Promise<RetornoAvaliadorSintatico<TDeclaracao>>;
+    ): Promise<RetornoAvaliadorSintaticoInterface<TDeclaracao>>;
 }

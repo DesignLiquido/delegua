@@ -1,10 +1,10 @@
 import { Declaracao, Enquanto, Escreva, Fazer, Para, Retorna, Tente } from '../../declaracoes';
 import { PontoParada } from '../../depuracao';
-import { ComandoDepurador, InterpretadorComDepuracaoInterface } from '../../interfaces';
+import { ComandoDepurador, ConstrutoInterface, InterpretadorComDepuracaoInterface } from '../../interfaces';
 import { TipoEscopoExecucao } from '../../interfaces/escopo-execucao';
 import { RetornoQuebra } from '../../quebras';
 import { RetornoInterpretadorInterface } from '../../interfaces/retornos/retorno-interpretador-interface';
-import { AtribuicaoPorIndice, Atribuir, Binario, Chamada, Construto } from '../../construtos';
+import { AtribuicaoPorIndice, Atribuir, Binario, Chamada } from '../../construtos';
 import { Interpretador } from '../interpretador';
 import { EspacoMemoria } from '../espaco-memoria';
 
@@ -75,7 +75,7 @@ export class InterpretadorComDepuracao
      * @param expressao A expressão a ser avaliada.
      * @returns O resultado da avaliação.
      */
-    override async avaliar(expressao: Construto | Declaracao): Promise<any> {
+    override async avaliar(expressao: ConstrutoInterface | Declaracao): Promise<any> {
         return await comum.avaliar(this, expressao);
     }
 
@@ -99,7 +99,7 @@ export class InterpretadorComDepuracao
         return await comum.visitarDeclaracaoEnquanto(this, declaracao);
     }
 
-    override async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
+    override async avaliarArgumentosEscreva(argumentos: ConstrutoInterface[]): Promise<string> {
         if (this.constructor !== InterpretadorComDepuracao) {
             return await super.avaliarArgumentosEscreva(argumentos);
         }

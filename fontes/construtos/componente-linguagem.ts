@@ -1,11 +1,11 @@
 import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
 /**
  * Construto especial utilizado para especificar o tipo de
  * estruturas reservadas da linguagem.
  */
-export class ComponenteLinguagem implements Construto {
+export class ComponenteLinguagem implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
     valor?: any;

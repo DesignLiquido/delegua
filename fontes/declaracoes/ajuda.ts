@@ -1,5 +1,4 @@
-import { Construto } from '../construtos';
-import { VisitanteDeleguaInterface } from '../interfaces';
+import { ConstrutoInterface, VisitanteDeleguaInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
 /**
@@ -7,10 +6,10 @@ import { Declaracao } from './declaracao';
  * utilizar qualquer elemento da linguagem que a implementa.
  */
 export class Ajuda extends Declaracao {
-    elemento?: Construto;
+    elemento?: ConstrutoInterface;
     funcao: boolean;
 
-    constructor(hashArquivo: number, linha: number, elemento?: Construto, funcao: boolean = true) {
+    constructor(hashArquivo: number, linha: number, elemento?: ConstrutoInterface, funcao: boolean = true) {
         super(linha, hashArquivo);
         this.elemento = elemento;
         this.funcao = funcao;

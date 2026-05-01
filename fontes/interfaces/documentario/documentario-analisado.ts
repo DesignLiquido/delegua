@@ -1,10 +1,10 @@
-import { ParametroDoc } from './parametro-doc';
-import { RetornaDoc } from './retorna-doc';
+import { ParametroDocInterface } from './parametro-doc';
+import { RetornaDocInterface } from './retorna-doc';
 
-export interface DocumentarioAnalisado {
+export interface DocumentarioAnalisadoInterface {
     descricao: string;
-    parametros: ParametroDoc[];
-    retorna?: RetornaDoc;
+    parametros: ParametroDocInterface[];
+    retorna?: RetornaDocInterface;
     exemplo?: string;
     depreciado?: string;
     veja: string[];

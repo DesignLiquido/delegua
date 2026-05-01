@@ -1,5 +1,5 @@
 import { LexadorInterface, SimboloInterface } from '../../interfaces';
-import { RetornoLexador } from '../../interfaces/retornos';
+import { RetornoLexadorInterface } from '../../interfaces/retornos';
 import { ErroLexador } from '../erro-lexador';
 import { Simbolo } from '../simbolo';
 
@@ -359,7 +359,7 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
                 }
         }
     }
-    mapear(codigo: string[], hashArquivo: number): RetornoLexador<SimboloInterface<string>> {
+    mapear(codigo: string[], hashArquivo: number): RetornoLexadorInterface<SimboloInterface<string>> {
         this.simbolos = [];
         this.erros = [];
 
@@ -378,6 +378,6 @@ export class LexadorCalango implements LexadorInterface<SimboloInterface> {
         return {
             simbolos: this.simbolos,
             erros: this.erros,
-        } as RetornoLexador<SimboloInterface>;
+        } as RetornoLexadorInterface<SimboloInterface>;
     }
 }

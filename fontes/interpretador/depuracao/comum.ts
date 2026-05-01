@@ -1,6 +1,6 @@
 import cloneDeep from 'lodash.clonedeep';
 
-import { Binario, Chamada, Construto, Leia, Literal } from '../../construtos';
+import { Binario, Chamada, Leia, Literal } from '../../construtos';
 import {
     Bloco,
     Declaracao,
@@ -13,12 +13,13 @@ import {
     Tente,
 } from '../../declaracoes';
 import {
+    ConstrutoInterface,
     InterpretadorComDepuracaoInterface,
     ResultadoParcialInterpretadorInterface,
 } from '../../interfaces';
 import { Quebra, SustarQuebra, ContinuarQuebra, RetornoQuebra } from '../../quebras';
 import { PontoParada } from '../../depuracao';
-import { EscopoExecucao, TipoEscopoExecucao } from '../../interfaces/escopo-execucao';
+import { EscopoExecucaoInterface, TipoEscopoExecucao } from '../../interfaces/escopo-execucao';
 import { inferirTipoVariavel } from '../../inferenciador';
 import { EspacoMemoria } from '../espaco-memoria';
 import tiposDeSimbolos from '../../tipos-de-simbolos/delegua';
@@ -40,7 +41,7 @@ async function cederControle(iteracoes: number): Promise<void> {
 
 async function avaliarArgumentosEscreva(
     interpretador: InterpretadorComDepuracaoInterface,
-    argumentos: Construto[]
+    argumentos: ConstrutoInterface[]
 ): Promise<string> {
     let formatoTexto: string = '';
 
@@ -124,7 +125,7 @@ function verificarPontoParada(
  */
 export async function avaliar(
     interpretador: InterpretadorComDepuracaoInterface,
-    expressao: Construto | Declaracao
+    expressao: ConstrutoInterface | Declaracao
 ): Promise<any> {
     if (expressao.hasOwnProperty('id')) {
         const escopoAtual = interpretador.pilhaEscoposExecucao.topoDaPilha();
@@ -615,8 +616,8 @@ export async function visitarExpressaoBinaria(
 async function executarOperacaoBinaria(
     interpretador: any,
     expressao: Binario,
-    esquerda: Construto,
-    direita: Construto,
+    esquerda: ConstrutoInterface,
+    direita: ConstrutoInterface,
     valorEsquerdo: any,
     valorDireito: any,
     tipoEsquerdo: string,
@@ -1107,7 +1108,7 @@ export function abrirNovoBlocoEscopo(
     espacoMemoria?: EspacoMemoria,
     tipoEscopo: TipoEscopoExecucao = 'outro'
 ) {
-    const escopoExecucao: EscopoExecucao = {
+    const escopoExecucao: EscopoExecucaoInterface = {
         declaracoes: declaracoes,
         declaracaoAtual: 0,
         espacoMemoria: espacoMemoria || new EspacoMemoria(),

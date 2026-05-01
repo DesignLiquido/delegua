@@ -1,11 +1,11 @@
 import { Tupla } from './tupla';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 import { VisitanteComumInterface } from '../interfaces';
 
 export class TuplaN extends Tupla {
-    elementos: Construto[];
+    elementos: ConstrutoInterface[];
 
-    constructor(hashArquivo: number, linha: number, elementos: Construto[]) {
+    constructor(hashArquivo: number, linha: number, elementos: ConstrutoInterface[]) {
         super();
         this.hashArquivo = hashArquivo;
         this.linha = linha;

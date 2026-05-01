@@ -1,6 +1,6 @@
 import { AvaliadorSintaticoEguaClassico } from "../../../../fontes/avaliador-sintatico/dialetos";
 import { SimboloInterface } from "../../../../fontes/interfaces";
-import { RetornoLexador } from "../../../../fontes/interfaces/retornos/retorno-lexador";
+import { RetornoLexadorInterface } from "../../../../fontes/interfaces/retornos/retorno-lexador-interface";
 import { LexadorEguaClassico } from "../../../../fontes/lexador/dialetos";
 
 describe('Avaliador sintático (Égua Clássico)', () => {
@@ -22,7 +22,7 @@ describe('Avaliador sintático (Égua Clássico)', () => {
         });
 
         it('Falha - Vetor vazio', async () => {
-            await expect(avaliadorSintatico.analisar({ simbolos: [] } as any as RetornoLexador<SimboloInterface>, -1)).rejects.toThrow(TypeError);
+            await expect(avaliadorSintatico.analisar({ simbolos: [] } as any as RetornoLexadorInterface<SimboloInterface>, -1)).rejects.toThrow(TypeError);
         });
 
         it('Falha - Undefined', async () => {

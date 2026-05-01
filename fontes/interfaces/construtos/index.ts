@@ -1,7 +1,2 @@
-import { Construto } from '../../construtos';
-import { Declaracao } from '../../declaracoes';
-
-export interface CaminhoEscolha {
-    condicoes: Construto[];
-    declaracoes: Declaracao[];
-}
+export * from './caminho-escolha-interface';
+export * from './construto-interface';

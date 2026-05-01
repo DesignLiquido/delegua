@@ -1,5 +1,4 @@
 import { Declaracao } from '../../declaracoes';
-import { Construto } from '../../construtos';
 import { Leia } from '../../construtos/leia';
 import { Escreva, EscrevaMesmaLinha } from '../../declaracoes';
 import {
@@ -11,6 +10,7 @@ import {
     pertenceAoParadigma,
     obterMapaLexemaParaParadigma,
 } from '../../lexador/mapeamento-paradigmas';
+import { ConstrutoInterface } from '../../interfaces/construtos';
 
 /**
  * Regra que enforça consistência de paradigma em palavras reservadas.
@@ -46,7 +46,7 @@ export class RegraParadigmaConsistente implements RegraEstilizacaoInterface {
         return declaracao;
     }
 
-    aplicarEmConstruto(construto: Construto): Construto {
+    aplicarEmConstruto(construto: ConstrutoInterface): ConstrutoInterface {
         // Processa Leia
         if (construto instanceof Leia) {
             return this.processarConstrutoComSimbolo(construto, 'simbolo');
@@ -87,7 +87,7 @@ export class RegraParadigmaConsistente implements RegraEstilizacaoInterface {
     /**
      * Processa um construto que tem um símbolo específico.
      */
-    private processarConstrutoComSimbolo(construto: any, nomeCampoSimbolo: string): Construto {
+    private processarConstrutoComSimbolo(construto: any, nomeCampoSimbolo: string): ConstrutoInterface {
         const simbolo = construto[nomeCampoSimbolo];
 
         if (!simbolo) {

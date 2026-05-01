@@ -1,7 +1,7 @@
 import { SimboloInterface } from '../simbolo-interface';
 import { CorrecaoSugeridaInterface } from './correcao-sugerida-interface';
 
-export interface DiagnosticoAnalisadorSemantico {
+export interface DiagnosticoAnalisadorSemanticoInterface {
     simbolo?: SimboloInterface;
     simboloRelacionado?: SimboloInterface;
     mensagem?: string;

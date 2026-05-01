@@ -1,5 +1,5 @@
 import { LexadorInterface, SimboloInterface } from '../interfaces';
-import { RetornoLexador } from '../interfaces/retornos';
+import { RetornoLexadorInterface } from '../interfaces/retornos';
 import { ErroLexador } from './erro-lexador';
 import { Simbolo } from './simbolo';
 
@@ -123,5 +123,5 @@ export abstract class LexadorBaseLinhaUnica implements LexadorInterface<SimboloI
 
     abstract analisarToken(): void;
 
-    abstract mapear(codigo: string[], hashArquivo: number): RetornoLexador<SimboloInterface>;
+    abstract mapear(codigo: string[], hashArquivo: number): RetornoLexadorInterface<SimboloInterface>;
 }

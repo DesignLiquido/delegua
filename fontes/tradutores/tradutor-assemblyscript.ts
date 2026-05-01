@@ -9,7 +9,6 @@ import {
     Atribuir,
     Binario,
     Chamada,
-    Construto,
     Deceto,
     Dicionario,
     Dupla,
@@ -65,7 +64,7 @@ import {
     VarMultiplo,
 } from '../declaracoes';
 import { SimboloInterface } from '../interfaces';
-import { CaminhoEscolha } from '../interfaces/construtos';
+import { CaminhoEscolha, ConstrutoInterface } from '../interfaces/construtos';
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
 export class TradutorAssemblyScript {
@@ -264,7 +263,7 @@ export class TradutorAssemblyScript {
 
     traduzirConstrutoArgumentoReferenciaFuncao(
         argumentoReferenciaFuncao: ArgumentoReferenciaFuncao,
-        argumentos: Construto[]
+        argumentos: ConstrutoInterface[]
     ): string {
         const argumentosResolvidos: string[] = [];
         for (const argumento of argumentos) {
@@ -284,7 +283,7 @@ export class TradutorAssemblyScript {
 
     traduzirConstrutoReferenciaFuncao(
         referenciaFuncao: ReferenciaFuncao,
-        argumentos: Construto[]
+        argumentos: ConstrutoInterface[]
     ): string {
         const argumentosResolvidos: string[] = [];
         for (const argumento of argumentos) {

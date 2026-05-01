@@ -1,19 +1,19 @@
 import { VisitanteComumInterface } from '../interfaces';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
 /**
  * Um agrupamento é essencialmente uma expressão qualquer dentro de parênteses.
  * Usado para resolver precedência de operadores. Por exemplo:
  * `(2 + 2) * 5`, `(2 + 2)` é um agrupamento cuja expressão é `2 + 2`.
  */
-export class Agrupamento implements Construto {
+export class Agrupamento implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
 
-    expressao: Construto;
+    expressao: ConstrutoInterface;
     tipo: string;
 
-    constructor(hashArquivo: number, linha: number, expressao: Construto) {
+    constructor(hashArquivo: number, linha: number, expressao: ConstrutoInterface) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
 

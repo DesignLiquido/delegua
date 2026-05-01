@@ -12,7 +12,6 @@ import {
     Binario,
     Chamada,
     ComentarioComoConstruto,
-    Construto,
     DefinirValor,
     Dicionario,
     Elvis,
@@ -75,7 +74,7 @@ import {
     InterfaceDeclaracao,
 } from '../declaracoes';
 import { InicioAlgoritmo } from '../declaracoes/inicio-algoritmo';
-import { VisitanteDeleguaInterface } from '../interfaces';
+import { ConstrutoInterface, VisitanteDeleguaInterface } from '../interfaces';
 import { OpcoesFormatadorDeleguaInterface } from '../interfaces/formatador';
 import { DelimitadorTextoFormatacao } from '../tipos';
 
@@ -1019,7 +1018,7 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
         this.codigoFormatado += ']';
     }
 
-    formatarDeclaracaoOuConstruto(declaracaoOuConstruto: Declaracao | Construto): void {
+    formatarDeclaracaoOuConstruto(declaracaoOuConstruto: Declaracao | ConstrutoInterface): void {
         switch (declaracaoOuConstruto.constructor) {
             case AcessoIndiceVariavel:
                 this.visitarExpressaoAcessoIndiceVariavel(

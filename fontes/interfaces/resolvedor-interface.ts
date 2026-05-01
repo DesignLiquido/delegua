@@ -1,13 +1,14 @@
-import { Construto } from '../construtos';
 import { ErroResolvedor } from '../interpretador/dialetos/egua-classico/resolvedor/erro-resolvedor';
 import { PilhaEscopos } from '../interpretador/dialetos/egua-classico/resolvedor/pilha-escopos';
-import { RetornoResolvedor } from '../interpretador/dialetos/egua-classico/resolvedor/retorno-resolvedor';
+import { ConstrutoInterface } from './construtos';
+import { RetornoResolvedor } from './egua-classico/retorno-resolvedor-interface';
 import { SimboloInterface } from './simbolo-interface';
 
+// TODO: Estender com `VisitanteComumInterface`?
 export interface ResolvedorInterface {
     erros: ErroResolvedor[];
     escopos: PilhaEscopos;
-    locais: Map<Construto, number>;
+    locais: Map<ConstrutoInterface, number>;
     funcaoAtual: any;
     classeAtual: any;
     cicloAtual: any;

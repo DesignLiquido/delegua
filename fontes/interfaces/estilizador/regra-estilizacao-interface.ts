@@ -1,5 +1,5 @@
-import { Construto } from '../../construtos';
 import { Declaracao } from '../../declaracoes';
+import { ConstrutoInterface } from '../construtos';
 
 /**
  * Define uma regra de transformação/estilização de código.
@@ -27,5 +27,5 @@ export interface RegraEstilizacaoInterface {
      * @param construto O construto a ser verificado/transformado.
      * @returns O construto (modificado ou não).
      */
-    aplicarEmConstruto?(construto: Construto): Construto;
+    aplicarEmConstruto?(construto: ConstrutoInterface): ConstrutoInterface;
 }

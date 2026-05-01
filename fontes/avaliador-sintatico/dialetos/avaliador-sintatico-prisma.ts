@@ -1,4 +1,5 @@
-import hrtime from 'browser-process-hrtime';
+﻿import hrtime from 'browser-process-hrtime';
+import { ConstrutoInterface } from '../../interfaces/construtos/construto-interface';
 
 import {
     AcessoIndiceVariavel,
@@ -9,7 +10,6 @@ import {
     Binario,
     Chamada,
     DefinirValor,
-    Construto,
     Dicionario,
     FuncaoConstruto,
     Isto,
@@ -45,9 +45,9 @@ import {
 
 import { ParametroInterface, SimboloInterface } from '../../interfaces';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
-import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
+import { RetornoLexadorInterface } from '../../interfaces/retornos/retorno-lexador-interface';
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
-import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
+import { RetornoAvaliadorSintaticoInterface } from '../../interfaces/retornos/retorno-avaliador-sintatico-interface';
 
 import { inferirTipoVariavel, TipoInferencia } from '../../inferenciador';
 
@@ -160,7 +160,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         return false;
     }
 
-    async primario(): Promise<Construto> {
+    async primario(): Promise<ConstrutoInterface> {
         const simboloAtual = this.simbolos[this.atual];
         let valores = [];
 
@@ -185,7 +185,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
 
                 let indice = 1;
                 do {
-                    let chave: Construto;
+                    let chave: ConstrutoInterface;
                     if (
                         this.verificarTipoSimboloAtual(tiposDeSimbolos.IDENTIFICADOR) &&
                         this.simbolos[this.atual + 1]?.tipo === tiposDeSimbolos.IGUAL
@@ -295,7 +295,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
      * Construto para texto multilinhas.
      * @returns
      */
-    construtoTextoMultilinhas(): Construto {
+    construtoTextoMultilinhas(): ConstrutoInterface {
         const segundoColchete = this.consumir(
             tiposDeSimbolos.COLCHETE_ESQUERDO,
             "Esperado '[' antes do texto multilinhas."
@@ -322,7 +322,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             "Esperado '(' antes dos valores em leia."
         );
 
-        const argumentos: Construto[] = [];
+        const argumentos: ConstrutoInterface[] = [];
 
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             do {
@@ -335,7 +335,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         return new Leia(simboloLeia, argumentos);
     }
 
-    protected async finalizarChamada(entidadeChamada: Construto): Promise<Chamada> {
+    protected async finalizarChamada(entidadeChamada: ConstrutoInterface): Promise<Chamada> {
         const argumentos = [];
 
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
@@ -355,8 +355,8 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         return new Chamada(this.hashArquivo, entidadeChamada, argumentos);
     }
 
-    async chamar(): Promise<Construto> {
-        let expressao: Construto = await this.primario();
+    async chamar(): Promise<ConstrutoInterface> {
+        let expressao: ConstrutoInterface = await this.primario();
 
         while (true) {
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
@@ -389,7 +389,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    async unario(): Promise<Construto> {
+    async unario(): Promise<ConstrutoInterface> {
         if (
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.NEGACAO,
@@ -407,7 +407,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         return await this.chamar();
     }
 
-    async exponenciacao(): Promise<Construto> {
+    async exponenciacao(): Promise<ConstrutoInterface> {
         let expressao = await this.unario();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EXPONENCIACAO)) {
@@ -419,7 +419,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    async multiplicar(): Promise<Construto> {
+    async multiplicar(): Promise<ConstrutoInterface> {
         let expressao = await this.exponenciacao();
 
         while (
@@ -438,7 +438,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    async adicaoOuSubtracao(): Promise<Construto> {
+    async adicaoOuSubtracao(): Promise<ConstrutoInterface> {
         let expressao = await this.multiplicar();
 
         while (
@@ -452,7 +452,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    async concatenacao(): Promise<Construto> {
+    async concatenacao(): Promise<ConstrutoInterface> {
         let expressao = await this.adicaoOuSubtracao();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONCATENACAO)) {
@@ -464,7 +464,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    async bitShift(): Promise<Construto> {
+    async bitShift(): Promise<ConstrutoInterface> {
         let expressao = await this.concatenacao();
 
         while (
@@ -481,7 +481,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    async bitE(): Promise<Construto> {
+    async bitE(): Promise<ConstrutoInterface> {
         let expressao = await this.bitShift();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIT_AND)) {
@@ -493,7 +493,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    async bitOu(): Promise<Construto> {
+    async bitOu(): Promise<ConstrutoInterface> {
         let expressao = await this.bitE();
 
         while (
@@ -507,7 +507,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    async comparar(): Promise<Construto> {
+    async comparar(): Promise<ConstrutoInterface> {
         let expressao = await this.bitOu();
 
         while (
@@ -526,7 +526,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    async comparacaoIgualdade(): Promise<Construto> {
+    async comparacaoIgualdade(): Promise<ConstrutoInterface> {
         let expressao = await this.comparar();
 
         while (
@@ -543,7 +543,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    async em(): Promise<Construto> {
+    async em(): Promise<ConstrutoInterface> {
         let expressao = await this.comparacaoIgualdade();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EM)) {
@@ -555,7 +555,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    async e(): Promise<Construto> {
+    async e(): Promise<ConstrutoInterface> {
         let expressao = await this.em();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.E)) {
@@ -567,7 +567,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    async ou(): Promise<Construto> {
+    async ou(): Promise<ConstrutoInterface> {
         let expressao = await this.e();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.OU)) {
@@ -579,7 +579,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    async ternario(): Promise<Construto> {
+    async ternario(): Promise<ConstrutoInterface> {
         let expressaoOuCondicao = await this.ou();
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTERROGACAO)) {
@@ -604,7 +604,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         return expressaoOuCondicao;
     }
 
-    async atribuir(): Promise<Construto> {
+    async atribuir(): Promise<ConstrutoInterface> {
         const expressao = await this.ternario();
 
         if (
@@ -643,7 +643,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    async expressao(): Promise<Construto> {
+    async expressao(): Promise<ConstrutoInterface> {
         return await this.atribuir();
     }
 
@@ -655,7 +655,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             "Esperado '(' antes dos valores em imprima."
         );
 
-        const argumentos: Array<Construto> = [];
+        const argumentos: Array<ConstrutoInterface> = [];
 
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             do {
@@ -1157,7 +1157,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
      * @returns O tipo inferido.
      */
     protected logicaComumInferenciaTiposVariaveisEConstantes(
-        inicializador: Construto,
+        inicializador: ConstrutoInterface,
         tipoPrevio: string
     ) {
         if (tipoPrevio !== 'qualquer') {
@@ -1254,7 +1254,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
                 this.hashArquivo
             );
 
-            let passo: Construto = new Literal(this.hashArquivo, Number(simboloPara.linha), 1);
+            let passo: ConstrutoInterface = new Literal(this.hashArquivo, Number(simboloPara.linha), 1);
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)) {
                 passo = await this.adicaoOuSubtracao();
@@ -1577,9 +1577,9 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
     }
 
     async analisar(
-        retornoLexador: RetornoLexador<SimboloInterface>,
+        retornoLexador: RetornoLexadorInterface<SimboloInterface>,
         hashArquivo: number
-    ): Promise<RetornoAvaliadorSintatico<Declaracao>> {
+    ): Promise<RetornoAvaliadorSintaticoInterface<Declaracao>> {
         const inicioAnalise: [number, number] = hrtime();
         this.erros = [];
         this.atual = 0;
@@ -1610,6 +1610,8 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         return {
             declaracoes: declaracoes,
             erros: this.erros,
-        } as RetornoAvaliadorSintatico<Declaracao>;
+        } as RetornoAvaliadorSintaticoInterface<Declaracao>;
     }
 }
+
+

@@ -1,20 +1,20 @@
 import { VisitanteComumInterface } from '../interfaces';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
-export class AtribuicaoPorIndice implements Construto {
+export class AtribuicaoPorIndice implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
 
-    objeto: Construto;
-    valor: Construto;
-    indice: Construto;
+    objeto: ConstrutoInterface;
+    valor: ConstrutoInterface;
+    indice: ConstrutoInterface;
 
     constructor(
         hashArquivo: number,
         linha: number,
-        objeto: Construto,
-        indice: Construto,
-        valor: Construto
+        objeto: ConstrutoInterface,
+        indice: ConstrutoInterface,
+        valor: ConstrutoInterface
     ) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;

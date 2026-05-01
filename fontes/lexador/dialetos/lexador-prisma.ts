@@ -4,7 +4,7 @@ import { LexadorInterface, SimboloInterface } from '../../interfaces';
 import { Simbolo } from '../simbolo';
 import { palavrasReservadas } from './palavras-reservadas/prisma';
 import { ErroLexador } from '../erro-lexador';
-import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
+import { RetornoLexadorInterface } from '../../interfaces/retornos/retorno-lexador-interface';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/prisma';
 
@@ -414,7 +414,7 @@ export class LexadorPrisma implements LexadorInterface<SimboloInterface> {
         }
     }
 
-    mapear(codigo: string[], hashArquivo: number): RetornoLexador<SimboloInterface> {
+    mapear(codigo: string[], hashArquivo: number): RetornoLexadorInterface<SimboloInterface> {
         const inicioMapeamento: [number, number] = hrtime();
 
         this.erros = [];
@@ -440,6 +440,6 @@ export class LexadorPrisma implements LexadorInterface<SimboloInterface> {
         return {
             simbolos: this.simbolos,
             erros: this.erros,
-        } as RetornoLexador<SimboloInterface>;
+        } as RetornoLexadorInterface<SimboloInterface>;
     }
 }

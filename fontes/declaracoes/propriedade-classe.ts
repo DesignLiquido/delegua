@@ -1,5 +1,5 @@
-import { ComentarioComoConstruto, Construto, Decorador } from '../construtos';
-import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
+import { ComentarioComoConstruto, Decorador } from '../construtos';
+import { ConstrutoInterface, SimboloInterface, VisitanteComumInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
 export class PropriedadeClasse extends Declaracao {
@@ -11,7 +11,7 @@ export class PropriedadeClasse extends Declaracao {
     autoObter: boolean;
     autoDefinir: boolean;
     documentacao?: ComentarioComoConstruto;
-    valorInicial?: Construto;
+    valorInicial?: ConstrutoInterface;
 
     constructor(
         nome: SimboloInterface,
@@ -19,7 +19,7 @@ export class PropriedadeClasse extends Declaracao {
         decoradores: Decorador[] = [],
         acesso: 'privado' | 'protegido' | 'publico' = 'publico',
         estatico: boolean = false,
-        valorInicial?: Construto
+        valorInicial?: ConstrutoInterface
     ) {
         super(Number(nome.linha), nome.hashArquivo);
         this.nome = nome;

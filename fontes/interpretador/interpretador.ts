@@ -3,7 +3,6 @@ import {
     AcessoMetodo,
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
-    Construto,
     Agrupamento,
     AtribuicaoPorIndice,
     Atribuir,
@@ -46,6 +45,7 @@ import {
     SuperProxy,
 } from './estruturas';
 import {
+    ConstrutoInterface,
     ResultadoParcialInterpretadorInterface,
     RetornoInterpretadorInterface,
     SimboloInterface,
@@ -121,7 +121,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         carregarBibliotecasGlobais(this.pilhaEscoposExecucao);
     }
 
-    protected override async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
+    protected override async avaliarArgumentosEscreva(argumentos: ConstrutoInterface[]): Promise<string> {
         if (this.constructor !== Interpretador) {
             return await super.avaliarArgumentosEscreva(argumentos);
         }

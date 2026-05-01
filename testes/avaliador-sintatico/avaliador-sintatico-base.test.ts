@@ -1,7 +1,7 @@
 import { AvaliadorSintaticoBase } from '../../fontes/avaliador-sintatico/avaliador-sintatico-base';
+import { ConstrutoInterface } from '../../fontes/interfaces/construtos/construto-interface';
 import {
     Binario,
-    Construto,
     FuncaoConstruto,
     Literal,
     Logico,
@@ -22,7 +22,7 @@ import {
     FuncaoDeclaracao,
 } from '../../fontes/declaracoes';
 import { SimboloInterface } from '../../fontes/interfaces';
-import { RetornoAvaliadorSintatico, RetornoLexador } from '../../fontes/interfaces/retornos';
+import { RetornoAvaliadorSintaticoInterface, RetornoLexadorInterface } from '../../fontes/interfaces/retornos';
 import tiposDeSimbolos from '../../fontes/tipos-de-simbolos/delegua';
 
 /**
@@ -30,7 +30,7 @@ import tiposDeSimbolos from '../../fontes/tipos-de-simbolos/delegua';
  * Implementa os métodos abstratos de forma mínima para permitir testes.
  */
 class AvaliadorSintaticoBaseMock extends AvaliadorSintaticoBase {
-    protected async atribuir(): Promise<Construto> {
+    protected async atribuir(): Promise<ConstrutoInterface> {
         return await this.ou();
     }
 
@@ -38,7 +38,7 @@ class AvaliadorSintaticoBaseMock extends AvaliadorSintaticoBase {
         return Promise.resolve([]);
     }
 
-    protected async chamar(): Promise<Construto> {
+    protected async chamar(): Promise<ConstrutoInterface> {
         let expressao = await this.primario();
 
         while (true) {
@@ -89,7 +89,7 @@ class AvaliadorSintaticoBaseMock extends AvaliadorSintaticoBase {
         throw new Error('Método não implementado em mock.');
     }
 
-    protected async primario(): Promise<Construto> {
+    protected async primario(): Promise<ConstrutoInterface> {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FALSO)) {
             return new Literal(this.hashArquivo, this.simboloAnterior().linha, false);
         }
@@ -124,9 +124,9 @@ class AvaliadorSintaticoBaseMock extends AvaliadorSintaticoBase {
     }
 
     async analisar(
-        retornoLexador: RetornoLexador<SimboloInterface>,
+        retornoLexador: RetornoLexadorInterface<SimboloInterface>,
         hashArquivo: number
-    ): Promise<RetornoAvaliadorSintatico<Declaracao>> {
+    ): Promise<RetornoAvaliadorSintaticoInterface<Declaracao>> {
         this.erros = [];
         this.atual = 0;
         this.blocos = 0;
@@ -138,7 +138,7 @@ class AvaliadorSintaticoBaseMock extends AvaliadorSintaticoBase {
         return {
             declaracoes,
             erros: this.erros,
-        } as RetornoAvaliadorSintatico<Declaracao>;
+        } as RetornoAvaliadorSintaticoInterface<Declaracao>;
     }
 }
 
@@ -1109,7 +1109,7 @@ describe('Avaliador Sintático Base', () => {
 
     describe('analisar()', () => {
         it('Deve inicializar estado corretamente', async () => {
-            const retornoLexador: RetornoLexador<SimboloInterface> = {
+            const retornoLexador: RetornoLexadorInterface<SimboloInterface> = {
                 simbolos: [
                     criarSimbolo(tiposDeSimbolos.NUMERO, '5'),
                 ],

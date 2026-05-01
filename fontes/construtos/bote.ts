@@ -1,17 +1,17 @@
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 import { VisitantePituguesInterface } from '../interfaces/visitante-pitugues-interface';
 
-export class Bote implements Construto {
+export class Bote implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
-    esquerda: Construto;
-    direita: Construto;
+    esquerda: ConstrutoInterface;
+    direita: ConstrutoInterface;
 
     constructor(
         hashArquivo: number,
         linha: number,
-        esquerda: Construto,
-        direita: Construto
+        esquerda: ConstrutoInterface,
+        direita: ConstrutoInterface
     ) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;

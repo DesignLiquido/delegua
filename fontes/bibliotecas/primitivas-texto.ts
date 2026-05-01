@@ -1,7 +1,8 @@
-import { InterpretadorInterface } from '../interfaces';
+﻿import { InterpretadorInterface } from '../interfaces';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 import { PrimitivaInterface } from '../interfaces/primitiva-interface';
 import { InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
-import { Construto, TuplaN, Literal } from '../construtos';
+import { TuplaN, Literal } from '../construtos';
 import { ErroEmTempoDeExecucao } from '../excecoes';
 
 export const implementacaoParticao = (
@@ -71,7 +72,7 @@ export const implementacaoParticao = (
         partes = [antes, separador, depois];
     }
 
-    const elementos: Construto[] = partes.map(
+    const elementos: ConstrutoInterface[] = partes.map(
         (p) =>
             new Literal(
                 interpretador.hashArquivoDeclaracaoAtual,
@@ -611,3 +612,5 @@ export default {
         exemploCodigo: 'texto.tudoMinúsculo()',
     },
 } as { [nome: string]: PrimitivaInterface };
+
+

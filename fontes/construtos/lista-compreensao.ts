@@ -1,22 +1,22 @@
 import { VisitanteDeleguaInterface } from '../interfaces';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 import { ParaCadaComoConstruto } from './para-cada-como-construto';
 
-export class ListaCompreensao implements Construto {
+export class ListaCompreensao implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
     valor?: any;
     tipo?: string;
 
-    expressaoRetorno: Construto;
-    referenciaVariavelIteracao: Construto;
+    expressaoRetorno: ConstrutoInterface;
+    referenciaVariavelIteracao: ConstrutoInterface;
     paraCada: ParaCadaComoConstruto;
 
     constructor(
         hashArquivo: number,
         linha: number,
-        expressaoRetorno: Construto,
-        referenciaVariavelIteracao: Construto,
+        expressaoRetorno: ConstrutoInterface,
+        referenciaVariavelIteracao: ConstrutoInterface,
         paraCada: ParaCadaComoConstruto,
         tipo?: string
     ) {

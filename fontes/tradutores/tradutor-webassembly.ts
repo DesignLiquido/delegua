@@ -6,7 +6,6 @@ import {
     Atribuir,
     Binario,
     Chamada,
-    Construto,
     DefinirValor,
     FuncaoConstruto,
     Literal,
@@ -40,19 +39,8 @@ import {
     Var,
 } from '../declaracoes';
 import { CaminhoEscolha } from '../interfaces/construtos';
-
-// ---------------------------------------------------------------------------
-// Snapshot do contexto de função (usado para salvar/restaurar ao traduzir
-// funções aninhadas na travessia da AST)
-// ---------------------------------------------------------------------------
-interface ContextoFuncao {
-    corpoDaFuncaoAtual: string;
-    declaracoesLocaisAtual: string;
-    locaisDeclaradosAtual: Set<string>;
-    dentroFuncao: boolean;
-    funcaoTemRetorno: boolean;
-    variaveis: Map<string, { watNome: string; tipo: string; escopo: 'local' | 'global' }>;
-}
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
+import { ContextoFuncaoInterface } from '../interfaces/tradutores';
 
 export class TradutorWebAssembly {
     // ── Seções do módulo WAT ───────────────────────────────────────────────
@@ -172,7 +160,7 @@ export class TradutorWebAssembly {
      * Infere o tipo WAT de um construto.
      * Strings → i32 (ponteiro). Tudo mais → i64 (padrão, inclusive booleanos).
      */
-    private inferirTipo(construto: Construto): string {
+    private inferirTipo(construto: ConstrutoInterface): string {
         if (construto instanceof Literal && typeof construto.valor === 'string') return 'i32';
         return 'i64';
     }
@@ -191,8 +179,8 @@ export class TradutorWebAssembly {
     }
 
     /** Salva o contexto da função corrente e inicializa um novo. */
-    private salvarEIniciarContextoFuncao(): ContextoFuncao {
-        const snapshot: ContextoFuncao = {
+    private salvarEIniciarContextoFuncao(): ContextoFuncaoInterface {
+        const snapshot: ContextoFuncaoInterface = {
             corpoDaFuncaoAtual: this.corpoDaFuncaoAtual,
             declaracoesLocaisAtual: this.declaracoesLocaisAtual,
             locaisDeclaradosAtual: this.locaisDeclaradosAtual,
@@ -213,7 +201,7 @@ export class TradutorWebAssembly {
     }
 
     /** Restaura o contexto de função a partir de um snapshot. */
-    private restaurarContextoFuncao(snapshot: ContextoFuncao): void {
+    private restaurarContextoFuncao(snapshot: ContextoFuncaoInterface): void {
         this.corpoDaFuncaoAtual = snapshot.corpoDaFuncaoAtual;
         this.declaracoesLocaisAtual = snapshot.declaracoesLocaisAtual;
         this.locaisDeclaradosAtual = snapshot.locaisDeclaradosAtual;
@@ -245,7 +233,7 @@ export class TradutorWebAssembly {
     // Dispatch helpers
     // =========================================================================
 
-    private traduzirConstruto(construto: Construto): string {
+    private traduzirConstruto(construto: ConstrutoInterface): string {
         const handler = (this.dicionarioConstrutos as any)[construto.constructor.name];
         if (handler) return handler(construto);
         return `(i64.const 0) ;; construto não suportado: ${construto.constructor.name}`;
@@ -449,7 +437,7 @@ export class TradutorWebAssembly {
             nomeFuncao = construto.entidadeChamada.simbolo?.lexema || 'desconhecida';
         }
         const args = construto.argumentos
-            .map((arg: Construto) => this.traduzirConstruto(arg))
+            .map((arg: ConstrutoInterface) => this.traduzirConstruto(arg))
             .join(' ');
         return `(call $${nomeFuncao}${args ? ' ' + args : ''})`;
     }
@@ -909,7 +897,7 @@ export class TradutorWebAssembly {
         let msg = '';
         if (declaracao.explicacao) {
             try {
-                msg = ` ;; ${this.traduzirConstruto(declaracao.explicacao as Construto)}`;
+                msg = ` ;; ${this.traduzirConstruto(declaracao.explicacao as ConstrutoInterface)}`;
             } catch {
                 // ignore
             }

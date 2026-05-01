@@ -1,7 +1,7 @@
 import { DescritorTipoClasse, DeleguaFuncao, ReferenciaMontao } from './estruturas';
 import { ErroEmTempoDeExecucao } from '../excecoes';
 import { SimboloInterface, VariavelInterface } from '../interfaces';
-import { EscopoExecucao } from '../interfaces/escopo-execucao';
+import { EscopoExecucaoInterface } from '../interfaces/escopo-execucao';
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
 import { Simbolo } from '../lexador';
 import { TipoInferencia, inferirTipoVariavel } from '../inferenciador';
@@ -12,13 +12,13 @@ const tiposNumericos = ['inteiro', 'número', 'numero', 'real', 'longo'];
 const tiposLogicos = ['logico', 'lógico'];
 
 export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
-    pilha: EscopoExecucao[];
+    pilha: EscopoExecucaoInterface[];
 
     constructor() {
         this.pilha = [];
     }
 
-    empilhar(item: EscopoExecucao): void {
+    empilhar(item: EscopoExecucaoInterface): void {
         this.pilha.push(item);
     }
 
@@ -30,16 +30,16 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         return this.pilha.length;
     }
 
-    naPosicao(posicao: number): EscopoExecucao {
+    naPosicao(posicao: number): EscopoExecucaoInterface {
         return this.pilha[posicao];
     }
 
-    topoDaPilha(): EscopoExecucao {
+    topoDaPilha(): EscopoExecucaoInterface {
         if (this.eVazio()) throw new Error('Pilha vazia.');
         return this.pilha[this.pilha.length - 1];
     }
 
-    removerUltimo(): EscopoExecucao {
+    removerUltimo(): EscopoExecucaoInterface {
         if (this.eVazio()) throw new Error('Pilha vazia.');
         return this.pilha.pop();
     }
@@ -247,7 +247,7 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         throw new ErroEmTempoDeExecucao(simbolo, "Variável não definida '" + simbolo.lexema + "'.");
     }
 
-    obterEscopoPorTipo(tipo: string): EscopoExecucao | undefined {
+    obterEscopoPorTipo(tipo: string): EscopoExecucaoInterface | undefined {
         for (let i = 1; i <= this.pilha.length; i++) {
             const escopoAtual = this.pilha[this.pilha.length - i];
             if (escopoAtual.tipo === tipo) {

@@ -1,15 +1,15 @@
 import { Bloco } from '../declaracoes';
 import { VisitanteDeleguaInterface } from '../interfaces';
 import { EnquantoInterface } from '../interfaces/delegua';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
-export class EnquantoComoConstruto implements Construto, EnquantoInterface {
+export class EnquantoComoConstruto implements ConstrutoInterface, EnquantoInterface {
     linha: number;
     hashArquivo: number;
-    condicao: Construto;
+    condicao: ConstrutoInterface;
     corpo: Bloco;
 
-    constructor(condicao: Construto, corpo: Bloco) {
+    constructor(condicao: ConstrutoInterface, corpo: Bloco) {
         this.hashArquivo = condicao.hashArquivo;
         this.linha = condicao.linha;
         this.condicao = condicao;

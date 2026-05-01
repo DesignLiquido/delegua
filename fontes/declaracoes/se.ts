@@ -1,18 +1,17 @@
-import { Construto } from '../construtos';
-import { VisitanteComumInterface } from '../interfaces';
-import { CaminhoSeSenao } from '../interfaces/declaracoes';
+import { ConstrutoInterface, VisitanteComumInterface } from '../interfaces';
+import { CaminhoSeSenaoInterface } from '../interfaces/declaracoes';
 import { Declaracao } from './declaracao';
 
 export class Se extends Declaracao {
-    condicao: Construto;
+    condicao: ConstrutoInterface;
     caminhoEntao: Declaracao;
-    caminhosSeSenao?: CaminhoSeSenao[] | undefined;
+    caminhosSeSenao?: CaminhoSeSenaoInterface[] | undefined;
     caminhoSenao?: Declaracao | undefined;
 
     constructor(
-        condicao: Construto,
+        condicao: ConstrutoInterface,
         caminhoEntao: Declaracao,
-        caminhosSeSenao?: CaminhoSeSenao[] | undefined,
+        caminhosSeSenao?: CaminhoSeSenaoInterface[] | undefined,
         caminhoSenao?: Declaracao | undefined
     ) {
         super(condicao.linha, condicao.hashArquivo);

@@ -1,22 +1,22 @@
 import { VisitanteComumInterface } from '../interfaces';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
 /**
  * Um construto de formatação de escrita é utilizado por instruções `escreva`
  * e derivadas para adição de espaços e casas decimais, este último para quando
  * o conteúdo da escrita é um número.
  */
-export class FormatacaoEscrita implements Construto {
+export class FormatacaoEscrita implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
-    expressao: Construto;
+    expressao: ConstrutoInterface;
     espacos: number;
     casasDecimais: number;
 
     constructor(
         hashArquivo: number,
         linha: number,
-        expressao: Construto,
+        expressao: ConstrutoInterface,
         espacos?: number,
         casasDecimais?: number
     ) {

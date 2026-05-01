@@ -1,7 +1,7 @@
 import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
-export class Separador implements Construto {
+export class Separador implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
     conteudo: string;

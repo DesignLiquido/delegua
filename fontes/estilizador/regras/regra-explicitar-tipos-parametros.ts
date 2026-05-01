@@ -1,7 +1,6 @@
-import { Construto } from '../../construtos';
 import { Declaracao } from '../../declaracoes';
 import { RegraEstilizacaoInterface } from '../../interfaces/estilizador';
-import { ParametroInterface } from '../../interfaces';
+import { ConstrutoInterface, ParametroInterface } from '../../interfaces';
 
 /**
  * Regra que explicita o tipo `qualquer` em parâmetros sem anotação.
@@ -15,7 +14,7 @@ export class RegraExplicitarTiposParametros implements RegraEstilizacaoInterface
         return declaracao;
     }
 
-    aplicarEmConstruto(construto: Construto): Construto {
+    aplicarEmConstruto(construto: ConstrutoInterface): ConstrutoInterface {
         this.visitarObjeto(construto, new Set<any>());
         return construto;
     }

@@ -1,6 +1,6 @@
 import { Declaracao } from '../../declaracoes';
 import { Var, Const, FuncaoDeclaracao } from '../../declaracoes';
-import { Construto } from '../../construtos';
+import { ConstrutoInterface } from '../../interfaces/construtos';
 import {
     OpcoesConvencaoNomenclaturaInterface,
     RegraEstilizacaoInterface,
@@ -33,7 +33,7 @@ export class RegraConvencaoNomenclatura implements RegraEstilizacaoInterface {
         return declaracao;
     }
 
-    aplicarEmConstruto(construto: Construto): Construto {
+    aplicarEmConstruto(construto: ConstrutoInterface): ConstrutoInterface {
         this.visitarObjeto(construto, new Set<any>());
         return construto;
     }

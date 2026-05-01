@@ -2,20 +2,13 @@ import {
     Atribuir,
     AtribuicaoPorIndice,
     AtribuicaoPorIndicesMatriz,
-    Chamada,
-    Construto,
     Leia,
 } from '../../construtos';
 import { Declaracao } from '../../declaracoes';
 import { inferirTipoVariavel } from '../../inferenciador';
+import { ConstrutoInterface } from '../../interfaces/construtos';
+import { ResultadoAvaliacao } from '../../interfaces/depuracao';
 import { InterpretadorComDepuracao } from './interpretador-com-depuracao';
-
-export interface ResultadoAvaliacao {
-    sucesso: boolean;
-    valor?: any;
-    tipo?: string;
-    erro?: string;
-}
 
 /**
  * Verifica se uma expressão tem efeitos colaterais que não devem ser executados
@@ -23,7 +16,7 @@ export interface ResultadoAvaliacao {
  * @param expressao A expressão a ser verificada.
  * @returns `true` se a expressão tem efeitos colaterais, `false` caso contrário.
  */
-function temEfeitosColaterais(expressao: Construto | Declaracao): boolean {
+function temEfeitosColaterais(expressao: ConstrutoInterface | Declaracao): boolean {
     // Atribuições modificam o estado
     if (
         expressao instanceof Atribuir ||

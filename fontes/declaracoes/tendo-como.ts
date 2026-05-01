@@ -1,7 +1,6 @@
-import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
+import { ConstrutoInterface, SimboloInterface, VisitanteComumInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 import { Bloco } from './bloco';
-import { Construto } from '../construtos';
 
 /**
  * Esta declaração funciona para designar uma variável que deve ser encerrada
@@ -10,14 +9,14 @@ import { Construto } from '../construtos';
  */
 export class TendoComo extends Declaracao {
     simboloVariavel: SimboloInterface;
-    inicializacaoVariavel: Construto;
+    inicializacaoVariavel: ConstrutoInterface;
     corpo: Bloco;
 
     constructor(
         linha: number,
         hashArquivo: number,
         simboloVariavel: SimboloInterface,
-        inicializacaoVariavel: Construto,
+        inicializacaoVariavel: ConstrutoInterface,
         corpo: Bloco
     ) {
         super(linha, hashArquivo);

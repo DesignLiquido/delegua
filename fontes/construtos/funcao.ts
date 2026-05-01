@@ -1,8 +1,8 @@
 import { Declaracao } from '../declaracoes';
 import { VisitanteComumInterface, ParametroInterface } from '../interfaces';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
-export class FuncaoConstruto implements Construto {
+export class FuncaoConstruto implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
 

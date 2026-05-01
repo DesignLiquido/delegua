@@ -1,4 +1,4 @@
-import {
+﻿import {
     AcessoMetodo,
     AcessoIntervaloVariavel,
     AcessoMetodoOuPropriedade,
@@ -8,7 +8,6 @@ import {
     Atribuir,
     Binario,
     Chamada,
-    Construto,
     FormatacaoEscrita,
     FuncaoConstruto,
     Leia,
@@ -38,8 +37,9 @@ import {
     Var,
 } from '../../declaracoes';
 import { SimboloInterface } from '../../interfaces';
-import { DiagnosticoAnalisadorSemantico, DiagnosticoSeveridade } from '../../interfaces/erros';
-import { RetornoAnalisadorSemantico } from '../../interfaces/retornos/retorno-analisador-semantico';
+import { ConstrutoInterface } from '../../interfaces/construtos/construto-interface';
+import { DiagnosticoAnalisadorSemanticoInterface, DiagnosticoSeveridade } from '../../interfaces/erros';
+import { RetornoAnalisadorSemanticoInterface } from '../../interfaces/retornos/retorno-analisador-semantico-interface';
 import { RetornoQuebra } from '../../quebras';
 import { buscarRetornos } from '../../avaliador-sintatico/comum';
 import { MicroAvaliadorSintaticoPitugues } from '../../avaliador-sintatico/dialetos/micro-avaliador-sintatico-pitugues';
@@ -93,7 +93,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
     pilhaVariaveis: PilhaVariaveis;
     funcoes: { [nomeFuncao: string]: FuncaoHipoteticaInterface };
     atual: number;
-    diagnosticos: DiagnosticoAnalisadorSemantico[];
+    diagnosticos: DiagnosticoAnalisadorSemanticoInterface[];
     protected readonly microLexador = new MicroLexadorPitugues();
     protected readonly microAvaliadorSintatico = new MicroAvaliadorSintaticoPitugues();
 
@@ -110,7 +110,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
      * Marca as variáveis usadas em uma expressão.
      * Versão estendida da classe base com tratamento adicional de construtos Pituguês.
      */
-    protected override marcarVariaveisUsadasEmExpressao(expressao: Construto): void {
+    protected override marcarVariaveisUsadasEmExpressao(expressao: ConstrutoInterface): void {
         if (expressao instanceof Variavel) {
             this.gerenciadorEscopos.marcarComoUsada(expressao.simbolo.lexema);
             return;
@@ -168,10 +168,10 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
             if (['vetor', 'qualquer[]', 'inteiro[]', 'texto[]'].includes(declaracao.tipo)) {
                 if (declaracao.inicializador instanceof Vetor) {
                     const vetor = declaracao.inicializador as Vetor;
-                    const vetorSemSeparadores: Construto[] = vetor.elementos;
+                    const vetorSemSeparadores: ConstrutoInterface[] = vetor.elementos;
 
                     if (declaracao.tipo === 'inteiro[]') {
-                        const apenasValores: Construto | undefined = vetorSemSeparadores.find(
+                        const apenasValores: ConstrutoInterface | undefined = vetorSemSeparadores.find(
                             (v) => typeof v?.valor !== 'number'
                         );
                         if (apenasValores) {
@@ -182,7 +182,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                         }
                     }
                     if (declaracao.tipo === 'texto[]') {
-                        const apenasValores: Construto | undefined = vetorSemSeparadores.find(
+                        const apenasValores: ConstrutoInterface | undefined = vetorSemSeparadores.find(
                             (v) => typeof v?.valor !== 'string'
                         );
                         if (apenasValores) {
@@ -236,7 +236,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         return this.verificarTipoDe(expressao.valor);
     }
 
-    private async verificarTipoDe(valor: Construto): Promise<any> {
+    private async verificarTipoDe(valor: ConstrutoInterface): Promise<any> {
         switch (valor.constructor) {
             case Agrupamento:
                 const valorAgrupamento = valor as Agrupamento;
@@ -258,7 +258,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         return await this.verificarFalhar(expressao.explicacao);
     }
 
-    private async verificarFalhar(valor: Construto): Promise<any> {
+    private async verificarFalhar(valor: ConstrutoInterface): Promise<any> {
         if (valor instanceof Binario) {
             await this.verificarFalhar(valor.direita);
             await this.verificarFalhar(valor.esquerda);
@@ -275,7 +275,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
 
     visitarChamadaPorArgumentoReferenciaFuncao(
         argumentoReferenciaFuncao: ArgumentoReferenciaFuncao,
-        argumentos: Construto[]
+        argumentos: ConstrutoInterface[]
     ) {
         const variavelCorrespondente: FuncaoConstruto = this.gerenciadorEscopos.buscar(
             argumentoReferenciaFuncao.simboloFuncao.lexema
@@ -292,7 +292,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         );
     }
 
-    visitarChamadaPorReferenciaFuncao(referenciaFuncao: ReferenciaFuncao, argumentos: Construto[]) {
+    visitarChamadaPorReferenciaFuncao(referenciaFuncao: ReferenciaFuncao, argumentos: ConstrutoInterface[]) {
         const funcaoCorrespondente: FuncaoHipoteticaInterface =
             this.funcoes[referenciaFuncao.simboloFuncao.lexema];
         if (!funcaoCorrespondente) {
@@ -306,7 +306,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         );
     }
 
-    visitarChamadaPorVariavel(entidadeChamadaVariavel: Variavel, argumentos: Construto[]) {
+    visitarChamadaPorVariavel(entidadeChamadaVariavel: Variavel, argumentos: ConstrutoInterface[]) {
         const variavel = entidadeChamadaVariavel as Variavel;
         const nomeFuncao = variavel.simbolo.lexema;
         const funcoesNativas = FUNCOES_NATIVAS_PITUGUES;
@@ -370,8 +370,8 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    private resolverSimboloAlvoAtribuicao(alvo: Construto): SimboloInterface | undefined {
-        let atual: Construto | undefined = alvo;
+    private resolverSimboloAlvoAtribuicao(alvo: ConstrutoInterface): SimboloInterface | undefined {
+        let atual: ConstrutoInterface | undefined = alvo;
 
         while (atual) {
             if (atual instanceof Variavel) {
@@ -513,7 +513,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
     }
 
     override visitarDeclaracaoEscolha(declaracao: Escolha) {
-        const identificadorOuLiteral = declaracao.identificadorOuLiteral as Construto;
+        const identificadorOuLiteral = declaracao.identificadorOuLiteral as ConstrutoInterface;
         const tipo = identificadorOuLiteral.tipo;
 
         for (let caminho of declaracao.caminhos) {
@@ -638,7 +638,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    private verificarCondicao(condicao: Construto): Promise<void> {
+    private verificarCondicao(condicao: ConstrutoInterface): Promise<void> {
         if (condicao instanceof Agrupamento) {
             return this.verificarCondicao(condicao.expressao);
         }
@@ -703,7 +703,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    private verificarExpressao(expressao: Construto): void {
+    private verificarExpressao(expressao: ConstrutoInterface): void {
         if (expressao instanceof Agrupamento) {
             this.verificarExpressao(expressao.expressao);
             return;
@@ -794,7 +794,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
      * Tenta avaliar uma expressão em tempo de compilação para detectar valores constantes
      * Retorna o valor se puder ser determinado, ou null caso contrário
      */
-    private avaliarExpressaoConstante(expressao: Construto): any {
+    private avaliarExpressaoConstante(expressao: ConstrutoInterface): any {
         if (expressao instanceof Literal) {
             return expressao.valor;
         }
@@ -872,7 +872,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
     /**
      * Obtém o tipo de uma expressão (pode ser Literal, Variavel, ou Binario)
      */
-    override obterTipoExpressao(expressao: Construto): string | null {
+    override obterTipoExpressao(expressao: ConstrutoInterface): string | null {
         if (expressao instanceof Literal) {
             return expressao.tipo;
         }
@@ -939,7 +939,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         return 'qualquer';
     }
 
-    private verificarExistenciaConstruto(construto: Construto): void {
+    private verificarExistenciaConstruto(construto: ConstrutoInterface): void {
         if (construto instanceof Variavel) {
             if (!this.gerenciadorEscopos.buscar(construto.simbolo.lexema)) {
                 this.erro(
@@ -990,7 +990,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    private verificarLadoLogico(lado: Construto): void {
+    private verificarLadoLogico(lado: ConstrutoInterface): void {
         if (lado instanceof Variavel) {
             let variavel = lado as Variavel;
             this.verificarVariavelBinaria(variavel);
@@ -1014,7 +1014,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                     literal.linha
                 );
                 for (const construto of retornoMicro.declaracoes) {
-                    this.marcarVariaveisUsadasEmExpressao(construto as unknown as Construto);
+                    this.marcarVariaveisUsadasEmExpressao(construto as unknown as ConstrutoInterface);
                 }
             } catch (_) {
                 // Erros de sintaxe na interpolação são tratados em tempo de execução
@@ -1254,7 +1254,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    private verificarBinarioEmExpressao(expressao: Construto): void {
+    private verificarBinarioEmExpressao(expressao: ConstrutoInterface): void {
         if (expressao instanceof Agrupamento) {
             this.verificarBinarioEmExpressao(expressao.expressao);
             return;
@@ -1271,7 +1271,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         return Promise.resolve(null as any);
     }
 
-    override visitarExpressaoDeVariavel(expressao: Variavel | Construto): Promise<any> {
+    override visitarExpressaoDeVariavel(expressao: Variavel | ConstrutoInterface): Promise<any> {
         if (expressao instanceof Variavel) {
             return this.verificarVariavel(expressao);
         }
@@ -1496,7 +1496,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         }
     }
 
-    async analisar(declaracoes: Declaracao[]): Promise<RetornoAnalisadorSemantico> {
+    async analisar(declaracoes: Declaracao[]): Promise<RetornoAnalisadorSemanticoInterface> {
         this.gerenciadorEscopos = new GerenciadorEscopos();
         this.funcoes = {};
         this.atual = 0;
@@ -1512,6 +1512,8 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
 
         return {
             diagnosticos: this.diagnosticos,
-        } as RetornoAnalisadorSemantico;
+        } as RetornoAnalisadorSemanticoInterface;
     }
 }
+
+

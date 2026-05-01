@@ -1,17 +1,17 @@
 import { DeleguaFuncao } from '../interpretador/estruturas';
-import { EscopoExecucao } from './escopo-execucao';
+import { EscopoExecucaoInterface } from './escopo-execucao';
 import { PilhaInterface } from './pilha-interface';
 import { SimboloInterface } from './simbolo-interface';
 import { VariavelInterface } from './variavel-interface';
 
-export interface PilhaEscoposExecucaoInterface extends PilhaInterface<EscopoExecucao> {
+export interface PilhaEscoposExecucaoInterface extends PilhaInterface<EscopoExecucaoInterface> {
     atribuirVariavel(simbolo: SimboloInterface, valor: any, indice?: number): void;
     atribuirVariavelEm(distancia: number, simbolo: SimboloInterface, valor: any): void;
     definirConstante(nomeConstante: string, valor: any, tipo?: string): void;
     definirVariavel(nomeVariavel: string, valor: any, tipo?: string, tipoExplicito?: boolean): void;
     elementos(): number;
-    naPosicao(posicao: number): EscopoExecucao;
-    obterEscopoPorTipo(idChamada: string): EscopoExecucao | undefined;
+    naPosicao(posicao: number): EscopoExecucaoInterface;
+    obterEscopoPorTipo(idChamada: string): EscopoExecucaoInterface | undefined;
     obterTodasDeclaracoesClasse(): any;
     obterTodasVariaveis(todasVariaveis: any[]): { valor: any; nome: string; tipo: string }[];
     obterTodasDeleguaFuncao(): { [nome: string]: DeleguaFuncao };

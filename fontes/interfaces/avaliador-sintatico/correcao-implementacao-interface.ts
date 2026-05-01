@@ -1,9 +1,9 @@
-import { MembroInterfaceFaltando } from "./membro-interface-faltando-interface";
+import { MembroInterfaceFaltandoInterface } from "./membro-interface-faltando-interface";
 
 export interface CorrecaoImplementacaoInterface {
     tipo: 'implementar-interface';
     nomeInterface: string;
     nomeClasse: string;
-    membrosFaltando: MembroInterfaceFaltando[];
+    membrosFaltando: MembroInterfaceFaltandoInterface[];
     linhaFinalClasse: number;
 }

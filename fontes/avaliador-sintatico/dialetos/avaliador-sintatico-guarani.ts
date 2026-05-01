@@ -1,4 +1,5 @@
-import { Construto, FuncaoConstruto, Leia, Literal } from '../../construtos';
+﻿import { FuncaoConstruto, Leia, Literal } from '../../construtos';
+import { ConstrutoInterface } from '../../interfaces/construtos/construto-interface';
 import {
     Escreva,
     Declaracao,
@@ -9,7 +10,7 @@ import {
     Fazer,
     Expressao,
 } from '../../declaracoes';
-import { RetornoLexador, RetornoAvaliadorSintatico } from '../../interfaces/retornos';
+import { RetornoLexadorInterface, RetornoAvaliadorSintaticoInterface } from '../../interfaces/retornos';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 import { SimboloInterface } from '../../interfaces';
 
@@ -25,7 +26,7 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
         throw new Error('Método não implementado.');
     }
 
-    primario(): Promise<Construto> {
+    primario(): Promise<ConstrutoInterface> {
         const simboloAtual = this.simbolos[this.atual];
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NUMERO, tiposDeSimbolos.TEXTO)) {
             const simboloAnterior: SimboloInterface = this.simbolos[this.atual - 1];
@@ -41,7 +42,7 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
     }
 
-    async chamar(): Promise<Construto> {
+    async chamar(): Promise<ConstrutoInterface> {
         let expressao = await this.primario();
 
         /* while (true) {
@@ -65,7 +66,7 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    async atribuir(): Promise<Construto> {
+    async atribuir(): Promise<ConstrutoInterface> {
         const expressao = await this.ou();
 
         /* if (
@@ -114,7 +115,7 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
             "Oñeha'arõ '(' valores mboyve jehaipyrépe."
         );
 
-        const argumentos: Construto[] = [];
+        const argumentos: ConstrutoInterface[] = [];
 
         do {
             argumentos.push(await this.expressao());
@@ -175,7 +176,7 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
         );
     }
 
-    async expressao(): Promise<Construto> {
+    async expressao(): Promise<ConstrutoInterface> {
         return await this.atribuir();
     }
 
@@ -190,9 +191,9 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
     }
 
     async analisar(
-        retornoLexador: RetornoLexador<SimboloInterface>,
+        retornoLexador: RetornoLexadorInterface<SimboloInterface>,
         hashArquivo: number
-    ): Promise<RetornoAvaliadorSintatico<Declaracao>> {
+    ): Promise<RetornoAvaliadorSintaticoInterface<Declaracao>> {
         this.erros = [];
         this.atual = 0;
         this.blocos = 0;
@@ -208,6 +209,8 @@ export class AvaliadorSintaticoGuarani extends AvaliadorSintaticoBase {
         return {
             declaracoes: declaracoes,
             erros: this.erros,
-        } as RetornoAvaliadorSintatico<Declaracao>;
+        } as RetornoAvaliadorSintaticoInterface<Declaracao>;
     }
 }
+
+

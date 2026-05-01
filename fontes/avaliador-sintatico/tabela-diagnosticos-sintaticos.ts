@@ -1,6 +1,6 @@
-import { EntradaTabelaDiagnosticoSintatico } from "../interfaces";
+import { EntradaTabelaDiagnosticoSintaticoInterface } from "../interfaces";
 
-export const TABELA_ERROS_SINTATICOS: EntradaTabelaDiagnosticoSintatico[] = [
+export const TABELA_ERROS_SINTATICOS: EntradaTabelaDiagnosticoSintaticoInterface[] = [
     {
         codigoDiagnostico: 'SINTATICO_IMPORTACAO_INVALIDA',
         descricao: 'Erro em declaracao de importacao.',
@@ -23,7 +23,7 @@ export const TABELA_ERROS_SINTATICOS: EntradaTabelaDiagnosticoSintatico[] = [
     },
 ];
 
-export const TABELA_AVISOS_SINTATICOS: EntradaTabelaDiagnosticoSintatico[] = [
+export const TABELA_AVISOS_SINTATICOS: EntradaTabelaDiagnosticoSintaticoInterface[] = [
     {
         codigoDiagnostico: 'SINTATICO_AVISO_GENERICO',
         descricao: 'Aviso sintatico nao categorizado.',
