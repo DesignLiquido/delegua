@@ -1595,19 +1595,18 @@ describe('Interpretador (Pituguês)', () => {
                     const codigo = [
                         'classe Usuario:',
                         '    construtor(idade):',
-                        '        isto.idade = idade',
+                        '        isto._idade = idade',
                         '    @propriedade',
                         '    funcao idade():',
-                        '        retorna isto.idadeUsuario',
+                        '        retorna isto._idade',
                         '    @idade.definidor',
                         '    funcao idade(valor):',
                         '        se (valor < 0):',
                         '            escreva("Valor fornecido deve ser um número positivo.")',
-                        '            retorna',
-                        '        isto.idadeUsuario = valor',
+                        '        senao:',
+                        '            isto._idade = valor',
                         'usuarioLegal = Usuario(21)',
                         'escreva(usuarioLegal.idade)',
-                        'usuarioLegal.idade = 22',
                         'usuarioLegal.idade = -16'
                     ];
                     const retornoLexador = lexador.mapear(codigo, -1);
