@@ -1590,6 +1590,39 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas[2]).toBe('5');
                     expect(_saidas[3]).toBe('6');
                 });
+
+                it('Classes - decorador @propriedade', async () => {
+                    const codigo = [
+                        'classe Usuario:',
+                        '    construtor(idade):',
+                        '        isto._idade = idade',
+                        '    @propriedade',
+                        '    funcao idade():',
+                        '        retorna isto._idade',
+                        '    @idade.definidor',
+                        '    funcao idade(valor):',
+                        '        se (valor < 0):',
+                        '            escreva("Valor fornecido deve ser um número positivo.")',
+                        '        senao:',
+                        '            isto._idade = valor',
+                        'usuarioLegal = Usuario(21)',
+                        'escreva(usuarioLegal.idade)',
+                        'usuarioLegal.idade = -16'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(2);
+                    expect(_saidas[0]).toBe('21');
+                    expect(_saidas[1]).toBe('Valor fornecido deve ser um número positivo.');
+                });
             });
 
             describe('Declaração e chamada de funções', () => {
