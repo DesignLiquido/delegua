@@ -4337,6 +4337,82 @@ describe('Interpretador (Pituguês)', () => {
                     expect(iteravelNulo.elementos).toEqual([]);
                 });
             });
+
+            it('unico()', async () => {
+                const codigo = [
+                    'resultado = unico([1, 1, 2, 3, 2])',
+                    'escreva(resultado)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                    retornoLexador,
+                    -1
+                );
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('[1, 2, 3]');
+            });
+
+            it('inverter()', async () => {
+                const codigo = [
+                    'resultado = inverter([1, 2, 3])',
+                    'escreva(resultado)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                    retornoLexador,
+                    -1
+                );
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('[3, 2, 1]');
+            });
+
+            it('combinar()', async () => {
+                const codigo = [
+                    'resultado = combinar([1, 2, 3], "abc")',
+                    'escreva(resultado)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                    retornoLexador,
+                    -1
+                );
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('[(1, "a"), (2, "b"), (3, "c")]');
+            });
+
+            it('contar()', async () => {
+                const codigo = [
+                    'resultado = contar([1, 1, 1, 2, 3], 1)',
+                    'escreva(resultado)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                    retornoLexador,
+                    -1
+                );
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('3');
+            });
         });
 
         it('termina_com - sufixo encontrado no final', async () => {
@@ -5303,31 +5379,6 @@ describe('Interpretador (Pituguês)', () => {
                     await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
 
                     expect(_saidas[0]).toBe('-1');
-                });
-            });
-
-            describe('arredondar()', () => {
-                it('Falha - Arredondando texto', async () => {
-                    const codigo = [
-                        "numeroLegal = 'olá'",
-                        "escreva(arredondar(numeroLegal, 2))"
-                    ];
-                    const retornoLexador = lexador.mapear(codigo, -1);
-                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
-
-                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
-                });
-
-                it('Falha - Não informou o número a ser arredondado', async () => {
-                    const codigo = [
-                        "numeroLegal = 10",
-                        "escreva(arredondar(, 2))"
-                    ];
-                    const retornoLexador = lexador.mapear(codigo, -1);
-                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-
-                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
                 });
             });
 

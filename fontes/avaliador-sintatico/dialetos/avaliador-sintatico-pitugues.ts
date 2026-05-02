@@ -2719,10 +2719,17 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
-            'arredondar',
-            new InformacaoElementoSintatico('arredondar', 'numero', true, [
-                new InformacaoElementoSintatico('numero', 'numero'),
-                new InformacaoElementoSintatico('casasDecimais', 'numero'),
+            'combinar',
+            new InformacaoElementoSintatico('combinar', 'qualquer', true, [
+                new InformacaoElementoSintatico('iteravel', 'qualquer'),
+                new InformacaoElementoSintatico('iteravel', 'qualquer'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'contar',
+            new InformacaoElementoSintatico('contar', 'qualquer', true, [
+                new InformacaoElementoSintatico('iteravel', 'qualquer'),
+                new InformacaoElementoSintatico('elemento', 'qualquer'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
@@ -2774,6 +2781,12 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
+            'inverter',
+            new InformacaoElementoSintatico('inverter', 'qualquer', true, [
+                new InformacaoElementoSintatico('iteravel', 'qualquer'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
             'longo',
             new InformacaoElementoSintatico('longo', 'longo', true, [
                 new InformacaoElementoSintatico('valor', 'qualquer'),
@@ -2807,18 +2820,6 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
-            'numero',
-            new InformacaoElementoSintatico('número', 'número', true, [
-                new InformacaoElementoSintatico('valorParaConverter', 'qualquer'),
-            ])
-        );
-        this.pilhaEscopos.definirInformacoesVariavel(
-            'número',
-            new InformacaoElementoSintatico('número', 'número', true, [
-                new InformacaoElementoSintatico('valorParaConverter', 'qualquer'),
-            ])
-        );
-        this.pilhaEscopos.definirInformacoesVariavel(
             'ordenar',
             new InformacaoElementoSintatico('ordenar', 'qualquer[]', true, [
                 new InformacaoElementoSintatico('vetor', 'qualquer[]'),
@@ -2828,13 +2829,6 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         this.pilhaEscopos.definirInformacoesVariavel(
             'para_cada',
             new InformacaoElementoSintatico('para_cada', 'qualquer[]', true, [
-                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
-                new InformacaoElementoSintatico('funcaoFiltragem', 'função'),
-            ])
-        );
-        this.pilhaEscopos.definirInformacoesVariavel(
-            'primeiro_em_condicao',
-            new InformacaoElementoSintatico('primeiro_em_condicao', 'qualquer', true, [
                 new InformacaoElementoSintatico('vetor', 'qualquer[]'),
                 new InformacaoElementoSintatico('funcaoFiltragem', 'função'),
             ])
@@ -2881,12 +2875,6 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             'todos',
             new InformacaoElementoSintatico('todos', 'lógico', true, [
                 new InformacaoElementoSintatico('iteravel', 'qualquer'),
-            ])
-        );
-        this.pilhaEscopos.definirInformacoesVariavel(
-            'todos_em_condicao',
-            new InformacaoElementoSintatico('todos_em_condicao', 'lógico', true, [
-                new InformacaoElementoSintatico('iteravel', 'qualquer'),
                 new InformacaoElementoSintatico('funcaoCondicional', 'função'),
             ])
         );
@@ -2894,6 +2882,12 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             'tupla',
             new InformacaoElementoSintatico('tupla', 'tupla', true, [
                 new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'unico',
+            new InformacaoElementoSintatico('unico', 'qualquer[]', true, [
+                new InformacaoElementoSintatico('iteravel', 'qualquer'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(

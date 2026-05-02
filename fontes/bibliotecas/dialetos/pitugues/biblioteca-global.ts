@@ -184,6 +184,97 @@ export async function algum(
     return false;
 }
 
+export async function combinar(
+    interpretador: InterpretadorInterface,
+    primeiroIteravel: any,
+    segundoIteravel: any
+): Promise<any[]> {
+    const resolverEValidar = (iteravel: any, nomeParametro: string) => {
+        const valor = interpretador.resolverValor(iteravel);
+        const itens = new Iteravel(valor).elementos;
+
+        if (
+            itens.length === 0 &&
+            valor !== '' &&
+            !(valor instanceof TuplaN) &&
+            !Array.isArray(valor)
+        ) {
+            throw new ErroEmTempoDeExecucao(
+                {
+                    linha: interpretador.linhaDeclaracaoAtual,
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                } as SimboloInterface,
+                `Parâmetro inválido. O ${nomeParametro} parâmetro deve ser um iterável.`
+            );
+        }
+
+        return itens;
+    };
+
+    const itensPrimeiroIteravel = resolverEValidar(
+        primeiroIteravel,
+        'primeiro'
+    );
+    const itensSegundoIteravel = resolverEValidar(
+        segundoIteravel,
+        'segundo'
+    );
+    const resultado = [];
+    const tamanhoMinimo = Math.min(
+        itensPrimeiroIteravel.length,
+        itensSegundoIteravel.length
+    );
+
+    for (let i = 0; i < tamanhoMinimo; i++) {
+        resultado.push(new TuplaN(
+            interpretador.hashArquivoDeclaracaoAtual,
+            interpretador.linhaDeclaracaoAtual,
+            [
+                new Literal(
+                    interpretador.hashArquivoDeclaracaoAtual,
+                    interpretador.linhaDeclaracaoAtual,
+                    itensPrimeiroIteravel[i],
+                ),
+                new Literal(
+                    interpretador.hashArquivoDeclaracaoAtual,
+                    interpretador.linhaDeclaracaoAtual,
+                    itensSegundoIteravel[i],
+                )
+            ]
+        ));
+    }
+
+    return resultado;
+};
+
+export async function contar(
+    interpretador: InterpretadorInterface,
+    iteravel: any,
+    elemento: any
+): Promise<number> {
+    const valorIteravel = interpretador.resolverValor(iteravel);
+    const itens = new Iteravel(valorIteravel).elementos;
+
+    if (
+        itens.length === 0 &&
+        valorIteravel !== '' &&
+        !(valorIteravel instanceof TuplaN) &&
+        !Array.isArray(valorIteravel)
+    ) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
+        );
+    }
+
+    const elementoResolvido = interpretador.resolverValor(elemento);
+
+    return itens.filter(item => item === elementoResolvido).length;
+};
+
 /**
  * Retorna o primeiro elemento de um iterável que satisfaça a condição definida na função de pesquisa.
  * A execução é interrompida assim que o elemento for encontrado.
@@ -604,6 +695,43 @@ export async function intervalo(
 
     return resultado;
 }
+
+export async function inverter(
+    interpretador: InterpretadorInterface,
+    iteravel: any
+): Promise<any> {
+    const valorIteravel = interpretador.resolverValor(iteravel);
+    const itens = new Iteravel(valorIteravel).elementos;
+
+    if (
+        itens.length === 0 &&
+        valorIteravel !== '' &&
+        !(valorIteravel instanceof TuplaN) &&
+        !Array.isArray(valorIteravel)
+    ) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                linha: interpretador.linhaDeclaracaoAtual,
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            } as SimboloInterface,
+            'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'
+        );
+    }
+
+    const itensInvertidos = [...itens].reverse();
+
+    if (iteravel instanceof TuplaN) {
+        return new TuplaN(
+            interpretador.hashArquivoDeclaracaoAtual,
+            interpretador.linhaDeclaracaoAtual,
+            itensInvertidos
+        );
+    } else if (typeof valorIteravel === 'string') {
+        return itensInvertidos.join('');
+    } else {
+        return itensInvertidos;
+    }
+};
 
 /**
  * Dado um vetor e, opcionalmente, um valor de início, retorna um vetor de dicionários,
@@ -1457,6 +1585,31 @@ export async function tupla(
         itensDaTupla
     );
 }
+
+export async function unico(
+    interpretador: InterpretadorInterface,
+    iteravel: any
+): Promise<any[]> {
+    const valorIteravel = interpretador.resolverValor(iteravel);
+    const itens = new Iteravel(valorIteravel).elementos;
+
+    if (
+        itens.length === 0 &&
+        valorIteravel !== '' &&
+        !(valorIteravel instanceof TuplaN) &&
+        !Array.isArray(valorIteravel)
+    ) {
+        throw new ErroEmTempoDeExecucao(
+            {
+                hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                linha: interpretador.linhaDeclaracaoAtual,
+            } as SimboloInterface,
+            'O argumento passado para a função `unico()` deve ser iterável.'
+        );
+    }
+
+    return [...new Set(itens)];
+};
 
 /**
  * Transforma um iteravel em um vetor.
