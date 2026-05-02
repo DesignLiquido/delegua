@@ -776,6 +776,12 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return '"' + conteudoOriginal.replace(/\{(.*?)\}/g, processarParte) + '"';
     }
 
+    private ignorarComentarios(): void {
+        while (this.verificarTipoSimboloAtual(tiposDeSimbolos.COMENTARIO)) {
+            this.avancarEDevolverAnterior();
+        }
+    }
+
     async primario(): Promise<ConstrutoInterface> {
         const simboloAtual = this.simbolos[this.atual];
 
@@ -829,8 +835,15 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
 
             case tiposDeSimbolos.COLCHETE_ESQUERDO:
                 this.avancarEDevolverAnterior();
+                this.ignorarComentarios();
+
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                    return new Vetor(this.hashArquivo, simboloAtual.linha, [], 'qualquer[]');
+                    return new Vetor(
+                        this.hashArquivo,
+                        simboloAtual.linha,
+                        [],
+                        'qualquer[]'
+                    );
                 }
 
                 // Ao resolver a expressão aqui, identificadores dentro da expressão de compreensão
@@ -840,24 +853,31 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                 this.intuirTipoQualquerParaIdentificadores = false;
 
                 if (this.simbolos[this.atual].tipo === tiposDeSimbolos.PARA) {
-                    return await this.resolverCompreensaoDeLista(retornoExpressaoOuPrimeiroValor);
+                    return await this.resolverCompreensaoDeLista(
+                        retornoExpressaoOuPrimeiroValor
+                    );
                 }
 
                 // Aqui já sabemos que não é uma compreensão de lista.
                 const valoresVetor = [retornoExpressaoOuPrimeiroValor];
                 while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                    if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
-                        this.consumir(
-                            tiposDeSimbolos.VIRGULA,
-                            'Esperado vírgula antes da próxima expressão.'
-                        );
-                    }
-                    const valor = await this.atribuir();
-                    valoresVetor.push(valor);
+                    this.consumir(
+                        tiposDeSimbolos.VIRGULA,
+                        'Esperado vírgula antes da próxima expressão.'
+                    );
+                    this.ignorarComentarios();
+                    valoresVetor.push(await this.atribuir());
+                    this.ignorarComentarios();
                 }
 
                 const tipoVetor = inferirTipoVariavel(valoresVetor);
-                return new Vetor(this.hashArquivo, simboloAtual.linha, valoresVetor, tipoVetor);
+
+                return new Vetor(
+                    this.hashArquivo,
+                    simboloAtual.linha,
+                    valoresVetor,
+                    tipoVetor
+                );
 
             case tiposDeSimbolos.COMENTARIO:
                 const simboloComentario = this.avancarEDevolverAnterior();

@@ -4400,6 +4400,33 @@ describe('Interpretador (Pituguês)', () => {
                     expect(iteravelNulo.elementos).toEqual([]);
                 });
             });
+
+            it('vetor literal multi-linha deve tolerar comentários', async () => {
+                const codigo = [
+                    'numeros = [',
+                    '    # qual animal o mascote do Pituguês é?',
+                    '    # uma serpente ou uma víbora?',
+                    '    1, # comentário legal',
+                    '    2, # comentário magnífico',
+                    '    3 # comentário extraordinário',
+                    '    # pituguês é muito legal!',
+                    '    # pituguês é incrível!',
+                    ']',
+                    'escreva(numeros)'
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                    retornoLexador,
+                    -1
+                );
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('[1, 2, 3]');
+            });
         });
 
         it('termina_com - sufixo encontrado no final', async () => {
