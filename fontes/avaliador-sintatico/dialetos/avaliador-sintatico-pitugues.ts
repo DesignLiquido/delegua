@@ -2390,6 +2390,110 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         );
     }
 
+    private async resolverDecoradorDeAcesso(metodos: any[]): Promise<void> {
+        const simboloDecorador = this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            "Esperado nome do decorador após '@'."
+        );
+
+        const eObtenedor = simboloDecorador.lexema === 'propriedade';
+
+        if (!eObtenedor) {
+            this.consumir(
+                tiposDeSimbolos.PONTO,
+                "Esperado '.' no decorador de definidor."
+            );
+            const simboloDefinidor = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                "Esperado 'definidor'.")
+            ;
+
+            if (simboloDefinidor.lexema !== 'definidor') {
+                throw this.erro(
+                    simboloDefinidor,
+                    "Decorador inválido. Esperado 'definidor'."
+                );
+            }
+        }
+
+        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FUNCAO, tiposDeSimbolos.FUNÇÃO)) {
+            throw this.erro(
+                this.simboloAtual(),
+                "Esperado declaração de 'função' logo após o decorador."
+            );
+        }
+
+        const metodoResolvido = await this.funcao('método', false);
+
+        if (eObtenedor) metodoResolvido.eObtenedor = true;
+        else metodoResolvido.eDefinidor = true;
+
+        metodos.push(metodoResolvido);
+    }
+
+    private async resolverPropriedadeDeClasse(
+        simboloAnterior: SimboloInterface<string>,
+        propriedadesDeClasse: PropriedadeClasse[]
+    ): Promise<void> {
+        let tipoLexema: string | null = null;
+        let valorPropriedade: ConstrutoInterface | null = null;
+        let possuiValorInicial = false;
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+            const simboloTipo = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                'Esperado tipo da propriedade após os dois pontos.'
+            );
+            tipoLexema = simboloTipo.lexema;
+        } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+            valorPropriedade = await this.expressao();
+            possuiValorInicial = true;
+        } else {
+            throw this.erro(
+                this.simboloAtual(),
+                "Esperado ':' (para tipo) ou '=' (para valor) após o nome da propriedade."
+            );
+        }
+
+        propriedadesDeClasse.push(
+            new PropriedadeClasse(
+                simboloAnterior,
+                tipoLexema,
+                [],
+                'publico',
+                possuiValorInicial,
+                valorPropriedade
+            )
+        );
+    }
+
+    private async resolverMetodoOuConstrutor(
+        simboloAnterior: SimboloInterface<string>,
+        metodos: any[]
+    ): Promise<void> {
+        const ehConstrutor = simboloAnterior.tipo === tiposDeSimbolos.CONSTRUTOR;
+        const metodoResolvido = await this.funcao('método', ehConstrutor);
+        metodos.push(metodoResolvido);
+    }
+
+    protected async resolverMembroDeClasse(
+        metodos: any[],
+        propriedadesDeClasse: PropriedadeClasse[]
+    ): Promise<void> {
+        const simboloAnterior = this.simbolos[this.atual - 1];
+
+        if (simboloAnterior.tipo === tiposDeSimbolos.ARROBA) {
+            await this.resolverDecoradorDeAcesso(metodos);
+        } else if (simboloAnterior.tipo === tiposDeSimbolos.IDENTIFICADOR) {
+            await this.resolverPropriedadeDeClasse(
+                simboloAnterior,
+                propriedadesDeClasse
+            );
+        } else {
+            await this.resolverMetodoOuConstrutor(simboloAnterior, metodos);
+        }
+    }
+
     async declaracaoDeClasse(): Promise<Classe> {
         const simbolo: SimboloInterface = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
@@ -2440,92 +2544,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                 tiposDeSimbolos.IDENTIFICADOR
             )
         ) {
-            const simboloAnterior = this.simbolos[this.atual - 1];
-
-            if (simboloAnterior.tipo === tiposDeSimbolos.ARROBA) {
-                let tipoDeAcesso = 'normal';
-
-                const simboloDecorador = this.consumir(
-                    tiposDeSimbolos.IDENTIFICADOR,
-                    "Esperado nome do decorador após '@'."
-                );
-
-                if (simboloDecorador.lexema === 'propriedade') {
-                    tipoDeAcesso = 'getter';
-                } else {
-                    this.consumir(
-                        tiposDeSimbolos.PONTO,
-                        "Esperado '.' no decorador de definidor."
-                    );
-
-                    const simboloDefinidor = this.consumir(
-                        tiposDeSimbolos.IDENTIFICADOR,
-                        "Esperado 'definidor'."
-                    );
-
-                    if (simboloDefinidor.lexema !== 'definidor') {
-                        throw this.erro(
-                            simboloDefinidor,
-                            "Decorador inválido. Esperado 'definidor'."
-                        );
-                    }
-
-                    tipoDeAcesso = 'setter';
-                }
-
-                if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FUNCAO, tiposDeSimbolos.FUNÇÃO)) {
-                    throw this.erro(
-                        this.simboloAtual(),
-                        "Esperado declaração de 'função' logo após o decorador."
-                    );
-                }
-
-                const metodoResolvido = await this.funcao('método', false);
-                (metodoResolvido as any).tipoDeAcesso = tipoDeAcesso;
-                metodos.push(metodoResolvido);
-            } else if (simboloAnterior.tipo === tiposDeSimbolos.IDENTIFICADOR) {
-                if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
-                    const simboloTipo = this.consumir(
-                        tiposDeSimbolos.IDENTIFICADOR,
-                        'Esperado tipo da propriedade após os dois pontos.'
-                    );
-                    const propriedade = new PropriedadeClasse(
-                        simboloAnterior,
-                        simboloTipo.lexema,
-                        [],
-                        'publico',
-                        false,
-                        undefined
-                    );
-
-                    propriedadesDeClasse.push(propriedade);
-                } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-                    const valorPropriedade = await this.expressao();
-                    const propriedade = new PropriedadeClasse(
-                        simboloAnterior,
-                        undefined,
-                        [],
-                        'publico',
-                        true,
-                        valorPropriedade
-                    );
-
-                    propriedadesDeClasse.push(propriedade);
-                } else {
-                    throw this.erro(
-                        this.simboloAtual(),
-                        "Esperado ':' (para tipo) ou '=' (para valor) após o nome da propriedade."
-                    );
-                }
-            } else {
-                const ehConstrutor = simboloAnterior.tipo === tiposDeSimbolos.CONSTRUTOR;
-                const metodoResolvido = await this.funcao(
-                    'método',
-                    ehConstrutor
-                );
-
-                metodos.push(metodoResolvido);
-            }
+            await this.resolverMembroDeClasse(metodos, propriedadesDeClasse);
         }
 
         this.superclasseAtual = undefined;

@@ -452,25 +452,4 @@ export class InterpretadorPitugues extends Interpretador {
 
         return await this.avaliar(novaChamada);
     }
-
-    protected override resolverMetodoDeClasse(
-        declaracao: Classe,
-        superClassesResolvidas: DescritorTipoClasse[],
-        mesclaResolvidas: DescritorTipoClasse[]
-    ): DescritorTipoClasse {
-        for (const metodo of declaracao.metodos) {
-            const tipoDeAcesso = (metodo as any).tipoDeAcesso;
-            if (tipoDeAcesso === 'getter') {
-                (metodo as any).eObtenedor = true;
-            } else if (tipoDeAcesso === 'setter') {
-                (metodo as any).eDefinidor = true;
-            }
-        }
-
-        return super.resolverMetodoDeClasse(
-            declaracao,
-            superClassesResolvidas,
-            mesclaResolvidas
-        );
-    }
 }
