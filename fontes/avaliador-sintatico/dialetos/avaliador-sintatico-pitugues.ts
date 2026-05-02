@@ -2433,6 +2433,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             !this.estaNoFinal() &&
             this.localizacoes[this.simboloAtual().linha].espacosIndentacao === indentacaoLinha &&
             this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.ARROBA,
                 tiposDeSimbolos.CONSTRUTOR,
                 tiposDeSimbolos.FUNCAO,
                 tiposDeSimbolos.FUNÇÃO,
@@ -2441,7 +2442,48 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         ) {
             const simboloAnterior = this.simbolos[this.atual - 1];
 
-            if (simboloAnterior.tipo === tiposDeSimbolos.IDENTIFICADOR) {
+            if (simboloAnterior.tipo === tiposDeSimbolos.ARROBA) {
+                let tipoDeAcesso = 'normal';
+
+                const simboloDecorador = this.consumir(
+                    tiposDeSimbolos.IDENTIFICADOR,
+                    "Esperado nome do decorador após '@'."
+                );
+
+                if (simboloDecorador.lexema === 'propriedade') {
+                    tipoDeAcesso = 'getter';
+                } else {
+                    this.consumir(
+                        tiposDeSimbolos.PONTO,
+                        "Esperado '.' no decorador de definidor."
+                    );
+
+                    const simboloDefinidor = this.consumir(
+                        tiposDeSimbolos.IDENTIFICADOR,
+                        "Esperado 'definidor'."
+                    );
+
+                    if (simboloDefinidor.lexema !== 'definidor') {
+                        throw this.erro(
+                            simboloDefinidor,
+                            "Decorador inválido. Esperado 'definidor'."
+                        );
+                    }
+
+                    tipoDeAcesso = 'setter';
+                }
+
+                if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FUNCAO, tiposDeSimbolos.FUNÇÃO)) {
+                    throw this.erro(
+                        this.simboloAtual(),
+                        "Esperado declaração de 'função' logo após o decorador."
+                    );
+                }
+
+                const metodoResolvido = await this.funcao('método', false);
+                (metodoResolvido as any).tipoDeAcesso = tipoDeAcesso;
+                metodos.push(metodoResolvido);
+            } else if (simboloAnterior.tipo === tiposDeSimbolos.IDENTIFICADOR) {
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
                     const simboloTipo = this.consumir(
                         tiposDeSimbolos.IDENTIFICADOR,
