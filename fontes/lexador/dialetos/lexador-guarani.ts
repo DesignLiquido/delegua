@@ -1,4 +1,4 @@
-import { RetornoLexador } from '../../interfaces/retornos';
+import { RetornoLexadorInterface } from '../../interfaces/retornos';
 import { LexadorBase } from '../lexador-base';
 
 import { ErroLexador } from '../erro-lexador';
@@ -110,7 +110,7 @@ export class LexadorGuarani extends LexadorBase {
         }
     }
 
-    mapear(codigo: string[], hashArquivo: number): RetornoLexador<SimboloInterface> {
+    mapear(codigo: string[], hashArquivo: number): RetornoLexadorInterface<SimboloInterface> {
         this.erros = [];
         this.simbolos = [];
         this.inicioSimbolo = 0;
@@ -132,6 +132,6 @@ export class LexadorGuarani extends LexadorBase {
         return {
             simbolos: this.simbolos,
             erros: this.erros,
-        } as RetornoLexador<SimboloInterface>;
+        } as RetornoLexadorInterface<SimboloInterface>;
     }
 }

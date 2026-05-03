@@ -1,4 +1,5 @@
-import hrtime from 'browser-process-hrtime';
+﻿import hrtime from 'browser-process-hrtime';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
 import {
     AcessoIndiceVariavel,
@@ -14,7 +15,6 @@ import {
     Chamada,
     ComentarioComoConstruto,
     ComponenteLinguagem,
-    Construto,
     Decorador,
     DefinirValor,
     Dicionario,
@@ -45,14 +45,14 @@ import {
 import {
     AvaliadorSintaticoInterface,
     CaminhoEscolha,
+    CorrecaoImplementacaoInterface,
+    MembroInterfaceFaltandoInterface,
     ParametroInterface,
     SimboloInterface,
 } from '../interfaces';
 
 import {
-    CorrecaoImplementacaoInterface,
-    ErroAvaliadorSintatico,
-    MembroInterfaceFaltando,
+    ErroAvaliadorSintatico
 } from './erro-avaliador-sintatico';
 
 import {
@@ -96,8 +96,8 @@ import {
     Tente,
     Var,
 } from '../declaracoes';
-import { RetornoAvaliadorSintatico } from '../interfaces/retornos/retorno-avaliador-sintatico';
-import { RetornoLexador } from '../interfaces/retornos/retorno-lexador';
+import { RetornoAvaliadorSintaticoInterface } from '../interfaces/retornos/retorno-avaliador-sintatico-interface';
+import { RetornoLexadorInterface } from '../interfaces/retornos/retorno-lexador-interface';
 import { AvaliadorSintaticoBase } from './avaliador-sintatico-base';
 import { inferirTipoVariavel, TipoInferencia } from '../inferenciador';
 import { PilhaEscopos } from './pilha-escopos';
@@ -385,7 +385,7 @@ export class AvaliadorSintatico
         }
     }
 
-    protected async obterChaveDicionario(): Promise<Construto> {
+    protected async obterChaveDicionario(): Promise<ConstrutoInterface> {
         switch (this.simbolos[this.atual].tipo) {
             case tiposDeSimbolos.NUMERO:
             case tiposDeSimbolos.TEXTO:
@@ -495,7 +495,7 @@ export class AvaliadorSintatico
         return new EnquantoComoConstruto(condicao, corpo);
     }
 
-    protected async fazerComoConstruto(simboloFazer: SimboloInterface): Promise<Construto> {
+    protected async fazerComoConstruto(simboloFazer: SimboloInterface): Promise<ConstrutoInterface> {
         try {
             this.blocos += 1;
 
@@ -563,8 +563,8 @@ export class AvaliadorSintatico
             simboloPara.hashArquivo,
             simboloPara.linha,
             inicializador as Expressao | Var[] | Const[],
-            condicao as Construto,
-            incrementar as Construto,
+            condicao as ConstrutoInterface,
+            incrementar as ConstrutoInterface,
             corpo
         );
     }
@@ -593,7 +593,7 @@ export class AvaliadorSintatico
      * @returns {ListaCompreensao} A lista de compreensão resolvida.
      */
     protected async resolverCompreensaoDeLista(
-        retornoExpressao: Construto
+        retornoExpressao: ConstrutoInterface
     ): Promise<ListaCompreensao> {
         this.consumir(tiposDeSimbolos.PARA, "Esperado instrução 'para' após identificador.");
         this.consumir(tiposDeSimbolos.CADA, "Esperado instrução 'cada' após 'para'.");
@@ -613,7 +613,7 @@ export class AvaliadorSintatico
         const localizacaoVetor = this.simboloAnterior();
         const vetor = await this.ou();
 
-        let condicao: Construto | Declaracao | null = null;
+        let condicao: ConstrutoInterface | Declaracao | null = null;
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SE)) {
             condicao = await this.expressao();
         } else {
@@ -660,7 +660,7 @@ export class AvaliadorSintatico
         );
     }
 
-    override async primario(): Promise<Construto> {
+    override async primario(): Promise<ConstrutoInterface> {
         const simboloAtual = this.simbolos[this.atual];
         let valores = [];
         switch (simboloAtual.tipo) {
@@ -718,7 +718,7 @@ export class AvaliadorSintatico
                 }
 
                 // Remover comentários, verificar se vírgulas fazem sentido.
-                const valoresSemComentarios: Construto[] = valores.filter(
+                const valoresSemComentarios: ConstrutoInterface[] = valores.filter(
                     (v) => v.constructor !== ComentarioComoConstruto
                 );
                 let elementoSeparador = false; // O primeiro elemento não pode ser separador.
@@ -912,7 +912,7 @@ export class AvaliadorSintatico
             case tiposDeSimbolos.TIPO:
                 this.avancarEDevolverAnterior();
                 this.consumir(tiposDeSimbolos.DE, "Esperado 'de' após 'tipo'.");
-                let construto: Construto;
+                let construto: ConstrutoInterface;
                 if (
                     this.verificarSeSimboloAtualEIgualA(
                         tiposDeSimbolos.ESCREVA,
@@ -1070,7 +1070,7 @@ export class AvaliadorSintatico
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
     }
 
-    protected resolverTipoAcessoIndiceVariavel(expressaoAnterior: Construto): string {
+    protected resolverTipoAcessoIndiceVariavel(expressaoAnterior: ConstrutoInterface): string {
         let identificadorAcessado: string = '';
         switch (expressaoAnterior.constructor) {
             case Variavel:
@@ -1120,7 +1120,7 @@ export class AvaliadorSintatico
      * @param construto O construto.
      * @returns O `ElementoMontaoTipos` correspondente ou `null` se não existir.
      */
-    protected resolverElementoMontao(construto: Construto): ElementoMontaoTipos | null {
+    protected resolverElementoMontao(construto: ConstrutoInterface): ElementoMontaoTipos | null {
         switch (construto.constructor) {
             case Variavel:
                 try {
@@ -1168,9 +1168,9 @@ export class AvaliadorSintatico
     }
 
     protected async resolverCadeiaChamadas(
-        expressaoAnterior: Construto,
+        expressaoAnterior: ConstrutoInterface,
         tipoAnterior: string = 'qualquer'
-    ): Promise<Construto> {
+    ): Promise<ConstrutoInterface> {
         if (!this.simbolos[this.atual]) {
             return expressaoAnterior;
         }
@@ -1228,7 +1228,7 @@ export class AvaliadorSintatico
         }
     }
 
-    override async chamar(): Promise<Construto> {
+    override async chamar(): Promise<ConstrutoInterface> {
         let expressao = await this.primario();
         return await this.resolverCadeiaChamadas(expressao);
     }
@@ -1237,12 +1237,12 @@ export class AvaliadorSintatico
      * `AcessoMetodoOuPropriedade` é um construto intermediário em Delégua, e deve ser resolvido como outro
      * construto antes de qualquer outra próxima etapa. Algumas validações adicionais também ocorrem aqui.
      * @param {AcessoMetodoOuPropriedade} entidadeChamadaResolvida O construto original.
-     * @returns {Construto} O construto resolvido como um tipo mais específico.
+     * @returns {ConstrutoInterface} O construto resolvido como um tipo mais específico.
      * @see finalizarChamada
      */
     protected resolverEntidadeChamadaAcessoMetodoOuPropriedade(
         entidadeChamadaResolvida: AcessoMetodoOuPropriedade
-    ): Construto {
+    ): ConstrutoInterface {
         const construtoTipado: AcessoMetodoOuPropriedade = entidadeChamadaResolvida;
         const acessoMetodoConhecido = this.resolverAcessoMetodoConhecido(construtoTipado);
         if (acessoMetodoConhecido) {
@@ -1389,7 +1389,7 @@ export class AvaliadorSintatico
 
     protected validarArgumentosEntidadeChamada(
         argumentosEntidadeChamada: InformacaoElementoSintatico[],
-        argumentosUtilizados: Construto[]
+        argumentosUtilizados: ConstrutoInterface[]
     ): string[] {
         if (argumentosEntidadeChamada.length === 0) {
             return [];
@@ -1461,10 +1461,10 @@ export class AvaliadorSintatico
      * @returns A entidade chamada resolvida, se as validações passarem.
      */
     protected resolverEntidadeChamada(
-        entidadeChamada: Construto,
-        argumentos: Construto[],
+        entidadeChamada: ConstrutoInterface,
+        argumentos: ConstrutoInterface[],
         tipoPrimitiva: string | undefined = undefined
-    ): Construto {
+    ): ConstrutoInterface {
         if (entidadeChamada.constructor === AcessoMetodoOuPropriedade) {
             return this.resolverEntidadeChamadaAcessoMetodoOuPropriedade(
                 entidadeChamada as AcessoMetodoOuPropriedade
@@ -1575,10 +1575,10 @@ export class AvaliadorSintatico
     }
 
     override async finalizarChamada(
-        entidadeChamada: Construto,
+        entidadeChamada: ConstrutoInterface,
         tipoPrimitiva: string | undefined = undefined
     ): Promise<Chamada> {
-        const argumentos: Array<Construto> = [];
+        const argumentos: Array<ConstrutoInterface> = [];
 
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             do {
@@ -1615,7 +1615,7 @@ export class AvaliadorSintatico
         return construtoChamada;
     }
 
-    override async unario(): Promise<Construto> {
+    override async unario(): Promise<ConstrutoInterface> {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTERROGACAO)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = await this.unario();
@@ -1650,8 +1650,8 @@ export class AvaliadorSintatico
 
     private verificarOperandosComparacao(
         operador: SimboloInterface,
-        esquerda: Construto,
-        direita: Construto
+        esquerda: ConstrutoInterface,
+        direita: ConstrutoInterface
     ): void {
         if (esquerda instanceof Literal && direita instanceof Literal) {
             const tipoEsquerda = (esquerda as Literal).tipo;
@@ -1673,7 +1673,7 @@ export class AvaliadorSintatico
         }
     }
 
-    private verificarOperandoNegacao(operador: any, operando: Construto): void {
+    private verificarOperandoNegacao(operador: any, operando: ConstrutoInterface): void {
         if (operando instanceof Literal) {
             if (operando.tipo !== 'lógico') {
                 this.erros.push(
@@ -1699,7 +1699,7 @@ export class AvaliadorSintatico
      * Por isso `direito` chama `exponenciacao()`, e não `unario()`.
      * @returns {Binario} A expressão binária na forma do construto `Binario`.
      */
-    override async exponenciacao(): Promise<Construto> {
+    override async exponenciacao(): Promise<ConstrutoInterface> {
         let expressao = await this.unario();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EXPONENCIACAO)) {
@@ -1715,7 +1715,7 @@ export class AvaliadorSintatico
      * Verifica recursivamente se um construto é ou contém uma operação unária em um vetor.
      * Isso bloqueia padrões de ofuscação como !![] usado em operações aritméticas.
      */
-    private verificarOperacaoUnariaEmVetor(construto: Construto): boolean {
+    private verificarOperacaoUnariaEmVetor(construto: ConstrutoInterface): boolean {
         if (construto instanceof Unario) {
             const operando = construto.operando;
             // Verifica se o operando é um vetor
@@ -1735,8 +1735,8 @@ export class AvaliadorSintatico
     }
 
     protected verificacaoOperacoesBinariasIlegais(
-        esquerdo: Construto,
-        direito: Construto,
+        esquerdo: ConstrutoInterface,
+        direito: ConstrutoInterface,
         operador: SimboloInterface
     ) {
         // Bloquear operações aritméticas com operações unárias em vetores (padrão de ofuscação tipo !![] * 1)
@@ -1791,7 +1791,7 @@ export class AvaliadorSintatico
         }
     }
 
-    override async multiplicar(): Promise<Construto> {
+    override async multiplicar(): Promise<ConstrutoInterface> {
         let expressao = await this.exponenciacao();
 
         while (
@@ -1825,7 +1825,7 @@ export class AvaliadorSintatico
      * ser avaliado pelo Interpretador.
      * @returns Um Construto, normalmente um `Binario`, ou `Unario` se houver alguma operação unária para ser avaliada.
      */
-    override async adicaoOuSubtracao(): Promise<Construto> {
+    override async adicaoOuSubtracao(): Promise<ConstrutoInterface> {
         let expressao = await this.multiplicar();
 
         while (
@@ -1863,7 +1863,7 @@ export class AvaliadorSintatico
         return expressao;
     }
 
-    override async bitShift(): Promise<Construto> {
+    override async bitShift(): Promise<ConstrutoInterface> {
         let expressao = await this.adicaoOuSubtracao();
 
         while (
@@ -1885,7 +1885,7 @@ export class AvaliadorSintatico
         return expressao;
     }
 
-    override async bitE(): Promise<Construto> {
+    override async bitE(): Promise<ConstrutoInterface> {
         let expressao = await this.bitShift();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIT_AND)) {
@@ -1902,7 +1902,7 @@ export class AvaliadorSintatico
         return expressao;
     }
 
-    override async bitOu(): Promise<Construto> {
+    override async bitOu(): Promise<ConstrutoInterface> {
         let expressao = await this.bitE();
 
         while (
@@ -1921,7 +1921,7 @@ export class AvaliadorSintatico
         return expressao;
     }
 
-    override async comparar(): Promise<Construto> {
+    override async comparar(): Promise<ConstrutoInterface> {
         let expressao = await this.bitOu();
 
         while (
@@ -1947,7 +1947,7 @@ export class AvaliadorSintatico
         return expressao;
     }
 
-    override async comparacaoIgualdade(): Promise<Construto> {
+    override async comparacaoIgualdade(): Promise<ConstrutoInterface> {
         let expressao = await this.comparar();
 
         while (
@@ -1971,7 +1971,7 @@ export class AvaliadorSintatico
         return expressao;
     }
 
-    override async em(): Promise<Construto> {
+    override async em(): Promise<ConstrutoInterface> {
         let expressao = await this.comparacaoIgualdade();
 
         while (
@@ -1999,7 +1999,7 @@ export class AvaliadorSintatico
         return expressao;
     }
 
-    override async e(): Promise<Construto> {
+    override async e(): Promise<ConstrutoInterface> {
         let expressao = await this.em();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.E)) {
@@ -2011,7 +2011,7 @@ export class AvaliadorSintatico
         return expressao;
     }
 
-    protected async elvis(): Promise<Construto> {
+    protected async elvis(): Promise<ConstrutoInterface> {
         let expressao = await this.ou();
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ELVIS)) {
@@ -2022,7 +2022,7 @@ export class AvaliadorSintatico
         return expressao;
     }
 
-    protected async seTernario(): Promise<Construto> {
+    protected async seTernario(): Promise<ConstrutoInterface> {
         let expressaoOuCondicao = await this.elvis();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTERROGACAO)) {
@@ -2054,7 +2054,7 @@ export class AvaliadorSintatico
      * Se não houver vírgula, retorna apenas a expressão simples.
      * Sobrescreve o método da base para usar seTernario() em vez de ou().
      */
-    override async tupla(): Promise<Construto> {
+    override async tupla(): Promise<ConstrutoInterface> {
         let expressao = await this.seTernario();
 
         // Se não há vírgula, retorna a expressão simples
@@ -2079,7 +2079,7 @@ export class AvaliadorSintatico
      * Método que resolve atribuições.
      * @returns Um construto do tipo `Atribuir`, `Conjunto` ou `AtribuicaoPorIndice`.
      */
-    override async atribuir(): Promise<Construto> {
+    override async atribuir(): Promise<ConstrutoInterface> {
         const expressao = await this.seTernario();
 
         if (
@@ -2166,7 +2166,7 @@ export class AvaliadorSintatico
             "Esperado '(' antes dos argumentos em instrução `leia`."
         );
 
-        const argumentos: Construto[] = [];
+        const argumentos: ConstrutoInterface[] = [];
 
         if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.PARENTESE_DIREITO) {
             do {
@@ -2183,7 +2183,7 @@ export class AvaliadorSintatico
     }
 
     // TODO: Depreciar.
-    override async expressao(): Promise<Construto> {
+    override async expressao(): Promise<ConstrutoInterface> {
         return await this.atribuir();
     }
 
@@ -2363,7 +2363,7 @@ export class AvaliadorSintatico
             "Esperado '(' antes dos valores em escreva."
         );
 
-        const argumentos: Construto[] = [];
+        const argumentos: ConstrutoInterface[] = [];
 
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             do {
@@ -2402,8 +2402,8 @@ export class AvaliadorSintatico
 
     protected async declaracaoAssercao(): Promise<Se> {
         const simboloAssercao: SimboloInterface = this.simbolos[this.atual - 1];
-        let condicao: Construto;
-        let mensagemFalha: Construto;
+        let condicao: ConstrutoInterface;
+        let mensagemFalha: ConstrutoInterface;
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
             condicao = await this.expressao();
@@ -2557,7 +2557,7 @@ export class AvaliadorSintatico
             tiposDeSimbolos.DE,
             "Esperado 'de' após identificador em declaração de importação de 'tudo'."
         );
-        let construtoCaminhoModulo: Construto;
+        let construtoCaminhoModulo: ConstrutoInterface;
         switch (this.simbolos[this.atual].tipo) {
             case tiposDeSimbolos.TEXTO:
                 const simboloCaminhoModulo = this.avancarEDevolverAnterior();
@@ -2821,8 +2821,8 @@ export class AvaliadorSintatico
             this.hashArquivo,
             Number(simboloPara.linha),
             inicializador as Expressao,
-            condicao as Construto,
-            incrementar as Construto,
+            condicao as ConstrutoInterface,
+            incrementar as ConstrutoInterface,
             corpo
         );
     }
@@ -2855,7 +2855,7 @@ export class AvaliadorSintatico
 
         // Ponto-e-vírgula é opcional aqui.
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-        return new Retorna(simboloChave, valor as Construto);
+        return new Retorna(simboloChave, valor as ConstrutoInterface);
     }
 
     override async declaracaoSe(): Promise<Se> {
@@ -3190,7 +3190,7 @@ export class AvaliadorSintatico
     }
 
     protected logicaComumInferenciaTiposVariaveisEConstantes(
-        inicializador: Construto,
+        inicializador: ConstrutoInterface,
         tipo: string
     ): string | undefined {
         if (tipo !== 'qualquer') {
@@ -3279,7 +3279,7 @@ export class AvaliadorSintatico
         }
     }
 
-    protected resolverValorConstruto(construto: Construto): string {
+    protected resolverValorConstruto(construto: ConstrutoInterface): string {
         if (construto instanceof Literal) {
             return String(construto.valor);
         }
@@ -3291,7 +3291,7 @@ export class AvaliadorSintatico
     }
 
     protected resolverInformacaoElementoSintaticoDeDicionario(
-        construto: Construto
+        construto: ConstrutoInterface
     ): ElementoMontaoTipos {
         let retorno: ElementoMontaoTipos;
         if (construto instanceof Dicionario) {
@@ -4366,7 +4366,7 @@ export class AvaliadorSintatico
                 continue;
             }
 
-            const membrosFaltando: MembroInterfaceFaltando[] = [];
+            const membrosFaltando: MembroInterfaceFaltandoInterface[] = [];
 
             for (const assinatura of interfaceDecl.metodos) {
                 const nomeMetodo = assinatura.nome.lexema;
@@ -5110,9 +5110,9 @@ export class AvaliadorSintatico
     }
 
     async analisar(
-        retornoLexador: RetornoLexador<SimboloInterface>,
+        retornoLexador: RetornoLexadorInterface<SimboloInterface>,
         hashArquivo: number
-    ): Promise<RetornoAvaliadorSintatico<Declaracao>> {
+    ): Promise<RetornoAvaliadorSintaticoInterface<Declaracao>> {
         const inicioAnalise: [number, number] = hrtime();
         this.erros = [];
         this.atual = 0;
@@ -5148,6 +5148,8 @@ export class AvaliadorSintatico
         return {
             declaracoes: declaracoes,
             erros: this.erros,
-        } as RetornoAvaliadorSintatico<Declaracao>;
+        } as RetornoAvaliadorSintaticoInterface<Declaracao>;
     }
 }
+
+

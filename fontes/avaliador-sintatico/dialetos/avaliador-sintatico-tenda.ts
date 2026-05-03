@@ -11,7 +11,6 @@ import {
     Atribuir,
     Binario,
     Chamada,
-    Construto,
     DefinirValor,
     Dicionario,
     ExpressaoRegular,
@@ -27,7 +26,7 @@ import {
     Variavel,
     Vetor,
 } from '../../construtos';
-import { ParametroInterface, SimboloInterface } from '../../interfaces';
+import { ConstrutoInterface, ParametroInterface, SimboloInterface } from '../../interfaces';
 
 import { ErroAvaliadorSintatico } from './../erro-avaliador-sintatico';
 
@@ -59,8 +58,8 @@ import {
     Sustar,
     Var,
 } from '../../declaracoes';
-import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
-import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
+import { RetornoAvaliadorSintaticoInterface } from '../../interfaces/retornos/retorno-avaliador-sintatico-interface';
+import { RetornoLexadorInterface } from '../../interfaces/retornos/retorno-lexador-interface';
 import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 import { inferirTipoVariavel, TipoInferencia } from '../../inferenciador';
 import { PilhaEscopos } from './../pilha-escopos';
@@ -203,7 +202,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         return tipoElementarResolvido as TipoInferencia;
     }
 
-    protected async obterChaveDicionario(): Promise<Construto> {
+    protected async obterChaveDicionario(): Promise<ConstrutoInterface> {
         switch (this.simbolos[this.atual].tipo) {
             case tiposDeSimbolos.NUMERO:
             case tiposDeSimbolos.TEXTO:
@@ -295,7 +294,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         return new SeletorTuplas(...argumentos) as Tupla;
     }
 
-    override async primario(): Promise<Construto> {
+    override async primario(): Promise<ConstrutoInterface> {
         const simboloAtual = this.simbolos[this.atual];
         let valores = [];
         switch (simboloAtual.tipo) {
@@ -475,7 +474,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
     }
 
-    override async chamar(): Promise<Construto> {
+    override async chamar(): Promise<ConstrutoInterface> {
         let expressao = await this.primario();
 
         while (true) {
@@ -527,12 +526,12 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
      * `AcessoMetodoOuPropriedade` é um construto intermediário em Delégua, e deve ser resolvido como outro
      * construto antes de qualquer outra próxima etapa. Algumas validações adicionais também ocorrem aqui.
      * @param {AcessoMetodoOuPropriedade} entidadeChamadaResolvida O construto original.
-     * @returns {Construto} O construto resolvido como um tipo mais específico.
+     * @returns {ConstrutoInterface} O construto resolvido como um tipo mais específico.
      * @see finalizarChamada
      */
     protected resolverEntidadeChamadaAcessoMetodoOuPropriedade(
         entidadeChamadaResolvida: AcessoMetodoOuPropriedade
-    ): Construto {
+    ): ConstrutoInterface {
         const construtoTipado: AcessoMetodoOuPropriedade = entidadeChamadaResolvida;
         switch (entidadeChamadaResolvida.tipo) {
             case tipoDeDadosDelegua.DICIONARIO:
@@ -628,7 +627,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
 
     protected validarArgumentosEntidadeChamada(
         argumentosEntidadeChamada: InformacaoElementoSintatico[],
-        argumentosUtilizados: Construto[]
+        argumentosUtilizados: ConstrutoInterface[]
     ): string[] {
         if (argumentosEntidadeChamada.length === 0) {
             return [];
@@ -675,10 +674,10 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
      * @returns A entidade chamada resolvida, se as validações passarem.
      */
     protected resolverEntidadeChamada(
-        entidadeChamada: Construto,
-        argumentos: Construto[],
+        entidadeChamada: ConstrutoInterface,
+        argumentos: ConstrutoInterface[],
         tipoPrimitiva: string | undefined = undefined
-    ): Construto {
+    ): ConstrutoInterface {
         if (entidadeChamada.constructor === Variavel) {
             const entidadeChamadaResolvidaVariavel = entidadeChamada as Variavel;
 
@@ -736,8 +735,8 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
 
             if (possivelReferencia !== null) {
                 return new ReferenciaFuncao(
-                    (entidadeChamada as Construto).hashArquivo,
-                    (entidadeChamada as Construto).linha,
+                    (entidadeChamada as ConstrutoInterface).hashArquivo,
+                    (entidadeChamada as ConstrutoInterface).linha,
                     entidadeChamadaResolvidaVariavel.simbolo,
                     entidadeChamadaResolvidaVariavel.tipo,
                     possivelReferencia.id
@@ -745,8 +744,8 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
             }
 
             return new ArgumentoReferenciaFuncao(
-                (entidadeChamada as Construto).hashArquivo,
-                (entidadeChamada as Construto).linha,
+                (entidadeChamada as ConstrutoInterface).hashArquivo,
+                (entidadeChamada as ConstrutoInterface).linha,
                 entidadeChamadaResolvidaVariavel.simbolo
             );
         }
@@ -785,10 +784,10 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
     }
 
     override async finalizarChamada(
-        entidadeChamada: Construto,
+        entidadeChamada: ConstrutoInterface,
         tipoPrimitiva: string | undefined = undefined
     ): Promise<Chamada> {
-        const argumentos: Array<Construto> = [];
+        const argumentos: Array<ConstrutoInterface> = [];
 
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             do {
@@ -822,7 +821,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         return construtoChamada;
     }
 
-    override async unario(): Promise<Construto> {
+    override async unario(): Promise<ConstrutoInterface> {
         if (
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.NÃO,
@@ -840,7 +839,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         return await this.chamar();
     }
 
-    override async multiplicar(): Promise<Construto> {
+    override async multiplicar(): Promise<ConstrutoInterface> {
         let expressao = await this.exponenciacao();
 
         while (
@@ -869,7 +868,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
      * ser avaliado pelo Interpretador.
      * @returns Um Construto, normalmente um `Binario`, ou `Unario` se houver alguma operação unária para ser avaliada.
      */
-    override async adicaoOuSubtracao(): Promise<Construto> {
+    override async adicaoOuSubtracao(): Promise<ConstrutoInterface> {
         let expressao = await this.multiplicar();
 
         while (
@@ -889,7 +888,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    override async bitShift(): Promise<Construto> {
+    override async bitShift(): Promise<ConstrutoInterface> {
         let expressao = await this.adicaoOuSubtracao();
 
         while (
@@ -911,7 +910,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    override async bitE(): Promise<Construto> {
+    override async bitE(): Promise<ConstrutoInterface> {
         let expressao = await this.bitShift();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIT_AND)) {
@@ -928,7 +927,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    override async bitOu(): Promise<Construto> {
+    override async bitOu(): Promise<ConstrutoInterface> {
         let expressao = await this.bitE();
 
         while (
@@ -947,7 +946,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    override async comparar(): Promise<Construto> {
+    override async comparar(): Promise<ConstrutoInterface> {
         let expressao = await this.bitOu();
 
         while (
@@ -971,7 +970,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    override async comparacaoIgualdade(): Promise<Construto> {
+    override async comparacaoIgualdade(): Promise<ConstrutoInterface> {
         let expressao = await this.comparar();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NÃO, tiposDeSimbolos.É)) {
@@ -995,7 +994,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    override async em(): Promise<Construto> {
+    override async em(): Promise<ConstrutoInterface> {
         let expressao = await this.comparacaoIgualdade();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.TEM)) {
@@ -1007,7 +1006,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         return expressao;
     }
 
-    override async e(): Promise<Construto> {
+    override async e(): Promise<ConstrutoInterface> {
         let expressao = await this.em();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.E)) {
@@ -1023,7 +1022,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
      * Método que resolve atribuições.
      * @returns Um construto do tipo `Atribuir`, `Conjunto` ou `AtribuicaoPorIndice`.
      */
-    override async atribuir(): Promise<Construto> {
+    override async atribuir(): Promise<ConstrutoInterface> {
         const expressao = await this.ou();
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
@@ -1072,7 +1071,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
             "Esperado '(' antes dos argumentos em instrução `leia`."
         );
 
-        const argumentos: Construto[] = [];
+        const argumentos: ConstrutoInterface[] = [];
 
         if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.PARENTESE_DIREITO) {
             do {
@@ -1089,7 +1088,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
     }
 
     // TODO: Depreciar.
-    override async expressao(): Promise<Construto> {
+    override async expressao(): Promise<ConstrutoInterface> {
         return await this.atribuir();
     }
 
@@ -1166,7 +1165,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
             "Esperado '(' antes dos valores em escreva."
         );
 
-        const argumentos: Construto[] = [];
+        const argumentos: ConstrutoInterface[] = [];
 
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             do {
@@ -1231,7 +1230,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
     protected async declaracaoParaCada(
         simboloParaCada: SimboloInterface,
         simboloVariavelIteracao: SimboloInterface,
-        literalOuVariavelIteravel: Construto
+        literalOuVariavelIteravel: ConstrutoInterface
     ): Promise<ParaCada> {
         const tipoVetor = (literalOuVariavelIteravel as any).tipo as string;
         // TODO: Permitir 'qualquer' aqui é bastante frágil. Criar uma forma de validar o tipo
@@ -1272,7 +1271,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
     protected async declaracaoParaTradicional(
         simboloPara: SimboloInterface,
         simboloVariavelIteracao: SimboloInterface,
-        literalOuVariavelInicio: Construto
+        literalOuVariavelInicio: ConstrutoInterface
     ): Promise<Para> {
         this.consumir(
             tiposDeSimbolos.ATÉ,
@@ -1486,7 +1485,7 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         return await this.declaracaoExpressao();
     }
 
-    protected logicaComumInferenciaTiposVariaveis(inicializador: Construto): string {
+    protected logicaComumInferenciaTiposVariaveis(inicializador: ConstrutoInterface): string {
         switch (inicializador.constructor) {
             case AcessoIndiceVariavel:
                 const entidadeChamadaAcessoIndiceVariavel = (inicializador as AcessoIndiceVariavel)
@@ -1750,9 +1749,9 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
     }
 
     async analisar(
-        retornoLexador: RetornoLexador<SimboloInterface>,
+        retornoLexador: RetornoLexadorInterface<SimboloInterface>,
         hashArquivo: number
-    ): Promise<RetornoAvaliadorSintatico<Declaracao>> {
+    ): Promise<RetornoAvaliadorSintaticoInterface<Declaracao>> {
         const inicioAnalise: [number, number] = hrtime();
         this.erros = [];
         this.atual = 0;
@@ -1784,6 +1783,6 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         return {
             declaracoes: declaracoes,
             erros: this.erros,
-        } as RetornoAvaliadorSintatico<Declaracao>;
+        } as RetornoAvaliadorSintaticoInterface<Declaracao>;
     }
 }

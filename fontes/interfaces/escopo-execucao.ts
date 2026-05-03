@@ -3,7 +3,7 @@ import { Declaracao } from '../declaracoes';
 
 export type TipoEscopoExecucao = 'funcao' | 'repeticao' | 'outro';
 
-export interface EscopoExecucao {
+export interface EscopoExecucaoInterface {
     declaracoes: Declaracao[];
     declaracaoAtual: number;
     espacoMemoria: EspacoMemoria;

@@ -1,7 +1,7 @@
 /* istanbul ignore file */
 import { parseScript } from 'esprima';
 import { LexadorInterface, SimboloInterface } from '../../interfaces';
-import { RetornoLexador } from '../../interfaces/retornos';
+import { RetornoLexadorInterface } from '../../interfaces/retornos';
 import { Directive, ModuleDeclaration, Statement } from 'estree';
 
 /**
@@ -72,11 +72,11 @@ export class LexadorJavaScript implements LexadorInterface<
     mapear(
         codigo: string[],
         hashArquivo: number
-    ): RetornoLexador<Statement | Directive | ModuleDeclaration> {
+    ): RetornoLexadorInterface<Statement | Directive | ModuleDeclaration> {
         const programaEsprima = parseScript(codigo.join('\n'));
         return {
             simbolos: programaEsprima.body,
             erros: [],
-        } as RetornoLexador<Statement | Directive | ModuleDeclaration>;
+        } as RetornoLexadorInterface<Statement | Directive | ModuleDeclaration>;
     }
 }

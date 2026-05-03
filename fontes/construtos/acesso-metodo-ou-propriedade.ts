@@ -1,5 +1,5 @@
 import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
 /**
  * Chamado de `Get` em Égua Clássico, é o construto de acesso a métodos ou membros de
@@ -7,17 +7,17 @@ import { Construto } from './construto';
  * de tipos é necessária para o correto funcionamento da compilação por LLVM. Os demais
  * dialetos ainda a usam sem problemas.
  */
-export class AcessoMetodoOuPropriedade<TTipoSimbolo extends string = string> implements Construto {
+export class AcessoMetodoOuPropriedade<TTipoSimbolo extends string = string> implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
 
-    objeto: Construto;
+    objeto: ConstrutoInterface;
     simbolo: SimboloInterface<TTipoSimbolo>;
     tipo?: string;
 
     constructor(
         hashArquivo: number,
-        objeto: Construto,
+        objeto: ConstrutoInterface,
         simbolo: SimboloInterface<TTipoSimbolo>,
         tipo: string = 'qualquer'
     ) {

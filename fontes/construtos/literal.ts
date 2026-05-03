@@ -1,10 +1,10 @@
 import { VisitanteComumInterface } from '../interfaces';
 import { TipoInferencia } from '../inferenciador';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
-export type ValorLiteral = boolean | null | number | string | number[] | string[] | Construto;
+export type ValorLiteral = boolean | null | number | string | number[] | string[] | ConstrutoInterface;
 
-export class Literal implements Construto {
+export class Literal implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
     valor: ValorLiteral;

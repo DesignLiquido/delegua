@@ -4,7 +4,6 @@ import {
     Agrupamento,
     Binario,
     Chamada,
-    Construto,
     Dicionario,
     Elvis,
     Literal,
@@ -14,17 +13,17 @@ import {
     Vetor,
 } from '../construtos';
 import { Declaracao } from '../declaracoes';
-import { SimboloInterface } from '../interfaces';
-import { RetornoAvaliadorSintatico, RetornoLexador } from '../interfaces/retornos';
+import { ConstrutoInterface, SimboloInterface } from '../interfaces';
+import { RetornoAvaliadorSintaticoInterface, RetornoLexadorInterface } from '../interfaces/retornos';
 import { MicroAvaliadorSintaticoBase } from './micro-avaliador-sintatico-base';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/microgramaticas/delegua';
 
 /**
- * O MicroAvaliadorSintatico funciona apenas dentro de interpolações de texto.
+ * O `MicroAvaliadorSintatico` funciona apenas dentro de interpolações de texto.
  */
 export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
-    primario(): Construto {
+    primario(): ConstrutoInterface {
         const simboloAtual = this.simbolos[this.atual];
         let valores = [];
         switch (simboloAtual.tipo) {
@@ -127,8 +126,8 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
     }
 
-    finalizarChamada(entidadeChamada: Construto): Construto {
-        const argumentos: Array<Construto> = [];
+    finalizarChamada(entidadeChamada: ConstrutoInterface): ConstrutoInterface {
+        const argumentos: Array<ConstrutoInterface> = [];
 
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             do {
@@ -147,7 +146,7 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         return new Chamada(-1, entidadeChamada, argumentos);
     }
 
-    chamar(): Construto {
+    chamar(): ConstrutoInterface {
         let expressao = this.primario();
 
         while (true) {
@@ -174,7 +173,7 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         return expressao;
     }
 
-    private verificarOperandoNegacao(operador: any, operando: Construto): void {
+    private verificarOperandoNegacao(operador: any, operando: ConstrutoInterface): void {
         if (operando instanceof Literal) {
             if (operando.tipo !== 'lógico') {
                 this.erro(
@@ -193,7 +192,7 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         }
     }
 
-    override unario(): Construto {
+    override unario(): ConstrutoInterface {
         if (
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.NEGACAO,
@@ -214,7 +213,7 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         return this.chamar();
     }
 
-    override exponenciacao(): Construto {
+    override exponenciacao(): ConstrutoInterface {
         let expressao = this.unario();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EXPONENCIACAO)) {
@@ -226,7 +225,7 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         return expressao;
     }
 
-    protected bitShift(): Construto {
+    protected bitShift(): ConstrutoInterface {
         let expressao = this.adicaoOuSubtracao();
 
         while (
@@ -243,7 +242,7 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         return expressao;
     }
 
-    protected bitE(): Construto {
+    protected bitE(): ConstrutoInterface {
         let expressao = this.bitShift();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIT_AND)) {
@@ -255,7 +254,7 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         return expressao;
     }
 
-    protected bitOu(): Construto {
+    protected bitOu(): ConstrutoInterface {
         let expressao = this.bitE();
 
         while (
@@ -269,7 +268,7 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         return expressao;
     }
 
-    override comparar(): Construto {
+    override comparar(): ConstrutoInterface {
         let expressao = this.bitOu();
 
         while (
@@ -288,7 +287,7 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         return expressao;
     }
 
-    protected em(): Construto {
+    protected em(): ConstrutoInterface {
         let expressao = this.comparacaoIgualdade();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EM)) {
@@ -300,7 +299,7 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         return expressao;
     }
 
-    override e(): Construto {
+    override e(): ConstrutoInterface {
         let expressao = this.em();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.E)) {
@@ -312,7 +311,7 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         return expressao;
     }
 
-    protected elvis(): Construto {
+    protected elvis(): ConstrutoInterface {
         let expressao = this.ou();
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ELVIS)) {
@@ -323,14 +322,14 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         return expressao;
     }
 
-    override declaracao(): Declaracao | Construto {
+    override declaracao(): Declaracao | ConstrutoInterface {
         return this.elvis();
     }
 
     analisar(
-        retornoLexador: RetornoLexador<SimboloInterface>,
+        retornoLexador: RetornoLexadorInterface<SimboloInterface>,
         linha: number
-    ): RetornoAvaliadorSintatico<Declaracao> {
+    ): RetornoAvaliadorSintaticoInterface<Declaracao> {
         this.erros = [];
         this.atual = 0;
         this.linha = linha;
@@ -345,6 +344,6 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
         return {
             declaracoes: declaracoes,
             erros: this.erros,
-        } as RetornoAvaliadorSintatico<Declaracao>;
+        } as RetornoAvaliadorSintaticoInterface<Declaracao>;
     }
 }

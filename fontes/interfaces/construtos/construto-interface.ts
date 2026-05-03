@@ -1,6 +1,6 @@
-import { VisitanteComumInterface } from '../interfaces';
+import { VisitanteComumInterface } from '..';
 
-export interface Construto {
+export interface ConstrutoInterface {
     linha: number;
     hashArquivo: number;
     valor?: any;

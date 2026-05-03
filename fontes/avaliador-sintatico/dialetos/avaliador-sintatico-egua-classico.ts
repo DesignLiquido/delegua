@@ -1,4 +1,5 @@
-import { AvaliadorSintaticoInterface, SimboloInterface } from '../../interfaces';
+﻿import { AvaliadorSintaticoInterface, SimboloInterface } from '../../interfaces';
+import { ConstrutoInterface } from '../../interfaces/construtos/construto-interface';
 import {
     AtribuicaoPorIndice,
     Atribuir,
@@ -17,7 +18,6 @@ import {
     Variavel,
     Vetor,
     Isto,
-    Construto,
     Leia,
     ImportarComoConstruto,
 } from '../../construtos';
@@ -43,8 +43,8 @@ import {
     Declaracao,
 } from '../../declaracoes';
 
-import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
-import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
+import { RetornoAvaliadorSintaticoInterface } from '../../interfaces/retornos/retorno-avaliador-sintatico-interface';
+import { RetornoLexadorInterface } from '../../interfaces/retornos/retorno-lexador-interface';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/egua-classico';
 
@@ -107,8 +107,18 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         }
     }
 
-    erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico {
-        const excecao = new ErroAvaliadorSintatico(simbolo, mensagemDeErro);
+    erro(
+        simbolo: SimboloInterface,
+        mensagemDeErro: string,
+        codigoDiagnostico?: string,
+        simboloRelacionado?: SimboloInterface
+    ): ErroAvaliadorSintatico {
+        const excecao = new ErroAvaliadorSintatico(
+            simbolo,
+            mensagemDeErro,
+            codigoDiagnostico,
+            simboloRelacionado
+        );
         this.erros.push(excecao);
         return excecao;
     }
@@ -161,7 +171,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         return false;
     }
 
-    primario(): Construto {
+    primario(): ConstrutoInterface {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUPER)) {
             const simboloChave = this.simboloAnterior();
             return new Super(this.hashArquivo, simboloChave, this.superclasseAtual);
@@ -242,7 +252,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         throw this.erro(this.simboloAtual(), 'Esperado expressão.');
     }
 
-    finalizarChamada(entidadeChamada: Construto): Chamada {
+    finalizarChamada(entidadeChamada: ConstrutoInterface): Chamada {
         const argumentos = [];
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             do {
@@ -258,7 +268,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         return new Chamada(this.hashArquivo, entidadeChamada, argumentos);
     }
 
-    chamar(): Construto {
+    chamar(): ConstrutoInterface {
         let expressao = this.primario();
 
         while (true) {
@@ -290,7 +300,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         return expressao;
     }
 
-    unario(): Construto {
+    unario(): ConstrutoInterface {
         if (
             this.verificarSeSimboloAtualEIgualA(
                 tiposDeSimbolos.NEGACAO,
@@ -311,7 +321,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
      * Por isso esse dialeto resolve `direito` chamando `unario()`, e não `exponenciacao()` como os demais.
      * @returns {Binario} A expressão binária na forma do construto `Binario`.
      */
-    exponenciacao(): Construto {
+    exponenciacao(): ConstrutoInterface {
         let expressao = this.unario();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EXPONENCIACAO)) {
@@ -323,7 +333,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         return expressao;
     }
 
-    multiplicar(): Construto {
+    multiplicar(): ConstrutoInterface {
         let expressao = this.exponenciacao();
 
         while (
@@ -341,7 +351,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         return expressao;
     }
     adicaoOuSubtracao;
-    adicionar(): Construto {
+    adicionar(): ConstrutoInterface {
         let expressao = this.multiplicar();
 
         while (
@@ -355,7 +365,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         return expressao;
     }
 
-    bitShift(): Construto {
+    bitShift(): ConstrutoInterface {
         let expressao = this.adicionar();
 
         while (
@@ -372,7 +382,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         return expressao;
     }
 
-    bitE(): Construto {
+    bitE(): ConstrutoInterface {
         let expressao = this.bitShift();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIT_AND)) {
@@ -384,7 +394,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         return expressao;
     }
 
-    bitOu(): Construto {
+    bitOu(): ConstrutoInterface {
         let expressao = this.bitE();
 
         while (
@@ -398,7 +408,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         return expressao;
     }
 
-    comparar(): Construto {
+    comparar(): ConstrutoInterface {
         let expressao = this.bitOu();
 
         while (
@@ -417,7 +427,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         return expressao;
     }
 
-    comparacaoIgualdade(): Construto {
+    comparacaoIgualdade(): ConstrutoInterface {
         let expressao = this.comparar();
 
         while (
@@ -434,7 +444,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         return expressao;
     }
 
-    em(): Construto {
+    em(): ConstrutoInterface {
         let expressao = this.comparacaoIgualdade();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EM)) {
@@ -446,7 +456,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         return expressao;
     }
 
-    e(): Construto {
+    e(): ConstrutoInterface {
         let expressao = this.em();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.E)) {
@@ -458,7 +468,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         return expressao;
     }
 
-    ou(): Construto {
+    ou(): ConstrutoInterface {
         let expressao = this.e();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.OU)) {
@@ -470,7 +480,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         return expressao;
     }
 
-    atribuir(): Construto {
+    atribuir(): ConstrutoInterface {
         const expressao = this.ou();
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
@@ -497,7 +507,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         return expressao;
     }
 
-    expressao(): Construto {
+    expressao(): ConstrutoInterface {
         return this.atribuir();
     }
 
@@ -968,9 +978,9 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
     }
 
     async analisar(
-        retornoLexador: RetornoLexador<SimboloInterface>,
+        retornoLexador: RetornoLexadorInterface<SimboloInterface>,
         hashArquivo: number
-    ): Promise<RetornoAvaliadorSintatico<Declaracao>> {
+    ): Promise<RetornoAvaliadorSintaticoInterface<Declaracao>> {
         this.erros = [];
         this.atual = 0;
         this.blocos = 0;
@@ -986,6 +996,8 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
         return Promise.resolve({
             declaracoes: declaracoes,
             erros: this.erros,
-        } as RetornoAvaliadorSintatico<Declaracao>);
+        } as RetornoAvaliadorSintaticoInterface<Declaracao>);
     }
 }
+
+

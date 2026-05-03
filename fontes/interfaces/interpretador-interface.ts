@@ -1,5 +1,5 @@
-import { Construto } from '../construtos';
-import { Declaracao } from '../declaracoes';
+﻿import { Declaracao } from '../declaracoes';
+import { ConstrutoInterface } from './construtos/construto-interface';
 import { EspacoMemoria } from '../interpretador/espaco-memoria';
 import { ErroInterpretadorInterface } from './erros/erro-interpretador-interface';
 import { PilhaEscoposExecucaoInterface } from './pilha-escopos-execucao-interface';
@@ -18,7 +18,7 @@ export interface InterpretadorInterface extends VisitanteComumInterface {
     classeAtualEmExecucao: any;
 
     eVerdadeiro(objeto: any): boolean;
-    avaliar(expressao: Construto | Declaracao): any;
+    avaliar(expressao: ConstrutoInterface | Declaracao): any;
     executarBloco(declaracoes: Declaracao[], ambiente?: EspacoMemoria): Promise<any>;
     paraTexto(objeto: any): any;
     executar(declaracao: Declaracao, mostrarResultado?: boolean): any;
@@ -37,3 +37,5 @@ export interface InterpretadorInterface extends VisitanteComumInterface {
         manterAmbiente?: boolean
     ): Promise<RetornoInterpretadorInterface>;
 }
+
+

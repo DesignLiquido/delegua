@@ -4,7 +4,6 @@ import {
     Agrupamento,
     Binario,
     Chamada,
-    Construto,
     Literal,
     Logico,
     Unario,
@@ -12,8 +11,8 @@ import {
     Vetor,
 } from '../../construtos';
 import { Declaracao, Expressao } from '../../declaracoes';
-import { SimboloInterface } from '../../interfaces';
-import { RetornoAvaliadorSintatico, RetornoLexador } from '../../interfaces/retornos';
+import { ConstrutoInterface, SimboloInterface } from '../../interfaces';
+import { RetornoAvaliadorSintaticoInterface, RetornoLexadorInterface } from '../../interfaces/retornos';
 import { MicroAvaliadorSintaticoBase } from '../micro-avaliador-sintatico-base';
 
 import { inferirTipoVariavel, TipoInferencia } from '../../inferenciador';
@@ -24,7 +23,7 @@ import tiposDeSimbolos from '../../tipos-de-simbolos/pitugues';
  * O MicroAvaliadorSintatico funciona apenas dentro de interpolações de texto.
  */
 export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase {
-    primario(): Construto {
+    primario(): ConstrutoInterface {
         const simboloAtual = this.simbolos[this.atual];
 
         switch (simboloAtual.tipo) {
@@ -114,8 +113,8 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
     }
 
-    finalizarChamada(entidadeChamada: Construto): Construto {
-        const argumentos: Array<Construto> = [];
+    finalizarChamada(entidadeChamada: ConstrutoInterface): ConstrutoInterface {
+        const argumentos: Array<ConstrutoInterface> = [];
 
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             do {
@@ -134,7 +133,7 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
         return new Chamada(-1, entidadeChamada, argumentos);
     }
 
-    chamar(): Construto {
+    chamar(): ConstrutoInterface {
         let expressao = this.primario();
 
         while (true) {
@@ -161,7 +160,7 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
         return expressao;
     }
 
-    multiplicar(): Construto {
+    multiplicar(): ConstrutoInterface {
         let expressao = this.exponenciacao();
 
         while (
@@ -180,7 +179,7 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
         return expressao;
     }
 
-    override unario(): Construto {
+    override unario(): ConstrutoInterface {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTERROGACAO)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.unario();
@@ -203,7 +202,7 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
         return this.chamar();
     }
 
-    override exponenciacao(): Construto {
+    override exponenciacao(): ConstrutoInterface {
         let expressao = this.unario();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EXPONENCIACAO)) {
@@ -215,7 +214,7 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
         return expressao;
     }
 
-    adicaoOuSubtracao(): Construto {
+    adicaoOuSubtracao(): ConstrutoInterface {
         let expressao = this.multiplicar();
 
         while (
@@ -229,7 +228,7 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
         return expressao;
     }
 
-    protected bitShift(): Construto {
+    protected bitShift(): ConstrutoInterface {
         let expressao = this.adicaoOuSubtracao();
 
         while (
@@ -246,7 +245,7 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
         return expressao;
     }
 
-    protected bitE(): Construto {
+    protected bitE(): ConstrutoInterface {
         let expressao = this.bitShift();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIT_AND)) {
@@ -258,7 +257,7 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
         return expressao;
     }
 
-    protected bitOu(): Construto {
+    protected bitOu(): ConstrutoInterface {
         let expressao = this.bitE();
 
         while (
@@ -272,7 +271,7 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
         return expressao;
     }
 
-    override comparar(): Construto {
+    override comparar(): ConstrutoInterface {
         let expressao = this.bitOu();
 
         while (
@@ -291,7 +290,7 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
         return expressao;
     }
 
-    protected em(): Construto {
+    protected em(): ConstrutoInterface {
         let expressao = this.comparacaoIgualdade();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EM)) {
@@ -303,7 +302,7 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
         return expressao;
     }
 
-    override e(): Construto {
+    override e(): ConstrutoInterface {
         let expressao = this.em();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.E)) {
@@ -315,7 +314,7 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
         return expressao;
     }
 
-    ou(): Construto {
+    ou(): ConstrutoInterface {
         let expressao = this.e();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.OU)) {
@@ -327,18 +326,18 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
         return expressao;
     }
 
-    atribuir(): Construto {
+    atribuir(): ConstrutoInterface {
         return this.ou();
     }
 
-    expressao(): Construto {
+    expressao(): ConstrutoInterface {
         return this.atribuir();
     }
 
     analisar(
-        retornoLexador: RetornoLexador<SimboloInterface>,
+        retornoLexador: RetornoLexadorInterface<SimboloInterface>,
         linha: number
-    ): RetornoAvaliadorSintatico<Declaracao> {
+    ): RetornoAvaliadorSintaticoInterface<Declaracao> {
         this.erros = [];
         this.atual = 0;
         this.linha = linha;
@@ -354,6 +353,6 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
         return {
             declaracoes: declaracoes,
             erros: this.erros,
-        } as RetornoAvaliadorSintatico<Declaracao>;
+        } as RetornoAvaliadorSintaticoInterface<Declaracao>;
     }
 }

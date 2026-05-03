@@ -1,12 +1,12 @@
-import { Construto } from '../construtos';
-import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
+﻿import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 import { Declaracao } from './declaracao';
 
 export class Escreva extends Declaracao {
-    argumentos: Construto[];
+    argumentos: ConstrutoInterface[];
     simboloEscreva?: SimboloInterface;
 
-    constructor(linha: number, hashArquivo: number, argumentos: Construto[]) {
+    constructor(linha: number, hashArquivo: number, argumentos: ConstrutoInterface[]) {
         super(linha, hashArquivo);
         this.argumentos = argumentos;
     }
@@ -19,3 +19,5 @@ export class Escreva extends Declaracao {
         return `<escreva argumentos=${this.argumentos.reduce((anterior, atual) => (anterior += atual.paraTexto()), '')} />`;
     }
 }
+
+

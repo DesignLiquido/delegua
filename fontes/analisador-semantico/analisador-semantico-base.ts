@@ -1,4 +1,4 @@
-import {
+﻿import {
     Atribuir,
     AcessoIndiceVariavel,
     AcessoElementoMatriz,
@@ -32,7 +32,6 @@ import {
     Separador,
     Variavel,
     Constante,
-    Construto,
     AcessoIntervaloVariavel,
     TuplaN,
     Morsa,
@@ -70,15 +69,17 @@ import {
 } from '../declaracoes';
 import {
     CorrecaoSugeridaInterface,
-    DiagnosticoAnalisadorSemantico,
+    DiagnosticoAnalisadorSemanticoInterface,
     DiagnosticoSeveridade,
     ParametroInterface,
     SimboloInterface,
 } from '../interfaces';
 import { AnalisadorSemanticoInterface } from '../interfaces/analisador-semantico-interface';
-import { RetornoAnalisadorSemantico } from '../interfaces/retornos/retorno-analisador-semantico';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
+import { RetornoAnalisadorSemanticoInterface } from '../interfaces/retornos/retorno-analisador-semantico-interface';
 import { ContinuarQuebra, RetornoQuebra, SustarQuebra } from '../quebras';
 import { GerenciadorEscopos } from './gerenciador-escopos';
+import { inferirCodigoDiagnosticoSemantico } from './tabela-diagnosticos-semanticos';
 
 /**
  * Essa classe só existe para eliminar redundância entre todos os analisadores
@@ -87,9 +88,9 @@ import { GerenciadorEscopos } from './gerenciador-escopos';
  */
 export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInterface {
     gerenciadorEscopos: GerenciadorEscopos = new GerenciadorEscopos();
-    diagnosticos: DiagnosticoAnalisadorSemantico[] = [];
+    diagnosticos: DiagnosticoAnalisadorSemanticoInterface[] = [];
 
-    abstract analisar(declaracoes: Declaracao[]): Promise<RetornoAnalisadorSemantico>;
+    abstract analisar(declaracoes: Declaracao[]): Promise<RetornoAnalisadorSemanticoInterface>;
 
     protected diagnosticoJaExiste(simbolo: SimboloInterface, mensagem: string): boolean {
         return this.diagnosticos.some(
@@ -100,49 +101,70 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
         );
     }
 
-    erro(simbolo: SimboloInterface, mensagem: string): void {
+    erro(
+        simbolo: SimboloInterface,
+        mensagem: string,
+        codigoDiagnostico?: string,
+        simboloRelacionado?: SimboloInterface
+    ): void {
         if (this.diagnosticoJaExiste(simbolo, mensagem)) {
             return;
         }
 
+        const severidade = DiagnosticoSeveridade.ERRO;
         this.diagnosticos.push({
             simbolo: simbolo,
+            simboloRelacionado: simboloRelacionado ?? simbolo,
             mensagem: mensagem,
+            codigoDiagnostico: codigoDiagnostico ?? inferirCodigoDiagnosticoSemantico(mensagem, severidade),
             hashArquivo: simbolo.hashArquivo,
             linha: simbolo.linha,
-            severidade: DiagnosticoSeveridade.ERRO,
+            severidade,
         });
     }
 
-    aviso(simbolo: SimboloInterface, mensagem: string): void {
+    aviso(
+        simbolo: SimboloInterface,
+        mensagem: string,
+        codigoDiagnostico?: string,
+        simboloRelacionado?: SimboloInterface
+    ): void {
         if (this.diagnosticoJaExiste(simbolo, mensagem)) {
             return;
         }
 
+        const severidade = DiagnosticoSeveridade.AVISO;
         this.diagnosticos.push({
             simbolo: simbolo,
+            simboloRelacionado: simboloRelacionado ?? simbolo,
             mensagem: mensagem,
+            codigoDiagnostico: codigoDiagnostico ?? inferirCodigoDiagnosticoSemantico(mensagem, severidade),
             hashArquivo: simbolo.hashArquivo,
             linha: simbolo.linha,
-            severidade: DiagnosticoSeveridade.AVISO,
+            severidade,
         });
     }
 
     sugestao(
         simbolo: SimboloInterface,
         mensagem: string,
-        correcoes: CorrecaoSugeridaInterface[]
+        correcoes: CorrecaoSugeridaInterface[],
+        codigoDiagnostico?: string,
+        simboloRelacionado?: SimboloInterface
     ): void {
         if (this.diagnosticoJaExiste(simbolo, mensagem)) {
             return;
         }
 
+        const severidade = DiagnosticoSeveridade.SUGESTAO;
         this.diagnosticos.push({
             simbolo: simbolo,
+            simboloRelacionado: simboloRelacionado ?? simbolo,
             mensagem: mensagem,
+            codigoDiagnostico: codigoDiagnostico ?? inferirCodigoDiagnosticoSemantico(mensagem, severidade),
             hashArquivo: simbolo.hashArquivo,
             linha: simbolo.linha,
-            severidade: DiagnosticoSeveridade.SUGESTAO,
+            severidade,
             colunaInicio: correcoes[0]?.colunaInicio,
             colunaFim: correcoes[0]?.colunaFim,
             correcoes: correcoes,
@@ -152,7 +174,7 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     protected comparacaoArgumentosContraParametrosFuncao(
         simboloFuncao: SimboloInterface,
         parametros: ParametroInterface[],
-        argumentos: Construto[]
+        argumentos: ConstrutoInterface[]
     ) {
         if (parametros.length !== argumentos.length) {
             this.erro(
@@ -197,7 +219,7 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     /**
      * Obtém o tipo de uma expressão (pode ser Literal, Variavel, Binario, Leia, etc)
      */
-    protected obterTipoExpressao(expressao: Construto): string | null {
+    protected obterTipoExpressao(expressao: ConstrutoInterface): string | null {
         if (expressao instanceof Literal) {
             return expressao.tipo;
         }
@@ -278,7 +300,7 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     /**
      * Marca as variáveis usadas em uma expressão.
      */
-    protected marcarVariaveisUsadasEmExpressao(expressao: Construto): void {
+    protected marcarVariaveisUsadasEmExpressao(expressao: ConstrutoInterface): void {
         if ((expressao as unknown) instanceof Expressao) {
             this.marcarVariaveisUsadasEmExpressao((expressao as unknown as Expressao).expressao);
             return;
@@ -461,11 +483,15 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     adicionarDiagnostico(
         simbolo: SimboloInterface,
         mensagem: string,
-        severidade: DiagnosticoSeveridade = DiagnosticoSeveridade.AVISO
+        severidade: DiagnosticoSeveridade = DiagnosticoSeveridade.AVISO,
+        codigoDiagnostico?: string,
+        simboloRelacionado?: SimboloInterface
     ): void {
         this.diagnosticos.push({
             simbolo: simbolo,
+            simboloRelacionado: simboloRelacionado ?? simbolo,
             mensagem: mensagem,
+            codigoDiagnostico: codigoDiagnostico ?? inferirCodigoDiagnosticoSemantico(mensagem, severidade),
             hashArquivo: simbolo.hashArquivo,
             linha: simbolo.linha,
             severidade: severidade,
@@ -704,3 +730,5 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
         return Promise.resolve();
     }
 }
+
+

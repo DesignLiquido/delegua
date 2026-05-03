@@ -1,4 +1,5 @@
-import { Construto, Decorador } from '../construtos';
+﻿import { Decorador } from '../construtos';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 import { VisitanteComumInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
@@ -7,9 +8,9 @@ export class Expressao extends Declaracao {
         return `<declaração-expressão subExpressao=${this.expressao.paraTexto()} />`;
     }
 
-    expressao: Construto;
+    expressao: ConstrutoInterface;
 
-    constructor(expressao: Construto, decoradores: Decorador[] = []) {
+    constructor(expressao: ConstrutoInterface, decoradores: Decorador[] = []) {
         super(expressao.linha, expressao.hashArquivo, decoradores);
         this.expressao = expressao;
     }
@@ -18,3 +19,5 @@ export class Expressao extends Declaracao {
         return await visitante.visitarDeclaracaoDeExpressao(this);
     }
 }
+
+

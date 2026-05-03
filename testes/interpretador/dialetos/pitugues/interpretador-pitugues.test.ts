@@ -1590,6 +1590,39 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas[2]).toBe('5');
                     expect(_saidas[3]).toBe('6');
                 });
+
+                it('Classes - decorador @propriedade', async () => {
+                    const codigo = [
+                        'classe Usuario:',
+                        '    construtor(idade):',
+                        '        isto._idade = idade',
+                        '    @propriedade',
+                        '    funcao idade():',
+                        '        retorna isto._idade',
+                        '    @idade.definidor',
+                        '    funcao idade(valor):',
+                        '        se (valor < 0):',
+                        '            escreva("Valor fornecido deve ser um número positivo.")',
+                        '        senao:',
+                        '            isto._idade = valor',
+                        'usuarioLegal = Usuario(21)',
+                        'escreva(usuarioLegal.idade)',
+                        'usuarioLegal.idade = -16'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(2);
+                    expect(_saidas[0]).toBe('21');
+                    expect(_saidas[1]).toBe('Valor fornecido deve ser um número positivo.');
+                });
             });
 
             describe('Declaração e chamada de funções', () => {
@@ -4338,10 +4371,18 @@ describe('Interpretador (Pituguês)', () => {
                 });
             });
 
-            it('unico()', async () => {
+            it('vetor literal multi-linha deve tolerar comentários', async () => {
                 const codigo = [
-                    'resultado = unico([1, 1, 2, 3, 2])',
-                    'escreva(resultado)',
+                    'numeros = [',
+                    '    # qual animal o mascote do Pituguês é?',
+                    '    # uma serpente ou uma víbora?',
+                    '    1, # comentário legal',
+                    '    2, # comentário magnífico',
+                    '    3 # comentário extraordinário',
+                    '    # pituguês é muito legal!',
+                    '    # pituguês é incrível!',
+                    ']',
+                    'escreva(numeros)'
                 ];
                 const retornoLexador = lexador.mapear(codigo, -1);
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(

@@ -1,10 +1,10 @@
 import { VisitanteComumInterface, SimboloInterface, VariavelInterface } from '../interfaces';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
 /**
  * O construto de constante.
  */
-export class Constante<TTipoSimbolo extends string = string> implements Construto {
+export class Constante<TTipoSimbolo extends string = string> implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
 

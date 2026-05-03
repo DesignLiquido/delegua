@@ -1,27 +1,27 @@
 import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
 /**
  * Construto para acesso de intervalos (fatiamento/slicing) em vetores.
  * Ex: vetor[1:4], vetor[1:4:2], vetor[1:], vetor[:3] ou vetor[:]
  */
-export class AcessoIntervaloVariavel<TTipoSimbolo extends string = string> implements Construto {
+export class AcessoIntervaloVariavel<TTipoSimbolo extends string = string> implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
 
-    entidadeChamada: Construto;
+    entidadeChamada: ConstrutoInterface;
     simboloFechamento: SimboloInterface<TTipoSimbolo>;
-    indiceInicio: Construto | null;
-    indiceFim: Construto | null;
-    indicePasso: Construto | null;
+    indiceInicio: ConstrutoInterface | null;
+    indiceFim: ConstrutoInterface | null;
+    indicePasso: ConstrutoInterface | null;
     tipo: string = 'qualquer';
 
     constructor(
         hashArquivo: number,
-        entidadeChamada: Construto,
-        indiceInicio: Construto | null,
-        indiceFim: Construto | null,
-        indicePasso: Construto | null,
+        entidadeChamada: ConstrutoInterface,
+        indiceInicio: ConstrutoInterface | null,
+        indiceFim: ConstrutoInterface | null,
+        indicePasso: ConstrutoInterface | null,
         simboloFechamento: SimboloInterface<TTipoSimbolo>,
         tipo: string = 'qualquer'
     ) {

@@ -1,22 +1,22 @@
 import { SimboloInterface, VisitanteDeleguaInterface } from '../interfaces';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
-export class SeTernario<TTipoSimbolo extends string = string> implements Construto {
+export class SeTernario<TTipoSimbolo extends string = string> implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
 
-    condicao: Construto;
-    expressaoSe: Construto;
+    condicao: ConstrutoInterface;
+    expressaoSe: ConstrutoInterface;
     operador: SimboloInterface<TTipoSimbolo>;
-    expressaoSenao: Construto;
+    expressaoSenao: ConstrutoInterface;
     tipo: string = 'qualquer';
 
     constructor(
         hashArquivo: number,
-        condicao: Construto,
-        expressaoSe: Construto,
+        condicao: ConstrutoInterface,
+        expressaoSe: ConstrutoInterface,
         operador: SimboloInterface<TTipoSimbolo>,
-        expressaoSenao: Construto
+        expressaoSenao: ConstrutoInterface
     ) {
         this.linha = condicao.linha;
         this.hashArquivo = hashArquivo;

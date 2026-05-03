@@ -1,11 +1,11 @@
-import { Construto } from '../construto';
+import { ConstrutoInterface } from '../../interfaces/construtos/construto-interface';
 import { Tupla } from '../tupla';
 
 export class Dupla extends Tupla {
-    primeiro: Construto;
-    segundo: Construto;
+    primeiro: ConstrutoInterface;
+    segundo: ConstrutoInterface;
 
-    constructor(primeiro: Construto, segundo: Construto) {
+    constructor(primeiro: ConstrutoInterface, segundo: ConstrutoInterface) {
         super();
         this.primeiro = primeiro;
         this.segundo = segundo;

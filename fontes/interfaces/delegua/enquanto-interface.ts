@@ -1,9 +1,9 @@
-import { Construto } from '../../construtos';
 import { Bloco } from '../../declaracoes';
+import { ConstrutoInterface } from '../construtos';
 
 export interface EnquantoInterface {
     linha: number;
     hashArquivo: number;
-    condicao: Construto;
+    condicao: ConstrutoInterface;
     corpo: Bloco;
 }

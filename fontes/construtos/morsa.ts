@@ -1,14 +1,14 @@
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 import { Variavel } from './variavel';
 import { VisitantePituguesInterface } from '../interfaces/visitante-pitugues-interface';
 
-export class Morsa implements Construto {
+export class Morsa implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
     variavel: Variavel;
-    valor: Construto;
+    valor: ConstrutoInterface;
 
-    constructor(hashArquivo: number, variavel: Variavel, valor: Construto) {
+    constructor(hashArquivo: number, variavel: Variavel, valor: ConstrutoInterface) {
         this.linha = Number(variavel.linha);
         this.hashArquivo = hashArquivo;
         this.variavel = variavel;

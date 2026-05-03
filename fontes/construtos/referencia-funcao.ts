@@ -1,7 +1,7 @@
 import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
-export class ReferenciaFuncao implements Construto {
+export class ReferenciaFuncao implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
     simboloFuncao: SimboloInterface;

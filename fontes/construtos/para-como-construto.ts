@@ -1,14 +1,14 @@
 import { Bloco, Declaracao } from '../declaracoes';
 import { VisitanteDeleguaInterface } from '../interfaces';
 import { ParaInterface } from '../interfaces/delegua';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
-export class ParaComoConstruto implements Construto, ParaInterface {
+export class ParaComoConstruto implements ConstrutoInterface, ParaInterface {
     linha: number;
     hashArquivo: number;
     inicializador?: Declaracao | Declaracao[];
-    condicao: Construto;
-    incrementar: Construto;
+    condicao: ConstrutoInterface;
+    incrementar: ConstrutoInterface;
     corpo: Bloco;
     inicializada: boolean;
     blocoPosExecucao?: Bloco;
@@ -18,8 +18,8 @@ export class ParaComoConstruto implements Construto, ParaInterface {
         hashArquivo: number,
         linha: number,
         inicializador: Declaracao | Declaracao[],
-        condicao: Construto,
-        incrementar: Construto,
+        condicao: ConstrutoInterface,
+        incrementar: ConstrutoInterface,
         corpo: Bloco
     ) {
         this.linha = linha;

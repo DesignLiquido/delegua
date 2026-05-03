@@ -8,7 +8,6 @@ import {
     Atribuir,
     Binario,
     Chamada,
-    Construto,
     DefinirValor,
     Dicionario,
     FimPara,
@@ -40,7 +39,7 @@ import {
     Tente,
     Var,
 } from '../declaracoes';
-import { SimboloInterface, TradutorInterface } from '../interfaces';
+import { ConstrutoInterface, SimboloInterface, TradutorInterface } from '../interfaces';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/tenda';
 
@@ -95,7 +94,7 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
     traduzirFuncaoOuMetodo(
         nomeMetodo: string,
         objetoResolvido: string,
-        argumentos: Construto[]
+        argumentos: ConstrutoInterface[]
     ): string {
         if (argumentos === undefined) {
             return `${objetoResolvido}.${nomeMetodo}`;
@@ -279,7 +278,7 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
         return String(literal.valor);
     }
 
-    traduzirConstrutoVariavel(variavel: Variavel, argumentos: Construto[]): string {
+    traduzirConstrutoVariavel(variavel: Variavel, argumentos: ConstrutoInterface[]): string {
         const argumentosResolvidos: string[] = [];
         const argumentosValidados = argumentos || [];
         for (const argumento of argumentosValidados) {
@@ -581,11 +580,11 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
     }
 
     // TODO: Talvez terminar (ou remover, sei lá).
-    traduzirFuncaoAnonimaParaLambda(argumento: Construto): string {
+    traduzirFuncaoAnonimaParaLambda(argumento: ConstrutoInterface): string {
         return '';
     }
 
-    traduzirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodo, argumentos: Construto[]): string {
+    traduzirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodo, argumentos: ConstrutoInterface[]): string {
         switch (acessoMetodo.objeto.constructor.name) {
             case 'Variavel':
                 let objetoVariavel = acessoMetodo.objeto as Variavel;
@@ -604,7 +603,7 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
 
     traduzirConstrutoAcessoMetodoOuPropriedade(
         acessoMetodo: AcessoMetodoOuPropriedade,
-        argumentos: Construto[]
+        argumentos: ConstrutoInterface[]
     ): string {
         if (acessoMetodo.objeto instanceof Variavel) {
             let objetoVariavel = acessoMetodo.objeto as Variavel;
@@ -675,7 +674,7 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
 
     traduzirConstrutoArgumentoReferenciaFuncao(
         argumentoReferenciaFuncao: ArgumentoReferenciaFuncao,
-        argumentos: Construto[]
+        argumentos: ConstrutoInterface[]
     ): string {
         const argumentosResolvidos: string[] = [];
         for (const argumento of argumentos) {
@@ -695,7 +694,7 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
 
     traduzirConstrutoReferenciaFuncao(
         referenciaFuncao: ReferenciaFuncao,
-        argumentos: Construto[]
+        argumentos: ConstrutoInterface[]
     ): string {
         const argumentosResolvidos: string[] = [];
         for (const argumento of argumentos) {

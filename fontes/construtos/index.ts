@@ -16,7 +16,6 @@ export * from './chamada';
 export * from './comentario-como-construto';
 export * from './componente-linguagem';
 export * from './constante';
-export * from './construto';
 export * from './decorador';
 export * from './definir-valor';
 export * from './dicionario';

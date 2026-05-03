@@ -5,7 +5,6 @@ import {
     Atribuir,
     Binario,
     Chamada,
-    Construto,
     FormatacaoEscrita,
     Leia,
     Literal,
@@ -30,7 +29,7 @@ import {
 } from '../declaracoes';
 import { AvaliadorSintaticoPortugolIpt } from '../avaliador-sintatico/dialetos';
 import { LexadorPortugolIpt } from '../lexador/dialetos';
-import { CaminhoEscolha } from '../interfaces/construtos';
+import { CaminhoEscolha, ConstrutoInterface } from '../interfaces/construtos';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/portugol-ipt';
 
@@ -109,7 +108,7 @@ export class TradutorPortugolIpt {
 
     // ── Construtos ───────────────────────────────────────────────────────────────
 
-    traduzirConstruto(construto: Construto): string {
+    traduzirConstruto(construto: ConstrutoInterface): string {
         const nome = construto.constructor.name;
         if (this.dicionarioConstrutos.hasOwnProperty(nome)) {
             return this.dicionarioConstrutos[nome](construto);
@@ -255,7 +254,7 @@ export class TradutorPortugolIpt {
             // Array
             const tipoBase = tipo.slice(0, -2);
             const valor = declaracaoVar.inicializador
-                ? this.traduzirConstruto(declaracaoVar.inicializador as Construto)
+                ? this.traduzirConstruto(declaracaoVar.inicializador as ConstrutoInterface)
                 : '[]';
             return `var ${nome}: ${tipoBase}[] = ${valor}`;
         }
@@ -263,7 +262,7 @@ export class TradutorPortugolIpt {
         const tipoDelegua = tipo ? this.tipoParaDelégua(tipo) : '';
         const valorPadrao = tipo ? this.valorPadraoPorTipo(tipo) : 'nulo';
         const valor = declaracaoVar.inicializador
-            ? this.traduzirConstruto(declaracaoVar.inicializador as Construto)
+            ? this.traduzirConstruto(declaracaoVar.inicializador as ConstrutoInterface)
             : valorPadrao;
 
         if (tipoDelegua) {
@@ -275,7 +274,7 @@ export class TradutorPortugolIpt {
     traduzirDeclaracaoConst(declaracaoConst: Const): string {
         const nome = declaracaoConst.simbolo.lexema;
         const valor = declaracaoConst.inicializador
-            ? this.traduzirConstruto(declaracaoConst.inicializador as Construto)
+            ? this.traduzirConstruto(declaracaoConst.inicializador as ConstrutoInterface)
             : 'nulo';
         return `const ${nome} = ${valor}`;
     }

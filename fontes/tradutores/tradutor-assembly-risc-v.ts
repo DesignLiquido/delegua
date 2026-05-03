@@ -6,7 +6,6 @@ import {
     Atribuir,
     Binario,
     Chamada,
-    Construto,
     DefinirValor,
     FuncaoConstruto,
     Leia,
@@ -37,7 +36,7 @@ import {
     Tente,
     Var,
 } from '../declaracoes';
-import { CaminhoEscolha } from '../interfaces/construtos';
+import { CaminhoEscolha, ConstrutoInterface } from '../interfaces/construtos';
 
 export type PlataformaAlvoRISCV = 'linux-rv64' | 'linux-rv32';
 
@@ -315,11 +314,11 @@ _start:`;
         // Convenção RISC-V: a0-a7 para até 8 argumentos
         const registrosArgs = ['a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7'];
 
-        construto.argumentos.forEach((arg: Construto, index: number) => {
-            if (index < registrosArgs.length) {
-                const valorArg = this.dicionarioConstrutos[arg.constructor.name](arg);
-                if (valorArg !== registrosArgs[index]) {
-                    this.emitirCarga(registrosArgs[index], valorArg);
+        construto.argumentos.forEach((argumento: ConstrutoInterface, indice: number) => {
+            if (indice < registrosArgs.length) {
+                const valorArg = this.dicionarioConstrutos[argumento.constructor.name](argumento);
+                if (valorArg !== registrosArgs[indice]) {
+                    this.emitirCarga(registrosArgs[indice], valorArg);
                 }
             }
         });
@@ -460,7 +459,7 @@ ${labelFim}:`;
         // Cada elemento ocupa 8 bytes em rv64
         this.bss += `    ${labelVetor}: .space ${elementos.length * 8}\n`;
 
-        elementos.forEach((valor: Construto, index: number) => {
+        elementos.forEach((valor: ConstrutoInterface, index: number) => {
             if (this.dicionarioConstrutos[valor.constructor.name]) {
                 const valorTraduzido = this.dicionarioConstrutos[valor.constructor.name](valor);
                 this.emitirCarga('a0', valorTraduzido);
@@ -591,7 +590,7 @@ ${labelProximo}:`;
             typeof declaracao.explicacao === 'object' &&
             'constructor' in declaracao.explicacao
         ) {
-            const explicacao = declaracao.explicacao as Construto;
+            const explicacao = declaracao.explicacao as ConstrutoInterface;
             if (explicacao.constructor && this.dicionarioConstrutos[explicacao.constructor.name]) {
                 mensagem = this.dicionarioConstrutos[explicacao.constructor.name](explicacao);
             }

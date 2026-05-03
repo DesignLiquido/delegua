@@ -4,7 +4,7 @@ import { LexadorInterface, SimboloInterface } from '../../interfaces';
 import { Simbolo } from '../simbolo';
 import { palavrasReservadas } from './palavras-reservadas/tenda';
 import { ErroLexador } from '../erro-lexador';
-import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
+import { RetornoLexadorInterface } from '../../interfaces/retornos/retorno-lexador-interface';
 import { Localizacao } from './localizacao';
 
 import tiposDeSimbolos from '../../tipos-de-simbolos/tenda';
@@ -450,7 +450,7 @@ export class LexadorTenda implements LexadorInterface<SimboloInterface> {
         }
     }
 
-    mapear(codigo: string[], hashArquivo: number): RetornoLexador<SimboloInterface> {
+    mapear(codigo: string[], hashArquivo: number): RetornoLexadorInterface<SimboloInterface> {
         const inicioMapeamento: [number, number] = hrtime();
         this.simbolos = [];
         this.erros = [];
@@ -482,6 +482,6 @@ export class LexadorTenda implements LexadorInterface<SimboloInterface> {
             simbolos: this.simbolos,
             erros: this.erros,
             pragmas: this.pragmas,
-        } as RetornoLexador<SimboloInterface>;
+        } as RetornoLexadorInterface<SimboloInterface>;
     }
 }

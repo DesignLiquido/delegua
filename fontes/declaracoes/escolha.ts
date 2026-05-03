@@ -1,5 +1,5 @@
-import { Construto } from '../construtos';
-import { VisitanteComumInterface } from '../interfaces';
+﻿import { VisitanteComumInterface } from '../interfaces';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 import { CaminhoEscolha } from '../interfaces/construtos';
 import { Declaracao } from './declaracao';
 
@@ -7,12 +7,12 @@ import { Declaracao } from './declaracao';
  * Declaração de escolha de caminho a executar de acordo com literal ou identificador.
  */
 export class Escolha extends Declaracao {
-    identificadorOuLiteral: Construto;
+    identificadorOuLiteral: ConstrutoInterface;
     caminhos: CaminhoEscolha[];
     caminhoPadrao: CaminhoEscolha;
 
     constructor(
-        identificadorOuLiteral: Construto,
+        identificadorOuLiteral: ConstrutoInterface,
         caminhos: CaminhoEscolha[],
         caminhoPadrao: CaminhoEscolha
     ) {
@@ -31,3 +31,5 @@ export class Escolha extends Declaracao {
         return `<escolha identificadorOuLiteral=${this.identificadorOuLiteral} />`;
     }
 }
+
+

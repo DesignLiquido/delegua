@@ -1,5 +1,5 @@
 import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
 /**
  * Binário é uma estrutura com um operador e dois operandos: esquerda e direita.
@@ -23,20 +23,20 @@ import { Construto } from './construto';
  * - `::` (Concatenação);
  * - `\` (Divisão inteira).
  */
-export class Binario<TTipoSimbolo extends string = string> implements Construto {
+export class Binario<TTipoSimbolo extends string = string> implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
 
-    esquerda: Construto;
+    esquerda: ConstrutoInterface;
     operador: SimboloInterface<TTipoSimbolo>;
-    direita: Construto;
+    direita: ConstrutoInterface;
     tipo: string = 'qualquer';
 
     constructor(
         hashArquivo: number,
-        esquerda: Construto,
+        esquerda: ConstrutoInterface,
         operador: SimboloInterface<TTipoSimbolo>,
-        direita: Construto
+        direita: ConstrutoInterface
     ) {
         this.linha = esquerda.linha;
         this.hashArquivo = hashArquivo;

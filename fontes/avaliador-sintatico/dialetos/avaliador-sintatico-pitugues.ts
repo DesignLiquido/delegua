@@ -1,4 +1,5 @@
-import hrtime from 'browser-process-hrtime';
+﻿import hrtime from 'browser-process-hrtime';
+import { ConstrutoInterface } from '../../interfaces/construtos/construto-interface';
 
 import {
     AcessoIndiceVariavel,
@@ -10,7 +11,6 @@ import {
     Binario,
     Chamada,
     DefinirValor,
-    Construto,
     Decorador,
     Dicionario,
     FuncaoConstruto,
@@ -76,9 +76,9 @@ import {
     SimboloInterface,
 } from '../../interfaces';
 import { Localizacao } from '../../lexador/dialetos/localizacao';
-import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
+import { RetornoLexadorInterface } from '../../interfaces/retornos/retorno-lexador-interface';
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
-import { RetornoAvaliadorSintatico } from '../../interfaces/retornos/retorno-avaliador-sintatico';
+import { RetornoAvaliadorSintaticoInterface } from '../../interfaces/retornos/retorno-avaliador-sintatico-interface';
 
 import { Simbolo } from '../../lexador';
 import { inferirTipoVariavel, TipoInferencia } from '../../inferenciador';
@@ -213,7 +213,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
     }
 
     protected logicaComumInferenciaTiposVariaveisEConstantes(
-        inicializador: Construto,
+        inicializador: ConstrutoInterface,
         tipoPrevio: string
     ): string {
         if (tipoPrevio !== 'qualquer') {
@@ -306,7 +306,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             "Esperado '(' antes dos valores em leia."
         );
 
-        const argumentos: Construto[] = [];
+        const argumentos: ConstrutoInterface[] = [];
 
         do {
             argumentos.push(await this.expressao());
@@ -478,8 +478,8 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return { simbolos: identificadores, indexResto };
     }
 
-    private async consumirInicializadores(): Promise<Construto[]> {
-        const inicializadores: Construto[] = [];
+    private async consumirInicializadores(): Promise<ConstrutoInterface[]> {
+        const inicializadores: ConstrutoInterface[] = [];
         do {
             if (this.estaNoFinal()) {
                 throw this.erro(this.simboloAtual(), 'Esperado inicializador após vírgula.');
@@ -492,7 +492,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
 
     private construirValidacaoDesempacotamento(
         identificador: SimboloInterface,
-        origem: Construto,
+        origem: ConstrutoInterface,
         qtdEsperada: number
     ): Declaracao {
         const linha = identificador.linha;
@@ -600,7 +600,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
 
         for (let i = 0; i < identificadores.length; i++) {
             const identificador = identificadores[i];
-            let inicializador: Construto;
+            let inicializador: ConstrutoInterface;
             let tipo = 'qualquer';
 
             if (i === indexResto) {
@@ -673,9 +673,19 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         }
     }
 
-    erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico {
+    erro(
+        simbolo: SimboloInterface,
+        mensagemDeErro: string,
+        codigoDiagnostico?: string,
+        simboloRelacionado?: SimboloInterface
+    ): ErroAvaliadorSintatico {
         const simboloParaErro = simbolo || this.simboloAnterior();
-        const excecao = new ErroAvaliadorSintatico(simboloParaErro, mensagemDeErro);
+        const excecao = new ErroAvaliadorSintatico(
+            simboloParaErro,
+            mensagemDeErro,
+            codigoDiagnostico,
+            simboloRelacionado
+        );
         this.erros.push(excecao);
 
         return excecao;
@@ -766,7 +776,13 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return '"' + conteudoOriginal.replace(/\{(.*?)\}/g, processarParte) + '"';
     }
 
-    async primario(): Promise<Construto> {
+    private ignorarComentarios(): void {
+        while (this.verificarTipoSimboloAtual(tiposDeSimbolos.COMENTARIO)) {
+            this.avancarEDevolverAnterior();
+        }
+    }
+
+    async primario(): Promise<ConstrutoInterface> {
         const simboloAtual = this.simbolos[this.atual];
 
         switch (simboloAtual.tipo) {
@@ -819,8 +835,15 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
 
             case tiposDeSimbolos.COLCHETE_ESQUERDO:
                 this.avancarEDevolverAnterior();
+                this.ignorarComentarios();
+
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                    return new Vetor(this.hashArquivo, simboloAtual.linha, [], 'qualquer[]');
+                    return new Vetor(
+                        this.hashArquivo,
+                        simboloAtual.linha,
+                        [],
+                        'qualquer[]'
+                    );
                 }
 
                 // Ao resolver a expressão aqui, identificadores dentro da expressão de compreensão
@@ -830,24 +853,31 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                 this.intuirTipoQualquerParaIdentificadores = false;
 
                 if (this.simbolos[this.atual].tipo === tiposDeSimbolos.PARA) {
-                    return await this.resolverCompreensaoDeLista(retornoExpressaoOuPrimeiroValor);
+                    return await this.resolverCompreensaoDeLista(
+                        retornoExpressaoOuPrimeiroValor
+                    );
                 }
 
                 // Aqui já sabemos que não é uma compreensão de lista.
                 const valoresVetor = [retornoExpressaoOuPrimeiroValor];
                 while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                    if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
-                        this.consumir(
-                            tiposDeSimbolos.VIRGULA,
-                            'Esperado vírgula antes da próxima expressão.'
-                        );
-                    }
-                    const valor = await this.atribuir();
-                    valoresVetor.push(valor);
+                    this.consumir(
+                        tiposDeSimbolos.VIRGULA,
+                        'Esperado vírgula antes da próxima expressão.'
+                    );
+                    this.ignorarComentarios();
+                    valoresVetor.push(await this.atribuir());
+                    this.ignorarComentarios();
                 }
 
                 const tipoVetor = inferirTipoVariavel(valoresVetor);
-                return new Vetor(this.hashArquivo, simboloAtual.linha, valoresVetor, tipoVetor);
+
+                return new Vetor(
+                    this.hashArquivo,
+                    simboloAtual.linha,
+                    valoresVetor,
+                    tipoVetor
+                );
 
             case tiposDeSimbolos.COMENTARIO:
                 const simboloComentario = this.avancarEDevolverAnterior();
@@ -960,7 +990,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                 const retornoMicroLexador = microLexador.mapear(codigoTransformado);
                 const microAvaliadorSintatico = new MicroAvaliadorSintaticoPitugues();
 
-                let retornoMicroAvaliador: RetornoAvaliadorSintatico<Declaracao>;
+                let retornoMicroAvaliador: RetornoAvaliadorSintaticoInterface<Declaracao>;
                 try {
                     retornoMicroAvaliador = microAvaliadorSintatico.analisar(
                         retornoMicroLexador,
@@ -1008,7 +1038,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         throw this.erro(this.simboloAtual(), 'Esperado expressão.');
     }
 
-    async finalizarChamada(entidadeChamada: Construto): Promise<Construto> {
+    async finalizarChamada(entidadeChamada: ConstrutoInterface): Promise<ConstrutoInterface> {
         const argumentos = [];
 
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
@@ -1027,8 +1057,8 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return chamada;
     }
 
-    async chamar(): Promise<Construto> {
-        let expressao: Construto = await this.primario();
+    async chamar(): Promise<ConstrutoInterface> {
+        let expressao: ConstrutoInterface = await this.primario();
 
         while (true) {
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
@@ -1046,8 +1076,8 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                     : null;
 
                 let ehFatiamento = false;
-                let fim: Construto | null = null;
-                let passo: Construto | null = null;
+                let fim: ConstrutoInterface | null = null;
+                let passo: ConstrutoInterface | null = null;
 
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
                     ehFatiamento = true;
@@ -1095,7 +1125,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return expressao;
     }
 
-    async unario(): Promise<Construto> {
+    async unario(): Promise<ConstrutoInterface> {
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.INTERROGACAO)) {
             const operador = this.simboloAnterior();
             const direito = await this.unario();
@@ -1118,7 +1148,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return await this.chamar();
     }
 
-    async exponenciacao(): Promise<Construto> {
+    async exponenciacao(): Promise<ConstrutoInterface> {
         let expressao = await this.unario();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EXPONENCIACAO)) {
@@ -1130,7 +1160,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return expressao;
     }
 
-    async multiplicar(): Promise<Construto> {
+    async multiplicar(): Promise<ConstrutoInterface> {
         let expressao = await this.exponenciacao();
 
         while (
@@ -1149,7 +1179,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return expressao;
     }
 
-    async adicaoOuSubtracao(): Promise<Construto> {
+    async adicaoOuSubtracao(): Promise<ConstrutoInterface> {
         let expressao = await this.multiplicar();
 
         while (
@@ -1163,7 +1193,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return expressao;
     }
 
-    async bitShift(): Promise<Construto> {
+    async bitShift(): Promise<ConstrutoInterface> {
         let expressao = await this.adicaoOuSubtracao();
 
         while (
@@ -1180,7 +1210,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return expressao;
     }
 
-    async bitE(): Promise<Construto> {
+    async bitE(): Promise<ConstrutoInterface> {
         let expressao = await this.bitShift();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BIT_AND)) {
@@ -1192,7 +1222,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return expressao;
     }
 
-    async bitOu(): Promise<Construto> {
+    async bitOu(): Promise<ConstrutoInterface> {
         let expressao = await this.bitE();
 
         while (
@@ -1206,7 +1236,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return expressao;
     }
 
-    async comparar(): Promise<Construto> {
+    async comparar(): Promise<ConstrutoInterface> {
         let expressao = await this.bitOu();
 
         while (
@@ -1225,7 +1255,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return expressao;
     }
 
-    async comparacaoIgualdade(): Promise<Construto> {
+    async comparacaoIgualdade(): Promise<ConstrutoInterface> {
         let expressao = await this.comparar();
 
         while (
@@ -1242,7 +1272,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return expressao;
     }
 
-    async em(): Promise<Construto> {
+    async em(): Promise<ConstrutoInterface> {
         let expressao = await this.comparacaoIgualdade();
 
         while (
@@ -1270,7 +1300,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return expressao;
     }
 
-    async e(): Promise<Construto> {
+    async e(): Promise<ConstrutoInterface> {
         let expressao = await this.em();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.E)) {
@@ -1282,7 +1312,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return expressao;
     }
 
-    async ou(): Promise<Construto> {
+    async ou(): Promise<ConstrutoInterface> {
         let expressao = await this.e();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.OU)) {
@@ -1294,7 +1324,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return expressao;
     }
 
-    protected async seTernario(): Promise<Construto> {
+    protected async seTernario(): Promise<ConstrutoInterface> {
         let expressaoEntao = await this.ou();
 
         if (
@@ -1324,7 +1354,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return expressaoEntao;
     }
 
-    async tupla(): Promise<Construto> {
+    async tupla(): Promise<ConstrutoInterface> {
         let expressao = await this.atribuir();
 
         // Se não há vírgula, retorna a expressão simples
@@ -1350,7 +1380,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return new TuplaN(this.hashArquivo, expressao.linha, elementos);
     }
 
-    async bote(): Promise<Construto> {
+    async bote(): Promise<ConstrutoInterface> {
         let expressao = await this.seTernario();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.BOTE)) {
@@ -1368,7 +1398,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return expressao;
     }
 
-    async atribuir(): Promise<Construto> {
+    async atribuir(): Promise<ConstrutoInterface> {
         const expressao = await this.bote();
 
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.MORSA)) {
@@ -1500,7 +1530,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
     }
 
     // TODO: Depreciar.
-    async expressao(): Promise<Construto> {
+    async expressao(): Promise<ConstrutoInterface> {
         return await this.atribuir();
     }
 
@@ -1510,7 +1540,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             "Esperado '(' antes dos valores em escreva."
         );
 
-        const argumentos: Array<Construto> = [];
+        const argumentos: Array<ConstrutoInterface> = [];
 
         do {
             argumentos.push(await this.expressao());
@@ -2189,7 +2219,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
      * @returns {ListaCompreensao} A lista de compreensão resolvida.
      */
     protected async resolverCompreensaoDeLista(
-        retornoExpressao: Construto
+        retornoExpressao: ConstrutoInterface
     ): Promise<ListaCompreensao> {
         this.consumir(tiposDeSimbolos.PARA, "Esperado instrução 'para' após identificador.");
         this.consumir(tiposDeSimbolos.CADA, "Esperado instrução 'cada' após 'para'.");
@@ -2380,6 +2410,110 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         );
     }
 
+    private async resolverDecoradorDeAcesso(metodos: any[]): Promise<void> {
+        const simboloDecorador = this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            "Esperado nome do decorador após '@'."
+        );
+
+        const eObtenedor = simboloDecorador.lexema === 'propriedade';
+
+        if (!eObtenedor) {
+            this.consumir(
+                tiposDeSimbolos.PONTO,
+                "Esperado '.' no decorador de definidor."
+            );
+            const simboloDefinidor = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                "Esperado 'definidor'.")
+            ;
+
+            if (simboloDefinidor.lexema !== 'definidor') {
+                throw this.erro(
+                    simboloDefinidor,
+                    "Decorador inválido. Esperado 'definidor'."
+                );
+            }
+        }
+
+        if (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FUNCAO, tiposDeSimbolos.FUNÇÃO)) {
+            throw this.erro(
+                this.simboloAtual(),
+                "Esperado declaração de 'função' logo após o decorador."
+            );
+        }
+
+        const metodoResolvido = await this.funcao('método', false);
+
+        if (eObtenedor) metodoResolvido.eObtenedor = true;
+        else metodoResolvido.eDefinidor = true;
+
+        metodos.push(metodoResolvido);
+    }
+
+    private async resolverPropriedadeDeClasse(
+        simboloAnterior: SimboloInterface<string>,
+        propriedadesDeClasse: PropriedadeClasse[]
+    ): Promise<void> {
+        let tipoLexema: string | null = null;
+        let valorPropriedade: ConstrutoInterface | null = null;
+        let possuiValorInicial = false;
+
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+            const simboloTipo = this.consumir(
+                tiposDeSimbolos.IDENTIFICADOR,
+                'Esperado tipo da propriedade após os dois pontos.'
+            );
+            tipoLexema = simboloTipo.lexema;
+        } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
+            valorPropriedade = await this.expressao();
+            possuiValorInicial = true;
+        } else {
+            throw this.erro(
+                this.simboloAtual(),
+                "Esperado ':' (para tipo) ou '=' (para valor) após o nome da propriedade."
+            );
+        }
+
+        propriedadesDeClasse.push(
+            new PropriedadeClasse(
+                simboloAnterior,
+                tipoLexema,
+                [],
+                'publico',
+                possuiValorInicial,
+                valorPropriedade
+            )
+        );
+    }
+
+    private async resolverMetodoOuConstrutor(
+        simboloAnterior: SimboloInterface<string>,
+        metodos: any[]
+    ): Promise<void> {
+        const ehConstrutor = simboloAnterior.tipo === tiposDeSimbolos.CONSTRUTOR;
+        const metodoResolvido = await this.funcao('método', ehConstrutor);
+        metodos.push(metodoResolvido);
+    }
+
+    protected async resolverMembroDeClasse(
+        metodos: any[],
+        propriedadesDeClasse: PropriedadeClasse[]
+    ): Promise<void> {
+        const simboloAnterior = this.simbolos[this.atual - 1];
+
+        if (simboloAnterior.tipo === tiposDeSimbolos.ARROBA) {
+            await this.resolverDecoradorDeAcesso(metodos);
+        } else if (simboloAnterior.tipo === tiposDeSimbolos.IDENTIFICADOR) {
+            await this.resolverPropriedadeDeClasse(
+                simboloAnterior,
+                propriedadesDeClasse
+            );
+        } else {
+            await this.resolverMetodoOuConstrutor(simboloAnterior, metodos);
+        }
+    }
+
     async declaracaoDeClasse(): Promise<Classe> {
         const simbolo: SimboloInterface = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
@@ -2423,57 +2557,14 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             !this.estaNoFinal() &&
             this.localizacoes[this.simboloAtual().linha].espacosIndentacao === indentacaoLinha &&
             this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.ARROBA,
                 tiposDeSimbolos.CONSTRUTOR,
                 tiposDeSimbolos.FUNCAO,
                 tiposDeSimbolos.FUNÇÃO,
                 tiposDeSimbolos.IDENTIFICADOR
             )
         ) {
-            const simboloAnterior = this.simbolos[this.atual - 1];
-
-            if (simboloAnterior.tipo === tiposDeSimbolos.IDENTIFICADOR) {
-                if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
-                    const simboloTipo = this.consumir(
-                        tiposDeSimbolos.IDENTIFICADOR,
-                        'Esperado tipo da propriedade após os dois pontos.'
-                    );
-                    const propriedade = new PropriedadeClasse(
-                        simboloAnterior,
-                        simboloTipo.lexema,
-                        [],
-                        'publico',
-                        false,
-                        undefined
-                    );
-
-                    propriedadesDeClasse.push(propriedade);
-                } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-                    const valorPropriedade = await this.expressao();
-                    const propriedade = new PropriedadeClasse(
-                        simboloAnterior,
-                        undefined,
-                        [],
-                        'publico',
-                        true,
-                        valorPropriedade
-                    );
-
-                    propriedadesDeClasse.push(propriedade);
-                } else {
-                    throw this.erro(
-                        this.simboloAtual(),
-                        "Esperado ':' (para tipo) ou '=' (para valor) após o nome da propriedade."
-                    );
-                }
-            } else {
-                const ehConstrutor = simboloAnterior.tipo === tiposDeSimbolos.CONSTRUTOR;
-                const metodoResolvido = await this.funcao(
-                    'método',
-                    ehConstrutor
-                );
-
-                metodos.push(metodoResolvido);
-            }
+            await this.resolverMembroDeClasse(metodos, propriedadesDeClasse);
         }
 
         this.superclasseAtual = undefined;
@@ -2899,9 +2990,9 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
     }
 
     async analisar(
-        retornoLexador: RetornoLexador<SimboloInterface>,
+        retornoLexador: RetornoLexadorInterface<SimboloInterface>,
         hashArquivo: number
-    ): Promise<RetornoAvaliadorSintatico<Declaracao>> {
+    ): Promise<RetornoAvaliadorSintaticoInterface<Declaracao>> {
         const inicioAnalise: [number, number] = hrtime();
         this.erros = [];
         this.atual = 0;
@@ -2958,6 +3049,8 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return {
             declaracoes: declaracoes,
             erros: this.erros,
-        } as RetornoAvaliadorSintatico<Declaracao>;
+        } as RetornoAvaliadorSintaticoInterface<Declaracao>;
     }
 }
+
+

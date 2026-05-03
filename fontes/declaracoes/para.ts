@@ -1,5 +1,5 @@
-import { Construto } from '../construtos';
-import { VisitanteComumInterface } from '../interfaces';
+﻿import { VisitanteComumInterface } from '../interfaces';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 import { ParaInterface } from '../interfaces/delegua';
 import { Bloco } from './bloco';
 import { Declaracao } from './declaracao';
@@ -10,8 +10,8 @@ import { Declaracao } from './declaracao';
  */
 export class Para extends Declaracao implements ParaInterface {
     inicializador?: Declaracao | Declaracao[];
-    condicao: Construto;
-    incrementar: Construto;
+    condicao: ConstrutoInterface;
+    incrementar: ConstrutoInterface;
     corpo: Bloco;
     inicializada: boolean;
     blocoPosExecucao?: Bloco;
@@ -21,8 +21,8 @@ export class Para extends Declaracao implements ParaInterface {
         hashArquivo: number,
         linha: number,
         inicializador: Declaracao | Declaracao[],
-        condicao: Construto,
-        incrementar: Construto,
+        condicao: ConstrutoInterface,
+        incrementar: ConstrutoInterface,
         corpo: Bloco
     ) {
         super(linha, hashArquivo);
@@ -54,3 +54,5 @@ export class Para extends Declaracao implements ParaInterface {
         return `<para ${this.inicializador} condição=${this.condicao.paraTexto()} />`;
     }
 }
+
+

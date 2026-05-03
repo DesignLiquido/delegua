@@ -1,20 +1,20 @@
 import { VisitanteComumInterface } from '../interfaces';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 import { uuidv4 } from '../geracao-identificadores';
 
 /**
  * Chamada de funções, métodos, etc.
  */
-export class Chamada implements Construto {
+export class Chamada implements ConstrutoInterface {
     id: string;
     linha: number;
     hashArquivo: number;
 
-    entidadeChamada: Construto;
-    argumentos: Construto[];
+    entidadeChamada: ConstrutoInterface;
+    argumentos: ConstrutoInterface[];
     tipo?: string;
 
-    constructor(hashArquivo: number, entidadeChamada: Construto, argumentos: Construto[]) {
+    constructor(hashArquivo: number, entidadeChamada: ConstrutoInterface, argumentos: ConstrutoInterface[]) {
         this.id = uuidv4();
         this.linha = entidadeChamada.linha;
         this.hashArquivo = hashArquivo;

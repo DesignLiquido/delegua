@@ -1,11 +1,11 @@
 import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
 /**
  * Diferentemente da declaração de comentário, este construto ocorre
  * dentro de expressões, como por exemplo, em especificação de elementos de um vetor.
  */
-export class ComentarioComoConstruto implements Construto {
+export class ComentarioComoConstruto implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
     conteudo: string | string[];

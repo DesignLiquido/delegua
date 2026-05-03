@@ -1,6 +1,6 @@
 import { Declaracao } from '../declaracoes';
-import { Construto } from '../construtos';
 import { FormatadorDelegua } from '../formatadores';
+import { ConstrutoInterface } from '../interfaces/construtos';
 import {
     EstilizadorInterface,
     OpcoesFormatacaoEstilizadorInterface,
@@ -159,7 +159,7 @@ export class EstilizadorDelegua implements EstilizadorInterface {
      * @param construto O construto a ser estilizado.
      * @returns O construto estilizado.
      */
-    private estilizarConstruto(construto: Construto): Construto {
+    private estilizarConstruto(construto: ConstrutoInterface): ConstrutoInterface {
         let construtoAtual = construto;
 
         // Aplica regras de construto
@@ -237,7 +237,7 @@ export class EstilizadorDelegua implements EstilizadorInterface {
     /**
      * Verifica se um objeto é um Construto.
      */
-    private ehConstruto(obj: any): obj is Construto {
+    private ehConstruto(obj: any): obj is ConstrutoInterface {
         return obj && typeof obj === 'object' && 'aceitar' in obj && !('paraTexto' in obj);
     }
 

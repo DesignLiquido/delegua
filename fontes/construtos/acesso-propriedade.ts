@@ -1,17 +1,17 @@
 import { VisitanteComumInterface } from '../interfaces';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
-export class AcessoPropriedade implements Construto {
+export class AcessoPropriedade implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
 
-    objeto: Construto;
+    objeto: ConstrutoInterface;
     nomePropriedade: string;
     tipoRetornoPropriedade: string;
 
     constructor(
         hashArquivo: number,
-        objeto: Construto,
+        objeto: ConstrutoInterface,
         nomePropriedade: string,
         tipoRetornoPropriedade: string = 'qualquer'
     ) {

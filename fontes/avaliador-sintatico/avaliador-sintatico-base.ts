@@ -1,7 +1,6 @@
-import {
+﻿import {
     Binario,
     Chamada,
-    Construto,
     FuncaoConstruto,
     Leia,
     Logico,
@@ -26,7 +25,8 @@ import {
     Var,
 } from '../declaracoes';
 import { AvaliadorSintaticoInterface, ParametroInterface, SimboloInterface } from '../interfaces';
-import { RetornoAvaliadorSintatico, RetornoLexador } from '../interfaces/retornos';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
+import { RetornoAvaliadorSintaticoInterface, RetornoLexadorInterface } from '../interfaces/retornos';
 import { ErroAvaliadorSintatico } from './erro-avaliador-sintatico';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/comum';
@@ -47,8 +47,18 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     atual: number = 0;
     blocos: number = 0;
 
-    erro(simbolo: SimboloInterface, mensagemDeErro: string): ErroAvaliadorSintatico {
-        const excecao = new ErroAvaliadorSintatico(simbolo, mensagemDeErro);
+    erro(
+        simbolo: SimboloInterface,
+        mensagemDeErro: string,
+        codigoDiagnostico?: string,
+        simboloRelacionado?: SimboloInterface
+    ): ErroAvaliadorSintatico {
+        const excecao = new ErroAvaliadorSintatico(
+            simbolo,
+            mensagemDeErro,
+            codigoDiagnostico,
+            simboloRelacionado
+        );
         return excecao;
     }
 
@@ -115,17 +125,17 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
      * Esses métodos não precisam ser expostos. A recomendação geral é
      * implementá-los como `protected`.
      */
-    protected abstract atribuir(): Promise<Construto>; // `atribuir()` deve chamar `ou()` ou algum outro método unário ou
+    protected abstract atribuir(): Promise<ConstrutoInterface>; // `atribuir()` deve chamar `ou()` ou algum outro método unário ou
     // binário de visita na implementação.
     protected abstract blocoEscopo(): Promise<Declaracao[]>;
-    protected abstract chamar(): Promise<Construto>;
+    protected abstract chamar(): Promise<ConstrutoInterface>;
     protected abstract corpoDaFuncao(tipo: string): Promise<FuncaoConstruto>;
     protected abstract declaracaoEnquanto(): Promise<Enquanto>;
     protected abstract declaracaoEscreva(): Promise<Escreva>;
     protected abstract declaracaoPara(): Promise<Para | ParaCada>;
     protected abstract declaracaoSe(): Promise<Se>;
     protected abstract expressaoLeia(): Promise<Leia>;
-    protected abstract primario(): Promise<Construto>;
+    protected abstract primario(): Promise<ConstrutoInterface>;
     protected abstract resolverDeclaracaoForaDeBloco(): Promise<
         Declaracao | Declaracao[] | undefined
     >;
@@ -142,8 +152,8 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         );
     }
 
-    protected async finalizarChamada(entidadeChamada: Construto): Promise<Chamada> {
-        const argumentos: Array<Construto> = [];
+    protected async finalizarChamada(entidadeChamada: ConstrutoInterface): Promise<Chamada> {
+        const argumentos: Array<ConstrutoInterface> = [];
 
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
             do {
@@ -162,7 +172,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         return new Chamada(this.hashArquivo, entidadeChamada, argumentos);
     }
 
-    protected async unario(): Promise<Construto> {
+    protected async unario(): Promise<ConstrutoInterface> {
         if (
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NEGACAO, tiposDeSimbolos.SUBTRACAO)
         ) {
@@ -179,7 +189,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
      * Por isso `direito` chama `exponenciacao()`, e não `unario()`.
      * @returns {Binario} A expressão binária na forma do construto `Binario`.
      */
-    protected async exponenciacao(): Promise<Construto> {
+    protected async exponenciacao(): Promise<ConstrutoInterface> {
         let expressao = await this.unario();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EXPONENCIACAO)) {
@@ -191,7 +201,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         return expressao;
     }
 
-    protected async multiplicar(): Promise<Construto> {
+    protected async multiplicar(): Promise<ConstrutoInterface> {
         let expressao = await this.exponenciacao();
 
         while (
@@ -210,7 +220,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         return expressao;
     }
 
-    protected async adicaoOuSubtracao(): Promise<Construto> {
+    protected async adicaoOuSubtracao(): Promise<ConstrutoInterface> {
         let expressao = await this.multiplicar();
 
         while (
@@ -232,7 +242,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         throw new Error('Método não implementado.');
     }
 
-    protected async comparar(): Promise<Construto> {
+    protected async comparar(): Promise<ConstrutoInterface> {
         let expressao = await this.adicaoOuSubtracao();
 
         while (
@@ -251,7 +261,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         return expressao;
     }
 
-    protected async comparacaoIgualdade(): Promise<Construto> {
+    protected async comparacaoIgualdade(): Promise<ConstrutoInterface> {
         let expressao = await this.comparar();
 
         while (
@@ -269,7 +279,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         return expressao;
     }
 
-    protected async e(): Promise<Construto> {
+    protected async e(): Promise<ConstrutoInterface> {
         let expressao = await this.comparacaoIgualdade();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.E)) {
@@ -281,7 +291,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         return expressao;
     }
 
-    protected async ou(): Promise<Construto> {
+    protected async ou(): Promise<ConstrutoInterface> {
         let expressao = await this.e();
 
         while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.OU)) {
@@ -297,7 +307,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
      * Processa tuplas, que são expressões separadas por vírgula entre parênteses.
      * Se não houver vírgula, retorna apenas a expressão simples.
      */
-    protected async tupla(): Promise<Construto> {
+    protected async tupla(): Promise<ConstrutoInterface> {
         let expressao = await this.ou();
 
         // Se não há vírgula, retorna a expressão simples
@@ -318,7 +328,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         return new TuplaN(this.hashArquivo, expressao.linha, elementos);
     }
 
-    protected async expressao(): Promise<Construto> {
+    protected async expressao(): Promise<ConstrutoInterface> {
         return await this.atribuir();
     }
 
@@ -377,15 +387,15 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
      * erro em caso contrário.
      */
 
-    protected bitShift(): Promise<Construto> {
+    protected bitShift(): Promise<ConstrutoInterface> {
         throw new Error('Método não implementado.');
     }
 
-    protected bitE(): Promise<Construto> {
+    protected bitE(): Promise<ConstrutoInterface> {
         throw new Error('Método não implementado.');
     }
 
-    protected bitOu(): Promise<Construto> {
+    protected bitOu(): Promise<ConstrutoInterface> {
         throw new Error('Método não implementado.');
     }
 
@@ -417,7 +427,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         throw new Error('Método não implementado.');
     }
 
-    protected em(): Promise<Construto> {
+    protected em(): Promise<ConstrutoInterface> {
         throw new Error('Método não implementado.');
     }
 
@@ -434,7 +444,9 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
      * @see cyrb53
      */
     abstract analisar(
-        retornoLexador: RetornoLexador<SimboloInterface>,
+        retornoLexador: RetornoLexadorInterface<SimboloInterface>,
         hashArquivo: number
-    ): Promise<RetornoAvaliadorSintatico<Declaracao>>;
+    ): Promise<RetornoAvaliadorSintaticoInterface<Declaracao>>;
 }
+
+

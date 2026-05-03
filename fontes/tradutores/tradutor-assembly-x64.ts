@@ -6,7 +6,6 @@ import {
     Atribuir,
     Binario,
     Chamada,
-    Construto,
     DefinirValor,
     FuncaoConstruto,
     Leia,
@@ -37,7 +36,7 @@ import {
     Tente,
     Var,
 } from '../declaracoes';
-import { CaminhoEscolha } from '../interfaces/construtos';
+import { CaminhoEscolha, ConstrutoInterface } from '../interfaces/construtos';
 
 export type PlataformaAlvo = 'linux' | 'windows';
 
@@ -309,13 +308,13 @@ extern printf
             this.alvo === 'linux'
                 ? ['rdi', 'rsi', 'rdx', 'rcx', 'r8', 'r9'] // System V AMD64 [web:8]
                 : ['rcx', 'rdx', 'r8', 'r9']; // Windows x64 [web:2]
-        construto.argumentos.forEach((arg: Construto, index: number) => {
-            if (index < registrosArgs.length) {
-                const valorArg = this.dicionarioConstrutos[arg.constructor.name](arg);
+        construto.argumentos.forEach((argumento: ConstrutoInterface, indice: number) => {
+            if (indice < registrosArgs.length) {
+                const valorArg = this.dicionarioConstrutos[argumento.constructor.name](argumento);
                 this.textoSaida += `
-    mov ${registrosArgs[index]}, ${valorArg}`;
+    mov ${registrosArgs[indice]}, ${valorArg}`;
             } else {
-                // TODO: push extra args on stack according to target ABI
+                // TODO: empurrar argumentos extras na pilha de acordo com o ABI alvo
             }
         });
 
@@ -457,7 +456,7 @@ ${labelFim}:`;
         this.bss += `    ${rotuloVetor} resq ${tamanho}\n`;
 
         if (construto.valores && Array.isArray(construto.valores)) {
-            construto.valores.forEach((valor: Construto, index: number) => {
+            construto.valores.forEach((valor: ConstrutoInterface, index: number) => {
                 if (this.dicionarioConstrutos[valor.constructor.name]) {
                     const valorTraduzido = this.dicionarioConstrutos[valor.constructor.name](valor);
                     this.textoSaida += `
@@ -585,7 +584,7 @@ ${labelInicio}:`;
             typeof declaracao.explicacao === 'object' &&
             'constructor' in declaracao.explicacao
         ) {
-            const explicacao = declaracao.explicacao as Construto;
+            const explicacao = declaracao.explicacao as ConstrutoInterface;
             if (explicacao.constructor && this.dicionarioConstrutos[explicacao.constructor.name]) {
                 mensagem = this.dicionarioConstrutos[explicacao.constructor.name](explicacao);
             }

@@ -55,7 +55,6 @@ import {
     Chamada,
     ComentarioComoConstruto,
     Constante,
-    Construto,
     DefinirValor,
     Dicionario,
     Dupla,
@@ -80,7 +79,7 @@ import {
 } from '../construtos';
 import { ErroInterpretadorInterface } from '../interfaces/erros/erro-interpretador-interface';
 import { RetornoInterpretadorInterface } from '../interfaces/retornos/retorno-interpretador-interface';
-import { EscopoExecucao } from '../interfaces/escopo-execucao';
+import { EscopoExecucaoInterface } from '../interfaces/escopo-execucao';
 import { PilhaEscoposExecucao } from './pilha-escopos-execucao';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../quebras';
 import { PilhaEscoposExecucaoInterface } from '../interfaces/pilha-escopos-execucao-interface';
@@ -95,6 +94,7 @@ import { MicroAvaliadorSintaticoBase } from '../avaliador-sintatico/micro-avalia
 import { EspacoMemoria } from './espaco-memoria';
 import { ErroEmTempoDeExecucao } from '../excecoes';
 import {
+    ConstrutoInterface,
     InterpretadorInterface,
     ResultadoParcialInterpretadorInterface,
     SimboloInterface,
@@ -202,7 +202,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         this.requerDeclaracaoPropriedades = true;
 
         this.pilhaEscoposExecucao = new PilhaEscoposExecucao();
-        const escopoExecucao: EscopoExecucao = {
+        const escopoExecucao: EscopoExecucaoInterface = {
             declaracoes: [],
             declaracaoAtual: 0,
             espacoMemoria: new EspacoMemoria(),
@@ -250,11 +250,11 @@ export class InterpretadorBase implements InterpretadorInterface {
      * Usado para chamadas de métodos de primitiva.
      * Sendo uma variável ou constante, a primitiva precisa atualizar a referência
      * para o objeto que está sendo acessado.
-     * @param {Construto} objetoAcessado O objeto que está sendo acessado.
+     * @param {ConstrutoInterface} objetoAcessado O objeto que está sendo acessado.
      * @returns O nome desse objeto, se ele for uma variável ou constante.
      * @see resolverValor
      */
-    protected resolverNomeObjectoAcessado(objetoAcessado: Construto): string {
+    protected resolverNomeObjectoAcessado(objetoAcessado: ConstrutoInterface): string {
         switch (objetoAcessado.constructor) {
             // TODO: Não habilitar isso até que vetores sejam repassados para o montão.
             /* case AcessoMetodoOuPropriedade:
@@ -481,7 +481,7 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @param expressao A expressão, que pode ser um construto ou declaração.
      * @returns O retorno da execução do método de visita chamado.
      */
-    async avaliar(expressao: Construto | Declaracao): Promise<any> {
+    async avaliar(expressao: ConstrutoInterface | Declaracao): Promise<any> {
         // Descomente o código abaixo quando precisar detectar expressões undefined ou nulas.
         // Por algum motivo o depurador do VSCode não funciona direito aqui
         // com breakpoint condicional.
@@ -1832,7 +1832,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         return Promise.reject('Importação de arquivos não suportada por Interpretador Base.');
     }
 
-    protected async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
+    protected async avaliarArgumentosEscreva(argumentos: ConstrutoInterface[]): Promise<string> {
         let formatoTexto: string = '';
 
         for (const argumento of argumentos) {
@@ -1908,7 +1908,7 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
      */
     async executarBloco(declaracoes: Declaracao[], ambiente?: EspacoMemoria): Promise<any> {
-        const escopoExecucao: EscopoExecucao = {
+        const escopoExecucao: EscopoExecucaoInterface = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
             espacoMemoria: ambiente || new EspacoMemoria(),
@@ -3026,7 +3026,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         this.linhaDeclaracaoAtual = -1;
         this.hashArquivoDeclaracaoAtual = -1;
 
-        const escopoExecucao: EscopoExecucao = {
+        const escopoExecucao: EscopoExecucaoInterface = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
             espacoMemoria: new EspacoMemoria(),

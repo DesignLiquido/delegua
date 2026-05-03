@@ -1,21 +1,21 @@
 import { VisitanteDeleguaInterface } from '../interfaces';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
 /**
  * Ajuda pode ser declaração ou construto. Para construto, o comportamento é
  * um pouco diferente do de ajuda como declaração. Por exemplo, se usado com
  * operadores, sempre resolve como um `texto`.
  */
-export class AjudaComoConstruto implements Construto {
+export class AjudaComoConstruto implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
-    valor: Construto | undefined;
+    valor: ConstrutoInterface | undefined;
     funcao: boolean;
 
     constructor(
         hashArquivo: number,
         linha: number,
-        elemento: Construto | undefined,
+        elemento: ConstrutoInterface | undefined,
         funcao: boolean = true
     ) {
         this.hashArquivo = hashArquivo;

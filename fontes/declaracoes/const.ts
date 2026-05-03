@@ -1,5 +1,5 @@
-import { Construto, Decorador } from '../construtos';
-import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
+import { Decorador } from '../construtos';
+import { VisitanteComumInterface, SimboloInterface, ConstrutoInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
 /**
@@ -7,13 +7,13 @@ import { Declaracao } from './declaracao';
  */
 export class Const extends Declaracao {
     simbolo: SimboloInterface;
-    inicializador: Construto;
+    inicializador: ConstrutoInterface;
     tipo: string;
     tipoExplicito: boolean;
 
     constructor(
         simbolo: SimboloInterface,
-        inicializador: Construto,
+        inicializador: ConstrutoInterface,
         tipo: string = 'qualquer',
         tipoExplicito: boolean = false,
         decoradores: Decorador[] = []

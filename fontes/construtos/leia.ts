@@ -1,23 +1,22 @@
-import { Construto } from '.';
 import { uuidv4 } from '../geracao-identificadores';
-import { SimboloInterface, VisitanteComumInterface } from '../interfaces';
+import { ConstrutoInterface, SimboloInterface, VisitanteComumInterface } from '../interfaces';
 
 /**
  * Declaração que pede a leitura de uma informação pela entrada
  * configurada no início da aplicação (por exemplo, o console).
  */
-export class Leia implements Construto {
+export class Leia implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
 
     simbolo: SimboloInterface;
     id: string;
-    argumentos: Construto[];
+    argumentos: ConstrutoInterface[];
     tipo: string = 'texto';
     numeroArgumentosEsperados?: number;
     eParaInterromper?: boolean;
 
-    constructor(simbolo: SimboloInterface, argumentos: Construto[]) {
+    constructor(simbolo: SimboloInterface, argumentos: ConstrutoInterface[]) {
         this.linha = simbolo.linha;
         this.hashArquivo = simbolo.hashArquivo;
         this.simbolo = simbolo;

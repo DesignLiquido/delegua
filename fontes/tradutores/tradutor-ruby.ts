@@ -9,7 +9,6 @@ import {
     Atribuir,
     Binario,
     Chamada,
-    Construto,
     DefinirValor,
     Dicionario,
     FuncaoConstruto,
@@ -41,7 +40,7 @@ import {
     Tente,
     Var,
 } from '../declaracoes';
-import { SimboloInterface, TradutorInterface } from '../interfaces';
+import { ConstrutoInterface, SimboloInterface, TradutorInterface } from '../interfaces';
 
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 
@@ -95,7 +94,7 @@ export class TradutorRuby implements TradutorInterface<Declaracao> {
     protected traduzirFuncaoOuMetodo(
         nomeMetodo: string,
         objetoResolvido: string,
-        argumentos: Construto[]
+        argumentos: ConstrutoInterface[]
     ): string {
         const argumentosResolvidos: string[] = [];
         for (const argumento of argumentos) {
@@ -185,7 +184,7 @@ export class TradutorRuby implements TradutorInterface<Declaracao> {
      * @param argumento O construto da função anônima
      * @returns String com o lambda do Ruby
      */
-    traduzirFuncaoAnonimaParaLambda(argumento: Construto): string {
+    traduzirFuncaoAnonimaParaLambda(argumento: ConstrutoInterface): string {
         if (!(argumento instanceof FuncaoConstruto)) {
             return '';
         }
@@ -217,9 +216,9 @@ export class TradutorRuby implements TradutorInterface<Declaracao> {
     }
 
     traduzirAcessoMetodoVetor(
-        objeto: Construto,
+        objeto: ConstrutoInterface,
         nomeMetodo: string,
-        argumentos: Construto[]
+        argumentos: ConstrutoInterface[]
     ): string {
         const objetoResolvido = this.dicionarioConstrutos[objeto.constructor.name](objeto);
 
@@ -264,7 +263,7 @@ export class TradutorRuby implements TradutorInterface<Declaracao> {
         }
     }
 
-    traduzirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodo, argumentos: Construto[]): string {
+    traduzirConstrutoAcessoMetodo(acessoMetodo: AcessoMetodo, argumentos: ConstrutoInterface[]): string {
         switch (acessoMetodo.objeto.constructor.name) {
             case 'Isto':
                 return `self.${acessoMetodo.nomeMetodo}`;
@@ -291,7 +290,7 @@ export class TradutorRuby implements TradutorInterface<Declaracao> {
 
     traduzirConstrutoAcessoMetodoOuPropriedade(
         acessoMetodo: AcessoMetodoOuPropriedade,
-        argumentos: Construto[]
+        argumentos: ConstrutoInterface[]
     ): string {
         if (acessoMetodo.objeto instanceof Variavel) {
             let objetoVariavel = acessoMetodo.objeto as Variavel;
@@ -307,7 +306,7 @@ export class TradutorRuby implements TradutorInterface<Declaracao> {
 
     traduzirConstrutoAcessoPropriedade(
         acessoPropriedade: AcessoPropriedade,
-        argumentos: Construto[]
+        argumentos: ConstrutoInterface[]
     ): string {
         if (acessoPropriedade.objeto instanceof Variavel) {
             let objetoVariavel = acessoPropriedade.objeto as Variavel;
@@ -329,7 +328,7 @@ export class TradutorRuby implements TradutorInterface<Declaracao> {
 
     traduzirConstrutoArgumentoReferenciaFuncao(
         argumentoReferenciaFuncao: ArgumentoReferenciaFuncao,
-        argumentos: Construto[]
+        argumentos: ConstrutoInterface[]
     ): string {
         const argumentosResolvidos: string[] = [];
         const argumentosValidados = argumentos || [];
@@ -481,7 +480,7 @@ export class TradutorRuby implements TradutorInterface<Declaracao> {
 
     traduzirConstrutoReferenciaFuncao(
         referenciaFuncao: ReferenciaFuncao,
-        argumentos: Construto[]
+        argumentos: ConstrutoInterface[]
     ): string {
         const argumentosResolvidos: string[] = [];
         const argumentosValidados = argumentos || [];
@@ -530,7 +529,7 @@ export class TradutorRuby implements TradutorInterface<Declaracao> {
         }
     }
 
-    traduzirConstrutoVariavel(variavel: Variavel, argumentos: Construto[]): string {
+    traduzirConstrutoVariavel(variavel: Variavel, argumentos: ConstrutoInterface[]): string {
         const argumentosResolvidos: string[] = [];
         const argumentosValidados = argumentos || [];
         for (const argumento of argumentosValidados) {

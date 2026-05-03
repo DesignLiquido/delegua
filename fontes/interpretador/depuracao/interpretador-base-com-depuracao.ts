@@ -1,8 +1,9 @@
-import { Binario, Chamada, Construto } from '../../construtos';
+import { Binario, Chamada } from '../../construtos';
 import { Declaracao, Enquanto, Escreva, Fazer, Para, Retorna } from '../../declaracoes';
 import { PontoParada } from '../../depuracao';
 import {
     ComandoDepurador,
+    ConstrutoInterface,
     InterpretadorComDepuracaoInterface,
     RetornoInterpretadorInterface,
 } from '../../interfaces';
@@ -79,7 +80,7 @@ export class InterpretadorBaseComDepuracao
      * @param expressao A expressão a ser avaliada.
      * @returns O resultado da avaliação.
      */
-    override async avaliar(expressao: Construto | Declaracao): Promise<any> {
+    override async avaliar(expressao: ConstrutoInterface | Declaracao): Promise<any> {
         return await comum.avaliar(this, expressao);
     }
 
@@ -119,7 +120,7 @@ export class InterpretadorBaseComDepuracao
         return await comum.visitarDeclaracaoEnquanto(this, declaracao);
     }
 
-    override async avaliarArgumentosEscreva(argumentos: Construto[]): Promise<string> {
+    override async avaliarArgumentosEscreva(argumentos: ConstrutoInterface[]): Promise<string> {
         let formatoTexto: string = '';
 
         for (const argumento of argumentos) {

@@ -1,5 +1,5 @@
 import { SimboloInterface } from '../interfaces';
-import { RetornoLexador } from '../interfaces/retornos';
+import { RetornoLexadorInterface } from '../interfaces/retornos';
 import { ErroLexador } from './erro-lexador';
 
 import { palavrasReservadasMicroGramatica as palavrasReservadas } from './palavras-reservadas';
@@ -245,7 +245,7 @@ export class MicroLexador {
      * Lê apenas uma linha de código e a transforma em símbolos.
      * @param codigo O código
      */
-    mapear(codigo: string): RetornoLexador<SimboloInterface> {
+    mapear(codigo: string): RetornoLexadorInterface<SimboloInterface> {
         this.codigo = codigo;
         this.erros = [];
         this.simbolos = [];
@@ -260,6 +260,6 @@ export class MicroLexador {
         return {
             simbolos: this.simbolos,
             erros: this.erros,
-        } as RetornoLexador<SimboloInterface>;
+        } as RetornoLexadorInterface<SimboloInterface>;
     }
 }

@@ -1,4 +1,4 @@
-import { DocumentarioAnalisado } from '../interfaces/documentario/documentario-analisado';
+import { DocumentarioAnalisadoInterface } from '../interfaces/documentario/documentario-analisado';
 
 const REGEX_PARAMETRO = /^@(?:par[aâ]metro|param)\s+(?:\{([^}]+)\}\s+)?(\S+)\s*(.*)$/;
 const REGEX_RETORNA = /^@(?:retorna)\s*(?:\{([^}]+)\}\s*)?(.*)$/;
@@ -27,8 +27,8 @@ function segmentar(linhas: string[]): Segmento[] {
     return segmentos;
 }
 
-export function analisarDocumentario(conteudo: string): DocumentarioAnalisado {
-    const resultado: DocumentarioAnalisado = {
+export function analisarDocumentario(conteudo: string): DocumentarioAnalisadoInterface {
+    const resultado: DocumentarioAnalisadoInterface = {
         descricao: '',
         parametros: [],
         veja: [],

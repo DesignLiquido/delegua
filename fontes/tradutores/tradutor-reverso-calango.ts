@@ -5,7 +5,6 @@ import {
     Atribuir,
     Binario,
     Chamada,
-    Construto,
     FormatacaoEscrita,
     FuncaoConstruto,
     Leia,
@@ -31,12 +30,12 @@ import {
     Sustar,
     Var,
 } from '../declaracoes';
-import { SimboloInterface, TradutorInterface } from '../interfaces';
+import { ConstrutoInterface, SimboloInterface, TradutorInterface } from '../interfaces';
 import { LexadorCalango } from '../lexador/dialetos';
 import tiposDeSimbolos from '../tipos-de-simbolos/calango';
 import { AvaliadorSintaticoCalango } from '../avaliador-sintatico/dialetos/avaliador-sintatico-calango';
 
-export class TradutorReversoCalango implements TradutorInterface<Declaracao | Construto> {
+export class TradutorReversoCalango implements TradutorInterface<Declaracao | ConstrutoInterface> {
     indentacao: number = 0;
     lexador!: LexadorCalango;
     avaliadorSintatico!: AvaliadorSintaticoCalango;
@@ -116,7 +115,7 @@ export class TradutorReversoCalango implements TradutorInterface<Declaracao | Co
         }
     }
 
-    private traduzirQualquer(elemento: Declaracao | Construto): string {
+    private traduzirQualquer(elemento: Declaracao | ConstrutoInterface): string {
         if (!elemento) {
             return '';
         }
@@ -127,7 +126,7 @@ export class TradutorReversoCalango implements TradutorInterface<Declaracao | Co
         }
 
         if (this.dicionarioConstrutos.hasOwnProperty(nomeConstrutor)) {
-            return this.dicionarioConstrutos[nomeConstrutor](elemento as Construto);
+            return this.dicionarioConstrutos[nomeConstrutor](elemento as ConstrutoInterface);
         }
 
         throw new Error(`Elemento não suportado pelo tradutor Calango reverso: ${nomeConstrutor}`);
@@ -147,7 +146,7 @@ export class TradutorReversoCalango implements TradutorInterface<Declaracao | Co
         return `${nome}: ${tipo}`;
     }
 
-    private logicaComumBlocoEscopo(declaracoes: (Declaracao | Construto)[]): string {
+    private logicaComumBlocoEscopo(declaracoes: (Declaracao | ConstrutoInterface)[]): string {
         let resultado = '{\n';
         this.indentacao += 4;
 
@@ -441,7 +440,7 @@ export class TradutorReversoCalango implements TradutorInterface<Declaracao | Co
         return `var ${declaracaoVar.simbolo.lexema} = ${this.traduzirQualquer(declaracaoVar.inicializador)}`;
     }
 
-    traduzir(declaracoes: Array<Declaracao | Construto>): string {
+    traduzir(declaracoes: Array<Declaracao | ConstrutoInterface>): string {
         const linhas: string[] = [];
 
         for (const declaracao of declaracoes) {

@@ -2,7 +2,7 @@ import { LexadorInterface, SimboloInterface } from '../../interfaces';
 import { Simbolo } from '../simbolo';
 
 import { ErroLexador } from '../erro-lexador';
-import { RetornoLexador } from '../../interfaces/retornos/retorno-lexador';
+import { RetornoLexadorInterface } from '../../interfaces/retornos/retorno-lexador-interface';
 
 import { palavrasReservadas } from './palavras-reservadas/egua-classico';
 import tiposDeSimbolos from '../../tipos-de-simbolos/egua-classico';
@@ -314,7 +314,7 @@ export class LexadorEguaClassico implements LexadorInterface<SimboloInterface> {
         }
     }
 
-    mapear(codigo?: string[]): RetornoLexador<SimboloInterface> {
+    mapear(codigo?: string[]): RetornoLexadorInterface<SimboloInterface> {
         this.erros = [];
         this.simbolos = [];
         this.inicioSimbolo = 0;
@@ -334,6 +334,6 @@ export class LexadorEguaClassico implements LexadorInterface<SimboloInterface> {
         return {
             simbolos: this.simbolos,
             erros: this.erros,
-        } as RetornoLexador<SimboloInterface>;
+        } as RetornoLexadorInterface<SimboloInterface>;
     }
 }

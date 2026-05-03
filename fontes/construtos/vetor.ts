@@ -1,16 +1,16 @@
 import { VisitanteComumInterface } from '../interfaces';
 import { ComentarioComoConstruto } from './comentario-como-construto';
-import { Construto } from './construto';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 import { Separador } from './separador';
 
-export class Vetor implements Construto {
+export class Vetor implements ConstrutoInterface {
     linha: number;
     hashArquivo: number;
     tipo?: string;
 
-    valores: Construto[];
+    valores: ConstrutoInterface[];
 
-    constructor(hashArquivo: number, linha: number, valores: Construto[], tipo?: string) {
+    constructor(hashArquivo: number, linha: number, valores: ConstrutoInterface[], tipo?: string) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
         this.tipo = tipo;
@@ -21,7 +21,7 @@ export class Vetor implements Construto {
      * Retorna apenas os elementos de dados do vetor, excluindo nós sintáticos
      * (Separador, comentários) que podem aparecer entre os elementos.
      */
-    get elementos(): Construto[] {
+    get elementos(): ConstrutoInterface[] {
         return this.valores.filter(
             (v) => v.constructor !== Separador && v.constructor !== ComentarioComoConstruto
         );

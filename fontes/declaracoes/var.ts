@@ -1,4 +1,5 @@
-import { Construto, Decorador } from '../construtos';
+﻿import { Decorador } from '../construtos';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
 import { Declaracao } from './declaracao';
 
@@ -7,7 +8,7 @@ import { Declaracao } from './declaracao';
  */
 export class Var extends Declaracao {
     simbolo: SimboloInterface;
-    inicializador: Construto | undefined;
+    inicializador: ConstrutoInterface | undefined;
     tipo: string;
     tipoOriginal: string; // Tipo originalmente especificado pelo usuário (antes da inferência)
     tipoExplicito: boolean;
@@ -17,7 +18,7 @@ export class Var extends Declaracao {
 
     constructor(
         simbolo: SimboloInterface,
-        inicializador: Construto | undefined,
+        inicializador: ConstrutoInterface | undefined,
         tipo: string = 'qualquer',
         tipoExplicito: boolean = false,
         decoradores: Decorador[] = [],
@@ -48,3 +49,5 @@ export class Var extends Declaracao {
         return `<var nome=${this.simbolo.lexema} valor=${this.inicializador ? this.inicializador.paraTexto() : 'Nada'} />`;
     }
 }
+
+

@@ -1,19 +1,19 @@
-import { Construto } from '../construto';
+import { ConstrutoInterface } from '../../interfaces/construtos/construto-interface';
 import { Tupla } from '../tupla';
 
 export class Quinteto extends Tupla {
-    primeiro: Construto;
-    segundo: Construto;
-    terceiro: Construto;
-    quarto: Construto;
-    quinto: Construto;
+    primeiro: ConstrutoInterface;
+    segundo: ConstrutoInterface;
+    terceiro: ConstrutoInterface;
+    quarto: ConstrutoInterface;
+    quinto: ConstrutoInterface;
 
     constructor(
-        primeiro: Construto,
-        segundo: Construto,
-        terceiro: Construto,
-        quarto: Construto,
-        quinto: Construto
+        primeiro: ConstrutoInterface,
+        segundo: ConstrutoInterface,
+        terceiro: ConstrutoInterface,
+        quarto: ConstrutoInterface,
+        quinto: ConstrutoInterface
     ) {
         super();
         this.primeiro = primeiro;

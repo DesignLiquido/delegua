@@ -1,11 +1,10 @@
-import {
+﻿import {
     AcessoIntervaloVariavel,
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
     ArgumentoReferenciaFuncao,
     Atribuir,
     ComentarioComoConstruto,
-    Construto,
     ExpressaoRegular,
     FimPara,
     FormatacaoEscrita,
@@ -35,6 +34,7 @@ import {
     VarMultiplo,
 } from '../../../../declaracoes';
 import { InicioAlgoritmo } from '../../../../declaracoes/inicio-algoritmo';
+import { ConstrutoInterface } from '../../../../interfaces/construtos/construto-interface';
 import { EspacoMemoria } from '../../../espaco-memoria';
 import { InterpretadorInterface, SimboloInterface } from '../../../../interfaces';
 import { PilhaEscoposExecucaoInterface } from '../../../../interfaces/pilha-escopos-execucao-interface';
@@ -42,7 +42,7 @@ import { ResolvedorInterface } from '../../../../interfaces/resolvedor-interface
 import { RetornoInterpretadorInterface } from '../../../../interfaces/retornos';
 import { ErroResolvedor } from './erro-resolvedor';
 import { PilhaEscopos } from './pilha-escopos';
-import { RetornoResolvedor } from './retorno-resolvedor';
+import { RetornoResolvedor } from '../../../../interfaces/egua-classico/retorno-resolvedor-interface';
 
 const TipoFuncao = {
     NENHUM: 'NENHUM',
@@ -78,7 +78,7 @@ const TipoLoop = {
 export class ResolvedorEguaClassico implements ResolvedorInterface, InterpretadorInterface {
     erros: ErroResolvedor[];
     escopos: PilhaEscopos;
-    locais: Map<Construto, number>;
+    locais: Map<ConstrutoInterface, number>;
     funcaoAtual: any;
     classeAtual: any;
     cicloAtual: any;
@@ -328,7 +328,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         this.escopos.removerUltimo();
     }
 
-    resolverLocal(expressao: Construto, simbolo: SimboloInterface): void {
+    resolverLocal(expressao: ConstrutoInterface, simbolo: SimboloInterface): void {
         for (let i = this.escopos.pilha.length - 1; i >= 0; i--) {
             if (this.escopos.pilha[i].hasOwnProperty(simbolo.lexema)) {
                 this.locais.set(expressao, this.escopos.pilha.length - 1 - i);
@@ -684,7 +684,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         return null;
     }
 
-    async resolver(declaracoes: Construto | Declaracao | Declaracao[]): Promise<RetornoResolvedor> {
+    async resolver(declaracoes: ConstrutoInterface | Declaracao | Declaracao[]): Promise<RetornoResolvedor> {
         if (Array.isArray(declaracoes)) {
             for (let i = 0; i < declaracoes.length; i++) {
                 if (declaracoes[i] && declaracoes[i].aceitar) {
@@ -707,3 +707,5 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
         );
     }
 }
+
+

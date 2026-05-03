@@ -1,5 +1,4 @@
-import { Construto } from '../construtos';
-import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
+import { VisitanteComumInterface, SimboloInterface, ConstrutoInterface } from '../interfaces';
 import { TipoInferencia } from '../inferenciador';
 import { Declaracao } from './declaracao';
 
@@ -8,12 +7,12 @@ import { Declaracao } from './declaracao';
  */
 export class ConstMultiplo extends Declaracao {
     simbolos: SimboloInterface[];
-    inicializador: Construto;
+    inicializador: ConstrutoInterface;
     tipo: TipoInferencia | undefined;
 
     constructor(
         simbolos: SimboloInterface[],
-        inicializador: Construto,
+        inicializador: ConstrutoInterface,
         tipo: TipoInferencia | undefined = undefined
     ) {
         super(Number(simbolos[0].linha), simbolos[0].hashArquivo);

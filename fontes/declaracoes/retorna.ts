@@ -1,13 +1,13 @@
-import { Construto } from '../construtos';
-import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
+﻿import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
+import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 import { Declaracao } from './declaracao';
 
 export class Retorna extends Declaracao {
     simboloChave: SimboloInterface;
-    valor?: Construto;
+    valor?: ConstrutoInterface;
     tipo: string;
 
-    constructor(simboloChave: SimboloInterface, valor?: Construto) {
+    constructor(simboloChave: SimboloInterface, valor?: ConstrutoInterface) {
         super(Number(simboloChave.linha), simboloChave.hashArquivo);
         this.simboloChave = simboloChave;
         if (valor) {
@@ -26,3 +26,5 @@ export class Retorna extends Declaracao {
         return `<retorna valor=${this.valor ? this.valor.paraTexto() : 'Nada'} />`;
     }
 }
+
+

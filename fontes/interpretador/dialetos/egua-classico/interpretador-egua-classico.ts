@@ -15,7 +15,6 @@ import {
     ArgumentoReferenciaFuncao,
     Atribuir,
     ComentarioComoConstruto,
-    Construto,
     ExpressaoRegular,
     FimPara,
     FormatacaoEscrita,
@@ -56,13 +55,14 @@ import {
 } from '../../../declaracoes';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
 import {
+    ConstrutoInterface,
     InterpretadorInterface,
     ResolvedorInterface,
     SimboloInterface,
     VariavelInterface,
 } from '../../../interfaces';
 import { ErroInterpretadorInterface } from '../../../interfaces/erros/erro-interpretador-interface';
-import { EscopoExecucao } from '../../../interfaces/escopo-execucao';
+import { EscopoExecucaoInterface } from '../../../interfaces/escopo-execucao';
 import { RetornoInterpretadorInterface } from '../../../interfaces/retornos/retorno-interpretador-interface';
 import { ContinuarQuebra, Quebra, RetornoQuebra, SustarQuebra } from '../../../quebras';
 import { inferirTipoVariavel } from '../../../inferenciador';
@@ -90,7 +90,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
     diretorioBase: any;
     funcaoDeRetorno: Function;
-    locais: Map<Construto, number>;
+    locais: Map<ConstrutoInterface, number>;
     erros: ErroInterpretadorInterface[];
     pilhaEscoposExecucao: PilhaEscoposExecucao;
     interfaceEntradaSaida: any = null;
@@ -107,7 +107,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         this.locais = new Map();
         this.erros = [];
         this.pilhaEscoposExecucao = new PilhaEscoposExecucao();
-        const escopoExecucao: EscopoExecucao = {
+        const escopoExecucao: EscopoExecucaoInterface = {
             declaracoes: [],
             declaracaoAtual: 0,
             espacoMemoria: new EspacoMemoria(),
@@ -269,7 +269,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         return Promise.resolve(expressao.valor);
     }
 
-    avaliar(expressao: Construto | Declaracao): VariavelInterface | any {
+    avaliar(expressao: ConstrutoInterface | Declaracao): VariavelInterface | any {
         return expressao.aceitar(this);
     }
 
@@ -752,7 +752,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
      * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
      */
     async executarBloco(declaracoes: Declaracao[], ambiente?: EspacoMemoria): Promise<any> {
-        const escopoExecucao: EscopoExecucao = {
+        const escopoExecucao: EscopoExecucaoInterface = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
             espacoMemoria: ambiente || new EspacoMemoria(),
@@ -1126,7 +1126,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         const retornoResolvedor = await this.resolvedor.resolver(declaracoes);
         this.locais = retornoResolvedor.locais;
 
-        const escopoExecucao: EscopoExecucao = {
+        const escopoExecucao: EscopoExecucaoInterface = {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
             espacoMemoria: new EspacoMemoria(),
