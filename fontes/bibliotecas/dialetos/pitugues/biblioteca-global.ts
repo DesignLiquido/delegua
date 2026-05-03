@@ -234,11 +234,13 @@ export async function combinar(
                     interpretador.hashArquivoDeclaracaoAtual,
                     interpretador.linhaDeclaracaoAtual,
                     itensPrimeiroIteravel[i],
+                    typeof itensPrimeiroIteravel[i] === 'string' ? 'texto' : 'qualquer',
                 ),
                 new Literal(
                     interpretador.hashArquivoDeclaracaoAtual,
                     interpretador.linhaDeclaracaoAtual,
                     itensSegundoIteravel[i],
+                    typeof itensSegundoIteravel[i] === 'string' ? 'texto' : 'qualquer',
                 )
             ]
         ));
