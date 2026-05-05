@@ -39,6 +39,25 @@ describe('Interpretador Base com Depuração', () => {
                 }
             });
 
+            it('sustar deve interromper loop enquanto', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var i = 0",
+                    "enquanto verdadeiro {",
+                    "    i = i + 1",
+                    "    se i >= 3 {",
+                    "        sustar",
+                    "    }",
+                    "}",
+                    "escreva(i)"
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+
+                expect(_saidas[0]).toBe('3');
+            });
+
             it('Trivial', async () => {
                 const retornoLexador = lexador.mapear([
                     "const a = 1",
