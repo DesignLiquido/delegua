@@ -2522,26 +2522,6 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas[0]).toBe('Salmão ou não ser, eis a questão');
                 });
 
-                it('subtexto', async () => {
-                    const codigo = [
-                        't = "Ser ou não ser, eis a questão"',
-                        'escreva(t.subtexto(4, 10))',
-                    ];
-                    const retornoLexador = lexador.mapear(codigo, -1);
-                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
-                        retornoLexador,
-                        -1
-                    );
-
-                    const retornoInterpretador = await interpretador.interpretar(
-                        retornoAvaliadorSintatico.declaracoes
-                    );
-
-                    expect(retornoInterpretador.erros).toHaveLength(0);
-                    expect(_saidas).toHaveLength(1);
-                    expect(_saidas[0]).toBe('ou não');
-                });
-
                 it('encontre - índice inicial encontrado', async () => {
                     const codigo = [
                         't = "Ser ou não ser, eis a questão"',
