@@ -1,5 +1,5 @@
 import { AvaliadorSintaticoPitugues } from "../../../../fontes/avaliador-sintatico/dialetos";
-import { Morsa, Logico, Vetor, Bote, Chamada, Variavel, Literal } from "../../../../fontes/construtos";
+import { Morsa, Vetor, Bote, Chamada, Variavel, Literal } from "../../../../fontes/construtos";
 import { Escreva, Importar, Se, Var } from "../../../../fontes/declaracoes";
 import { LexadorPitugues } from "../../../../fontes/lexador/dialetos";
 
