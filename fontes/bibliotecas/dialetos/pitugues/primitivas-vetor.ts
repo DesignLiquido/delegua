@@ -5,6 +5,37 @@ import { inferirTipoVariavel } from '../../../inferenciador';
 import { Literal, TuplaN } from '../../../construtos';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
 
+const contem_comum = (nome: string) => {
+    return {
+        tipoRetorno: 'lógico',
+        argumentos: [
+            new InformacaoElementoSintatico(
+                'elemento',
+                'qualquer',
+                true,
+                [],
+                'O elemento a ser verificado se está presente no vetor.'
+            ),
+        ],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            vetor: Array<any>,
+            elemento: any
+        ): Promise<any> => Promise.resolve(vetor.includes(elemento)),
+        assinaturaFormato: `vetor.${nome}(elemento: qualquer)`,
+        documentacao:
+            `# \`vetor.${nome}(elemento)\`\n\n` +
+            'Verifica se o elemento existe no vetor. Devolve `verdadeiro` se existe, e `falso` em caso contrário.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```pitugues\n' +
+            'var v = [1, 2, 3]\n' +
+            `escreva(v.${nome}(2)) // verdadeiro\n` +
+            `escreva(v.${nome}(4)) // falso\n\`\`\`` +
+            '\n\n## Formas de uso\n',
+        exemploCodigo: `vetor.${nome}(elemento)`,
+    };
+};
+
 export default {
     adicionar: {
         tipoRetorno: 'qualquer[]',
@@ -701,4 +732,6 @@ export default {
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'vetor.tamanho()',
     },
+    contem: contem_comum('contem'),
+    contém: contem_comum('contém'),
 } as { [nome: string]: PrimitivaInterface };
