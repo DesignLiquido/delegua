@@ -781,7 +781,7 @@ export async function enumerar(
         itens.length === 0 &&
         valorIteravel !== '' &&
         !Array.isArray(valorIteravel) &&
-        !(valorIteravel?.constructor?.name === 'TuplaN')
+        !(valorIteravel?.constructor === TuplaN)
     ) {
         throw new ErroEmTempoDeExecucao(
             {
@@ -839,7 +839,7 @@ export async function mapear(
         itens.length === 0 &&
         valorIteravel !== '' &&
         !Array.isArray(valorIteravel) &&
-        !(valorIteravel?.constructor?.name === 'TuplaN')
+        !(valorIteravel?.constructor === TuplaN)
     ) {
         throw new ErroEmTempoDeExecucao(
             {
@@ -917,7 +917,7 @@ export async function maximo(
         itens.length === 0 &&
         valorIteravel !== '' &&
         !Array.isArray(valorIteravel) &&
-        !(valorIteravel?.constructor?.name === 'TuplaN')
+        !(valorIteravel?.constructor === TuplaN)
     ) {
         throw new ErroEmTempoDeExecucao(
             {
@@ -988,7 +988,7 @@ export async function minimo(
         itens.length === 0 &&
         valorIteravel !== '' &&
         !Array.isArray(valorIteravel) &&
-        !(valorIteravel?.constructor?.name === 'TuplaN')
+        !(valorIteravel?.constructor === TuplaN)
     ) {
         throw new ErroEmTempoDeExecucao(
             {
@@ -1059,7 +1059,7 @@ export async function ordenar(
         itens.length === 0 &&
         valorIteravel !== '' &&
         !Array.isArray(valorIteravel) &&
-        !(valorIteravel?.constructor?.name === 'TuplaN')
+        !(valorIteravel?.constructor === TuplaN)
     ) {
         throw new ErroEmTempoDeExecucao(
             {
@@ -1124,7 +1124,7 @@ export async function para_cada(
         itens.length === 0 &&
         valorIteravel !== '' &&
         !Array.isArray(valorIteravel) &&
-        !(valorIteravel?.constructor?.name === 'TuplaN')
+        !(valorIteravel?.constructor === TuplaN)
     ) {
         throw new ErroEmTempoDeExecucao(
             {
@@ -1201,7 +1201,7 @@ export async function reduzir(
         itens.length === 0 &&
         valorIteravel !== '' &&
         !Array.isArray(valorIteravel) &&
-        !(valorIteravel?.constructor?.name === 'TuplaN')
+        !(valorIteravel?.constructor === TuplaN)
     ) {
         throw new ErroEmTempoDeExecucao(
             {
