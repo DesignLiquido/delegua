@@ -6,8 +6,6 @@ export const palavrasReservadasPitugues = {
     classe: tiposDeSimbolos.CLASSE,
     como: tiposDeSimbolos.COMO,
     construtor: tiposDeSimbolos.CONSTRUTOR,
-    contem: tiposDeSimbolos.CONTEM,
-    contém: tiposDeSimbolos.CONTEM,
     continua: tiposDeSimbolos.CONTINUA,
     de: tiposDeSimbolos.DE,
     e: tiposDeSimbolos.E,

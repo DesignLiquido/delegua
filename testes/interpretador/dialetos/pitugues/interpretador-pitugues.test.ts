@@ -1200,7 +1200,7 @@ describe('Interpretador (Pituguês)', () => {
                     const retornoLexador = lexador.mapear(
                         [
                             'a = [1, 2, 3, 4, 5]',
-                            'escreva(a contém 3)'
+                            'escreva(a.contém(3))'
                         ],
                         -1);
 
@@ -1216,7 +1216,7 @@ describe('Interpretador (Pituguês)', () => {
                     const retornoLexador = lexador.mapear(
                         [
                             'a = [2, 4, 6, 8, 10]',
-                            'escreva(a não contém 3)'
+                            'escreva(a.contém(3))'
                         ],
                         -1);
 
@@ -1225,7 +1225,7 @@ describe('Interpretador (Pituguês)', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(_saidas).toHaveLength(1);
-                    expect(_saidas[0]).toBe('verdadeiro');
+                    expect(_saidas[0]).toBe('falso');
                 });
             });
 
@@ -1884,7 +1884,7 @@ describe('Interpretador (Pituguês)', () => {
                     it('Trivial', async () => {
                         const codigo = [
                             "d = {'a': 1, 'b': 2, 'c': 3}",
-                            'escreva(d contém "a")',
+                            'escreva(d.contém("a"))',
                         ];
                         const retornoLexador = lexador.mapear(codigo, -1);
                         const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
@@ -1901,7 +1901,7 @@ describe('Interpretador (Pituguês)', () => {
                     it('Retornando falso quando a chave não existe', async () => {
                         const codigo = [
                             "d = {'x': 10, 'y': 20}",
-                            'escreva(d contém "z")',
+                            'escreva(d.contém("z"))',
                         ];
                         const retornoLexador = lexador.mapear(codigo, -1);
                         const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(

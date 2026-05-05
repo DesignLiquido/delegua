@@ -73,7 +73,7 @@ describe('Avaliador sintático (Pituguês)', () => {
                     const retornoLexador = lexador.mapear(
                         [
                             'a = [1, 2, 3, 4, 5]',
-                            'escreva(a contém 3)'
+                            'escreva(a.contém(3))'
                         ],
                         -1);
 
@@ -84,14 +84,14 @@ describe('Avaliador sintático (Pituguês)', () => {
                     expect(retornoAvaliadorSintatico.declaracoes[1].constructor).toBe(Escreva);
                     const escreva = retornoAvaliadorSintatico.declaracoes[1] as Escreva;
                     expect(escreva.argumentos).toHaveLength(1);
-                    expect(escreva.argumentos[0].constructor).toBe(Logico);
+                    expect(escreva.argumentos[0].constructor).toBe(Chamada);
                 });
 
                 it('Não contém', async () => {
                     const retornoLexador = lexador.mapear(
                         [
                             'a = [1, 2, 3, 4, 5]',
-                            'escreva(a não contém 3)'
+                            'escreva(a.contém(3))'
                         ],
                         -1);
 
@@ -102,9 +102,9 @@ describe('Avaliador sintático (Pituguês)', () => {
                     expect(retornoAvaliadorSintatico.declaracoes[1].constructor).toBe(Escreva);
                     const escreva = retornoAvaliadorSintatico.declaracoes[1] as Escreva;
                     expect(escreva.argumentos).toHaveLength(1);
-                    expect(escreva.argumentos[0].constructor).toBe(Logico);
-                    const contem = escreva.argumentos[0] as Logico;
-                    expect(contem.negado).toBe(true);
+                    expect(escreva.argumentos[0].constructor).toBe(Chamada);
+                    const contem = escreva.argumentos[0] as Chamada;
+                    expect(contem).toBeTruthy();
                 });
             });
 
