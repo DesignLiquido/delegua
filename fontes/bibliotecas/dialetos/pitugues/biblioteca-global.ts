@@ -154,7 +154,7 @@ export async function algum(
         );
     }
 
-    const valorFuncao = funcaoPesquisa?.valor ?? funcaoPesquisa;
+    const valorFuncao = interpretador.resolverValor(funcaoPesquisa);
     if (
         !(valorFuncao instanceof DeleguaFuncao) &&
         !(valorFuncao instanceof FuncaoPadrao)
@@ -290,7 +290,7 @@ export async function encontrar(
     iteravel: any,
     funcaoPesquisa: any
 ): Promise<any> {
-    const valorIteravel = iteravel?.valor ?? iteravel;
+    const valorIteravel = interpretador.resolverValor(iteravel);
     const itens = new Iteravel(valorIteravel).elementos;
     if (itens.length === 0) {
         throw new ErroEmTempoDeExecucao(
@@ -302,7 +302,7 @@ export async function encontrar(
         );
     }
 
-    const valorFuncao = funcaoPesquisa?.valor ?? funcaoPesquisa;
+    const valorFuncao = interpretador.resolverValor(funcaoPesquisa);
     if (
         !(valorFuncao instanceof DeleguaFuncao) &&
         !(valorFuncao instanceof FuncaoPadrao)
@@ -347,7 +347,7 @@ export async function encontrar_indice(
     iteravel: any,
     funcaoPesquisa: any
 ): Promise<number> {
-    const valorIteravel = iteravel?.valor ?? iteravel;
+    const valorIteravel = interpretador.resolverValor(iteravel);
     const itens = new Iteravel(valorIteravel).elementos;
     if (itens.length === 0) {
         throw new ErroEmTempoDeExecucao(
@@ -359,7 +359,7 @@ export async function encontrar_indice(
         );
     }
 
-    const valorFuncao = funcaoPesquisa?.valor ?? funcaoPesquisa;
+    const valorFuncao = interpretador.resolverValor(funcaoPesquisa);
     if (
         !(valorFuncao instanceof DeleguaFuncao) &&
         !(valorFuncao instanceof FuncaoPadrao)
@@ -404,7 +404,7 @@ export async function encontrar_ultimo(
     iteravel: any,
     funcaoPesquisa: any
 ): Promise<any> {
-    const valorIteravel = iteravel?.valor ?? iteravel;
+    const valorIteravel = interpretador.resolverValor(iteravel);
     const itens = new Iteravel(valorIteravel).elementos;
     if (itens.length === 0) {
         throw new ErroEmTempoDeExecucao(
@@ -416,7 +416,7 @@ export async function encontrar_ultimo(
         );
     }
 
-    const valorFuncao = funcaoPesquisa?.valor ?? funcaoPesquisa;
+    const valorFuncao = interpretador.resolverValor(funcaoPesquisa);
     if (
         !(valorFuncao instanceof DeleguaFuncao) &&
         !(valorFuncao instanceof FuncaoPadrao)
@@ -461,7 +461,7 @@ export async function encontrar_ultimo_indice(
     iteravel: any,
     funcaoPesquisa: any
 ): Promise<number> {
-    const valorIteravel = iteravel?.valor ?? iteravel;
+    const valorIteravel = interpretador.resolverValor(iteravel);
     const itens = new Iteravel(valorIteravel).elementos;
     if (itens.length === 0) {
         throw new ErroEmTempoDeExecucao(
@@ -473,7 +473,7 @@ export async function encontrar_ultimo_indice(
         );
     }
 
-    const valorFuncao = funcaoPesquisa?.valor ?? funcaoPesquisa;
+    const valorFuncao = interpretador.resolverValor(funcaoPesquisa);
     if (
         !(valorFuncao instanceof DeleguaFuncao) &&
         !(valorFuncao instanceof FuncaoPadrao)
@@ -517,7 +517,7 @@ export async function filtrar_por(
     iteravel: any,
     funcaoPesquisa: any
 ): Promise<any[]> {
-    const valorIteravel = iteravel?.valor ?? iteravel;
+    const valorIteravel = interpretador.resolverValor(iteravel);
     const itens = new Iteravel(valorIteravel).elementos;
     if (itens.length === 0) {
         throw new ErroEmTempoDeExecucao(
@@ -529,7 +529,7 @@ export async function filtrar_por(
         );
     }
 
-    const valorFuncao = funcaoPesquisa?.valor ?? funcaoPesquisa;
+    const valorFuncao = interpretador.resolverValor(funcaoPesquisa);
     if (
         !(valorFuncao instanceof DeleguaFuncao) &&
         !(valorFuncao instanceof FuncaoPadrao)
@@ -578,7 +578,7 @@ export async function incluido(
     iteravel: any,
     valor: any
 ): Promise<boolean> {
-    const valorIteravel = iteravel?.valor ?? iteravel;
+    const valorIteravel = interpretador.resolverValor(iteravel);
     const itens = new Iteravel(valorIteravel).elementos;
     if (itens.length === 0) {
         throw new ErroEmTempoDeExecucao(
@@ -728,11 +728,13 @@ export async function inverter(
             interpretador.linhaDeclaracaoAtual,
             itensInvertidos
         );
-    } else if (typeof valorIteravel === 'string') {
-        return itensInvertidos.join('');
-    } else {
-        return itensInvertidos;
     }
+
+    if (typeof valorIteravel === 'string') {
+        return itensInvertidos.join('');
+    }
+
+    return itensInvertidos;
 };
 
 /**
@@ -883,20 +885,6 @@ export async function mapear(
                 resultados.push(retornoFuncao.valor);
             }
         }
-
-        // if (!retornoFuncao.hasOwnProperty('valorRetornado')) {
-        //     console.warn(
-        //         `Retorno inconsistente em mapear(): ${JSON.stringify(retornoFuncao)}.`
-        //     );
-        //     continue;
-        // }
-
-        // if (!(retornoFuncao.valorRetornado instanceof RetornoQuebra)) {
-        //     console.warn(
-        //         `mapear() finalizado com valor retornado diferente do esperado: ${JSON.stringify(retornoFuncao)}.`
-        //     );
-        //     continue;
-        // }
     }
 
     return resultados;
@@ -1474,7 +1462,7 @@ export async function todos(
         itens.length === 0 &&
         valorIteravel !== '' &&
         !Array.isArray(valorIteravel) &&
-        !(valorIteravel?.constructor?.name === 'TuplaN')
+        !(valorIteravel?.constructor === TuplaN)
     ) {
         throw new ErroEmTempoDeExecucao(
             {
@@ -1598,7 +1586,7 @@ export async function unico(
     if (
         itens.length === 0 &&
         valorIteravel !== '' &&
-        !(valorIteravel instanceof TuplaN) &&
+        !(valorIteravel?.constructor === TuplaN) &&
         !Array.isArray(valorIteravel)
     ) {
         throw new ErroEmTempoDeExecucao(
@@ -1629,7 +1617,7 @@ export async function vetor(
     if (
         itens.length === 0 &&
         valorIteravel !== '' &&
-        !(valorIteravel instanceof TuplaN) &&
+        !(valorIteravel?.constructor === TuplaN) &&
         !Array.isArray(valorIteravel)
     ) {
         throw new ErroEmTempoDeExecucao(
