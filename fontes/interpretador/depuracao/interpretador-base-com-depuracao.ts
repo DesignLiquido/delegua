@@ -283,7 +283,18 @@ export class InterpretadorBaseComDepuracao
      * @returns O resultado da execução.
      */
     override async executar(declaracao: Declaracao, mostrarResultado = false): Promise<any> {
-        return await declaracao.aceitar(this);
+        const resultado = await declaracao.aceitar(this);
+        if (resultado === null || resultado === undefined) {
+            return null;
+        }
+        if (resultado.hasOwnProperty && resultado.hasOwnProperty('valorRetornado')) {
+            return resultado;
+        }
+        return {
+            hashArquivo: declaracao.hashArquivo,
+            linha: declaracao.linha,
+            valorRetornado: resultado,
+        };
     }
 
     /**
