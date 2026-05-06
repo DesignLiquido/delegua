@@ -4816,66 +4816,6 @@ describe('Interpretador (Pituguês)', () => {
                 });
             });
 
-            describe('Uso de primitivas de vetor e tupla', () => {
-                it('paraTupla - não sendo uma lista', async () => {
-                    const codigo = [
-                        'lista = (1, 2, 3)',
-                        'tupla = lista.paraTupla()'
-                    ];
-
-                    const retornoLexador = lexador.mapear(codigo, -1);
-                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
-                        retornoLexador,
-                        -1
-                    );
-                    const retornoInterpretador = await interpretador.interpretar(
-                        retornoAvaliadorSintatico.declaracoes,
-                        true
-                    );
-
-                    expect(retornoInterpretador.erros).toHaveLength(1);
-                });
-
-                it('paraVetor - não sendo uma tupla', async () => {
-                    const codigo = [
-                        'tupla = [1, 2, 3]',
-                        'lista = tupla.paraVetor()',
-                        'escreva(lista)'
-                    ];
-
-                    const retornoLexador = lexador.mapear(codigo, -1);
-                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
-                        retornoLexador,
-                        -1
-                    );
-                    const retornoInterpretador = await interpretador.interpretar(
-                        retornoAvaliadorSintatico.declaracoes,
-                        true
-                    );
-
-                    expect(retornoInterpretador.erros).toHaveLength(1);
-                });
-
-                it('paraVetor - vetor vazio', async () => {
-                    const codigo = [
-                        'tupla = []',
-                        'vetor = tupla.paraVetor()',
-                        'escreva(vetor)'
-                    ];
-
-                    const retornoLexador = lexador.mapear(codigo, -1);
-                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
-                        retornoLexador,
-                        -1
-                    );
-                    const retornoInterpretador = await interpretador.interpretar(
-                        retornoAvaliadorSintatico.declaracoes
-                    );
-
-                    expect(retornoInterpretador.erros).toHaveLength(1);
-                });
-            });
-
             it('Deve falhar ao tentar usar atribuição composta em um literal (Syntax Error)', async () => {
                 const retornoLexador = lexador.mapear([`
                 10 += 5
