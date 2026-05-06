@@ -172,6 +172,16 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     lancarErroPorDivisaoPorZero = false;
 
+    /**
+     * Gancho opcional para instrumentação de cobertura de ramos.
+     * Subclasses (como `InterpretadorComImportacao` em delegua-node) podem sobrescrever
+     * este método para registrar qual ramo de uma estrutura de controle foi executado.
+     * @param hashArquivo Identificador do arquivo-fonte.
+     * @param linha Linha da declaração de controle.
+     * @param ramo O ramo executado: 'verdadeiro', 'falso', 'senao', 'caso-padrao', ou 'iteracao'.
+     */
+    protected registrarRamo?(hashArquivo: number, linha: number, ramo: 'verdadeiro' | 'falso' | 'senao' | 'caso-padrao' | 'iteracao'): void;
+
     constructor(
         diretorioBase: string,
         performance = false,
@@ -473,6 +483,15 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     /**
+     * Gancho opcional para instrumentação de cobertura de expressões.
+     * Subclasses podem sobrescrever este método para registrar que uma expressão
+     * em determinada linha foi avaliada.
+     * @param hashArquivo Identificador do arquivo-fonte.
+     * @param linha Linha da expressão avaliada.
+     */
+    protected registrarExpressao?(hashArquivo: number, linha: number): void;
+
+    /**
      * Chama o método `aceitar` de um construto ou declaração, passando o
      * próprio interpretador como parâmetro.
      *
@@ -488,6 +507,10 @@ export class InterpretadorBase implements InterpretadorInterface {
         /* if (expressao === null || expressao === undefined) {
             console.log('Aqui');
         } */
+
+        if ((expressao as any).hashArquivo >= 0 && (expressao as any).linha >= 0) {
+            this.registrarExpressao?.((expressao as any).hashArquivo, (expressao as any).linha);
+        }
 
         return await expressao.aceitar(this);
     }
@@ -1548,6 +1571,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 break;
             }
 
+            this.registrarRamo?.(declaracao.hashArquivo, declaracao.linha, 'iteracao');
             try {
                 await this.cederControle(++iteracoes);
                 retornoExecucao = await this.executar(declaracao.corpo);
@@ -1608,6 +1632,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
             declaracao.posicaoAtual < valorVetorResolvido.length
         ) {
+            this.registrarRamo?.(declaracao.hashArquivo, declaracao.linha, 'iteracao');
             try {
                 await this.cederControle(++iteracoes);
                 if (declaracao.variavelIteracao instanceof Variavel) {
@@ -1669,6 +1694,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     async visitarDeclaracaoSe(declaracao: Se): Promise<any> {
         const avaliacaoCondicaoSe = await this.avaliar(declaracao.condicao);
         if (this.eVerdadeiro(avaliacaoCondicaoSe)) {
+            this.registrarRamo?.(declaracao.hashArquivo, declaracao.linha, 'verdadeiro');
             return await this.executar(declaracao.caminhoEntao);
         }
 
@@ -1677,14 +1703,17 @@ export class InterpretadorBase implements InterpretadorInterface {
             const atual = declaracaoCaminhosSeSenao[i];
 
             if (this.eVerdadeiro(await this.avaliar(atual.condicao))) {
+                this.registrarRamo?.(declaracao.hashArquivo, declaracao.linha, 'verdadeiro');
                 return await this.executar(atual.caminho);
             }
         }
 
         if (declaracao.caminhoSenao) {
+            this.registrarRamo?.(declaracao.hashArquivo, declaracao.linha, 'senao');
             return await this.executar(declaracao.caminhoSenao);
         }
 
+        this.registrarRamo?.(declaracao.hashArquivo, declaracao.linha, 'falso');
         return null;
     }
 
@@ -1695,6 +1724,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
             this.eVerdadeiro(await this.avaliar(declaracao.condicao))
         ) {
+            this.registrarRamo?.(declaracao.hashArquivo, declaracao.linha, 'iteracao');
             try {
                 await this.cederControle(++iteracoes);
                 retornoExecucao = await this.executar(declaracao.corpo);
@@ -1750,6 +1780,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             }
 
             if (caminhoPadrao !== null && !encontrado) {
+                this.registrarRamo?.(declaracao.hashArquivo, declaracao.linha, 'caso-padrao');
                 await this.executarBloco(caminhoPadrao.declaracoes);
             }
         } catch (erro: any) {
@@ -1766,6 +1797,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         let retornoExecucao: ResultadoParcialInterpretadorInterface | undefined | null = undefined;
         let iteracoes = 0;
         do {
+            this.registrarRamo?.(declaracao.hashArquivo, declaracao.linha, 'iteracao');
             try {
                 await this.cederControle(++iteracoes);
                 retornoExecucao = await this.executar(declaracao.caminhoFazer);
