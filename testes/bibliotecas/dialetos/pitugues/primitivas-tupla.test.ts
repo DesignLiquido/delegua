@@ -3,64 +3,51 @@ import { criarInterpretadorMock } from '../../../_mocks/interpretador.mock';
 import { Literal, TuplaN } from '../../../../fontes/construtos';
 
 describe('Primitivas de Tupla (Pituguês)', () => {
-    describe('paraVetor', () => {
-        it('Transforma tupla para vetor', async () => {
-            const interpretador = criarInterpretadorMock();
-            const elementosTupla = [
-                new Literal(0, 1, 1, 'número'),
-                new Literal(0, 1, 2, 'número'),
-                new Literal(0, 1, 3, 'número'),
-                new Literal(0, 1, 4, 'número'),
-                new Literal(0, 1, 5, 'número'),
-            ];
-            const entradaTupla = new TuplaN(0, 1, elementosTupla);
+    const interpretador = criarInterpretadorMock();
 
-            const resultado = await primitivasTupla.paraVetor.implementacao(
-                interpretador,
-                entradaTupla
-            );
+    const criarTupla = (...valores: any[]): TuplaN => {
+        const elementos = valores.map(valor => new Literal(-1, -1, valor));
+        return new TuplaN(-1, -1, elementos);
+    };
 
-            expect(resultado).toEqual([1, 2, 3, 4, 5]);
-        });
+    describe('juntar', () => {
+        describe('Cenários de sucesso', () => {
+            it('deve juntar os elementos usando vírgula como separador padrão', async () => {
+                const tupla = criarTupla('A', 'B', 'C');
+                const resultado = await primitivasTupla
+                    .juntar
+                    .implementacao(interpretador, tupla);
 
-        it('Transforma tupla vazia para vetor', async () => {
-            const interpretador = criarInterpretadorMock();
-            const elementosTupla: any[] = [];
-            const entradaTupla = new TuplaN(0, 1, elementosTupla);
+                expect(resultado).toBe('A,B,C');
+            });
 
-            const resultado = await primitivasTupla.paraVetor.implementacao(
-                interpretador,
-                entradaTupla
-            );
+            it('deve juntar os elementos usando um separador customizado', async () => {
+                const tupla = criarTupla(1, 2, 3);
+                const separador = '-';
+                const resultado = await primitivasTupla
+                    .juntar
+                    .implementacao(interpretador, tupla, separador);
 
-            expect(resultado).toEqual([]);
-        });
+                expect(resultado).toBe('1-2-3');
+            });
 
-        it('Transforma tupla com valores de diversos tipos para vetor', async () => {
-            const interpretador = criarInterpretadorMock();
-            const elementosTupla = [
-                new Literal(0, 1, 1, 'número'),
-                new Literal(0, 1, true, 'qualquer'),
-                new Literal(0, 1, '3', 'texto'),
-            ];
-            const entradaTupla = new TuplaN(0, 1, elementosTupla);
+            it('deve retornar uma string vazia ao tentar juntar uma tupla sem elementos', async () => {
+                const tupla = criarTupla();
+                const resultado = await primitivasTupla
+                    .juntar
+                    .implementacao(interpretador, tupla);
 
-            const resultado = await primitivasTupla.paraVetor.implementacao(
-                interpretador,
-                entradaTupla
-            );
+                expect(resultado).toBe('');
+            });
 
-            expect(resultado).toEqual([1, true, "3"]);
-        });
-        it('Lança erro ao tentar transformar não-tupla', async () => {
-            const interpretador = criarInterpretadorMock();
-            const naoTupla = new Literal(0, 1, 'não é tupla', 'texto');
-            await expect(
-                primitivasTupla.paraVetor.implementacao(
-                    interpretador,
-                    naoTupla
-                )
-            ).rejects.toThrow( "A função \"paraVetor\" só pode ser chamada em tuplas.");
+            it('deve juntar os elementos mesmo se houver tipos de dados misturados', async () => {
+                const tupla = criarTupla('A', 1, true);
+                const resultado = await primitivasTupla
+                    .juntar
+                    .implementacao(interpretador, tupla, ' | ');
+
+                expect(resultado).toBe('A | 1 | true');
+            });
         });
     });
 });
