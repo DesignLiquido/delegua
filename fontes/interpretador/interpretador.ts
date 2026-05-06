@@ -65,6 +65,7 @@ import {
     Escreva,
     Fazer,
     FuncaoDeclaracao,
+    Importar,
     InterfaceDeclaracao,
     Para,
     ParaCada,
@@ -83,6 +84,8 @@ import {
 } from '../interfaces/delegua';
 
 import { carregarBibliotecasGlobais, pontoEntradaAjuda } from './comum';
+import { construirModuloDeTestes } from '../bibliotecas/testes/modulo-testes';
+import { RegistroTestes } from '../bibliotecas/testes/registro-testes';
 
 import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
@@ -101,6 +104,7 @@ import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 export class Interpretador extends InterpretadorBase implements VisitanteDeleguaInterface {
     montao: Montao;
     acumularRetornos = false;
+    registroTestes: RegistroTestes = new RegistroTestes();
 
     constructor(
         diretorioBase: string,
@@ -342,6 +346,39 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
     visitarDeclaracaoInterface(_declaracao: InterfaceDeclaracao): Promise<any> {
         // Interfaces não possuem comportamento em tempo de execução.
         return Promise.resolve();
+    }
+
+    override async visitarDeclaracaoImportar(declaracao: Importar): Promise<DeleguaModulo> {
+        const resultadoCaminho = await this.avaliar(declaracao.caminho);
+        const caminho: string = this.resolverValor(resultadoCaminho);
+
+        if (caminho === 'testes') {
+            this.registroTestes = new RegistroTestes();
+            const modulo = construirModuloDeTestes(this, this.registroTestes);
+
+            if (declaracao.simboloTudo !== null) {
+                this.pilhaEscoposExecucao.definirVariavel(
+                    (declaracao.simboloTudo as any).lexema,
+                    modulo
+                );
+            } else {
+                for (const elemento of declaracao.elementosImportacao) {
+                    const componente = modulo.componentes[(elemento as any).lexema];
+                    if (componente !== undefined) {
+                        this.pilhaEscoposExecucao.definirVariavel(
+                            (elemento as any).lexema,
+                            componente
+                        );
+                    }
+                }
+            }
+
+            return modulo;
+        }
+
+        return Promise.reject(
+            'Importação de arquivos não suportada neste interpretador. Use delegua-node para importações de arquivos.'
+        );
     }
 
     async visitarDeclaracaoAjuda(declaracao: Ajuda): Promise<any> {
