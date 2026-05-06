@@ -4,12 +4,36 @@ import { InformacaoElementoSintatico } from '../../../informacao-elemento-sintat
 import { implementacaoParticao } from '../../primitivas-texto';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
 
+const particao_comum = (nome: string) => {
+    return {
+        tipoRetorno: 'tupla',
+        argumentos: [
+            new InformacaoElementoSintatico(
+                'separador',
+                'texto',
+                true,
+                [],
+                'O separador usado para partir o texto.'
+            ),
+        ],
+        implementacao: implementacaoParticao,
+        assinaturaFormato: `texto.${nome}(separador: texto)`,
+        documentacao:
+            `# texto.${nome}(separador) \n \n` +
+            'Divide o texto na primeira ocorrência do separador e retorna uma tupla com: ' +
+            'o que vem antes, o separador e o que vem depois.',
+        exemploCodigo: `texto.${nome}(" ")`,
+    };
+};
+
 export default {
     aparar: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
-            Promise.resolve(texto.trim()),
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            texto: string
+        ): Promise<string> => Promise.resolve(texto.trim()),
         assinaturaFormato: 'texto.aparar()',
         documentacao:
             '# `texto.aparar()` \n \n' +
@@ -23,8 +47,10 @@ export default {
     aparar_fim: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
-            Promise.resolve(texto.trimEnd()),
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            texto: string
+        ): Promise<string> => Promise.resolve(texto.trimEnd()),
         assinaturaFormato: 'texto.aparar_fim()',
         documentacao:
             '# `texto.aparar_fim()` \n \n' +
@@ -38,8 +64,10 @@ export default {
     aparar_inicio: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
-            Promise.resolve(texto.trimStart()),
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            texto: string
+        ): Promise<string> => Promise.resolve(texto.trimStart()),
         assinaturaFormato: 'texto.aparar_inicio()',
         documentacao:
             '# `texto.aparar_inicio()` \n \n' +
@@ -49,6 +77,49 @@ export default {
             'escreva("|" + t.aparar_inicio() + "|") // "|meu texto com espaços no início e no fim       |"\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'texto.aparar_inicio()',
+    },
+    capitalizar: {
+        tipoRetorno: 'texto',
+        argumentos: [],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            texto: string
+        ): Promise<string> => {
+            if (!texto) return Promise.resolve(texto);
+
+            return Promise.resolve(
+                texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase()
+            );
+        },
+        assinaturaFormato: 'texto.capitalizar()',
+        documentacao:
+            '# `texto.capitalizar()` \n \n' +
+            'Transforma a primeira letra do texto em maiúscula e o restante em minúscula.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```pitugues\nt = "oLa mUnDo"\n' +
+            'escreva(t.capitalizar()) // "Ola mundo"\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.capitalizar()',
+    },
+    comeca_com: {
+        tipoRetorno: 'lógico',
+        argumentos: [
+            new InformacaoElementoSintatico(
+                'prefixo',
+                'texto',
+                true,
+                [],
+                'O prefixo a ser verificado no início do texto.'
+            ),
+        ],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            texto: string,
+            prefixo: string
+        ): Promise<boolean> => Promise.resolve(texto.startsWith(prefixo)),
+        assinaturaFormato: 'texto.comeca_com(prefixo: texto)',
+        documentacao: '# `texto.comeca_com(prefixo)` \n \n Verifica se um texto começa com o prefixo especificado.',
+        exemploCodigo: 'texto.comeca_com(prefixo)',
     },
     concatenar: {
         tipoRetorno: 'texto',
@@ -143,6 +214,7 @@ export default {
             if (indiceInicio !== undefined) {
                 return Promise.resolve(texto.indexOf(subtexto, indiceInicio));
             }
+
             return Promise.resolve(texto.indexOf(subtexto));
         },
         assinaturaFormato: 'texto.encontrar(subtexto: texto, indiceInicio?: número)',
@@ -172,7 +244,7 @@ export default {
                 'número',
                 false,
                 [],
-                '(Opcional) Índice inicial para começar a busca.'
+                '(Opcional) Índice inicial para começar a busca de trás para frente.'
             ),
         ],
         implementacao: (
@@ -185,10 +257,9 @@ export default {
                 if (indiceInicio < 0) indiceInicio = 0;
                 if (indiceInicio > texto.length) indiceInicio = texto.length;
 
-                const posicao = texto.indexOf(subtexto, indiceInicio);
-                if (posicao === -1) return Promise.resolve(-1);
-
-                return Promise.resolve(texto.lastIndexOf(subtexto));
+                return Promise.resolve(
+                    texto.lastIndexOf(subtexto, indiceInicio)
+                );
             }
 
             return Promise.resolve(texto.lastIndexOf(subtexto));
@@ -241,8 +312,7 @@ export default {
             '# `texto.fatiar(inicio)` \n \n' +
             'Extrai uma fatia do texto, dadas posições de início e fim.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```pitugues\nvar t = "Um dois três quatro"\n' +
-            't.fatiar() // "um dois três quatro", ou seja, não faz coisa alguma.\n' +
+            '\n\n```pitugues\nt = "Um dois três quatro"\n' +
             't.fatiar(2, 7) // "dois"\n' +
             't.fatiar(8, 12) // "três"\n' +
             't.fatiar(8) // "três quatro", ou seja, seleciona tudo da posição 8 até o final do texto.\n```' +
@@ -435,28 +505,13 @@ export default {
             '\n\n ### Formas de uso \n',
         exemploCodigo: "texto.inclui('palavra')",
     },
-    inverter: {
-        tipoRetorno: 'texto',
-        argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
-            Promise.resolve(
-                texto.split('').reduce((texto, caracter) => (texto = caracter + texto), '')
-            ),
-        assinaturaFormato: 'texto.inverter()',
-        documentacao:
-            '# `texto.inverter()` \n \n' +
-            'Inverte as letras de um texto.' +
-            '\n\n ## Exemplo de Código\n' +
-            '\n\n```pitugues\nvar t = "um dois três"\n' +
-            't.inverter() // "sêrt siod mu"```' +
-            '\n\n ### Formas de uso \n',
-        exemploCodigo: 'texto.inverter()',
-    },
     maiusculo: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
-            Promise.resolve(texto.toUpperCase()),
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            texto: string
+        ): Promise<string> => Promise.resolve(texto.toUpperCase()),
         assinaturaFormato: 'texto.maiusculo()',
         documentacao:
             '# `texto.maiusculo()` \n \n' +
@@ -470,8 +525,10 @@ export default {
     minusculo: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<string> =>
-            Promise.resolve(texto.toLowerCase()),
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            texto: string
+        ): Promise<string> => Promise.resolve(texto.toLowerCase()),
         assinaturaFormato: 'texto.minusculo()',
         documentacao:
             '# `texto.minusculo()` \n \n' +
@@ -482,44 +539,8 @@ export default {
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'texto.minusculo()',
     },
-    particao: {
-        tipoRetorno: 'tupla',
-        argumentos: [
-            new InformacaoElementoSintatico(
-                'separador',
-                'texto',
-                true,
-                [],
-                'O separador usado para partir o texto.'
-            ),
-        ],
-        implementacao: implementacaoParticao,
-        assinaturaFormato: 'texto.particao(separador: texto)',
-        documentacao:
-            '# `texto.particao(separador)` \n \n' +
-            'Divide o texto na primeira ocorrência do separador e retorna uma tupla com: ' +
-            'o que vem antes, o separador e o que vem depois.',
-        exemploCodigo: 'texto.particao(" ")',
-    },
-    partição: {
-        tipoRetorno: 'tupla',
-        argumentos: [
-            new InformacaoElementoSintatico(
-                'separador',
-                'texto',
-                true,
-                [],
-                'O separador usado para partir o texto.'
-            ),
-        ],
-        implementacao: implementacaoParticao,
-        assinaturaFormato: 'texto.partição(separador: texto)',
-        documentacao:
-            '# `texto.partição(separador)` \n \n' +
-            'Divide o texto na primeira ocorrência do separador e retorna uma tupla com: ' +
-            'o que vem antes, o separador e o que vem depois.',
-        exemploCodigo: 'texto.partição(" ")',
-    },
+    particao: particao_comum('particao'),
+    partição: particao_comum('partição'),
     substituir: {
         tipoRetorno: 'texto',
         argumentos: [
@@ -530,7 +551,13 @@ export default {
                 [],
                 'Texto a ser substituído.'
             ),
-            new InformacaoElementoSintatico('substituto', 'texto', true, [], 'A substituição'),
+            new InformacaoElementoSintatico(
+                'substituto',
+                'texto',
+                true,
+                [],
+                'A substituição'
+            ),
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
@@ -543,50 +570,52 @@ export default {
             '# `texto.substituir(textoASerSubstituido, substituto)` \n \n' +
             'Substitui a primeira ocorrência no texto do primeiro parâmetro pelo segundo parâmetro.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```pitugues\nvar t = "Eu gosto de caju"\n' +
+            '\n\n```pitugues\nt = "Eu gosto de caju"\n' +
             't.substituir("caju", "graviola") // Resultado será "Eu gosto de graviola"\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: "texto.substituir('palavra a ser substituída','nova palavra')",
     },
-    subtexto: {
+    substituir_tudo: {
         tipoRetorno: 'texto',
         argumentos: [
             new InformacaoElementoSintatico(
-                'inicio',
-                'inteiro',
+                'textoASerSubstituido',
+                'texto',
                 true,
                 [],
-                'A posição de início do texto a ser extraído.'
+                'Texto a ser substituído.'
             ),
             new InformacaoElementoSintatico(
-                'fim',
-                'inteiro',
+                'substituto',
+                'texto',
                 true,
                 [],
-                'A posição de fim do texto a ser extraído.'
+                'A substituição'
             ),
         ],
         implementacao: (
             interpretador: InterpretadorInterface,
             texto: string,
-            inicio: number,
-            fim: number
-        ): Promise<string> => Promise.resolve(texto.slice(inicio, fim)),
-        assinaturaFormato: 'texto.subtexto(inicio: inteiro, fim: inteiro)',
+            elemento: string,
+            substituto: string
+        ): Promise<string> => Promise.resolve(texto.split(elemento).join(substituto)),
+        assinaturaFormato: 'texto.substituir_tudo(textoASerSubstituido: texto, substituto: texto)',
         documentacao:
-            '# `texto.subtexto(inicio, fim)` \n\n' +
-            'Extrai uma fatia do texto, dadas posições de início e fim.' +
+            '# `texto.substituir_tudo(textoASerSubstituido, substituto)` \n \n' +
+            'Substitui TODAS as ocorrências no texto do primeiro parâmetro pelo segundo parâmetro.' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```pitugues\nvar t = "Eu gosto de caju e de graviola"\n' +
-            't.subtexto(3, 16) // Resultado será "gosto de caju"\n```' +
+            '\n\n```pitugues\nt = "O rato roeu a roupa do rei de roma"\n' +
+            't.substituir_tudo("r", "p") // Resultado será "O pato poeu a poupa do pei de poma"\n```' +
             '\n\n ### Formas de uso \n',
-        exemploCodigo: 'texto.subtexto(posiçãoInicial, posiçãoFinal)',
+        exemploCodigo: "texto.substituir_tudo('palavra a ser substituída','nova palavra')",
     },
     tamanho: {
         tipoRetorno: 'inteiro',
         argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<number> =>
-            Promise.resolve(texto.length),
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            texto: string
+        ): Promise<number> => Promise.resolve(texto.length),
         assinaturaFormato: 'texto.tamanho()',
         documentacao:
             '# `texto.tamanho()` \n\n' +
@@ -628,8 +657,10 @@ export default {
     tudo_maiusculo: {
         tipoRetorno: 'lógico',
         argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<boolean> =>
-            Promise.resolve(texto === texto.toUpperCase()),
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            texto: string
+        ): Promise<boolean> => Promise.resolve(texto === texto.toUpperCase() && texto !== texto.toLowerCase()),
         assinaturaFormato: 'texto.tudo_maiusculo()',
         documentacao:
             '# `texto.tudo_maiusculo()` \n\n' +
@@ -645,8 +676,10 @@ export default {
     tudo_minusculo: {
         tipoRetorno: 'lógico',
         argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, texto: string): Promise<boolean> =>
-            Promise.resolve(texto === texto.toLowerCase()),
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            texto: string
+        ): Promise<boolean> => Promise.resolve(texto === texto.toLowerCase() && texto !== texto.toUpperCase()),
         assinaturaFormato: 'texto.tudo_minusculo()',
         documentacao:
             '# `texto.tudo_minusculo()` \n\n' +

@@ -2455,26 +2455,6 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas[0]).toBe('Salmão ou não ser, eis a questão');
                 });
 
-                it('subtexto', async () => {
-                    const codigo = [
-                        't = "Ser ou não ser, eis a questão"',
-                        'escreva(t.subtexto(4, 10))',
-                    ];
-                    const retornoLexador = lexador.mapear(codigo, -1);
-                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
-                        retornoLexador,
-                        -1
-                    );
-
-                    const retornoInterpretador = await interpretador.interpretar(
-                        retornoAvaliadorSintatico.declaracoes
-                    );
-
-                    expect(retornoInterpretador.erros).toHaveLength(0);
-                    expect(_saidas).toHaveLength(1);
-                    expect(_saidas[0]).toBe('ou não');
-                });
-
                 it('encontre - índice inicial encontrado', async () => {
                     const codigo = [
                         't = "Ser ou não ser, eis a questão"',
@@ -2883,54 +2863,6 @@ describe('Interpretador (Pituguês)', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(_saidas).toHaveLength(1);
                     expect(_saidas[0]).toBe('20');
-                });
-            });
-
-            describe('Uso de primitivas de tupla', () => {
-                describe('paraVetor', () => {
-                    it('paraVetor - uso simples', async () => {
-                        const codigo = [
-                            'tupla = (1, 2, 3)',
-                            'lista = tupla.paraVetor()',
-                            'escreva(lista)'
-                        ];
-
-                        const retornoLexador = lexador.mapear(codigo, -1);
-                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
-                            retornoLexador,
-                            -1
-                        );
-                        const retornoInterpretador = await interpretador.interpretar(
-                            retornoAvaliadorSintatico.declaracoes
-                        );
-
-                        expect(retornoAvaliadorSintatico).toBeTruthy();
-                        expect(retornoInterpretador.erros).toHaveLength(0);
-                        expect(_saidas).toHaveLength(1);
-                        expect(_saidas[0]).toBe('[1, 2, 3]');
-                    });
-
-                    it('paraVetor - tupla vazia', async () => {
-                        const codigo = [
-                            'tupla = ()',
-                            'vetor = tupla.paraVetor()',
-                            'escreva(vetor)'
-                        ];
-
-                        const retornoLexador = lexador.mapear(codigo, -1);
-                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
-                            retornoLexador,
-                            -1
-                        );
-                        const retornoInterpretador = await interpretador.interpretar(
-                            retornoAvaliadorSintatico.declaracoes
-                        );
-
-                        expect(retornoAvaliadorSintatico).toBeTruthy();
-                        expect(retornoInterpretador.erros).toHaveLength(0);
-                        expect(_saidas).toHaveLength(1);
-                        expect(_saidas[0]).toBe('[]');
-                    });
                 });
             });
 
@@ -4917,7 +4849,8 @@ describe('Interpretador (Pituguês)', () => {
                         -1
                     );
                     const retornoInterpretador = await interpretador.interpretar(
-                        retornoAvaliadorSintatico.declaracoes
+                        retornoAvaliadorSintatico.declaracoes,
+                        true
                     );
 
                     expect(retornoInterpretador.erros).toHaveLength(1);

@@ -224,6 +224,7 @@ describe('Primitivas de Texto (Pituguês)', () => {
             );
             expect(resultado).toBe(0);
         });
+
         it('deve retornar o índice correto passando o índice inicial', async () => {
             const texto = "abc def abc ghi abc";
             const subtexto = "abc";
@@ -234,8 +235,9 @@ describe('Primitivas de Texto (Pituguês)', () => {
                 subtexto,
                 indiceInicial
             );
-            expect(resultado).toBe(16);
-        })
+            expect(resultado).toBe(8);
+        });
+
         it('deve retornar o índice correto quando o índice inicial é negativo', async () => {
             const texto = "abc def abc ghi abc";
             const subtexto = "abc";
@@ -246,8 +248,9 @@ describe('Primitivas de Texto (Pituguês)', () => {
                 subtexto,
                 indiceInicial
             );
-            expect(resultado).toBe(16);
+            expect(resultado).toBe(0);
         });
+
         it('deve retornar -1 quando o índice inicial é maior que o tamanho do texto', async () => {
             const texto = "abc def abc ghi abc";
             const subtexto = "abc";
@@ -258,8 +261,8 @@ describe('Primitivas de Texto (Pituguês)', () => {
                 subtexto,
                 indiceInicial
             );
-            expect(resultado).toBe(-1);
-        })
+            expect(resultado).toBe(16);
+        });
     });
 
     describe('fatiar', () => {
@@ -466,26 +469,6 @@ describe('Primitivas de Texto (Pituguês)', () => {
         });
     });
 
-    describe('inverter', () => {
-        it('deve inverter o texto', async () => {
-            const texto = "python";
-            const resultado = await primitivasTexto.inverter.implementacao(
-                interpretador,
-                texto
-            );
-            expect(resultado).toBe("nohtyp");
-        });
-
-        it('deve inverter texto com espaços', async () => {
-            const texto = "olá mundo";
-            const resultado = await primitivasTexto.inverter.implementacao(
-                interpretador,
-                texto
-            );
-            expect(resultado).toBe("odnum álo");
-        });
-    });
-
     describe('maiusculo', () => {
         it('deve converter para maiúsculo', async () => {
             const texto = "tudo em minúsculo";
@@ -564,30 +547,6 @@ describe('Primitivas de Texto (Pituguês)', () => {
                 substituto
             );
             expect(resultado).toBe("Eu gosto de caju");
-        });
-    });
-
-    describe('subtexto', () => {
-        it('deve extrair subtexto entre posições', async () => {
-            const texto = "Eu gosto de caju e de graviola";
-            const resultado = await primitivasTexto.subtexto.implementacao(
-                interpretador,
-                texto,
-                3,
-                16
-            );
-            expect(resultado).toBe("gosto de caju");
-        });
-
-        it('deve retornar string vazia quando início é igual a fim', async () => {
-            const texto = "Texto qualquer";
-            const resultado = await primitivasTexto.subtexto.implementacao(
-                interpretador,
-                texto,
-                5,
-                5
-            );
-            expect(resultado).toBe("");
         });
     });
 

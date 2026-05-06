@@ -19,10 +19,50 @@ export default {
             '\n\n## Formas de uso\n',
         exemploCodigo: 'numero.absoluto()',
     },
+    arredondar: {
+        tipoRetorno: 'numero',
+        argumentos: [
+            new InformacaoElementoSintatico(
+                'casasDecimais',
+                'numero',
+                false,
+                [],
+                'Número de casas decimais que o número deve ser arredondado.'
+            ),
+        ],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            valor: number,
+            casasDecimais?: number | null
+        ): Promise<number> => {
+            if (casasDecimais !== undefined && casasDecimais !== null) {
+                return Promise.resolve(
+                    parseFloat(valor.toFixed(casasDecimais))
+                );
+            }
+
+            return Promise.resolve(Math.round(valor));
+        },
+        assinaturaFormato: 'número.arredondar(casas_decimais)',
+        documentacao:
+            '# `número.arredondar()`\n\n' +
+            'Retorna o número arredondado para o número inteiro mais próximo. Adiciona casas decimais caso o valor seja passado como parâmetro.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```pitugues\n' +
+            'n = 2.4\n' +
+            'escreva(n.arredondar()) // 2\n```' +
+            'x = 2.468\n' +
+            'escreva(x.arredondar(2)) // 2.47\n```' +
+            '\n\n## Formas de uso\n',
+        exemploCodigo: 'numero.arredondar()',
+    },
     arredondar_para_baixo: {
         tipoRetorno: 'número',
         argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, valor: number): Promise<number> => {
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            valor: number
+        ): Promise<number> => {
             return Promise.resolve(Math.floor(valor));
         },
         assinaturaFormato: 'número.arredondar_para_baixo()',
@@ -31,7 +71,7 @@ export default {
             'Retira as partes decimais de um número com partes decimais e retorna sua parte inteira. Se o número já é inteiro, devolve apenas o próprio número.' +
             '\n\n ## Exemplo de Código\n' +
             '\n\n```pitugues\n' +
-            'var n = 2.5\n' +
+            'n = 2.5\n' +
             'escreva(n.arredondar_para_baixo()) // 2\n```' +
             '\n\n## Formas de uso\n',
         exemploCodigo: 'numero.arredondar_para_baixo()',
@@ -39,7 +79,10 @@ export default {
     arredondar_para_cima: {
         tipoRetorno: 'número',
         argumentos: [],
-        implementacao: (interpretador: InterpretadorInterface, valor: number): Promise<number> => {
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            valor: number
+        ): Promise<number> => {
             return Promise.resolve(Math.ceil(valor));
         },
         assinaturaFormato: 'número.arredondar_para_cima()',
@@ -48,7 +91,7 @@ export default {
             'Arredonda um número com partes decimais para cima, ou seja, para o próximo número inteiro.' +
             '\n\n ## Exemplo de Código\n' +
             '\n\n```pitugues\n' +
-            'var n = 2.5\n' +
+            'n = 2.5\n' +
             'escreva(n.arredondar_para_cima()) // 3\n```' +
             '\n\n## Formas de uso\n',
         exemploCodigo: 'numero.arredondar_para_cima()',
@@ -92,10 +135,50 @@ export default {
             'Formata um número para o padrão brasileiro, com separador de milhar e vírgula como separador decimal.' +
             '\n\n ## Exemplo de Código\n' +
             '\n\n```pitugues\n' +
-            'var n = 1234.56\n' +
+            'n = 1234.56\n' +
             'escreva(n.formatar()) // 1.234,56\n' +
             'escreva(n.formatar({ minimoCasasDecimais: 2, maximoCasasDecimais: 3 })) // 1.234,568\n```' +
             '\n\n## Formas de uso\n',
         exemploCodigo: 'numero.formatar({ maximoCasasDecimais: 2 })',
+    },
+    raiz_quadrada: {
+        tipoRetorno: 'numero',
+        argumentos: [],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            valor: number
+        ): Promise<number> => {
+            return Promise.resolve(Math.sqrt(valor));
+        },
+        assinaturaFormato: 'numero.raiz_quadrada()',
+        documentacao:
+            '# `numero.raiz_quadrada()`\n\n' +
+            'Calcula e retorna a raiz quadrada de um número.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```pitugues\n' +
+            'n = 25\n' +
+            'escreva(n.raiz_quadrada()) // 5\n```' +
+            '\n\n## Formas de uso\n',
+        exemploCodigo: 'numero.raiz_quadrada()',
+    },
+    truncar: {
+        tipoRetorno: 'numero',
+        argumentos: [],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            valor: number,
+        ): Promise<number> => {
+            return Promise.resolve(Math.trunc(valor));
+        },
+        assinaturaFormato: 'numero.truncar()',
+        documentacao:
+            '# `numero.truncar()`\n\n' +
+            'Retorna a parte inteira de um número, descartando suas casas decimais de forma bruta, sem arredondamento.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```pitugues\n' +
+            'n = 2.99\n' +
+            'escreva(n.truncar()) // 2\n```' +
+            '\n\n## Formas de uso\n',
+        exemploCodigo: 'numero.truncar()',
     },
 } as { [nome: string]: PrimitivaInterface };
