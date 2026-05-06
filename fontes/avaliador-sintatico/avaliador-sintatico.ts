@@ -2586,8 +2586,18 @@ export class AvaliadorSintatico
         const importar = new Importar(construtoCaminhoModulo);
         if (identificadorDeTudo !== null) {
             importar.simboloTudo = identificadorDeTudo;
+            this.pilhaEscopos.definirInformacoesVariavel(
+                identificadorDeTudo.lexema,
+                new InformacaoElementoSintatico(identificadorDeTudo.lexema, 'módulo')
+            );
         } else {
             importar.elementosImportacao = elementosImportacao;
+            for (const elemento of elementosImportacao) {
+                this.pilhaEscopos.definirInformacoesVariavel(
+                    elemento.lexema,
+                    new InformacaoElementoSintatico(elemento.lexema, 'qualquer')
+                );
+            }
         }
 
         return Promise.resolve(importar);

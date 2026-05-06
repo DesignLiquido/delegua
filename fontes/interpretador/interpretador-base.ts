@@ -1309,17 +1309,21 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             if (entidadeChamada instanceof FuncaoPadrao) {
                 try {
-                    return entidadeChamada.chamar(
+                    return await entidadeChamada.chamar(
                         this,
                         argumentos.map((a) => a && this.resolverValor(a.valor)),
                         (expressao.entidadeChamada as any).simbolo // TODO: O que exatamente pode ser aqui?
                     );
                 } catch (erro: any) {
+                    if (this.emDeclaracaoTente) {
+                        return Promise.reject(erro);
+                    }
                     this.erros.push({
                         erroInterno: erro,
                         linha: expressao.linha,
                         hashArquivo: expressao.hashArquivo,
                     });
+                    return;
                 }
             }
 
