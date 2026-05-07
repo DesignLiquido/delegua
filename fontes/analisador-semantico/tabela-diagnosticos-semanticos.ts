@@ -22,6 +22,11 @@ export const TABELA_ERROS_SEMANTICOS: EntradaTabelaDiagnosticoSemanticoInterface
         padroesMensagem: [/funcao.*espera.*parametr/i, /parametr.*diferente/i],
     },
     {
+        codigoDiagnostico: 'SEMANTICO_METODO_NAO_ENCONTRADO',
+        descricao: 'Metodo nao encontrado na classe.',
+        padroesMensagem: [/m[eé]todo n[aã]o encontrado na classe/i],
+    },
+    {
         codigoDiagnostico: 'SEMANTICO_ERRO_GENERICO',
         descricao: 'Erro semantico nao categorizado.',
         padroesMensagem: [],

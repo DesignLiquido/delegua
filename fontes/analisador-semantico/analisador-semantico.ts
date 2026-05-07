@@ -1539,7 +1539,23 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         const membro =
             classeDef.metodos.find((m) => m.simbolo.lexema === nomeMembro) ??
             classeDef.propriedades.find((p) => p.nome.lexema === nomeMembro);
-        if (!membro) return;
+        if (!membro) {
+            const mensagemErro = `Método não encontrado na classe '${tipoObjeto}': ${nomeMembro}.`;
+            this.erro(expressao.simbolo, mensagemErro, 'SEMANTICO_METODO_NAO_ENCONTRADO');
+            const diagnostico = this.diagnosticos.find(
+                (d) => d.linha === expressao.simbolo.linha && d.mensagem === mensagemErro
+            );
+            if (diagnostico) {
+                diagnostico.correcaoMetodo = {
+                    tipo: 'implementar-metodo',
+                    nomeClasse: tipoObjeto,
+                    nomeMetodo: nomeMembro,
+                    linhaDeclaracaoClasse: classeDef.linha,
+                    hashArquivoClasse: classeDef.hashArquivo,
+                };
+            }
+            return;
+        }
 
         if (membro.acesso === 'privado') {
             if (this.classeAtualEmAnalise?.simbolo.lexema !== tipoObjeto) {
