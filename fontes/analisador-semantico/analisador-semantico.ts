@@ -1536,9 +1536,23 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         const classeDef = this.classesRegistradas.get(tipoObjeto);
         if (!classeDef) return;
 
-        const membro =
-            classeDef.metodos.find((m) => m.simbolo.lexema === nomeMembro) ??
-            classeDef.propriedades.find((p) => p.nome.lexema === nomeMembro);
+        // Busca o membro na classe e em toda a hierarquia de superclasses
+        const encontrarMembroNaHierarquia = (classe: Classe): any => {
+            const encontrado =
+                classe.metodos.find((m) => m.simbolo.lexema === nomeMembro) ??
+                classe.propriedades.find((p) => p.nome.lexema === nomeMembro);
+            if (encontrado) return encontrado;
+            for (const sc of classe.superClasses) {
+                const pai = this.classesRegistradas.get(sc.simbolo.lexema);
+                if (pai) {
+                    const membroPai = encontrarMembroNaHierarquia(pai);
+                    if (membroPai) return membroPai;
+                }
+            }
+            return undefined;
+        };
+
+        const membro = encontrarMembroNaHierarquia(classeDef);
         if (!membro) {
             const mensagemErro = `Método não encontrado na classe '${tipoObjeto}': ${nomeMembro}.`;
             this.erro(expressao.simbolo, mensagemErro, 'SEMANTICO_METODO_NAO_ENCONTRADO');
