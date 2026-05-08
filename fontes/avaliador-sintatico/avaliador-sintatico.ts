@@ -212,13 +212,29 @@ export class AvaliadorSintatico
             return this.simbolos[this.atual].lexema;
         }
 
-        const lexemaElementar = this.simbolos[this.atual].lexema.toLowerCase();
+        const lexemaOriginal = this.simbolos[this.atual].lexema;
+        const lexemaElementar = lexemaOriginal.toLowerCase();
         const tipoElementarResolvido = tipos.find((tipo) => tipo === lexemaElementar);
         if (!tipoElementarResolvido) {
-            throw this.erro(
-                this.simbolos[this.atual],
-                `Tipo de dados desconhecido: '${this.simbolos[this.atual].lexema}'.`
-            );
+            // Mantém o avaliador sintático sincronizado mesmo com tipos não reconhecidos
+            // (ex.: anotações vindas de módulos externos ainda não resolvidos).
+            // Assim evitamos que o próximo token (como '[') seja interpretado
+            // como início de outra produção e gere erros encadeados.
+            if (this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
+                this.avancarEDevolverAnterior();
+
+                if (!this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_DIREITO)) {
+                    throw this.erro(
+                        this.simbolos[this.atual],
+                        `Esperado símbolo de fechamento do vetor: ']'. Atual: ${this.simbolos[this.atual].lexema}`
+                    );
+                }
+
+                this.avancarEDevolverAnterior();
+                return `${lexemaOriginal}[]`;
+            }
+
+            return lexemaOriginal;
         }
 
         if (

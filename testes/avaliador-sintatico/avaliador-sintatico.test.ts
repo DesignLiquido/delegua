@@ -183,6 +183,30 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 });
 
+                it('Não desincroniza com tipo desconhecido em parâmetro de método', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'classe Externa {',
+                            '    consumir(itens: TipoNaoResolvido[]) {',
+                            '        escreva(itens.tamanho())',
+                            '    }',
+                            '}',
+                            'escreva("ok")',
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                    expect(retornoAvaliadorSintatico.declaracoes[0]).toBeInstanceOf(Classe);
+                    expect(retornoAvaliadorSintatico.declaracoes[1]).toBeInstanceOf(Escreva);
+                });
+
                 it('Propriedade estática não torna construtor estático', async () => {
                     const retornoLexador = lexador.mapear(
                         [
