@@ -4404,7 +4404,7 @@ describe('Interpretador', () => {
                         'texto',
                         'número[]',
                         'vetor',
-                        'número[]',
+                        'vetor',
                         'função<vazio>',
                         'qualquer',
                         'número',
