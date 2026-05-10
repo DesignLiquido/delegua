@@ -23,7 +23,6 @@ export class Fazer extends Declaracao implements FazerInterface {
     }
 
     paraTexto(): string {
-        // TODO: Bloco.
-        return `<fazer condição=${this.condicaoEnquanto.paraTexto()} />`;
+        return `<fazer>${this.caminhoFazer.paraTexto()}<condição>${this.condicaoEnquanto.paraTexto()}</condição></fazer>`;
     }
 }

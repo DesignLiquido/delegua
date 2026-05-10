@@ -28,7 +28,7 @@ export class VarMultiplo extends Declaracao {
     }
 
     paraTexto(): string {
-        // TODO: Terminar.
-        return `<var-múltiplo />`;
+        const nomes = this.simbolos.map((s) => s.lexema).join(',');
+        return `<var-múltiplo nomes=[${nomes}] inicializador=${this.inicializador.paraTexto()} tipo=${this.tipo ?? 'qualquer'} />`;
     }
 }

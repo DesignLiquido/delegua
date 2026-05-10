@@ -40,18 +40,13 @@ export class Para extends Declaracao implements ParaInterface {
     }
 
     paraTexto(): string {
-        let inicializador: string = '';
+        let inicializador = '';
         if (Array.isArray(this.inicializador)) {
-            inicializador = this.inicializador.reduce(
-                (anterior, atual) => (anterior += atual.paraTexto() + ` `),
-                'inicialização='
-            );
+            inicializador = this.inicializador.map((d) => d.paraTexto()).join(' ');
         } else if (this.inicializador) {
-            inicializador = `inicialização=${this.inicializador.paraTexto()} `;
+            inicializador = this.inicializador.paraTexto();
         }
-
-        // TODO: Bloco.
-        return `<para ${this.inicializador} condição=${this.condicao.paraTexto()} />`;
+        return `<para inicializador=[${inicializador}] condição=${this.condicao.paraTexto()} incremento=${this.incrementar.paraTexto()}>${this.corpo.paraTexto()}</para>`;
     }
 }
 

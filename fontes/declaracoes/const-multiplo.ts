@@ -26,7 +26,7 @@ export class ConstMultiplo extends Declaracao {
     }
 
     paraTexto(): string {
-        // TODO: Terminar
-        return `<const-múltiplo />`;
+        const nomes = this.simbolos.map((s) => s.lexema).join(',');
+        return `<const-múltiplo nomes=[${nomes}] inicializador=${this.inicializador.paraTexto()} tipo=${this.tipo ?? 'qualquer'} />`;
     }
 }

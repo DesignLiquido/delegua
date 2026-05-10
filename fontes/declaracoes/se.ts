@@ -26,7 +26,15 @@ export class Se extends Declaracao {
     }
 
     paraTexto(): string {
-        // TODO: Bloco então, bloco senão, outros.
-        return `<se condiçao=${this.condicao.paraTexto()} />`;
+        let resultado = `<se condicao=${this.condicao.paraTexto()}><então>${this.caminhoEntao.paraTexto()}</então>`;
+        if (this.caminhosSeSenao) {
+            for (const seSenao of this.caminhosSeSenao) {
+                resultado += `<senão-se condicao=${seSenao.condicao.paraTexto()}>${seSenao.caminho.paraTexto()}</senão-se>`;
+            }
+        }
+        if (this.caminhoSenao) {
+            resultado += `<senão>${this.caminhoSenao.paraTexto()}</senão>`;
+        }
+        return resultado + '</se>';
     }
 }

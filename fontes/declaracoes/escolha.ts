@@ -27,8 +27,15 @@ export class Escolha extends Declaracao {
     }
 
     paraTexto(): string {
-        // TODO: Caminhos
-        return `<escolha identificadorOuLiteral=${this.identificadorOuLiteral} />`;
+        const caminhos = this.caminhos
+            .map((c) => {
+                const condicoes = c.condicoes.map((cond) => cond.paraTexto()).join(',');
+                const declaracoes = c.declaracoes.map((d) => d.paraTexto()).join('');
+                return `<caminho condicoes=[${condicoes}]>${declaracoes}</caminho>`;
+            })
+            .join('');
+        const padrao = this.caminhoPadrao?.declaracoes.map((d) => d.paraTexto()).join('') ?? '';
+        return `<escolha identificadorOuLiteral=${this.identificadorOuLiteral.paraTexto()}>${caminhos}<padrão>${padrao}</padrão></escolha>`;
     }
 }
 

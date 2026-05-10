@@ -18,7 +18,6 @@ export class Enquanto extends Declaracao implements EnquantoInterface {
     }
 
     paraTexto(): string {
-        // TODO: Bloco.
-        return `<enquanto condição=${this.condicao.paraTexto()} />`;
+        return `<enquanto condição=${this.condicao.paraTexto()}>${this.corpo.paraTexto()}</enquanto>`;
     }
 }

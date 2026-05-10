@@ -30,7 +30,6 @@ export class TendoComo extends Declaracao {
     }
 
     paraTexto(): string {
-        // TODO: Bloco.
-        return `<tendo variável=${this.simboloVariavel.lexema} como=${this.inicializacaoVariavel.paraTexto()} />`;
+        return `<tendo variável=${this.simboloVariavel.lexema} como=${this.inicializacaoVariavel.paraTexto()}>${this.corpo.paraTexto()}</tendo>`;
     }
 }

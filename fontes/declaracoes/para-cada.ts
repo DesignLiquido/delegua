@@ -29,7 +29,6 @@ export class ParaCada extends Declaracao implements ParaCadaInterface {
     }
 
     paraTexto(): string {
-        // TODO: Corpo.
-        return `<para-cada variávelIteração=${this.variavelIteracao.paraTexto()} />`;
+        return `<para-cada variávelIteração=${this.variavelIteracao.paraTexto()} vetor=${this.vetorOuDicionario.paraTexto()}>${this.corpo.paraTexto()}</para-cada>`;
     }
 }

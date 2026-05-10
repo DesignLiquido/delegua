@@ -31,7 +31,12 @@ export class Tente extends Declaracao {
     }
 
     paraTexto(): string {
-        // TODO: Terminar.
-        return `<tente />`;
+        const tente = this.caminhoTente.map((d) => d.paraTexto()).join('');
+        const pegue = Array.isArray(this.caminhoPegue)
+            ? this.caminhoPegue.map((d) => d.paraTexto()).join('')
+            : this.caminhoPegue.paraTexto();
+        const senao = this.caminhoSenao.map((d) => d.paraTexto()).join('');
+        const finalmente = this.caminhoFinalmente.map((d) => d.paraTexto()).join('');
+        return `<tente><tente-corpo>${tente}</tente-corpo><pegue>${pegue}</pegue><senão>${senao}</senão><finalmente>${finalmente}</finalmente></tente>`;
     }
 }
