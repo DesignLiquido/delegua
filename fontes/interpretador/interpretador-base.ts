@@ -1258,11 +1258,13 @@ export class InterpretadorBase implements InterpretadorInterface {
      */
     async visitarExpressaoDeChamada(expressao: Chamada): Promise<any> {
         try {
-            let variavelEntidadeChamada: VariavelInterface | any = await this.avaliar(
-                expressao.entidadeChamada
-            );
+            let variavelEntidadeChamada: VariavelInterface | any = await this
+                .avaliar(expressao.entidadeChamada);
 
-            if (variavelEntidadeChamada === null || variavelEntidadeChamada === undefined) {
+            if (
+                variavelEntidadeChamada === null ||
+                variavelEntidadeChamada === undefined
+            ) {
                 return Promise.reject(
                     new ErroEmTempoDeExecucao(
                         (expressao as any).parentese,
@@ -1273,7 +1275,11 @@ export class InterpretadorBase implements InterpretadorInterface {
                 );
             }
 
-            if (Object.prototype.hasOwnProperty.call(variavelEntidadeChamada, 'valorRetornado')) {
+            if (
+                Object.prototype.hasOwnProperty.call(
+                    variavelEntidadeChamada, 'valorRetornado'
+                )
+            ) {
                 variavelEntidadeChamada = variavelEntidadeChamada.valorRetornado;
             }
 
@@ -1295,11 +1301,14 @@ export class InterpretadorBase implements InterpretadorInterface {
             }
 
             if (entidadeChamada instanceof MetodoPrimitiva) {
-                return await this.chamarMetodoPrimitiva(expressao, entidadeChamada);
+                return await this.chamarMetodoPrimitiva(
+                    expressao,
+                    entidadeChamada
+                );
             }
 
-            const argumentos: ArgumentoInterface[] =
-                await this.resolverArgumentosChamada(expressao);
+            const argumentos: ArgumentoInterface[] = await this
+                .resolverArgumentosChamada(expressao);
             const aridade = entidadeChamada.aridade
                 ? entidadeChamada.aridade()
                 : entidadeChamada.length;
@@ -1312,6 +1321,29 @@ export class InterpretadorBase implements InterpretadorInterface {
                 entidadeChamada instanceof MetodoPolimorfico ||
                 (entidadeChamada instanceof DescritorTipoClasse &&
                     entidadeChamada.encontrarMetodo('construtor') instanceof MetodoPolimorfico);
+
+            if (
+                entidadeChamada instanceof DeleguaFuncao && entidadeChamada.declaracao
+            ) {
+                // Pega os parâmetros da declaração e filtra apenas os obrigatórios
+                // (ignora os que têm valor padrão ou são rest parameters)
+                const parametros = entidadeChamada.declaracao.parametros || [];
+                const parametrosObrigatorios = parametros.filter(
+                    (p) => !p.valorPadrao && p.abrangencia !== 'multiplo'
+                ).length;
+
+                if (argumentos.length < parametrosObrigatorios) {
+                    const nomeFuncao = entidadeChamada.nome || 'anônima';
+
+                    return Promise.reject(
+                        new ErroEmTempoDeExecucao(
+                            (expressao as any).parentese,
+                            `A função '${nomeFuncao}' esperava no mínimo ${parametrosObrigatorios} argumento(s), mas recebeu ${argumentos.length}.`,
+                            expressao.linha
+                        )
+                    );
+                }
+            }
 
             if (!ehPolimorfico && argumentos.length < aridade) {
                 const diferenca = aridade - argumentos.length;
