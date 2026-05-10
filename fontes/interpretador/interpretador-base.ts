@@ -2522,7 +2522,6 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         // Caso 3: Vetor simples do JavaScript.
-        // TODO: Em teoria, isso deve estar no interpretador de Delégua, não aqui.
         if (Array.isArray(objeto)) {
             if (expressao.simbolo.lexema in primitivasVetor) {
                 const metodoDePrimitivaVetor: Function =
@@ -3081,17 +3080,11 @@ export class InterpretadorBase implements InterpretadorInterface {
         const inicioInterpretacao: [number, number] = hrtime();
         try {
             const retornoOuErro = await this.executarUltimoEscopo(manterAmbiente);
-            // TODO: Esta lógica já ocorre em `executarUltimoEscopo`.
-            // Estudar remoção.
-            if (retornoOuErro instanceof ErroEmTempoDeExecucao) {
-                this.erros.push(retornoOuErro);
-            }
 
             if (retornoOuErro !== undefined) {
                 this.resultadoInterpretador.push(retornoOuErro);
             }
         } catch (erro: any) {
-            // TODO: Estudar remoção do `catch`.
             throw new Error(
                 `Não deveria estar caindo aqui. Há erros no interpretador que não estão tratados corretamente. Erro atual: ${JSON.stringify(erro)}.`
             );

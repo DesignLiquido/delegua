@@ -162,8 +162,6 @@ export class DeleguaFuncao extends Chamavel {
             }
         }
 
-        // TODO: Repensar essa dinâmica para análise semântica (levar toda a lógica abaixo para
-        // o interpretador).
         const interpretador = visitante as any;
         interpretador.proximoEscopo = 'funcao';
 
