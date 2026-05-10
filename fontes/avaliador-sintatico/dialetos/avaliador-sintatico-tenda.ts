@@ -1087,11 +1087,6 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         return new Leia(simboloLeia, argumentos);
     }
 
-    // TODO: Depreciar.
-    override async expressao(): Promise<ConstrutoInterface> {
-        return await this.atribuir();
-    }
-
     override async blocoEscopo(tipo?: string): Promise<Array<Declaracao>> {
         this.pilhaEscopos.empilhar(new InformacaoEscopo());
         let declaracoes: Array<Declaracao> = [];
