@@ -814,7 +814,7 @@ export class AvaliadorSintatico
                     tipoOperando = 'qualquer';
                     this.pilhaEscopos.definirInformacoesVariavel(
                         simboloIdentificador.lexema,
-                        new InformacaoElementoSintatico(simboloIdentificador.lexema, 'qualquer') // TODO: Talvez um dia inferir o tipo aqui.
+                        new InformacaoElementoSintatico(simboloIdentificador.lexema, 'qualquer')
                     );
                 } else if (simboloIdentificador.lexema in this.tiposDefinidosEmCodigo) {
                     tipoOperando = simboloIdentificador.lexema;
@@ -3469,7 +3469,6 @@ export class AvaliadorSintatico
         const inicializador = await this.expressao();
         const retornos: Const[] = [];
         for (let identificador of identificadores) {
-            // TODO: Melhorar dicionário para intuir o tipo de cada propriedade.
             this.pilhaEscopos.definirInformacoesVariavel(
                 identificador.lexema,
                 new InformacaoElementoSintatico(identificador.lexema, 'qualquer')

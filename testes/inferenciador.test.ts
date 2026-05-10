@@ -1,4 +1,5 @@
 import { inferirTipoVariavel } from '../fontes/inferenciador';
+import { Literal } from '../fontes/construtos/literal';
 
 describe('inferirTipoVariavel', () => {
     describe('inferência de vetores', () => {
@@ -24,6 +25,22 @@ describe('inferirTipoVariavel', () => {
 
         it('vetor com elemento indefinido não deve lançar exceção', () => {
             expect(() => inferirTipoVariavel([undefined, 1, 2])).not.toThrow();
+        });
+
+        it('vetor de Literal com tipo uniforme retorna tipo[]', () => {
+            const vetor = [
+                new Literal(-1, 1, 'olá', 'texto'),
+                new Literal(-1, 1, 'mundo', 'texto'),
+            ];
+            expect(inferirTipoVariavel(vetor)).toBe('texto[]');
+        });
+
+        it('vetor de Literal com tipos mistos retorna vetor', () => {
+            const vetor = [
+                new Literal(-1, 1, 1, 'número'),
+                new Literal(-1, 1, 'olá', 'texto'),
+            ];
+            expect(inferirTipoVariavel(vetor)).toBe('vetor');
         });
     });
 });

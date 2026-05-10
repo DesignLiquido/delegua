@@ -169,6 +169,24 @@ describe('Analisador semântico', () => {
             expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
         });
 
+        it('Variável passada a parâmetro tipado não deve gerar falso erro', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'funcao f(a: texto) { escreva(a) }',
+                    'var v = "olá"',
+                    'f(v)',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+        });
+
         it('Função sem corpo', async () => {
             const retornoLexador = lexador.mapear(
                 ['funcao minhaFuncao() {}', 'escreva(minhaFuncao)'],

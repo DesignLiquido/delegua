@@ -72,8 +72,9 @@ function inferirVetor(vetor: Array<any>): TipoInferencia {
 
             return `${tiposObjetosEmVetor.values().next().value}[]` as TipoInferencia;
         case 'Literal':
-            // TODO: Não sei se é seguro inferir pelo primeiro valor do vetor.
-            return `${vetor[0].tipo}[]` as TipoInferencia;
+            const tiposLiterais = new Set(vetor.map((e: any) => e.tipo));
+            if (tiposLiterais.size > 1) return 'vetor';
+            return `${tiposLiterais.values().next().value}[]` as TipoInferencia;
         default:
             return 'vetor';
     }
@@ -115,7 +116,7 @@ export function inferirTipoVariavel(variavel: any): TipoInferencia | TipoNativoS
         case 'DescritorTipoClasse':
         case 'ObjetoDeleguaClasse':
             return 'objeto';
-        case 'Simbolo': // TODO: Repensar.
+        case 'Simbolo':
             const simbolo = variavel as Simbolo;
             switch (simbolo.tipo) {
                 case tipoDeDadosPrimitivos.BOOLEANO:

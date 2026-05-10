@@ -222,24 +222,24 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         }
 
         for (let [indice, parametro] of parametros.entries()) {
-            // TODO: `argumento` pode ser Literal (tipo já resolvido) ou variável (tipo inferido em outra etapa).
             const argumento = argumentos[indice] as any;
-            if (argumento) {
-                if (parametro.tipoDado === 'texto' && argumento.tipo !== 'texto') {
+            if (!argumento) continue;
+
+            const tipoArgumento: string = argumento.tipo ?? 'qualquer';
+            if (tipoArgumento === 'qualquer') continue;
+
+            if (parametro.tipoDado === 'texto' && tipoArgumento !== 'texto') {
+                this.erro(
+                    simboloFuncao,
+                    `O valor passado para o parâmetro '${parametro.nome.lexema}' (${parametro.tipoDado}) é diferente do esperado pela função (${tipoArgumento}).`
+                );
+            } else if (['inteiro', 'número', 'real'].includes(parametro.tipoDado)) {
+                // Delégua pode trabalhar com conversões implícitas entre tipos numéricos.
+                if (!['inteiro', 'número', 'real'].includes(tipoArgumento)) {
                     this.erro(
                         simboloFuncao,
-                        `O valor passado para o parâmetro '${parametro.nome.lexema}' (${parametro.tipoDado}) é diferente do esperado pela função (${argumento.tipo}).`
+                        `O valor passado para o parâmetro '${parametro.nome.lexema}' (${parametro.tipoDado}) é diferente do esperado pela função (${tipoArgumento}).`
                     );
-                } else if (['inteiro', 'número', 'real'].includes(parametro.tipoDado)) {
-                    // Aqui, se houver diferença entre os tipos do parâmetro e do argumento, não há erro,
-                    // porque Delégua pode trabalhar com conversões implícitas.
-                    // Isso pode ou não mudar no futuro.
-                    if (!['inteiro', 'número', 'real'].includes(argumento.tipo)) {
-                        this.erro(
-                            simboloFuncao,
-                            `O valor passado para o parâmetro '${parametro.nome.lexema}' (${parametro.tipoDado}) é diferente do esperado pela função (${argumento.tipo}).`
-                        );
-                    }
                 }
             }
         }
