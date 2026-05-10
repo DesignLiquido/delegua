@@ -103,12 +103,15 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         if ([tipoDeDadosDelegua.VETOR, tipoDeDadosDelegua.TUPLA].includes(tipoConstante)) {
             let subtipo = '';
             if (valor instanceof Array) {
-                // TODO: verificar tipo lógico e outros possíveis subtipos
-                let numeros = valor.some((v) => typeof v === 'number');
-                let textos = valor.some((v) => typeof v === 'string');
-                if (numeros && textos) subtipo = tipoDeDadosDelegua.QUALQUER;
+                const numeros = valor.some((v) => typeof v === 'number');
+                const textos = valor.some((v) => typeof v === 'string');
+                const logicos = valor.some((v) => typeof v === 'boolean');
+                const tiposDistintos = [numeros, textos, logicos].filter(Boolean).length;
+                if (tiposDistintos > 1) subtipo = tipoDeDadosDelegua.QUALQUER;
                 else if (numeros) subtipo = tipoDeDadosDelegua.NUMERO;
-                else subtipo = tipoDeDadosDelegua.TEXTO;
+                else if (logicos) subtipo = tipoDeDadosDelegua.LOGICO;
+                else if (textos) subtipo = tipoDeDadosDelegua.TEXTO;
+                else subtipo = tipoDeDadosDelegua.QUALQUER;
             }
             (elementoAlvo.subtipo as any) = subtipo;
         }
@@ -146,12 +149,15 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
         if ([tipoDeDadosDelegua.VETOR, tipoDeDadosDelegua.TUPLA].includes(tipoVariavel)) {
             let subtipo = '';
             if (valor instanceof Array) {
-                // TODO: verificar tipo lógico e outros possíveis subtipos
-                let numeros = valor.some((v) => typeof v === 'number');
-                let textos = valor.some((v) => typeof v === 'string');
-                if (numeros && textos) subtipo = tipoDeDadosDelegua.QUALQUER;
+                const numeros = valor.some((v) => typeof v === 'number');
+                const textos = valor.some((v) => typeof v === 'string');
+                const logicos = valor.some((v) => typeof v === 'boolean');
+                const tiposDistintos = [numeros, textos, logicos].filter(Boolean).length;
+                if (tiposDistintos > 1) subtipo = tipoDeDadosDelegua.QUALQUER;
                 else if (numeros) subtipo = tipoDeDadosDelegua.NUMERO;
-                else subtipo = tipoDeDadosDelegua.TEXTO;
+                else if (logicos) subtipo = tipoDeDadosDelegua.LOGICO;
+                else if (textos) subtipo = tipoDeDadosDelegua.TEXTO;
+                else subtipo = tipoDeDadosDelegua.QUALQUER;
             }
             (elementoAlvo.subtipo as any) = subtipo;
         }

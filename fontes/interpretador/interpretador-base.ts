@@ -544,13 +544,12 @@ export class InterpretadorBase implements InterpretadorInterface {
         let textoFinal = texto;
 
         for (const elemento of interpolacoes) {
-            // TODO: Há alguma chance de `elemento` ser `undefined` aqui?
-            let valor = elemento?.valor;
-            if (valor.hasOwnProperty && valor.hasOwnProperty('valorRetornado')) {
+            let valor = elemento.valor;
+            if (valor?.hasOwnProperty && valor.hasOwnProperty('valorRetornado')) {
                 valor = valor.valorRetornado;
             }
 
-            if (valor.tipo === tipoDeDadosDelegua.LOGICO) {
+            if (valor?.tipo === tipoDeDadosDelegua.LOGICO) {
                 textoFinal = textoFinal.replace(
                     '${' + elemento.expressaoInterpolacao + '}',
                     this.paraTexto(valor)
@@ -717,12 +716,9 @@ export class InterpretadorBase implements InterpretadorInterface {
                 }
 
                 const valorAnteriorIncremento = valor;
-                // TODO: Provavelmente isso está incorreto. Descobrir se operando resolve para
-                // `Construto` ou para `Simbolo`.
-                this.pilhaEscoposExecucao.atribuirVariavel(
-                    (expressao.operando as any).simbolo,
-                    ++valor
-                );
+                if (expressao.operando instanceof Variavel) {
+                    this.pilhaEscoposExecucao.atribuirVariavel(expressao.operando.simbolo, ++valor);
+                }
                 return valorAnteriorIncremento;
             case tiposDeSimbolos.DECREMENTAR:
                 if (expressao.incidenciaOperador === 'ANTES') {
@@ -738,12 +734,9 @@ export class InterpretadorBase implements InterpretadorInterface {
                 }
 
                 const valorAnteriorDecremento = valor;
-                // TODO: Provavelmente isso está incorreto. Descobrir se operando resolve para
-                // `Construto` ou para `Simbolo`.
-                this.pilhaEscoposExecucao.atribuirVariavel(
-                    (expressao.operando as any).simbolo,
-                    --valor
-                );
+                if (expressao.operando instanceof Variavel) {
+                    this.pilhaEscoposExecucao.atribuirVariavel(expressao.operando.simbolo, --valor);
+                }
                 return valorAnteriorDecremento;
         }
 

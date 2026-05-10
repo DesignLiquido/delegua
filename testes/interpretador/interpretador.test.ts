@@ -882,6 +882,22 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
                 });
 
+                it('Interpolação de variável nula produz "nulo"', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var x = nulo',
+                            'escreva("valor: ${x}")',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('valor: nulo');
+                });
+
                 it('Incremento e decremento em propriedades de dicionário', async () => {
                     const retornoLexador = lexador.mapear(
                         [
@@ -934,6 +950,29 @@ describe('Interpretador', () => {
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
+                });
+
+                it('Pós-incremento e pós-decremento atualizam a variável corretamente', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var a = 1',
+                            'escreva(a++)',
+                            'escreva(a)',
+                            'escreva(a--)',
+                            'escreva(a)',
+                        ],
+                        -1
+                    );
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(4);
+                    expect(_saidas[0]).toBe('1'); // a++ retorna 1
+                    expect(_saidas[1]).toBe('2'); // a foi incrementado
+                    expect(_saidas[2]).toBe('2'); // a-- retorna 2
+                    expect(_saidas[3]).toBe('1'); // a foi decrementado
                 });
 
                 it('Desestruturação de variáveis', async () => {
