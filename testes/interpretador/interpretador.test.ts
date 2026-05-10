@@ -3780,6 +3780,25 @@ describe('Interpretador', () => {
                     expect(_saidas).toHaveLength(1);
                     expect(_saidas[0]).toBe('3');
                 });
+
+                it('deve lançar erro ao chamar função sem todos os parâmetros obrigatórios', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'funcao saudacao(nome, sobrenome) {',
+                        '    escreva("Olá, " + nome + " " + sobrenome)',
+                        '}',
+                        'saudacao("Victor")',
+                    ], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico
+                        .analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                    const retornoInterpretador = await interpretador
+                        .interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(1);
+                });
             });
 
             describe('Entrada e saída', () => {
