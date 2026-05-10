@@ -2174,8 +2174,21 @@ export class InterpretadorBase implements InterpretadorInterface {
             return objeto.valores[valorIndice];
         }
 
+        if (objeto.constructor === Object) {
+            if (!Object.prototype.hasOwnProperty.call(objeto, valorIndice)) {
+                return Promise.reject(
+                    new ErroEmTempoDeExecucao(
+                        expressao.simboloFechamento,
+                        `Chave '${valorIndice}' não encontrada no dicionário.`,
+                        expressao.linha
+                    )
+                );
+            }
+            if (objeto[valorIndice] === 0) return 0;
+            return objeto[valorIndice];
+        }
+
         if (
-            objeto.constructor === Object ||
             objeto instanceof ObjetoDeleguaClasse ||
             objeto instanceof DeleguaFuncao ||
             objeto instanceof DescritorTipoClasse ||

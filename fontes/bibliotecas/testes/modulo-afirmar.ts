@@ -105,10 +105,15 @@ export function construirModuloAfirmar(): DeleguaModulo {
         async function (interpretador: InterpretadorInterface, funcaoTestada: any) {
             const funcao = interpretador.resolverValor(funcaoTestada);
             let erroLancado = false;
+            const errosAntes = interpretador.erros.length;
             try {
                 await funcao.chamar(interpretador, [], null);
             } catch (_) {
                 erroLancado = true;
+            }
+            if (!erroLancado && interpretador.erros.length > errosAntes) {
+                erroLancado = true;
+                interpretador.erros.splice(errosAntes);
             }
             if (!erroLancado) {
                 return Promise.reject(
