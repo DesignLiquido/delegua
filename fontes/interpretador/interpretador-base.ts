@@ -649,7 +649,8 @@ export class InterpretadorBase implements InterpretadorInterface {
      */
     async visitarExpressaoAgrupamento(expressao: Agrupamento): Promise<any> {
         const avaliacaoAgrupamento = await this.avaliar(expressao.expressao);
-        if (avaliacaoAgrupamento.declaracao !== undefined) {
+
+        if (avaliacaoAgrupamento !== null && avaliacaoAgrupamento.declaracao) {
             return avaliacaoAgrupamento.declaracao;
         }
 
