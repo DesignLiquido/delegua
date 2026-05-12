@@ -1105,8 +1105,11 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    private verificarChamada(chamada: Chamada): Promise<void> {
+    private async verificarChamada(chamada: Chamada): Promise<void> {
         switch (chamada.entidadeChamada.constructor) {
+            case AcessoMetodoOuPropriedade:
+                await chamada.entidadeChamada.aceitar(this);
+                break;
             case Variavel:
                 let entidadeChamadaVariavel = chamada.entidadeChamada as Variavel;
                 const nomeFuncao = entidadeChamadaVariavel.simbolo.lexema;
