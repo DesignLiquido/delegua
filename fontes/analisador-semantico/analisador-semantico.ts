@@ -61,7 +61,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     funcoes: { [nomeFuncao: string]: FuncaoHipoteticaInterface };
     classesDeclaradas: Set<string>;
     classesRegistradas: Map<string, Classe>;
-    classesExternasConhecidas: Set<string>;
+    private classesExternasRegistradas: Map<string, Classe>;
     classeAtualEmAnalise: Classe | null;
     atual: number;
     diagnosticos: DiagnosticoAnalisadorSemanticoInterface[];
@@ -76,14 +76,16 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         this.funcoes = {};
         this.classesDeclaradas = new Set<string>();
         this.classesRegistradas = new Map<string, Classe>();
-        this.classesExternasConhecidas = new Set<string>();
+        this.classesExternasRegistradas = new Map<string, Classe>();
         this.classeAtualEmAnalise = null;
         this.atual = 0;
         this.diagnosticos = [];
     }
 
-    definirClassesExternasConhecidas(classesExternasConhecidas: string[]): void {
-        this.classesExternasConhecidas = new Set(classesExternasConhecidas);
+    registrarClassesExternas(classes: Classe[]): void {
+        for (const classe of classes) {
+            this.classesExternasRegistradas.set(classe.simbolo.lexema, classe);
+        }
     }
 
     verificarTipoAtribuido(declaracao: Var | Const) {
@@ -1598,7 +1600,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 );
             } else if (
                 !this.classesDeclaradas.has(nomeSuperclasse) &&
-                !this.classesExternasConhecidas.has(nomeSuperclasse)
+                !this.classesRegistradas.has(nomeSuperclasse)
             ) {
                 this.erro(
                     superClasseVariavel.simbolo,
@@ -1821,8 +1823,8 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
 
     async analisar(declaracoes: Declaracao[]): Promise<RetornoAnalisadorSemanticoInterface> {
         this.gerenciadorEscopos = new GerenciadorEscopos();
-        this.classesDeclaradas = new Set<string>();
-        this.classesRegistradas = new Map<string, Classe>();
+        this.classesDeclaradas = new Set<string>(this.classesExternasRegistradas.keys());
+        this.classesRegistradas = new Map<string, Classe>(this.classesExternasRegistradas);
         this.classeAtualEmAnalise = null;
         this.atual = 0;
         this.diagnosticos = [];
