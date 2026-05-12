@@ -980,14 +980,13 @@ export class InterpretadorBase implements InterpretadorInterface {
                     return Number(valorEsquerdo) + Number(valorDireito);
                 }
 
+                if (valorEsquerdo === null || valorDireito === null) {
+                    return this.paraTexto(valorEsquerdo) + this.paraTexto(valorDireito);
+                }
+
                 // TODO: Se tipo for 'qualquer', seria uma boa confiar nos operadores
                 // tradicionais do JavaScript?
-                if (
-                    tipoEsquerdo === 'qualquer' ||
-                    tipoDireito === 'qualquer' ||
-                    tipoEsquerdo === 'nulo' ||
-                    tipoDireito === 'nulo'
-                ) {
+                if (tipoEsquerdo === 'qualquer' || tipoDireito === 'qualquer') {
                     return valorEsquerdo + valorDireito;
                 }
 

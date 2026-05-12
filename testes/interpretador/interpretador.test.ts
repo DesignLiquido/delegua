@@ -4693,6 +4693,24 @@ describe('Interpretador', () => {
                 expect(_saidas[0]).toBe('nulo');
                 expect(_saidas[1]).toBe('nulo');
             });
+
+            it('Deve exibir "nulo" corretamente ao concatenar variáveis nulas com texto', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var resultado = nulo',
+                    'var nome = nulo',
+                    'escreva("Resultado: " + resultado)',
+                    'escreva("Nome: " + nome + " | Fim")',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico
+                    .analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador
+                    .interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas.length).toBe(2);
+                expect(_saidas[0]).toBe('Resultado: nulo');
+                expect(_saidas[1]).toBe('Nome: nulo | Fim');
+            });
         });
 
         describe('Ajuda', () => {
