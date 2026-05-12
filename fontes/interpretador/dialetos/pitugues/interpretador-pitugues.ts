@@ -95,6 +95,16 @@ export class InterpretadorPitugues extends Interpretador {
         const variavelObjeto = await this.avaliar(expressao.objeto);
         const objeto = this.resolverValor(variavelObjeto, true);
 
+        if (objeto === null || objeto === undefined) {
+            return Promise.reject(
+                new ErroEmTempoDeExecucao(
+                    undefined,
+                    `Não é possível acessar a propriedade '${expressao.nomeMetodo}' de um valor nulo.`,
+                    expressao.linha
+                )
+            );
+        }
+
         if (objeto instanceof DescritorTipoClasse) {
             return await objeto.obterEstatico(expressao.nomeMetodo, this);
         }
@@ -108,6 +118,16 @@ export class InterpretadorPitugues extends Interpretador {
         const variavelObjeto = await this.avaliar(expressao.objeto);
         const objeto = this.resolverValor(variavelObjeto, true);
 
+        if (objeto === null || objeto === undefined) {
+            return Promise.reject(
+                new ErroEmTempoDeExecucao(
+                    undefined,
+                    `Não é possível acessar a propriedade '${expressao.simbolo.lexema}' de um valor nulo.`,
+                    expressao.linha
+                )
+            );
+        }
+
         if (objeto instanceof DescritorTipoClasse) {
             return await objeto.obterEstatico(expressao.simbolo.lexema, this);
         }
@@ -120,6 +140,16 @@ export class InterpretadorPitugues extends Interpretador {
     ): Promise<any> {
         const variavelObjeto = await this.avaliar(expressao.objeto);
         const objeto = this.resolverValor(variavelObjeto, true);
+
+        if (objeto === null || objeto === undefined) {
+            return Promise.reject(
+                new ErroEmTempoDeExecucao(
+                    undefined,
+                    `Não é possível acessar a propriedade '${expressao.nomePropriedade}' de um valor nulo.`,
+                    expressao.linha
+                )
+            );
+        }
 
         if (objeto instanceof DescritorTipoClasse) {
             return await objeto.obterEstatico(expressao.nomePropriedade, this);

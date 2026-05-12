@@ -1092,7 +1092,9 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         return null;
     }
 
-    override async visitarExpressaoAcessoMetodo(expressao: AcessoMetodo): Promise<any> {
+    override async visitarExpressaoAcessoMetodo(
+        expressao: AcessoMetodo
+    ): Promise<any> {
         const nomeObjeto = this.resolverNomeObjectoAcessado(expressao.objeto);
 
         let variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
@@ -1106,6 +1108,16 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         }
 
         const objeto = this.resolverValor(variavelObjeto);
+
+        if (objeto === null || objeto === undefined) {
+            return Promise.reject(
+                new ErroEmTempoDeExecucao(
+                    undefined,
+                    `Não é possível acessar a propriedade '${expressao.nomeMetodo}' de um valor nulo.`,
+                    expressao.linha
+                )
+            );
+        }
 
         if (objeto.constructor && objeto.constructor === ObjetoDeleguaClasse) {
             try {
@@ -1302,6 +1314,16 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         }
 
         const objeto = this.resolverValor(variavelObjeto, true);
+
+        if (objeto === null || objeto === undefined) {
+            return Promise.reject(
+                new ErroEmTempoDeExecucao(
+                    undefined,
+                    `Não é possível acessar a propriedade '${expressao.simbolo.lexema}' de um valor nulo.`,
+                    expressao.linha
+                )
+            );
+        }
 
         // Acesso a método via `super()`: percorre o OReM a partir de `proximaClasse`,
         // vincula o método encontrado à instância original e registra `classeDefinidora`
@@ -1574,22 +1596,35 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         );
     }
 
-    override async visitarExpressaoAcessoPropriedade(expressao: AcessoPropriedade): Promise<any> {
+    override async visitarExpressaoAcessoPropriedade(
+        expressao: AcessoPropriedade
+    ): Promise<any> {
         const nomeObjeto = this.resolverNomeObjectoAcessado(expressao.objeto);
-        let variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
+        let variavelObjeto: VariavelInterface = await this.avaliar(
+            expressao.objeto
+        );
 
         // Este caso acontece quando há encadeamento de métodos.
         // Por exemplo, `objeto1.metodo1().metodo2()`.
         // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
         // valor dele primeiro.
-        if (variavelObjeto.constructor === RetornoQuebra) {
+        if (variavelObjeto && variavelObjeto.constructor === RetornoQuebra) {
             variavelObjeto = (variavelObjeto as RetornoQuebra).valor;
         }
 
         const objeto = this.resolverValor(variavelObjeto);
 
-        // Outro caso que `instanceof` simplesmente não funciona para casos em Liquido,
-        // então testamos também o nome do construtor.
+        if (objeto === null || objeto === undefined) {
+            return Promise.reject(
+                new ErroEmTempoDeExecucao(
+                    undefined,
+                    `Não é possível acessar a propriedade '${expressao.nomePropriedade}' de um valor nulo.`,
+                    expressao.linha
+                )
+            );
+        }
+
+        // A partir daqui, o interpretador sabe que 'objeto' não é nulo.
         if (objeto.constructor === ObjetoDeleguaClasse) {
             return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomePropriedade) || null;
         }
