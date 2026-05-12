@@ -1775,39 +1775,32 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     async visitarDeclaracaoEscolha(declaracao: Escolha): Promise<any> {
-        const condicaoEscolha = await this.avaliar(declaracao.identificadorOuLiteral);
-        const valorCondicaoEscolha = this.resolverValor(condicaoEscolha);
-
-        const caminhos = declaracao.caminhos;
-        const caminhoPadrao = declaracao.caminhoPadrao;
-
-        let encontrado = false;
         try {
-            for (let i = 0; i < caminhos.length; i++) {
-                const caminho = caminhos[i];
+            const condicaoEscolha = await this.avaliar(
+                declaracao.identificadorOuLiteral
+            );
+            const valorCondicaoEscolha = this.resolverValor(condicaoEscolha);
+            const caminhos = declaracao.caminhos;
+            const caminhoPadrao = declaracao.caminhoPadrao;
 
-                for (let j = 0; j < caminho.condicoes.length; j++) {
-                    const condicaoAvaliada = await this.avaliar(caminho.condicoes[j]);
+            for (const caminho of caminhos) {
+                for (const condicao of caminho.condicoes) {
+                    const condicaoAvaliada = await this.avaliar(condicao);
+
                     if (condicaoAvaliada === valorCondicaoEscolha) {
-                        encontrado = true;
-
-                        try {
-                            await this.executarBloco(caminho.declaracoes);
-                        } catch (erro: any) {
-                            this.erros.push({
-                                erroInterno: erro,
-                                linha: declaracao.linha,
-                                hashArquivo: declaracao.hashArquivo,
-                            });
-                            return Promise.reject(erro);
-                        }
+                        return await this.executarBloco(caminho.declaracoes);
                     }
                 }
             }
 
-            if (caminhoPadrao !== null && !encontrado) {
-                this.registrarRamo?.(declaracao.hashArquivo, declaracao.linha, 'caso-padrao');
-                await this.executarBloco(caminhoPadrao.declaracoes);
+            if (caminhoPadrao !== null) {
+                this.registrarRamo?.(
+                    declaracao.hashArquivo,
+                    declaracao.linha,
+                    'caso-padrao'
+                );
+
+                return await this.executarBloco(caminhoPadrao.declaracoes);
             }
         } catch (erro: any) {
             this.erros.push({
@@ -1815,6 +1808,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 linha: declaracao.linha,
                 hashArquivo: declaracao.hashArquivo,
             });
+
             throw erro;
         }
     }
