@@ -4654,6 +4654,23 @@ describe('Interpretador', () => {
                     expect(_saidas.length).toBe(29);
                 });
             });
+
+            it('Deve avaliar agrupamento de expressão contendo valor "nulo" corretamente', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var x = (nulo)',
+                    'escreva(x)',
+                    'escreva((nulo))',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico
+                    .analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador
+                    .interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas.length).toBe(2);
+                expect(_saidas[0]).toBe('nulo');
+                expect(_saidas[1]).toBe('nulo');
+            });
         });
 
         describe('Ajuda', () => {
