@@ -234,4 +234,147 @@ describe('Biblioteca de testes', () => {
             expect(interpretador.registroTestes.resultados[1].nomeSuite).toBe('');
         });
     });
+
+    describe('antesDeCada', () => {
+        it('executa antes de cada teste no grupo', async () => {
+            const retorno = await executar([
+                'importar { afirmar, teste, grupo, antesDeCada } de "testes"',
+                'var contador = 0',
+                'grupo("Suite", funcao() {',
+                '    antesDeCada(funcao() { contador = contador + 1 })',
+                '    teste("t1", funcao() { afirmar.igual(1, contador) })',
+                '    teste("t2", funcao() { afirmar.igual(2, contador) })',
+                '})',
+            ]);
+            expect(retorno.erros).toHaveLength(0);
+            expect(interpretador.registroTestes.resultados).toHaveLength(2);
+            expect(interpretador.registroTestes.resultados[0].status).toBe('passou');
+            expect(interpretador.registroTestes.resultados[1].status).toBe('passou');
+        });
+    });
+
+    describe('antesDeTodos', () => {
+        it('executa uma vez antes de todos os testes no grupo', async () => {
+            const retorno = await executar([
+                'importar { afirmar, teste, grupo, antesDeTodos } de "testes"',
+                'var executou = 0',
+                'grupo("Suite", funcao() {',
+                '    antesDeTodos(funcao() { executou = executou + 1 })',
+                '    teste("t1", funcao() { afirmar.igual(1, executou) })',
+                '    teste("t2", funcao() { afirmar.igual(1, executou) })',
+                '})',
+            ]);
+            expect(retorno.erros).toHaveLength(0);
+            expect(interpretador.registroTestes.resultados).toHaveLength(2);
+            expect(interpretador.registroTestes.resultados[0].status).toBe('passou');
+            expect(interpretador.registroTestes.resultados[1].status).toBe('passou');
+        });
+    });
+
+    describe('depoisDeCada', () => {
+        it('executa após cada teste no grupo', async () => {
+            const retorno = await executar([
+                'importar { afirmar, teste, grupo, depoisDeCada } de "testes"',
+                'var contador = 0',
+                'grupo("Suite", funcao() {',
+                '    depoisDeCada(funcao() { contador = contador + 1 })',
+                '    teste("t1", funcao() { afirmar.igual(0, contador) })',
+                '    teste("t2", funcao() { afirmar.igual(1, contador) })',
+                '})',
+            ]);
+            expect(retorno.erros).toHaveLength(0);
+            expect(interpretador.registroTestes.resultados).toHaveLength(2);
+            expect(interpretador.registroTestes.resultados[0].status).toBe('passou');
+            expect(interpretador.registroTestes.resultados[1].status).toBe('passou');
+        });
+    });
+
+    describe('depoisDeTodos', () => {
+        it('executa uma vez após todos os testes no grupo', async () => {
+            const retorno = await executar([
+                'importar { afirmar, teste, grupo, depoisDeTodos } de "testes"',
+                'var executou = 0',
+                'grupo("Suite", funcao() {',
+                '    depoisDeTodos(funcao() { executou = executou + 1 })',
+                '    teste("t1", funcao() { afirmar.igual(0, executou) })',
+                '    teste("t2", funcao() { afirmar.igual(0, executou) })',
+                '})',
+                'afirmar.igual(1, executou)',
+            ]);
+            expect(retorno.erros).toHaveLength(0);
+            expect(interpretador.registroTestes.resultados).toHaveLength(2);
+            expect(interpretador.registroTestes.resultados[0].status).toBe('passou');
+            expect(interpretador.registroTestes.resultados[1].status).toBe('passou');
+        });
+    });
+
+    describe('teste.pular', () => {
+        it('registra o teste como pulado sem executá-lo', async () => {
+            const retorno = await executar([
+                'importar { afirmar, teste, grupo } de "testes"',
+                'grupo("Suite", funcao() {',
+                '    teste.pular("pulado", funcao() { afirmar.igual(1, 2) })',
+                '    teste("normal", funcao() { afirmar.verdadeiro(verdadeiro) })',
+                '})',
+            ]);
+            expect(retorno.erros).toHaveLength(0);
+            expect(interpretador.registroTestes.resultados).toHaveLength(2);
+            expect(interpretador.registroTestes.resultados[0].status).toBe('pulado');
+            expect(interpretador.registroTestes.resultados[1].status).toBe('passou');
+        });
+    });
+
+    describe('teste.apenas', () => {
+        it('executa apenas os testes marcados com apenas dentro do grupo', async () => {
+            const retorno = await executar([
+                'importar { afirmar, teste, grupo } de "testes"',
+                'grupo("Suite", funcao() {',
+                '    teste.apenas("focado", funcao() { afirmar.verdadeiro(verdadeiro) })',
+                '    teste("ignorado", funcao() { afirmar.igual(1, 2) })',
+                '})',
+            ]);
+            expect(retorno.erros).toHaveLength(0);
+            expect(interpretador.registroTestes.resultados).toHaveLength(1);
+            expect(interpretador.registroTestes.resultados[0].nomeTeste).toBe('focado');
+            expect(interpretador.registroTestes.resultados[0].status).toBe('passou');
+        });
+    });
+
+    describe('grupo.pular', () => {
+        it('pula o grupo inteiro sem executar seus testes', async () => {
+            const retorno = await executar([
+                'importar { afirmar, teste, grupo } de "testes"',
+                'grupo.pular("Ignorado", funcao() {',
+                '    teste("nunca roda", funcao() { afirmar.igual(1, 2) })',
+                '})',
+                'grupo("Normal", funcao() {',
+                '    teste("roda", funcao() { afirmar.verdadeiro(verdadeiro) })',
+                '})',
+            ]);
+            expect(retorno.erros).toHaveLength(0);
+            expect(interpretador.registroTestes.resultados).toHaveLength(1);
+            expect(interpretador.registroTestes.resultados[0].nomeTeste).toBe('roda');
+            expect(interpretador.registroTestes.resultados[0].status).toBe('passou');
+        });
+    });
+
+    describe('grupo.apenas', () => {
+        it('executa apenas o grupo marcado com apenas', async () => {
+            const retorno = await executar([
+                'importar { afirmar, teste, grupo } de "testes"',
+                'grupo("Suite pai", funcao() {',
+                '    grupo.apenas("Focado", funcao() {',
+                '        teste("roda", funcao() { afirmar.verdadeiro(verdadeiro) })',
+                '    })',
+                '    grupo("Ignorado", funcao() {',
+                '        teste("nunca roda", funcao() { afirmar.igual(1, 2) })',
+                '    })',
+                '})',
+            ]);
+            expect(retorno.erros).toHaveLength(0);
+            expect(interpretador.registroTestes.resultados).toHaveLength(1);
+            expect(interpretador.registroTestes.resultados[0].nomeTeste).toBe('roda');
+            expect(interpretador.registroTestes.resultados[0].status).toBe('passou');
+        });
+    });
 });
