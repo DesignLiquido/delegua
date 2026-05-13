@@ -1194,11 +1194,28 @@ export class AvaliadorSintatico
         switch (this.simbolos[this.atual].tipo) {
             case tiposDeSimbolos.PARENTESE_ESQUERDO:
                 this.avancarEDevolverAnterior();
-                const chamada = await this.finalizarChamada(expressaoAnterior, tipoAnterior);
+
+                const chamada = await this.finalizarChamada(
+                    expressaoAnterior,
+                    tipoAnterior
+                );
+
                 return await this.resolverCadeiaChamadas(chamada);
             case tiposDeSimbolos.PONTO:
                 this.avancarEDevolverAnterior();
-                this.verificarSeSimboloAtualEIgualA();
+
+                const simboloAtual = this.simbolos[this.atual];
+
+                if (
+                    !simboloAtual ||
+                    !/^[A-Za-z_$À-ÿ][A-Za-z0-9_$À-ÿ]*$/.test(simboloAtual.lexema)
+                ) {
+                    throw this.erro(
+                        simboloAtual,
+                        "Esperado nome do método ou propriedade após o '.'"
+                    );
+                }
+
                 const nome = this.avancarEDevolverAnterior();
 
                 let tipoInferido = expressaoAnterior.tipo;
