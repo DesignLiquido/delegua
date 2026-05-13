@@ -433,8 +433,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         enquanto: EnquantoInterface,
         acumularRetornos: boolean
     ) {
-        let retornoExecucao: ResultadoParcialInterpretadorInterface | undefined = undefined;
         const retornos = [];
+        let retornoExecucao: ResultadoParcialInterpretadorInterface | undefined = undefined;
+        let iteracoes = 0;
+
         while (
             (acumularRetornos ||
                 !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) &&
@@ -444,7 +446,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 if (this.funcaoVerificarIteracao) {
                     await this.funcaoVerificarIteracao();
                 }
+
+                await this.cederControle(++iteracoes);
                 retornoExecucao = await this.executar(enquanto.corpo);
+
                 if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                     if (acumularRetornos) {
                         return {
@@ -488,14 +493,19 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
     }
 
     protected async logicaComumExecucaoFazer(fazer: FazerInterface, acumularRetornos: boolean) {
-        let retornoExecucao: ResultadoParcialInterpretadorInterface | undefined = undefined;
         const retornos = [];
+        let retornoExecucao: ResultadoParcialInterpretadorInterface | undefined = undefined;
+        let iteracoes = 0;
+
         do {
             try {
                 if (this.funcaoVerificarIteracao) {
                     await this.funcaoVerificarIteracao();
                 }
+
+                await this.cederControle(++iteracoes);
                 retornoExecucao = await this.executar(fazer.caminhoFazer);
+
                 if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                     if (acumularRetornos) {
                         return {
@@ -552,8 +562,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             await this.avaliar(declaracaoInicializador);
         }
 
-        let retornoExecucao: ResultadoParcialInterpretadorInterface | undefined = undefined;
         const retornos = [];
+        let retornoExecucao: ResultadoParcialInterpretadorInterface | undefined = undefined;
+        let iteracoes = 0;
+
         while (
             acumularRetornos ||
             !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)
@@ -565,7 +577,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             if (this.funcaoVerificarIteracao) {
                 await this.funcaoVerificarIteracao();
             }
+
+            await this.cederControle(++iteracoes);
             retornoExecucao = await this.executar(para.corpo);
+
             if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
                 if (acumularRetornos) {
                     return {
@@ -646,6 +661,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         }
 
         const retornos = [];
+        let iteracoes = 0;
+
         while (
             (acumularRetornos ||
                 !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) &&
@@ -655,6 +672,9 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 if (this.funcaoVerificarIteracao) {
                     await this.funcaoVerificarIteracao();
                 }
+
+                await this.cederControle(++iteracoes);
+
                 if (paraCada.variavelIteracao instanceof Variavel) {
                     this.pilhaEscoposExecucao.definirVariavel(
                         paraCada.variavelIteracao.simbolo.lexema,
