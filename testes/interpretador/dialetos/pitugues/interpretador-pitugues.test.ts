@@ -4229,21 +4229,57 @@ describe('Interpretador (Pituguês)', () => {
                 expect(_saidas[0]).toBe('3');
             });
 
-            it('Deve avaliar agrupamento de expressão contendo valor "nulo" corretamente', async () => {
-                const retornoLexador = lexador.mapear([
-                    'x = (nulo)',
-                    'escreva(x)',
-                    'escreva((nulo))',
-                ], -1);
-                const retornoAvaliadorSintatico = await avaliadorSintatico
-                    .analisar(retornoLexador, -1);
-                const retornoInterpretador = await interpretador
-                    .interpretar(retornoAvaliadorSintatico.declaracoes);
+            describe('Casos envolvendo o valor "nulo"', () => {
+                it('Deve avaliar agrupamento de expressão contendo valor "nulo" corretamente', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'x = (nulo)',
+                        'escreva(x)',
+                        'escreva((nulo))',
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico
+                        .analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador
+                        .interpretar(retornoAvaliadorSintatico.declaracoes);
 
-                expect(retornoInterpretador.erros).toHaveLength(0);
-                expect(_saidas.length).toBe(2);
-                expect(_saidas[0]).toBe('nulo');
-                expect(_saidas[1]).toBe('nulo');
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas.length).toBe(2);
+                    expect(_saidas[0]).toBe('nulo');
+                    expect(_saidas[1]).toBe('nulo');
+                });
+
+                it('Deve exibir "nulo" corretamente ao concatenar variáveis nulas com texto', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'resultado = nulo',
+                        'nome = nulo',
+                        'escreva("Resultado: " + resultado)',
+                        'escreva("Nome: " + nome + " | Fim")',
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico
+                        .analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador
+                        .interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas.length).toBe(2);
+                    expect(_saidas[0]).toBe('Resultado: nulo');
+                    expect(_saidas[1]).toBe('Nome: nulo | Fim');
+                });
+
+                it('Deve exibir mensagem de erro em caso de acesso de propriedades', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'x = nulo',
+                        'escreva(x.nome)',
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico
+                        .analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador
+                        .interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(1);
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe(
+                        `Não é possível acessar a propriedade 'nome' de um valor nulo.`
+                    );
+                });
             });
 
             it('Deve parar o loop "escolha" quando encontrar o primeiro "caso" que satisfaz', async () => {
@@ -4265,24 +4301,6 @@ describe('Interpretador (Pituguês)', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
                 expect(_saidas.length).toBe(1);
                 expect(_saidas[0]).toBe('Início da semana');
-            });
-
-            it('Deve exibir "nulo" corretamente ao concatenar variáveis nulas com texto', async () => {
-                const retornoLexador = lexador.mapear([
-                    'resultado = nulo',
-                    'nome = nulo',
-                    'escreva("Resultado: " + resultado)',
-                    'escreva("Nome: " + nome + " | Fim")',
-                ], -1);
-                const retornoAvaliadorSintatico = await avaliadorSintatico
-                    .analisar(retornoLexador, -1);
-                const retornoInterpretador = await interpretador
-                    .interpretar(retornoAvaliadorSintatico.declaracoes);
-
-                expect(retornoInterpretador.erros).toHaveLength(0);
-                expect(_saidas.length).toBe(2);
-                expect(_saidas[0]).toBe('Resultado: nulo');
-                expect(_saidas[1]).toBe('Nome: nulo | Fim');
             });
         });
 
