@@ -558,6 +558,20 @@ describe('Avaliador sintático (Pituguês)', () => {
                     expect((escreva.argumentos[0] as Variavel).simbolo.lexema).toBe('resultado');
                 });
             });
+
+            it('Deve barrar símbolos matemáticos como nomes de propriedades', async () => {
+                const retornoLexador = lexador.mapear([
+                    'calculadora = {}',
+                    'calculadora.+ = 10',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico
+                    .analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
+                expect(retornoAvaliadorSintatico.erros[0].message).toContain(
+                    "Esperado nome do método ou propriedade após o '.'"
+                );
+            });
         });
 
         describe('Casos de falha', () => {

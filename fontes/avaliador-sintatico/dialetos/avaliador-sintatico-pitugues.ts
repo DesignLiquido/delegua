@@ -1066,7 +1066,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             } else if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {
                 const nome = this.consumir(
                     tiposDeSimbolos.IDENTIFICADOR,
-                    "Esperado nome do método após '.'."
+                    "Esperado nome do método ou propriedade após o '.'"
                 );
 
                 expressao = new AcessoMetodoOuPropriedade(this.hashArquivo, expressao, nome);
