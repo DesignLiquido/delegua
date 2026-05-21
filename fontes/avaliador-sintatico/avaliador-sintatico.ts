@@ -3358,35 +3358,42 @@ export class AvaliadorSintatico
      */
     protected async declaracaoDeVariaveis(): Promise<Var[]> {
         const simboloVariavel = this.simboloAnterior();
-        const identificadores: SimboloInterface[] = [];
-        const retorno: Var[] = [];
-        let tipo: string = 'qualquer';
 
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA)) {
+        if (
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA)
+        ) {
             return await this.declaracaoDesestruturacaoVariavel();
         }
 
+        const identificadores: SimboloInterface[] = [];
+
         do {
             identificadores.push(
-                this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da variável.')
+                this.consumir(
+                    tiposDeSimbolos.IDENTIFICADOR,
+                    'Esperado nome da variável.'
+                )
             );
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
+        let tipo: string = 'qualquer';
         let tipoExplicito: boolean = false;
+
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
             tipo = this.verificarDefinicaoTipoAtual();
             tipoExplicito = true;
             this.avancarEDevolverAnterior();
         }
 
-        if (
-            !this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.IGUAL,
-                tiposDeSimbolos.SETA_ESQUERDA
-            )
-        ) {
-            // Inicialização de variáveis sem valor.
-            for (let identificador of identificadores.values()) {
+        const retorno: Var[] = [];
+        const decoradores = Array.from(this.pilhaDecoradores);
+        const temAtribuicao = this.verificarSeSimboloAtualEIgualA(
+            tiposDeSimbolos.IGUAL,
+            tiposDeSimbolos.SETA_ESQUERDA
+        )
+
+        if (!temAtribuicao) {
+            for (const identificador of identificadores) {
                 this.pilhaEscopos.definirInformacoesVariavel(
                     identificador.lexema,
                     new InformacaoElementoSintatico(identificador.lexema, tipo)
@@ -3397,63 +3404,58 @@ export class AvaliadorSintatico
                         undefined,
                         tipo,
                         tipoExplicito,
-                        Array.from(this.pilhaDecoradores)
+                        decoradores
                     )
                 );
             }
+        } else {
+            const inicializadores = [];
 
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-            this.pilhaDecoradores = [];
-            return retorno;
-        }
-
-        const inicializadores = [];
-        do {
-            inicializadores.push(await this.expressao());
-        } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
-
-        if (identificadores.length !== inicializadores.length) {
-            throw this.erro(
-                simboloVariavel,
-                'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.'
+            do {
+                inicializadores.push(await this.expressao());
+            } while (
+                this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)
             );
-        }
 
-        for (let [indice, identificador] of identificadores.entries()) {
-            const tipoOriginal = tipo; // Preserva o tipo antes da inferência
-            tipo =
-                this.logicaComumInferenciaTiposVariaveisEConstantes(
-                    inicializadores[indice],
-                    tipo
-                ) ?? tipo;
-
-            if (tipo !== 'dicionário') {
-                this.pilhaEscopos.definirInformacoesVariavel(
-                    identificador.lexema,
-                    new InformacaoElementoSintatico(identificador.lexema, tipo)
-                );
-            } else {
-                const inicializadorDicionario = inicializadores[indice] as Dicionario;
-                this.pilhaEscopos.definirInformacoesVariavel(
-                    identificador.lexema,
-                    this.resolverInformacaoElementoSintaticoDeDicionario(inicializadorDicionario)
+            if (identificadores.length !== inicializadores.length) {
+                throw this.erro(
+                    simboloVariavel,
+                    'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.'
                 );
             }
 
-            retorno.push(
-                new Var(
-                    identificador,
-                    inicializadores[indice],
-                    tipo,
-                    tipoExplicito,
-                    Array.from(this.pilhaDecoradores),
-                    tipoOriginal // Passa o tipo original para o construtor
-                )
-            );
+            for (let [indice, identificador] of identificadores.entries()) {
+                const inicializador = inicializadores[indice];
+                const tipoInferido = this.logicaComumInferenciaTiposVariaveisEConstantes(
+                    inicializador,
+                    tipo
+                ) ?? tipo;
+
+                const informacaoSintatica = tipo === 'dicionário'
+                    ? this.resolverInformacaoElementoSintaticoDeDicionario(inicializador as Dicionario)
+                    : new InformacaoElementoSintatico(identificador.lexema, tipoInferido);
+
+                this.pilhaEscopos.definirInformacoesVariavel(
+                    identificador.lexema,
+                    informacaoSintatica
+                );
+
+                retorno.push(
+                    new Var(
+                        identificador,
+                        inicializador,
+                        tipoInferido,
+                        tipoExplicito,
+                        decoradores,
+                        tipo
+                    )
+                );
+            }
         }
 
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
         this.pilhaDecoradores = [];
+
         return retorno;
     }
 
