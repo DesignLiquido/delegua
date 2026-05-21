@@ -619,6 +619,40 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         return this.logicaComumExecucaoPara(declaracao, false);
     }
 
+    /**
+    * Define a variável de iteração de um laço 'para cada' (ou compreensão de lista) SEM coerção de tipo. A iteração sempre preserva o valor original do elemento, independentemente do tipo inferido para a variável.
+    */
+    private definirVariavelIteracao(
+        variavelIteracao: Variavel | Dupla,
+        valorElemento: any
+    ): void {
+        if (variavelIteracao instanceof Variavel) {
+            this.pilhaEscoposExecucao.definirVariavel(
+                variavelIteracao.simbolo.lexema,
+                valorElemento,
+                'qualquer'
+            );
+        } else if (variavelIteracao instanceof Dupla) {
+            const nomePrimeiro = (variavelIteracao.primeiro as Literal)?.valor?.toString?.() ?? (variavelIteracao.primeiro as any)?.lexema;
+            const nomeSegundo = (variavelIteracao.segundo as Literal)?.valor?.toString?.() ?? (variavelIteracao.segundo as any)?.lexema;
+
+            if (nomePrimeiro) {
+                this.pilhaEscoposExecucao.definirVariavel(
+                    nomePrimeiro,
+                    (valorElemento as Dupla).primeiro?.valor ?? (valorElemento as Dupla).primeiro,
+                    'qualquer'
+                );
+            }
+            if (nomeSegundo) {
+                this.pilhaEscoposExecucao.definirVariavel(
+                    nomeSegundo,
+                    (valorElemento as Dupla).segundo?.valor ?? (valorElemento as Dupla).segundo,
+                    'qualquer'
+                );
+            }
+        }
+    }
+
     protected async logicaComumExecucaoParaCada(
         paraCada: ParaCadaInterface,
         acumularRetornos: boolean
@@ -675,39 +709,10 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
                 await this.cederControle(++iteracoes);
 
-                if (paraCada.variavelIteracao instanceof Variavel) {
-                    this.pilhaEscoposExecucao.definirVariavel(
-                        paraCada.variavelIteracao.simbolo.lexema,
-                        valorVetorOuDicionarioResolvido[paraCada.posicaoAtual]
-                    );
-                }
-
-                if (paraCada.variavelIteracao instanceof Dupla) {
-                    const valorComoDupla = valorVetorOuDicionarioResolvido[
-                        paraCada.posicaoAtual
-                    ] as Dupla;
-
-                    const nomesVariaveis = await Promise.all([
-                        this.avaliar(paraCada.variavelIteracao.primeiro),
-                        this.avaliar(paraCada.variavelIteracao.segundo),
-                    ]);
-
-                    const valoresDupla = await Promise.all([
-                        this.avaliar(valorComoDupla.primeiro),
-                        this.avaliar(valorComoDupla.segundo),
-                    ]);
-
-                    // nomesVariaveis são strings (nomes das variáveis)
-                    this.pilhaEscoposExecucao.definirVariavel(
-                        String(nomesVariaveis[0]),
-                        valoresDupla[0]
-                    );
-
-                    this.pilhaEscoposExecucao.definirVariavel(
-                        String(nomesVariaveis[1]),
-                        valoresDupla[1]
-                    );
-                }
+                this.definirVariavelIteracao(
+                    paraCada.variavelIteracao,
+                    valorVetorOuDicionarioResolvido[paraCada.posicaoAtual],
+                );
 
                 retornoExecucao = await this.executar(paraCada.corpo);
                 if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {

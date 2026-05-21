@@ -4729,6 +4729,21 @@ describe('Interpretador', () => {
                     );
                 });
             });
+
+            it('Deve preservar os tipos dos dados em compreensão de listas', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var iterador = [item para cada item em [1, "2", "a"]];',
+                    'escreva(iterador)',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico
+                    .analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador
+                    .interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas.length).toBe(1);
+                expect(_saidas[0]).toBe("[1, '2', 'a']");
+            });
         });
 
         describe('Ajuda', () => {
