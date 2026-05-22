@@ -4317,6 +4317,21 @@ describe('Interpretador (Pituguês)', () => {
                 expect(_saidas.length).toBe(1);
                 expect(_saidas[0]).toBe("[1, '2', 'a']");
             });
+
+            it('Deve preservar os tipos dos dados em declarações múltiplas de variáveis', async () => {
+                const retornoLexador = lexador.mapear([
+                    'a, b = "texto muito legal", 42',
+                    'escreva(tipo(b))',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico
+                    .analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador
+                    .interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas.length).toBe(1);
+                expect(_saidas[0]).toBe("número");
+            });
         });
 
         it('termina_com - sufixo encontrado no final', async () => {
