@@ -120,6 +120,29 @@ import primitivasVetor from '../bibliotecas/primitivas-vetor';
 // Será usado para forçar tipagem em construtos e em algumas funções internas.
 type TipoDeSimboloDelegua = (typeof tiposDeSimbolos)[keyof typeof tiposDeSimbolos];
 
+// Constante usada em "declaracaoRetorna()"
+const simbolosInicioExpressao = new Set([
+    tiposDeSimbolos.CHAVE_ESQUERDA,
+    tiposDeSimbolos.COLCHETE_ESQUERDO,
+    tiposDeSimbolos.FALSO,
+    tiposDeSimbolos.FUNCAO,
+    tiposDeSimbolos.FUNÇÃO,
+    tiposDeSimbolos.IDENTIFICADOR,
+    tiposDeSimbolos.ISTO,
+    tiposDeSimbolos.NAO,
+    tiposDeSimbolos.NEGACAO,
+    tiposDeSimbolos.NUMERO,
+    tiposDeSimbolos.NULO,
+    tiposDeSimbolos.PARENTESE_ESQUERDO,
+    tiposDeSimbolos.SUPER,
+    tiposDeSimbolos.TEXTO,
+    tiposDeSimbolos.VERDADEIRO,
+    tiposDeSimbolos.ADICAO,
+    tiposDeSimbolos.SUBTRACAO,
+    tiposDeSimbolos.INCREMENTAR,
+    tiposDeSimbolos.DECREMENTAR
+]);
+
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
@@ -2867,32 +2890,17 @@ export class AvaliadorSintatico
 
     override async declaracaoRetorna(): Promise<Retorna> {
         const simboloChave = this.simbolos[this.atual - 1];
-        let valor = null;
+        const simboloAtual = this.simbolos[this.atual];
 
-        if (
-            [
-                tiposDeSimbolos.CHAVE_ESQUERDA,
-                tiposDeSimbolos.COLCHETE_ESQUERDO,
-                tiposDeSimbolos.FALSO,
-                tiposDeSimbolos.FUNCAO,
-                tiposDeSimbolos.FUNÇÃO,
-                tiposDeSimbolos.IDENTIFICADOR,
-                tiposDeSimbolos.ISTO,
-                tiposDeSimbolos.NAO,
-                tiposDeSimbolos.NEGACAO,
-                tiposDeSimbolos.NUMERO,
-                tiposDeSimbolos.NULO,
-                tiposDeSimbolos.PARENTESE_ESQUERDO,
-                tiposDeSimbolos.SUPER,
-                tiposDeSimbolos.TEXTO,
-                tiposDeSimbolos.VERDADEIRO,
-            ].includes(this.simbolos[this.atual].tipo)
-        ) {
+        let valor: ConstrutoInterface;
+
+        if (simboloAtual && simbolosInicioExpressao.has(simboloAtual.tipo)) {
             valor = await this.expressao();
         }
 
         // Ponto-e-vírgula é opcional aqui.
         this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+
         return new Retorna(simboloChave, valor as ConstrutoInterface);
     }
 
