@@ -4332,6 +4332,23 @@ describe('Interpretador (Pituguês)', () => {
                 expect(_saidas.length).toBe(1);
                 expect(_saidas[0]).toBe("número");
             });
+
+            it('Deve retornar a tipagem correta do valor do retorno de uma função', async () => {
+                const retornoLexador = lexador.mapear([
+                    'funcao gerarCodigo():',
+                    '    retorna 42',
+                    'meuCodigo = gerarCodigo()',
+                    'escreva(tipo(meuCodigo))'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico
+                    .analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador
+                    .interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas.length).toBe(1);
+                expect(_saidas[0]).toBe("número");
+            });
         });
 
         it('termina_com - sufixo encontrado no final', async () => {
