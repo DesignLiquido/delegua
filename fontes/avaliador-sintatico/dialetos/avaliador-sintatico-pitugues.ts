@@ -216,9 +216,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         inicializador: ConstrutoInterface,
         tipoPrevio: string
     ): string {
-        if (tipoPrevio !== 'qualquer') {
-            return tipoPrevio;
-        }
+        if (tipoPrevio !== 'qualquer') return tipoPrevio;
 
         switch (inicializador.constructor) {
             case AcessoIndiceVariavel:
@@ -234,7 +232,10 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                 }
 
                 if (entidadeChamadaAcessoIndiceVariavel.tipo.endsWith('[]')) {
-                    return entidadeChamadaAcessoIndiceVariavel.tipo.slice(0, -2);
+                    return entidadeChamadaAcessoIndiceVariavel.tipo.slice(
+                        0,
+                        -2
+                    );
                 }
 
                 // Normalmente, `entidadeChamadaAcessoIndiceVariavel.tipo` aqui será 'vetor'.
@@ -262,7 +263,19 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                         return entidadeChamadaReferenciaFuncao.tipo;
                     case Variavel:
                         const entidadeChamadaVariavel = entidadeChamadaChamada as Variavel;
-                        return entidadeChamadaVariavel.tipo;
+                        const tipoBruto = entidadeChamadaVariavel.tipo;
+
+                        if (
+                            tipoBruto &&
+                            tipoBruto.startsWith('função<') &&
+                            tipoBruto.endsWith('>')
+                        ) {
+                            return tipoBruto.substring(7, tipoBruto.length - 1);
+                        } else if (tipoBruto === 'função') {
+                            return 'qualquer';
+                        }
+
+                        return tipoBruto;
                 }
 
                 break;
