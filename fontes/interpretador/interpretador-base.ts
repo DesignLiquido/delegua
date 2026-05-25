@@ -2547,6 +2547,21 @@ export class InterpretadorBase implements InterpretadorInterface {
             tipoObjeto = inferirTipoVariavel(variavelObjeto as any);
         }
 
+        // Trata qualquer tipo terminado em '[]' como vetor
+        if (tipoObjeto && tipoObjeto.endsWith('[]')) {
+            if (expressao.simbolo.lexema in primitivasVetor) {
+                const metodo = primitivasVetor[expressao.simbolo.lexema].implementacao as (...args: any[]) => any;
+
+                return new MetodoPrimitiva(
+                    nomeObjeto,
+                    objeto,
+                    metodo,
+                    expressao.simbolo.lexema,
+                    tipoObjeto
+                );
+            }
+        }
+
         // Caso 3: Vetor simples do JavaScript.
         if (Array.isArray(objeto)) {
             if (expressao.simbolo.lexema in primitivasVetor) {

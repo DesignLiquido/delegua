@@ -220,22 +220,31 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
 
         switch (inicializador.constructor) {
             case AcessoIndiceVariavel:
-                const entidadeChamadaAcessoIndiceVariavel = (inicializador as AcessoIndiceVariavel)
-                    .entidadeChamada;
+                const acessoAtual = inicializador as AcessoIndiceVariavel;
 
-                // Este condicional ocorre com chamadas aninhadas. Por exemplo, `vetor[1][2]`.
-                if (entidadeChamadaAcessoIndiceVariavel.constructor === AcessoIndiceVariavel) {
-                    return this.logicaComumInferenciaTiposVariaveisEConstantes(
-                        entidadeChamadaAcessoIndiceVariavel,
-                        tipoPrevio
-                    );
+                let entidade = acessoAtual.entidadeChamada;
+                let numeroIndices = 1;
+
+                // Percorre acessos aninhados como `vetor[1][2]` contando quantos índices foram aplicados.
+                // Cada índice consome um nível de vetor, então removemos um '[]' por acesso.
+                while (entidade.constructor === AcessoIndiceVariavel) {
+                    numeroIndices++;
+                    entidade = (entidade as AcessoIndiceVariavel)
+                        .entidadeChamada;
                 }
 
-                if (entidadeChamadaAcessoIndiceVariavel.tipo.endsWith('[]')) {
-                    return entidadeChamadaAcessoIndiceVariavel.tipo.slice(
-                        0,
-                        -2
-                    );
+                const tipoBase = entidade.tipo;
+
+                if (tipoBase.endsWith('[]')) {
+                    let tipoResultante = tipoBase;
+
+                    for (let i = 0; i < numeroIndices; i++) {
+                        if (tipoResultante.endsWith('[]')) {
+                            tipoResultante = tipoResultante.slice(0, -2);
+                        } else break;
+                    }
+
+                    return tipoResultante;
                 }
 
                 // Normalmente, `entidadeChamadaAcessoIndiceVariavel.tipo` aqui será 'vetor'.
@@ -536,37 +545,42 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
     }
 
     async declaracaoDeVariaveis(): Promise<any> {
-        const { simbolos: identificadores, indexResto } = this.consumirIdentificadores();
+        const {
+            simbolos: identificadores,
+            indexResto
+        } = this.consumirIdentificadores();
 
-        this.consumir(tiposDeSimbolos.IGUAL, 'Esperado o símbolo igual(=) após identificador.');
+        this.consumir(
+            tiposDeSimbolos.IGUAL,
+            'Esperado o símbolo igual(=) após identificador.'
+        );
 
         const inicializadores = await this.consumirInicializadores();
-
         const qtdIdentificadores = identificadores.length;
         const qtdValores = inicializadores.length;
         const ehDesempacotamento = qtdIdentificadores > 1 && qtdValores === 1;
 
-        if (indexResto > -1) {
-            if (qtdValores < qtdIdentificadores - 1) {
-                if (
-                    !ehDesempacotamento ||
-                    (ehDesempacotamento && inicializadores[0] instanceof Literal)
-                ) {
-                    throw this.erro(
-                        this.simboloAnterior(),
-                        'Quantidade insuficiente de valores para desempacotamento com operador de resto.'
-                    );
-                }
+        if (indexResto > -1 && qtdValores < qtdIdentificadores - 1) {
+            if (
+                !ehDesempacotamento ||
+                (ehDesempacotamento && inicializadores[0] instanceof Literal)
+            ) {
+                throw this.erro(
+                    this.simboloAnterior(),
+                    'Quantidade insuficiente de valores para desempacotamento com operador de resto.'
+                );
             }
-        } else {
+        } else if (indexResto === -1) {
             if (!ehDesempacotamento && qtdIdentificadores !== qtdValores) {
                 throw this.erro(
                     this.simboloAnterior(),
                     'Quantidade de inicializadores à esquerda do igual é diferente da quantidade de identificadores à direita.'
                 );
             }
+
             if (ehDesempacotamento && inicializadores[0] instanceof Vetor) {
                 const vetor = inicializadores[0] as Vetor;
+
                 if (vetor.tamanho !== qtdIdentificadores) {
                     throw this.erro(
                         this.simboloAnterior(),
@@ -579,11 +593,9 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         const retorno: Declaracao[] = [];
         let origemParaAtribuicao = inicializadores[0];
 
-        // Injeção de Código (Runtime Check)
+        // Injeção de código para variáveis temporárias
         if (ehDesempacotamento && !(inicializadores[0] instanceof Vetor)) {
             const linha = identificadores[0].linha;
-
-            // Cria variável temporária para evitar reavaliar a expressão original múltiplas vezes
             const nomeVarTemp = `__temp_desempacotamento_${new Date().getTime()}_${Math.floor(Math.random() * 1000)}`;
             const simboloVarTemp = new Simbolo(
                 tiposDeSimbolos.IDENTIFICADOR,
@@ -593,10 +605,14 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                 -1
             );
 
-            retorno.push(new Var(simboloVarTemp, inicializadores[0], 'qualquer[]'));
-            origemParaAtribuicao = new Variavel(this.hashArquivo, simboloVarTemp);
+            retorno.push(
+                new Var(simboloVarTemp, inicializadores[0], 'qualquer[]')
+            );
+            origemParaAtribuicao = new Variavel(
+                this.hashArquivo,
+                simboloVarTemp
+            );
 
-            // Injeta validação de tamanho se não houver operador de resto
             if (indexResto === -1) {
                 retorno.push(
                     this.construirValidacaoDesempacotamento(
@@ -608,21 +624,41 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             }
         }
 
-        let cursorValores = 0;
         const qtdParaResto = qtdValores - (qtdIdentificadores - 1);
+        const elementosAposResto = qtdIdentificadores - 1 - indexResto;
 
-        for (let i = 0; i < identificadores.length; i++) {
+        let cursorValores = 0;
+        let cursorDesempacotamento = 0;
+
+        for (let i = 0; i < qtdIdentificadores; i++) {
             const identificador = identificadores[i];
+
             let inicializador: ConstrutoInterface;
             let tipo = 'qualquer';
 
             if (i === indexResto) {
-                const valoresResto = inicializadores.slice(
-                    cursorValores,
-                    cursorValores + qtdParaResto
-                );
+                let valoresResto: ConstrutoInterface[];
+
+                if (ehDesempacotamento && inicializadores[0] instanceof Vetor) {
+                    const vetorLiteral = inicializadores[0] as Vetor;
+
+                    valoresResto = vetorLiteral.valores.slice(
+                        cursorDesempacotamento,
+                        vetorLiteral.valores.length - elementosAposResto
+                    );
+                    cursorDesempacotamento += valoresResto.length;
+                } else {
+                    valoresResto = inicializadores.slice(
+                        cursorValores,
+                        cursorValores + qtdParaResto
+                    );
+                    cursorValores += qtdParaResto;
+                }
+
                 let tipoInferido = inferirTipoVariavel(valoresResto) as string;
-                if (!tipoInferido.endsWith('[]')) tipoInferido = `${tipoInferido}[]`;
+                if (!tipoInferido.endsWith('[]')) {
+                    tipoInferido = `${tipoInferido}[]`;
+                }
 
                 inicializador = new Vetor(
                     identificador.hashArquivo,
@@ -631,15 +667,22 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                     tipoInferido
                 );
                 tipo = tipoInferido;
-                cursorValores += qtdParaResto;
             } else if (ehDesempacotamento) {
                 if (inicializadores[0] instanceof Vetor) {
-                    inicializador = inicializadores[0].valores[i];
+                    const vetorLiteral = inicializadores[0] as Vetor;
+                    inicializador = vetorLiteral.valores[
+                        cursorDesempacotamento
+                    ];
                 } else {
                     inicializador = new AcessoIndiceVariavel(
                         this.hashArquivo,
                         origemParaAtribuicao,
-                        new Literal(this.hashArquivo, identificador.linha, i, 'número'),
+                        new Literal(
+                            this.hashArquivo,
+                            identificador.linha,
+                            i,
+                            'número'
+                        ),
                         new Simbolo(
                             tiposDeSimbolos.COLCHETE_DIREITO,
                             ']',
@@ -649,10 +692,15 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                         )
                     );
                 }
+
+                cursorDesempacotamento++;
             } else {
                 inicializador = inicializadores[cursorValores];
                 cursorValores++;
-                tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(inicializador, tipo);
+                tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(
+                    inicializador,
+                    tipo
+                );
             }
 
             this.pilhaEscopos.definirInformacoesVariavel(
@@ -906,7 +954,18 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                     }
                 }
 
-                const tipoVetor = inferirTipoVariavel(valoresVetor);
+                let tipoVetor: string;
+
+                if (valoresVetor.length === 0) {
+                    tipoVetor = 'qualquer[]'
+                } else {
+                    const primeiroElemento = valoresVetor[0];
+                    if (primeiroElemento instanceof Vetor) {
+                        tipoVetor = primeiroElemento.tipo + '[]';
+                    } else {
+                        tipoVetor = inferirTipoVariavel(valoresVetor);
+                    }
+                }
 
                 return new Vetor(
                     this.hashArquivo,

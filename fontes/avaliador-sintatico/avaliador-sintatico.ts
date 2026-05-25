@@ -792,7 +792,19 @@ export class AvaliadorSintatico
                 const valoresSemSeparadores = valoresSemComentarios.filter(
                     (v) => v.constructor !== Separador
                 );
-                const tipoVetor = inferirTipoVariavel(valoresSemSeparadores);
+
+                let tipoVetor: string;
+
+                if (valoresSemSeparadores.length === 0) {
+                    tipoVetor = 'qualquer[]';
+                } else {
+                    const primeiroElemento = valoresSemSeparadores[0];
+                    if (primeiroElemento instanceof Vetor) {
+                        tipoVetor = primeiroElemento.tipo + '[]';
+                    } else {
+                        tipoVetor = inferirTipoVariavel(valoresSemSeparadores);
+                    }
+                }
 
                 return new Vetor(
                     this.hashArquivo,
@@ -3259,24 +3271,33 @@ export class AvaliadorSintatico
 
         switch (inicializador.constructor) {
             case AcessoIndiceVariavel:
-                const entidadeChamadaAcessoIndiceVariavel = (inicializador as AcessoIndiceVariavel)
-                    .entidadeChamada;
+                const acessoAtual = inicializador as AcessoIndiceVariavel;
 
-                // Este condicional ocorre com chamadas aninhadas. Por exemplo, `vetor[1][2]`.
-                if (entidadeChamadaAcessoIndiceVariavel.constructor === AcessoIndiceVariavel) {
-                    return this.logicaComumInferenciaTiposVariaveisEConstantes(
-                        entidadeChamadaAcessoIndiceVariavel,
-                        tipo
-                    );
+                let entidade = acessoAtual.entidadeChamada;
+                let numeroIndices = 1;
+
+                // Percorre a cadeia de acessos aninhados para contar quantos índices existem
+                // Cada índice consome um nível de vetor, então removemos um '[]' por acesso.
+                while (entidade.constructor === AcessoIndiceVariavel) {
+                    numeroIndices++;
+                    entidade = (entidade as AcessoIndiceVariavel)
+                        .entidadeChamada;
                 }
 
-                const tipoEntidadeChamadaAcessoIndiceVariavel =
-                    entidadeChamadaAcessoIndiceVariavel.tipo as string;
-                if (tipoEntidadeChamadaAcessoIndiceVariavel.endsWith('[]')) {
-                    return tipoEntidadeChamadaAcessoIndiceVariavel.slice(0, -2);
+                const tipoBase = entidade.tipo as string;
+
+                if (tipoBase.endsWith('[]')) {
+                    let tipoResultante = tipoBase;
+
+                    for (let i = 0; i < numeroIndices; i++) {
+                        if (tipoResultante.endsWith('[]')) {
+                            tipoResultante = tipoResultante.slice(0, -2);
+                        } else break;
+                    }
+
+                    return tipoResultante;
                 }
 
-                // Normalmente, `entidadeChamadaAcessoIndiceVariavel.tipo` aqui será 'vetor'.
                 return 'qualquer';
             case Chamada:
                 const entidadeChamadaChamada = (inicializador as Chamada).entidadeChamada;

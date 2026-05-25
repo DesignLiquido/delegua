@@ -1,3 +1,4 @@
+import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
 import { VisitanteComumInterface, SimboloInterface } from '../interfaces';
 import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 
@@ -52,6 +53,20 @@ export class Binario<TTipoSimbolo extends string = string> implements ConstrutoI
      * @returns O tipo deduzido.
      */
     protected deduzirTipo(): string {
+        if (
+            [
+                tiposDeSimbolos.MAIOR,
+                tiposDeSimbolos.MAIOR_IGUAL,
+                tiposDeSimbolos.MENOR,
+                tiposDeSimbolos.MENOR_IGUAL,
+                tiposDeSimbolos.IGUAL,
+                tiposDeSimbolos.IGUAL_IGUAL,
+                tiposDeSimbolos.DIFERENTE,
+            ].includes(this.operador.tipo)
+        ) {
+            return 'lógico';
+        }
+
         if (
             ['logico', 'lógico'].includes(this.esquerda.tipo) ||
             ['logico', 'lógico'].includes(this.direita.tipo)
