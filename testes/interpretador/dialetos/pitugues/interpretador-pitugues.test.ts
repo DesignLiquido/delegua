@@ -1110,7 +1110,41 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas[0]).toBe("390625");
                 });
             });
+            describe('Operações relacionais', () => {
+                it('Operações relacionais - operadores encadeados', async () => {
+                    const codigo = ['x = 5', 
+                        'resultado = 1 < x < 10',
+                        'escreva(resultado)'];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
 
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('verdadeiro');
+
+                });
+                    it('Operações relacionais - igual igual', async () => {
+                        const codigo = ['escreva(falso == falso)'];
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                            retornoLexador,
+                            -1
+                        );
+                        const retornoInterpretador = await interpretador.interpretar(
+                            retornoAvaliadorSintatico.declaracoes
+                        );
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(1);
+                        expect(_saidas[0]).toBe('verdadeiro');
+                    });
+            });
             describe('Operações lógicas', () => {
                 it('Operações lógicas - ou', async () => {
                     const retornoLexador = lexador.mapear(['escreva(verdadeiro ou falso)'], -1);
