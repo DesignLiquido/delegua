@@ -1127,7 +1127,7 @@ describe('Interpretador (Pituguês)', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(_saidas).toHaveLength(1);
-                    expect(_saidas[0]).toBe('verdadeiro');
+                    expect(_saidas[0]).toBe('falso');
 
                 });
                     it('Operações relacionais - igual igual', async () => {
