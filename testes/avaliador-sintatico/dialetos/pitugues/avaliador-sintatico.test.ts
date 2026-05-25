@@ -938,6 +938,24 @@ describe('Avaliador sintático (Pituguês)', () => {
                     expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
                 });
             });
+
+            it('Deve acusar erro ao criar um vetor da forma errada', async () => {
+                const retornoLexador = lexador.mapear(
+                    ['vetorQuebrado = [1 2 3]'],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                    retornoLexador,
+                    -1
+                );
+
+                expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(
+                    0
+                );
+                expect(retornoAvaliadorSintatico.erros[0].message).toContain(
+                    'Os itens dos vetores devem ser separados através de uma vírgula.'
+                );
+            });
         });
 
         describe('Operador de interrogação (?)', () => {

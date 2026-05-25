@@ -907,6 +907,13 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                     );
                 }
 
+                if (this.verificarTipoSimboloAtual(tiposDeSimbolos.VIRGULA)) {
+                    throw this.erro(
+                        this.simboloAtual(),
+                        'Não podem haver duas vírgulas seguidas em uma definição de vetor, ou definição de vetor começando em vírgula.'
+                    );
+                }
+
                 // Ao resolver a expressão aqui, identificadores dentro da expressão de compreensão
                 // de lista serão tratados como 'qualquer', para evitar erros de tipo.
                 this.intuirTipoQualquerParaIdentificadores = true;
@@ -921,14 +928,30 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
 
                 // Aqui já sabemos que não é uma compreensão de lista.
                 const valoresVetor = [retornoExpressaoOuPrimeiroValor];
+
+                this.ignorarComentarios();
+
                 while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                    this.consumir(
-                        tiposDeSimbolos.VIRGULA,
-                        'Esperado vírgula antes da próxima expressão.'
-                    );
-                    this.ignorarComentarios();
-                    valoresVetor.push(await this.atribuir());
-                    this.ignorarComentarios();
+                    if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA)) {
+                        this.ignorarComentarios();
+
+                        if (this.verificarTipoSimboloAtual(tiposDeSimbolos.VIRGULA)) {
+                            throw this.erro(
+                                this.simboloAtual(),
+                                'Não podem haver duas vírgulas seguidas em uma definição de vetor, ou definição de vetor começando em vírgula.'
+                            );
+                        }
+                    } else {
+                        throw this.erro(
+                            this.simboloAtual() || simboloAtual,
+                            'Os itens dos vetores devem ser separados através de uma vírgula.'
+                        );
+                    }
+
+                    if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.COLCHETE_DIREITO)) {
+                        valoresVetor.push(await this.atribuir());
+                        this.ignorarComentarios();
+                    }
                 }
 
                 let tipoVetor: string;

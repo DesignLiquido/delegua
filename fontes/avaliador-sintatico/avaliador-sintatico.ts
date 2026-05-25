@@ -701,7 +701,9 @@ export class AvaliadorSintatico
 
     override async primario(): Promise<ConstrutoInterface> {
         const simboloAtual = this.simbolos[this.atual];
+
         let valores = [];
+
         switch (simboloAtual.tipo) {
             case tiposDeSimbolos.AJUDA:
                 return await this.construtoAjuda();
@@ -716,7 +718,7 @@ export class AvaliadorSintatico
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
                     return new Vetor(
                         this.hashArquivo,
-                        Number(simboloAtual.linha),
+                        simboloAtual.linha,
                         [],
                         'qualquer[]'
                     );
@@ -760,23 +762,29 @@ export class AvaliadorSintatico
                 const valoresSemComentarios: ConstrutoInterface[] = valores.filter(
                     (v) => v.constructor !== ComentarioComoConstruto
                 );
+
                 let elementoSeparador = false; // O primeiro elemento não pode ser separador.
+
                 for (const elemento of valoresSemComentarios) {
+                    const simboloErro = (elemento as any).simbolo || simboloAtual;
+
                     if (elementoSeparador) {
                         if (elemento.constructor !== Separador) {
                             throw this.erro(
-                                (elemento as any).simbolo,
-                                'Não podem haver duas vírgulas seguidas em uma definição de vetor, ou definição de vetor começando em vírgula.'
+                                simboloErro,
+                                'Os itens dos vetores devem ser separados através de uma vírgula.'
                             );
                         }
+
                         elementoSeparador = false;
                     } else {
                         if (elemento.constructor === Separador) {
                             throw this.erro(
-                                (elemento as any).simbolo,
+                                simboloErro,
                                 'Não podem haver duas vírgulas seguidas em uma definição de vetor, ou definição de vetor começando em vírgula.'
                             );
                         }
+
                         elementoSeparador = true;
                     }
                 }
