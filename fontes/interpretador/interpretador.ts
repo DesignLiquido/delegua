@@ -1221,6 +1221,39 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             tipoObjeto = inferirTipoVariavel(objeto as any);
         }
 
+        // Trata qualquer tipo terminado em '[]' como vetor
+        if (tipoObjeto && tipoObjeto.endsWith('[]')) {
+            if (expressao.nomeMetodo in primitivasVetor) {
+                const metodo = primitivasVetor[expressao.nomeMetodo].implementacao as (...args: any[]) => any;
+
+                return new MetodoPrimitiva(
+                    nomeObjeto,
+                    objeto,
+                    metodo,
+                    expressao.nomeMetodo,
+                    tipoObjeto
+                );
+            } else {
+                const funcaoExt = this.encontrarMetodoExtensao(
+                    ['vetor', 'objeto'],
+                    expressao.nomeMetodo,
+                    this.hashArquivoDeclaracaoAtual
+                );
+
+                if (funcaoExt) return funcaoExt.funcaoPorExtensao(objeto);
+
+                throw new ErroEmTempoDeExecucao(
+                    {
+                        hashArquivo: this.hashArquivoDeclaracaoAtual,
+                        linha: this.linhaDeclaracaoAtual,
+                        lexema: expressao.nomeMetodo
+                    } as SimboloInterface,
+                    `Método de primitiva '${expressao.nomeMetodo}' não existe para o tipo ${tipoObjeto}.`,
+                    expressao.linha
+                );
+            }
+        }
+
         // Como internamente um dicionário de Delégua é simplesmente um objeto de
         // JavaScript, as primitivas de dicionário, especificamente, são tratadas
         // mais acima.
@@ -1494,6 +1527,35 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         let tipoObjeto = variavelObjeto.tipo;
         if (tipoObjeto === null || tipoObjeto === undefined) {
             tipoObjeto = inferirTipoVariavel(objeto as any);
+        }
+
+        // Trata qualquer tipo terminado em '[]' como vetor
+        if (tipoObjeto && tipoObjeto.endsWith('[]')) {
+            if (expressao.simbolo.lexema in primitivasVetor) {
+                const metodo = primitivasVetor[expressao.simbolo.lexema].implementacao as (...args: any[]) => any;
+
+                return new MetodoPrimitiva(
+                    nomeObjeto,
+                    objeto,
+                    metodo,
+                    expressao.simbolo.lexema,
+                    tipoObjeto
+                );
+            } else {
+                const funcaoExt = this.encontrarMetodoExtensao(
+                    ['vetor', 'objeto'],
+                    expressao.simbolo.lexema,
+                    this.hashArquivoDeclaracaoAtual
+                );
+
+                if (funcaoExt) return funcaoExt.funcaoPorExtensao(objeto);
+
+                throw new ErroEmTempoDeExecucao(
+                    expressao.simbolo,
+                    `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo ${tipoObjeto}.`,
+                    expressao.linha
+                );
+            }
         }
 
         // Como internamente um dicionário de Delégua é simplesmente um objeto de

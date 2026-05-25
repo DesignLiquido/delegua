@@ -4349,7 +4349,7 @@ describe('Interpretador (Pituguês)', () => {
                 expect(_saidas.length).toBe(1);
                 expect(_saidas[0]).toBe("número");
             });
-            
+
             it('Deve distribuir o valor de cada variável corretamente ao usar operador de resto', async () => {
                 const retornoLexador = lexador.mapear([
                     'a, *b = [1, 2, 3, 4]',
@@ -4363,6 +4363,22 @@ describe('Interpretador (Pituguês)', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
                 expect(_saidas.length).toBe(1);
                 expect(_saidas[0]).toBe("1 [2, 3, 4]");
+            });
+
+            it('Deve inferir corretamente o tipo dos elementos em matrizes multidimensionais', async () => {
+                const retornoLexador = lexador.mapear([
+                    'matriz = [[1, 2], [3, 4]]',
+                    'elemento = matriz[0][1]',
+                    'escreva(tipo(elemento))'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico
+                    .analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador
+                    .interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas.length).toBe(1);
+                expect(_saidas[0]).toBe("número");
             });
         });
 
