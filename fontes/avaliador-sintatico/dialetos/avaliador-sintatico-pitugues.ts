@@ -220,22 +220,31 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
 
         switch (inicializador.constructor) {
             case AcessoIndiceVariavel:
-                const entidadeChamadaAcessoIndiceVariavel = (inicializador as AcessoIndiceVariavel)
-                    .entidadeChamada;
+                const acessoAtual = inicializador as AcessoIndiceVariavel;
 
-                // Este condicional ocorre com chamadas aninhadas. Por exemplo, `vetor[1][2]`.
-                if (entidadeChamadaAcessoIndiceVariavel.constructor === AcessoIndiceVariavel) {
-                    return this.logicaComumInferenciaTiposVariaveisEConstantes(
-                        entidadeChamadaAcessoIndiceVariavel,
-                        tipoPrevio
-                    );
+                let entidade = acessoAtual.entidadeChamada;
+                let numeroIndices = 1;
+
+                // Percorre acessos aninhados como `vetor[1][2]` contando quantos índices foram aplicados.
+                // Cada índice consome um nível de vetor, então removemos um '[]' por acesso.
+                while (entidade.constructor === AcessoIndiceVariavel) {
+                    numeroIndices++;
+                    entidade = (entidade as AcessoIndiceVariavel)
+                        .entidadeChamada;
                 }
 
-                if (entidadeChamadaAcessoIndiceVariavel.tipo.endsWith('[]')) {
-                    return entidadeChamadaAcessoIndiceVariavel.tipo.slice(
-                        0,
-                        -2
-                    );
+                const tipoBase = entidade.tipo;
+
+                if (tipoBase.endsWith('[]')) {
+                    let tipoResultante = tipoBase;
+
+                    for (let i = 0; i < numeroIndices; i++) {
+                        if (tipoResultante.endsWith('[]')) {
+                            tipoResultante = tipoResultante.slice(0, -2);
+                        } else break;
+                    }
+
+                    return tipoResultante;
                 }
 
                 // Normalmente, `entidadeChamadaAcessoIndiceVariavel.tipo` aqui será 'vetor'.
@@ -922,7 +931,18 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                     this.ignorarComentarios();
                 }
 
-                const tipoVetor = inferirTipoVariavel(valoresVetor);
+                let tipoVetor: string;
+
+                if (valoresVetor.length === 0) {
+                    tipoVetor = 'qualquer[]'
+                } else {
+                    const primeiroElemento = valoresVetor[0];
+                    if (primeiroElemento instanceof Vetor) {
+                        tipoVetor = primeiroElemento.tipo + '[]';
+                    } else {
+                        tipoVetor = inferirTipoVariavel(valoresVetor);
+                    }
+                }
 
                 return new Vetor(
                     this.hashArquivo,
