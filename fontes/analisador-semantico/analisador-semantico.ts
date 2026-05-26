@@ -346,9 +346,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
 
     async visitarExpressaoDeChamada(expressao: Chamada) {
         for (const argumento of expressao.argumentos) {
-            if (argumento instanceof Variavel) {
-                this.gerenciadorEscopos.marcarComoUsada(argumento.simbolo.lexema);
-            }
+            this.marcarVariaveisUsadasEmExpressao(argumento);
         }
 
         switch (expressao.entidadeChamada.constructor) {
