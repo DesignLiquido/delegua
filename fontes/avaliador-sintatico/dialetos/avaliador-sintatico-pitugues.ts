@@ -2675,13 +2675,11 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return definicaoClasse;
     }
 
-    declaracaoFalhar(): Falhar {
+    async declaracaoFalhar(): Promise<Falhar> {
         const simboloFalha: SimboloInterface = this.simbolos[this.atual - 1];
-        const textoFalha = this.consumir(
-            tiposDeSimbolos.TEXTO,
-            'Esperado texto para explicar falha.'
-        );
-        return new Falhar(simboloFalha, textoFalha.literal);
+        const explicacao = await this.atribuir();
+
+        return new Falhar(simboloFalha, explicacao);
     }
 
     /**
@@ -2822,7 +2820,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                 return this.declaracaoEscreva(simboloEscrevaOuImprima);
             case tiposDeSimbolos.FALHAR:
                 this.avancarEDevolverAnterior();
-                return this.declaracaoFalhar();
+                return await this.declaracaoFalhar();
             case tiposDeSimbolos.FAZER:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoFazer();

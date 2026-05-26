@@ -468,9 +468,38 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     async visitarExpressaoFalhar(expressao: Falhar): Promise<any> {
-        const textoFalha =
-            expressao.explicacao.valor ?? ((await this.avaliar(expressao.explicacao)) as any).valor;
-        throw new ErroEmTempoDeExecucao(expressao.simbolo, textoFalha, expressao.linha);
+        let valorAvaliado = expressao.explicacao;
+
+        // Se for um construto (ex.: Variavel), avalia para obter seu valor real
+        if (
+            expressao.explicacao &&
+            typeof expressao.explicacao.aceitar === 'function'
+        ) {
+            valorAvaliado = await this.avaliar(expressao.explicacao);
+        }
+
+        let textoFalha: string;
+
+        if (valorAvaliado === null || valorAvaliado === undefined) {
+            textoFalha = 'nulo';
+        } else if (typeof valorAvaliado === 'string') {
+            textoFalha = valorAvaliado;
+        } else if (
+            typeof valorAvaliado === 'object' &&
+            'valor' in valorAvaliado
+        ) {
+            // Objetos tipados como { valor: 'mensagem', tipo: 'texto' }
+            textoFalha = String(valorAvaliado.valor);
+        } else {
+            // Caso incomum: usa a representação textual padrão
+            textoFalha = this.paraTexto(valorAvaliado);
+        }
+
+        throw new ErroEmTempoDeExecucao(
+            expressao.simbolo,
+            textoFalha,
+            expressao.linha
+        );
     }
 
     async visitarExpressaoFimPara(_: FimPara): Promise<any> {

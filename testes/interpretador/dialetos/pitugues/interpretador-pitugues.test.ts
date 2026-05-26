@@ -1112,7 +1112,7 @@ describe('Interpretador (Pituguês)', () => {
             });
             describe('Operações relacionais', () => {
                 it('Operações relacionais - operadores encadeados', async () => {
-                    const codigo = ['x = 5', 
+                    const codigo = ['x = 5',
                         'resultado = 1 < x < 10',
                         'escreva(resultado)'];
                     const retornoLexador = lexador.mapear(codigo, -1);
@@ -4413,6 +4413,43 @@ describe('Interpretador (Pituguês)', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
                 expect(_saidas.length).toBe(1);
                 expect(_saidas[0]).toBe("número");
+            });
+
+            describe('Falhar', () => {
+                it('Trivial', async () => {
+                    const retornoLexador = lexador.mapear(
+                        ["falhar 'teste de falha'"],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros.length).toBe(1);
+                    expect(retornoInterpretador.erros[0].erroInterno.message).toBe('teste de falha');
+                });
+
+                it('Trivial com atribuição', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'mensagem = "teste de falha"',
+                            'falhar mensagem'
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    console.log(retornoInterpretador.erros)
+
+                    expect(retornoInterpretador.erros.length).toBe(1);
+                    expect(retornoInterpretador.erros[0].erroInterno.message).toBe('teste de falha');
+                });
             });
         });
 
