@@ -4295,21 +4295,33 @@ describe('Interpretador', () => {
 
             describe('Falhar', () => {
                 it('Trivial', async () => {
-                    const retornoLexador = lexador.mapear(["falhar 'teste de falha'"], -1);
+                    const retornoLexador = lexador.mapear(
+                        ["falhar 'teste de falha'"],
+                        -1
+                    );
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
 
-                    expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);
+                    expect(retornoInterpretador.erros.length).toBe(1);
+                    expect(retornoInterpretador.erros[0].erroInterno.message).toBe('teste de falha');
                 });
 
                 it('Trivial com atribuição', async () => {
-                    const retornoLexador = lexador.mapear(['var mensagem = "teste de falha"', 'falhar mensagem'], -1);
+                    const retornoLexador = lexador.mapear(
+                        ['var mensagem = "teste de falha"', 'falhar mensagem'],
+                        -1
+                    );
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
-                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
 
-                    expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);
+                    expect(retornoInterpretador.erros.length).toBe(1);
+                    expect(retornoInterpretador.erros[0].erroInterno.message).toBe('teste de falha');
                 });
             });
 
