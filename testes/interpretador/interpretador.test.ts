@@ -4804,6 +4804,27 @@ describe('Interpretador', () => {
                 expect(_saidas.length).toBe(1);
                 expect(_saidas[0]).toBe("número");
             });
+
+            describe('Parâmetros de funções', () => {
+                it('Deve usar valor padrão caso não seja passado nenhum argumento', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'função adicionarItem(item, inventario = []) {',
+                        '    inventario.adicionar(item)',
+                        '    retorna inventario',
+                        '}',
+                        'var mochila1 = adicionarItem("Espada")',
+                        'escreva(mochila1)'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico
+                        .analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador
+                        .interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas.length).toBe(1);
+                    expect(_saidas[0]).toBe("['Espada']");
+                });
+            });
         });
 
         describe('Ajuda', () => {
