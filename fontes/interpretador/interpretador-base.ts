@@ -1871,40 +1871,68 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     /**
+     * Unifica a execução do bloco 'pegue', tratando tanto o caso de
+     * declarações simples quanto o caso de função com parâmetro de erro.
+     */
+    private async executarBlocoPegue(
+        pegue: FuncaoConstruto | Declaracao[],
+        erro: any
+    ): Promise<any> {
+        if (Array.isArray(pegue)) {
+            return await this.executarBloco(pegue);
+        }
+
+        // Caso seja FuncaoConstruto (pegue com parâmetro de erro)
+        const literalErro = new Literal(
+            pegue.hashArquivo,
+            pegue.linha,
+            erro.mensagem || erro.message || erro
+        );
+        const chamadaPegue = new Chamada(
+            pegue.hashArquivo,
+            pegue,
+            [literalErro]
+        );
+
+        return await chamadaPegue.aceitar(this);
+    }
+
+    /**
      * Interpretação de uma declaração `tente`.
      * @param declaracao O objeto da declaração.
      */
     async visitarDeclaracaoTente(declaracao: Tente): Promise<any> {
         let valorRetorno: any;
+        let sucessoNoTente = false;
+
         try {
             this.emDeclaracaoTente = true;
+
             try {
-                valorRetorno = await this.executarBloco(declaracao.caminhoTente);
+                valorRetorno = await this.executarBloco(
+                    declaracao.caminhoTente
+                );
+                sucessoNoTente = true;
             } catch (erro: any) {
                 if (declaracao.caminhoPegue !== null) {
-                    // `caminhoPegue` aqui pode ser um construto de função (se `pegue` tem parâmetros)
-                    // ou um vetor de `Declaracao` (`pegue` sem parâmetros).
-                    // As execuções, portanto, são diferentes.
-                    if (Array.isArray(declaracao.caminhoPegue)) {
-                        valorRetorno = await this.executarBloco(declaracao.caminhoPegue);
-                    } else {
-                        const literalErro = new Literal(
-                            declaracao.hashArquivo,
-                            Number(declaracao.linha),
-                            erro.mensagem
-                        );
-                        const chamadaPegue = new Chamada(
-                            declaracao.caminhoPegue.hashArquivo,
-                            declaracao.caminhoPegue,
-                            [literalErro]
-                        );
-                        valorRetorno = await chamadaPegue.aceitar(this);
-                    }
-                }
+                    valorRetorno = await this.executarBlocoPegue(
+                        declaracao.caminhoPegue,
+                        erro
+                    );
+                } else throw erro;
+            }
+
+            if (sucessoNoTente && declaracao.caminhoSenao) {
+                valorRetorno = await this.executarBloco(
+                    declaracao.caminhoSenao
+                );
             }
         } finally {
-            if (declaracao.caminhoFinalmente)
-                valorRetorno = await this.executarBloco(declaracao.caminhoFinalmente);
+            if (declaracao.caminhoFinalmente) {
+                valorRetorno = await this.executarBloco(
+                    declaracao.caminhoFinalmente
+                );
+            }
 
             this.emDeclaracaoTente = false;
         }

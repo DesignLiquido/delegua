@@ -4451,6 +4451,31 @@ describe('Interpretador (Pituguês)', () => {
                     expect(retornoInterpretador.erros[0].erroInterno.message).toBe('teste de falha');
                 });
             });
+
+            describe('Tente/Pegue', () => {
+                it('Deve permitir o uso de "senao"', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'tente:',
+                        '    escreva("Tente")',
+                        'pegue:',
+                        '    escreva("Pegue")',
+                        'senao:',
+                        '    escreva("Tudo certo com o tente")',
+                        'finalmente:',
+                        '    escreva("Finalizado")'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico
+                        .analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador
+                        .interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas.length).toBe(3);
+                    expect(_saidas[0]).toBe("Tente");
+                    expect(_saidas[1]).toBe("Tudo certo com o tente");
+                    expect(_saidas[2]).toBe("Finalizado");
+                });
+            });
         });
 
         it('termina_com - sufixo encontrado no final', async () => {
