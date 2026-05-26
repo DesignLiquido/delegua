@@ -100,16 +100,22 @@ export class DeleguaFuncao extends Chamavel {
         return argumentosResolvidos;
     }
 
-    protected resolverAmbiente(argumentos: Array<ArgumentoInterface>): EspacoMemoria {
+    protected async resolverAmbiente(
+        visitante: InterpretadorInterface,
+        argumentos: Array<ArgumentoInterface>
+    ): Promise<EspacoMemoria> {
         const ambiente = new EspacoMemoria();
         const parametros = this.declaracao.parametros || [];
 
         for (let i = 0; i < parametros.length; i++) {
             const parametro = parametros[i];
-
             const nome = parametro['nome'].lexema;
+
             if (parametro.abrangencia === 'multiplo') {
-                const argumentosResolvidos = this.resolverParametrosEspalhados(argumentos, i);
+                const argumentosResolvidos = this.resolverParametrosEspalhados(
+                    argumentos,
+                    i
+                );
 
                 // TODO: Verificar se `imutavel` é `true` aqui mesmo.
                 ambiente.valores[nome] = {
@@ -118,17 +124,34 @@ export class DeleguaFuncao extends Chamavel {
                     imutavel: true,
                 };
             } else {
-                let argumento = argumentos[i];
-                if (argumento.valor === null) {
-                    argumentos[i].valor = parametro.valorPadrao ? parametro.valorPadrao : null;
+                let valorFinal: any;
+                const argumento = argumentos[i];
+
+                const valorExtraido = (argumento && argumento.hasOwnProperty('valor'))
+                    ? argumento.valor
+                    : argumento;
+
+                if (
+                    i < argumentos.length &&
+                    valorExtraido !== undefined &&
+                    valorExtraido !== null
+                ) {
+                    valorFinal = valorExtraido;
+                } else if (parametro.valorPadrao) {
+                    valorFinal = await visitante.avaliar(parametro.valorPadrao);
+                } else {
+                    valorFinal = null;
                 }
 
-                ambiente.valores[nome] =
-                    argumento && argumento.hasOwnProperty('valor') ? argumento.valor : argumento;
+                ambiente.valores[nome] = valorFinal;
 
                 // Se o argumento é `DeleguaFuncao`, para habilitar o recurso de _currying_,
                 // copiamos seu valor para o escopo atual. Nem sempre podemos contar com a tipagem explícita aqui.
-                if (argumento.valor && ['funcao', 'função'].includes(argumento.valor.tipo)) {
+                if (
+                    valorFinal &&
+                    typeof valorFinal === 'object' &&
+                    ['funcao', 'função'].includes(valorFinal.tipo)
+                ) {
                     parametro.referencia = true;
                 }
             }
@@ -141,7 +164,7 @@ export class DeleguaFuncao extends Chamavel {
         visitante: InterpretadorInterface,
         argumentos: Array<ArgumentoInterface>
     ): Promise<any> {
-        const ambiente = this.resolverAmbiente(argumentos);
+        const ambiente = await this.resolverAmbiente(visitante, argumentos);
 
         if (this.instancia !== undefined) {
             ambiente.valores['isto'] = {
