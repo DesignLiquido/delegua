@@ -517,6 +517,20 @@ describe('Lexador', () => {
                 expect(resultado.simbolos).toHaveLength(0);
                 expect(resultado.erros).toHaveLength(1);
             });
+
+            describe('Emojis', () => {
+                it('Deve acusar erro ao usar emoji sem aspas ao redor', async () => {
+                    const codigo = [
+                        'escreva(👋)'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+
+                    expect(retornoLexador.erros).toHaveLength(1);
+                    expect(retornoLexador.erros[0].mensagem).toBe(
+                        'Emojis devem estar envoltos por aspas.'
+                    );
+                });
+            });
         });
     });
 });
