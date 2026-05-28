@@ -141,11 +141,10 @@ BigDecimalInteiroLiteral:       DecimalInteiroLiteral 'n';
 
 Sustar:                          'sustar' | 'quebrar' | 'quebre';
 Do:                              'faca' | 'faça' | 'fazer';
-TipoDe:                          'tipo de';
 Caso:                            'caso';
 Senao:                           'senao' | 'senão';
 Novo:                            'novo';
-Var:                             'var';
+Var:                             'var' | 'variavel' | 'variável';
 Pegue:                           'pegue' | 'pegar';
 Cada:                            'cada';
 Contem:                          'contem' | 'contém';
@@ -164,7 +163,7 @@ Se:                              'se';
 Falhar:                          'falhar';
 Excluir:                         'excluir';
 Em:                              'em';
-Tente:                           'tente';
+Tente:                           'tente' | 'tentar';
 Como:                            'como';
 De:                              'de';
 Tendo:                           'tendo';
@@ -172,13 +171,24 @@ Classe:                         'classe';
 Enum:                           'enum';
 Herda:                          'herda';
 Super:                          'super';
-Const:                          'const';
+Const:                          'const' | 'constante' | 'fixo';
 Exportar:                       'exportar';
-Importar:                       'importar';
+Importar:                       'importar' | 'importe';
 Leia:                           'leia' | 'ler';
 Escreva:                        'escreva' | 'escrever';
 Extensao:                       'extensao' | 'extensão';
 Abstrato:                       'abstrato' | 'abstrata';
+
+/// Novas palavras-chave
+
+Ajuda:                          'ajuda';
+Assercao:                       'assercao' | 'asserção';
+Construtor:                     'construtor';
+Estrangeira:                    'estrangeira';
+Mescla:                         'mescla';
+Operador:                       'operador';
+Tipo:                           'tipo';
+Tudo:                           'tudo';
 
 /// Talvez uso futuro
 
@@ -194,6 +204,10 @@ Interface:                      'interface';
 Pacote:                         'package' {this.IsStrictMode()}?;
 Protegido:                      'protegido' | ('protected' {this.IsStrictMode()}?);
 Estatico:                       'estatico' | 'estatica' | 'estático' | 'estática' | ('static' {this.IsStrictMode()}?);
+
+/// Delimitadores e símbolos especiais
+
+Arroba:                         '@';
 
 /// Identificador Nomes and Identificadors
 

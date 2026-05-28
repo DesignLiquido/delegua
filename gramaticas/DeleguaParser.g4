@@ -81,6 +81,9 @@ comando
     | comandoEscolha
     | comandoFalhar
     | comandoTente
+    | comandoTendoComo
+    | comandoAssercao
+    | comandoAjuda
 //    | comandoDebugger
     | declaracaoFuncao
     ;
@@ -103,6 +106,7 @@ comandoImportar
 
 importarDeBloco
     : importPadrao? (importEspacoNomes | moduleItems) importDe fimDoComando
+    | Tudo Como identificadorNome fimDoComando
     | LiteralTexto fimDoComando
     ;
 
@@ -149,7 +153,7 @@ variavelDeclaracaoList
     ;
 
 variavelDeclaracao
-    : designavel ('=' expressaoUnica)? // ECMAScript 6: Array & Object Matching
+    : designavel (':' identificadorNome)? ('=' expressaoUnica)? // Suporte a anotação de tipo: var x: texto = "oi"
     ;
 
 comandoVazio_
@@ -237,12 +241,34 @@ blocoFinalmente
     : Finalmente bloco
     ;
 
+comandoAssercao
+    : Assercao '(' expressaoUnica (',' expressaoUnica)? ')' fimDoComando
+    | Assercao expressaoUnica fimDoComando
+    ;
+
+comandoAjuda
+    : Ajuda ('(' expressaoUnica? ')')? fimDoComando
+    ;
+
+comandoTendoComo
+    : Tendo expressaoSequencia Como identificador bloco
+    ;
+
 declaracaoFuncao
-    : Assincrono? Funcao_ '*'? identificador '(' listaFormalParametros? ')' corpoFuncao
+    : Assincrono? decorador* Funcao_ '*'? identificador '(' listaFormalParametros? ')' (':' identificadorNome)? corpoFuncao
+    ;
+
+decorador
+    : Arroba identificadorNome argumentos?
     ;
 
 declaracaoClasse
-    : Classe Abstrato? Estatico? identificador fimDaClasse
+    : Arroba* Classe modificadoresClasse? identificador fimDaClasse
+    ;
+
+modificadoresClasse
+    : Abstrato? Estrangeira? Estatico?
+    | Estrangeira? Abstrato? Estatico?
     ;
 
 declaracaoInterface
@@ -250,11 +276,11 @@ declaracaoInterface
     ;
 
 declaracaoExtensao
-    : Extensao identificador? De identificadorNome '{' extensaoElemento* '}'
+    : Extensao 'global'? De identificadorNome '{' extensaoElemento* '}'
     ;
 
 fimDaClasse
-    : (classeHeranca classeImplementacoes? | classeImplementacoes classeHeranca?)? '{' classElement* '}'
+    : (classeHeranca classeImplementacoes? classeMesclas? | classeImplementacoes classeHeranca? classeMesclas?)? '{' classElement* '}'
     ;
 
 classeHeranca
@@ -265,10 +291,40 @@ classeImplementacoes
     : Implementa identificador (',' identificador)*
     ;
 
+classeMesclas
+    : Mescla identificador (',' identificador)*
+    ;
+
 classElement
     : (Publico | Privado | Protegido | Estatico | {this.n("static")}? identificador | Assincrono)* (definicaoMetodo | designavel '=' objetoLiteral ';')
+    | blocoModificadorAcesso
+    | blocoModificadorEstatico
+    | blocoModificadorAbstrato
+    | sobrecarregaOperador
     | comandoVazio_
     | '#'? nomePropriedade '=' expressaoUnica
+    ;
+
+blocoModificadorAcesso
+    : (Privado | Protegido) '{' classElement* '}'
+    ;
+
+blocoModificadorEstatico
+    : Estatico '{' classElement* '}'
+    ;
+
+blocoModificadorAbstrato
+    : Abstrato '{' classElement* '}'
+    ;
+
+sobrecarregaOperador
+    : Operador operadorSobrecarga '(' listaFormalParametros? ')' corpoFuncao
+    ;
+
+operadorSobrecarga
+    : Mais | Menos | Multiplicacao | Divisao | DivisaoInteira | Modulo | Potencia
+    | MenosQue | MaiorQue | MenosQueIgual | MaiorQueIgual | Igual_ | NaoIgual
+    | And | Or | Not
     ;
 
 interfaceElemento
@@ -281,9 +337,14 @@ extensaoElemento
     ;
 
 definicaoMetodo
-    : '*'? '#'? nomePropriedade '(' listaFormalParametros? ')' corpoFuncao
+    : '*'? '#'? nomeMetodo '(' listaFormalParametros? ')' (':' identificadorNome)? corpoFuncao?
     | '*'? '#'? obtenedor '(' ')' corpoFuncao
     | '*'? '#'? definidor '(' listaFormalParametros? ')' corpoFuncao
+    ;
+
+nomeMetodo
+    : nomePropriedade
+    | Construtor
     ;
 
 listaFormalParametros
@@ -292,7 +353,7 @@ listaFormalParametros
     ;
 
 parametroArgumentoFormal
-    : designavel ('=' expressaoUnica)?      // ECMAScript 6: Emitialization
+    : designavel (':' identificadorNome)? ('=' expressaoUnica)?      // Tipos opcionais, valor padrão opcional
     ;
 
 ultimoArgumentoParametroFormal              // ECMAScript 6: Rest Parameter
@@ -359,7 +420,7 @@ expressaoUnica
     | expressaoUnica {this.notLinhaTerminador()}? '--'                  # PostDecreaseExpressao
     | Excluir expressaoUnica                                            # ExcluirExpressao
     | Vazio expressaoUnica                                              # VazioExpressao
-    | TipoDe expressaoUnica                                             # TipoDeExpressao
+    | Tipo De expressaoUnica                                            # TipoDeExpressao
     | '++' expressaoUnica                                               # PreEmcrementExpressao
     | '--' expressaoUnica                                               # PreDecreaseExpressao
     | '+' expressaoUnica                                                # UnaryMaisExpressao
@@ -500,7 +561,7 @@ palavraReservada
 palavraChave
     : Sustar
     | Do
-    | TipoDe
+    | Tipo
     | Caso
     | Senao
     | Novo
@@ -550,6 +611,14 @@ palavraChave
     | Aguardar
     | De
     | Como
+
+    | Ajuda
+    | Assercao
+    | Construtor
+    | Estrangeira
+    | Mescla
+    | Operador
+    | Tudo
     ;
 
 let_
