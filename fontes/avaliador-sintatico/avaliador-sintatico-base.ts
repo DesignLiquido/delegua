@@ -242,8 +242,24 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         throw new Error('Método não implementado.');
     }
 
-    protected async comparar(): Promise<ConstrutoInterface> {
-        let expressao = await this.adicaoOuSubtracao();
+    protected validacaoComparacao(
+        operador: any,
+        esquerda: ConstrutoInterface,
+        direita: ConstrutoInterface
+    ): void { }
+
+    protected criarConstrutoComparacao(
+        esquerda: ConstrutoInterface,
+        operador: any,
+        direita: ConstrutoInterface
+    ): ConstrutoInterface {
+        return new Binario(this.hashArquivo, esquerda, operador, direita);
+    }
+
+    protected async logicaComumComparacao(
+        metodoProximoNivel: () => Promise<ConstrutoInterface>
+    ): Promise<ConstrutoInterface> {
+        let expressao = await metodoProximoNivel();
 
         while (
             this.verificarSeSimboloAtualEIgualA(
@@ -253,12 +269,25 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
                 tiposDeSimbolos.MENOR_IGUAL
             )
         ) {
-            const operador = this.simbolos[this.atual - 1];
-            const direito = await this.adicaoOuSubtracao();
-            expressao = new Binario(this.hashArquivo, expressao, operador, direito);
+            const operador = this.simboloAnterior
+                ? this.simboloAnterior()
+                : this.simbolos[this.atual - 1];
+            const esquerda = expressao;
+            const direita = await metodoProximoNivel();
+
+            this.validacaoComparacao(operador, esquerda, direita);
+            expressao = this.criarConstrutoComparacao(
+                esquerda,
+                operador,
+                direita
+            );
         }
 
         return expressao;
+    }
+
+    protected async comparar(): Promise<ConstrutoInterface> {
+        return await this.logicaComumComparacao(() => this.adicaoOuSubtracao());
     }
 
     protected async comparacaoIgualdade(): Promise<ConstrutoInterface> {
