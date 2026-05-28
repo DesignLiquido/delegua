@@ -836,8 +836,8 @@ export class InterpretadorBase implements InterpretadorInterface {
      */
     protected verificarOperandosNumeros(
         operador: SimboloInterface,
-        direita: VariavelInterface | any,
-        esquerda: VariavelInterface | any
+        esquerda: VariavelInterface | any,
+        direita: VariavelInterface | any
     ): void {
         const tipoDireita: string = direita.tipo
             ? direita.tipo
@@ -931,31 +931,67 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             case tiposDeSimbolos.MAIOR:
                 if (
-                    this.tiposNumericos.includes(tipoEsquerdo) &&
-                    this.tiposNumericos.includes(tipoDireito)
+                    typeof valorEsquerdo === 'string' &&
+                    typeof valorDireito === 'string'
                 ) {
                     return valorEsquerdo > valorDireito;
                 }
 
-                return String(valorEsquerdo) > String(valorDireito);
+                this.verificarOperandosNumeros(
+                    expressao.operador,
+                    esquerda,
+                    direita
+                );
+
+                return Number(valorEsquerdo) > Number(valorDireito);
 
             case tiposDeSimbolos.MAIOR_IGUAL:
-                this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                return valorEsquerdo >= valorDireito;
+                if (
+                    typeof valorEsquerdo === 'string' &&
+                    typeof valorDireito === 'string'
+                ) {
+                    return valorEsquerdo >= valorDireito;
+                }
+
+                this.verificarOperandosNumeros(
+                    expressao.operador,
+                    esquerda,
+                    direita
+                );
+
+                return Number(valorEsquerdo) >= Number(valorDireito);
 
             case tiposDeSimbolos.MENOR:
                 if (
-                    this.tiposNumericos.includes(tipoEsquerdo) &&
-                    this.tiposNumericos.includes(tipoDireito)
+                    typeof valorEsquerdo === 'string' &&
+                    typeof valorDireito === 'string'
                 ) {
                     return valorEsquerdo < valorDireito;
                 }
 
-                return String(valorEsquerdo) < String(valorDireito);
+                this.verificarOperandosNumeros(
+                    expressao.operador,
+                    esquerda,
+                    direita
+                );
+
+                return Number(valorEsquerdo) < Number(valorDireito);
 
             case tiposDeSimbolos.MENOR_IGUAL:
-                this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                return valorEsquerdo <= valorDireito;
+                if (
+                    typeof valorEsquerdo === 'string' &&
+                    typeof valorDireito === 'string'
+                ) {
+                    return valorEsquerdo <= valorDireito;
+                }
+
+                this.verificarOperandosNumeros(
+                    expressao.operador,
+                    esquerda,
+                    direita
+                );
+
+                return Number(valorEsquerdo) <= Number(valorDireito);
 
             case tiposDeSimbolos.SUBTRACAO:
             case tiposDeSimbolos.MENOS_IGUAL:

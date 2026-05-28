@@ -2003,30 +2003,29 @@ export class AvaliadorSintatico
         return expressao;
     }
 
+    protected override validacaoComparacao(
+        operador: any,
+        esquerda: ConstrutoInterface,
+        direita: ConstrutoInterface
+    ): void {
+        this.verificarOperandosComparacao(operador, esquerda, direita);
+    }
+
+    protected override criarConstrutoComparacao(
+        esquerda: ConstrutoInterface,
+        operador: any,
+        direita: ConstrutoInterface
+    ): ConstrutoInterface {
+        return new Binario<TipoDeSimboloDelegua>(
+            this.hashArquivo,
+            esquerda,
+            operador,
+            direita
+        );
+    }
+
     override async comparar(): Promise<ConstrutoInterface> {
-        let expressao = await this.bitOu();
-
-        while (
-            this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.MAIOR,
-                tiposDeSimbolos.MAIOR_IGUAL,
-                tiposDeSimbolos.MENOR,
-                tiposDeSimbolos.MENOR_IGUAL
-            )
-        ) {
-            const operador = this.simbolos[this.atual - 1];
-            const esquerda = expressao;
-            const direito = await this.bitOu();
-            this.verificarOperandosComparacao(operador, esquerda, direito);
-            expressao = new Binario<TipoDeSimboloDelegua>(
-                this.hashArquivo,
-                esquerda,
-                operador,
-                direito
-            );
-        }
-
-        return expressao;
+        return await this.logicaComumComparacao(() => this.bitOu());
     }
 
     override async comparacaoIgualdade(): Promise<ConstrutoInterface> {

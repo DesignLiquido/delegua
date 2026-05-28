@@ -102,6 +102,7 @@ import primitivasNumero from '../../bibliotecas/primitivas-numero';
 import primitivasTexto from '../../bibliotecas/primitivas-texto';
 import primitivasVetor from '../../bibliotecas/primitivas-vetor';
 import primitivasTupla from '../../bibliotecas/dialetos/pitugues/primitivas-tupla';
+import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -111,7 +112,7 @@ import primitivasTupla from '../../bibliotecas/dialetos/pitugues/primitivas-tupl
  * A grande diferença entre este avaliador e os demais é a forma como são entendidos os blocos de escopo.
  * Este avaliador espera uma estrutura de pragmas, que explica quantos espaços há na frente de cada linha.
  */
-export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
+export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implements AvaliadorSintaticoInterface<
     SimboloInterface,
     Declaracao
 > {
@@ -139,6 +140,8 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
     pilhaDecoradores: Decorador[];
 
     constructor(performance = false) {
+        super();
+
         this.atual = 0;
         this.blocos = 0;
         this.performance = performance;
@@ -1133,7 +1136,9 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         throw this.erro(this.simboloAtual(), 'Esperado expressão.');
     }
 
-    async finalizarChamada(entidadeChamada: ConstrutoInterface): Promise<ConstrutoInterface> {
+    async finalizarChamada(
+        entidadeChamada: ConstrutoInterface
+    ): Promise<Chamada> {
         const argumentos = [];
 
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
@@ -1331,23 +1336,65 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return expressao;
     }
 
-    async comparar(): Promise<ConstrutoInterface> {
-        let expressao = await this.bitOu();
+    private eOperadorDeComparacao(tipo: any): boolean {
+        return [
+            tiposDeSimbolos.MAIOR,
+            tiposDeSimbolos.MAIOR_IGUAL,
+            tiposDeSimbolos.MENOR,
+            tiposDeSimbolos.MENOR_IGUAL
+        ].includes(tipo);
+    }
 
-        while (
-            this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.MAIOR,
-                tiposDeSimbolos.MAIOR_IGUAL,
-                tiposDeSimbolos.MENOR,
-                tiposDeSimbolos.MENOR_IGUAL
-            )
+    protected override criarConstrutoComparacao(
+        esquerda: ConstrutoInterface,
+        operador: any,
+        direita: ConstrutoInterface
+    ): ConstrutoInterface {
+        let operandoCentral = null;
+
+        // Lógica de desugaring para comparações encadeadas (ex: 1 < x < 10)
+        if (
+            esquerda instanceof Binario &&
+            this.eOperadorDeComparacao((esquerda as Binario<any>).operador.tipo)
         ) {
-            const operador = this.simboloAnterior();
-            const direito = await this.bitOu();
-            expressao = new Binario(this.hashArquivo, expressao, operador, direito);
+            operandoCentral = (esquerda as Binario<any>).direita;
+        } else if (
+            esquerda instanceof Logico &&
+            (esquerda as Logico).direita instanceof Binario &&
+            this.eOperadorDeComparacao(((esquerda as Logico).direita as Binario<any>).operador.tipo)
+        ) {
+            operandoCentral = ((esquerda as Logico).direita as Binario<any>).direita;
         }
 
-        return expressao;
+        if (operandoCentral !== null) {
+            const operadorE = {
+                tipo: tiposDeSimbolos.E,
+                lexema: 'e',
+                literal: null,
+                linha: operador.linha,
+                hashArquivo: this.hashArquivo
+            } as any;
+            const novaComparacaoDireita = new Binario(
+                this.hashArquivo,
+                operandoCentral,
+                operador,
+                direita
+            );
+
+            return new Logico(
+                this.hashArquivo,
+                esquerda,
+                operadorE,
+                novaComparacaoDireita
+            );
+        }
+
+        // Se não for encadeada, cria o Binário normal
+        return new Binario(this.hashArquivo, esquerda, operador, direita);
+    }
+
+    override async comparar(): Promise<ConstrutoInterface> {
+        return await this.logicaComumComparacao(() => this.bitOu());
     }
 
     async comparacaoIgualdade(): Promise<ConstrutoInterface> {
@@ -1624,7 +1671,11 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return expressao;
     }
 
-    async declaracaoEscreva(simboloEscreva: SimboloInterface): Promise<Escreva> {
+    async declaracaoEscreva(): Promise<Escreva> {
+        const simboloEscreva = this.simboloAnterior
+            ? this.simboloAnterior()
+            : this.simbolos[this.atual - 1];
+
         this.consumir(
             tiposDeSimbolos.PARENTESE_ESQUERDO,
             "Esperado '(' antes dos valores em escreva."
@@ -1647,6 +1698,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             argumentos
         );
         declaracaoEscreva.simboloEscreva = simboloEscreva;
+
         return declaracaoEscreva;
     }
 
@@ -2256,7 +2308,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return funcaoDeclaracao;
     }
 
-    async logicaComumParametros(): Promise<Array<Partial<ParametroInterface>>> {
+    async logicaComumParametros(): Promise<ParametroInterface[]> {
         const parametros: Array<Partial<ParametroInterface>> = [];
 
         do {
@@ -2300,7 +2352,8 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
 
             if (parametro.abrangencia === 'multiplo') break;
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
-        return parametros;
+
+        return parametros as ParametroInterface[];
     }
 
     /**
@@ -2816,8 +2869,8 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                 return this.declaracaoEscolha();
             case tiposDeSimbolos.IMPRIMA:
             case tiposDeSimbolos.ESCREVA:
-                const simboloEscrevaOuImprima = this.avancarEDevolverAnterior();
-                return this.declaracaoEscreva(simboloEscrevaOuImprima);
+                this.avancarEDevolverAnterior();
+                return this.declaracaoEscreva();
             case tiposDeSimbolos.FALHAR:
                 this.avancarEDevolverAnterior();
                 return await this.declaracaoFalhar();
