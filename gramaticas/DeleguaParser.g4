@@ -267,8 +267,9 @@ declaracaoClasse
     ;
 
 modificadoresClasse
-    : Abstrato? Estrangeira? Estatico?
-    | Estrangeira? Abstrato? Estatico?
+    : Abstrato Estrangeira? Estatico?
+    | Estrangeira Abstrato? Estatico?
+    | Estatico
     ;
 
 declaracaoInterface
@@ -276,7 +277,7 @@ declaracaoInterface
     ;
 
 declaracaoExtensao
-    : Extensao 'global'? De identificadorNome '{' extensaoElemento* '}'
+    : Extensao De identificadorNome '{' extensaoElemento* '}'
     ;
 
 fimDaClasse
