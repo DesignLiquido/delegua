@@ -7044,6 +7044,58 @@ describe('Interpretador', () => {
                     'primeiro depois',
                 ]);
             });
+            describe('String com emojis', () => {
+                it('String com emojis é processada corretamente', async () => {
+                    const codigo = [
+                        'escreva("Olá, mundo! 👋🌍")',
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('Olá, mundo! 👋🌍');
+                });
+                it('Impressão de emojis sem aspas é processada corretamente', async () => {
+                    const codigo = [
+                        'escreva(👋)'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('👋');
+                });
+                it('Concatenação de texto com emojis é processada corretamente', async () => {
+                    const codigo = [
+                        'var saudacao = "Olá"',
+                        'var emoji = "👋"',
+                        'var mensagem = saudacao + " " + emoji',
+                        'escreva(mensagem)'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('Olá 👋');
+                });
+                it('Concatenação de emojis é processada corretamente', async () => {
+                    const codigo = [
+                        'var emoji1 = "👋"',
+                        'var emoji2 = "🌍"',
+                        'var mensagem = emoji1 + " " + emoji2',
+                        'escreva(mensagem)'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('👋 🌍');
+                });
+            });
         });
     });
 });
