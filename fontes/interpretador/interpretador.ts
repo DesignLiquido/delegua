@@ -125,6 +125,28 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         carregarBibliotecasGlobais(this.pilhaEscoposExecucao);
     }
 
+    protected override atribuirVariavel(
+        alvoVariavel: Variavel,
+        valorResolvido: any,
+        indice: any
+    ): void {
+        const variavelResolvida = this.pilhaEscoposExecucao.obterValorVariavel(
+            alvoVariavel.simbolo
+        );
+
+        if (variavelResolvida.valor instanceof ReferenciaMontao) {
+            const referenciaMontao = this.montao.obterReferencia(
+                this.hashArquivoDeclaracaoAtual,
+                this.linhaDeclaracaoAtual,
+                variavelResolvida.valor.endereco
+            );
+            referenciaMontao[indice] = valorResolvido;
+        } else {
+            // Se não for montão, usa o comportamento padrão da Pilha
+            super.atribuirVariavel(alvoVariavel, valorResolvido, indice);
+        }
+    }
+
     protected override async avaliarArgumentosEscreva(argumentos: ConstrutoInterface[]): Promise<string> {
         if (this.constructor !== Interpretador) {
             return await super.avaliarArgumentosEscreva(argumentos);
@@ -1878,74 +1900,6 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
      */
     override async visitarExpressaoComentario(expressao: ComentarioComoConstruto): Promise<any> {
         return Promise.resolve();
-    }
-
-    /**
-     * Execução de uma expressão de atribuição.
-     * @param expressao A expressão.
-     * @returns O valor atribuído.
-     */
-    override async visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> {
-        let valor = await this.avaliar(expressao.valor);
-
-        if (valor && valor.hasOwnProperty('valorRetornado')) {
-            valor = valor.valorRetornado;
-        }
-
-        const valorResolvido = this.resolverValor(valor);
-        let indice: any = null;
-
-        if (expressao.indice) {
-            indice = this.resolverValor(await this.avaliar(expressao.indice));
-        }
-
-        switch (expressao.alvo.constructor) {
-            case Variavel:
-                const alvoVariavel = expressao.alvo as Variavel;
-                const variavelResolvida = this.pilhaEscoposExecucao.obterValorVariavel(
-                    alvoVariavel.simbolo
-                );
-                if (variavelResolvida.valor instanceof ReferenciaMontao) {
-                    const referenciaMontao = this.montao.obterReferencia(
-                        this.hashArquivoDeclaracaoAtual,
-                        this.linhaDeclaracaoAtual,
-                        variavelResolvida.valor.endereco
-                    );
-
-                    referenciaMontao[indice] = valorResolvido;
-                } else {
-                    this.pilhaEscoposExecucao.atribuirVariavel(
-                        alvoVariavel.simbolo,
-                        valorResolvido,
-                        indice
-                    );
-                }
-
-                break;
-            case AcessoMetodoOuPropriedade:
-                // Nunca será método aqui: apenas propriedade.
-                const alvoPropriedade = expressao.alvo as AcessoMetodoOuPropriedade;
-                const variavelObjeto = await this.avaliar(alvoPropriedade.objeto);
-                const objeto = this.resolverValor(variavelObjeto);
-
-                const valor = await this.avaliar(expressao.valor);
-                if (objeto.constructor === ObjetoDeleguaClasse) {
-                    const objetoDeleguaClasse = objeto as ObjetoDeleguaClasse;
-                    await objetoDeleguaClasse.definir(alvoPropriedade.simbolo, valor, this);
-                } else {
-                    // Se cair aqui, provavelmente `objeto.constructor.name` é 'Object'.
-                    objeto[alvoPropriedade.simbolo.lexema] = valor;
-                }
-
-                break;
-            default:
-                throw new ErroEmTempoDeExecucao(
-                    undefined,
-                    `Atribuição com caso faltante: ${JSON.stringify(expressao)}.`
-                );
-        }
-
-        return valorResolvido;
     }
 
     async visitarExpressaoDefinirValor(expressao: DefinirValor): Promise<any> {

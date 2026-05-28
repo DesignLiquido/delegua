@@ -5243,6 +5243,22 @@ describe('Interpretador', () => {
                     );
                 });
             });
+
+            it('Deve acusar erro ao tentar atribuir valor em chamadas de função', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var chamadas = 0;',
+                    'função obterIndice() {',
+                    '    chamadas += 1',
+                    '}',
+                    'obterIndice() += 5'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico
+                    .analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador
+                    .interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(1);
+            });
         });
 
         describe('Verificação de tipos em atribuição', () => {
