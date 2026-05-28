@@ -1456,14 +1456,46 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
     }
 
+    /** Gancho para linguagens definirem lógica de escopo (Pituguês LEGB) ou de memória (Delégua) */
+    protected atribuirVariavel(
+        alvoVariavel: Variavel,
+        valorResolvido: any,
+        indice: number
+    ): void {
+        this.pilhaEscoposExecucao.atribuirVariavel(
+            alvoVariavel.simbolo,
+            valorResolvido,
+            indice
+        );
+    }
+
+    /** Gancho para linguagens definirem como acessar propriedades de objetos */
+    protected async definirPropriedadeObjeto(
+        objeto: any,
+        simbolo: SimboloInterface,
+        valor: any
+    ): Promise<void> {
+        if (objeto instanceof ObjetoDeleguaClasse) {
+            await objeto.definir(simbolo, valor, this);
+        } else if (objeto !== null && objeto !== undefined) {
+            objeto[simbolo.lexema] = valor;
+        }
+    }
+
     /**
      * Execução de uma expressão de atribuição.
      * @param expressao A expressão.
      * @returns O valor atribuído.
      */
     async visitarExpressaoDeAtribuicao(expressao: Atribuir): Promise<any> {
-        const valor = await this.avaliar(expressao.valor);
+        let valor = await this.avaliar(expressao.valor);
+
+        if (valor && valor.hasOwnProperty('valorRetornado')) {
+            valor = valor.valorRetornado;
+        }
+
         const valorResolvido = this.resolverValor(valor);
+
         let indice: any = null;
 
         if (expressao.indice) {
@@ -1472,29 +1504,36 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         switch (expressao.alvo.constructor) {
             case AcessoMetodoOuPropriedade:
-                // Nunca será método aqui: apenas propriedade.
                 const alvoPropriedade = expressao.alvo as AcessoMetodoOuPropriedade;
-                const variavelObjeto = await this.avaliar(alvoPropriedade.objeto);
+                const variavelObjeto = await this.avaliar(
+                    alvoPropriedade.objeto
+                );
                 const objeto = this.resolverValor(variavelObjeto);
+                const valorProp = await this.avaliar(expressao.valor);
 
-                const valor = await this.avaliar(expressao.valor);
-                if (objeto.constructor === ObjetoDeleguaClasse) {
-                    const objetoDeleguaClasse = objeto as ObjetoDeleguaClasse;
-                    await objetoDeleguaClasse.definir(alvoPropriedade.simbolo, valor, this);
-                }
+                await this.definirPropriedadeObjeto(
+                    objeto,
+                    alvoPropriedade.simbolo,
+                    valorProp
+                );
+
                 break;
+
             case Variavel:
                 const alvoVariavel = expressao.alvo as Variavel;
-                this.pilhaEscoposExecucao.atribuirVariavel(
-                    alvoVariavel.simbolo,
+
+                this.atribuirVariavel(
+                    alvoVariavel,
                     valorResolvido,
                     indice
                 );
+
                 break;
+
             default:
                 throw new ErroEmTempoDeExecucao(
                     expressao.simboloOperador,
-                    `Atribuição com caso faltante: ${JSON.stringify(expressao)}.`
+                    "Alvo da atribuição inválido. O lado esquerdo de uma atribuição deve ser uma variável, propriedade ou índice."
                 );
         }
 
