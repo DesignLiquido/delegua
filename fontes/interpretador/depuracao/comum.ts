@@ -87,7 +87,7 @@ async function gerarIdResolucaoChamada(
 
     return argumentosResolvidos.reduce(
         (acumulador, argumento) =>
-            (acumulador += `,${escaparVirgulas(
+            (acumulador += `,${argumento == null ? 'null' : escaparVirgulas(
                 argumento.hasOwnProperty('valor') ? argumento.valor : argumento
             )}`),
         expressao.id
