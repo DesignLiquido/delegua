@@ -49,7 +49,7 @@ options {
 }
 
 programa
-    : HashBangLinha? elementosFonte? EOF
+    : elementosFonte? EOF
     ;
 
 elementosFonte
@@ -174,7 +174,6 @@ comandoIteracao
     | Enquanto '(' expressaoSequencia ')' comando                                                                               # EnquantoComando
     | Para '(' (expressaoSequencia | variavelDeclaracaoList)? ';' expressaoSequencia? ';' expressaoSequencia? ')' comando       # ParaComando
     | Para '(' (expressaoUnica | variavelDeclaracaoList) Em expressaoSequencia ')' comando                                      # ParaEmComando
-    | Para Aguardar? '(' (expressaoUnica | variavelDeclaracaoList) identificador{this.p("of")}? expressaoSequencia ')' comando  # ParaOfComando
     | Para Cada alvoParaCada (Em | De) expressaoSequencia comando                                                                # ParaCadaComando
     ;
 
@@ -303,7 +302,7 @@ classElement
     | blocoModificadorAbstrato
     | sobrecarregaOperador
     | comandoVazio_
-    | '#'? nomePropriedade '=' expressaoUnica
+    | nomePropriedade '=' expressaoUnica
     ;
 
 blocoModificadorAcesso
@@ -338,9 +337,9 @@ extensaoElemento
     ;
 
 definicaoMetodo
-    : '*'? '#'? nomeMetodo '(' listaFormalParametros? ')' (':' identificadorNome)? corpoFuncao?
-    | '*'? '#'? obtenedor '(' ')' corpoFuncao
-    | '*'? '#'? definidor '(' listaFormalParametros? ')' corpoFuncao
+    : '*'? nomeMetodo '(' listaFormalParametros? ')' (':' identificadorNome)? corpoFuncao?
+    | '*'? obtenedor '(' ')' corpoFuncao
+    | '*'? definidor '(' listaFormalParametros? ')' corpoFuncao
     ;
 
 nomeMetodo
@@ -411,12 +410,10 @@ expressaoUnica
     | Para Cada alvoParaCada (Em | De) expressaoSequencia bloco         # ParaCadaExpressao
     | expressaoUnica '?.' expressaoUnica                                # OptionalChainExpressao
     | expressaoUnica '?.'? '[' expressaoSequencia ']'                   # MemberEmdexExpressao
-    | expressaoUnica '?'? '.' '#'? identificadorNome                    # MemberDotExpressao
-    // Split to try `new Date()` first, then `new Date`.
+    | expressaoUnica '?'? '.' identificadorNome                        # MemberDotExpressao
     | Novo expressaoUnica argumentos                                    # NovoExpressao
     | Novo expressaoUnica                                               # NovoExpressao
     | expressaoUnica argumentos                                         # ArgumentsExpressao
-    | Novo '.' identificador                                            # MetaExpressao // new.target
     | expressaoUnica {this.notLinhaTerminador()}? '++'                  # PostEmcrementExpressao
     | expressaoUnica {this.notLinhaTerminador()}? '--'                  # PostDecreaseExpressao
     | Excluir expressaoUnica                                            # ExcluirExpressao
@@ -433,7 +430,7 @@ expressaoUnica
     | expressaoUnica ('*' | '/' | '%') expressaoUnica                   # MultiplicativeExpressao
     | expressaoUnica ('+' | '-') expressaoUnica                         # AdditiveExpressao
     | expressaoUnica '?:' expressaoUnica                                # CoalesceExpressao
-    | expressaoUnica ('<<' | '>>' | '>>>') expressaoUnica               # BitShiftExpressao
+    | expressaoUnica ('<<' | '>>') expressaoUnica                      # BitShiftExpressao
     | expressaoUnica ('<' | '>' | '<=' | '>=') expressaoUnica           # RelationalExpressao
     | expressaoUnica Contem expressaoUnica                              # ContemExpressao
     | expressaoUnica Not Contem expressaoUnica                          # NaoContemExpressao
@@ -448,7 +445,6 @@ expressaoUnica
     | <assoc=right> expressaoUnica '=' expressaoUnica                   # AtribuicaoExpressao
     | <assoc=right> expressaoUnica operadorAtribuicao expressaoUnica    # AtribuicaoOperadorExpressao
     | Importar '(' expressaoUnica ')'                                   # ImportarExpressao
-    | expressaoUnica templateLiteralTexto                               # TemplateStringExpressao  // ECMAScript 6
     | Isto                                                              # IstoExpressao
     | identificador                                                     # IdentificadorExpressao
     | Super                                                             # SuperExpressao
@@ -466,15 +462,13 @@ expressaoNaoUnaria
     | Para Cada alvoParaCada (Em | De) expressaoSequencia bloco
     | expressaoNaoUnaria '?.' expressaoUnica
     | expressaoNaoUnaria '?.'? '[' expressaoSequencia ']'
-    | expressaoNaoUnaria '?'? '.' '#'? identificadorNome
+    | expressaoNaoUnaria '?'? '.' identificadorNome
     | Novo expressaoUnica argumentos
     | Novo expressaoUnica
     | expressaoNaoUnaria argumentos
-    | Novo '.' identificador
     | expressaoNaoUnaria {this.notLinhaTerminador()}? '++'
     | expressaoNaoUnaria {this.notLinhaTerminador()}? '--'
     | Importar '(' expressaoUnica ')'
-    | expressaoNaoUnaria templateLiteralTexto
     | Isto
     | identificador
     | Super
@@ -516,9 +510,6 @@ operadorAtribuicao
     | '%='
     | '+='
     | '-='
-    | '<<='
-    | '>>='
-    | '>>>='
     | '&='
     | '^='
     | '|='
@@ -529,34 +520,14 @@ literal
     : LiteralNulo
     | LiteralLogico
     | LiteralTexto
-    | templateLiteralTexto
-    | ExpressaoRegularLiteral
     | numericoLiteral
-    | bigintLiteral
-    ;
-
-templateLiteralTexto
-    : BackTick templateStringAtom* BackTick
-    ;
-
-templateStringAtom
-    : TemplateStringAtom
-    | TemplateStringStartExpressao expressaoUnica TemplateFechaChave
     ;
 
 numericoLiteral
     : DecimalLiteral
     | HexInteiroLiteral
-    | OctalInteiroLiteral
     | OctalInteiroLiteral2
     | BinaryInteiroLiteral
-    ;
-
-bigintLiteral
-    : BigDecimalInteiroLiteral
-    | BigHexInteiroLiteral
-    | BigOctalInteiroLiteral
-    | BigBinaryInteiroLiteral
     ;
 
 obtenedor
@@ -574,7 +545,6 @@ identificadorNome
 
 identificador
     : Identificador
-    | NonStrictLet
     | Assincrono
     | Como
     ;
@@ -626,11 +596,9 @@ palavraChave
     | Exportar
     | Importar
     | Implementa
-    | let_
     | Privado
     | Publico
     | Interface
-    | Pacote
     | Protegido
     | Estatico
     | Acumular
@@ -646,11 +614,6 @@ palavraChave
     | Mescla
     | Operador
     | Tudo
-    ;
-
-let_
-    : NonStrictLet
-    | StrictLet
     ;
 
 fimDoComando

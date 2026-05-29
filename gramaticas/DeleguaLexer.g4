@@ -45,19 +45,15 @@ channels { ERROR }
 
 options { superClass=DeleguaLexerBase; }
 
-// Insira aqui um @header para o avaliador léxico em C++.
 
-HashBangLinha:                      { this.IsStartOfFile()}? '#!' ~[\r\n\u2028\u2029]*; // permitido apenas no início
 MultiLinhaComentario:               '/*' .*? '*/'             -> channel(HIDDEN);
 SingleLinhaComentario:              '//' ~[\r\n\u2028\u2029]* -> channel(HIDDEN);
-ExpressaoRegularLiteral:           '/' ExpressaoRegularPrimeiroChar ExpressaoRegularChar* {this.IsRegexPossible()}? '/' IdentificadorPart*;
 
 AbreColchete:                      '[';
 FechaColchete:                     ']';
 AbreParentese:                     '(';
 FechaParentese:                    ')';
 AbreChave:                         '{' {this.ProcessoAbreChave();};
-TemplateFechaChave:                {this.EstaEmTemplateTexto()}? '}' -> popMode;
 FechaChave:                        '}' {this.ProcessoFechaChave();};
 PontoEVirgula:                     ';';
 Virgula:                           ',';
@@ -79,10 +75,8 @@ DivisaoInteira:                    '\\';
 Modulo:                            '%';
 Potencia:                          '**';
 Elvis:                             '?:';
-Hashtag:                           '#';
 DireitaShiftAritmetico:            '>>';
 EsquerdaShiftAritmetico:           '<<';
-DireitaShiftLogical:               '>>>';
 MenosQue:                          '<';
 MaiorQue:                          '>';
 MenosQueIgual:                     '<=';
@@ -92,17 +86,14 @@ NaoIgual:                          '!=';
 BitAnd:                            '&';
 BitXOr:                            '^';
 BitOr:                             '|';
-And:                               '&&' | 'e';
-Or:                                '||' | 'ou';
+And:                               'e';
+Or:                                'ou';
 MultiplicacaoAtribuicao:           '*=';
 DivisaoAtribuicao:                 '/=';
 DivisaoInteiraAtribuicao:          '\\=';
 ModuloAtribuicao:                  '%=';
 MaisAtribuicao:                    '+=';
 MenosAtribuicao:                   '-=';
-EsquerdaShiftAritmeticoAtribuicao: '<<=';
-DireitaShiftAritmeticoAtribuicao:  '>>=';
-DireitaShiftLogicalAtribuicao:     '>>>=';
 BitAndAtribuicao:                  '&=';
 BitXorAtribuicao:                  '^=';
 BitOrAtribuicao:                   '|=';
@@ -118,24 +109,16 @@ LiteralNulo:                       'nulo';
 LiteralLogico:                     'verdadeiro'
              |                     'falso';
 
-/// Numeric Literals
+/// Literais Numéricos
 
 DecimalLiteral:                 DecimalInteiroLiteral '.' [0-9] [0-9_]* ParteDoExpoente?
               |                 '.' [0-9] [0-9_]* ParteDoExpoente?
               |                 DecimalInteiroLiteral ParteDoExpoente?
               ;
 
-/// Numeric Literals
-
 HexInteiroLiteral:              '0' [xX] [0-9a-fA-F] HexDigit*;
-OctalInteiroLiteral:            '0' [0-7]+ {!this.IsStrictMode()}?;
 OctalInteiroLiteral2:           '0' [oO] [0-7] [_0-7]*;
 BinaryInteiroLiteral:           '0' [bB] [01] [_01]*;
-
-BigHexInteiroLiteral:           '0' [xX] [0-9a-fA-F] HexDigit* 'n';
-BigOctalInteiroLiteral:         '0' [oO] [0-7] [_0-7]* 'n';
-BigBinaryInteiroLiteral:        '0' [bB] [01] [_01]* 'n';
-BigDecimalInteiroLiteral:       DecimalInteiroLiteral 'n';
 
 /// Palavras-chave
 
@@ -143,7 +126,6 @@ Sustar:                          'sustar' | 'quebrar' | 'quebre';
 Do:                              'faca' | 'faça' | 'fazer';
 Caso:                            'caso';
 Senao:                           'senao' | 'senão';
-Novo:                            'novo';
 Var:                             'var' | 'variavel' | 'variável';
 Pegue:                           'pegue' | 'pegar';
 Cada:                            'cada';
@@ -154,8 +136,10 @@ Vazio:                           'vazio';
 Continue:                        'continue' | 'continua' | 'continuar';
 Para:                            'para';
 Escolha:                         'escolha' | 'escolher';
+Estatico:                       'estatico' | 'estatica' | 'estático' | 'estática';
 Enquanto:                        'enquanto';
 Funcao_:                         'funcao' | 'função';
+Implementa:                     'implementa' | ('implements' {this.IsStrictMode()}?);
 Isto:                            'isto';
 Com:                             'com';
 Padrao:                          'padrao' | 'padrão';
@@ -168,7 +152,6 @@ Como:                            'como';
 De:                              'de';
 Tendo:                           'tendo';
 Classe:                         'classe';
-Enum:                           'enum';
 Herda:                          'herda';
 Super:                          'super';
 Const:                          'const' | 'constante' | 'fixo';
@@ -195,15 +178,15 @@ Tudo:                           'tudo';
 Acumular:                       'acumular';
 Aguardar:                       'aguardar' | 'aguarde';
 Assincrono:                     'assincrono' | 'assíncrono';
-Implementa:                     'implementa' | ('implements' {this.IsStrictMode()}?);
-StrictLet:                      'let' {this.IsStrictMode()}?;
-NonStrictLet:                   'let' {!this.IsStrictMode()}?;
-Privado:                        'privado' | ('private' {this.IsStrictMode()}?);
-Publico:                        'publico' | 'público' | ('public' {this.IsStrictMode()}?);
+Enum:                           'enum';
+Novo:                           'novo';
+// StrictLet:                      'let' {this.IsStrictMode()}?;
+// NonStrictLet:                   'let' {!this.IsStrictMode()}?;
+Privado:                        'privado';
+Publico:                        'publico' | 'público';
 Interface:                      'interface';
-Pacote:                         'package' {this.IsStrictMode()}?;
-Protegido:                      'protegido' | ('protected' {this.IsStrictMode()}?);
-Estatico:                       'estatico' | 'estatica' | 'estático' | 'estática' | ('static' {this.IsStrictMode()}?);
+// Pacote:                         'package';
+Protegido:                      'protegido';
 
 /// Delimitadores e símbolos especiais
 
@@ -217,7 +200,6 @@ LiteralTexto:                 ('"' DoubleStringCharacter* '"'
              |                  '\'' SingleStringCharacter* '\'') {this.ProcessoLiteralTexto();}
              ;
 
-BackTick:                       '`' {this.IncrementarProfundidadeTemplate();} -> pushMode(TEMPLATE);
 
 WhiteSpaces:                    [\t\u000B\u000C\u0020\u00A0]+ -> channel(HIDDEN);
 
@@ -225,15 +207,8 @@ LinhaTerminador:                 [\r\n\u2028\u2029] -> channel(HIDDEN);
 
 /// Comentários
 
-HtmlComentario:                 '<!--' .*? '-->' -> channel(HIDDEN);
-CDataComentario:                '<![CDATA[' .*? ']]>' -> channel(HIDDEN);
 UnexpectedCharacter:            . -> channel(ERROR);
 
-mode TEMPLATE;
-
-TemBackTick:                 '`' {this.DecreaseTemplateDepth();} -> type(BackTick), popMode;
-TemplateStringStartExpressao:  '${' -> pushMode(DEFAULT_MODE);
-TemplateStringAtom:             ~[`];
 
 // Fragment rules
 
@@ -321,23 +296,6 @@ fragment IdentificadorStart
     | '\\' UnicodeEscapeSequencia
     ;
 
-fragment ExpressaoRegularPrimeiroChar
-    : ~[*\r\n\u2028\u2029\\/[]
-    | ExpressaoRegularBackslashSequencia
-    | '[' ExpressaoRegularClasseChar* ']'
-    ;
 
-fragment ExpressaoRegularChar
-    : ~[\r\n\u2028\u2029\\/[]
-    | ExpressaoRegularBackslashSequencia
-    | '[' ExpressaoRegularClasseChar* ']'
-    ;
 
-fragment ExpressaoRegularClasseChar
-    : ~[\r\n\u2028\u2029\]\\]
-    | ExpressaoRegularBackslashSequencia
-    ;
 
-fragment ExpressaoRegularBackslashSequencia
-    : '\\' ~[\r\n\u2028\u2029]
-    ;
