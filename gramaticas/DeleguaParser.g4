@@ -429,7 +429,7 @@ expressaoUnica
     | '~' expressaoUnica                                                # BitNotExpressao
     | Not expressaoUnica                                                # NotExpressao
     | Aguardar expressaoUnica                                           # AguardarExpressao
-    | <assoc=right> expressaoUnica '**' expressaoUnica                  # PotenciaExpressao
+    | <assoc=right> expressaoNaoUnaria '**' expressaoUnica              # PotenciaExpressao
     | expressaoUnica ('*' | '/' | '%') expressaoUnica                   # MultiplicativeExpressao
     | expressaoUnica ('+' | '-') expressaoUnica                         # AdditiveExpressao
     | expressaoUnica '?:' expressaoUnica                                # CoalesceExpressao
@@ -456,6 +456,32 @@ expressaoUnica
     | vetorLiteral                                                      # ArrayLiteralExpressao
     | objetoLiteral                                                     # ObjectLiteralExpressao
     | '(' expressaoSequencia ')'                                        # ParenthesizedExpressao
+    ;
+
+// Expressões que não iniciam com operador unário prefixado.
+// Usada no lado esquerdo de '**' para garantir que '-3 ** 2' seja lido como '-(3 ** 2)'.
+expressaoNaoUnaria
+    : funcaoAnonima
+    | Classe identificador? fimDaClasse
+    | Para Cada alvoParaCada (Em | De) expressaoSequencia bloco
+    | expressaoNaoUnaria '?.' expressaoUnica
+    | expressaoNaoUnaria '?.'? '[' expressaoSequencia ']'
+    | expressaoNaoUnaria '?'? '.' '#'? identificadorNome
+    | Novo expressaoUnica argumentos
+    | Novo expressaoUnica
+    | expressaoNaoUnaria argumentos
+    | Novo '.' identificador
+    | expressaoNaoUnaria {this.notLinhaTerminador()}? '++'
+    | expressaoNaoUnaria {this.notLinhaTerminador()}? '--'
+    | Importar '(' expressaoUnica ')'
+    | expressaoNaoUnaria templateLiteralTexto
+    | Isto
+    | identificador
+    | Super
+    | literal
+    | vetorLiteral
+    | objetoLiteral
+    | '(' expressaoSequencia ')'
     ;
 
 designavel
