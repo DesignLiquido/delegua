@@ -1,4 +1,5 @@
 export * from './analisador-semantico';
+export * from './ffi';
 export * from './avaliador-sintatico';
 export * from './construtos';
 export * from './declaracoes';
