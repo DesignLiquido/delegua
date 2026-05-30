@@ -2515,6 +2515,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         if (declaracao.estrangeira && this.despachadorFFI) {
             const descritorFFI = this.despachadorFFI.resolverClasseEstrangeira(declaracao);
             if (descritorFFI) {
+                descritorFFI.estrangeira = true;
                 descritorFFI.orem = DescritorTipoClasse.computarOReM(descritorFFI);
                 return descritorFFI;
             }
@@ -3288,6 +3289,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                 console.log(
                     `[Interpretador] Tempo para interpretaçao: ${deltaInterpretacao[0] * 1e9 + deltaInterpretacao[1]}ns`
                 );
+            }
+
+            if (!manterAmbiente) {
+                this.despachadorFFI?.descarregarTudo();
             }
 
             const retorno = {

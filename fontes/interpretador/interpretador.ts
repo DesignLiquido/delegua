@@ -1104,6 +1104,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         if (declaracao.estrangeira && this.despachadorFFI) {
             const descritorFFI = this.despachadorFFI.resolverClasseEstrangeira(declaracao);
             if (descritorFFI) {
+                descritorFFI.estrangeira = true;
                 descritorFFI.orem = DescritorTipoClasse.computarOReM(descritorFFI);
                 return descritorFFI;
             }

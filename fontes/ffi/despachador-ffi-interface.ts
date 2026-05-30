@@ -24,7 +24,9 @@ export interface DespachadorFFIInterface {
 
     /**
      * Libera todos os recursos nativos carregados (handles de bibliotecas, etc.).
-     * Chamado pelo interpretador ao encerrar a execução.
+     * Chamado automaticamente pelo interpretador quando `interpretar()` é invocado sem
+     * `manterAmbiente` (modo script). Em modo REPL (`manterAmbiente = true`), o
+     * runtime deve chamar este método manualmente ao encerrar a sessão.
      */
     descarregarTudo(): void;
 }
