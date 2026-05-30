@@ -1101,6 +1101,14 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         superClassesResolvidas: DescritorTipoClasse[],
         mesclaResolvidas: DescritorTipoClasse[]
     ): DescritorTipoClasse {
+        if (declaracao.estrangeira && this.despachadorFFI) {
+            const descritorFFI = this.despachadorFFI.resolverClasseEstrangeira(declaracao);
+            if (descritorFFI) {
+                descritorFFI.estrangeira = true;
+                descritorFFI.orem = DescritorTipoClasse.computarOReM(descritorFFI);
+                return descritorFFI;
+            }
+        }
         return this.logicaPropriedadesEMetodosDeClasse(
             declaracao,
             superClassesResolvidas,

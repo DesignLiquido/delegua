@@ -1,4 +1,5 @@
 import hrtime from 'browser-process-hrtime';
+import { DespachadorFFIInterface } from '../ffi';
 
 import {
     Bloco,
@@ -155,6 +156,15 @@ export class InterpretadorBase implements InterpretadorInterface {
 
     microLexador: MicroLexador = new MicroLexador();
     microAvaliadorSintatico: MicroAvaliadorSintaticoBase = new MicroAvaliadorSintatico();
+
+    /**
+     * Despachador FFI opcional. Quando presente, é invocado ao visitar uma
+     * `classe estrangeira` com `@definicao`, permitindo que o runtime forneça
+     * métodos vinculados a bibliotecas nativas (ex.: via `koffi` em Node.js).
+     * Quando ausente, o comportamento padrão é preservado: a classe recebe
+     * `estrangeira = true` e lança erro ao ser instanciada diretamente.
+     */
+    despachadorFFI?: DespachadorFFIInterface;
 
     regexInterpolacao = /\${(.*?)}/g;
 
@@ -2502,6 +2512,15 @@ export class InterpretadorBase implements InterpretadorInterface {
         superClassesResolvidas: DescritorTipoClasse[],
         _mesclaResolvidas: DescritorTipoClasse[]
     ): DescritorTipoClasse {
+        if (declaracao.estrangeira && this.despachadorFFI) {
+            const descritorFFI = this.despachadorFFI.resolverClasseEstrangeira(declaracao);
+            if (descritorFFI) {
+                descritorFFI.estrangeira = true;
+                descritorFFI.orem = DescritorTipoClasse.computarOReM(descritorFFI);
+                return descritorFFI;
+            }
+        }
+
         const metodos: { [nome: string]: DeleguaFuncao | DeleguaFuncao[] } = {};
         for (const metodoAtual of declaracao.metodos) {
             const nomeMetodo = metodoAtual.simbolo.lexema;
@@ -2532,6 +2551,9 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         descritorTipoClasse.orem = DescritorTipoClasse.computarOReM(descritorTipoClasse);
+        if (declaracao.estrangeira) {
+            descritorTipoClasse.estrangeira = true;
+        }
         return descritorTipoClasse;
     }
 
@@ -3267,6 +3289,10 @@ export class InterpretadorBase implements InterpretadorInterface {
                 console.log(
                     `[Interpretador] Tempo para interpretaçao: ${deltaInterpretacao[0] * 1e9 + deltaInterpretacao[1]}ns`
                 );
+            }
+
+            if (!manterAmbiente) {
+                this.despachadorFFI?.descarregarTudo();
             }
 
             const retorno = {
