@@ -1241,7 +1241,7 @@ export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implement
             )
         ) {
             const operador = this.simboloAnterior();
-            const direito = await this.unario();
+            const direito = await this.exponenciacao();
             return new Unario(this.hashArquivo, operador, direito);
         }
 

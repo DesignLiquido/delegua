@@ -1717,7 +1717,7 @@ export class AvaliadorSintatico
             )
         ) {
             const operador = this.simbolos[this.atual - 1];
-            const direito = await this.unario();
+            const direito = await this.exponenciacao();
             if (
                 operador.tipo === tiposDeSimbolos.NEGACAO ||
                 operador.tipo === tiposDeSimbolos.NAO

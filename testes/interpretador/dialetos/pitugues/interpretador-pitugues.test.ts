@@ -4499,6 +4499,20 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas[0]).toBe("['Espada']");
                 });
             });
+
+            it('Deve processar corretamente o uso de operador unário negativo', async () => {
+                const codigo = [
+                    'resultado = -3 ** 2',
+                    'escreva(resultado)'
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('-9');
+            });
         });
 
         it('termina_com - sufixo encontrado no final', async () => {
