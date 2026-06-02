@@ -743,6 +743,14 @@ export class InterpretadorBase implements InterpretadorInterface {
             // Se veio antes e o operando é uma variável, precisamos incrementar/decrementar,
             // armazenar o valor da variável pra só então devolver o valor.
             case tiposDeSimbolos.INCREMENTAR:
+                if (typeof valor === 'string') {
+                    throw new ErroEmTempoDeExecucao(
+                        expressao.operador,
+                        `Operador '${expressao.operador.lexema}' não pode ser aplicado a um texto.`,
+                        expressao.linha
+                    );
+                }
+
                 if (expressao.incidenciaOperador === 'ANTES') {
                     valor++;
                     if (expressao.operando instanceof Variavel) {
@@ -761,6 +769,14 @@ export class InterpretadorBase implements InterpretadorInterface {
                 }
                 return valorAnteriorIncremento;
             case tiposDeSimbolos.DECREMENTAR:
+                if (typeof valor === 'string') {
+                    throw new ErroEmTempoDeExecucao(
+                        expressao.operador,
+                        `Operador '${expressao.operador.lexema}' não pode ser aplicado a um texto.`,
+                        expressao.linha
+                    );
+                }
+
                 if (expressao.incidenciaOperador === 'ANTES') {
                     valor--;
                     if (expressao.operando instanceof Variavel) {
@@ -1568,11 +1584,49 @@ export class InterpretadorBase implements InterpretadorInterface {
             case Variavel:
                 const alvoVariavel = expressao.alvo as Variavel;
 
-                this.atribuirVariavel(
-                    alvoVariavel,
-                    valorResolvido,
-                    indice
-                );
+                if (expressao.simboloOperador) {
+                    let valorAtual: any;
+
+                    valorAtual = this.resolverValor(
+                        this.pilhaEscoposExecucao.obterValorVariavel(alvoVariavel.simbolo)
+                    );
+
+                    if (typeof valorAtual === 'string') {
+                        let valorDireito: any;
+
+                        if (expressao.valor instanceof Binario) {
+                            valorDireito = this.resolverValor(
+                                await this.avaliar(expressao.valor.direita)
+                            );
+                        } else {
+                            valorDireito = valorResolvido;
+                        }
+
+                        if (expressao.simboloOperador.tipo === tiposDeSimbolos.MAIS_IGUAL) {
+                            if (typeof valorDireito !== 'string') {
+                                throw new ErroEmTempoDeExecucao(
+                                    expressao.simboloOperador,
+                                    `Operador '+=' não pode concatenar texto com ${typeof valorDireito}. Use conversão explícita.`,
+                                    expressao.linha
+                                );
+                            }
+                        } else if (
+                            [tiposDeSimbolos.MENOS_IGUAL,
+                             tiposDeSimbolos.MULTIPLICACAO_IGUAL,
+                             tiposDeSimbolos.DIVISAO_IGUAL,
+                             tiposDeSimbolos.MODULO_IGUAL]
+                            .includes(expressao.simboloOperador.tipo)
+                        ) {
+                            throw new ErroEmTempoDeExecucao(
+                                expressao.simboloOperador,
+                                `Operador '${expressao.simboloOperador.lexema}' não pode ser aplicado a um texto.`,
+                                expressao.linha
+                            );
+                        }
+                    }
+                }
+
+                this.atribuirVariavel(alvoVariavel, valorResolvido, indice);
 
                 break;
 

@@ -1638,7 +1638,9 @@ export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implement
                 return new Atribuir(
                     this.hashArquivo,
                     expressao,
-                    operacaoBinaria
+                    operacaoBinaria,
+                    undefined,
+                    operadorAtribuicao
                 );
             }
 
