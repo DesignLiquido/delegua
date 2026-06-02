@@ -5428,6 +5428,19 @@ describe('Interpretador (Pituguês)', () => {
 
                 expect(retornoInterpretador.erros).toHaveLength(4);
             });
+
+            it('Deve acusar erro ao tentar usar operador de incremento em texto', async () => {
+                const codigo = [
+                    'x = "texto"',
+                    'x += 1',
+                    'escreva(x)'
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(1);
+            });
         });
 
         describe('Métodos de primitivas com dependência no interpretador', () => {

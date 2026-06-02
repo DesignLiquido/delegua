@@ -5325,6 +5325,19 @@ describe('Interpretador', () => {
 
                 expect(retornoInterpretador.erros).toHaveLength(1);
             });
+
+            it('Deve acusar erro ao tentar usar operador de incremento em texto', async () => {
+                const codigo = [
+                    'var x = "texto";',
+                    'x++;',
+                    'escreva(x)'
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(1);
+            });
         });
 
         describe('Verificação de tipos em atribuição', () => {
