@@ -1439,6 +1439,23 @@ describe('Interpretador (Pituguês)', () => {
                             expect(_saidas[2]).toBe('("c", 3)');
                         });
                     });
+
+                    it('Deve retornar o tipo correto do dado ao usar operador "tipo()"', async () => {
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'dicionario = {"a": 1, "b": 2}',
+                                'para cada chave, valor em dicionario:',
+                                '    escreva(tipo(chave), tipo(valor))',
+                            ], -1
+                        );
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(2);
+                        expect(_saidas[0]).toBe('texto número');
+                        expect(_saidas[1]).toBe('texto número');
+                    });
                 });
 
                 it('Iterando texto', async () => {
