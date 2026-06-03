@@ -1378,6 +1378,19 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
             });
+            it('Concatenação de vetores com operador + não deve gerar erro (issue #1328)', async () => {
+                const retornoLexador = lexador.mapear([
+                    `vetor1 = [1, 2, 4]`,
+                    `vetor2 = [1, 3, 4]`,
+                    `vetor_final = vetor1 + vetor2`,
+                    `escreva(vetor_final)`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
         });
         describe('Atribuição de tipos vetoriais - atribuição inconsciente com o tipo só gera aviso', () => {
             describe('Tipo inteiro[]', () => {

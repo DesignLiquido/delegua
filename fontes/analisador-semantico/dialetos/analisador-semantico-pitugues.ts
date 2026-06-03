@@ -195,6 +195,9 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                 } else if (declaracao.inicializador instanceof Chamada) {
                     // Chamadas de método/função podem retornar vetores, então não geramos erro
                     // A verificação de tipo será feita em tempo de execução
+                } else if (declaracao.inicializador instanceof Binario) {
+                    // Expressões binárias podem produzir vetores em tempo de execução
+                    // (ex: vetor1 + vetor2 concatena dois vetores), então não geramos erro
                 } else {
                     this.erro(
                         declaracao.simbolo,
@@ -933,6 +936,15 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
             // Concatenação de textos
             if (tipoEsquerda === 'texto' || tipoDireita === 'texto') {
                 return 'texto';
+            }
+
+            // Concatenação de vetores com operador +
+            if (
+                binario.operador.tipo === 'ADICAO' &&
+                (tipoEsquerda.endsWith('[]') || tipoEsquerda === 'vetor') &&
+                (tipoDireita.endsWith('[]') || tipoDireita === 'vetor')
+            ) {
+                return tipoEsquerda === tipoDireita ? tipoEsquerda : 'qualquer[]';
             }
         }
 

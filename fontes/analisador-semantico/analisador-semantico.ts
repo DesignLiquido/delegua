@@ -120,6 +120,9 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 } else if (declaracao.inicializador instanceof Chamada) {
                     // Chamadas de método/função podem retornar vetores.
                     // A validação detalhada é feita em tempo de execução.
+                } else if (declaracao.inicializador instanceof Binario) {
+                    // Expressões binárias podem produzir vetores em tempo de execução
+                    // (ex: vetor1 + vetor2 concatena dois vetores), então não geramos erro
                 } else {
                     this.erro(
                         declaracao.simbolo,
