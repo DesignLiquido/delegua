@@ -2784,6 +2784,24 @@ describe('Interpretador', () => {
                         expect(_saidas).toHaveLength(1);
                         expect(_saidas[0]).toBe('[15, 45, 75, 35, 150]');
                     });
+
+                    it('Deve retornar o tipo correto do dado ao usar operador "tipo de"', async () => {
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'var dicionario = {"a": 1, "b": 2}',
+                                'para cada {chave, valor} em dicionario {',
+                                '    escreva(tipo de chave, tipo de valor)',
+                                '}'
+                            ], -1
+                        );
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toHaveLength(2);
+                        expect(_saidas[0]).toBe('texto número');
+                        expect(_saidas[1]).toBe('texto número');
+                    });
                 });
 
                 describe('Para tradicional', () => {

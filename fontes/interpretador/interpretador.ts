@@ -2126,7 +2126,17 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 const alvoTipoDe = await this.avaliar(valorTipoDe);
                 return `tipo de<${alvoTipoDe}>`;
             case Variavel:
-                return valorTipoDe.tipo || inferirTipoVariavel(await this.avaliar(valorTipoDe));
+                const tipoEstatico = valorTipoDe.tipo;
+                if (tipoEstatico !== 'qualquer') return tipoEstatico;
+
+                const valorAvaliado = await this.avaliar(valorTipoDe);
+                const valorResolvido = this.resolverValor(valorAvaliado);
+
+                if (valorResolvido === undefined || valorResolvido === null) {
+                    return 'qualquer';
+                }
+
+                return inferirTipoVariavel(valorResolvido) as string;
             case Vetor:
                 const vetor = valorTipoDe as Vetor;
                 const apenasValores = vetor.valores.filter(
