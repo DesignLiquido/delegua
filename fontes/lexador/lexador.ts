@@ -19,12 +19,20 @@ const tokensSimples: Record<string, string> = {
     '}': tiposDeSimbolos.CHAVE_DIREITA,
     ',': tiposDeSimbolos.VIRGULA,
     ':': tiposDeSimbolos.DOIS_PONTOS,
+    // Ponto-e-vírgula é opcional em Delégua, mas em alguns casos pode ser
+    // necessário. Por exemplo, declaração de `para` sem inicializador.
     ';': tiposDeSimbolos.PONTO_E_VIRGULA,
     '^': tiposDeSimbolos.CIRCUMFLEXO,
     '~': tiposDeSimbolos.BIT_NOT,
     '&': tiposDeSimbolos.BIT_AND
 };
 
+/*
+ * O Lexador é responsável por transformar o código em uma coleção de tokens de linguagem.
+ * Cada token de linguagem é representado por um tipo, um lexema e informações da linha de código em que foi expresso.
+ * Também é responsável por mapear as palavras reservadas da linguagem, que não podem ser usadas por outras
+ * estruturas, tais como nomes de variáveis, funções, literais, classes e assim por diante.
+ */
 export class Lexador extends LexadorBase {
     performance: boolean;
 
@@ -327,6 +335,11 @@ export class Lexador extends LexadorBase {
         }
     }
 
+    /**
+     * Lê um comentário documentário (iniciado com `/**`), agregando o conteúdo
+     * em um único token DOCUMENTARIO. Linhas com `*` inicial (convenção JSDoc)
+     * têm o asterisco removido.
+     */
     comentarioDocumentario(): void {
         let conteudo = '';
 
@@ -584,8 +597,8 @@ export class Lexador extends LexadorBase {
         this.codigo = codigo && codigo.length > 0 ? codigo : [''];
         this.hashArquivo = hashArquivo;
 
-        for (let i = 0; i < this.codigo.length; i++) {
-            this.codigo[i] += '\0';
+        for (let iterador = 0; iterador < this.codigo.length; iterador++) {
+            this.codigo[iterador] += '\0';
         }
 
         while (!this.eFinalDoCodigo()) {
