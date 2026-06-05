@@ -455,6 +455,13 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                             valorArg = await this.avaliar(valorArg);
                         } else if (valorArg?.hasOwnProperty('valor')) {
                             valorArg = this.resolverValor(valorArg);
+                        } else {
+                            return Promise.reject(
+                                new ErroEmTempoDeExecucao(
+                                    declaracao.simbolo,
+                                    `Não foi possível resolver o argumento do decorador '@${nomeDecorador}'. O tipo de dado ou expressão não é suportado.`
+                                )
+                            );
                         }
 
                         argumentosDecorador.push({ nome: '', valor: valorArg });

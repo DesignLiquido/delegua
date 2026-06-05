@@ -2054,13 +2054,23 @@ export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implement
             }
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
-                const chamada = await this.finalizarChamada(
-                    new Variavel(this.hashArquivo, primeiraParteNomeDecorador)
+                const entidadeChamada = new Variavel(
+                    this.hashArquivo,
+                    primeiraParteNomeDecorador
                 );
-                const argumentos = (chamada as Chamada).argumentos;
+                const chamada = await this.finalizarChamada(entidadeChamada);
 
-                for (let i = 0; i < argumentos.length; i++) {
-                    atributos[i] = argumentos[i];
+                if (chamada && 'argumentos' in chamada) {
+                    const argumentos = chamada.argumentos;
+
+                    for (let i = 0; i < argumentos.length; i++) {
+                        atributos[i] = argumentos[i];
+                    }
+                } else {
+                    throw this.erro(
+                        primeiraParteNomeDecorador,
+                        `Esperado formato de chamada de função para os parâmetros do decorador '@${nomeDecorador}'.`
+                    );
                 }
             }
 
