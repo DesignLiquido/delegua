@@ -4016,60 +4016,93 @@ describe('Interpretador (Pituguês)', () => {
                 });
             });
 
-            it('Suporta o uso de Decoradores utilizando função anônima', async () => {
-                const codigo = [
-                    'função de decorador meu_decorador(decorado):',
-                    '   retorna funcao():',
-                    '       escreva("Antes")',
-                    '       decorado()',
-                    '       escreva("Depois")',
-                    '',
-                    '@meu_decorador',
-                    'função ola_mundo():',
-                    '   escreva("Olá, Mundo!")',
-                    '',
-                    'ola_mundo()'
-                ];
-                const retornoLexador = lexador.mapear(codigo, -1);
-                const retornoAvaliador = await avaliadorSintatico.analisar(
-                    retornoLexador,
-                    -1
-                );
-                const retornoInterpretador = await interpretador.interpretar(
-                    retornoAvaliador.declaracoes
-                );
+            describe('Decoradores', () => {
+                it('Suporta o uso de Decoradores utilizando função anônima', async () => {
+                    const codigo = [
+                        'função de decorador meu_decorador(decorado):',
+                        '   retorna funcao():',
+                        '       escreva("Antes")',
+                        '       decorado()',
+                        '       escreva("Depois")',
+                        '',
+                        '@meu_decorador',
+                        'função ola_mundo():',
+                        '   escreva("Olá, Mundo!")',
+                        '',
+                        'ola_mundo()'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliador = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliador.declaracoes
+                    );
 
-                expect(retornoInterpretador.erros).toHaveLength(0);
-                expect(_saidas).toEqual(['Antes', 'Olá, Mundo!', 'Depois']);
-            });
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toEqual(['Antes', 'Olá, Mundo!', 'Depois']);
+                });
 
-            it('Suporta o uso de Decoradores usando função nomeada', async () => {
-                const codigo = [
-                    'função de decorador meu_decorador(decorado):',
-                    '   funcao envelope():',
-                    '       escreva("Antes")',
-                    '       decorado()',
-                    '       escreva("Depois")',
-                    '',
-                    '   retorna envelope',
-                    '',
-                    '@meu_decorador',
-                    'função ola_mundo():',
-                    '   escreva("Olá, Mundo!")',
-                    '',
-                    'ola_mundo()'
-                ];
-                const retornoLexador = lexador.mapear(codigo, -1);
-                const retornoAvaliador = await avaliadorSintatico.analisar(
-                    retornoLexador,
-                    -1
-                );
-                const retornoInterpretador = await interpretador.interpretar(
-                    retornoAvaliador.declaracoes
-                );
+                it('Suporta o uso de Decoradores usando função nomeada', async () => {
+                    const codigo = [
+                        'função de decorador meu_decorador(decorado):',
+                        '   funcao envelope():',
+                        '       escreva("Antes")',
+                        '       decorado()',
+                        '       escreva("Depois")',
+                        '',
+                        '   retorna envelope',
+                        '',
+                        '@meu_decorador',
+                        'função ola_mundo():',
+                        '   escreva("Olá, Mundo!")',
+                        '',
+                        'ola_mundo()'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliador = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliador.declaracoes
+                    );
 
-                expect(retornoInterpretador.erros).toHaveLength(0);
-                expect(_saidas).toEqual(['Antes', 'Olá, Mundo!', 'Depois']);
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toEqual(['Antes', 'Olá, Mundo!', 'Depois']);
+                });
+
+                it('Suporta o uso de Decoradores com parâmetros', async () => {
+                    const codigo = [
+                        'função de decorador meu_decorador(decorado, nome):',
+                        '   retorna funcao():',
+                        '       escreva(f"Olá, {nome}")',
+                        '       decorado()',
+                        '       escreva(f"Tchau, {nome}")',
+                        '',
+                        '@meu_decorador("Victor")',
+                        'função ola_mundo():',
+                        '   escreva("Olá, Mundo!")',
+                        '',
+                        'ola_mundo()'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliador = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliador.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toEqual([
+                        'Olá, Victor',
+                        'Olá, Mundo!',
+                        'Tchau, Victor'
+                    ]);
+                });
             });
 
             it('aleatorio()', async () => {

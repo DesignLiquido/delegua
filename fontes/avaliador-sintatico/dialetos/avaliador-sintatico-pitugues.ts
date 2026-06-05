@@ -2031,15 +2031,16 @@ export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implement
     protected async resolverDecoradores(): Promise<void> {
         while (this.verificarTipoSimboloAtual(tiposDeSimbolos.ARROBA)) {
             this.avancarEDevolverAnterior();
-            let nomeDecorador = '@';
-            let linha: number;
-            let parametros: Array<Partial<ParametroInterface>> = [];
-            const atributos: { [key: string]: any } = {};
 
+            const atributos: { [key: string]: any } = {};
             const primeiraParteNomeDecorador = this.consumir(
                 tiposDeSimbolos.IDENTIFICADOR,
                 'Esperado nome de decorador após "@".'
             );
+
+            let linha: number;
+            let nomeDecorador = '@';
+
             linha = Number(primeiraParteNomeDecorador.linha);
             nomeDecorador += primeiraParteNomeDecorador.lexema;
 
@@ -2048,28 +2049,29 @@ export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implement
                     tiposDeSimbolos.IDENTIFICADOR,
                     'Esperado nome de decorador após "."'
                 );
+
                 nomeDecorador += '.' + parteNomeDecorador.lexema;
             }
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
-                if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
-                    parametros = await this.logicaComumParametros();
-                }
-
-                for (const parametro of parametros) {
-                    if (parametro.nome.lexema in atributos) {
-                        throw this.erro(
-                            parametro.nome,
-                            `Atributo de decorador declarado duas ou mais vezes: ${parametro.nome.lexema}`
-                        );
-                    }
-                    atributos[parametro.nome.lexema] = parametro.valorPadrao;
-                }
-
-                this.consumir(
-                    tiposDeSimbolos.PARENTESE_DIREITO,
-                    'Esperado ")" após argumentos do decorador.'
+                const entidadeChamada = new Variavel(
+                    this.hashArquivo,
+                    primeiraParteNomeDecorador
                 );
+                const chamada = await this.finalizarChamada(entidadeChamada);
+
+                if (chamada && 'argumentos' in chamada) {
+                    const argumentos = chamada.argumentos;
+
+                    for (let i = 0; i < argumentos.length; i++) {
+                        atributos[i] = argumentos[i];
+                    }
+                } else {
+                    throw this.erro(
+                        primeiraParteNomeDecorador,
+                        `Esperado formato de chamada de função para os parâmetros do decorador '@${nomeDecorador}'.`
+                    );
+                }
             }
 
             this.pilhaDecoradores.push(

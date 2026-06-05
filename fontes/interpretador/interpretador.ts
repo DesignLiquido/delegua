@@ -96,6 +96,7 @@ import primitivasTupla from '../bibliotecas/dialetos/pitugues/primitivas-tupla';
 import tipoDeDadosPrimitivos from '../tipos-de-dados/primitivos';
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
 import tiposDeSimbolos from '../tipos-de-simbolos/delegua';
+import { ArgumentoInterface } from './argumento-interface';
 
 /**
  * O interpretador de Delégua, usado também por Pituguês usando herança.
@@ -423,8 +424,13 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         return Promise.resolve(pontoEntradaAjuda(declaracao.funcao, declaracao.elemento));
     }
 
-    override async visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> {
-        let funcao: any = new DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
+    override async visitarDeclaracaoDefinicaoFuncao(
+        declaracao: FuncaoDeclaracao
+    ): Promise<any> {
+        let funcao: any = new DeleguaFuncao(
+            declaracao.simbolo.lexema,
+            declaracao.funcao
+        );
         funcao.documentacao = declaracao.documentacao;
 
         if (declaracao.decoradores && declaracao.decoradores.length > 0) {
@@ -433,16 +439,53 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 const variavelDecoradora =
                     this.pilhaEscoposExecucao.obterVariavelPorNome(nomeDecorador);
                 const funcaoDecoradora: DeleguaFuncao = variavelDecoradora.valor;
-                const resultado = await funcaoDecoradora.chamar(this, [
-                    { nome: '', valor: funcao },
-                ]);
+                const argumentosDecorador: ArgumentoInterface[] = [
+                    { nome: '', valor: funcao }
+                ];
+
+                if (decorador.atributos) {
+                    const chaves = Object.keys(decorador.atributos)
+                        .map(Number)
+                        .sort((a, b) => a - b);
+
+                    for (const chave of chaves) {
+                        let valorArg = decorador.atributos[chave];
+
+                        if (typeof valorArg?.aceitar === 'function') {
+                            valorArg = await this.avaliar(valorArg);
+                        } else if (valorArg?.hasOwnProperty('valor')) {
+                            valorArg = this.resolverValor(valorArg);
+                        } else {
+                            return Promise.reject(
+                                new ErroEmTempoDeExecucao(
+                                    declaracao.simbolo,
+                                    `Não foi possível resolver o argumento do decorador '@${nomeDecorador}'. O tipo de dado ou expressão não é suportado.`
+                                )
+                            );
+                        }
+
+                        argumentosDecorador.push({ nome: '', valor: valorArg });
+                    }
+                }
+
+                const resultado = await funcaoDecoradora.chamar(
+                    this,
+                    argumentosDecorador
+                );
+
                 funcao = this.resolverValorRecursivo(resultado);
             }
         }
 
         // TODO: Depreciar essa abordagem a favor do uso por referências?
-        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
-        this.pilhaEscoposExecucao.registrarReferenciaFuncao(declaracao.id, funcao);
+        this.pilhaEscoposExecucao.definirVariavel(
+            declaracao.simbolo.lexema,
+            funcao
+        );
+        this.pilhaEscoposExecucao.registrarReferenciaFuncao(
+            declaracao.id,
+            funcao
+        );
 
         return Promise.resolve({
             tipo: `função<${funcao.declaracao?.tipo || 'qualquer'}>`,
