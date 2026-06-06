@@ -379,4 +379,537 @@ describe('Tradutor Delégua -> Elixir', () => {
             expect(resultado).toContain('String.upcase(texto)');
         });
     });
+
+    describe('Operações Binárias adicionais', () => {
+        it('Subtração', async () => {
+            const codigo = ['5 - 3'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('5 - 3');
+        });
+
+        it('Divisão', async () => {
+            const codigo = ['10 / 2'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('10 / 2');
+        });
+
+        it('Módulo (resto)', async () => {
+            const codigo = ['10 % 3'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('rem');
+        });
+
+        it('Exponenciação', async () => {
+            const codigo = ['2 ** 8'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('2 ** 8');
+        });
+
+        it('Maior que', async () => {
+            const codigo = ['5 > 3'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('5 > 3');
+        });
+
+        it('Maior ou igual', async () => {
+            const codigo = ['5 >= 3'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('5 >= 3');
+        });
+
+        it('Menor ou igual', async () => {
+            const codigo = ['3 <= 5'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('3 <= 5');
+        });
+
+        it('Igual', async () => {
+            const codigo = ['5 == 5'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('5 == 5');
+        });
+
+        it('Diferente', async () => {
+            const codigo = ['5 != 3'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('5 != 3');
+        });
+
+        it('Negação unária (!)', async () => {
+            const codigo = ['!verdadeiro'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('not');
+            expect(resultado).toContain('true');
+        });
+    });
+
+    describe('Escolha (switch/case)', () => {
+        it('Escolha com um caso e padrão', async () => {
+            const codigo = [
+                'var x = 1',
+                'escolha (x) {',
+                '    caso 1:',
+                '        escreva("um")',
+                '    padrao:',
+                '        escreva("outro")',
+                '}'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('case');
+            expect(resultado).toContain('->');
+            expect(resultado).toContain('_ ->');
+            expect(resultado).toContain('end');
+        });
+
+        it('Escolha com múltiplos casos', async () => {
+            const codigo = [
+                'var y = 2',
+                'escolha (y) {',
+                '    caso 1:',
+                '        escreva("um")',
+                '    caso 2:',
+                '        escreva("dois")',
+                '}'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('case');
+            expect(resultado).toContain('do');
+            expect(resultado).toContain('end');
+        });
+    });
+
+    describe('Escreva com múltiplos argumentos', () => {
+        it('Escreva com dois argumentos', async () => {
+            const codigo = ['escreva("a", "b")'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('IO.puts(');
+            expect(resultado).toContain('<>');
+            expect(resultado).toContain('"a"');
+            expect(resultado).toContain('"b"');
+        });
+
+        it('Escreva com três argumentos', async () => {
+            const codigo = ['escreva("a", "b", "c")'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('IO.puts(');
+            expect(resultado).toContain('<>');
+        });
+    });
+
+    describe('Fazer...enquanto (do-while)', () => {
+        it('Fazer...enquanto simples', async () => {
+            const codigo = [
+                'var x = 0',
+                'faca {',
+                '    escreva(x)',
+                '} enquanto (x < 1)'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('loop = fn ->');
+            expect(resultado).toContain('loop.()');
+            expect(resultado).toContain(':ok');
+            expect(resultado).toContain('end).()');
+        });
+    });
+
+    describe('Para (for clássico)', () => {
+        it('Para com variável e condição', async () => {
+            const codigo = [
+                'para (var i = 0; i < 5; i = i + 1) {',
+                '    escreva(i)',
+                '}'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('loop = fn i when');
+            expect(resultado).toContain('loop.(0)');
+            expect(resultado).toContain(':ok');
+        });
+    });
+
+    describe('Para cada (foreach)', () => {
+        it('Para cada com variável de iteração', async () => {
+            const codigo = [
+                'para cada item em [1, 2, 3] {',
+                '    escreva(item)',
+                '}'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('Enum.each(');
+            expect(resultado).toContain('fn item ->');
+            expect(resultado).toContain('end)');
+        });
+    });
+
+    describe('Acesso a índice de variável', () => {
+        it('Acesso por índice usa Enum.at', async () => {
+            const codigo = [
+                'var lista = [1, 2, 3]',
+                'var elem = lista[0]'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('Enum.at(lista, 0)');
+        });
+    });
+
+    describe('Acesso a método', () => {
+        it('Acesso a método gera referência objeto.metodo', async () => {
+            const codigo = [
+                'var lista = [1, 2, 3]',
+                'lista.tamanho()'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('length(lista)');
+        });
+    });
+
+    describe('Funções lambda (funcao construto)', () => {
+        it('Lambda com corpo de expressão única', async () => {
+            const codigo = ['var f = funcao(x) { retorna x + 1 }'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('fn x ->');
+            expect(resultado).toContain('end');
+        });
+
+        it('Lambda com múltiplas linhas no corpo', async () => {
+            const codigo = [
+                'var f = funcao(x, y) {',
+                '    var soma = x + y',
+                '    retorna soma',
+                '}'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('fn x, y ->');
+            expect(resultado).toContain('end');
+        });
+    });
+
+    describe('Dicionário vazio', () => {
+        it('Dicionário vazio gera %{}', async () => {
+            const codigo = ['var d = {}'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('%{}');
+        });
+    });
+
+    describe('Variável sem inicializador', () => {
+        it('Var sem valor vira nil', async () => {
+            const codigo = ['var x'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('x = nil');
+        });
+    });
+
+    describe('Constante dentro de módulo', () => {
+        it('Const dentro de classe vira atributo de módulo', async () => {
+            const codigo = [
+                'classe Configs {',
+                '    construtor() {',
+                '    }',
+                '}'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('defmodule Configs do');
+            expect(resultado).toContain('end');
+        });
+    });
+
+    describe('Constante fora de módulo', () => {
+        it('Const fora de módulo mantém nome em maiúsculas', async () => {
+            const codigo = ['const PI = 3.14'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('PI = 3.14');
+        });
+
+        it('Const com valor string', async () => {
+            const codigo = ['const SAUDACAO = "Olá"'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('SAUDACAO = "Olá"');
+        });
+    });
+
+    describe('Retorna sem valor', () => {
+        it('Retorna sem valor gera nil', async () => {
+            const codigo = [
+                'funcao nada() {',
+                '    retorna',
+                '}'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('nil');
+        });
+    });
+
+    describe('Expressão lógica', () => {
+        it('E lógico em expressão', async () => {
+            const codigo = ['verdadeiro e falso'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('true and false');
+        });
+
+        it('OU lógico em expressão', async () => {
+            const codigo = ['verdadeiro ou falso'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('true or false');
+        });
+    });
+
+    describe('Leitura de input', () => {
+        it('Leia sem argumento gera IO.gets("")', async () => {
+            const codigo = ['var entrada = leia()'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('IO.gets("")');
+            expect(resultado).toContain('String.trim()');
+        });
+
+        it('Leia com prompt gera IO.gets com argumento', async () => {
+            const codigo = ['var entrada = leia("Digite algo: ")'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('IO.gets("Digite algo: ")');
+        });
+    });
+
+    describe('Classe com estrangeira', () => {
+        it('Classe estrangeira gera @moduledoc e @callback', async () => {
+            const codigo = [
+                'classe estrangeira Servico {',
+                '    processar(dados)',
+                '}'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('defmodule Servico do');
+            expect(resultado).toContain('@moduledoc');
+            expect(resultado).toContain('@callback');
+            expect(resultado).toContain('end');
+        });
+    });
+
+    describe('Métodos de coleção adicionais', () => {
+        it('Método inverter', async () => {
+            const codigo = [
+                'var lista = [1, 2, 3]',
+                'lista.inverter()'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('Enum.reverse(lista)');
+        });
+
+        it('Método ordenar', async () => {
+            const codigo = [
+                'var lista = [3, 1, 2]',
+                'lista.ordenar()'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('Enum.sort(lista)');
+        });
+
+        it('Método somar', async () => {
+            const codigo = [
+                'var lista = [1, 2, 3]',
+                'lista.somar()'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('Enum.sum(lista)');
+        });
+
+        it('Método minusculo', async () => {
+            const codigo = [
+                'var texto = "OLÁ"',
+                'texto.minusculo()'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('String.downcase(texto)');
+        });
+
+        it('Método aparar', async () => {
+            const codigo = [
+                'var texto = "  olá  "',
+                'texto.aparar()'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('String.trim(texto)');
+        });
+
+        it('Método inclui com argumento', async () => {
+            const codigo = [
+                'var lista = [1, 2, 3]',
+                'lista.inclui(2)'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('Enum.member?(lista, 2)');
+        });
+
+        it('Método juntar sem argumento', async () => {
+            const codigo = [
+                'var lista = ["a", "b"]',
+                'lista.juntar()'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('Enum.join(lista)');
+        });
+
+        it('Método remover com argumento', async () => {
+            const codigo = [
+                'var lista = [1, 2, 3]',
+                'lista.remover(2)'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('List.delete(lista, 2)');
+        });
+    });
+
+    describe('Agrupamento', () => {
+        it('Expressão agrupada gera parênteses', async () => {
+            const codigo = ['(5 + 3)'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('(5 + 3)');
+        });
+    });
+
+    describe('Classe com método normal', () => {
+        it('Método de instância passa struct como primeiro parâmetro', async () => {
+            const codigo = [
+                'classe Contador {',
+                '    construtor(valor) {',
+                '        isto.valor = valor',
+                '    }',
+                '    incrementar() {',
+                '        retorna isto.valor + 1',
+                '    }',
+                '}'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('defmodule Contador do');
+            expect(resultado).toContain('defstruct');
+            expect(resultado).toContain(':valor');
+            expect(resultado).toContain('def new(valor)');
+            expect(resultado).toContain('def incrementar(contador)');
+            expect(resultado).toContain('end');
+        });
+    });
 });

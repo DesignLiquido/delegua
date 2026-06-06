@@ -840,7 +840,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 const chamavel = metodoFinalizar.funcaoPorMetodoDeClasse(
                     retornoInicializacaoResolvido
                 );
-                chamavel.chamar(this, []);
+                await chamavel.chamar(this, []);
             }
         }
 

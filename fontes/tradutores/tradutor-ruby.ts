@@ -431,7 +431,9 @@ export class TradutorRuby implements TradutorInterface<Declaracao> {
             resultado = '@' + definirValor.nome.lexema + ' = ';
         }
 
-        resultado += definirValor.valor.simbolo.lexema;
+        resultado += this.dicionarioConstrutos[definirValor.valor.constructor.name](
+            definirValor.valor
+        );
         return resultado;
     }
 

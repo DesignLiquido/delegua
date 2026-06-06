@@ -296,6 +296,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             case Dicionario:
             case Leia:
             case Literal:
+            case Unario:
             case Vetor:
                 return '';
             case Isto:
@@ -731,6 +732,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 this.verificarOperandoNumero(expressao.operador, valor);
                 return -valor;
             case tiposDeSimbolos.NEGACAO:
+            case tiposDeSimbolos.NAO:
                 return !this.eVerdadeiro(valor);
             case tiposDeSimbolos.BIT_NOT:
                 if (typeof valor === 'bigint') {

@@ -4848,6 +4848,13 @@ export class AvaliadorSintatico
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
+            'arredondar',
+            new InformacaoElementoSintatico('arredondar', 'número', true, [
+                new InformacaoElementoSintatico('numero', 'número'),
+                new InformacaoElementoSintatico('casasDecimais', 'número'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
             'clonar',
             new InformacaoElementoSintatico('clonar', 'qualquer', true, [
                 new InformacaoElementoSintatico('valor', 'qualquer'),
@@ -5029,6 +5036,12 @@ export class AvaliadorSintatico
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
+            'somar',
+            new InformacaoElementoSintatico('somar', 'número', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
             'tamanho',
             new InformacaoElementoSintatico('tamanho', 'inteiro', true, [
                 new InformacaoElementoSintatico('objeto', 'qualquer'),
@@ -5064,6 +5077,12 @@ export class AvaliadorSintatico
             'tupla',
             new InformacaoElementoSintatico('tupla', 'tupla', true, [
                 new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'vetor',
+            new InformacaoElementoSintatico('vetor', 'qualquer[]', true, [
+                new InformacaoElementoSintatico('tupla', 'qualquer'),
             ])
         );
 

@@ -1,8 +1,8 @@
 import { Lexador, Simbolo } from "../../fontes/lexador";
 import { AvaliadorSintatico } from "../../fontes/avaliador-sintatico";
 import { TradutorAssemblyScript } from '../../fontes/tradutores/tradutor-assemblyscript';
-import { Ajuda, Bloco, ConstMultiplo, Escreva, EscrevaMesmaLinha, Importar, Se, TextoDocumentacao, VarMultiplo } from "../../fontes/declaracoes";
-import { Binario, Elvis, ExpressaoRegular, Leia, Literal, TipoDe, Variavel } from "../../fontes/construtos";
+import { Ajuda, Bloco, Const, ConstMultiplo, Escreva, EscrevaMesmaLinha, Expressao, Importar, Se, TendoComo, TextoDocumentacao, Var, VarMultiplo } from "../../fontes/declaracoes";
+import { Binario, Elvis, ExpressaoRegular, Leia, Literal, Variavel, TipoDe } from "../../fontes/construtos";
 
 import tiposDeSimbolos from '../../fontes/tipos-de-simbolos/delegua';
 
@@ -1076,6 +1076,443 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
                 expect(resultado).toContain('import "wasi";');
+            });
+        });
+
+        describe('Operadores binários adicionais', () => {
+            it('subtração -> -', async () => {
+                const retornoLexador = lexador.mapear(['var r: inteiro = 10 - 3'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('10 - 3');
+            });
+
+            it('divisão -> /', async () => {
+                const retornoLexador = lexador.mapear(['var r: real = 10.0 / 2.0'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('10 / 2');
+            });
+
+            it('módulo -> %', async () => {
+                const retornoLexador = lexador.mapear(['var r: inteiro = 10 % 3'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('10 % 3');
+            });
+
+            it('maior que -> >', async () => {
+                const retornoLexador = lexador.mapear(['var r: logico = 5 > 3'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('5 > 3');
+            });
+
+            it('maior ou igual -> >=', async () => {
+                const retornoLexador = lexador.mapear(['var r: logico = 5 >= 3'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('5 >= 3');
+            });
+
+            it('menor ou igual -> <=', async () => {
+                const retornoLexador = lexador.mapear(['var r: logico = 3 <= 5'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('3 <= 5');
+            });
+
+            it('multiplicação -> *', async () => {
+                const retornoLexador = lexador.mapear(['var r: inteiro = 4 * 5'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('4 * 5');
+            });
+
+            it('operador ou lógico -> ||', async () => {
+                const retornoLexador = lexador.mapear(['var r: logico = verdadeiro ou falso'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('||');
+            });
+
+            it('expressão binária com agrupamento -> parênteses', async () => {
+                const retornoLexador = lexador.mapear(['var r: inteiro = (2 + 3) * 4'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('(');
+                expect(resultado).toContain('* 4');
+            });
+        });
+
+        describe('Declarações de variáveis sem inicializador', () => {
+            it('var sem inicializador com tipo -> only type annotation', async () => {
+                const retornoLexador = lexador.mapear(['var x: inteiro;'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('let x: i32;');
+            });
+
+            it('constante sem inicializador com tipo -> only type annotation', async () => {
+                const simbolo = new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'PI', null, 1, -1);
+                const decl = new Const(simbolo, null, 'real');
+                const resultado = tradutor.traduzir([decl]);
+                expect(resultado).toContain('const PI: f64;');
+            });
+        });
+
+        describe('TendoComo', () => {
+            it('tendo como -> let com escopo', () => {
+                const simboloVar = new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'arquivo', null, 1, -1);
+                const inicializacao = new Literal(-1, 1, 'recurso.txt');
+                const corpo = new Bloco(-1, 1, []);
+                const decl = new TendoComo(1, -1, simboloVar, inicializacao, corpo);
+                const resultado = tradutor.traduzir([decl]);
+                expect(resultado).toContain('// tendo arquivo como recurso');
+                expect(resultado).toContain('let arquivo =');
+                expect(resultado).toContain('"recurso.txt"');
+            });
+        });
+
+        describe('EscrevaMesmaLinha como declaração', () => {
+            it('escreva mesma linha -> trace()', async () => {
+                const retornoLexador = lexador.mapear(['escreva("linha")'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('trace(');
+                expect(resultado).toContain('"linha"');
+            });
+        });
+
+        describe('Loop para com diferentes inicializadores', () => {
+            it('para com var tipado -> for com let tipado', async () => {
+                const retornoLexador = lexador.mapear([
+                    'para (var i: inteiro = 0; i < 5; i = i + 1) {',
+                    '    escreva(i)',
+                    '}',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('for (');
+                expect(resultado).toContain('i < 5');
+            });
+        });
+
+        describe('Função com inferência de tipo de retorno', () => {
+            it('função com corpo aninhado inferindo tipo de retorno', async () => {
+                const retornoLexador = lexador.mapear([
+                    'funcao verificar(x: inteiro): logico {',
+                    '    retorna x > 0',
+                    '}',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('function verificar');
+                expect(resultado).toContain(': bool');
+            });
+
+            it('função com retorno void explícito', async () => {
+                const retornoLexador = lexador.mapear([
+                    'funcao nada(): vazio {',
+                    '    var x: inteiro = 1',
+                    '}',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain(': void');
+            });
+        });
+
+        describe('Escolha com retorna no caso', () => {
+            it('escolha com retorna nos casos -> switch com return', async () => {
+                const retornoLexador = lexador.mapear([
+                    'funcao nomeNum(n: inteiro): texto {',
+                    '    escolha (n) {',
+                    '        caso 1:',
+                    '            retorna "um"',
+                    '        caso 2:',
+                    '            retorna "dois"',
+                    '        padrao:',
+                    '            retorna "outro"',
+                    '    }',
+                    '}',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('switch (');
+                expect(resultado).toContain('return');
+                expect(resultado).toContain('default:');
+            });
+        });
+
+        describe('Bloco como declaração', () => {
+            it('bloco isolado -> bloco com chaves', async () => {
+                const retornoLexador = lexador.mapear([
+                    'funcao f(): vazio {',
+                    '    var x: inteiro = 1',
+                    '}',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('{');
+                expect(resultado).toContain('}');
+            });
+        });
+
+        describe('VarMultiplo e ConstMultiplo sem inicializador', () => {
+            it('VarMultiplo sem inicializador -> let com tipo', () => {
+                const simbolos = [
+                    new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'a', null, 1, -1),
+                    new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'b', null, 1, -1),
+                ];
+                const decl = new VarMultiplo(simbolos, null, 'inteiro');
+                const resultado = tradutor.traduzir([decl]);
+                expect(resultado).toContain('let a, b: i32;');
+            });
+
+            it('ConstMultiplo sem inicializador -> const com tipo', () => {
+                const simbolos = [
+                    new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'x', null, 1, -1),
+                    new Simbolo(tiposDeSimbolos.IDENTIFICADOR, 'y', null, 1, -1),
+                ];
+                const decl = new ConstMultiplo(simbolos, null, 'inteiro');
+                const resultado = tradutor.traduzir([decl]);
+                expect(resultado).toContain('const x, y: i32;');
+            });
+        });
+
+        describe('Se com senão simples', () => {
+            it('se sem senão -> apenas if', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var x: inteiro = 5',
+                    'se (x > 0) {',
+                    '    escreva(x)',
+                    '}',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('if (');
+                expect(resultado).toContain('x > 0');
+                expect(resultado).not.toContain('else');
+            });
+
+            it('se com senão -> if/else', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var x: inteiro = 0',
+                    'se (x > 0) {',
+                    '    escreva("positivo")',
+                    '} senao {',
+                    '    escreva("zero ou negativo")',
+                    '}',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('if (');
+                expect(resultado).toContain('else');
+                expect(resultado).toContain('trace("zero ou negativo")');
+            });
+        });
+
+        describe('Retorna como declaração autônoma', () => {
+            it('retorna valor inteiro -> return num', async () => {
+                const retornoLexador = lexador.mapear([
+                    'funcao obterNumero(): inteiro {',
+                    '    retorna 42',
+                    '}',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('return 42');
+            });
+        });
+
+        describe('ParaCada com corpo de expressões', () => {
+            it('para cada com bloco de expressões', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var items: inteiro[] = [10, 20, 30]',
+                    'para cada item em items {',
+                    '    escreva(item)',
+                    '}',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('const __arr_item');
+                expect(resultado).toContain('__i_item');
+                expect(resultado).toContain('.length');
+                expect(resultado).toContain('const item =');
+            });
+        });
+
+        describe('Acesso a propriedade', () => {
+            it('acesso a propriedade de objeto -> objeto.propriedade', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var nums: inteiro[] = [1, 2, 3]',
+                    'escreva(nums.tamanho)',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('nums.');
+            });
+        });
+
+        describe('Vetor vazio e não-vazio', () => {
+            it('vetor vazio -> []', async () => {
+                const retornoLexador = lexador.mapear(['var v: inteiro[] = []'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('[]');
+            });
+
+            it('vetor com valores -> [1, 2, 3]', async () => {
+                const retornoLexador = lexador.mapear(['var v: inteiro[] = [1, 2, 3]'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('[1');
+                expect(resultado).toContain('2');
+                expect(resultado).toContain('3]');
+            });
+        });
+
+        describe('Importações dentro de diferentes blocos', () => {
+            it('escreva dentro de enquanto gera import wasi', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var i: inteiro = 0',
+                    'enquanto (i < 3) {',
+                    '    escreva(i)',
+                    '    i = i + 1',
+                    '}',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('import "wasi";');
+            });
+
+            it('escreva dentro de para gera import wasi', async () => {
+                const retornoLexador = lexador.mapear([
+                    'para (var i: inteiro = 0; i < 3; i = i + 1) {',
+                    '    escreva(i)',
+                    '}',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('import "wasi";');
+            });
+
+            it('escreva dentro de fazer gera import wasi', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var i: inteiro = 0',
+                    'fazer { escreva(i) i = i + 1 } enquanto (i < 3)',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('import "wasi";');
+            });
+
+            it('escreva dentro de paraCada gera import wasi', async () => {
+                const retornoLexador = lexador.mapear([
+                    'var nums: inteiro[] = [1, 2]',
+                    'para cada num em nums {',
+                    '    escreva(num)',
+                    '}',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('import "wasi";');
+            });
+
+            it('escreva dentro de classe gera import wasi', async () => {
+                const retornoLexador = lexador.mapear([
+                    'classe Animal {',
+                    '    falar() { escreva("som") }',
+                    '}',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('import "wasi";');
+            });
+
+            it('escreva dentro de tente gera import wasi', async () => {
+                const retornoLexador = lexador.mapear([
+                    'tente {',
+                    '    escreva("tente")',
+                    '} pegue (erro) {',
+                    '    var x: inteiro = 0',
+                    '}',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('import "wasi";');
+            });
+        });
+
+        describe('Função sem parâmetros', () => {
+            it('função sem parâmetros -> function sem args', async () => {
+                const retornoLexador = lexador.mapear([
+                    'funcao saudacao(): texto {',
+                    '    retorna "Olá"',
+                    '}',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado).toContain('function saudacao()');
+                expect(resultado).toContain('return "Olá"');
+            });
+        });
+
+        describe('traduzirSimboloOperador direto', () => {
+            it('retorna operador de divisão', () => {
+                const simbolo = new Simbolo(tiposDeSimbolos.DIVISAO, '/', null, 1, -1);
+                expect(tradutor.traduzirSimboloOperador(simbolo)).toBe('/');
+            });
+
+            it('retorna operador de módulo', () => {
+                const simbolo = new Simbolo(tiposDeSimbolos.MODULO, '%', null, 1, -1);
+                expect(tradutor.traduzirSimboloOperador(simbolo)).toBe('%');
+            });
+
+            it('retorna operador de subtração', () => {
+                const simbolo = new Simbolo(tiposDeSimbolos.SUBTRACAO, '-', null, 1, -1);
+                expect(tradutor.traduzirSimboloOperador(simbolo)).toBe('-');
+            });
+
+            it('retorna operador maior ou igual', () => {
+                const simbolo = new Simbolo(tiposDeSimbolos.MAIOR_IGUAL, '>=', null, 1, -1);
+                expect(tradutor.traduzirSimboloOperador(simbolo)).toBe('>=');
+            });
+
+            it('retorna operador menor ou igual', () => {
+                const simbolo = new Simbolo(tiposDeSimbolos.MENOR_IGUAL, '<=', null, 1, -1);
+                expect(tradutor.traduzirSimboloOperador(simbolo)).toBe('<=');
+            });
+
+            it('retorna operador ou lógico', () => {
+                const simbolo = new Simbolo(tiposDeSimbolos.OU, 'ou', null, 1, -1);
+                expect(tradutor.traduzirSimboloOperador(simbolo)).toBe('||');
+            });
+
+            it('retorna operador diferente', () => {
+                const simbolo = new Simbolo(tiposDeSimbolos.DIFERENTE, '!=', null, 1, -1);
+                expect(tradutor.traduzirSimboloOperador(simbolo)).toBe('!=');
+            });
+
+            it('retorna operador igual (atribuição)', () => {
+                const simbolo = new Simbolo(tiposDeSimbolos.IGUAL, '=', null, 1, -1);
+                expect(tradutor.traduzirSimboloOperador(simbolo)).toBe('=');
+            });
+
+            it('retorna operador igual igual', () => {
+                const simbolo = new Simbolo(tiposDeSimbolos.IGUAL_IGUAL, '==', null, 1, -1);
+                expect(tradutor.traduzirSimboloOperador(simbolo)).toBe('==');
+            });
+
+            it('retorna operador maior', () => {
+                const simbolo = new Simbolo(tiposDeSimbolos.MAIOR, '>', null, 1, -1);
+                expect(tradutor.traduzirSimboloOperador(simbolo)).toBe('>');
+            });
+
+            it('retorna operador multiplicação', () => {
+                const simbolo = new Simbolo(tiposDeSimbolos.MULTIPLICACAO, '*', null, 1, -1);
+                expect(tradutor.traduzirSimboloOperador(simbolo)).toBe('*');
             });
         });
     })

@@ -1,11 +1,13 @@
 import { FuncaoConstruto, Literal, Variavel } from '../../fontes/construtos';
 import {
     Bloco,
+    CabecalhoPrograma,
     ConstMultiplo,
     Enquanto,
     Escolha,
     Fazer,
     FuncaoDeclaracao,
+    InicioAlgoritmo,
     Para,
     ParaCada,
     Se,
@@ -165,6 +167,45 @@ describe('paraTexto() das declarações', () => {
             expect(texto).toContain('<caminho');
             expect(texto).toContain('<padrão>');
             expect(texto).toContain('</escolha>');
+        });
+    });
+
+    describe('CabecalhoPrograma', () => {
+        it('construtor define nomeProgramaAlgoritmo', () => {
+            const decl = new CabecalhoPrograma(1, 0, 'MeuPrograma');
+            expect(decl.nomeProgramaAlgoritmo).toBe('MeuPrograma');
+        });
+
+        it('paraTexto() inclui o nome do programa', () => {
+            const decl = new CabecalhoPrograma(1, 0, 'MeuPrograma');
+            expect(decl.paraTexto()).toContain('MeuPrograma');
+        });
+
+        it('aceitar() invoca visitante com a instância', async () => {
+            const decl = new CabecalhoPrograma(1, 0, 'MeuPrograma');
+            const visitante = { visitarDeclaracaoCabecalhoPrograma: jest.fn() };
+            await decl.aceitar(visitante as any);
+            expect(visitante.visitarDeclaracaoCabecalhoPrograma).toHaveBeenCalledWith(decl);
+        });
+    });
+
+    describe('InicioAlgoritmo', () => {
+        it('construtor define linha e hashArquivo', () => {
+            const decl = new InicioAlgoritmo(5, 1);
+            expect(decl.linha).toBe(5);
+            expect(decl.hashArquivo).toBe(1);
+        });
+
+        it('paraTexto() retorna tag início-algoritmo', () => {
+            const decl = new InicioAlgoritmo(1, 0);
+            expect(decl.paraTexto()).toContain('início-algoritmo');
+        });
+
+        it('aceitar() invoca visitante com a instância', async () => {
+            const decl = new InicioAlgoritmo(1, 0);
+            const visitante = { visitarDeclaracaoInicioAlgoritmo: jest.fn() };
+            await decl.aceitar(visitante as any);
+            expect(visitante.visitarDeclaracaoInicioAlgoritmo).toHaveBeenCalledWith(decl);
         });
     });
 });

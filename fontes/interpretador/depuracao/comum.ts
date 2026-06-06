@@ -193,7 +193,7 @@ export async function visitarDeclaracaoEnquanto(
             let retornoExecucao: any;
             let iteracoes = 0;
             while (
-                !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
+                !(retornoExecucao instanceof Quebra || (retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) &&
                 !interpretador.pontoDeParadaAtivo &&
                 interpretador.comando !== 'pausar' &&
                 interpretador.eVerdadeiro(await interpretador.avaliar(declaracao.condicao))
@@ -202,13 +202,13 @@ export async function visitarDeclaracaoEnquanto(
                 try {
                     await cederControle(++iteracoes);
                     retornoExecucao = await interpretador.executar(declaracao.corpo);
-                    if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
+                    if (retornoExecucao instanceof SustarQuebra || (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra)) {
                         return null;
                     }
 
                     if (
-                        retornoExecucao &&
-                        retornoExecucao.valorRetornado instanceof ContinuarQuebra
+                        retornoExecucao instanceof ContinuarQuebra ||
+                        (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra)
                     ) {
                         retornoExecucao = null;
                     }
@@ -296,7 +296,7 @@ export async function visitarDeclaracaoPara(
             let retornoExecucao: any;
             let iteracoes = 0;
             while (
-                !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
+                !(retornoExecucao instanceof Quebra || (retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) &&
                 !interpretador.pontoDeParadaAtivo &&
                 interpretador.comando !== 'pausar'
             ) {
@@ -312,15 +312,18 @@ export async function visitarDeclaracaoPara(
                 try {
                     await cederControle(++iteracoes);
                     retornoExecucao = await interpretador.executar(corpoExecucao);
-                    if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
+                    if (retornoExecucao instanceof SustarQuebra || (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra)) {
                         return null;
                     }
 
                     if (
-                        retornoExecucao &&
-                        retornoExecucao.valorRetornado instanceof ContinuarQuebra
+                        retornoExecucao instanceof ContinuarQuebra ||
+                        (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra)
                     ) {
                         retornoExecucao = null;
+                        if (cloneDeclaracao.incrementar !== null) {
+                            await interpretador.avaliar(cloneDeclaracao.incrementar);
+                        }
                     }
                 } catch (erro: any) {
                     return Promise.reject(erro);
@@ -341,18 +344,18 @@ export async function visitarDeclaracaoFazer(
         try {
             await cederControle(++iteracoes);
             retornoExecucao = await interpretador.executar(declaracao.caminhoFazer);
-            if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
+            if (retornoExecucao instanceof SustarQuebra || (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra)) {
                 return null;
             }
 
-            if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) {
+            if (retornoExecucao instanceof ContinuarQuebra || (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra)) {
                 retornoExecucao = null;
             }
         } catch (erro: any) {
             return Promise.reject(erro);
         }
     } while (
-        !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
+        !(retornoExecucao instanceof Quebra || (retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) &&
         !interpretador.pontoDeParadaAtivo &&
         interpretador.comando !== 'pausar' &&
         interpretador.eVerdadeiro(await interpretador.avaliar(declaracao.condicaoEnquanto))
@@ -769,7 +772,7 @@ export async function executarBloco(
 
         for (
             ;
-            !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
+            !(retornoExecucao instanceof Quebra || (retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) &&
             proximoEscopo.declaracaoAtual < proximoEscopo.declaracoes.length;
             proximoEscopo.declaracaoAtual++
         ) {
@@ -965,7 +968,7 @@ export async function executarUltimoEscopoComandoContinuar(
     try {
         for (
             ;
-            !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
+            !(retornoExecucao instanceof Quebra || (retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) &&
             ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length;
             ultimoEscopo.declaracaoAtual++
         ) {
