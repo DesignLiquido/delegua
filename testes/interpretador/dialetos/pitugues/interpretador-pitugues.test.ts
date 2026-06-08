@@ -1635,6 +1635,31 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas[0]).toBe('21');
                     expect(_saidas[1]).toBe('Valor fornecido deve ser um número positivo.');
                 });
+
+                it('Deve suportar decorador "@metodo_estatico" para definir métodos estáticos da classe', async () => {
+                    const codigo = [
+                        'classe Usuario:',
+                        '   construtor(idade):',
+                        '       isto._idade = idade',
+                        '   @metodo_estatico',
+                        '   funcao primeiro_metodo():',
+                        '       escreva("Esse é o primeiro método")',
+                        '',
+                        'Usuario.primeiro_metodo()'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('Esse é o primeiro método');
+                });
             });
 
             describe('Declaração e chamada de funções', () => {

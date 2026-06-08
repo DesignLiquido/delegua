@@ -2640,6 +2640,25 @@ export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implement
     ): Promise<void> {
         const ehConstrutor = simboloAnterior.tipo === tiposDeSimbolos.CONSTRUTOR;
         const metodoResolvido = await this.funcao('método', ehConstrutor);
+
+        if (
+            metodoResolvido.decoradores &&
+            metodoResolvido.decoradores.length > 0
+        ) {
+            for (const decorador of metodoResolvido.decoradores) {
+                if (decorador.nome === '@propriedade') {
+                    metodoResolvido.eObtenedor = true;
+                } else if (
+                    typeof decorador.nome === 'string' &&
+                    decorador.nome.endsWith('.definidor')
+                ) {
+                    metodoResolvido.eDefinidor = true;
+                } else if (decorador.nome === '@metodo_estatico') {
+                    metodoResolvido.estatico = true;
+                }
+            }
+        }
+
         metodos.push(metodoResolvido);
     }
 
