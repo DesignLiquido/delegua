@@ -276,7 +276,7 @@ export class InterpretadorBase implements InterpretadorInterface {
      */
     protected resolverNomeObjectoAcessado(objetoAcessado: ConstrutoInterface): string {
         switch (objetoAcessado.constructor) {
-            // TODO: Não habilitar isso até que vetores sejam repassados para o montão.
+            // Habilitado somente quando vetores forem repassados para o montão.
             /* case AcessoMetodoOuPropriedade:
                 return (objetoAcessado as AcessoMetodoOuPropriedade).simbolo.lexema;
             case AcessoIndiceVariavel:
@@ -1077,8 +1077,8 @@ export class InterpretadorBase implements InterpretadorInterface {
                     return this.paraTexto(valorEsquerdo) + this.paraTexto(valorDireito);
                 }
 
-                // TODO: Se tipo for 'qualquer', seria uma boa confiar nos operadores
-                // tradicionais do JavaScript?
+                // Para tipos 'qualquer', delegamos ao operador nativo do JavaScript,
+                // que resolve concatenação ou soma dependendo dos valores em tempo de execução.
                 if (tipoEsquerdo === 'qualquer' || tipoDireito === 'qualquer') {
                     return valorEsquerdo + valorDireito;
                 }
@@ -1450,10 +1450,15 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             if (entidadeChamada instanceof FuncaoPadrao) {
                 try {
+                    // entidadeChamada pode ser Variavel, AcessoMetodo, ReferenciaFuncao, etc.
+                    // Todos os construtos concretos que chegam aqui têm `simbolo: SimboloInterface`.
+                    const simboloChamada = 'simbolo' in expressao.entidadeChamada
+                        ? (expressao.entidadeChamada as { simbolo: SimboloInterface }).simbolo
+                        : null;
                     return await entidadeChamada.chamar(
                         this,
                         argumentos.map((a) => a && this.resolverValor(a.valor)),
-                        (expressao.entidadeChamada as any).simbolo // TODO: O que exatamente pode ser aqui?
+                        simboloChamada
                     );
                 } catch (erro: any) {
                     if (this.emDeclaracaoTente) {
@@ -1497,9 +1502,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             // Casos que passam aqui: chamadas a métodos de bibliotecas de Delégua.
             if (typeof entidadeChamada === tipoDeDadosPrimitivos.FUNCAO) {
                 let objeto = null;
-                if ((expressao.entidadeChamada as any).objeto) {
-                    // TODO: Qual o tipo certo aqui?
-                    objeto = await this.avaliar((expressao.entidadeChamada as any).objeto);
+                if ((expressao.entidadeChamada as AcessoMetodo).objeto) {
+                    objeto = await this.avaliar((expressao.entidadeChamada as AcessoMetodo).objeto);
                 }
                 return entidadeChamada.apply(this.resolverValor(objeto), argumentos);
             }
@@ -1808,11 +1812,13 @@ export class InterpretadorBase implements InterpretadorInterface {
         let valorVetorResolvido: any = this.resolverValor(vetorResolvido);
 
         // Se até aqui vetor resolvido é um dicionário, converte dicionário
-        // para vetor de duplas.
-        // TODO: Converter elementos para `Construto` se necessário.
+        // para vetor de duplas com elementos envoltos em Literal, preservando tipo.
         if (declaracao.vetorOuDicionario.tipo === 'dicionário') {
             valorVetorResolvido = Object.entries(valorVetorResolvido).map(
-                (v) => new Dupla(v[0] as any, v[1] as any)
+                (v) => new Dupla(
+                    new Literal(declaracao.hashArquivo, declaracao.linha, v[0], 'texto'),
+                    new Literal(declaracao.hashArquivo, declaracao.linha, v[1] as any, inferirTipoVariavel(v[1]) as any)
+                )
             );
         }
 
@@ -1840,20 +1846,18 @@ export class InterpretadorBase implements InterpretadorInterface {
                 if (declaracao.variavelIteracao instanceof Dupla) {
                     const valorComoDupla = valorVetorResolvido[declaracao.posicaoAtual] as Dupla;
 
-                    const promises = await Promise.all([
-                        this.avaliar(declaracao.variavelIteracao.primeiro),
-                        this.avaliar(declaracao.variavelIteracao.segundo),
-                    ]);
+                    // Os nomes das variáveis vêm diretamente dos Literais do AST (não precisam ser avaliados).
+                    const nomePrimeiro = (declaracao.variavelIteracao.primeiro as Literal).valor?.toString() ?? '';
+                    const nomeSegundo = (declaracao.variavelIteracao.segundo as Literal).valor?.toString() ?? '';
 
-                    // TODO: O que fazer quando não forem literais?
                     this.pilhaEscoposExecucao.definirVariavel(
-                        String((promises[0] as Literal).valor),
-                        valorComoDupla.primeiro
+                        nomePrimeiro,
+                        this.resolverValor(valorComoDupla.primeiro)
                     );
 
                     this.pilhaEscoposExecucao.definirVariavel(
-                        String((promises[1] as Literal).valor),
-                        valorComoDupla.segundo
+                        nomeSegundo,
+                        this.resolverValor(valorComoDupla.segundo)
                     );
                 }
 
@@ -2542,7 +2546,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             mesclaResolvidas.push(misturável);
         }
 
-        // TODO: Precisamos disso?
+        // Necessário para que a declaração da classe seja acessível durante a resolução
+        // dos seus próprios métodos (ex.: construtores que instanciam a própria classe).
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, declaracao);
 
         if (superClassesResolvidas.length > 0) {
@@ -2555,8 +2560,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             mesclaResolvidas
         );
 
-        // TODO: Até então, a única exceção a isso é Égua Clássico.
-        // Por enquanto, tudo bem deixar isso aqui.
+        // A única exceção a isso até então é Égua Clássico, que requer declaração de propriedades.
         descritorTipoClasse.dialetoRequerDeclaracaoPropriedades = this.requerDeclaracaoPropriedades;
 
         this.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolo, descritorTipoClasse);
@@ -2777,11 +2781,9 @@ export class InterpretadorBase implements InterpretadorInterface {
             if (expressao.simbolo.lexema in primitivasVetor) {
                 const metodoDePrimitivaVetor: Function =
                     primitivasVetor[expressao.simbolo.lexema].implementacao;
-                // TODO: Um problema a ser resolvido na questão de vetores é quando eles pertencem a outro objeto.
-                // Por exemplo, um dicionário.
-                // Existe uma lógica nas bibliotecas padrão que, quando a primitiva tem um nome, ela deve ser definida na
-                // pilha de escopos, para registrar a mutação do vetor corretamente.
-                // Não é uma boa solução. Algo melhor precisa ser feito.
+                // Limitação conhecida: quando o vetor pertence a um objeto pai (ex.: um dicionário),
+                // as bibliotecas padrão registram a mutação pelo nome do vetor na pilha de escopos,
+                // o que não funciona corretamente nesse caso. Requer refatoração futura.
                 return new MetodoPrimitiva(
                     nomeObjeto,
                     objeto,
@@ -2896,12 +2898,6 @@ export class InterpretadorBase implements InterpretadorInterface {
             declaracao.tipoExplicito && declaracao.tipoOriginal !== 'qualquer'
         );
 
-        // TODO: É relevante registrar uma declaração de variável no
-        // resultado do interpretador?
-        /* return {
-            tipo: declaracao.tipo,
-            tipoExplicito: declaracao.tipoExplicito
-        }; */
         return null;
     }
 
