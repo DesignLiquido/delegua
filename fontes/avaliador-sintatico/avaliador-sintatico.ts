@@ -1126,10 +1126,16 @@ export class AvaliadorSintatico
                 return new TipoDe(this.hashArquivo, simboloAtual, construto);
         }
 
-        // TODO: O correto seria emitir algum aviso aqui que este avaliador sintático não consegue
-        // lidar com tópicos de ajuda neste ponto.
         if (this.emAjuda) {
-            console.log(this.simbolos[this.atual]);
+            const simboloNaoTratado = this.simbolos[this.atual];
+            this.erros.push(
+                this.erro(
+                    simboloNaoTratado,
+                    `Avaliador sintático não consegue lidar com o tópico de ajuda '${simboloNaoTratado.lexema}'.`
+                )
+            );
+            this.avancarEDevolverAnterior();
+            return new Literal(this.hashArquivo, Number(simboloNaoTratado.linha), null, 'nulo');
         }
 
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
@@ -2783,17 +2789,17 @@ export class AvaliadorSintatico
 
         let vetorOuDicionario = await this.expressao();
 
-        if (vetorOuDicionario.constructor === AcessoIndiceVariavel) {
-            const construtoAcessoIndiceVariavel = vetorOuDicionario as AcessoIndiceVariavel;
-            if (construtoAcessoIndiceVariavel.entidadeChamada.tipo === 'dicionário') {
-                // A avaliação sintática não deve verificar valores de dicionários.
-                // Aqui se supõe que o programador sabe o que está fazendo.
-                // TODO: Talvez pensar numa forma melhor de fazer isso.
-                (vetorOuDicionario as any).tipo = 'vetor';
-            }
+        // Quando o iterável é um acesso a índice de dicionário, o tipo dos elementos
+        // não é determinável estaticamente — assume-se 'qualquer[]' para não bloquear a iteração.
+        let tipoVetor: string;
+        if (
+            vetorOuDicionario.constructor === AcessoIndiceVariavel &&
+            (vetorOuDicionario as AcessoIndiceVariavel).entidadeChamada.tipo === 'dicionário'
+        ) {
+            tipoVetor = 'qualquer[]';
+        } else {
+            tipoVetor = (vetorOuDicionario as any).tipo as string;
         }
-
-        const tipoVetor = (vetorOuDicionario as any).tipo as string;
 
         if (
             !tipoVetor.endsWith('[]') &&
@@ -3093,12 +3099,30 @@ export class AvaliadorSintatico
                             construtoChamada.entidadeChamada as Variavel;
                         tipoInicializacao = entidadeChamadaVariavel.tipo as string;
                         break;
-                    // TODO: Demais casos
+                    case ReferenciaFuncao:
+                        const entidadeChamadaReferenciaFuncao =
+                            construtoChamada.entidadeChamada as ReferenciaFuncao;
+                        tipoInicializacao = entidadeChamadaReferenciaFuncao.tipo as string;
+                        break;
+                    case ArgumentoReferenciaFuncao:
+                        tipoInicializacao = 'qualquer';
+                        break;
                     default:
                         break;
                 }
                 break;
-            // TODO: Demais casos
+            case Variavel:
+                tipoInicializacao = (expressaoInicializacao as Variavel).tipo as string;
+                break;
+            case Literal:
+                tipoInicializacao = (expressaoInicializacao as Literal).tipo as string;
+                break;
+            case FuncaoConstruto:
+                tipoInicializacao = `função<${(expressaoInicializacao as FuncaoConstruto).tipo}>`;
+                break;
+            case AcessoIndiceVariavel:
+                tipoInicializacao = (expressaoInicializacao as AcessoIndiceVariavel).tipo;
+                break;
             default:
                 break;
         }
@@ -3319,7 +3343,14 @@ export class AvaliadorSintatico
                             entidadeChamadaChamada as AcessoPropriedade;
                         return entidadeChamadaAcessoPropriedade.tipoRetornoPropriedade;
                     case ArgumentoReferenciaFuncao:
-                        // TODO: Voltar aqui se necessário.
+                        const entidadeChamadaArgumentoReferencia =
+                            entidadeChamadaChamada as ArgumentoReferenciaFuncao;
+                        const referenciaFuncaoArgumentada = this.pilhaEscopos.obterReferenciaFuncao(
+                            entidadeChamadaArgumentoReferencia.simboloFuncao.lexema
+                        );
+                        if (referenciaFuncaoArgumentada) {
+                            return referenciaFuncaoArgumentada.tipo;
+                        }
                         return 'qualquer';
                     case ReferenciaFuncao:
                         const entidadeChamadaReferenciaFuncao =
@@ -5092,9 +5123,22 @@ export class AvaliadorSintatico
             new InformacaoElementoSintatico('Objeto', 'qualquer')
         );
 
-        // TODO: Escrever algum tipo de validação aqui.
         for (const tipos of Object.values(this.tiposDeFerramentasExternas)) {
             for (const [nomeTipo, tipo] of Object.entries(tipos)) {
+                if (!nomeTipo || !tipo) {
+                    continue;
+                }
+
+                if (nomeTipo in this.tiposDefinidosEmCodigo) {
+                    this.erros.push(
+                        new ErroAvaliadorSintatico(
+                            new Simbolo(tiposDeSimbolos.IDENTIFICADOR, nomeTipo, nomeTipo, 0, 0),
+                            `Tipo '${nomeTipo}' de ferramenta externa conflita com tipo já definido em código.`
+                        )
+                    );
+                    continue;
+                }
+
                 this.pilhaEscopos.definirInformacoesVariavel(
                     nomeTipo,
                     new InformacaoElementoSintatico(nomeTipo, tipo)
