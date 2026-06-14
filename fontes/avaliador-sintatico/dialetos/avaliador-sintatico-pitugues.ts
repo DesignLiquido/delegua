@@ -1235,6 +1235,7 @@ export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implement
 
         if (
             this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.NAO,
                 tiposDeSimbolos.NEGACAO,
                 tiposDeSimbolos.SUBTRACAO,
                 tiposDeSimbolos.BIT_NOT
