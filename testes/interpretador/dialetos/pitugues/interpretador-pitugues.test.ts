@@ -1177,6 +1177,31 @@ describe('Interpretador (Pituguês)', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Operacoes logicas - nao como negacao unaria', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao valor_negado():',
+                            '    valor = falso',
+                            '    retorna nao valor',
+                            'se nao falso:',
+                            '    escreva(valor_negado())',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('verdadeiro');
+                });
+
                 it('Operações lógicas - em', async () => {
                     const retornoLexador = lexador.mapear(['escreva(2 em [1, 2, 3])'], -1);
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
