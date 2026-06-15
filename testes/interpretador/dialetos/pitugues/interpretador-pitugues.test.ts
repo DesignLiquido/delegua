@@ -4153,6 +4153,65 @@ describe('Interpretador (Pituguês)', () => {
                         'Tchau, Victor'
                     ]);
                 });
+
+                it('Suporta o uso de Decoradores acessados por propriedade', async () => {
+                    const codigo = [
+                        'classe Aplicacao:',
+                        '   funcao rota(decorado):',
+                        '       retorna funcao():',
+                        '           escreva("Antes")',
+                        '           decorado()',
+                        '           escreva("Depois")',
+                        '',
+                        'App = Aplicacao()',
+                        '',
+                        '@App.rota',
+                        'função ola_mundo():',
+                        '   escreva("Olá, Mundo!")',
+                        '',
+                        'ola_mundo()'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliador = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliador.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toEqual(['Antes', 'Olá, Mundo!', 'Depois']);
+                });
+
+                it('Suporta o uso de Decoradores acessados por propriedade com parâmetros', async () => {
+                    const codigo = [
+                        'classe Aplicacao:',
+                        '   funcao rota(decorado, caminho):',
+                        '       retorna funcao():',
+                        '           escreva(caminho)',
+                        '           decorado()',
+                        '',
+                        'App = Aplicacao()',
+                        '',
+                        '@App.rota("/inicio")',
+                        'função ola_mundo():',
+                        '   escreva("Olá, Mundo!")',
+                        '',
+                        'ola_mundo()'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliador = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliador.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toEqual(['/inicio', 'Olá, Mundo!']);
+                });
             });
 
             it('aleatorio()', async () => {

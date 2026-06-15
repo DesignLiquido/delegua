@@ -424,6 +424,49 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         return Promise.resolve(pontoEntradaAjuda(declaracao.funcao, declaracao.elemento));
     }
 
+    private criarSimboloDecorador(
+        lexema: string,
+        linha: number,
+        hashArquivo: number
+    ): SimboloInterface {
+        return {
+            lexema,
+            tipo: 'IDENTIFICADOR',
+            literal: null,
+            linha,
+            hashArquivo,
+        };
+    }
+
+    protected async resolverFuncaoDecoradora(
+        nomeDecorador: string,
+        linha: number,
+        hashArquivo: number
+    ): Promise<DeleguaFuncao> {
+        const partesNome = nomeDecorador.split('.');
+
+        if (partesNome.length === 1) {
+            const variavelDecoradora =
+                this.pilhaEscoposExecucao.obterVariavelPorNome(nomeDecorador);
+            return variavelDecoradora.valor as DeleguaFuncao;
+        }
+
+        let expressaoDecoradora: ConstrutoInterface = new Variavel(
+            hashArquivo,
+            this.criarSimboloDecorador(partesNome[0], linha, hashArquivo)
+        );
+
+        for (const parteNome of partesNome.slice(1)) {
+            expressaoDecoradora = new AcessoMetodoOuPropriedade(
+                hashArquivo,
+                expressaoDecoradora,
+                this.criarSimboloDecorador(parteNome, linha, hashArquivo)
+            );
+        }
+
+        return this.resolverValor(await this.avaliar(expressaoDecoradora), true) as DeleguaFuncao;
+    }
+
     override async visitarDeclaracaoDefinicaoFuncao(
         declaracao: FuncaoDeclaracao
     ): Promise<any> {
@@ -436,9 +479,11 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         if (declaracao.decoradores && declaracao.decoradores.length > 0) {
             for (const decorador of [...declaracao.decoradores].reverse()) {
                 const nomeDecorador = decorador.nome.slice(1);
-                const variavelDecoradora =
-                    this.pilhaEscoposExecucao.obterVariavelPorNome(nomeDecorador);
-                const funcaoDecoradora: DeleguaFuncao = variavelDecoradora.valor;
+                const funcaoDecoradora = await this.resolverFuncaoDecoradora(
+                    nomeDecorador,
+                    decorador.linha,
+                    decorador.hashArquivo
+                );
                 const argumentosDecorador: ArgumentoInterface[] = [
                     { nome: '', valor: funcao }
                 ];
