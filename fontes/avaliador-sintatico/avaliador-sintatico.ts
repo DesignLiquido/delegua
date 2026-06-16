@@ -3333,10 +3333,16 @@ export class AvaliadorSintatico
                                 entidadeChamadaAcessoMetodo.objeto.tipo as string
                             );
                         return tipoRetornoAcessoMetodoResolvido;
-                    case AcessoMetodoOuPropriedade:
-                        return this.logicaComumInferenciaTiposAcessoMetodoOuPropriedade(
+                    case AcessoMetodoOuPropriedade: {
+                        const tipoMetodo = this.logicaComumInferenciaTiposAcessoMetodoOuPropriedade(
                             entidadeChamadaChamada as AcessoMetodoOuPropriedade
                         );
+                        // logicaComumInferenciaTiposAcessoMetodoOuPropriedade retorna o tipo da
+                        // função ('função<X>') para métodos definidos em código. Em contexto de
+                        // Chamada, queremos o tipo de retorno X, não o tipo da função em si.
+                        const correspondencia = tipoMetodo.match(/^função<(.+)>$/);
+                        return correspondencia ? correspondencia[1] : tipoMetodo;
+                    }
 
                     case AcessoPropriedade:
                         const entidadeChamadaAcessoPropriedade =
@@ -3821,10 +3827,11 @@ export class AvaliadorSintatico
         tiposRetornos.delete('qualquer');
 
         if (tipoRetorno === 'qualquer') {
-            if (tiposRetornos.size > 0) {
-                // Se o tipo de retorno é 'qualquer', seja implícito ou explícito,
+            if (tiposRetornos.size > 0 && !definicaoExplicitaDeTipo) {
+                // Se o tipo de retorno é 'qualquer' implícito (não anotado),
                 // este avaliador sintático pode restringir o tipo baseado nos construtos
                 // de retornos encontrados nos blocos internos da função.
+                // Se o tipo foi explicitamente anotado como 'qualquer', respeitamos a anotação.
                 const tipoRetornoDeduzido = tiposRetornos.values().next().value;
                 tipoRetorno = tipoRetornoDeduzido as string;
             } else if (!retornaChamadoExplicitamente && !definicaoExplicitaDeTipo) {
@@ -4035,7 +4042,7 @@ export class AvaliadorSintatico
             const retornaChamadoExplicitamente = tiposRetornos.size > 0;
             tiposRetornos.delete('qualquer');
             if (tipoRetorno === 'qualquer') {
-                if (tiposRetornos.size > 0) {
+                if (tiposRetornos.size > 0 && !definicaoExplicitaDeTipo) {
                     tipoRetorno = tiposRetornos.values().next().value;
                 } else if (!retornaChamadoExplicitamente && !definicaoExplicitaDeTipo) {
                     tipoRetorno = 'vazio';
@@ -4521,7 +4528,7 @@ export class AvaliadorSintatico
             const retornaChamadoExplicitamente = tiposRetornos.size > 0;
             tiposRetornos.delete('qualquer');
             if (tipoRetorno === 'qualquer') {
-                if (tiposRetornos.size > 0) {
+                if (tiposRetornos.size > 0 && !definicaoExplicitaDeTipo) {
                     tipoRetorno = tiposRetornos.values().next().value;
                 } else if (!retornaChamadoExplicitamente && !definicaoExplicitaDeTipo) {
                     tipoRetorno = 'vazio';
