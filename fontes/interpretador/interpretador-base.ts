@@ -1482,6 +1482,13 @@ export class InterpretadorBase implements InterpretadorInterface {
                 entidadeChamada.constructor === MetodoPolimorfico
             ) {
                 const retornoEntidadeChamada = await entidadeChamada.chamar(this, argumentos);
+                // Desembrulha `RetornoQuebra` para que não se propague além da fronteira de chamada de função
+                // para `executarUltimoEscopo`, o que interromperia o loop de execução externo.
+                // `resolverValor` também resolve qualquer referência do montão enquanto o escopo ainda está vivo.
+                if (retornoEntidadeChamada?.valorRetornado instanceof RetornoQuebra) {
+                    return this.resolverValor(retornoEntidadeChamada.valorRetornado.valor);
+                }
+                
                 return retornoEntidadeChamada;
             }
 

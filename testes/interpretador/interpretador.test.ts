@@ -2,7 +2,6 @@ import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
 import { ResultadoParcialInterpretadorInterface } from '../../fontes/interfaces';
 import { Interpretador } from '../../fontes/interpretador';
 import { Lexador } from '../../fontes/lexador';
-import { RetornoQuebra } from '../../fontes/quebras';
 
 describe('Interpretador', () => {
     describe('interpretar()', () => {
@@ -3628,6 +3627,36 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Múltiplas chamadas de função com retorna em se, chamadas como declaração', async () => {
+                    const codigo = [
+                        'funcao imprimirIgual(operandos) {',
+                        '    escreva(numero(operandos[0]) == numero(operandos[1]))',
+                        '}',
+                        'funcao testar(painel) {',
+                        '    se painel.inclui("=") {',
+                        '        retorna imprimirIgual(painel.dividir("="))',
+                        '    }',
+                        '}',
+                        'testar("1=1")',
+                        'testar("1=2")',
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const saidas: string[] = [];
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        saidas.push(saida);
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(saidas).toHaveLength(2);
+                    expect(saidas[0]).toBe('verdadeiro');
+                    expect(saidas[1]).toBe('falso');
+                });
+
                 it('Chamada de função com retorna vazio e comandos após retorna', async () => {
                     const codigo = [
                         'funcao mostreAlgo() {',
@@ -4586,10 +4615,9 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(retornoInterpretador.resultado).toHaveLength(1);
                     const retornoFuncao = retornoInterpretador.resultado[0] as ResultadoParcialInterpretadorInterface;
-                    expect(retornoFuncao.valorRetornado).toBeInstanceOf(RetornoQuebra);
-                    expect(retornoFuncao.valorRetornado.valor).toBeInstanceOf(Object);
-                    expect(retornoFuncao.valorRetornado.valor).toHaveProperty('chave');
-                    expect(retornoFuncao.valorRetornado.valor['chave']).toBe(20);
+                    expect(retornoFuncao.valorRetornado).toBeInstanceOf(Object);
+                    expect(retornoFuncao.valorRetornado).toHaveProperty('chave');
+                    expect(retornoFuncao.valorRetornado['chave']).toBe(20);
                 });
             });
 
