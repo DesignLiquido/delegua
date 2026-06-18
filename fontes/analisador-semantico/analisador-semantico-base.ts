@@ -364,6 +364,11 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
             return;
         }
 
+        if (expressao instanceof TipoDe) {
+            this.marcarVariaveisUsadasEmExpressao(expressao.valor);
+            return;
+        }
+
         if (expressao instanceof Literal && typeof expressao.valor === 'string') {
             this.verificarInterpolacaoTexto(expressao.valor, expressao);
             return;

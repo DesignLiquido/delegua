@@ -236,6 +236,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
     }
 
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
+        this.marcarVariaveisUsadasEmExpressao(expressao.valor);
         return this.verificarTipoDe(expressao.valor);
     }
 

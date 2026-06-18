@@ -2258,6 +2258,30 @@ describe('Analisador semântico', () => {
             expect(avisoVariavelNaoUsada).toBeUndefined();
         });
 
+        it('Sucesso - variável usada em expressão `tipo de` não gera aviso de nunca usada', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var x = 10',
+                    'var z = 20',
+                    'var y = x + z',
+                    'se (tipo de y == "numero") {',
+                    '    escreva(y)',
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                retornoAvaliadorSintatico.declaracoes
+            );
+
+            expect(retornoAnalisadorSemantico).toBeTruthy();
+            const avisoVariavelNaoUsada = retornoAnalisadorSemantico.diagnosticos.find(
+                (d) => d.mensagem === "Variável 'y' foi declarada mas nunca usada."
+            );
+            expect(avisoVariavelNaoUsada).toBeUndefined();
+        });
+
         it('Erro - redeclaração de variável no mesmo escopo', async () => {
             const retornoLexador = lexador.mapear(['var duplicada = 1', 'var duplicada = 2'], -1);
             const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);

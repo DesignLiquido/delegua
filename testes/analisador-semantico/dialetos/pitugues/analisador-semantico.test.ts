@@ -592,7 +592,7 @@ describe('Analisador semântico', () => {
                         retornoAvaliadorSintatico.declaracoes
                     );
                     expect(retornoAnalisadorSemantico).toBeTruthy();
-                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
+                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
                 });
 
 
@@ -605,7 +605,7 @@ describe('Analisador semântico', () => {
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
                     expect(retornoAnalisadorSemantico).toBeTruthy();
-                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(2);
+                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
                 });
             });
         });
