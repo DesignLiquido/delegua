@@ -1289,6 +1289,106 @@ describe('Interpretador (Pituguês)', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
+
+                it('usa a mesma coercao booleana para colecoes em condicionais, negacao, retorno e ternario', async () => {
+                    const codigo = [
+                        'pilha = []',
+                        'se ! pilha:',
+                        "   escreva('vazia')",
+                        'se pilha:',
+                        "   escreva('nao deveria')",
+                        'senao:',
+                        "   escreva('lista falsa')",
+                        'se [1]:',
+                        "   escreva('lista verdadeira')",
+                        'se "":',
+                        "   escreva('nao deveria')",
+                        'senao:',
+                        "   escreva('texto falso')",
+                        'se "x":',
+                        "   escreva('texto verdadeiro')",
+                        'se {}:',
+                        "   escreva('nao deveria')",
+                        'senao:',
+                        "   escreva('dicionario falso')",
+                        'se {"a": 1}:',
+                        "   escreva('dicionario verdadeiro')",
+                        'se tupla([]):',
+                        "   escreva('nao deveria')",
+                        'senao:',
+                        "   escreva('tupla falsa')",
+                        'se tupla([1]):',
+                        "   escreva('tupla verdadeira')",
+                        'se 0:',
+                        "   escreva('nao deveria')",
+                        'senao:',
+                        "   escreva('zero falso')",
+                        'se 1:',
+                        "   escreva('numero verdadeiro')",
+                        '',
+                        'funcao teste_vazio():',
+                        '   pilha = []',
+                        '   retorna ! pilha',
+                        '',
+                        'funcao teste_preenchido():',
+                        '   pilha = [1]',
+                        '   retorna ! pilha',
+                        '',
+                        'escreva(teste_vazio())',
+                        'escreva(teste_preenchido())',
+                        'escreva("ternario verdadeiro" se [1] senao "nao deveria")',
+                        'escreva("nao deveria" se [] senao "ternario falso")',
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toEqual([
+                        'vazia',
+                        'lista falsa',
+                        'lista verdadeira',
+                        'texto falso',
+                        'texto verdadeiro',
+                        'dicionario falso',
+                        'dicionario verdadeiro',
+                        'tupla falsa',
+                        'tupla verdadeira',
+                        'zero falso',
+                        'numero verdadeiro',
+                        'verdadeiro',
+                        'falso',
+                        'ternario verdadeiro',
+                        'ternario falso',
+                    ]);
+                });
+
+                it('usa colecoes vazias para encerrar enquanto', async () => {
+                    const codigo = [
+                        'lista = [1]',
+                        'enquanto lista:',
+                        "   escreva('iteracao')",
+                        '   lista = []',
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toEqual(['iteracao']);
+                });
             });
 
             describe('Laços de repetição', () => {

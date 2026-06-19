@@ -2162,7 +2162,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
     async visitarExpressaoSeTernario(expressao: SeTernario): Promise<any> {
         const avaliacaoCondicao = await this.avaliar(expressao.condicao);
         const valorAvaliacaoCondicao = this.resolverValor(avaliacaoCondicao);
-        if (valorAvaliacaoCondicao) {
+        if (this.eVerdadeiro(valorAvaliacaoCondicao)) {
             return this.avaliar(expressao.expressaoSe);
         }
 

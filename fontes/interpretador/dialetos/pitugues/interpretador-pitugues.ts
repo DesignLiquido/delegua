@@ -48,6 +48,31 @@ export class InterpretadorPitugues extends Interpretador {
         this.requerDeclaracaoPropriedades = false;
     }
 
+    override eVerdadeiro(objeto: any): boolean {
+        const valorResolvido = this.resolverValor(objeto);
+
+        if (valorResolvido === null || valorResolvido === undefined) return false;
+        if (typeof valorResolvido === 'boolean') return valorResolvido;
+        if (typeof valorResolvido === 'number') return valorResolvido !== 0;
+        if (typeof valorResolvido === 'string') return valorResolvido.length > 0;
+        if (Array.isArray(valorResolvido)) return valorResolvido.length > 0;
+        if (valorResolvido instanceof TuplaN) return valorResolvido.elementos.length > 0;
+
+        if (
+            valorResolvido.constructor === Object &&
+            !('valor' in valorResolvido) &&
+            !('tipo' in valorResolvido)
+        ) {
+            return Object.keys(valorResolvido).length > 0;
+        }
+
+        if (valorResolvido.hasOwnProperty?.('valor')) {
+            return this.eVerdadeiro(valorResolvido.valor);
+        }
+
+        return true;
+    }
+
     protected override pontoInicializacaoBibliotecasGlobais() {
         for (const [nome, valor] of Object.entries(bibliotecaGlobalPitugues)) {
             if (typeof valor === 'function') {
