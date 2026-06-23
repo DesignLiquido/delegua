@@ -88,7 +88,7 @@
         "@types/estree": "^1.0.7",
         "@types/jest": "^30.0.0",
         "@types/lodash": "^4.17.16",
-        "@types/node": "^25.0.2",
+        "@types/node": "^26.0.0",
         "@typescript-eslint/eslint-plugin": "^8.28.0",
         "@typescript-eslint/parser": "^8.28.0",
         "antlr4": "^4.13.2",
