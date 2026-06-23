@@ -11,6 +11,7 @@ export type ComandoDepurador =
     | 'pausar';
 
 export interface InterpretadorComDepuracaoInterface extends InterpretadorInterface {
+    emDeclaracaoTente: boolean;
     comando?: ComandoDepurador;
     pontoDeParadaAtivo: boolean;
     pontosParada: PontoParada[];

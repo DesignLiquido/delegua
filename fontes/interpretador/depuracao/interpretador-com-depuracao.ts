@@ -7,6 +7,7 @@ import { RetornoInterpretadorInterface } from '../../interfaces/retornos/retorno
 import { AtribuicaoPorIndice, Atribuir, Binario, Chamada } from '../../construtos';
 import { Interpretador } from '../interpretador';
 import { EspacoMemoria } from '../espaco-memoria';
+import { ObjetoDeleguaClasse } from '../estruturas';
 
 import * as comum from './comum';
 
@@ -115,6 +116,15 @@ export class InterpretadorComDepuracao
             }
 
             let valor = this.resolverValor(resultadoAvaliacao);
+
+            if (valor instanceof ObjetoDeleguaClasse) {
+                const metodoParaTexto = valor.classe.encontrarMetodo('paraTexto');
+                if (metodoParaTexto) {
+                    const funcaoBound = metodoParaTexto.funcaoPorMetodoDeClasse(valor);
+                    valor = this.resolverValor(await funcaoBound.chamar(this, []));
+                }
+            }
+
             formatoTexto += `${this.paraTexto(valor)} `;
         }
 

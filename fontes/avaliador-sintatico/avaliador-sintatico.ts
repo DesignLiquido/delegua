@@ -70,6 +70,7 @@ import {
 import {
     Ajuda,
     AssinaturaMetodo,
+    BlocoPegue,
     Bloco,
     Classe,
     Comentario,
@@ -2967,21 +2968,46 @@ export class AvaliadorSintatico
 
         const blocoTente: any[] = await this.blocoEscopo();
 
-        let blocoPegue: FuncaoConstruto | Declaracao[] | null = null;
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PEGUE)) {
-            if (this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
-                // Caso 1: com parâmetro de erro.
-                // `pegue` recebe um `FuncaoConstruto`.
-                blocoPegue = await this.corpoDaFuncao('bloco `pegue`');
-            } else {
-                // Caso 2: sem parâmetro de erro.
-                // `pegue` recebe um bloco.
-                this.consumir(
-                    tiposDeSimbolos.CHAVE_ESQUERDA,
-                    "Esperado '{' após a declaração 'pegue'."
-                );
-                blocoPegue = await this.blocoEscopo();
+        const blocosPegue: BlocoPegue[] = [];
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PEGUE)) {
+            let parametro: SimboloInterface | undefined;
+            let tipoExcecao: SimboloInterface | undefined;
+
+            let temParenteses = false;
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
+                temParenteses = true;
             }
+
+            if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.CHAVE_ESQUERDA) {
+                parametro = this.consumir(
+                    tiposDeSimbolos.IDENTIFICADOR,
+                    "Esperado nome do parâmetro em bloco 'pegue'."
+                ) as SimboloInterface;
+
+                this.pilhaEscopos.definirInformacoesVariavel(
+                    parametro.lexema,
+                    new InformacaoElementoSintatico(parametro.lexema, 'qualquer')
+                );
+
+                if (this.verificarTipoSimboloAtual(tiposDeSimbolos.DOIS_PONTOS)) {
+                    this.avancarEDevolverAnterior(); // consome ':'
+                    tipoExcecao = this.consumir(
+                        tiposDeSimbolos.IDENTIFICADOR,
+                        "Esperado nome do tipo de exceção após ':' em bloco 'pegue'."
+                    ) as SimboloInterface;
+                }
+
+                if (temParenteses) {
+                    this.consumir(
+                        tiposDeSimbolos.PARENTESE_DIREITO,
+                        "Esperado ')' após parâmetro do bloco 'pegue'."
+                    );
+                }
+            }
+
+            this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'pegue'.");
+            const corpo = await this.blocoEscopo();
+            blocosPegue.push(new BlocoPegue(parametro, tipoExcecao, corpo as Declaracao[]));
         }
 
         let blocoSenao: any[] | null = null;
@@ -3008,7 +3034,7 @@ export class AvaliadorSintatico
             simboloTente.hashArquivo,
             Number(simboloTente.linha),
             blocoTente,
-            blocoPegue as FuncaoConstruto | Declaracao[],
+            blocosPegue,
             blocoSenao as Declaracao[],
             blocoFinalmente as Declaracao[]
         );

@@ -22,6 +22,7 @@ import { PontoParada } from '../../depuracao';
 import { EscopoExecucaoInterface, TipoEscopoExecucao } from '../../interfaces/escopo-execucao';
 import { inferirTipoVariavel } from '../../inferenciador';
 import { EspacoMemoria } from '../espaco-memoria';
+import { ObjetoDeleguaClasse } from '../estruturas';
 import tiposDeSimbolos from '../../tipos-de-simbolos/delegua';
 import tipoDeDadosDelegua from '../../tipos-de-dados/delegua';
 
@@ -48,6 +49,15 @@ async function avaliarArgumentosEscreva(
     for (const argumento of argumentos) {
         const resultadoAvaliacao = await interpretador.avaliar(argumento);
         let valor = interpretador.resolverValor(resultadoAvaliacao);
+
+        if (valor instanceof ObjetoDeleguaClasse) {
+            const metodoParaTexto = valor.classe.encontrarMetodo('paraTexto');
+            if (metodoParaTexto) {
+                const funcaoBound = metodoParaTexto.funcaoPorMetodoDeClasse(valor);
+                valor = interpretador.resolverValor(await funcaoBound.chamar(interpretador as any, []));
+            }
+        }
+
         formatoTexto += `${interpretador.paraTexto(valor)} `;
     }
 
@@ -378,7 +388,8 @@ export async function visitarDeclaracaoTente(
     declaracao: Tente
 ): Promise<any> {
     let valorRetorno: any;
-    (interpretador as any).emDeclaracaoTente = true;
+    const emDeclaracaoTenteAnterior = interpretador.emDeclaracaoTente;
+    interpretador.emDeclaracaoTente = true;
 
     // Captura o número de escopos antes de executar o bloco try
     const escoposAntes = interpretador.pilhaEscoposExecucao.elementos();
@@ -387,22 +398,13 @@ export async function visitarDeclaracaoTente(
         try {
             valorRetorno = await interpretador.executarBloco(declaracao.caminhoTente);
         } catch (erro: any) {
-            if (declaracao.caminhoPegue !== null) {
-                if (Array.isArray(declaracao.caminhoPegue)) {
-                    valorRetorno = await interpretador.executarBloco(declaracao.caminhoPegue);
-                } else {
-                    const literalErro = new Literal(
-                        declaracao.hashArquivo,
-                        Number(declaracao.linha),
-                        erro.mensagem
-                    );
-                    const chamadaPegue = new Chamada(
-                        declaracao.caminhoPegue.hashArquivo,
-                        declaracao.caminhoPegue,
-                        [literalErro]
-                    );
-                    valorRetorno = await chamadaPegue.aceitar(interpretador);
-                }
+            if (declaracao.caminhoPegue.length > 0) {
+                valorRetorno = await (interpretador as any).executarBlocoPegue(
+                    declaracao.caminhoPegue,
+                    erro
+                );
+            } else {
+                throw erro;
             }
         }
     } finally {
@@ -421,7 +423,7 @@ export async function visitarDeclaracaoTente(
         ) {
             valorRetorno = await interpretador.executarBloco(declaracao.caminhoFinalmente);
         }
-        (interpretador as any).emDeclaracaoTente = false;
+        interpretador.emDeclaracaoTente = emDeclaracaoTenteAnterior;
     }
 
     return valorRetorno;
@@ -1005,7 +1007,7 @@ export async function executarUltimoEscopoComandoContinuar(
     } catch (erro: any) {
         // Se estamos dentro de uma declaração tente, re-lança o erro
         // para que o bloco pegue possa capturá-lo
-        if ((interpretador as any).emDeclaracaoTente) {
+        if (interpretador.emDeclaracaoTente) {
             throw erro;
         }
         interpretador.erros.push(erro);

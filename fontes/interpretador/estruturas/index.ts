@@ -8,6 +8,7 @@ export * from './delegua-funcao-nativa';
 export * from './metodo-primitiva';
 export * from './metodo-polimorfico';
 export * from './modulo';
+export * from './excecao-base';
 export * from './objeto-base';
 export * from './objeto-delegua-classe';
 export * from './objeto-padrao';

@@ -24,6 +24,7 @@ import {
 
 import { ErroAvaliadorSintatico } from '../erro-avaliador-sintatico';
 import {
+    BlocoPegue,
     Bloco,
     Classe,
     Continua,
@@ -777,14 +778,14 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
 
         const tryBlock = this.blocoEscopo();
 
-        let catchBlock = null;
+        const blocosPegue: BlocoPegue[] = [];
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PEGUE)) {
             this.consumir(
                 tiposDeSimbolos.CHAVE_ESQUERDA,
                 "Esperado '{' após a declaração 'pegue'."
             );
 
-            catchBlock = this.blocoEscopo();
+            blocosPegue.push(new BlocoPegue(undefined, undefined, this.blocoEscopo() as Declaracao[]));
         }
 
         let elseBlock = null;
@@ -807,7 +808,7 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
             finallyBlock = this.blocoEscopo();
         }
 
-        return new Tente(0, 0, tryBlock, catchBlock, elseBlock, finallyBlock);
+        return new Tente(0, 0, tryBlock, blocosPegue, elseBlock, finallyBlock);
     }
 
     declaracaoFazer(): Fazer {

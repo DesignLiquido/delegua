@@ -1,4 +1,5 @@
 export * from './ajuda';
+export * from './bloco-pegue';
 export * from './bloco';
 export * from './cabecalho-programa';
 export * from './classe';

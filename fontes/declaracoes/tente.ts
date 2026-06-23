@@ -1,5 +1,5 @@
-import { FuncaoConstruto } from '../construtos';
 import { VisitanteComumInterface } from '../interfaces';
+import { BlocoPegue } from './bloco-pegue';
 import { Declaracao } from './declaracao';
 
 /**
@@ -7,7 +7,7 @@ import { Declaracao } from './declaracao';
  */
 export class Tente extends Declaracao {
     caminhoTente: Declaracao[];
-    caminhoPegue: FuncaoConstruto | Declaracao[];
+    caminhoPegue: BlocoPegue[];
     caminhoSenao: Declaracao[];
     caminhoFinalmente: Declaracao[];
 
@@ -15,7 +15,7 @@ export class Tente extends Declaracao {
         hashArquivo: number,
         linha: number,
         caminhoTente: Declaracao[],
-        caminhoPegue: FuncaoConstruto | Declaracao[],
+        caminhoPegue: BlocoPegue[],
         caminhoSenao: Declaracao[],
         caminhoFinalmente: Declaracao[]
     ) {
@@ -32,9 +32,9 @@ export class Tente extends Declaracao {
 
     paraTexto(): string {
         const tente = this.caminhoTente.map((d) => d.paraTexto()).join('');
-        const pegue = Array.isArray(this.caminhoPegue)
-            ? this.caminhoPegue.map((d) => d.paraTexto()).join('')
-            : this.caminhoPegue.paraTexto();
+        const pegue = this.caminhoPegue
+            .map((b) => b.corpo.map((d) => d.paraTexto()).join(''))
+            .join('');
         const senao = this.caminhoSenao.map((d) => d.paraTexto()).join('');
         const finalmente = this.caminhoFinalmente.map((d) => d.paraTexto()).join('');
         return `<tente><tente-corpo>${tente}</tente-corpo><pegue>${pegue}</pegue><senão>${senao}</senão><finalmente>${finalmente}</finalmente></tente>`;

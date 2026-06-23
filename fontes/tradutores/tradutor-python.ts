@@ -842,17 +842,13 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
             resultado += ' '.repeat(this.indentacao);
         }
 
-        if (declaracaoTente.caminhoPegue !== null) {
+        if (declaracaoTente.caminhoPegue.length > 0) {
             resultado += '\nexcept:\n';
             resultado += ' '.repeat(this.indentacao);
-            if (Array.isArray(declaracaoTente.caminhoPegue)) {
-                for (let declaracao of declaracaoTente.caminhoPegue) {
+            for (const bloco of declaracaoTente.caminhoPegue) {
+                for (let declaracao of bloco.corpo) {
                     resultado +=
                         this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
-                }
-            } else {
-                for (let corpo of declaracaoTente.caminhoPegue.corpo) {
-                    resultado += this.dicionarioDeclaracoes[corpo.constructor.name](corpo) + '\n';
                 }
             }
 

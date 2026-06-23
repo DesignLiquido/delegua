@@ -46,6 +46,7 @@ import {
     Bote,
 } from '../../construtos';
 import {
+    BlocoPegue,
     Escreva,
     Se,
     Enquanto,
@@ -2183,52 +2184,32 @@ export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implement
 
         const blocoTente = await this.blocoEscopo();
 
-        let blocoPegue = null;
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PEGUE)) {
-            if (this.verificarTipoSimboloAtual(tiposDeSimbolos.COMO)) {
-                this.avancarEDevolverAnterior();
-                const variavelExcecao = this.consumir(
+        const blocosPegue: BlocoPegue[] = [];
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PEGUE)) {
+            let tipoExcecao: SimboloInterface | undefined;
+            let parametro: SimboloInterface | undefined;
+
+            // Opcional: tipo de exceção (identificador que não é 'como')
+            if (this.verificarTipoSimboloAtual(tiposDeSimbolos.IDENTIFICADOR)) {
+                tipoExcecao = this.avancarEDevolverAnterior() as SimboloInterface;
+            }
+
+            // Opcional: 'como nome'
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COMO)) {
+                parametro = this.consumir(
                     tiposDeSimbolos.IDENTIFICADOR,
-                    `Esperado identificador após palavra reservada 'como' em bloco tente. Atual: ${this.simbolos[this.atual].lexema}.`
-                );
-                // Caso 1: com parâmetro de erro.
-                // `pegue` recebe um `FuncaoConstruto`.
-                this.consumir(
-                    tiposDeSimbolos.DOIS_PONTOS,
-                    `Esperado ':' antes do escopo do bloco 'pegue'.`
-                );
+                    `Esperado identificador após palavra reservada 'como' em bloco 'pegue'.`
+                ) as SimboloInterface;
 
                 this.pilhaEscopos.definirInformacoesVariavel(
-                    variavelExcecao.lexema,
-                    new InformacaoElementoSintatico(variavelExcecao.lexema, 'qualquer')
+                    parametro.lexema,
+                    new InformacaoElementoSintatico(parametro.lexema, 'qualquer')
                 );
-
-                const corpo = await this.blocoEscopo();
-
-                blocoPegue = new FuncaoConstruto(
-                    this.hashArquivo,
-                    simboloTente.linha,
-                    [
-                        {
-                            abrangencia: 'padrao',
-                            nome: variavelExcecao,
-                            tipoDado: 'qualquer',
-                        } as ParametroInterface,
-                    ],
-                    corpo,
-                    'vazio',
-                    false
-                );
-            } else {
-                // Caso 2: sem parâmetro de erro.
-                // `pegue` recebe um bloco.
-                this.consumir(
-                    tiposDeSimbolos.DOIS_PONTOS,
-                    "Esperado ':' após a declaração 'pegue'."
-                );
-
-                blocoPegue = await this.blocoEscopo();
             }
+
+            this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' antes do escopo do bloco 'pegue'.");
+            const corpo = await this.blocoEscopo();
+            blocosPegue.push(new BlocoPegue(parametro, tipoExcecao, corpo as Declaracao[]));
         }
 
         let blocoSenao = null;
@@ -2249,7 +2230,7 @@ export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implement
             simboloTente.hashArquivo,
             Number(simboloTente.linha),
             blocoTente,
-            blocoPegue,
+            blocosPegue,
             blocoSenao,
             blocoFinalmente
         );

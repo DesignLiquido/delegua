@@ -21,6 +21,7 @@ import {
 } from '../../fontes/construtos';
 import {
     Bloco,
+    BlocoPegue,
     Classe,
     Comentario,
     Const,
@@ -706,7 +707,7 @@ describe('Tradutor Tenda -> Delégua', () => {
             const msgTente = new Literal(-1, 1, 'no tente', 'texto');
             const escrevaTente = new Escreva(1, -1, [msgTente]);
             const msgPegue = new Literal(-1, 2, 'no pegue', 'texto');
-            const escrevaPegue = new Escreva(2, -1, [msgPegue]);
+            const escrevaPegue = new BlocoPegue({} as any, {} as any, [new Escreva(2, -1, [msgPegue])]);
             const tente = new Tente(-1, 1, [escrevaTente], [escrevaPegue], null, null);
 
             const resultado = tradutor.traduzir([tente]);
@@ -1046,8 +1047,11 @@ describe('Tradutor Tenda -> Delégua', () => {
             const escrevaTente = new Escreva(1, -1, [msgTente]);
             const msgPegue = new Literal(-1, 2, 'no pegue', 'texto');
             const escrevaPegue = new Escreva(2, -1, [msgPegue]);
-            const funcaoPegue = new FuncaoConstruto(-1, 2, [], [escrevaPegue], 'qualquer');
-            const tente = new Tente(-1, 1, [escrevaTente], funcaoPegue, null, null);
+            const funcaoPegue = new BlocoPegue(
+                {} as any, 
+                {} as any, [escrevaPegue]
+            );
+            const tente = new Tente(-1, 1, [escrevaTente], [funcaoPegue], null, null);
 
             const resultado = tradutor.traduzir([tente]);
             expect(resultado).toBeTruthy();

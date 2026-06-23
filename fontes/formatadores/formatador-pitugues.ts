@@ -326,14 +326,13 @@ export class FormatadorPitugues implements VisitantePituguesInterface {
         for (const instrução of declaração.caminhoTente) await instrução.aceitar(this);
         this.diminuirIndentação();
 
-        if (declaração.caminhoPegue) {
-            this.adicionarLinha('pegue como erro:');
+        for (const bloco of declaração.caminhoPegue) {
+            let cabecalho = 'pegue';
+            if (bloco.tipoExcecao) cabecalho += ` ${bloco.tipoExcecao.lexema}`;
+            if (bloco.parametro) cabecalho += ` como ${bloco.parametro.lexema}`;
+            this.adicionarLinha(`${cabecalho}:`);
             this.aumentarIndentação();
-            const declaracoes =
-                declaração.caminhoPegue instanceof FuncaoConstruto
-                    ? declaração.caminhoPegue.corpo
-                    : (declaração.caminhoPegue as Declaracao[]);
-            for (const instrução of declaracoes) {
+            for (const instrução of bloco.corpo) {
                 await instrução.aceitar(this);
             }
             this.diminuirIndentação();

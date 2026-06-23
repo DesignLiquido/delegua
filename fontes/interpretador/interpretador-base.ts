@@ -2,6 +2,7 @@ import hrtime from 'browser-process-hrtime';
 import { DespachadorFFIInterface } from '../ffi';
 
 import {
+    BlocoPegue,
     Bloco,
     CabecalhoPrograma,
     Classe,
@@ -42,6 +43,7 @@ import {
     FuncaoPadrao,
     ObjetoPadrao,
     OBJETO_BASE,
+    EXCECAO_BASE,
 } from './estruturas';
 import {
     AcessoIndiceVariavel,
@@ -234,6 +236,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         // Registrar a classe base `Objeto` no escopo global.
         this.pilhaEscoposExecucao.definirVariavel('Objeto', OBJETO_BASE);
+        this.pilhaEscoposExecucao.definirVariavel('Excecao', EXCECAO_BASE);
     }
 
     /**
@@ -481,36 +484,34 @@ export class InterpretadorBase implements InterpretadorInterface {
     async visitarExpressaoFalhar(expressao: Falhar): Promise<any> {
         let valorAvaliado = expressao.explicacao;
 
-        // Se for um construto (ex.: Variavel), avalia para obter seu valor real
-        if (
-            expressao.explicacao &&
-            typeof expressao.explicacao.aceitar === 'function'
-        ) {
+        if (expressao.explicacao && typeof expressao.explicacao.aceitar === 'function') {
             valorAvaliado = await this.avaliar(expressao.explicacao);
+            valorAvaliado = this.resolverValor(valorAvaliado);
         }
 
-        let textoFalha: string;
+        let objetoDelegua: ObjetoDeleguaClasse;
 
-        if (valorAvaliado === null || valorAvaliado === undefined) {
-            textoFalha = 'nulo';
-        } else if (typeof valorAvaliado === 'string') {
-            textoFalha = valorAvaliado;
-        } else if (
-            typeof valorAvaliado === 'object' &&
-            'valor' in valorAvaliado
-        ) {
-            // Objetos tipados como { valor: 'mensagem', tipo: 'texto' }
-            textoFalha = String(valorAvaliado.valor);
+        if (valorAvaliado instanceof ObjetoDeleguaClasse) {
+            objetoDelegua = valorAvaliado;
         } else {
-            // Caso incomum: usa a representação textual padrão
-            textoFalha = this.paraTexto(valorAvaliado);
+            let mensagem: string;
+            if (valorAvaliado === null || valorAvaliado === undefined) {
+                mensagem = 'nulo';
+            } else if (typeof valorAvaliado === 'string') {
+                mensagem = valorAvaliado;
+            } else if (typeof valorAvaliado === 'object' && 'valor' in valorAvaliado) {
+                mensagem = String(valorAvaliado.valor);
+            } else {
+                mensagem = this.paraTexto(valorAvaliado);
+            }
+            objetoDelegua = new ObjetoDeleguaClasse(EXCECAO_BASE);
+            objetoDelegua.propriedades['mensagem'] = mensagem;
         }
 
-        throw new ErroEmTempoDeExecucao(
-            expressao.simbolo,
-            textoFalha,
-            expressao.linha
-        );
+        const mensagem = objetoDelegua.propriedades['mensagem'] ?? '';
+        const erro = new ErroEmTempoDeExecucao(expressao.simbolo, mensagem, expressao.linha);
+        erro.valorDelegua = objetoDelegua;
+        throw erro;
     }
 
     async visitarExpressaoFimPara(_: FimPara): Promise<any> {
@@ -1500,7 +1501,8 @@ export class InterpretadorBase implements InterpretadorInterface {
                 const metodoConstrutor = descritorSuperclasse.encontrarMetodo('construtor') as
                     | MetodoPolimorfico
                     | DeleguaFuncao;
-                await metodoConstrutor.chamar(this, argumentos);
+                const metodoVinculado = (metodoConstrutor as any).funcaoPorMetodoDeClasse(variavelEntidadeChamada);
+                await metodoVinculado.chamar(this, argumentos);
                 return null;
             }
 
@@ -2022,31 +2024,36 @@ export class InterpretadorBase implements InterpretadorInterface {
         );
     }
 
-    /**
-     * Unifica a execução do bloco 'pegue', tratando tanto o caso de
-     * declarações simples quanto o caso de função com parâmetro de erro.
-     */
-    private async executarBlocoPegue(
-        pegue: FuncaoConstruto | Declaracao[],
-        erro: any
-    ): Promise<any> {
-        if (Array.isArray(pegue)) {
-            return await this.executarBloco(pegue);
+    private ehInstanciaDe(objeto: ObjetoDeleguaClasse, nomeTipo: string): boolean {
+        return objeto.classe.orem.some((d) => d.simboloOriginal?.lexema === nomeTipo);
+    }
+
+    private async executarBlocoPegue(blocos: BlocoPegue[], erro: any): Promise<any> {
+        const objetoDelegua: ObjetoDeleguaClasse | null = erro?.valorDelegua ?? null;
+        for (const bloco of blocos) {
+            const corresponde =
+                !bloco.tipoExcecao ||
+                (objetoDelegua !== null &&
+                    this.ehInstanciaDe(objetoDelegua, bloco.tipoExcecao.lexema));
+
+            if (!corresponde) continue;
+
+            this.emDeclaracaoTente = false;
+
+            if (bloco.parametro) {
+                const ambiente = new EspacoMemoria();
+                ambiente.valores[bloco.parametro.lexema] = {
+                    valor: objetoDelegua,
+                    tipo: 'qualquer',
+                    imutavel: false,
+                };
+                return await this.executarBloco(bloco.corpo, ambiente);
+            }
+
+            return await this.executarBloco(bloco.corpo);
         }
 
-        // Caso seja FuncaoConstruto (pegue com parâmetro de erro)
-        const literalErro = new Literal(
-            pegue.hashArquivo,
-            pegue.linha,
-            erro.mensagem || erro.message || erro
-        );
-        const chamadaPegue = new Chamada(
-            pegue.hashArquivo,
-            pegue,
-            [literalErro]
-        );
-
-        return await chamadaPegue.aceitar(this);
+        throw erro;
     }
 
     /**
@@ -2056,6 +2063,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     async visitarDeclaracaoTente(declaracao: Tente): Promise<any> {
         let valorRetorno: any;
         let sucessoNoTente = false;
+        const emDeclaracaoTenteAnterior = this.emDeclaracaoTente;
 
         try {
             this.emDeclaracaoTente = true;
@@ -2066,7 +2074,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 );
                 sucessoNoTente = true;
             } catch (erro: any) {
-                if (declaracao.caminhoPegue !== null) {
+                if (declaracao.caminhoPegue.length > 0) {
                     valorRetorno = await this.executarBlocoPegue(
                         declaracao.caminhoPegue,
                         erro
@@ -2086,7 +2094,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 );
             }
 
-            this.emDeclaracaoTente = false;
+            this.emDeclaracaoTente = emDeclaracaoTenteAnterior;
         }
 
         return valorRetorno;
@@ -2110,6 +2118,15 @@ export class InterpretadorBase implements InterpretadorInterface {
             }
 
             let valor = this.resolverValor(resultadoAvaliacao);
+
+            if (valor instanceof ObjetoDeleguaClasse) {
+                const metodoParaTexto = valor.classe.encontrarMetodo('paraTexto');
+                if (metodoParaTexto) {
+                    const funcaoBound = metodoParaTexto.funcaoPorMetodoDeClasse(valor);
+                    valor = this.resolverValor(await funcaoBound.chamar(this, []));
+                }
+            }
+
             formatoTexto += `${this.paraTexto(valor)} `;
         }
 

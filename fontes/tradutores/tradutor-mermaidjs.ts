@@ -557,8 +557,8 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao>, Visitan
 
         const anterioresAposTente: ArestaFluxograma[] = [];
 
-        // Caminho pegue (catch) - se existir
-        if (declaracao.caminhoPegue) {
+        // Caminho pegue - se existir
+        if (declaracao.caminhoPegue.length > 0) {
             this.anteriores = [aresta];
             const arestaPegue = new ArestaFluxograma(
                 declaracao,
@@ -568,8 +568,8 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao>, Visitan
             this.anteriores.push(arestaPegue);
 
             const verticesPegue: VerticeFluxograma[] = [];
-            if (Array.isArray(declaracao.caminhoPegue)) {
-                for (const declaracaoPegue of declaracao.caminhoPegue) {
+            for (const bloco of declaracao.caminhoPegue) {
+                for (const declaracaoPegue of bloco.corpo) {
                     const verticesDeclaracao = await declaracaoPegue.aceitar(this);
                     verticesPegue.push(...verticesDeclaracao);
                 }

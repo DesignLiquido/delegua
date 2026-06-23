@@ -574,713 +574,710 @@ describe('Formatadores > Delégua', () => {
         });
     });
     
-    describe('Cobertura adicional', () => {
-        it('Comentários multilinha', async () => {
-            const resultadoLexador = lexador.mapear([
-                "/* Este é um comentário de múltiplas linhas */",
-                "escreva('teste')"
-            ], -1);
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            expect(resultado).toContain("escreva");
-            
-        });
+    it('Comentários multilinha', async () => {
+        const resultadoLexador = lexador.mapear([
+            "/* Este é um comentário de múltiplas linhas */",
+            "escreva('teste')"
+        ], -1);
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        expect(resultado).toContain("escreva");
         
-        it('Expressões regulares', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x = 'teste'",
-                "escreva(x)"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("escreva");
-        });
+    });
+    
+    it('Expressões regulares', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = 'teste'",
+            "escreva(x)"
+        ], -1);
         
-        it('Formatação escrita', async () => {
-            const resultadoLexador = lexador.mapear([
-                "escreva('teste %d teste', 10)"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("escreva");
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        it('Acesso a intervalo de variável', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var lista = [1, 2, 3, 4, 5]",
-                "var sublista = lista[1:4]"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("lista");
-        });
+        expect(resultado).toContain("escreva");
+    });
+    
+    it('Formatação escrita', async () => {
+        const resultadoLexador = lexador.mapear([
+            "escreva('teste %d teste', 10)"
+        ], -1);
         
-        it('Acesso de propriedade', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var obj = { }",
-                "escreva(obj)"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("obj");
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        it('Tupla', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var tupla = (1, 'teste')",
-                "escreva(tupla)"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("tupla");
-        });
+        expect(resultado).toContain("escreva");
+    });
+    
+    it('Acesso a intervalo de variável', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var lista = [1, 2, 3, 4, 5]",
+            "var sublista = lista[1:4]"
+        ], -1);
         
-        it('Referência de função', async () => {
-            const resultadoLexador = lexador.mapear([
-                "função teste() { }",
-                "escreva(teste)"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("teste");
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        it('Argumento referência de função', async () => {
-            const resultadoLexador = lexador.mapear([
-                "função callback(fn) { fn() }",
-                "função outro() { }",
-                "callback(outro)"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("callback");
-        });
+        expect(resultado).toContain("lista");
+    });
+    
+    it('Acesso de propriedade', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var obj = { }",
+            "escreva(obj)"
+        ], -1);
         
-        it('Isto (referência ao objeto)', async () => {
-            const resultadoLexador = lexador.mapear([
-                "função teste() { escreva(1) }"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("teste");
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        it('Super (construtor da classe pai)', async () => {
-            const resultadoLexador = lexador.mapear([
-                "função super_teste() { }",
-                "escreva(super_teste)"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("super_teste");
-        });
+        expect(resultado).toContain("obj");
+    });
+    
+    it('Tupla', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var tupla = (1, 'teste')",
+            "escreva(tupla)"
+        ], -1);
         
-        it('Separador', async () => {
-            const resultadoLexador = lexador.mapear([
-                "escreva(1)",
-                "escreva(2)"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("escreva");
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        it('Literal com null/undefined', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x = nulo"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("null");
-        });
+        expect(resultado).toContain("tupla");
+    });
+    
+    it('Referência de função', async () => {
+        const resultadoLexador = lexador.mapear([
+            "função teste() { }",
+            "escreva(teste)"
+        ], -1);
         
-        it('Literal com string com caracteres especiais', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x = 'teste\\nnova\\tlinha\\rretorno'"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("\\n");
-            expect(resultado).toContain("\\t");
-            expect(resultado).toContain("\\r");
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        it('Literal booleano', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x = verdadeiro",
-                "var y = falso"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("verdadeiro");
-            expect(resultado).toContain("falso");
-        });
+        expect(resultado).toContain("teste");
+    });
+    
+    it('Argumento referência de função', async () => {
+        const resultadoLexador = lexador.mapear([
+            "função callback(fn) { fn() }",
+            "função outro() { }",
+            "callback(outro)"
+        ], -1);
         
-        it('Unário DEPOIS (pós-incremento/decremento)', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x = 1",
-                "x++"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("++");
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        it('Unário ANTES (pré-incremento)', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x = 1",
-                "++x"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("++");
-        });
+        expect(resultado).toContain("callback");
+    });
+    
+    it('Isto (referência ao objeto)', async () => {
+        const resultadoLexador = lexador.mapear([
+            "função teste() { escreva(1) }"
+        ], -1);
         
-        it('Unário negação', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x = !verdadeiro"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("!");
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        it('Unário subtração', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x = -5"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("-");
-        });
+        expect(resultado).toContain("teste");
+    });
+    
+    it('Super (construtor da classe pai)', async () => {
+        const resultadoLexador = lexador.mapear([
+            "função super_teste() { }",
+            "escreva(super_teste)"
+        ], -1);
         
-        it('Função com tipo explícito', async () => {
-            const resultadoLexador = lexador.mapear([
-                "função teste(): inteiro { retorna 1 }"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("inteiro");
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        it('Função com parâmetros tipados', async () => {
-            const resultadoLexador = lexador.mapear([
-                "função somar(a: inteiro, b: inteiro): inteiro { retorna a + b }"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("inteiro");
-        });
+        expect(resultado).toContain("super_teste");
+    });
+    
+    it('Separador', async () => {
+        const resultadoLexador = lexador.mapear([
+            "escreva(1)",
+            "escreva(2)"
+        ], -1);
         
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
+        expect(resultado).toContain("escreva");
+    });
+    
+    it('Literal com null/undefined', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = nulo"
+        ], -1);
         
-        it('Expressão regular', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x = ||teste||"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("||");
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        it('Acesso a método', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x = 'teste'",
-                "x.length()"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("x");
-        });
+        expect(resultado).toContain("null");
+    });
+    
+    it('Literal com string com caracteres especiais', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = 'teste\\nnova\\tlinha\\rretorno'"
+        ], -1);
         
-        it('Acesso a propriedade direto', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var obj = {}",
-                "obj.nome"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("obj");
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        it('Operador divisão inteira', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x = 10 \\ 3"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("\\");
-        });
+        expect(resultado).toContain("\\n");
+        expect(resultado).toContain("\\t");
+        expect(resultado).toContain("\\r");
+    });
+    
+    it('Literal booleano', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = verdadeiro",
+            "var y = falso"
+        ], -1);
         
-        it('Operador +=', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x = 1",
-                "x += 2"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("+=");
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        it('Operador -=', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x = 5",
-                "x -= 2"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("-=");
-        });
+        expect(resultado).toContain("verdadeiro");
+        expect(resultado).toContain("falso");
+    });
+    
+    it('Unário DEPOIS (pós-incremento/decremento)', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = 1",
+            "x++"
+        ], -1);
         
-        it('Operador /=', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x = 10",
-                "x /= 2"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("/=");
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        it('Operador %=', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x = 10",
-                "x %= 3"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("%=");
-        });
+        expect(resultado).toContain("++");
+    });
+    
+    it('Unário ANTES (pré-incremento)', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = 1",
+            "++x"
+        ], -1);
         
-        it('Operador \\=', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x = 10",
-                "x \\= 3"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("\\=");
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        it('Operador em (in)', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x = [1, 2, 3]",
-                "se 1 em x { }"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("em");
-        });
+        expect(resultado).toContain("++");
+    });
+    
+    it('Unário negação', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = !verdadeiro"
+        ], -1);
         
-        it('Tipo de (type of)', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x = tipo de 1"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("tipo de");
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        it('Atribuição por índice', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x = [1, 2, 3]",
-                "x[0] = 5"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("[");
-        });
+        expect(resultado).toContain("!");
+    });
+    
+    it('Unário subtração', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = -5"
+        ], -1);
         
-        it('Definir valor (atribuição a propriedade)', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x = 1"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toBeDefined();
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        it('Variável sem inicializador', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("var");
-        });
+        expect(resultado).toContain("-");
+    });
+    
+    it('Função com tipo explícito', async () => {
+        const resultadoLexador = lexador.mapear([
+            "função teste(): inteiro { retorna 1 }"
+        ], -1);
         
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
+        expect(resultado).toContain("inteiro");
+    });
+    
+    it('Função com parâmetros tipados', async () => {
+        const resultadoLexador = lexador.mapear([
+            "função somar(a: inteiro, b: inteiro): inteiro { retorna a + b }"
+        ], -1);
         
-        it('Constante com tipo', async () => {
-            const resultadoLexador = lexador.mapear([
-                "const VALOR = 42"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("constante");
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        it('Retorna com valor', async () => {
-            const resultadoLexador = lexador.mapear([
-                "função teste() { retorna 42 }"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("retorna");
-        });
+        expect(resultado).toContain("inteiro");
+    });
+    
+    
+    
+    it('Expressão regular', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = ||teste||"
+        ], -1);
         
-        it('Tente com pegue e finalmente', async () => {
-            const resultadoLexador = lexador.mapear([
-                "tente {",
-                "  escreva(1)",
-                "} pegue {",
-                "  escreva(2)",
-                "} finalmente {",
-                "  escreva(3)",
-                "}"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("tente");
-            expect(resultado).toContain("pegue");
-            expect(resultado).toContain("finalmente");
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        it('Falhar com mensagem', async () => {
-            const resultadoLexador = lexador.mapear([
-                "falhar 'Erro!'"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("falhar");
-        });
+        expect(resultado).toContain("||");
+    });
+    
+    it('Acesso a método', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = 'teste'",
+            "x.length()"
+        ], -1);
         
-        it('Leia com argumentos', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x = leia('Digite um valor: ')"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("leia");
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        it('Isto (this)', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var obj = {}",
-                "escreva(isto)"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("escreva");
-        });
+        expect(resultado).toContain("x");
+    });
+    
+    it('Acesso a propriedade direto', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var obj = {}",
+            "obj.nome"
+        ], -1);
         
-        it('Super', async () => {
-            const resultadoLexador = lexador.mapear([
-                "função teste() { retorna 1 }"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("função");
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        it('Agrupamento (parênteses)', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x = (1 + 2) * 3"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("(");
-        });
+        expect(resultado).toContain("obj");
+    });
+    
+    it('Operador divisão inteira', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = 10 \\ 3"
+        ], -1);
         
-        it('Chamada de função com múltiplos argumentos', async () => {
-            const resultadoLexador = lexador.mapear([
-                "função teste(a, b, c) { }",
-                "teste(1, 2, 3)"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("teste");
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        it('Para com múltiplas inicializações', async () => {
-            const resultadoLexador = lexador.mapear([
-                "para var i = 0; i < 10; i++ {",
-                "  escreva(i)",
-                "}"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("para");
-        });
+        expect(resultado).toContain("\\");
+    });
+    
+    it('Operador +=', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = 1",
+            "x += 2"
+        ], -1);
         
-        it('Para cada', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var arr = [1, 2, 3]",
-                "para cada i de arr {",
-                "  escreva(i)",
-                "}"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("para cada");
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        it('Se com senão', async () => {
-            const resultadoLexador = lexador.mapear([
-                "se verdadeiro {",
-                "  escreva(1)",
-                "} senão {",
-                "  escreva(2)",
-                "}"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("se");
-            expect(resultado).toContain("senão");
-        });
+        expect(resultado).toContain("+=");
+    });
+    
+    it('Operador -=', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = 5",
+            "x -= 2"
+        ], -1);
         
-        it('Tenho como', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var i = 0"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("var");
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        it('Comentário inline', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x = 1"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("var");
-        });
+        expect(resultado).toContain("-=");
+    });
+    
+    it('Operador /=', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = 10",
+            "x /= 2"
+        ], -1);
         
-        it('Operador DIFERENTE (!= )', async () => {
-            const resultadoLexador = lexador.mapear([
-                "se 1 != 2 { }"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("!=");
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        it('Operador MULTIPLICAÇÃO *= ', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x = 5",
-                "x *= 2"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("*");
-        });
+        expect(resultado).toContain("/=");
+    });
+    
+    it('Operador %=', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = 10",
+            "x %= 3"
+        ], -1);
         
-        it('Operador EXPONENCIACAO **', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x = 2 ** 3"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("**");
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        it('Operador MODULO %', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x = 10 % 3"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("%");
-        });
+        expect(resultado).toContain("%=");
+    });
+    
+    it('Operador \\=', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = 10",
+            "x \\= 3"
+        ], -1);
         
-        it('Operador E (and)', async () => {
-            const resultadoLexador = lexador.mapear([
-                "se verdadeiro e verdadeiro { }"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("e");
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        it('Operador OU (or)', async () => {
-            const resultadoLexador = lexador.mapear([
-                "se verdadeiro ou falso { }"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("ou");
-        });
+        expect(resultado).toContain("\\=");
+    });
+    
+    it('Operador em (in)', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = [1, 2, 3]",
+            "se 1 em x { }"
+        ], -1);
         
-        it('Vetor vazio', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x = []"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("[");
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        it('Dicionário vazio', async () => {
-            const resultadoLexador = lexador.mapear([
-                "var x = {}"
-            ], -1);
-            
-            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
-            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
-            
-            expect(resultado).toContain("{");
-        });
-        it('Agrupamento e precedência mantém parênteses e espaçamento', async () => {
-            const codigo = ["var x=(1+2)*3 escreva(x)"];
-            const lexado = lexador.mapear(codigo, -1);
-            const avaliado = await avaliadorSintatico.analisar(lexado, -1);
-            const resultado = formatador.formatar(avaliado.declaracoes);
-            expect(resultado).toContain("var x = (1 + 2) * 3");
-            expect(resultado).toContain("escreva(x)");
-        });
+        expect(resultado).toContain("em");
+    });
+    
+    it('Tipo de (type of)', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = tipo de 1"
+        ], -1);
         
-        it('Espaçamento binário normaliza operadores com espaços', async () => {
-            const codigo = ["var a=1+2"];
-            const lexado = lexador.mapear(codigo, -1);
-            const avaliado = await avaliadorSintatico.analisar(lexado, -1);
-            const resultado = formatador.formatar(avaliado.declaracoes);
-            expect(resultado).toContain("var a = 1 + 2");
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        it('Operador divisão inteira preserva barra invertida', async () => {
-            const codigo = ["var x = 10 \\ 3"];
-            const lexado = lexador.mapear(codigo, -1);
-            const avaliado = await avaliadorSintatico.analisar(lexado, -1);
-            const resultado = formatador.formatar(avaliado.declaracoes);
-            expect(resultado).toContain("\\");
-        });
+        expect(resultado).toContain("tipo de");
+    });
+    
+    it('Atribuição por índice', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = [1, 2, 3]",
+            "x[0] = 5"
+        ], -1);
         
-        it('Retorna função aninhada é indicada como "retorna função"', async () => {
-            const codigo = [
-                "funcao outer() {",
-                "  retorna funcao() {",
-                "    retorna 1",
-                "  }",
-                "}",
-                "var f = outer()",
-                "escreva(f())"
-            ];
-            const lexado = lexador.mapear(codigo, -1);
-            const avaliado = await avaliadorSintatico.analisar(lexado, -1);
-            const resultado = formatador.formatar(avaliado.declaracoes);
-            expect(resultado).toContain("retorna função");
-            expect(resultado).toContain("escreva(f())");
-        });
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
+        expect(resultado).toContain("[");
+    });
+    
+    it('Definir valor (atribuição a propriedade)', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = 1"
+        ], -1);
+        
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        
+        expect(resultado).toBeDefined();
+    });
+    
+    it('Variável sem inicializador', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x"
+        ], -1);
+        
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        
+        expect(resultado).toContain("var");
+    });
+    
+    
+    
+    it('Constante com tipo', async () => {
+        const resultadoLexador = lexador.mapear([
+            "const VALOR = 42"
+        ], -1);
+        
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        
+        expect(resultado).toContain("constante");
+    });
+    
+    it('Retorna com valor', async () => {
+        const resultadoLexador = lexador.mapear([
+            "função teste() { retorna 42 }"
+        ], -1);
+        
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        
+        expect(resultado).toContain("retorna");
+    });
+    
+    it('Tente com pegue e finalmente', async () => {
+        const resultadoLexador = lexador.mapear([
+            "tente {",
+            "  escreva(1)",
+            "} pegue {",
+            "  escreva(2)",
+            "} finalmente {",
+            "  escreva(3)",
+            "}"
+        ], -1);
+        
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        
+        expect(resultado).toContain("tente");
+        expect(resultado).toContain("pegue");
+        expect(resultado).toContain("finalmente");
+    });
+    
+    it('Falhar com mensagem', async () => {
+        const resultadoLexador = lexador.mapear([
+            "falhar 'Erro!'"
+        ], -1);
+        
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        
+        expect(resultado).toContain("falhar");
+    });
+    
+    it('Leia com argumentos', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = leia('Digite um valor: ')"
+        ], -1);
+        
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        
+        expect(resultado).toContain("leia");
+    });
+    
+    it('Isto (this)', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var obj = {}",
+            "escreva(isto)"
+        ], -1);
+        
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        
+        expect(resultado).toContain("escreva");
+    });
+    
+    it('Super', async () => {
+        const resultadoLexador = lexador.mapear([
+            "função teste() { retorna 1 }"
+        ], -1);
+        
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        
+        expect(resultado).toContain("função");
+    });
+    
+    it('Agrupamento (parênteses)', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = (1 + 2) * 3"
+        ], -1);
+        
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        
+        expect(resultado).toContain("(");
+    });
+    
+    it('Chamada de função com múltiplos argumentos', async () => {
+        const resultadoLexador = lexador.mapear([
+            "função teste(a, b, c) { }",
+            "teste(1, 2, 3)"
+        ], -1);
+        
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        
+        expect(resultado).toContain("teste");
+    });
+    
+    it('Para com múltiplas inicializações', async () => {
+        const resultadoLexador = lexador.mapear([
+            "para var i = 0; i < 10; i++ {",
+            "  escreva(i)",
+            "}"
+        ], -1);
+        
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        
+        expect(resultado).toContain("para");
+    });
+    
+    it('Para cada', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var arr = [1, 2, 3]",
+            "para cada i de arr {",
+            "  escreva(i)",
+            "}"
+        ], -1);
+        
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        
+        expect(resultado).toContain("para cada");
+    });
+    
+    it('Se com senão', async () => {
+        const resultadoLexador = lexador.mapear([
+            "se verdadeiro {",
+            "  escreva(1)",
+            "} senão {",
+            "  escreva(2)",
+            "}"
+        ], -1);
+        
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        
+        expect(resultado).toContain("se");
+        expect(resultado).toContain("senão");
+    });
+    
+    it('Tenho como', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var i = 0"
+        ], -1);
+        
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        
+        expect(resultado).toContain("var");
+    });
+    
+    it('Comentário inline', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = 1"
+        ], -1);
+        
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        
+        expect(resultado).toContain("var");
+    });
+    
+    it('Operador DIFERENTE (!= )', async () => {
+        const resultadoLexador = lexador.mapear([
+            "se 1 != 2 { }"
+        ], -1);
+        
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        
+        expect(resultado).toContain("!=");
+    });
+    
+    it('Operador MULTIPLICAÇÃO *= ', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = 5",
+            "x *= 2"
+        ], -1);
+        
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        
+        expect(resultado).toContain("*");
+    });
+    
+    it('Operador EXPONENCIACAO **', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = 2 ** 3"
+        ], -1);
+        
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        
+        expect(resultado).toContain("**");
+    });
+    
+    it('Operador MODULO %', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = 10 % 3"
+        ], -1);
+        
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        
+        expect(resultado).toContain("%");
+    });
+    
+    it('Operador E (and)', async () => {
+        const resultadoLexador = lexador.mapear([
+            "se verdadeiro e verdadeiro { }"
+        ], -1);
+        
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        
+        expect(resultado).toContain("e");
+    });
+    
+    it('Operador OU (or)', async () => {
+        const resultadoLexador = lexador.mapear([
+            "se verdadeiro ou falso { }"
+        ], -1);
+        
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        
+        expect(resultado).toContain("ou");
+    });
+    
+    it('Vetor vazio', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = []"
+        ], -1);
+        
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        
+        expect(resultado).toContain("[");
+    });
+    
+    it('Dicionário vazio', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = {}"
+        ], -1);
+        
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+        
+        expect(resultado).toContain("{");
+    });
+    it('Agrupamento e precedência mantém parênteses e espaçamento', async () => {
+        const codigo = ["var x=(1+2)*3 escreva(x)"];
+        const lexado = lexador.mapear(codigo, -1);
+        const avaliado = await avaliadorSintatico.analisar(lexado, -1);
+        const resultado = formatador.formatar(avaliado.declaracoes);
+        expect(resultado).toContain("var x = (1 + 2) * 3");
+        expect(resultado).toContain("escreva(x)");
+    });
+    
+    it('Espaçamento binário normaliza operadores com espaços', async () => {
+        const codigo = ["var a=1+2"];
+        const lexado = lexador.mapear(codigo, -1);
+        const avaliado = await avaliadorSintatico.analisar(lexado, -1);
+        const resultado = formatador.formatar(avaliado.declaracoes);
+        expect(resultado).toContain("var a = 1 + 2");
+    });
+    
+    it('Operador divisão inteira preserva barra invertida', async () => {
+        const codigo = ["var x = 10 \\ 3"];
+        const lexado = lexador.mapear(codigo, -1);
+        const avaliado = await avaliadorSintatico.analisar(lexado, -1);
+        const resultado = formatador.formatar(avaliado.declaracoes);
+        expect(resultado).toContain("\\");
+    });
+    
+    it('Retorna função aninhada é indicada como "retorna função"', async () => {
+        const codigo = [
+            "funcao outer() {",
+            "  retorna funcao() {",
+            "    retorna 1",
+            "  }",
+            "}",
+            "var f = outer()",
+            "escreva(f())"
+        ];
+        const lexado = lexador.mapear(codigo, -1);
+        const avaliado = await avaliadorSintatico.analisar(lexado, -1);
+        const resultado = formatador.formatar(avaliado.declaracoes);
+        expect(resultado).toContain("retorna função");
+        expect(resultado).toContain("escreva(f())");
     });
 
     describe('Comentários', () => {

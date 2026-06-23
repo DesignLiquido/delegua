@@ -450,17 +450,13 @@ export class TradutorAssemblyScript {
         }
         resultado += '}';
 
-        if (declaracaoTente.caminhoPegue !== null) {
+        if (declaracaoTente.caminhoPegue.length > 0) {
             resultado += '\ncatch {\n';
             resultado += ' '.repeat(this.indentacao);
-            if (Array.isArray(declaracaoTente.caminhoPegue)) {
-                for (let declaracao of declaracaoTente.caminhoPegue) {
+            for (const bloco of declaracaoTente.caminhoPegue) {
+                for (let declaracao of bloco.corpo) {
                     resultado +=
                         this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
-                }
-            } else {
-                for (let corpo of declaracaoTente.caminhoPegue.corpo) {
-                    resultado += this.dicionarioDeclaracoes[corpo.constructor.name](corpo) + '\n';
                 }
             }
 
@@ -1535,8 +1531,10 @@ export class TradutorAssemblyScript {
             } else if (nome === 'Tente') {
                 const tente = declaracao as Tente;
                 this.varrerDeclaracoesParaImports(tente.caminhoTente, imports);
-                if (Array.isArray(tente.caminhoPegue)) {
-                    this.varrerDeclaracoesParaImports(tente.caminhoPegue as Declaracao[], imports);
+                if (tente.caminhoPegue.length > 0) {
+                    for (const bloco of tente.caminhoPegue) {
+                        this.varrerDeclaracoesParaImports(bloco.corpo, imports);
+                    }
                 }
                 if (tente.caminhoFinalmente && tente.caminhoFinalmente.length > 0) {
                     this.varrerDeclaracoesParaImports(tente.caminhoFinalmente, imports);

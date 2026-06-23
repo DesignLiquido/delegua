@@ -921,12 +921,13 @@ describe('Interpretador', () => {
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(2);
                     expect(_saidas[0]).toBe('4');
                     expect(_saidas[1]).toBe('-2');
                 });
 
                 it('Incremento e decremento após variável ou literal', async () => {
-                    const saidasMensagens = ['1', '1', '2', '0', '6', '4'];
+                    const saidas: string[] = [];
                     const retornoLexador = lexador.mapear(
                         [
                             'var a = 1',
@@ -943,12 +944,19 @@ describe('Interpretador', () => {
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
 
                     interpretador.funcaoDeRetorno = (saida: any) => {
-                        expect(saidasMensagens.includes(saida)).toBeTruthy();
+                        saidas.push(saida);
                     };
 
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(saidas).toHaveLength(6);
+                    expect(saidas[0]).toBe('1');
+                    expect(saidas[1]).toBe('2');
+                    expect(saidas[2]).toBe('2');
+                    expect(saidas[3]).toBe('1');
+                    expect(saidas[4]).toBe('6');
+                    expect(saidas[5]).toBe('4');
                 });
 
                 it('Pós-incremento e pós-decremento atualizam a variável corretamente', async () => {
@@ -7589,13 +7597,115 @@ describe('Interpretador', () => {
                 expect(_saidas).toContain('finalmente');
             });
 
-            it('pegue com parâmetro de erro recebe a mensagem', async () => {
-                const codigo = ['tente { falhar("meu erro") } pegue (erro) { escreva(erro) }'];
+            it('pegue com parâmetro de erro recebe o objeto Excecao', async () => {
+                const codigo = ['tente { falhar("meu erro") } pegue (erro) { escreva(erro.mensagem) }'];
                 const retornoLexador = lexador.mapear(codigo, -1);
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
                 expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toContain('meu erro');
+            });
+
+            it('Excecao está disponível como classe global', async () => {
+                const codigo = [
+                    'tente {',
+                    '    falhar("erro qualquer")',
+                    '} pegue (ex: Excecao) {',
+                    '    escreva(ex.mensagem)',
+                    '}',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toContain('erro qualquer');
+            });
+
+            it('múltiplos pegue por tipo executam apenas o bloco correto', async () => {
+                const codigo = [
+                    'classe ErroA herda Excecao {',
+                    '    construtor(mensagem) { super(mensagem) }',
+                    '}',
+                    'classe ErroB herda Excecao {',
+                    '    construtor(mensagem) { super(mensagem) }',
+                    '}',
+                    'tente {',
+                    '    falhar ErroA("sou A")',
+                    '} pegue (ex: ErroB) {',
+                    '    escreva("B")',
+                    '} pegue (ex: ErroA) {',
+                    '    escreva(ex.mensagem)',
+                    '} pegue {',
+                    '    escreva("genérico")',
+                    '}',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toContain('sou A');
+            });
+
+            it('pegue genérico captura qualquer tipo de exceção', async () => {
+                const codigo = [
+                    'classe MeuErro herda Excecao {',
+                    '    construtor(mensagem) { super(mensagem) }',
+                    '}',
+                    'tente {',
+                    '    falhar MeuErro("falhou")',
+                    '} pegue {',
+                    '    escreva("capturado")',
+                    '}',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toContain('capturado');
+            });
+
+            it('pegue tipado não executado relança o erro se nenhum bloco corresponde', async () => {
+                const codigo = [
+                    'classe ErroA herda Excecao {',
+                    '    construtor(mensagem) { super(mensagem) }',
+                    '}',
+                    'classe ErroB herda Excecao {',
+                    '    construtor(mensagem) { super(mensagem) }',
+                    '}',
+                    'tente {',
+                    '    tente {',
+                    '        falhar ErroA("sou A")',
+                    '    } pegue (ex: ErroB) {',
+                    '        escreva("não deveria chegar aqui")',
+                    '    }',
+                    '} pegue (ex) {',
+                    '    escreva(ex.mensagem)',
+                    '}',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toContain('sou A');
+            });
+
+            it('falhar com string é automaticamente embrulhado em Excecao', async () => {
+                const codigo = [
+                    'tente {',
+                    '    falhar("texto simples")',
+                    '} pegue (ex: Excecao) {',
+                    '    escreva(ex.mensagem)',
+                    '}',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toContain('texto simples');
             });
         });
 
@@ -7613,6 +7723,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('3');
             });
 
@@ -7629,6 +7740,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('10');
             });
 
@@ -7645,6 +7757,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('3');
             });
         });
@@ -7681,6 +7794,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('12');
             });
 
@@ -7697,6 +7811,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('[2, 4]');
             });
         });
@@ -7714,6 +7829,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('1');
             });
 
@@ -7729,6 +7845,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('3');
             });
 
@@ -7745,6 +7862,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('2');
             });
         });
@@ -7768,6 +7886,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('Animal: Leão');
             });
 
@@ -7800,6 +7919,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('Modelo: Fusca');
             });
 
@@ -7821,6 +7941,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
                 expect(_saidas[0]).toBe('3');
                 expect(_saidas[1]).toBe('4');
             });
@@ -7839,6 +7960,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('8');
             });
 
@@ -7862,6 +7984,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(3);
                 expect(_saidas[0]).toBe('abrindo arquivo');
                 expect(_saidas[1]).toBe('usando arquivo');
                 expect(_saidas[2]).toBe('fechando arquivo');
@@ -7883,6 +8006,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('8');
             });
 
@@ -7897,6 +8021,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('20');
             });
 
@@ -7912,6 +8037,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
                 expect(_saidas[0]).toBe('Olá, mundo!');
                 expect(_saidas[1]).toBe('Olá, Delegua!');
             });
@@ -7930,6 +8056,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe("['a', 'b', 'c']");
             });
 
@@ -7946,6 +8073,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe("['a', 'b']");
             });
         });
@@ -7964,6 +8092,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('dois');
             });
 
@@ -7980,6 +8109,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('padrão');
             });
 
@@ -7996,6 +8126,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('fim');
             });
         });
@@ -8010,6 +8141,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('30');
             });
 
@@ -8022,6 +8154,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('20');
             });
 
@@ -8047,6 +8180,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('d');
             });
 
@@ -8059,6 +8193,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('c');
             });
         });
@@ -8073,6 +8208,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('verdadeiro');
             });
 
@@ -8085,6 +8221,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('falso');
             });
 
@@ -8097,6 +8234,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('verdadeiro');
             });
 
@@ -8116,6 +8254,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('2');
             });
 
@@ -8125,6 +8264,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('7');
             });
         });
@@ -8136,6 +8276,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('falso');
             });
 
@@ -8145,6 +8286,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('verdadeiro');
             });
         });
@@ -8160,6 +8302,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
                 expect(_saidas[0]).toBe('6');
                 expect(_saidas[1]).toBe('6');
             });
@@ -8174,6 +8317,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
                 expect(_saidas[0]).toBe('5');
                 expect(_saidas[1]).toBe('6');
             });
@@ -8188,6 +8332,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
                 expect(_saidas[0]).toBe('4');
                 expect(_saidas[1]).toBe('4');
             });
@@ -8202,6 +8347,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
                 expect(_saidas[0]).toBe('5');
                 expect(_saidas[1]).toBe('4');
             });
@@ -8215,6 +8361,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(1);
+                expect(_saidas).toHaveLength(0);
             });
         });
 
@@ -8225,6 +8372,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('3');
             });
 
@@ -8234,6 +8382,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('1024');
             });
 
@@ -8243,6 +8392,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('3.5');
             });
         });
@@ -8258,6 +8408,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('7');
             });
 
@@ -8271,6 +8422,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('12');
             });
 
@@ -8284,6 +8436,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('5');
             });
 
@@ -8296,6 +8449,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(1);
+                expect(_saidas).toHaveLength(0);
             });
         });
 
@@ -8306,6 +8460,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('5');
             });
         });
@@ -8317,6 +8472,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('DELEGUA');
             });
 
@@ -8326,6 +8482,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('delegua');
             });
 
@@ -8335,6 +8492,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('3');
             });
         });
@@ -8350,6 +8508,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('[1, 2, 3]');
             });
 
@@ -8359,6 +8518,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('3');
             });
         });
@@ -8374,6 +8534,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
                 expect(_saidas[0]).toBe('verdadeiro');
                 expect(_saidas[1]).toBe('falso');
             });
@@ -8392,6 +8553,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('capturou');
             });
 
@@ -8407,6 +8569,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('capturou');
             });
         });
@@ -8423,6 +8586,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('11');
             });
 
@@ -8432,6 +8596,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('texto com espaços');
             });
         });
@@ -8454,6 +8619,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('três');
             });
 
@@ -8472,6 +8638,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('outro');
             });
         });
@@ -8486,6 +8653,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('[4, 8]');
             });
 
@@ -8498,6 +8666,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('[2, 4, 6]');
             });
         });
@@ -8517,6 +8686,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('10');
             });
 
@@ -8534,6 +8704,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('verdadeiro');
             });
         });
@@ -8552,6 +8723,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('3.14159');
             });
         });
@@ -8563,6 +8735,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('falso');
             });
 
@@ -8572,6 +8745,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('verdadeiro');
             });
 
@@ -8581,6 +8755,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('falso');
             });
         });
@@ -8597,6 +8772,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('{"a":1,"b":2,"c":3}');
             });
         });
@@ -8630,6 +8806,7 @@ describe('Interpretador', () => {
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toContain('1');
             });
         });
