@@ -81,7 +81,7 @@
         "registry": "https://registry.npmjs.org"
     },
     "devDependencies": {
-        "@babel/preset-env": "^7.26.9",
+        "@babel/preset-env": "^8.0.2",
         "@eslint/eslintrc": "^3.3.1",
         "@eslint/js": "^9.28.0",
         "@types/esprima": "^4.0.6",
