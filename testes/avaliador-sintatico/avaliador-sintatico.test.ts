@@ -2801,4 +2801,22 @@ describe('Avaliador sintático', () => {
             });
         });
     });
+
+    describe('Issue #1360 - escolha vazio com mesmo parâmetro da função', () => {
+        it('Não deve travar ao analisar função com escolha vazio usando o mesmo parâmetro da função', async () => {
+            const lexador = new Lexador();
+            const avaliadorSintatico = new AvaliadorSintatico();
+            const retornoLexador = lexador.mapear([
+                'funcao teste(param) {',
+                '    escolha param {',
+                '    }',
+                '}',
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            expect(retornoAvaliadorSintatico).toBeTruthy();
+            expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+            expect(retornoAvaliadorSintatico.declaracoes[0]).toBeInstanceOf(FuncaoDeclaracao);
+        }, 2000);
+    });
 });
