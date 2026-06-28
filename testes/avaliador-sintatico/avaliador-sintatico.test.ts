@@ -2809,6 +2809,7 @@ describe('Avaliador sintático', () => {
             const retornoLexador = lexador.mapear([
                 'funcao teste(param) {',
                 '    escolha param {',
+                '        // Comentário',
                 '    }',
                 '}',
             ], -1);

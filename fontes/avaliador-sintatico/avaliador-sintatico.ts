@@ -2371,6 +2371,14 @@ export class AvaliadorSintatico
                 !this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA) &&
                 !this.estaNoFinal()
             ) {
+                if (
+                    this.simbolos[this.atual].tipo === tiposDeSimbolos.COMENTARIO ||
+                    this.simbolos[this.atual].tipo === tiposDeSimbolos.LINHA_COMENTARIO
+                ) {
+                    this.avancarEDevolverAnterior();
+                    continue;
+                }
+
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CASO)) {
                     const caminhoCondicoes = [await this.expressao()];
                     this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após o 'caso'.");
