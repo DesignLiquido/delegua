@@ -367,7 +367,7 @@ export class TradutorReversoJavaScript implements TradutorInterface<
 
         if (declaracao?.alternate) {
             resultado += 'senao ';
-            if (declaracao.alternate.constructor.name === 'BlockStatement') {
+            if (declaracao.alternate.type === 'BlockStatement') {
                 const bloco = declaracao.alternate as BlockStatement;
                 resultado += this.logicaComumBlocoEscopo(bloco);
                 return resultado;

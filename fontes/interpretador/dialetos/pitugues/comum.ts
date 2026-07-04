@@ -48,7 +48,7 @@ export async function visitarExpressaoAcessoMetodo(
 
     if (Array.isArray(objeto)) {
         tipoObjeto = 'vetor';
-    } else if (objeto instanceof TuplaN || objeto.constructor.name === 'TuplaN') {
+    } else if (objeto instanceof TuplaN || objeto.constructor === TuplaN) {
         tipoObjeto = 'tupla';
     } else if (objeto.constructor === Object) {
         tipoObjeto = 'dicionário';
@@ -137,7 +137,7 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
 
     if (Array.isArray(objeto)) {
         tipoObjeto = 'vetor';
-    } else if (objeto instanceof TuplaN || objeto.constructor.name === 'TuplaN') {
+    } else if (objeto instanceof TuplaN || objeto.constructor === TuplaN) {
         tipoObjeto = 'tupla';
     } else if (objeto.constructor === Object) {
         tipoObjeto = 'dicionário';
@@ -203,7 +203,7 @@ export async function visitarExpressaoAcessoPropriedade(
 
     if (Array.isArray(objeto)) {
         tipoObjeto = 'vetor';
-    } else if (objeto instanceof TuplaN || objeto.constructor.name === 'TuplaN') {
+    } else if (objeto instanceof TuplaN || objeto.constructor === TuplaN) {
         tipoObjeto = 'tupla';
     } else if (objeto.constructor === Object) {
         tipoObjeto = 'dicionário';

@@ -209,12 +209,13 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         let operador = this.traduzirSimboloOperador(binario.operador);
         resultado += ` ${operador} `;
 
-        if (binario.direita.constructor.name === 'Agrupamento')
+        if (binario.direita.constructor === Agrupamento) {
+            const agrupamentoDireita = binario.direita as Agrupamento;
             resultado +=
                 '(' +
-                this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita) +
+                this.dicionarioConstrutos[agrupamentoDireita.constructor.name](binario.direita) +
                 ')';
-        else
+        } else
             resultado += this.dicionarioConstrutos[binario.direita.constructor.name](
                 binario.direita
             );
@@ -560,7 +561,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
 
     traduzirDeclaracaoPara(declaracaoPara: Para): string {
         let resultado = 'for (';
-        if (declaracaoPara.inicializador.constructor.name === 'Array') {
+        if (Array.isArray(declaracaoPara.inicializador)) {
             resultado +=
                 this.dicionarioDeclaracoes[declaracaoPara.inicializador[0].constructor.name](
                     declaracaoPara.inicializador[0],

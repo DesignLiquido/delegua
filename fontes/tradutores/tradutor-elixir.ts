@@ -321,22 +321,22 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
      */
     protected extrairCamposDeDeclaracao(declaracao: any, campos: Set<string>): void {
         // Se é uma expressão de atribuição com isto.campo
-        if (declaracao.constructor.name === 'Expressao' && declaracao.expressao) {
-            const expressao = declaracao.expressao;
+        if (declaracao instanceof Expressao && declaracao.expressao) {
+            const expressao: any = declaracao.expressao;
 
             // DefinirValor: usado para isto.campo = valor
-            if (expressao.constructor.name === 'DefinirValor') {
-                if (expressao.objeto && expressao.objeto.constructor.name === 'Isto') {
+            if (expressao instanceof DefinirValor) {
+                if (expressao.objeto && expressao.objeto.constructor === Isto) {
                     campos.add(expressao.nome.lexema);
                 }
             }
 
             // Atribuir: pode ser usado para isto.campo = valor
-            if (expressao.constructor.name === 'Atribuir') {
+            if (expressao instanceof Atribuir) {
                 // Verificar se o alvo é um acesso a propriedade de isto
-                if (expressao.alvo && expressao.alvo.constructor.name === 'AcessoPropriedade') {
-                    const acesso = expressao.alvo;
-                    if (acesso.objeto && acesso.objeto.constructor.name === 'Isto') {
+                if (expressao.alvo instanceof AcessoPropriedade) {
+                    const acesso: any = expressao.alvo;
+                    if (acesso.objeto && acesso.objeto.constructor === Isto) {
                         campos.add(acesso.nomePropriedade);
                     }
                 }
@@ -344,7 +344,7 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
         }
 
         // Se é um bloco, processar declarações internas
-        if (declaracao.constructor.name === 'Bloco') {
+        if (declaracao.constructor === Bloco) {
             for (const decl of declaracao.declaracoes) {
                 this.extrairCamposDeDeclaracao(decl, campos);
             }
@@ -425,12 +425,12 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
         const inicializacoes: string[] = [];
 
         for (const declaracao of corpo) {
-            if (declaracao.constructor.name === 'Expressao' && declaracao.expressao) {
-                const expressao = declaracao.expressao;
+            if (declaracao instanceof Expressao && declaracao.expressao) {
+                const expressao: any = declaracao.expressao;
 
                 // DefinirValor: isto.campo = valor
-                if (expressao.constructor.name === 'DefinirValor') {
-                    if (expressao.objeto && expressao.objeto.constructor.name === 'Isto') {
+                if (expressao instanceof DefinirValor) {
+                    if (expressao.objeto && expressao.objeto.constructor === Isto) {
                         const campo = this.converterIdentificador(expressao.nome.lexema);
                         const valor = await expressao.valor.aceitar(this);
                         inicializacoes.push(`${campo}: ${valor}`);
@@ -438,10 +438,10 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
                 }
 
                 // Atribuir: pode ser isto.campo = valor (se alvo é AcessoPropriedade)
-                if (expressao.constructor.name === 'Atribuir') {
-                    if (expressao.alvo && expressao.alvo.constructor.name === 'AcessoPropriedade') {
-                        const acesso = expressao.alvo;
-                        if (acesso.objeto && acesso.objeto.constructor.name === 'Isto') {
+                if (expressao instanceof Atribuir) {
+                    if (expressao.alvo instanceof AcessoPropriedade) {
+                        const acesso: any = expressao.alvo;
+                        if (acesso.objeto && acesso.objeto.constructor === Isto) {
                             const campo = this.converterIdentificador(acesso.nomePropriedade);
                             const valor = await expressao.valor.aceitar(this);
                             inicializacoes.push(`${campo}: ${valor}`);
@@ -677,7 +677,7 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
                 ? declaracao.inicializador[0]
                 : declaracao.inicializador;
 
-            if (init.constructor.name === 'Var') {
+            if (init.constructor === Var) {
                 nomeVar = this.converterIdentificador((init as any).simbolo.lexema);
                 if ((init as any).inicializador) {
                     valorInicial = await (init as any).inicializador.aceitar(this);
@@ -970,7 +970,7 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
         }
 
         // Verificar se é instanciação de módulo (classe)
-        if (expressao.entidadeChamada.constructor.name === 'Variavel') {
+        if (expressao.entidadeChamada.constructor === Variavel) {
             const nomeEntidade = (expressao.entidadeChamada as any).simbolo.lexema;
             if (this.modulosConhecidos.has(this.converterNomeModulo(nomeEntidade))) {
                 // Chamada de construtor de módulo
@@ -981,7 +981,7 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
         }
 
         // Verificar se é chamada de método (AcessoMetodo ou AcessoMetodoOuPropriedade)
-        if (expressao.entidadeChamada.constructor.name === 'AcessoMetodo') {
+        if (expressao.entidadeChamada.constructor === AcessoMetodo) {
             const acessoMetodo = expressao.entidadeChamada as any;
             const objeto = await acessoMetodo.objeto.aceitar(this);
             const metodo = this.converterIdentificador(acessoMetodo.nomeMetodo);
@@ -998,7 +998,7 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
             );
         }
 
-        if (expressao.entidadeChamada.constructor.name === 'AcessoMetodoOuPropriedade') {
+        if (expressao.entidadeChamada.constructor === AcessoMetodoOuPropriedade) {
             const acesso = expressao.entidadeChamada as any;
             const objeto = await acesso.objeto.aceitar(this);
             const simbolo = this.converterIdentificador(acesso.simbolo.lexema);

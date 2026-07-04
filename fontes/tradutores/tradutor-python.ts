@@ -204,8 +204,8 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
             const primeiraDeclaracao = funcao.corpo[0];
 
             // Se for uma declaração de retorno, extraímos a expressão
-            if (primeiraDeclaracao.constructor.name === 'Retorna') {
-                const retorna = primeiraDeclaracao as Retorna;
+            if (primeiraDeclaracao instanceof Retorna) {
+                const retorna = primeiraDeclaracao;
                 if (retorna.valor) {
                     expressao = this.dicionarioConstrutos[retorna.valor.constructor.name](
                         retorna.valor
@@ -389,7 +389,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         const valorEsquerdo = this.dicionarioConstrutos[binario.esquerda.constructor.name](
             binario.esquerda
         );
-        if (binario.esquerda.constructor.name === 'Agrupamento')
+        if (binario.esquerda instanceof Agrupamento)
             resultado += '(' + valorEsquerdo + ')';
         else resultado += valorEsquerdo;
 
@@ -399,7 +399,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         const valorDireito = this.dicionarioConstrutos[binario.direita.constructor.name](
             binario.direita
         );
-        if (binario.direita.constructor.name === 'Agrupamento')
+        if (binario.direita instanceof Agrupamento)
             resultado += '(' + valorDireito + ')';
         else resultado += valorDireito;
 

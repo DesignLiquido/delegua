@@ -435,7 +435,7 @@ export class TradutorReversoTenda implements TradutorInterface<Declaracao> {
 
     traduzirDeclaracaoPara(declaracaoPara: Para): string {
         let resultado = 'para ';
-        if (declaracaoPara.inicializador.constructor.name === 'Array') {
+        if (Array.isArray(declaracaoPara.inicializador)) {
             resultado +=
                 this.dicionarioDeclaracoes[declaracaoPara.inicializador[0].constructor.name](
                     declaracaoPara.inicializador[0],

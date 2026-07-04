@@ -2382,7 +2382,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             return objeto[valorIndice];
         }
 
-        if (objeto instanceof TuplaN || objeto.constructor.name === 'TuplaN') {
+        if (objeto instanceof TuplaN || objeto.constructor === TuplaN) {
             if (!Number.isInteger(valorIndice)) {
                 return Promise.reject(
                     new ErroEmTempoDeExecucao(
@@ -2408,7 +2408,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             }
 
             const elemento = objeto.elementos[valorIndice];
-            if (elemento && elemento.constructor && elemento.constructor.name === 'Literal') {
+            if (elemento instanceof Literal) {
                 return elemento.valor;
             }
 
@@ -2742,7 +2742,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         // então testamos também o nome do construtor.
         if (
             objeto instanceof ObjetoDeleguaClasse ||
-            objeto.constructor.name === 'ObjetoDeleguaClasse'
+            objeto.constructor === ObjetoDeleguaClasse
         ) {
             const valor = await objeto.obter(expressao.simbolo, this);
             if (valor === 0) return 0;

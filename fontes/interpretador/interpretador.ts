@@ -934,7 +934,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             return objeto[valorIndice];
         }
 
-        if (objeto instanceof TuplaN || objeto.constructor.name === 'TuplaN') {
+        if (objeto instanceof TuplaN || objeto.constructor === TuplaN) {
             if (!Number.isInteger(valorIndice)) {
                 return Promise.reject(
                     new ErroEmTempoDeExecucao(
@@ -960,7 +960,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             }
 
             const elemento = objeto.elementos[valorIndice];
-            if (elemento && elemento.constructor && elemento.constructor.name === 'Literal') {
+            if (elemento instanceof Literal) {
                 return elemento.valor;
             }
 
@@ -1278,7 +1278,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             }
         }
 
-        if (objeto instanceof TuplaN || objeto.constructor.name === 'TuplaN') {
+        if (objeto instanceof TuplaN || objeto.constructor === TuplaN) {
             const metodoDePrimitivaTupla = primitivasTupla[expressao.nomeMetodo];
             if (metodoDePrimitivaTupla) {
                 return new MetodoPrimitiva(
@@ -1580,7 +1580,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             }
         }
 
-        if (objeto instanceof TuplaN || objeto.constructor.name === 'TuplaN') {
+        if (objeto instanceof TuplaN || objeto.constructor === TuplaN) {
             const metodoDePrimitivaTupla = primitivasTupla[expressao.simbolo.lexema];
             if (metodoDePrimitivaTupla) {
                 return new MetodoPrimitiva(
@@ -1834,7 +1834,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomePropriedade) || null;
         }
 
-        if (objeto instanceof TuplaN || objeto.constructor.name === 'TuplaN') {
+        if (objeto instanceof TuplaN || objeto.constructor === TuplaN) {
             const metodoPrimitivaTupla = primitivasTupla[expressao.nomePropriedade];
             if (metodoPrimitivaTupla) {
                 return new MetodoPrimitiva(

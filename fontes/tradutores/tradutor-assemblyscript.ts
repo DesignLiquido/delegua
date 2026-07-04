@@ -726,7 +726,7 @@ export class TradutorAssemblyScript {
 
     traduzirDeclaracaoPara(declaracaoPara: Para): string {
         let resultado = 'for (';
-        if (declaracaoPara.inicializador.constructor.name === 'Array') {
+        if (Array.isArray(declaracaoPara.inicializador)) {
             resultado +=
                 this.dicionarioDeclaracoes[declaracaoPara.inicializador[0].constructor.name](
                     declaracaoPara.inicializador[0]
@@ -835,7 +835,7 @@ export class TradutorAssemblyScript {
         if (!corpo) return null;
 
         for (const declaracao of corpo) {
-            if (declaracao.constructor.name === 'Retorna') {
+            if (declaracao instanceof Retorna) {
                 const retorna = declaracao as any;
                 if (retorna.tipo && retorna.tipo !== 'vazio') {
                     return retorna.tipo;
@@ -1310,7 +1310,7 @@ export class TradutorAssemblyScript {
         }
 
         let resultado = '';
-        if (binario.esquerda.constructor.name === 'Agrupamento')
+        if (binario.esquerda instanceof Agrupamento)
             resultado +=
                 '(' +
                 this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda) +
@@ -1323,7 +1323,7 @@ export class TradutorAssemblyScript {
         let operador = this.traduzirSimboloOperador(binario.operador);
         resultado += ` ${operador} `;
 
-        if (binario.direita.constructor.name === 'Agrupamento')
+        if (binario.direita instanceof Agrupamento)
             resultado +=
                 '(' +
                 this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita) +
