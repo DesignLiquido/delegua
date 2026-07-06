@@ -15,7 +15,10 @@ import {
     MethodDefinition,
     ModuleDeclaration,
     NewExpression,
+    ObjectExpression,
+    Property,
     ReturnStatement,
+    SpreadElement,
     Statement,
     SwitchStatement,
     TryStatement,
@@ -112,6 +115,41 @@ export class TradutorReversoJavaScript implements TradutorInterface<
         return identificador.name;
     }
 
+    traduzirConstrutoObjeto(objeto: ObjectExpression): string {
+        if (!objeto.properties.length) {
+            return '{}';
+        }
+
+        let resultado = '{';
+
+        for (const propriedade of objeto.properties) {
+            if (propriedade.type === 'SpreadElement') {
+                const spread = propriedade as SpreadElement;
+                resultado +=
+                    '...' + this.dicionarioConstrutos[spread.argument.type](spread.argument) + ', ';
+                continue;
+            }
+
+            const propriedadeObjeto = propriedade as Property;
+            const chave =
+                propriedadeObjeto.key.type === 'Identifier'
+                    ? `'${(propriedadeObjeto.key as Identifier).name}'`
+                    : this.dicionarioConstrutos[propriedadeObjeto.key.type](propriedadeObjeto.key);
+            const valor = this.dicionarioConstrutos[propriedadeObjeto.value.type](
+                propriedadeObjeto.value
+            );
+
+            resultado += `${chave}: ${valor}, `;
+        }
+
+        if (objeto.properties.length > 0) {
+            resultado = resultado.slice(0, -2);
+        }
+
+        resultado += '}';
+        return resultado;
+    }
+
     traduzirAtualizacaoVariavel(atualizarVariavel: UpdateExpression): string {
         let resultado = '';
         resultado += this.dicionarioConstrutos[atualizarVariavel.argument.constructor.name](
@@ -166,6 +204,7 @@ export class TradutorReversoJavaScript implements TradutorInterface<
         LogicalExpression: this.traduzirConstrutoLogico.bind(this),
         MemberExpression: this.traduzirExpressao.bind(this),
         NewExpression: this.traduzirNovo.bind(this),
+        ObjectExpression: this.traduzirConstrutoObjeto.bind(this),
         ThisExpression: () => 'isto',
         UpdateExpression: this.traduzirAtualizacaoVariavel.bind(this),
         // Variavel: this.traduzirConstrutoVariavel.bind(this),
@@ -199,6 +238,7 @@ export class TradutorReversoJavaScript implements TradutorInterface<
     traduzirConstrutoLiteral(literal: Literal): string {
         if (literal.raw === 'true') return 'verdadeiro';
         if (literal.raw === 'false') return 'falso';
+        if (literal.value === null || literal.raw === 'null') return 'nulo';
         return `${literal.raw}`;
     }
 

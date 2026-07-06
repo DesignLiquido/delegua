@@ -136,6 +136,26 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
             expect(resultado).toMatch(/var vetor = \[1, \'2\'\]/i);
         });
 
+        it('array - vetor - com null', async () => {
+            const codigo = 'let vetor = [\'42\', null, false]'
+
+            const retornoLexador = lexador.mapear(codigo.split('\n'), -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/var vetor = \[\'42\', nulo, falso\]/i);
+        });
+
+        it('dicionario - com null', async () => {
+            const codigo = 'let dicionario = {\'chave\': null}'
+
+            const retornoLexador = lexador.mapear(codigo.split('\n'), -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/var dicionario = \{\'chave\': nulo\}/i);
+        });
+
         it('array - vetor - vazio', async () => {
             const codigo = 'let vetor = []'
             
