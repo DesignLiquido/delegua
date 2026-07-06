@@ -1745,6 +1745,22 @@ describe('Avaliador sintático', () => {
                     const erro = retornoAvaliadorSintatico.erros[0];
                     expect(erro.message).toBe("Função retorna valores com mais de um tipo. Tipo esperado: número. Tipos encontrados: texto, número.");
                 });
+
+                it('Deve apontar erro ao utilizar `#` como retorno de função', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao teste() {',
+                            '    retorna #',
+                            '}',
+                            'escreva(teste())',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                    expect(retornoAvaliadorSintatico.erros[0].message).toBe("Esperado expressão.");
+                });
             });
 
             describe('Laços de repetição', () => {

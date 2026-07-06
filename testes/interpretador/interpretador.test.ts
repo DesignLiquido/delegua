@@ -5392,6 +5392,23 @@ describe('Interpretador', () => {
 
                 expect(retornoInterpretador.erros).toHaveLength(1);
             });
+
+            it('Deve apontar erro ao utilizar `#`', async () => {
+                const codigo = [
+                    'funcao teste() {',
+                    '    retorna #',
+                    '}',
+                    'escreva(teste())',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
+                expect(retornoAvaliadorSintatico.erros[0].message).toBe('Esperado expressão.');
+            });
         });
 
         describe('Verificação de tipos em atribuição', () => {
