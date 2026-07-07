@@ -913,6 +913,18 @@ describe('Interpretador (Pituguês)', () => {
 
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
+
+                it('Deve retornar valores falsy ao acessar chave de dicionário', async () => {
+                    const retornoLexador = lexador.mapear([
+                        "d = {'chave': falso}",
+                        "escreva(d['chave'])"
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toBe('falso');
+                });
             });
 
             describe('escreva() e imprima()', () => {

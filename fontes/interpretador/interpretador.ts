@@ -978,8 +978,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             objeto instanceof DescritorTipoClasse ||
             objeto instanceof DeleguaModulo
         ) {
-            if (objeto[valorIndice] === 0) return 0;
-            return objeto[valorIndice] || null;
+            return objeto[valorIndice];
         }
 
         if (typeof objeto === tipoDeDadosPrimitivos.TEXTO) {
