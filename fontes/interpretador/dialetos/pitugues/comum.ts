@@ -21,10 +21,18 @@ import tipoDeDadosPrimitivos from '../../../tipos-de-dados/primitivos';
 
 export async function visitarExpressaoAcessoMetodo(
     interpretador: InterpretadorInterface,
-    expressao: AcessoMetodo
+    expressao: AcessoMetodo,
+    variavelObjetoJaAvaliada?: VariavelInterface
 ): Promise<any> {
     const nomeObjeto = (interpretador as any).resolverNomeObjectoAcessado(expressao.objeto);
-    let variavelObjeto: VariavelInterface = await interpretador.avaliar(expressao.objeto);
+    // Se o chamador já avaliou `expressao.objeto` (por exemplo, para verificar se é nulo
+    // ou um `DescritorTipoClasse`), reaproveita o valor em vez de avaliar de novo.
+    // Reavaliar aqui executaria `expressao.objeto` uma segunda vez, o que é incorreto
+    // quando ele é uma chamada de método com efeitos colaterais (ex: `objeto.metodo1().metodo2()`).
+    let variavelObjeto: VariavelInterface =
+        variavelObjetoJaAvaliada !== undefined
+            ? variavelObjetoJaAvaliada
+            : await interpretador.avaliar(expressao.objeto);
 
     // Este caso acontece quando há encadeamento de métodos.
     // Por exemplo, `objeto1.metodo1().metodo2()`.
@@ -109,10 +117,18 @@ export async function visitarExpressaoAcessoMetodo(
  */
 export async function visitarExpressaoAcessoMetodoOuPropriedade(
     interpretador: InterpretadorInterface,
-    expressao: AcessoMetodoOuPropriedade
+    expressao: AcessoMetodoOuPropriedade,
+    variavelObjetoJaAvaliada?: VariavelInterface
 ): Promise<any> {
     const nomeObjeto = (interpretador as any).resolverNomeObjectoAcessado(expressao.objeto);
-    let variavelObjeto: VariavelInterface = await interpretador.avaliar(expressao.objeto);
+    // Se o chamador já avaliou `expressao.objeto` (por exemplo, para verificar se é nulo
+    // ou um `DescritorTipoClasse`), reaproveita o valor em vez de avaliar de novo.
+    // Reavaliar aqui executaria `expressao.objeto` uma segunda vez, o que é incorreto
+    // quando ele é uma chamada de método com efeitos colaterais (ex: `objeto.metodo1().metodo2()`).
+    let variavelObjeto: VariavelInterface =
+        variavelObjetoJaAvaliada !== undefined
+            ? variavelObjetoJaAvaliada
+            : await interpretador.avaliar(expressao.objeto);
 
     // Este caso acontece quando há encadeamento de métodos.
     // Por exemplo, `objeto1.metodo1().metodo2()`.

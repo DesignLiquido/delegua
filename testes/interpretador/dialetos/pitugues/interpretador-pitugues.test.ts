@@ -1797,6 +1797,39 @@ describe('Interpretador (Pituguês)', () => {
                     expect(_saidas).toHaveLength(1);
                     expect(_saidas[0]).toBe('Esse é o primeiro método');
                 });
+
+                it('Encadeamento de métodos que retornam `isto` executa cada método uma única vez', async () => {
+                    const codigo = [
+                        'classe Encadeavel:',
+                        '    construtor():',
+                        '        isto.chamadas = 0',
+                        '        isto.resultado = 0',
+                        '    função passo1():',
+                        '        isto.chamadas = isto.chamadas + 1',
+                        '        retorna(isto)',
+                        '    função passo2(valor):',
+                        '        isto.resultado = valor',
+                        '        retorna(isto)',
+                        'objeto = Encadeavel()',
+                        'objeto.passo1().passo2(10)',
+                        'escreva(objeto.chamadas)',
+                        'escreva(objeto.resultado)',
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                        retornoLexador,
+                        -1
+                    );
+                    const retornoInterpretador = await interpretador.interpretar(
+                        retornoAvaliadorSintatico.declaracoes
+                    );
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(2);
+                    expect(_saidas[0]).toBe('1');
+                    expect(_saidas[1]).toBe('10');
+                });
             });
 
             describe('Declaração e chamada de funções', () => {

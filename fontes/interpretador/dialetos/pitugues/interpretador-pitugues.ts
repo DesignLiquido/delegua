@@ -158,7 +158,7 @@ export class InterpretadorPitugues extends Interpretador {
             return await objeto.obterEstatico(expressao.nomeMetodo, this);
         }
 
-        return comum.visitarExpressaoAcessoMetodo(this, expressao);
+        return comum.visitarExpressaoAcessoMetodo(this, expressao, variavelObjeto);
     }
 
     override async visitarExpressaoAcessoMetodoOuPropriedade(
@@ -181,7 +181,7 @@ export class InterpretadorPitugues extends Interpretador {
             return await objeto.obterEstatico(expressao.simbolo.lexema, this);
         }
 
-        return comum.visitarExpressaoAcessoMetodoOuPropriedade(this, expressao);
+        return comum.visitarExpressaoAcessoMetodoOuPropriedade(this, expressao, variavelObjeto);
     }
 
     override async visitarExpressaoAcessoPropriedade(
