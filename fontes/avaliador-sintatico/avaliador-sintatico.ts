@@ -3,6 +3,7 @@ import { ConstrutoInterface } from '../interfaces/construtos/construto-interface
 
 import {
     AcessoIndiceVariavel,
+    AcessoIntervaloVariavel,
     AcessoMetodo,
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
@@ -1297,21 +1298,73 @@ export class AvaliadorSintatico
                 const tipoAcesso = this.resolverTipoAcessoIndiceVariavel(expressaoAnterior);
 
                 this.avancarEDevolverAnterior();
-                const indice = await this.expressao();
-                const simboloFechamento = this.consumir(
-                    tiposDeSimbolos.COLCHETE_DIREITO,
-                    "Esperado ']' após escrita do indice."
-                );
 
-                const acessoVariavel = new AcessoIndiceVariavel(
-                    this.hashArquivo,
-                    expressaoAnterior,
-                    indice,
-                    simboloFechamento,
-                    tipoAcesso
-                );
+                // Determina se é intervalo ([:]), índice único ([indice]) ou
+                // intervalo com passo ([inicio:fim:passo]).
+                let indiceInicio: ConstrutoInterface | null = null;
+                let indiceFim: ConstrutoInterface | null = null;
+                let indicePasso: ConstrutoInterface | null = null;
 
-                return await this.resolverCadeiaChamadas(acessoVariavel);
+                // Se começar com ':', não há início explícito (ex.: `[:fim]`).
+                if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.DOIS_PONTOS) {
+                    indiceInicio = await this.expressao();
+                }
+
+                if (this.simbolos[this.atual].tipo === tiposDeSimbolos.DOIS_PONTOS) {
+                    // É um intervalo: [inicio:fim] ou [inicio:fim:passo].
+                    this.avancarEDevolverAnterior(); // Pula ':'.
+
+                    if (
+                        this.simbolos[this.atual].tipo !== tiposDeSimbolos.COLCHETE_DIREITO &&
+                        this.simbolos[this.atual].tipo !== tiposDeSimbolos.DOIS_PONTOS
+                    ) {
+                        indiceFim = await this.expressao();
+                    }
+
+                    if (this.simbolos[this.atual].tipo === tiposDeSimbolos.DOIS_PONTOS) {
+                        this.avancarEDevolverAnterior(); // Pula segundo ':'.
+
+                        if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
+                            indicePasso = await this.expressao();
+                        }
+                    }
+
+                    const simboloFechamento = this.consumir(
+                        tiposDeSimbolos.COLCHETE_DIREITO,
+                        "Esperado ']' após intervalo."
+                    );
+
+                    // Fatiamento sempre retorna uma coleção do mesmo tipo de elemento.
+                    const tipoIntervalo = tipoAcesso + '[]';
+
+                    const acessoIntervalo = new AcessoIntervaloVariavel(
+                        this.hashArquivo,
+                        expressaoAnterior,
+                        indiceInicio,
+                        indiceFim,
+                        indicePasso,
+                        simboloFechamento,
+                        tipoIntervalo
+                    );
+
+                    return await this.resolverCadeiaChamadas(acessoIntervalo);
+                } else {
+                    // É um índice único
+                    const simboloFechamento = this.consumir(
+                        tiposDeSimbolos.COLCHETE_DIREITO,
+                        "Esperado ']' após escrita do indice."
+                    );
+
+                    const acessoVariavel = new AcessoIndiceVariavel(
+                        this.hashArquivo,
+                        expressaoAnterior,
+                        indiceInicio!,
+                        simboloFechamento,
+                        tipoAcesso
+                    );
+
+                    return await this.resolverCadeiaChamadas(acessoVariavel);
+                }
             default:
                 return expressaoAnterior;
         }

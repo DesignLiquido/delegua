@@ -375,6 +375,92 @@ describe('Interpretador', () => {
                 });
             });
 
+            describe('Acesso por intervalo (fatiamento) de vetor', () => {
+                it('vetor[inicio:fim]', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var vetor = [1, 2, 3, 4, 5]',
+                        'escreva(vetor[1:3])'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toEqual('[2, 3]');
+                });
+
+                it('vetor[:fim] parte do início', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var vetor = [1, 2, 3, 4, 5]',
+                        'escreva(vetor[:3])'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toEqual('[1, 2, 3]');
+                });
+
+                it('vetor[inicio:] até o final', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var vetor = [1, 2, 3, 4, 5]',
+                        'escreva(vetor[2:])'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toEqual('[3, 4, 5]');
+                });
+
+                it('vetor[:] cópia completa', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var vetor = [1, 2, 3]',
+                        'escreva(vetor[:])'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toEqual('[1, 2, 3]');
+                });
+
+                it('vetor[inicio:fim:passo]', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var vetor = [0, 1, 2, 3, 4, 5, 6]',
+                        'escreva(vetor[0:6:2])'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toEqual('[0, 2, 4]');
+                });
+
+                it('vetor[inicio:fim] com índices negativos', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var vetor = [1, 2, 3, 4, 5]',
+                        'escreva(vetor[-3:-1])'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toEqual('[3, 4]');
+                });
+
+                it('fatiamento de texto', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var texto = "abcdef"',
+                        'escreva(texto[1:4])'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toEqual('bcd');
+                });
+            });
+
             describe('Atribuições', () => {
                 it('Atribuição como expressão em escreva retorna representação XML (issue #1138)', async () => {
                     const saidas: string[] = [];
@@ -5190,6 +5276,18 @@ describe('Interpretador', () => {
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
                     expect(retornoInterpretador.erros.length).toBeGreaterThanOrEqual(0);
+                });
+
+                it('Fatiamento de vetor com passo zero deve falhar', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var vetor = [1, 2, 3]',
+                        'escreva(vetor[0:2:0])'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
                 });
             });
 

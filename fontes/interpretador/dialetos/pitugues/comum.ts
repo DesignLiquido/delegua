@@ -2,7 +2,6 @@ import {
     AcessoMetodo,
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
-    AcessoIntervaloVariavel,
     TuplaN,
     Literal,
 } from '../../../construtos';
@@ -284,84 +283,9 @@ export async function resolverInterpolacoes(
     }));
 }
 
-export async function visitarExpressaoAcessoIntervaloVariavel(
-    interpretador: InterpretadorInterface,
-    expressao: AcessoIntervaloVariavel
-): Promise<any> {
-    const resultadoEntidade = await interpretador.avaliar(expressao.entidadeChamada);
-    const objeto = interpretador.resolverValor(resultadoEntidade);
-
-    let tamanho = 0;
-    let itens: any;
-    const ehTexto = typeof objeto === 'string';
-
-    if (objeto instanceof TuplaN) {
-        itens = objeto.elementos;
-        tamanho = objeto.elementos.length;
-    } else if (Array.isArray(objeto) || ehTexto) {
-        itens = objeto;
-        tamanho = objeto.length;
-    } else {
-        throw new ErroEmTempoDeExecucao(
-            expressao.simboloFechamento,
-            'Acesso por intervalo só é suportado em vetores, textos e tuplas.',
-            expressao.linha
-        );
-    }
-
-    let passo = 1;
-    if (expressao.indicePasso) {
-        const resPasso = await interpretador.avaliar(expressao.indicePasso);
-        passo = interpretador.resolverValor(resPasso);
-    }
-
-    if (passo === 0) {
-        throw new ErroEmTempoDeExecucao(
-            expressao.simboloFechamento,
-            'O passo do fatiamento não pode ser zero.',
-            expressao.linha
-        );
-    }
-
-    let inicio = passo > 0 ? 0 : tamanho - 1;
-    if (expressao.indiceInicio) {
-        const resInicio = await interpretador.avaliar(expressao.indiceInicio);
-        inicio = interpretador.resolverValor(resInicio);
-        if (inicio < 0) inicio = tamanho + inicio;
-    }
-
-    let fim = passo > 0 ? tamanho : -1;
-    if (expressao.indiceFim) {
-        const resFim = await interpretador.avaliar(expressao.indiceFim);
-        fim = interpretador.resolverValor(resFim);
-        if (fim < 0) fim = tamanho + fim;
-    }
-
-    // Lógica de fatiamento para suportar "passo", pois o TypeScript não suporta nativamente
-    const resultadoFatiado: any[] = [];
-
-    if (passo > 0) {
-        for (let i = inicio; i < fim; i += passo) {
-            if (i >= 0 && i < tamanho) {
-                resultadoFatiado.push(itens[i]);
-            }
-        }
-    } else {
-        for (let i = inicio; i > fim; i += passo) {
-            if (i >= 0 && i < tamanho) {
-                resultadoFatiado.push(itens[i]);
-            }
-        }
-    }
-
-    if (objeto instanceof TuplaN) {
-        return new TuplaN(objeto.hashArquivo, objeto.linha, resultadoFatiado);
-    }
-
-    if (ehTexto) return resultadoFatiado.join('');
-
-    return resultadoFatiado;
-}
+// Reexportado a partir do módulo base para que dialetos que importam
+// `comum` deste arquivo continuem funcionando sem alteração.
+export { visitarExpressaoAcessoIntervaloVariavel } from '../../comum';
 
 export async function visitarExpressaoTuplaN(
     interpretador: InterpretadorInterface,

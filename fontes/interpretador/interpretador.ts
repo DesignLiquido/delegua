@@ -1,5 +1,6 @@
 import {
     AcessoIndiceVariavel,
+    AcessoIntervaloVariavel,
     AcessoMetodo,
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
@@ -83,7 +84,11 @@ import {
     ParaInterface,
 } from '../interfaces/delegua';
 
-import { carregarBibliotecasGlobais, pontoEntradaAjuda } from './comum';
+import {
+    carregarBibliotecasGlobais,
+    pontoEntradaAjuda,
+    visitarExpressaoAcessoIntervaloVariavel,
+} from './comum';
 import { construirModuloDeTestes } from '../bibliotecas/testes/modulo-testes';
 import { RegistroTestes } from '../bibliotecas/testes/registro-testes';
 
@@ -1019,6 +1024,12 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 expressao.linha
             )
         );
+    }
+
+    override async visitarExpressaoAcessoIntervaloVariavel(
+        expressao: AcessoIntervaloVariavel
+    ): Promise<any> {
+        return visitarExpressaoAcessoIntervaloVariavel(this, expressao);
     }
 
     protected logicaPropriedadesEMetodosDeClasse(
