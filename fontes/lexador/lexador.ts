@@ -572,7 +572,11 @@ export class Lexador extends LexadorBase {
                 } else if (this.eAlfabeto(c)) {
                     this.identificarPalavraChave();
                 } else {
-                    this.adicionarSimbolo(tiposDeSimbolos.INVALIDO, c);
+                    this.erros.push({
+                        linha: this.linha + 1,
+                        caractere: c,
+                        mensagem: 'Caractere inesperado.'
+                    } as ErroLexador);
                     this.avancar();
                 }
         }

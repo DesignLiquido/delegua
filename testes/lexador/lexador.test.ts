@@ -514,17 +514,20 @@ describe('Lexador', () => {
 
             it('Falha léxica - caractere inesperado', () => {
                 const resultado = lexador.mapear(['平'], -1);
-                expect(resultado.simbolos).toHaveLength(1);
-                expect(resultado.simbolos[0].tipo).toBe('INVALIDO');
-                expect(resultado.erros).toHaveLength(0);
+                expect(resultado.simbolos).toHaveLength(0);
+                expect(resultado.erros).toHaveLength(1);
+                expect(resultado.erros[0].mensagem).toBe(
+                    'Caractere inesperado.'
+                );
             });
 
             it('Deve apontar erro ao utilizar `#`', () => {
                 const resultado = lexador.mapear(['#'], -1);
-
-                expect(resultado.simbolos).toHaveLength(1);
-                expect(resultado.simbolos[0].tipo).toBe('INVALIDO');
-                expect(resultado.erros).toHaveLength(0);
+                expect(resultado.simbolos).toHaveLength(0);
+                expect(resultado.erros).toHaveLength(1);
+                expect(resultado.erros[0].mensagem).toBe(
+                    'Caractere inesperado.'
+                );
             });
 
             describe('Emojis', () => {
