@@ -33,6 +33,7 @@ import {
     Fazer,
     Falhar,
     FuncaoDeclaracao,
+    Importar,
     Para,
     ParaCada,
     Retorna,
@@ -62,6 +63,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     classesDeclaradas: Set<string>;
     classesRegistradas: Map<string, Classe>;
     private classesExternasRegistradas: Map<string, Classe>;
+    private funcoesImportadasDeTestes: Set<string>;
     classeAtualEmAnalise: Classe | null;
     atual: number;
     diagnosticos: DiagnosticoAnalisadorSemanticoInterface[];
@@ -77,9 +79,36 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         this.classesDeclaradas = new Set<string>();
         this.classesRegistradas = new Map<string, Classe>();
         this.classesExternasRegistradas = new Map<string, Classe>();
+        this.funcoesImportadasDeTestes = new Set<string>();
         this.classeAtualEmAnalise = null;
         this.atual = 0;
         this.diagnosticos = [];
+    }
+
+    private registrarFuncoesImportadasDeTestes(declaracao: Importar): void {
+        const caminho = declaracao.caminho as Literal;
+        if (caminho?.valor !== 'testes') {
+            return;
+        }
+
+        const funcoesDoModulo = ['teste', 'grupo'];
+        if (declaracao.simboloTudo) {
+            for (const nome of funcoesDoModulo) {
+                this.funcoesImportadasDeTestes.add(nome);
+            }
+            return;
+        }
+
+        for (const simboloImportado of declaracao.elementosImportacao || []) {
+            if (funcoesDoModulo.includes(simboloImportado.lexema)) {
+                this.funcoesImportadasDeTestes.add(simboloImportado.lexema);
+            }
+        }
+    }
+
+    override async visitarDeclaracaoImportar(declaracao: Importar): Promise<any> {
+        this.registrarFuncoesImportadasDeTestes(declaracao);
+        return Promise.resolve();
     }
 
     registrarClassesExternas(classes: Classe[]): void {
@@ -287,6 +316,11 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     visitarChamadaPorVariavel(entidadeChamadaVariavel: Variavel, argumentos: ConstrutoInterface[]) {
         const variavel = entidadeChamadaVariavel as Variavel;
         const nomeFuncao = variavel.simbolo.lexema;
+
+        if (this.funcoesImportadasDeTestes.has(nomeFuncao)) {
+            return Promise.resolve();
+        }
+
         const funcoesNativas = [
             'aleatorio',
             'aleatorioEntre',
@@ -1830,6 +1864,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         this.gerenciadorEscopos = new GerenciadorEscopos();
         this.classesDeclaradas = new Set<string>(this.classesExternasRegistradas.keys());
         this.classesRegistradas = new Map<string, Classe>(this.classesExternasRegistradas);
+        this.funcoesImportadasDeTestes = new Set<string>();
         this.classeAtualEmAnalise = null;
         this.atual = 0;
         this.diagnosticos = [];
