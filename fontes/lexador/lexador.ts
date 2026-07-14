@@ -577,7 +577,6 @@ export class Lexador extends LexadorBase {
                         caractere: c,
                         mensagem: 'Caractere inesperado.'
                     } as ErroLexador);
-
                     this.avancar();
                 }
         }

@@ -1010,7 +1010,16 @@ export async function executarUltimoEscopoComandoContinuar(
         if (interpretador.emDeclaracaoTente) {
             throw erro;
         }
-        interpretador.erros.push(erro);
+
+        const declaracaoAtual = ultimoEscopo.declaracoes[
+            ultimoEscopo.declaracaoAtual
+        ];
+
+        interpretador.erros.push({
+            erroInterno: erro,
+            linha: declaracaoAtual?.linha ?? -1,
+            hashArquivo: declaracaoAtual?.hashArquivo ?? -1,
+        });
     } finally {
         if (!interpretador.pontoDeParadaAtivo && interpretador.comando !== 'adentrarEscopo') {
             interpretador.pilhaEscoposExecucao.removerUltimo();
