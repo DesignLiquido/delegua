@@ -726,7 +726,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             // O laço precisa visitar condição/incremento/corpo para registrar usos de variáveis.
             if (declaracao.condicao) {
                 this.marcarVariaveisUsadasEmExpressao(declaracao.condicao);
-                await this.verificarCondicao(declaracao.condicao);
+                await this.verificarCondicao(declaracao.condicao, 'para');
             }
 
             if (declaracao.incrementar) {
@@ -795,7 +795,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         // Marca variáveis usadas na condição
         this.marcarVariaveisUsadasEmExpressao(declaracao.condicao);
         // Verifica a condição (incluindo validação de tipos para operadores lógicos)
-        await this.verificarCondicao(declaracao.condicao);
+        await this.verificarCondicao(declaracao.condicao, 'se');
 
         if (declaracao.caminhoEntao) {
             await declaracao.caminhoEntao.aceitar(this);
@@ -804,7 +804,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         if (declaracao.caminhosSeSenao && declaracao.caminhosSeSenao.length > 0) {
             for (const caminhoSeSenao of declaracao.caminhosSeSenao) {
                 this.marcarVariaveisUsadasEmExpressao(caminhoSeSenao.condicao);
-                await this.verificarCondicao(caminhoSeSenao.condicao);
+                await this.verificarCondicao(caminhoSeSenao.condicao, 'se');
                 await caminhoSeSenao.caminho.aceitar(this);
             }
         }
@@ -841,13 +841,16 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         }
     }
 
-    private verificarCondicao(condicao: ConstrutoInterface): Promise<void> {
+    private verificarCondicao(
+        condicao: ConstrutoInterface,
+        rotulo: string = 'enquanto'
+    ): Promise<void> {
         if (condicao instanceof Agrupamento) {
-            return this.verificarCondicao(condicao.expressao);
+            return this.verificarCondicao(condicao.expressao, rotulo);
         }
 
         if (condicao instanceof Variavel) {
-            return this.verificarVariavelBinaria(condicao);
+            return this.verificarVariavelBinaria(condicao, rotulo);
         }
 
         if (condicao instanceof Binario) {
@@ -865,15 +868,19 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    private verificarVariavelBinaria(variavel: Variavel): Promise<void> {
+    private verificarVariavelBinaria(
+        variavel: Variavel,
+        rotulo: string = 'enquanto'
+    ): Promise<void> {
         this.verificarVariavel(variavel);
         const variavelHipotetica = this.gerenciadorEscopos.buscar(variavel.simbolo.lexema);
         if (
             variavelHipotetica &&
+            variavelHipotetica.tipo !== 'lógico' &&
             !(variavelHipotetica.valor instanceof Binario) &&
             typeof variavelHipotetica.valor !== 'boolean'
         ) {
-            this.erro(variavel.simbolo, `Esperado tipo 'lógico' na condição do 'enquanto'.`);
+            this.erro(variavel.simbolo, `Esperado tipo 'lógico' na condição do '${rotulo}'.`);
         }
         return Promise.resolve();
     }

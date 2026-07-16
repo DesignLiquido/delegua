@@ -671,6 +671,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         const variavelHipotetica = this.gerenciadorEscopos.buscar(variavel.simbolo.lexema);
         if (
             variavelHipotetica &&
+            variavelHipotetica.tipo !== 'lógico' &&
             !(variavelHipotetica.valor instanceof Binario) &&
             typeof variavelHipotetica.valor !== 'boolean'
         ) {
