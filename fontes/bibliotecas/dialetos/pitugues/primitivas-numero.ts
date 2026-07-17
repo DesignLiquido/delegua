@@ -3,7 +3,7 @@ import { InterpretadorInterface, PrimitivaInterface } from '../../../interfaces'
 
 export default {
     absoluto: {
-        tipoRetorno: 'número',
+        tipoRetorno: 'real',
         argumentos: [],
         implementacao: (interpretador: InterpretadorInterface, valor: number): Promise<number> => {
             return Promise.resolve(Math.abs(valor));
@@ -20,7 +20,7 @@ export default {
         exemploCodigo: 'numero.absoluto()',
     },
     arredondar: {
-        tipoRetorno: 'numero',
+        tipoRetorno: 'inteiro',
         argumentos: [
             new InformacaoElementoSintatico(
                 'casasDecimais',
@@ -57,7 +57,7 @@ export default {
         exemploCodigo: 'numero.arredondar()',
     },
     arredondar_para_baixo: {
-        tipoRetorno: 'número',
+        tipoRetorno: 'inteiro',
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
@@ -77,7 +77,7 @@ export default {
         exemploCodigo: 'numero.arredondar_para_baixo()',
     },
     arredondar_para_cima: {
-        tipoRetorno: 'número',
+        tipoRetorno: 'inteiro',
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
@@ -142,7 +142,7 @@ export default {
         exemploCodigo: 'numero.formatar({ maximoCasasDecimais: 2 })',
     },
     raiz_quadrada: {
-        tipoRetorno: 'numero',
+        tipoRetorno: 'real',
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
@@ -162,7 +162,7 @@ export default {
         exemploCodigo: 'numero.raiz_quadrada()',
     },
     truncar: {
-        tipoRetorno: 'numero',
+        tipoRetorno: 'inteiro',
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,

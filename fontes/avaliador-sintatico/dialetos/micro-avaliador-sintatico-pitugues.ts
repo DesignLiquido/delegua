@@ -84,14 +84,21 @@ export class MicroAvaliadorSintaticoPitugues extends MicroAvaliadorSintaticoBase
                 return new Literal(-1, Number(this.linha), null);
 
             case tiposDeSimbolos.NUMERO:
-            case tiposDeSimbolos.TEXTO:
-                const simboloNumeroTexto: SimboloInterface = this.avancarEDevolverAnterior();
-                const tipoInferido = inferirTipoVariavel(simboloNumeroTexto.literal);
+                const simboloNumero: SimboloInterface = this.avancarEDevolverAnterior();
+                const tipoNumeroInferido = Number.isInteger(simboloNumero.literal) ? 'inteiro' : 'real';
                 return new Literal(
                     -1,
                     Number(this.linha),
-                    simboloNumeroTexto.literal,
-                    tipoInferido as TipoInferencia
+                    simboloNumero.literal,
+                    tipoNumeroInferido as TipoInferencia
+                );
+            case tiposDeSimbolos.TEXTO:
+                const simboloTexto: SimboloInterface = this.avancarEDevolverAnterior();
+                return new Literal(
+                    -1,
+                    Number(this.linha),
+                    simboloTexto.literal,
+                    'texto' as TipoInferencia
                 );
 
             case tiposDeSimbolos.IDENTIFICADOR:
