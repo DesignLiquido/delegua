@@ -1341,7 +1341,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         // A partir daqui, presume-se que o objeto é uma das estruturas
         // de Delégua.
         if (objeto instanceof DeleguaModulo) {
-            return objeto.componentes[expressao.nomeMetodo] || null;
+            return expressao.nomeMetodo in objeto.componentes ? objeto.componentes[expressao.nomeMetodo] : null;
         }
 
         let tipoObjeto = variavelObjeto.tipo;
@@ -1649,7 +1649,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         // A partir daqui, presume-se que o objeto é uma das estruturas
         // de Delégua.
         if (objeto instanceof DeleguaModulo) {
-            return objeto.componentes[expressao.simbolo.lexema] || null;
+            return expressao.simbolo.lexema in objeto.componentes ? objeto.componentes[expressao.simbolo.lexema] : null;
         }
 
         let tipoObjeto = variavelObjeto.tipo;
@@ -1891,7 +1891,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         // A partir daqui, presume-se que o objeto é uma das estruturas
         // de Delégua.
         if (objeto instanceof DeleguaModulo) {
-            return objeto.componentes[expressao.nomePropriedade] || null;
+            return expressao.nomePropriedade in objeto.componentes ? objeto.componentes[expressao.nomePropriedade] : null;
         }
 
         let tipoObjeto = variavelObjeto.tipo;

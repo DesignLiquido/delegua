@@ -2820,7 +2820,8 @@ export class InterpretadorBase implements InterpretadorInterface {
         // A partir daqui, presume-se que o objeto é uma das estruturas
         // de Delégua.
         if (objeto instanceof DeleguaModulo) {
-            return objeto.componentes[expressao.simbolo.lexema] || null;
+            const nomeComponente = expressao.simbolo.lexema;
+            return nomeComponente in objeto.componentes ? objeto.componentes[nomeComponente] : null;
         }
 
         return Promise.reject(
