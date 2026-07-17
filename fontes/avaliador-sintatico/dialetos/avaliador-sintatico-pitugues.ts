@@ -155,7 +155,8 @@ export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implement
         this.tiposDefinidosPorBibliotecas = {};
 
         registrarPrimitiva(this.primitivasConhecidas, 'dicionário', primitivasDicionario);
-        registrarPrimitiva(this.primitivasConhecidas, 'número', primitivasNumero);
+        registrarPrimitiva(this.primitivasConhecidas, 'inteiro', primitivasNumero);
+        registrarPrimitiva(this.primitivasConhecidas, 'real', primitivasNumero);
         registrarPrimitiva(this.primitivasConhecidas, 'texto', primitivasTexto);
         registrarPrimitiva(this.primitivasConhecidas, 'vetor', primitivasVetor);
         registrarPrimitiva(this.primitivasConhecidas, 'tupla', primitivasTupla);
@@ -536,7 +537,7 @@ export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implement
             this.hashArquivo,
             chamadaTamanho,
             new Simbolo(tiposDeSimbolos.DIFERENTE, '!=', null, linha, -1),
-            new Literal(this.hashArquivo, linha, qtdEsperada, 'número')
+            new Literal(this.hashArquivo, linha, qtdEsperada, 'inteiro')
         );
 
         const mensagem = `Erro de execução: Você tentou desempacotar em ${qtdEsperada} variáveis, mas o vetor possui tamanho diferente.`;
@@ -685,7 +686,7 @@ export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implement
                             this.hashArquivo,
                             identificador.linha,
                             i,
-                            'número'
+                            'inteiro'
                         ),
                         new Simbolo(
                             tiposDeSimbolos.COLCHETE_DIREITO,
@@ -1010,6 +1011,14 @@ export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implement
             case tiposDeSimbolos.LEIA:
                 return await this.expressaoLeia();
             case tiposDeSimbolos.NUMERO:
+                const simboloNumero: SimboloInterface = this.avancarEDevolverAnterior();
+                const tipoNumeroInferido = Number.isInteger(simboloNumero.literal) ? 'inteiro' : 'real';
+                return new Literal(
+                    this.hashArquivo,
+                    Number(simboloNumero.linha),
+                    simboloNumero.literal,
+                    tipoNumeroInferido as TipoInferencia
+                );
             case tiposDeSimbolos.TEXTO:
                 const simboloLiteral: SimboloInterface = this.avancarEDevolverAnterior();
                 const tipoInferido = inferirTipoVariavel(simboloLiteral.literal);
@@ -2458,8 +2467,6 @@ export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implement
         if (this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
             const tiposVetores = [
                 'inteiro[]',
-                'numero[]',
-                'número[]',
                 'qualquer[]',
                 'real[]',
                 'texto[]',
@@ -2939,13 +2946,13 @@ export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implement
         // Funções nativas de Delégua (e de Pituguês também, por enquanto)
         this.pilhaEscopos.definirInformacoesVariavel(
             'aleatorio',
-            new InformacaoElementoSintatico('aleatorio', 'número')
+            new InformacaoElementoSintatico('aleatorio', 'real')
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'aleatorio_entre',
-            new InformacaoElementoSintatico('aleatorio_entre', 'número', true, [
-                new InformacaoElementoSintatico('minimo', 'número'),
-                new InformacaoElementoSintatico('maximo', 'número'),
+            new InformacaoElementoSintatico('aleatorio_entre', 'inteiro', true, [
+                new InformacaoElementoSintatico('minimo', 'inteiro'),
+                new InformacaoElementoSintatico('maximo', 'inteiro'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
@@ -3016,7 +3023,7 @@ export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implement
             'enumerar',
             new InformacaoElementoSintatico('intervalo', 'dicionario', true, [
                 new InformacaoElementoSintatico('iteravel', 'qualquer'),
-                new InformacaoElementoSintatico('inicio', 'numero', false),
+                new InformacaoElementoSintatico('inicio', 'inteiro', false),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
@@ -3076,13 +3083,13 @@ export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implement
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'maximo',
-            new InformacaoElementoSintatico('maximo', 'número', true, [
+            new InformacaoElementoSintatico('maximo', 'real', true, [
                 new InformacaoElementoSintatico('iteravel', 'qualquer'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'minimo',
-            new InformacaoElementoSintatico('minimo', 'número', true, [
+            new InformacaoElementoSintatico('minimo', 'real', true, [
                 new InformacaoElementoSintatico('iteravel', 'qualquer'),
             ])
         );

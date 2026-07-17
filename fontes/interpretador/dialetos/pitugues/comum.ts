@@ -331,6 +331,8 @@ function resolverPrimitiva(
 
     const modulos: Record<string, any> = {
         dicionário: primitivasDicionario,
+        inteiro: primitivasNumero,
+        real: primitivasNumero,
         número: primitivasNumero,
         numero: primitivasNumero,
         texto: primitivasTexto,

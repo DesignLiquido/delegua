@@ -3944,7 +3944,7 @@ describe('Interpretador (Pituguês)', () => {
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
-                expect(_saidas[0]).toBe('número');
+                expect(_saidas[0]).toBe('inteiro');
                 expect(_saidas[1]).toBe('texto');
                 expect(_saidas[2]).toBe('vetor');
                 expect(_saidas[3]).toBe('dicionário');
@@ -4671,7 +4671,7 @@ describe('Interpretador (Pituguês)', () => {
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
                 expect(_saidas.length).toBe(1);
-                expect(_saidas[0]).toBe("número");
+                expect(_saidas[0]).toBe("inteiro");
             });
 
             it('Deve retornar a tipagem correta do valor do retorno de uma função', async () => {
@@ -4688,7 +4688,7 @@ describe('Interpretador (Pituguês)', () => {
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
                 expect(_saidas.length).toBe(1);
-                expect(_saidas[0]).toBe("número");
+                expect(_saidas[0]).toBe("inteiro");
             });
 
             it('Deve distribuir o valor de cada variável corretamente ao usar operador de resto', async () => {
@@ -4719,7 +4719,7 @@ describe('Interpretador (Pituguês)', () => {
 
                 expect(retornoInterpretador.erros).toHaveLength(0);
                 expect(_saidas.length).toBe(1);
-                expect(_saidas[0]).toBe("número");
+                expect(_saidas[0]).toBe("inteiro");
             });
 
             describe('Falhar', () => {

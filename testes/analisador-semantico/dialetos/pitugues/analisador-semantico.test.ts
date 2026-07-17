@@ -172,8 +172,8 @@ describe('Analisador semântico', () => {
 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(3);
-                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('\'caso 0:\' não é do mesmo tipo esperado em \'escolha\' (esperado: texto, atual: número).');
-                expect(retornoAnalisadorSemantico.diagnosticos[1].mensagem).toBe('\'caso 1:\' não é do mesmo tipo esperado em \'escolha\' (esperado: texto, atual: número).');
+                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('\'caso 0:\' não é do mesmo tipo esperado em \'escolha\' (esperado: texto, atual: inteiro).');
+                expect(retornoAnalisadorSemantico.diagnosticos[1].mensagem).toBe('\'caso 1:\' não é do mesmo tipo esperado em \'escolha\' (esperado: texto, atual: inteiro).');
                 expect(retornoAnalisadorSemantico.diagnosticos[2].mensagem).toBe("Variável 'opcao' foi declarada mas nunca usada.");
             });
 
@@ -2064,7 +2064,7 @@ describe('Analisador semântico', () => {
                 const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toContain('Atribuição inválida para \'nome\': é esperado um valor do tipo texto. Atual: número.');
+                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toContain('Atribuição inválida para \'nome\': é esperado um valor do tipo texto. Atual: inteiro.');
             });
 
             it('Erro - declaração com tipo inteiro recebendo texto', async () => {
@@ -2075,7 +2075,7 @@ describe('Analisador semântico', () => {
                 const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toContain('Atribuição inválida para \'valor\': é esperado um valor do tipo número. Atual: texto.');
+                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toContain('Atribuição inválida para \'valor\': é esperado um valor do tipo inteiro. Atual: texto.');
             });
         });
 

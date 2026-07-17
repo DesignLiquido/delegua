@@ -159,7 +159,7 @@ export default {
             ),
             new InformacaoElementoSintatico(
                 'limite',
-                'número',
+                'inteiro',
                 false,
                 [],
                 '(Opcional) Número limite de elementos a serem retornados.'
@@ -199,7 +199,7 @@ export default {
             ),
             new InformacaoElementoSintatico(
                 'indiceInicio',
-                'número',
+                'inteiro',
                 false,
                 [],
                 '(Opcional) O índice opcional para iniciar a busca.'
@@ -241,7 +241,7 @@ export default {
             ),
             new InformacaoElementoSintatico(
                 'indiceInicio',
-                'número',
+                'inteiro',
                 false,
                 [],
                 '(Opcional) Índice inicial para começar a busca de trás para frente.'
@@ -288,14 +288,14 @@ export default {
         argumentos: [
             new InformacaoElementoSintatico(
                 'inicio',
-                'número',
+                'inteiro',
                 true,
                 [],
                 'A posição inicial da fatia.'
             ),
             new InformacaoElementoSintatico(
                 'fim',
-                'número',
+                'inteiro',
                 false,
                 [],
                 '(Opcional) A posição final da fatia. Se não fornecido, seleciona até o final do texto.'

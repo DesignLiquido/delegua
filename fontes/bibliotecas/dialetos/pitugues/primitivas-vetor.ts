@@ -193,14 +193,14 @@ export default {
         argumentos: [
             new InformacaoElementoSintatico(
                 'inicio',
-                'número',
+                'inteiro',
                 false,
                 [],
                 'A posição de início do vetor a ser fatiado. Se não fornecido, retorna o vetor inteiro.'
             ),
             new InformacaoElementoSintatico(
                 'fim',
-                'número',
+                'inteiro',
                 false,
                 [],
                 'A posição de fim do vetor a ser fatiado.'
@@ -228,7 +228,7 @@ export default {
             'vetor.fatiar(<a partir desta posição>, <até esta posição>)',
     },
     indice: {
-        tipoRetorno: 'numero',
+        tipoRetorno: 'inteiro',
         argumentos: [
             new InformacaoElementoSintatico(
                 'elemento',
@@ -255,6 +255,7 @@ export default {
             const index = vetor.findIndex(
                 (item) => interpretador.resolverValor(item) === valorProcurado
             );
+
             return Promise.resolve(index);
         },
         assinaturaFormato: 'vetor.indice(elemento: qualquer)',
