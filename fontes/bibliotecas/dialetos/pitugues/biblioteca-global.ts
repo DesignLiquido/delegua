@@ -761,8 +761,9 @@ export async function enumerar(
     }
 
     const valorInicioResolvido = interpretador.resolverValor(inicio);
+
     if (
-        valorInicioResolvido !== undefined &&
+        valorInicioResolvido != null &&
         (typeof valorInicioResolvido !== 'number' || Number.isNaN(valorInicioResolvido))
     ) {
         throw new ErroEmTempoDeExecucao(
