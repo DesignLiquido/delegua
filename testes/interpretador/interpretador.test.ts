@@ -4459,7 +4459,7 @@ describe('Interpretador', () => {
                     );
 
                     expect(retornoInterpretador.erros.length).toBe(1);
-                    expect(retornoInterpretador.erros[0].erroInterno.message).toBe('teste de falha');
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe('teste de falha');
                 });
 
                 it('Trivial com atribuição', async () => {
@@ -4474,7 +4474,7 @@ describe('Interpretador', () => {
                     );
 
                     expect(retornoInterpretador.erros.length).toBe(1);
-                    expect(retornoInterpretador.erros[0].erroInterno.message).toBe('teste de falha');
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe('teste de falha');
                 });
             });
 

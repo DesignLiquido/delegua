@@ -9,6 +9,7 @@ import { inferirTipoVariavel } from '../../inferenciador';
 import { ConstrutoInterface } from '../../interfaces/construtos';
 import { ResultadoAvaliacao } from '../../interfaces/depuracao';
 import { InterpretadorComDepuracao } from './interpretador-com-depuracao';
+import { obterMensagemErro } from '../../excecoes';
 
 /**
  * Verifica se uma expressão tem efeitos colaterais que não devem ser executados
@@ -134,7 +135,7 @@ export class AvaliadorExpressaoDepuracao {
         } catch (erro: any) {
             return {
                 sucesso: false,
-                erro: erro.message || String(erro),
+                erro: obterMensagemErro(erro),
             };
         }
     }
