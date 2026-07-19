@@ -2,6 +2,7 @@ import { AvaliadorSintaticoPitugues } from "../../../../fontes/avaliador-sintati
 import { LexadorPitugues } from "../../../../fontes/lexador";
 import { InterpretadorPitugues } from "../../../../fontes/interpretador/dialetos/pitugues"
 import { Iteravel } from "../../../../fontes/interpretador/estruturas/iteravel";
+import { obterMensagemErro } from "../../../../fontes/excecoes";
 
 describe('Interpretador (Pituguês)', () => {
     describe('interpretar()', () => {
@@ -2299,7 +2300,7 @@ describe('Interpretador (Pituguês)', () => {
                         );
 
                         expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
-                        const mensagemErro = retornoInterpretador.erros[0].erroInterno?.mensagem || retornoInterpretador.erros[0].mensagem;
+                        const mensagemErro = obterMensagemErro(retornoInterpretador.erros[0].erroInterno) || retornoInterpretador.erros[0].mensagem;
                         expect(mensagemErro).toContain('só pode ser usado com dicionários');
                     });
 
@@ -2316,7 +2317,7 @@ describe('Interpretador (Pituguês)', () => {
                         );
 
                         expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
-                        const mensagemErro = retornoInterpretador.erros[0].erroInterno?.mensagem || retornoInterpretador.erros[0].mensagem;
+                        const mensagemErro = obterMensagemErro(retornoInterpretador.erros[0].erroInterno) || retornoInterpretador.erros[0].mensagem;
                         expect(mensagemErro).toContain('vetor');
                     });
 
@@ -2333,7 +2334,7 @@ describe('Interpretador (Pituguês)', () => {
                         );
 
                         expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
-                        const mensagemErro = retornoInterpretador.erros[0].erroInterno?.mensagem || retornoInterpretador.erros[0].mensagem;
+                        const mensagemErro = obterMensagemErro(retornoInterpretador.erros[0].erroInterno) || retornoInterpretador.erros[0].mensagem;
                         expect(mensagemErro).toContain('dicionários');
                     });
 
@@ -2350,7 +2351,7 @@ describe('Interpretador (Pituguês)', () => {
                         );
 
                         expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
-                        const mensagemErro = retornoInterpretador.erros[0].erroInterno?.mensagem || retornoInterpretador.erros[0].mensagem;
+                        const mensagemErro = obterMensagemErro(retornoInterpretador.erros[0].erroInterno) || retornoInterpretador.erros[0].mensagem;
                         expect(mensagemErro).toContain('nulo');
                     });
                 });
@@ -4735,7 +4736,7 @@ describe('Interpretador (Pituguês)', () => {
                     );
 
                     expect(retornoInterpretador.erros.length).toBe(1);
-                    expect(retornoInterpretador.erros[0].erroInterno.message).toBe('teste de falha');
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe('teste de falha');
                 });
 
                 it('Trivial com atribuição', async () => {
@@ -4755,7 +4756,7 @@ describe('Interpretador (Pituguês)', () => {
                     console.log(retornoInterpretador.erros)
 
                     expect(retornoInterpretador.erros.length).toBe(1);
-                    expect(retornoInterpretador.erros[0].erroInterno.message).toBe('teste de falha');
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe('teste de falha');
                 });
             });
 
@@ -5102,7 +5103,7 @@ describe('Interpretador (Pituguês)', () => {
                     expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
 
                     const erro = retornoInterpretador.erros[0];
-                    const mensagem = erro.erroInterno['message'] || String(erro.erroInterno);
+                    const mensagem = erro.erroInterno.mensagem;
 
                     expect(mensagem).toContain('tamanho diferente');
                 });
@@ -5136,7 +5137,7 @@ describe('Interpretador (Pituguês)', () => {
                     expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
 
                     const erro = retornoInterpretador.erros[0];
-                    expect(erro.erroInterno.message).toContain('só é suportado em vetores, textos e tuplas.');
+                    expect(erro.erroInterno.mensagem).toContain('só é suportado em vetores, textos e tuplas.');
                 });
 
                 it('Tentar fatiar booleano', async () => {
@@ -5266,7 +5267,7 @@ describe('Interpretador (Pituguês)', () => {
                 );
 
                 expect(retornoInterpretador.erros).toHaveLength(1);
-                expect(retornoInterpretador.erros[0].erroInterno.message).toContain('imutáveis');
+                expect(retornoInterpretador.erros[0].erroInterno.mensagem).toContain('imutáveis');
             });
 
             describe('Uso de primitivas de texto', () => {
@@ -5549,7 +5550,7 @@ describe('Interpretador (Pituguês)', () => {
                     const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, true);
 
                     expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
-                    expect(retornoInterpretador.erros[0].erroInterno.message).toContain("não encontrado");
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toContain("não encontrado");
                 });
 
                 it('Falha - Tentar limpar um vetor nulo', async () => {
