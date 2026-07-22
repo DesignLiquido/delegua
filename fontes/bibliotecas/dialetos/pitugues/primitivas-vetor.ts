@@ -29,7 +29,7 @@ const contem_comum = (nome: string) => {
             'Verifica se o elemento existe no vetor. Devolve `verdadeiro` se existe, e `falso` em caso contrário.\n' +
             '\n\n ## Exemplo de Código\n' +
             '\n\n```pitugues\n' +
-            'var v = [1, 2, 3]\n' +
+            'v = [1, 2, 3]\n' +
             `escreva(v.${nome}(2)) // verdadeiro\n` +
             `escreva(v.${nome}(4)) // falso\n\`\`\`` +
             '\n\n## Formas de uso\n',
@@ -126,7 +126,7 @@ export default {
             '# `vetor.concatenar(outroVetor)` \n \n' +
             'Adiciona ao conteúdo do vetor um ou mais elementos' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```pitugues\nvar v = [7, 5, 3]\n' +
+            '\n\n```pitugues\nv = [7, 5, 3]\n' +
             'escreva(v.concatenar([1, 2, 4])) // [7, 5, 3, 1, 2, 4]\n```' +
             '\n\n ### Formas de uso  \n',
         exemploCodigo: 'vetor.concatenar(...argumentos)',
@@ -217,7 +217,7 @@ export default {
             '# `vetor.fatiar(inicio, fim)` \n \n' +
             'Extrai uma fatia do vetor, dadas posições de início e fim. \n' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```pitugues\nvar v = [1, 2, 3, 4, 5]\n' +
+            '\n\n```pitugues\nv = [1, 2, 3, 4, 5]\n' +
             'escreva(v.fatiar()) // "[1, 2, 3, 4, 5]", ou seja, não faz coisa alguma.\n' +
             'escreva(v.fatiar(2, 4)) // "[3, 4]"\n' +
             'escreva(v.fatiar(2)) // "[3, 4, 5]", ou seja, extrai trecho da 3ª posição até o final do vetor.\n```' +
@@ -265,7 +265,7 @@ export default {
             'Caso o elemento não seja encontrado, devolve `-1`.\n' +
             '\n\n ## Exemplo de Código\n' +
             '\n\n```pitugues\n' +
-            'var v = ["maçã", "banana", "uva"]\n' +
+            'v = ["maçã", "banana", "uva"]\n' +
             'escreva(v.indice("banana")) // 1\n' +
             'escreva(v.indice("abacaxi")) // -1\n' +
             '```',
@@ -363,7 +363,7 @@ export default {
             '# `vetor.juntar(separador = ",")` \n \n' +
             'Junta todos os elementos de um vetor em um texto, separando cada elemento pelo separador passado como parâmetro.\n' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```pitugues\nvar v = [1, 2, 3]\n' +
+            '\n\n```pitugues\nv = [1, 2, 3]\n' +
             'escreva(v.juntar(":")) // "1:2:3"\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'vetor.juntar()\n' + 'vetor.juntar(<separador>)',
@@ -434,10 +434,10 @@ export default {
             'Ordena valores de um vetor em ordem crescente.\n' +
             '\n\n ## Exemplo de Código\n' +
             '\n\n```pitugues\n// A ordenação padrão é ascendente, ou seja, para o caso de números, a ordem fica do menor para o maior.\n' +
-            'var v = [4, 2, 12, 5]\n' +
+            'v = [4, 2, 12, 5]\n' +
             'escreva(v.ordenar()) // [2, 4, 5, 12]\n' +
             '// Para o caso de textos, a ordenação é feita em ordem alfabética, caractere a caractere.\n' +
-            'var v = ["aaa", "a", "aba", "abb", "abc"]\n' +
+            'v = ["aaa", "a", "aba", "abb", "abc"]\n' +
             'escreva(v.ordenar()) // ["a", "aaa", "aba", "abb", "abc"]\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'vetor.ordenar()',
@@ -468,7 +468,7 @@ export default {
             '# `vetor.remover(elemento)` \n \n' +
             'Remove um elemento do vetor caso o elemento exista no vetor.\n' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```pitugues\nvar vetor = [1, 2, 3]\n' +
+            '\n\n```pitugues\nvetor = [1, 2, 3]\n' +
             'vetor.remover(2)\n' +
             'escreva(vetor) // [1, 3]\n```' +
             '\n\n ### Formas de uso \n',
@@ -486,8 +486,8 @@ export default {
             '# `vetor.remover_primeiro()` \n \n' +
             'Remove o primeiro elemento do vetor caso o elemento exista no vetor.\n' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```pitugues\nvar vetor = [1, 2, 3]\n' +
-            'var primeiroElemento = vetor.remover_primeiro()\n' +
+            '\n\n```pitugues\nvetor = [1, 2, 3]\n' +
+            'primeiroElemento = vetor.remover_primeiro()\n' +
             'escreva(primeiroElemento) // 1\n' +
             'escreva(vetor) // [2, 3]\n```' +
             '\n\n ### Formas de uso \n',
@@ -542,8 +542,8 @@ export default {
             '# `vetor.remover_ultimo()` \n \n' +
             'Remove o último elemento do vetor caso o elemento exista no vetor.\n' +
             '\n\n ## Exemplo de Código\n' +
-            '\n\n```pitugues\nvar vetor = [1, 2, 3]\n' +
-            'var ultimoElemento = vetor.remover_ultimo()\n' +
+            '\n\n```pitugues\nvetor = [1, 2, 3]\n' +
+            'ultimoElemento = vetor.remover_ultimo()\n' +
             'escreva(ultimoElemento) // 3\n' +
             'escreva(vetor) // [1, 2]\n```' +
             '\n\n ### Formas de uso \n',
@@ -576,7 +576,7 @@ export default {
             '# `vetor.somar()` \n \n' +
             'Soma ou concatena todos os elementos do vetor (de acordo com o tipo de dados desses elementos) e retorna o resultado.\n' +
             '\n\n ### Exemplo de Código\n' +
-            '\n\n```pitugues\nvar vetor = [1, 2, 3, 4, 5]\n' +
+            '\n\n```pitugues\nvetor = [1, 2, 3, 4, 5]\n' +
             'escreva(vetor.somar()) // 15\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'vetor.somar()',

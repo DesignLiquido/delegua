@@ -14,7 +14,7 @@ export default {
             'Retorna a versão absoluta de um número, ou seja, seu valor sem sinal.' +
             '\n\n ## Exemplo de Código\n' +
             '\n\n```pitugues\n' +
-            'var n = -5\n' +
+            'n = -5\n' +
             'escreva(n.absoluto()) // 5\n```' +
             '\n\n## Formas de uso\n',
         exemploCodigo: 'numero.absoluto()',
@@ -50,7 +50,7 @@ export default {
             '\n\n ## Exemplo de Código\n' +
             '\n\n```pitugues\n' +
             'n = 2.4\n' +
-            'escreva(n.arredondar()) // 2\n```' +
+            'escreva(n.arredondar()) // 2\n' +
             'x = 2.468\n' +
             'escreva(x.arredondar(2)) // 2.47\n```' +
             '\n\n## Formas de uso\n',
