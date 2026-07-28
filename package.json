@@ -102,7 +102,7 @@
         "jest": "^30.0.2",
         "jest-coverage-badges": "^1.1.2",
         "prettier": "^3.5.3",
-        "release-it": "^20.0.0",
+        "release-it": "^21.0.0",
         "rimraf": "^6.0.1",
         "ts-jest": "^29.3.0",
         "ts-node": "^10.9.2",
