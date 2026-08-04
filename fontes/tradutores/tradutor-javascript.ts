@@ -826,10 +826,19 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
 
     traduzirExpressaoAcessoMetodoOuPropriedade(
         acessoMetodo: AcessoMetodoOuPropriedade,
-        argumentos: ConstrutoInterface[]
+        argumentos?: ConstrutoInterface[]
     ): string {
         if (acessoMetodo.objeto instanceof Variavel) {
             let objetoVariavel = acessoMetodo.objeto as Variavel;
+
+            // Quando `argumentos` não é passado, não estamos dentro de uma
+            // `Chamada` (ex: `obj.metodo()`), e sim um simples acesso de
+            // propriedade (ex: `obj.propriedade`), então não deve ser
+            // traduzido como chamada de método.
+            if (!argumentos) {
+                return `${objetoVariavel.simbolo.lexema}.${acessoMetodo.simbolo.lexema}`;
+            }
+
             return `${this.traduzirFuncaoOuMetodo(acessoMetodo.simbolo.lexema, objetoVariavel.simbolo.lexema, argumentos)}`;
         }
 

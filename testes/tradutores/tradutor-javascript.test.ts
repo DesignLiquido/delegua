@@ -95,6 +95,23 @@ describe('Tradutor Delégua -> JavaScript', () => {
             expect(resultado).toMatch(/console\.log\(\{\'chave 1\':\'valor\',\'chave 2\':2,\}\)/i);
         });
 
+        it('acesso de propriedade de dicionário sem chamada de método (resolve #1404)', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var obj = {',
+                    '  \'nome\': "Fernando",',
+                    '}',
+                    '',
+                    'escreva(obj.nome)',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/console\.log\(obj\.nome\)/i);
+        });
 
         it('funções nativas', async () => {
             const retornoLexador = lexador.mapear(
