@@ -449,6 +449,45 @@ describe('Tradutor Delégua -> Python', () => {
             expect(resultado).toMatch(/print\('Não é nenhum desses valores: 10, 20, 30, 40'\)/i);
         });
 
+        it('se sem chaves -> if, corpo indentado corretamente (issue #1403)', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'funcao fibonacci(n)',
+                    '{',
+                    '    se n <= 1',
+                    '        retorne n',
+                    '    retorne fibonacci(n - 2) + fibonacci(n - 1)',
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/if n <= 1:\n {8}return n\n/i);
+            expect(resultado).toMatch(/\n {4}return fibonacci\(n - 2\) \+ fibonacci\(n - 1\)/i);
+        });
+
+        it('se senão sem chaves -> if/else, corpo indentado corretamente', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var a = 2',
+                    'se (a == 1)',
+                    '    escreva(10)',
+                    'senão',
+                    '    escreva(20)',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/if a \=\= 1:\n {4}print\(10\)\n/i);
+            expect(resultado).toMatch(/else:\n {4}print\(20\)/i);
+        });
+
         it('se ternário -> expressão condicional', async () => {
             const retornoLexador = lexador.mapear(
                 [
