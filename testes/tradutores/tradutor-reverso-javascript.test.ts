@@ -93,6 +93,17 @@ describe('Tradutor Reverso JavaScript -> Delégua', () => {
             expect(resultado).toMatch(/nome.minusculo\(\)/i);
         });
 
+        it('acesso a indice de vetor -> vetor[indice]', async () => {
+            const codigo = `let x = [10, 20]\nconsole.log(x[1])`;
+
+            const retornoLexador = lexador.mapear(codigo.split('\n'), -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/var x = \[10, 20\]/i);
+            expect(resultado).toMatch(/escreva\(x\[1\]\)/i);
+        });
+
         it('for -> para', async () => {
             const codigo = 'for (let i = 0; i < 10; i++) { console.log(i) }'
 

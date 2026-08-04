@@ -183,6 +183,10 @@ export class TradutorReversoJavaScript implements TradutorInterface<
             return `${this.traduzirFuncoesNativas(propriedade)}`;
         }
 
+        if (expressao.computed) {
+            return `${objeto}[${propriedade}]`;
+        }
+
         return `${objeto}.${this.traduzirFuncoesNativas(propriedade)}`;
     }
 
