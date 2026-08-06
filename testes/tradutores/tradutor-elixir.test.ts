@@ -23,6 +23,15 @@ describe('Tradutor Delégua -> Elixir', () => {
             expect(resultado).toContain('42');
         });
 
+        it('Número decimal com parte fracionária zero preserva o ponto decimal (resolve #1407)', async () => {
+            const codigo = ['escreva(10.0)'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toMatch(/IO\.puts\(10\.0\)/i);
+        });
+
         it('String', async () => {
             const codigo = ['"Olá mundo"'];
             const retornoLexador = lexador.mapear(codigo, -1);
@@ -57,6 +66,62 @@ describe('Tradutor Delégua -> Elixir', () => {
             const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
 
             expect(resultado).toContain('nil');
+        });
+    });
+
+    describe('Tipo real explícito sempre com parte decimal (resolve #1407)', () => {
+        it('variável real inicializada com literal inteiro -> 10.0', async () => {
+            const codigo = ['var x: real = 10'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toMatch(/x = 10\.0/i);
+        });
+
+        it('variável real inicializada com variável número -> conversão explícita', async () => {
+            const codigo = ['var y = 10', 'var x: real = y'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toMatch(/x = \(y\) \/ 1/i);
+        });
+
+        it('função com retorno tipado real e literal inteiro -> 10.0', async () => {
+            const codigo = ['funcao f(): real {', '    retorna 10', '}'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toMatch(/10\.0/);
+        });
+
+        it('função com retorno tipado real e variável número -> conversão explícita', async () => {
+            const codigo = ['funcao f(): real {', '    var y = 10', '    retorna y', '}'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toMatch(/\(y\) \/ 1/);
+        });
+
+        it('real(10) converte para (10.0) / 1', async () => {
+            const codigo = ['escreva(real(10))'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toMatch(/IO\.puts\(\(10\.0\) \/ 1\)/i);
+        });
+
+        it('real(y) com y número converte para (y) / 1', async () => {
+            const codigo = ['var y = 10', 'escreva(real(y))'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toMatch(/IO\.puts\(\(y\) \/ 1\)/i);
         });
     });
 

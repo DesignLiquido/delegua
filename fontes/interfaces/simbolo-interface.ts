@@ -7,4 +7,5 @@ export interface SimboloInterface<TTipo = string> {
     colunaInicio?: number;
     colunaFim?: number;
     delimitadorTexto?: "'" | '"';
+    ehNumeroReal?: boolean;
 }

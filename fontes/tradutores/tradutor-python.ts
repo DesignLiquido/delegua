@@ -465,6 +465,9 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
             return literal.valor ? 'True' : 'False';
         }
         if (typeof literal.valor === 'number') {
+            if (literal.tipo === 'real' && Number.isInteger(literal.valor)) {
+                return `${literal.valor}.0`;
+            }
             return String(literal.valor);
         }
         if (!literal.valor) return 'None';
@@ -550,6 +553,8 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         switch (variavel.simbolo.lexema) {
             case 'texto':
                 return `str(${textoArgumentos})`;
+            case 'real':
+                return `float(${textoArgumentos})`;
             default:
                 if (
                     argumentosValidados.length === 0 &&

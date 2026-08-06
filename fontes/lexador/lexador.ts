@@ -88,7 +88,7 @@ export class Lexador extends LexadorBase {
         return codePoint === undefined ? '\0' : String.fromCodePoint(codePoint);
     }
 
-    override adicionarSimbolo(tipo: string, literal: any = null): void {
+    override adicionarSimbolo(tipo: string, literal: any = null, ehNumeroReal?: boolean): void {
         const texto = this.codigo[this.linha].substring(
             this.inicioSimbolo,
             this.atual
@@ -106,7 +106,9 @@ export class Lexador extends LexadorBase {
                 this.linha + 1,
                 this.hashArquivo,
                 this.inicioSimbolo + 1,
-                this.inicioSimbolo + comprimento
+                this.inicioSimbolo + comprimento,
+                undefined,
+                ehNumeroReal
             )
         );
     }
@@ -191,7 +193,8 @@ export class Lexador extends LexadorBase {
 
         this.adicionarSimbolo(
             tiposDeSimbolos.NUMERO,
-            parseFloat(numeroCompleto)
+            parseFloat(numeroCompleto),
+            numeroCompleto.includes('.')
         );
     }
 

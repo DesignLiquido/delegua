@@ -464,6 +464,9 @@ export class TradutorRuby implements TradutorInterface<Declaracao> {
             return literal.valor ? 'true' : 'false';
         }
         if (typeof literal.valor === 'number') {
+            if (literal.tipo === 'real' && Number.isInteger(literal.valor)) {
+                return `${literal.valor}.0`;
+            }
             return String(literal.valor);
         }
         if (!literal.valor) return 'nil';
@@ -549,6 +552,8 @@ export class TradutorRuby implements TradutorInterface<Declaracao> {
         switch (variavel.simbolo.lexema) {
             case 'texto':
                 return `(${textoArgumentos}).to_s`;
+            case 'real':
+                return `(${textoArgumentos}).to_f`;
             default:
                 if (
                     argumentosValidados.length === 0 &&

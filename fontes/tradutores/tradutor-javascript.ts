@@ -306,6 +306,10 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
             return possuiInterpolacao ? `\`${valor}\`` : `'${literal.valor}'`;
         }
 
+        if (typeof literal.valor === 'number' && literal.tipo === 'real' && Number.isInteger(literal.valor)) {
+            return `${literal.valor}.0`;
+        }
+
         return String(literal.valor);
     }
 
@@ -327,6 +331,8 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         switch (variavel.simbolo.lexema) {
             case 'texto':
                 return `String(${textoArgumentos})`;
+            case 'real':
+                return `Number(${textoArgumentos})`;
             default:
                 const buscaClasseCorrespondente = this.declaracoesDeClasses.filter(
                     (d) => d.simbolo.lexema === variavel.simbolo.lexema

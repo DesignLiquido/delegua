@@ -927,7 +927,9 @@ export class AvaliadorSintatico
             case tiposDeSimbolos.NÚMERO:
             case tiposDeSimbolos.TEXTO:
                 const simboloNumeroTexto: SimboloInterface = this.avancarEDevolverAnterior();
-                const tipoInferido = inferirTipoVariavel(simboloNumeroTexto.literal);
+                const tipoInferido = simboloNumeroTexto.ehNumeroReal
+                    ? 'real'
+                    : inferirTipoVariavel(simboloNumeroTexto.literal);
                 const delimitadorTexto =
                     simboloNumeroTexto.tipo === tiposDeSimbolos.TEXTO
                         ? simboloNumeroTexto.delimitadorTexto
@@ -1578,12 +1580,12 @@ export class AvaliadorSintatico
                 argumentoUtilizado.tipo.startsWith('função') ||
                 argumentoUtilizado instanceof FuncaoConstruto
                     ? 'função'
-                    : argumentoUtilizado.tipo;
+                    : this.normalizarTipoNumerico(argumentoUtilizado.tipo);
             const tipoArgumentoEntidadeChamada =
                 argumentoEntidadeChamada.tipo.startsWith('funcao') ||
                 argumentoEntidadeChamada.tipo.startsWith('função')
                     ? 'função'
-                    : argumentoEntidadeChamada.tipo;
+                    : this.normalizarTipoNumerico(argumentoEntidadeChamada.tipo);
 
             if (tipoArgumentoUtilizado !== tipoArgumentoEntidadeChamada) {
                 possiveisErros.push(
@@ -1593,6 +1595,73 @@ export class AvaliadorSintatico
         }
 
         return possiveisErros;
+    }
+
+    /**
+     * `número`, `real`, `inteiro` e `longo` são todos representados internamente
+     * como números primitivos, então são intercambiáveis na validação de tipos de
+     * argumentos de chamadas de função/método.
+     * @param tipo O tipo a ser normalizado.
+     * @returns `número` quando `tipo` é um dos tipos numéricos primitivos, ou `tipo` sem alterações.
+     */
+    private normalizarTipoNumerico(tipo: string): string {
+        return ['número', 'numero', 'real', 'inteiro', 'longo'].includes(tipo) ? 'número' : tipo;
+    }
+
+    /**
+     * Garante que um construto usado em um contexto explicitamente tipado como `real`
+     * (declaração de variável/constante, valor padrão de parâmetro, retorno de função ou
+     * argumento de `real()`) seja tratado como ponto flutuante na tradução, mesmo que o
+     * valor original seja um `número` inteiro-valorado:
+     * - Se for um literal numérico (ex.: `10`), apenas marca seu tipo como `real` para que
+     *   os tradutores emitam `10.0` em vez de `10`.
+     * - Se for outra expressão de tipo numérico conhecido (variável, chamada, etc., ex.: `y`
+     *   onde `y: número`), envolve o construto em uma chamada a `real(...)`, que os
+     *   tradutores mapeiam para a conversão de ponto flutuante idiomática de cada linguagem
+     *   (ex.: `float(y)` em Python, `y.to_f` em Ruby).
+     * - Se o tipo do construto já é `real`, ou é desconhecido (`qualquer`) ou não numérico,
+     *   retorna o construto sem alterações — não é seguro converter estaticamente.
+     * @param construto O construto a ser garantido como `real`.
+     * @returns O construto (possivelmente envolvido em `real(...)`) a ser usado no lugar do original.
+     */
+    private garantirTipoReal<T extends ConstrutoInterface | undefined>(construto: T): T | Chamada {
+        if (!construto) {
+            return construto;
+        }
+
+        if (construto.constructor === Literal && typeof (construto as Literal).valor === 'number') {
+            (construto as Literal).tipo = 'real';
+            return construto;
+        }
+
+        if (construto.tipo === 'real') {
+            return construto;
+        }
+
+        const ehTipoNumericoConhecido =
+            typeof construto.tipo === 'string' &&
+            ['número', 'numero', 'inteiro', 'longo'].includes(construto.tipo);
+
+        if (!ehTipoNumericoConhecido) {
+            return construto;
+        }
+
+        const simboloReal = new Simbolo(
+            tiposDeSimbolos.IDENTIFICADOR,
+            'real',
+            null,
+            construto.linha,
+            construto.hashArquivo
+        );
+
+        const chamadaReal = new Chamada(
+            construto.hashArquivo,
+            new Variavel(construto.hashArquivo, simboloReal, 'função'),
+            [construto]
+        );
+        chamadaReal.tipo = 'real';
+
+        return chamadaReal;
     }
 
     /**
@@ -1615,6 +1684,21 @@ export class AvaliadorSintatico
 
         if (entidadeChamada.constructor === Variavel) {
             const entidadeChamadaResolvidaVariavel = entidadeChamada as Variavel;
+
+            // `real(valor)` converte explicitamente para ponto flutuante, então um
+            // literal numérico passado diretamente deve preservar a natureza real
+            // na tradução (ex.: `real(10)` -> `real(10.0)`). Note que aqui só marcamos
+            // literais diretamente, sem usar garantirTipoReal(): o argumento já está
+            // dentro de uma chamada a `real(...)`, então não deve ser envolvido de novo.
+            if (entidadeChamadaResolvidaVariavel.simbolo.lexema === 'real' && argumentos.length > 0) {
+                const primeiroArgumento = argumentos[0];
+                if (
+                    primeiroArgumento.constructor === Literal &&
+                    typeof (primeiroArgumento as Literal).valor === 'number'
+                ) {
+                    (primeiroArgumento as Literal).tipo = 'real';
+                }
+            }
 
             const informacoesFuncaoBibliotecaGlobal = this.pilhaEscopos.obterBibliotecaGlobal(
                 entidadeChamadaResolvidaVariavel.simbolo.lexema
@@ -3591,11 +3675,16 @@ export class AvaliadorSintatico
             }
 
             for (let [indice, identificador] of identificadores.entries()) {
-                const inicializador = inicializadores[indice];
                 const tipoInferido = this.logicaComumInferenciaTiposVariaveisEConstantes(
-                    inicializador,
+                    inicializadores[indice],
                     tipo
                 ) ?? tipo;
+
+                if (tipoExplicito && tipo === 'real') {
+                    inicializadores[indice] = this.garantirTipoReal(inicializadores[indice]);
+                }
+
+                const inicializador = inicializadores[indice];
 
                 const informacaoSintatica = tipo === 'dicionário'
                     ? this.resolverInformacaoElementoSintaticoDeDicionario(inicializador as Dicionario)
@@ -3729,6 +3818,10 @@ export class AvaliadorSintatico
                     tipo
                 ) ?? tipo;
 
+            if (tipoExplicito && tipo === 'real') {
+                inicializadores[indice] = this.garantirTipoReal(inicializadores[indice]);
+            }
+
             if (tipo !== 'dicionário') {
                 this.pilhaEscopos.definirInformacoesVariavel(
                     identificador.lexema,
@@ -3836,6 +3929,10 @@ export class AvaliadorSintatico
                 parametro.valorPadrao = valorPadrao;
             }
 
+            if (parametro.tipoDado === 'real') {
+                parametro.valorPadrao = this.garantirTipoReal(parametro.valorPadrao);
+            }
+
             this.pilhaEscopos.definirInformacoesVariavel(
                 parametro.nome.lexema,
                 new InformacaoElementoSintatico(
@@ -3879,6 +3976,12 @@ export class AvaliadorSintatico
         let expressoesRetorna: Retorna[] = [];
         for (const declaracao of corpo) {
             expressoesRetorna = expressoesRetorna.concat(buscarRetornos(declaracao));
+        }
+
+        if (tipoRetorno === 'real') {
+            for (const retorno of expressoesRetorna) {
+                retorno.valor = this.garantirTipoReal(retorno.valor);
+            }
         }
 
         if (tipoRetorno === 'vazio' && expressoesRetorna.length > 0) {
@@ -4133,6 +4236,12 @@ export class AvaliadorSintatico
                     tipoRetorno = tiposRetornos.values().next().value;
                 } else if (!retornaChamadoExplicitamente && !definicaoExplicitaDeTipo) {
                     tipoRetorno = 'vazio';
+                }
+            }
+
+            if (tipoRetorno === 'real') {
+                for (const retorno of expressoesRetorna) {
+                    retorno.valor = this.garantirTipoReal(retorno.valor);
                 }
             }
 
@@ -4619,6 +4728,12 @@ export class AvaliadorSintatico
                     tipoRetorno = tiposRetornos.values().next().value;
                 } else if (!retornaChamadoExplicitamente && !definicaoExplicitaDeTipo) {
                     tipoRetorno = 'vazio';
+                }
+            }
+
+            if (tipoRetorno === 'real') {
+                for (const retorno of expressoesRetorna) {
+                    retorno.valor = this.garantirTipoReal(retorno.valor);
                 }
             }
 

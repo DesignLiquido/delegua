@@ -140,7 +140,7 @@ export abstract class LexadorBase implements LexadorInterface<SimboloInterface> 
         }
     }
 
-    adicionarSimbolo(tipo: any, literal?: any): void {
+    adicionarSimbolo(tipo: any, literal?: any, ehNumeroReal?: boolean): void {
         const texto: string = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
         const lexema = literal || texto;
         const comprimentoLexema = typeof lexema === 'string' ? lexema.length : 0;
@@ -155,7 +155,9 @@ export abstract class LexadorBase implements LexadorInterface<SimboloInterface> 
                 this.linha + 1,
                 this.hashArquivo,
                 colunaInicio,
-                colunaFim
+                colunaFim,
+                undefined,
+                ehNumeroReal
             )
         );
     }

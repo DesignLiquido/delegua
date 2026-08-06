@@ -25,6 +25,72 @@ describe('Tradutor Delégua -> Ruby', () => {
         expect(resultado).toMatch(/puts\('Olá mundo'\)/i);
     });
 
+    it('número decimal com parte fracionária zero preserva o ponto decimal (resolve #1407)', async () => {
+        const retornoLexador = lexador.mapear(['escreva(10.0)'], -1);
+
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+        const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+        expect(resultado).toBeTruthy();
+        expect(resultado).toMatch(/puts\(10\.0\)/i);
+    });
+
+    describe('Tipo real explícito sempre com parte decimal (resolve #1407)', () => {
+        it('variável real inicializada com literal inteiro -> 10.0', async () => {
+            const retornoLexador = lexador.mapear(['var x: real = 10'], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+            expect(resultado).toMatch(/x = 10\.0/i);
+        });
+
+        it('variável real inicializada com variável número -> conversão explícita', async () => {
+            const retornoLexador = lexador.mapear(['var y = 10', 'var x: real = y'], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+            expect(resultado).toMatch(/x = \(y\)\.to_f/i);
+        });
+
+        it('função com retorno tipado real e literal inteiro -> 10.0', async () => {
+            const retornoLexador = lexador.mapear(
+                ['funcao f(): real {', '    retorna 10', '}'],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+            expect(resultado).toMatch(/return 10\.0/i);
+        });
+
+        it('função com retorno tipado real e variável número -> conversão explícita', async () => {
+            const retornoLexador = lexador.mapear(
+                ['funcao f(): real {', '    var y = 10', '    retorna y', '}'],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+            expect(resultado).toMatch(/return \(y\)\.to_f/i);
+        });
+
+        it('real(10) converte para (10.0).to_f', async () => {
+            const retornoLexador = lexador.mapear(['escreva(real(10))'], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+            expect(resultado).toMatch(/puts\(\(10\.0\)\.to_f\)/i);
+        });
+
+        it('real(y) com y número converte para (y).to_f', async () => {
+            const retornoLexador = lexador.mapear(['var y = 10', 'escreva(real(y))'], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+            expect(resultado).toMatch(/puts\(\(y\)\.to_f\)/i);
+        });
+    });
+
     it('Literais - vetores com primitivas', async () => {
         const retornoLexador = lexador.mapear(
             ['[1, 2, 3].adicionar(1)'],

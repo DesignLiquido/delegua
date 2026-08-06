@@ -978,6 +978,13 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
                     `${this.converterNomeModulo(nomeEntidade)}.new(${argumentos.join(', ')})`
                 );
             }
+
+            // `real(valor)` converte explicitamente para ponto flutuante. Em Elixir,
+            // dividir por 1 força o resultado a ser float independentemente do valor
+            // de entrada ser inteiro ou já ser float.
+            if (nomeEntidade === 'real' && argumentos.length > 0) {
+                return Promise.resolve(`(${argumentos[0]}) / 1`);
+            }
         }
 
         // Verificar se é chamada de método (AcessoMetodo ou AcessoMetodoOuPropriedade)
@@ -1135,6 +1142,9 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
 
         // Number
         if (typeof valor === 'number') {
+            if (expressao.tipo === 'real' && Number.isInteger(valor)) {
+                return Promise.resolve(`${valor}.0`);
+            }
             return Promise.resolve(String(valor));
         }
 

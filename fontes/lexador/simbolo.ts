@@ -9,6 +9,7 @@ export class Simbolo implements SimboloInterface {
     colunaInicio: number;
     colunaFim: number;
     delimitadorTexto?: "'" | '"';
+    ehNumeroReal?: boolean;
 
     constructor(
         tipo: string,
@@ -18,7 +19,8 @@ export class Simbolo implements SimboloInterface {
         hashArquivo: number,
         colunaInicio: number = 0,
         colunaFim: number = 0,
-        delimitadorTexto?: "'" | '"'
+        delimitadorTexto?: "'" | '"',
+        ehNumeroReal?: boolean
     ) {
         this.tipo = tipo;
         this.lexema = lexema;
@@ -28,6 +30,7 @@ export class Simbolo implements SimboloInterface {
         this.colunaInicio = colunaInicio;
         this.colunaFim = colunaFim;
         this.delimitadorTexto = delimitadorTexto;
+        this.ehNumeroReal = ehNumeroReal;
     }
 
     paraTexto(): string {
