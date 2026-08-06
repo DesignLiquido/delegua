@@ -88,6 +88,10 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
     dentroDeMetodo: boolean;
     nomeParametroStruct: string | null;
     contadorVariavelTemporaria: number;
+    /** Nome do módulo implícito usado para envolver funções declaradas no escopo global (resolve #1408). */
+    nomeModuloGlobal: string;
+    /** Indica se a tradução em curso está dentro do módulo implícito de funções globais. */
+    dentroDeModuloGlobal: boolean;
 
     constructor() {
         this.indentacaoAtual = 0;
@@ -98,6 +102,8 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
         this.dentroDeMetodo = false;
         this.nomeParametroStruct = null;
         this.contadorVariavelTemporaria = 0;
+        this.nomeModuloGlobal = 'Main';
+        this.dentroDeModuloGlobal = false;
     }
 
     /**
@@ -226,11 +232,47 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
 
     /**
      * Ponto de entrada para tradução
+     *
+     * Em Elixir, `def` não pode existir fora de um módulo. Por isso, funções
+     * declaradas diretamente no escopo global de Delégua são envolvidas em
+     * um módulo implícito (`defmodule Main do ... end`), e chamadas a essas
+     * funções feitas fora do módulo são qualificadas com o nome do módulo
+     * (resolve #1408).
      */
     async traduzir(declaracoes: Declaracao[]): Promise<string> {
         let resultado = '';
 
-        for (const declaracao of declaracoes) {
+        const funcoesGlobais = declaracoes.filter(
+            (declaracao) => declaracao.constructor === FuncaoDeclaracao
+        ) as FuncaoDeclaracao[];
+        const demaisDeclaracoes = declaracoes.filter(
+            (declaracao) => declaracao.constructor !== FuncaoDeclaracao
+        );
+
+        if (funcoesGlobais.length > 0) {
+            for (const funcaoGlobal of funcoesGlobais) {
+                this.funcoesConhecidas.add(
+                    this.converterIdentificador(funcaoGlobal.simbolo.lexema)
+                );
+            }
+
+            resultado += `defmodule ${this.nomeModuloGlobal} do\n`;
+            this.aumentarIndentacao();
+            this.dentroDeModuloGlobal = true;
+
+            for (const funcaoGlobal of funcoesGlobais) {
+                const traducao = await funcaoGlobal.aceitar(this);
+                if (traducao) {
+                    resultado += traducao + '\n\n';
+                }
+            }
+
+            this.dentroDeModuloGlobal = false;
+            this.diminuirIndentacao();
+            resultado += 'end\n\n';
+        }
+
+        for (const declaracao of demaisDeclaracoes) {
             const traducao = await declaracao.aceitar(this);
             if (traducao) {
                 resultado += traducao + '\n';
@@ -1022,7 +1064,20 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
             );
         }
 
-        // Chamada normal de função
+        // Chamada normal de função. Se for chamada a uma função declarada no
+        // escopo global de Delégua feita fora do módulo implícito que a envolve
+        // em Elixir, é preciso qualificar a chamada com o nome do módulo (#1408).
+        if (expressao.entidadeChamada.constructor === Variavel && !this.dentroDeModuloGlobal) {
+            const nomeFuncao = this.converterIdentificador(
+                (expressao.entidadeChamada as any).simbolo.lexema
+            );
+            if (this.funcoesConhecidas.has(nomeFuncao)) {
+                return Promise.resolve(
+                    `${this.nomeModuloGlobal}.${nomeFuncao}(${argumentos.join(', ')})`
+                );
+            }
+        }
+
         const entidadeChamada = await expressao.entidadeChamada.aceitar(this);
         return Promise.resolve(`${entidadeChamada}(${argumentos.join(', ')})`);
     }

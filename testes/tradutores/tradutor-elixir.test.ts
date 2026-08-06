@@ -333,6 +333,33 @@ describe('Tradutor Delégua -> Elixir', () => {
             expect(resultado).toContain('def dobrar(x)');
             expect(resultado).toContain('dobrar(5)');
         });
+
+        it('Função no escopo global é envolvida em módulo implícito e chamadas fora dele são qualificadas (resolve #1408)', async () => {
+            const codigo = [
+                'funcao foo(x: numero) {',
+                '    se x > 0',
+                '        retorne x * 10.0',
+                '    retorne foo(x - 1)',
+                '}',
+                '',
+                'const nome = "Fernando"',
+                'escreva(nome)',
+                'escreva(foo(10))'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            // `def` deve estar dentro de um módulo, nunca solto no escopo global.
+            expect(resultado).toMatch(/defmodule Main do[\s\S]*def foo\(x\) do[\s\S]*end/);
+
+            // Chamada recursiva interna à própria função não deve ser qualificada.
+            expect(resultado).toMatch(/foo\(x - 1\)/);
+            expect(resultado).not.toMatch(/Main\.foo\(x - 1\)/);
+
+            // Chamada feita fora do módulo (escopo global) deve ser qualificada com o nome do módulo.
+            expect(resultado).toMatch(/IO\.puts\(Main\.foo\(10\)\)/);
+        });
     });
 
     describe('Classes e Módulos', () => {
