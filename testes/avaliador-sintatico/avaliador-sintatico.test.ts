@@ -1427,6 +1427,52 @@ describe('Avaliador sintático', () => {
                 });
             });
 
+            describe('Tipo `decimal` como sinônimo de `real`', () => {
+                it('Var com tipo explícito `decimal` é normalizada para `real`', async () => {
+                    const retornoLexador = lexador.mapear(['var x: decimal = 10'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                    const declaracaoTipada = retornoAvaliadorSintatico.declaracoes[0] as Var;
+                    expect(declaracaoTipada.constructor).toBe(Var);
+                    expect(declaracaoTipada.tipo).toBe('real');
+                });
+
+                it('Const com tipo explícito `decimal` é normalizada para `real`', async () => {
+                    const retornoLexador = lexador.mapear(['const x: decimal = 10'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                    const declaracaoTipada = retornoAvaliadorSintatico.declaracoes[0] as Const;
+                    expect(declaracaoTipada.constructor).toBe(Const);
+                    expect(declaracaoTipada.tipo).toBe('real');
+                });
+
+                it('Vetor `decimal[]` é normalizado para `real[]`', async () => {
+                    const retornoLexador = lexador.mapear(['var x: decimal[] = [1.0, 2.0]'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    const declaracaoTipada = retornoAvaliadorSintatico.declaracoes[0] as Var;
+                    expect(declaracaoTipada.tipo).toBe('real[]');
+                });
+
+                it('Parâmetro de função com tipo `decimal` é normalizado para `real`', async () => {
+                    const retornoLexador = lexador.mapear(
+                        ['funcao f(x: decimal): decimal {', '    retorna x', '}'],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    const funcaoDeclarada = retornoAvaliadorSintatico.declaracoes[0] as FuncaoDeclaracao;
+                    expect(funcaoDeclarada.funcao.parametros[0].tipoDado).toBe('real');
+                    expect(funcaoDeclarada.funcao.tipo).toBe('real');
+                });
+            });
+
             describe('Enquanto', () => {
                 it('Enquanto com retorno pelo escopo', async () => {
                     const retornoLexador = lexador.mapear(

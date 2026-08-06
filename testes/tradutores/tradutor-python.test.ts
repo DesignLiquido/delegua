@@ -89,6 +89,25 @@ describe('Tradutor Delégua -> Python', () => {
 
             expect(resultado).toMatch(/print\(float\(y\)\)/i);
         });
+
+        it('tipo `decimal` é sinônimo de `real`: variável decimal inicializada com literal inteiro -> 10.0', async () => {
+            const retornoLexador = lexador.mapear(['var x: decimal = 10'], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+            expect(resultado).toMatch(/x = 10\.0/i);
+        });
+
+        it('tipo `decimal` é sinônimo de `real`: função com retorno tipado decimal e literal inteiro -> 10.0', async () => {
+            const retornoLexador = lexador.mapear(
+                ['funcao f(): decimal {', '    retorna 10', '}'],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+            expect(resultado).toMatch(/return 10\.0/i);
+        });
     });
 
     it('Literais com primitivas', async () => {

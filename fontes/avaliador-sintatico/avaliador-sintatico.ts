@@ -238,7 +238,10 @@ export class AvaliadorSintatico
         }
 
         const lexemaOriginal = this.simbolos[this.atual].lexema;
-        const lexemaElementar = lexemaOriginal.toLowerCase();
+        // `decimal` é sinônimo de `real` como nome de tipo; `real` é o nome
+        // preferido e é o único usado internamente a partir daqui.
+        const lexemaElementarBruto = lexemaOriginal.toLowerCase();
+        const lexemaElementar = lexemaElementarBruto === 'decimal' ? 'real' : lexemaElementarBruto;
         const tipoElementarResolvido = tipos.find((tipo) => tipo === lexemaElementar);
         if (!tipoElementarResolvido) {
             // Mantém o avaliador sintático sincronizado mesmo com tipos não reconhecidos
@@ -4276,7 +4279,9 @@ export class AvaliadorSintatico
         );
         this.consumir(tiposDeSimbolos.DOIS_PONTOS, 'Esperado dois-pontos após nome de propriedade.');
         const tipoPropriedade = this.avancarEDevolverAnterior();
-        let nomeTipoPropriedade = tipoPropriedade.lexema;
+        // `decimal` é sinônimo de `real` como nome de tipo; `real` é o nome preferido.
+        let nomeTipoPropriedade =
+            tipoPropriedade.lexema.toLowerCase() === 'decimal' ? 'real' : tipoPropriedade.lexema;
         if (this.verificarTipoSimboloAtual(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
             this.avancarEDevolverAnterior();
             this.consumir(tiposDeSimbolos.COLCHETE_DIREITO, "Esperado ']' após '[' na definição do tipo de propriedade.");
