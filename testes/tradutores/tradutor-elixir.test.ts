@@ -209,6 +209,33 @@ describe('Tradutor Delégua -> Elixir', () => {
         });
     });
 
+    describe('Concatenação de textos com operador + (resolve #1409)', () => {
+        it('Concatenação de dois literais de texto usa <>', async () => {
+            const codigo = ['escreva("Olá" + " mundo")'];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('<>');
+            expect(resultado).not.toMatch(/"Olá" \+ " mundo"/);
+        });
+
+        it('Concatenação de acesso a índice de vetor com literal de texto usa <> (caso do issue)', async () => {
+            const codigo = [
+                'var arr = ["Texto", 67]',
+                'arr.adicionar("Outro texto")',
+                'escreva(arr[0] + " " + arr[2])'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('<>');
+            expect(resultado).toContain('to_string(');
+            expect(resultado).not.toMatch(/Enum\.at\(arr, 0\) \+ " "/);
+        });
+    });
+
     describe('Coleções', () => {
         it('Vetor/Lista vazia', async () => {
             const codigo = ['[]'];

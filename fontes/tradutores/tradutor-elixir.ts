@@ -975,6 +975,14 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
     async visitarExpressaoBinaria(expressao: Binario): Promise<string> {
         const esquerda = await expressao.esquerda.aceitar(this);
         const direita = await expressao.direita.aceitar(this);
+
+        // Em Elixir, `+` é exclusivo de números. Concatenação de textos usa `<>`,
+        // que exige binários dos dois lados, então convertemos ambos os lados
+        // com `to_string/1` para lidar com operandos de tipo dinâmico (ex.: acesso a lista).
+        if (expressao.operador.tipo === tiposDeSimbolos.ADICAO && expressao.tipo === 'texto') {
+            return Promise.resolve(`to_string(${esquerda}) <> to_string(${direita})`);
+        }
+
         const operador = this.traduzirOperador(expressao.operador);
 
         return Promise.resolve(`${esquerda} ${operador} ${direita}`);
