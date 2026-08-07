@@ -92,6 +92,13 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
     nomeModuloGlobal: string;
     /** Indica se a tradução em curso está dentro do módulo implícito de funções globais. */
     dentroDeModuloGlobal: boolean;
+    /**
+     * Métodos de vetor que mutam o vetor original em Delégua (via `push`, `sort`, etc.).
+     * Em Elixir os dados são imutáveis, então quando uma chamada a um desses métodos
+     * aparece como declaração isolada (valor de retorno descartado), é preciso
+     * reatribuir o resultado de volta à variável original (resolve #1410).
+     */
+    protected metodosVetorMutantes: Set<string>;
 
     constructor() {
         this.indentacaoAtual = 0;
@@ -104,6 +111,13 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
         this.contadorVariavelTemporaria = 0;
         this.nomeModuloGlobal = 'Main';
         this.dentroDeModuloGlobal = false;
+        this.metodosVetorMutantes = new Set([
+            'adicionar',
+            'empilhar',
+            'remover',
+            'inverter',
+            'ordenar',
+        ]);
     }
 
     /**
@@ -532,6 +546,34 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
     }
 
     async visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<string> {
+        const expressaoInterna = declaracao.expressao;
+
+        // Chamada isolada a um método que muta vetor (ex: `arr.adicionar(x)`) precisa
+        // virar reatribuição em Elixir, já que não há mutação de dado (resolve #1410).
+        if (expressaoInterna instanceof Chamada) {
+            const entidadeChamada = expressaoInterna.entidadeChamada;
+            let nomeMetodo: string | null = null;
+            let objetoConstruto: any = null;
+
+            if (entidadeChamada instanceof AcessoMetodo) {
+                nomeMetodo = entidadeChamada.nomeMetodo;
+                objetoConstruto = entidadeChamada.objeto;
+            } else if (entidadeChamada instanceof AcessoMetodoOuPropriedade) {
+                nomeMetodo = entidadeChamada.simbolo.lexema;
+                objetoConstruto = entidadeChamada.objeto;
+            }
+
+            if (
+                nomeMetodo &&
+                this.metodosVetorMutantes.has(nomeMetodo) &&
+                objetoConstruto instanceof Variavel
+            ) {
+                const objeto = await objetoConstruto.aceitar(this);
+                const traducaoChamada = await expressaoInterna.aceitar(this);
+                return Promise.resolve(`${this.adicionarIndentacao()}${objeto} = ${traducaoChamada}`);
+            }
+        }
+
         const resultado = this.adicionarIndentacao() + (await declaracao.expressao.aceitar(this));
         return Promise.resolve(resultado);
     }

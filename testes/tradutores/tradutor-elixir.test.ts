@@ -236,6 +236,44 @@ describe('Tradutor Delégua -> Elixir', () => {
         });
     });
 
+    describe('Chamada isolada a método que muta vetor reatribui a variável (resolve #1410)', () => {
+        it('arr.adicionar(valor) como declaração isolada gera reatribuição', async () => {
+            const codigo = [
+                'var arr = ["Texto", 67]',
+                'arr.adicionar("Outro texto")'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('arr = ["Outro texto" | arr]');
+        });
+
+        it('arr.empilhar(valor) como declaração isolada gera reatribuição', async () => {
+            const codigo = [
+                'var pilha = []',
+                'pilha.empilhar(1)'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('pilha = [1 | pilha]');
+        });
+
+        it('arr.adicionar(valor) usado dentro de outra expressão não é reatribuído', async () => {
+            const codigo = [
+                'var arr = [1, 2]',
+                'escreva(arr.adicionar(3))'
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = await tradutor.traduzir(retornoSintatico.declaracoes);
+
+            expect(resultado).toContain('IO.puts([3 | arr])');
+        });
+    });
+
     describe('Coleções', () => {
         it('Vetor/Lista vazia', async () => {
             const codigo = ['[]'];
