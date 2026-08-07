@@ -234,7 +234,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         return JSON.stringify(objeto).replace(/,\s+/g, ',').replace(/:\s+/g, ':');
     }
 
-    override paraTexto(objeto: any): string {
+    override paraTexto(objeto: any, visitados: Set<any> = new Set()): string {
         if (objeto === null || objeto === undefined) return tipoDeDadosDelegua.NULO;
         if (typeof objeto === tipoDeDadosPrimitivos.BOOLEANO) {
             return objeto ? 'verdadeiro' : 'falso';
@@ -275,6 +275,15 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         }
 
         if (Array.isArray(objeto)) {
+            // Guarda de recursão: um vetor que se contém (direta ou indiretamente)
+            // levaria a uma recursão infinita. Ao encontrar um vetor já presente
+            // na pilha de ancestrais sendo processados, imprime um marcador de
+            // referência circular em vez de descer novamente nele.
+            if (visitados.has(objeto)) {
+                return '[...]';
+            }
+            visitados.add(objeto);
+
             let retornoVetor: string = '[';
             for (let elemento of objeto) {
                 // Resolve referências ao montão antes de processar
@@ -290,7 +299,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 // Se o elemento é um array (incluindo arrays resolvidos de referências),
                 // chama paraTexto recursivamente para processá-lo corretamente
                 if (Array.isArray(elemento)) {
-                    retornoVetor += this.paraTexto(elemento) + ', ';
+                    retornoVetor += this.paraTexto(elemento, visitados) + ', ';
                     continue;
                 }
 
@@ -301,13 +310,15 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 retornoVetor +=
                     typeof elemento === 'string'
                         ? `'${elemento}', `
-                        : `${this.paraTexto(elemento)}, `;
+                        : `${this.paraTexto(elemento, visitados)}, `;
             }
 
             if (retornoVetor.length > 1) {
                 retornoVetor = retornoVetor.slice(0, -2);
             }
             retornoVetor += ']';
+
+            visitados.delete(objeto);
 
             return retornoVetor;
         }

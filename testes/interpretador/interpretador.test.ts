@@ -6943,6 +6943,20 @@ describe('Interpretador', () => {
                     expect(_saidas[0]).toBe('3');
                     expect(_saidas[1]).toBe('[1, 2]');
                 });
+
+                it('adicionar() vetor a si mesmo não deve causar recursão infinita ao imprimir (issue #1411)', async () => {
+                    const codigo = [
+                        'var x = []',
+                        'escreva(x.adicionar(x))',
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('[[...]]');
+                });
             });
 
             describe('Funções globais', () => {
