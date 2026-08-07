@@ -1,4 +1,3 @@
-export * from './tradutor-assembly-arm';
 export * from './tradutor-assembly-risc-v';
 export * from './tradutor-webassembly';
 export * from './tradutor-assemblyscript';
