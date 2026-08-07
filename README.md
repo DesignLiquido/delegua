@@ -142,6 +142,7 @@ Os tradutores de arquitetura de processador não vivem neste núcleo: têm imple
 
 - [`delegua-x64`](https://github.com/DesignLiquido/delegua-llvm-completo/tree/main/pacotes/delegua-x64): NASM, YASM e FASM. Pode funcionar com MASM e GAS, mas requer algumas modificações pontuais na sintaxe de macros.
 - [`delegua-arm`](https://github.com/DesignLiquido/delegua-llvm-completo/tree/main/pacotes/delegua-arm): Linux e Android.
+- [`delegua-risc-v`](https://github.com/DesignLiquido/delegua-llvm-completo/tree/main/pacotes/delegua-risc-v): Linux, 32 e 64 bits.
 
 Já outros compiladores demandam uma infraestrutura de código mais robusta e são projetos separados, que ou usam este núcleo diretamente, ou usam a sintaxe implementada no núcleo de forma independente. 
 São eles:
