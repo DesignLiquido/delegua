@@ -1,4 +1,3 @@
-export * from './tradutor-webassembly';
 export * from './tradutor-assemblyscript';
 export * from './tradutor-reverso-calango';
 export * from './tradutor-elixir';
