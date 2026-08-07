@@ -1,7 +1,6 @@
 export * from './tradutor-assembly-arm';
 export * from './tradutor-assembly-risc-v';
 export * from './tradutor-webassembly';
-export * from './tradutor-assembly-x64';
 export * from './tradutor-assemblyscript';
 export * from './tradutor-reverso-calango';
 export * from './tradutor-elixir';

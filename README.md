@@ -136,10 +136,13 @@ Para usar dentro de uma página de internet, entre _tags_ `<script>`, veja o pro
 
 Delégua possui alguns compiladores implementados. Compiladores passam código Delégua para binário, gerando executáveis, cuja execução ocorre com a máxima performance possível. 
 
-Para este núcleo, alguns compiladores são tradutores de Delégua para certos _assemblies_ (ou representações intermediárias), e que precisam de [`delegua-node`](https://github.com/DesignLiquido/delegua) ou alguma outra interface para funcionarem, como por exemplo, nossa [extensão para VSCode e derivados](https://github.com/DesignLiquido/vscode). Os detalhes da utilização podem ser vistos nos respectivos projetos. Aqui são implementados tradutores para as seguintes arquiteturas de processador:
+Para este núcleo, alguns compiladores são tradutores de Delégua para certos _assemblies_ (ou representações intermediárias), e que precisam de [`delegua-node`](https://github.com/DesignLiquido/delegua) ou alguma outra interface para funcionarem, como por exemplo, nossa [extensão para VSCode e derivados](https://github.com/DesignLiquido/vscode). Os detalhes da utilização podem ser vistos nos respectivos projetos. Aqui são implementados tradutores para a seguinte arquitetura de processador:
 
-- x64: NASM, YASM e FASM. Pode funcionar com MASM e GAS, mas requer algumas modificações pontuais na sintaxe de macros;
 - ARM: Linux e Android.
+
+Nem todo tradutor de arquitetura vive neste núcleo. Alguns têm implementação própria, autocontida, em pacotes separados dentro de [`delegua-llvm-completo`](https://github.com/DesignLiquido/delegua-llvm-completo/tree/main/pacotes), que dependem deste núcleo apenas para léxico/sintaxe (`Lexador`, `AvaliadorSintatico`) e para os tipos da AST:
+
+- [`delegua-x64`](https://github.com/DesignLiquido/delegua-llvm-completo/tree/main/pacotes/delegua-x64): NASM, YASM e FASM. Pode funcionar com MASM e GAS, mas requer algumas modificações pontuais na sintaxe de macros.
 
 Já outros compiladores demandam uma infraestrutura de código mais robusta e são projetos separados, que ou usam este núcleo diretamente, ou usam a sintaxe implementada no núcleo de forma independente. 
 São eles:
