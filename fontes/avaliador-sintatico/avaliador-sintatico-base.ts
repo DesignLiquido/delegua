@@ -117,6 +117,25 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     }
 
     /**
+     * Avança o cursor por quaisquer símbolos de comentário (de linha ou
+     * multilinha) consecutivos, descartando-os. Usado em construtos onde
+     * comentários podem aparecer entre elementos, mas não fazem sentido
+     * como parte da árvore sintática resultante (ex.: dicionários).
+     */
+    protected pularComentarios(): void {
+        // Os tipos de símbolo de comentário não fazem parte do conjunto reduzido
+        // de `tiposDeSimbolos` importado nesta classe base, por isso são usados
+        // aqui como literais de texto (seus valores são idênticos às chaves do
+        // conjunto completo, definido em `tipos-de-simbolos/delegua.ts`).
+        while (
+            this.simbolos[this.atual].tipo === 'COMENTARIO' ||
+            this.simbolos[this.atual].tipo === 'LINHA_COMENTARIO'
+        ) {
+            this.avancarEDevolverAnterior();
+        }
+    }
+
+    /**
      * Os métodos a seguir devem ser implementados nos seus respectivos
      * dialetos por diferentes razões: seja porque o dialeto correspondente
      * tem uma abordagem diferente sobre entrada e saída, seja porque a

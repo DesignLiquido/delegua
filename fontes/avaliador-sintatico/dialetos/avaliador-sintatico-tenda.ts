@@ -253,6 +253,8 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         const chaves = [];
         const valores = [];
 
+        this.pularComentarios();
+
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA)) {
             return new Dicionario(this.hashArquivo, Number(simboloChaveEsquerda.linha), [], []);
         }
@@ -260,10 +262,13 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
         while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA)) {
             const chave = await this.obterChaveDicionario();
             this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' entre chave e valor.");
+            this.pularComentarios();
             const valor = await this.atribuir();
 
             chaves.push(chave);
             valores.push(valor);
+
+            this.pularComentarios();
 
             if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.CHAVE_DIREITA) {
                 this.consumir(
@@ -271,6 +276,8 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
                     'Esperado vírgula antes da próxima expressão.'
                 );
             }
+
+            this.pularComentarios();
         }
 
         return new Dicionario(

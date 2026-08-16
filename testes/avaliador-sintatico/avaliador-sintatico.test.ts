@@ -132,6 +132,40 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
+
+                it('Comentário de linha antes da primeira chave de um dicionário', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var objeto = {',
+                            '    // comentario',
+                            "    'chave': 'valor'",
+                            '}',
+                            'escreva(objeto)',
+                        ], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                });
+
+                it('Comentários entre pares de um dicionário', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var objeto = {',
+                            "    'chave1': 'valor1', // Comentário após a primeira chave",
+                            '    // Comentário antes da segunda chave',
+                            "    'chave2': 'valor2'",
+                            '    // Comentário antes da chave direita',
+                            '}',
+                            'escreva(objeto)',
+                        ], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                });
             });
 
             describe('Desestruturações', () => {
