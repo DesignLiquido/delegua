@@ -1965,6 +1965,16 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         objeto = this.resolverValor(objeto);
         indice = this.resolverValor(indice);
 
+        if (objeto && typeof objeto === 'object' && Object.isFrozen(objeto)) {
+            return Promise.reject(
+                new ErroEmTempoDeExecucao(
+                    (expressao.objeto as any).simbolo,
+                    'Não é possível mutar um valor fixo.',
+                    expressao.linha
+                )
+            );
+        }
+
         // Se o valor é uma referência ao montão, e o índice que a recebe é
         // de uma variável/constante que vive num escopo superior, a referência
         // precisa ser transferida para o escopo correspondente.

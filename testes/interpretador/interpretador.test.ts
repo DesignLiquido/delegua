@@ -5415,6 +5415,125 @@ describe('Interpretador', () => {
                     );
                 });
 
+                it('Parâmetro `constante` - reatribuição direta gera erro', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao foo(constante x: inteiro): inteiro {',
+                            'x = 10',
+                            'retorna x',
+                            '}',
+                            'escreva(foo(5))',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(1);
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe(
+                        "Constante 'x' não pode receber novos valores."
+                    );
+                });
+
+                it('Parâmetro `constante` - leitura normal não gera erro', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao foo(constante x: inteiro): inteiro {',
+                            'retorna x + 1',
+                            '}',
+                            'escreva(foo(5))',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toEqual(['6']);
+                });
+
+                it('Parâmetro `fixo` - mutação direta por índice gera erro', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao foo(fixo arr): inteiro {',
+                            'arr[0] = 42',
+                            'retorna arr[0]',
+                            '}',
+                            'escreva(foo([1, 2, 3]))',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(1);
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe(
+                        'Não é possível mutar um valor fixo.'
+                    );
+                });
+
+                it('Parâmetro `fixo` - mutação via alias (var x = arr; x[0] = ...) gera erro', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao foo(fixo arr): inteiro {',
+                            'var x = arr',
+                            'x[0] = 42',
+                            'retorna x[0]',
+                            '}',
+                            'escreva(foo([1, 2, 3]))',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(1);
+                    expect(retornoInterpretador.erros[0].erroInterno.mensagem).toBe(
+                        'Não é possível mutar um valor fixo.'
+                    );
+                });
+
+                it('Parâmetro `fixo` - leitura normal não gera erro', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao foo(fixo arr): inteiro {',
+                            'retorna arr[0]',
+                            '}',
+                            'escreva(foo([1, 2, 3]))',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toEqual(['1']);
+                });
+
+                it('Parâmetro sem modificador - reatribuição continua permitida', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao foo(x: inteiro): inteiro {',
+                            'x = 10',
+                            'retorna x',
+                            '}',
+                            'escreva(foo(5))',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toEqual(['10']);
+                });
+
                 it('Tupla Dupla - Atribuição por indice', async () => {
                     const retornoLexador = lexador.mapear(
                         [

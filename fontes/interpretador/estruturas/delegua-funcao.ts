@@ -9,6 +9,8 @@ import { ComentarioComoConstruto, FuncaoConstruto } from '../../construtos';
 import { ArgumentoInterface } from '../argumento-interface';
 import { PilhaEscoposExecucaoInterface } from '../../interfaces/pilha-escopos-execucao-interface';
 import { Retorna } from '../../declaracoes';
+import { inferirTipoVariavel } from '../../inferenciador';
+import { ReferenciaMontao } from './referencia-montao';
 
 /**
  * Qualquer função declarada em código é uma DeleguaFuncao.
@@ -143,7 +145,26 @@ export class DeleguaFuncao extends Chamavel {
                     valorFinal = null;
                 }
 
-                ambiente.valores[nome] = valorFinal;
+                if (parametro.fixo) {
+                    // Vetores e dicionários vivem no montão; `valorFinal` é apenas
+                    // o ponteiro (`ReferenciaMontao`). É preciso congelar o valor
+                    // real armazenado no montão, não o ponteiro em si.
+                    if (valorFinal instanceof ReferenciaMontao) {
+                        congelarProfundamente(visitante.resolverValor(valorFinal));
+                    } else {
+                        valorFinal = congelarProfundamente(valorFinal);
+                    }
+                }
+
+                if (parametro.imutavel || parametro.fixo) {
+                    ambiente.valores[nome] = {
+                        valor: valorFinal,
+                        tipo: inferirTipoVariavel(valorFinal),
+                        imutavel: true,
+                    };
+                } else {
+                    ambiente.valores[nome] = valorFinal;
+                }
 
                 // Se o argumento é `DeleguaFuncao`, para habilitar o recurso de _currying_,
                 // copiamos seu valor para o escopo atual. Nem sempre podemos contar com a tipagem explícita aqui.
@@ -249,6 +270,36 @@ export class DeleguaFuncao extends Chamavel {
         funcao.documentacao = this.documentacao;
         return funcao;
     }
+}
+
+/**
+ * Congela recursivamente vetores e objetos (dicionários), usados para
+ * implementar parâmetros `fixo`: qualquer tentativa de mutação do valor,
+ * mesmo através de um alias, deve resultar em erro em tempo de execução.
+ * Não congela instâncias de classe, funções ou outras estruturas de Delégua,
+ * pois isso quebraria comportamento esperado (ex.: métodos, `isto`).
+ */
+function congelarProfundamente<T>(valor: T): T {
+    if (valor === null || typeof valor !== 'object') {
+        return valor;
+    }
+
+    if (!Array.isArray(valor) && valor.constructor !== Object) {
+        return valor;
+    }
+
+    if (Object.isFrozen(valor)) {
+        return valor;
+    }
+
+    Object.freeze(valor);
+
+    const valores: any[] = Array.isArray(valor) ? (valor as any) : Object.values(valor as any);
+    for (const item of valores) {
+        congelarProfundamente(item);
+    }
+
+    return valor;
 }
 
 /**

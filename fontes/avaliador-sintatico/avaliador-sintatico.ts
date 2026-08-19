@@ -3905,6 +3905,15 @@ export class AvaliadorSintatico
         do {
             const parametro: Partial<ParametroInterface> = {};
 
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONSTANTE)) {
+                const modificador = this.simbolos[this.atual - 1];
+                if (modificador.lexema === 'fixo') {
+                    parametro.fixo = true;
+                } else {
+                    parametro.imutavel = true;
+                }
+            }
+
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.RETICENCIAS)) {
                 parametro.abrangencia = 'multiplo';
             } else {
