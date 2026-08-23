@@ -9010,6 +9010,42 @@ describe('Interpretador', () => {
                 expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('falso');
             });
+
+            it('Não de zero retorna verdadeiro (resolve #1421)', async () => {
+                const codigo = ['escreva(!0)'];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('verdadeiro');
+            });
+
+            it('Não de número diferente de zero retorna falso (resolve #1421)', async () => {
+                const codigo = ['escreva(!5)'];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('falso');
+            });
+
+            it('Não de operação bit a bit E com resultado zero retorna verdadeiro (resolve #1421)', async () => {
+                const codigo = [
+                    'const LIGADO = 0b00001000',
+                    'const DESLIGADO = 0b00000000',
+                    'var valor = 0',
+                    'valor = valor | LIGADO',
+                    'escreva(!(valor & DESLIGADO))',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('verdadeiro');
+            });
         });
 
         describe('Mesclagem de dicionários', () => {

@@ -699,8 +699,11 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     eVerdadeiro(objeto: any): boolean {
-        if (objeto === null) return false;
+        if (objeto === null || objeto === undefined) return false;
         if (typeof objeto === tipoDeDadosPrimitivos.BOOLEANO) return Boolean(objeto);
+        if (typeof objeto === tipoDeDadosPrimitivos.NUMERO || typeof objeto === 'bigint') {
+            return Boolean(objeto);
+        }
         if (objeto.hasOwnProperty('valor')) {
             return Boolean(objeto.valor);
         }
