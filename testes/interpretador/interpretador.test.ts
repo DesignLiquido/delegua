@@ -9046,6 +9046,31 @@ describe('Interpretador', () => {
                 expect(_saidas).toHaveLength(1);
                 expect(_saidas[0]).toBe('verdadeiro');
             });
+
+            it('Não de operação bit a bit E dentro de função retornado por se-então (resolve #1422)', async () => {
+                const codigo = [
+                    'funcao modulo_dois(n) {',
+                    '    retorne !(n & 1)',
+                    '}',
+                    '',
+                    'funcao passo_collatz(n) {',
+                    '    se modulo_dois(n) {',
+                    '        retorne n / 2',
+                    '    }',
+                    '    retorne (3 * n) + 1',
+                    '}',
+                    '',
+                    'escreva(passo_collatz(4))',
+                    'escreva(passo_collatz(5))',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('2');
+                expect(_saidas[1]).toBe('16');
+            });
         });
 
         describe('Mesclagem de dicionários', () => {
