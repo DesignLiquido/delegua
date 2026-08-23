@@ -1770,6 +1770,19 @@ describe('Avaliador sintático', () => {
                 );
             });
 
+            it('Declaração de constante com número literal no lugar do tipo (fixo pi: 14) não deve lançar exceção de lexema', async () => {
+                const retornoLexador = lexador.mapear(['fixo pi: 14'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                const erro = retornoAvaliadorSintatico.erros[0];
+                expect(erro.hashArquivo).toBeDefined();
+                expect(erro.linha).toBeDefined();
+                expect(erro.message).toBe(
+                    "Esperado '=' ou '<-' após identificador em instrução 'constante'."
+                );
+            });
+
             describe('Dicionários', () => {
                 it('Tipo de chave de dicionário inválida', async () => {
                     const retornoLexador = lexador.mapear(
@@ -1824,6 +1837,42 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
                     const erro = retornoAvaliadorSintatico.erros[0];
                     expect(erro.message).toBe("Função retorna valores com mais de um tipo. Tipo esperado: número. Tipos encontrados: texto, número.");
+                });
+
+                it('Função sem tipo de retorno explícito que retorna expressão com parâmetros sem tipo é inferida como qualquer, não vazio', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao multiplicacao(x, y) {',
+                            '    retorne x * y',
+                            '}',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros.length).toBe(0);
+                    const [funcaoMultiplicacao] = retornoAvaliadorSintatico.declaracoes as any[];
+                    expect(funcaoMultiplicacao.tipo).toBe('função<qualquer>');
+                });
+
+                it('Função sem tipo de retorno explícito que retorna chamada de outra função de tipo qualquer é inferida como qualquer, não vazio', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao multiplicacao(x, y) {',
+                            '    retorne x * y',
+                            '}',
+                            '',
+                            'funcao quadrado(x) {',
+                            '    retorne multiplicacao(x, x)',
+                            '}',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros.length).toBe(0);
+                    const [, funcaoQuadrado] = retornoAvaliadorSintatico.declaracoes as any[];
+                    expect(funcaoQuadrado.tipo).toBe('função<qualquer>');
                 });
             });
 

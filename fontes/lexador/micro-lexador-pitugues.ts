@@ -71,8 +71,9 @@ export class MicroLexadorPitugues {
 
     adicionarSimbolo(tipo: string, literal: any = null): void {
         const texto: string = this.codigo.substring(this.inicioSimbolo, this.atual);
-        const lexema = literal || texto;
-        const comprimentoLexema = typeof lexema === 'string' ? lexema.length : 0;
+        // `lexema` deve sempre ser texto. Ver comentário equivalente em `LexadorBase.adicionarSimbolo`.
+        const lexema = (typeof literal === 'string' && literal.length > 0) ? literal : texto;
+        const comprimentoLexema = lexema.length;
         const comprimento = Math.max(comprimentoLexema, texto.length) || 1;
         const colunaInicio = this.inicioSimbolo + 1;
         const colunaFim = this.inicioSimbolo + comprimento;

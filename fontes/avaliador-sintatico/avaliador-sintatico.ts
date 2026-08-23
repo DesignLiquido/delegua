@@ -4020,7 +4020,12 @@ export class AvaliadorSintatico
         const tiposRetornos = new Set(
             expressoesRetorna.filter((e) => e.tipo !== 'qualquer').map((e) => e.tipo)
         );
-        let retornaChamadoExplicitamente = tiposRetornos.size > 0;
+        // Não usar `tiposRetornos.size > 0` aqui: esse conjunto já descarta
+        // retornos de tipo 'qualquer' (ex.: `retorna x * y` com parâmetros sem
+        // tipo). Um `retorna` com valor de tipo indeterminado ainda conta como
+        // retorno explícito, senão a função seria incorretamente inferida como
+        // 'vazio' em vez de 'qualquer'.
+        let retornaChamadoExplicitamente = expressoesRetorna.some((e) => e.valor !== undefined);
         if (tiposRetornos.size > 1 && tipoRetorno !== 'qualquer') {
             let tiposEncontrados = Array.from(tiposRetornos).reduce(
                 (acumulador, valor) => (acumulador += valor + ', '),

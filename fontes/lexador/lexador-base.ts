@@ -142,8 +142,15 @@ export abstract class LexadorBase implements LexadorInterface<SimboloInterface> 
 
     adicionarSimbolo(tipo: any, literal?: any, ehNumeroReal?: boolean): void {
         const texto: string = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
-        const lexema = literal || texto;
-        const comprimentoLexema = typeof lexema === 'string' ? lexema.length : 0;
+        // `lexema` deve sempre ser texto (o token como aparece no código-fonte).
+        // Para símbolos de um só avanço (operadores compostos, por exemplo), `literal`
+        // é passado como string e usado como `lexema` porque `texto` ainda está vazio
+        // nesse ponto. Mas `literal` também pode ser um valor já convertido (número,
+        // BigInt) para tokens como NUMERO — nesse caso `texto` é que deve virar o lexema,
+        // nunca o valor bruto (ver `verificarDefinicaoTipoAtual`, que chama `.toLowerCase()`
+        // em `lexema` esperando sempre uma string).
+        const lexema = (typeof literal === 'string' && literal.length > 0) ? literal : texto;
+        const comprimentoLexema = lexema.length;
         const comprimento = Math.max(comprimentoLexema, texto.length) || 1;
         const colunaInicio = this.inicioSimbolo + 1;
         const colunaFim = this.inicioSimbolo + comprimento;

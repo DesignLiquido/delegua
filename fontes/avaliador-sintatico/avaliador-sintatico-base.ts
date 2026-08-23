@@ -53,6 +53,18 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         codigoDiagnostico?: string,
         simboloRelacionado?: SimboloInterface
     ): ErroAvaliadorSintatico {
+        // Chamadores costumam passar `this.simbolos[this.atual]` diretamente. Se o
+        // cursor já passou do último símbolo (ex.: código termina logo após um
+        // token sem ';' ou EOF explícito), esse acesso devolve `undefined`, e o
+        // construtor de `ErroAvaliadorSintatico` quebraria ao ler `simbolo.hashArquivo`.
+        // Mesma lógica de fallback já usada em `consumir()`.
+        if (!simbolo) {
+            simbolo =
+                this.simbolos.length === 0
+                    ? ({ hashArquivo: this.hashArquivo, linha: 1 } as SimboloInterface)
+                    : this.simbolos[this.simbolos.length - 1];
+        }
+
         const excecao = new ErroAvaliadorSintatico(
             simbolo,
             mensagemDeErro,

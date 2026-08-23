@@ -93,10 +93,9 @@ export class Lexador extends LexadorBase {
             this.inicioSimbolo,
             this.atual
         );
-        const lexema = literal !== null ? literal : texto;
-        const comprimento = Math.max(
-            typeof lexema === 'string' ? lexema.length : 0, texto.length
-        ) || 1;
+        // `lexema` deve sempre ser texto. Ver comentário equivalente em `LexadorBase.adicionarSimbolo`.
+        const lexema = (typeof literal === 'string' && literal.length > 0) ? literal : texto;
+        const comprimento = Math.max(lexema.length, texto.length) || 1;
 
         this.simbolos.push(
             new Simbolo(
