@@ -2322,6 +2322,24 @@ describe('Interpretador', () => {
                     expect(_saidas).toHaveLength(1);
                     expect(_saidas[0]).toBe('10');
                 });
+
+                it('Operadores bit a bit encadeados com variáveis inferidas (issue 1427)', async () => {
+                    const codigo = [
+                        'funcao teste(a, b, c) {',
+                        '    var cin = c[0]',
+                        '    var x = a ^ b',
+                        '    retorne x & cin',
+                        '}',
+                        'escreva(teste(10, 2, [0]))',
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas).toHaveLength(1);
+                    expect(_saidas[0]).toBe('0');
+                });
             });
 
             describe('Tente - Pegue - Finalmente', () => {

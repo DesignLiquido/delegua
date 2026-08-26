@@ -894,12 +894,18 @@ export class InterpretadorBase implements InterpretadorInterface {
         if (this.tiposNumericos.includes(tipoEsquerda) && tipoDireita === 'nulo') return;
         if (this.tiposNumericos.includes(tipoDireita) && tipoEsquerda === 'nulo') return;
 
-        // Se operador é subtração, os dois tipos são `qualquer`, mas ambos podem ser convertidos
-        // para número, a operação é válida.
-        if (operador.tipo === tiposDeSimbolos.SUBTRACAO) {
-            if (typeof esquerda.valor === 'number' && typeof direita.valor === 'number') {
-                return;
-            }
+        // A inferência estática de tipos (feita em tempo de análise sintática) é otimista e pode
+        // marcar variáveis como `qualquer` quando não consegue deduzir o tipo real (por exemplo,
+        // resultado de operação bit a bit ou acesso a índice de vetor com parâmetro sem tipo
+        // explícito). Se os dois operandos não bateram nas checagens de tipo acima, mas os
+        // valores em tempo de execução são efetivamente números, a operação é válida.
+        const valorEsquerda = esquerda && esquerda.hasOwnProperty('valor') ? esquerda.valor : esquerda;
+        const valorDireita = direita && direita.hasOwnProperty('valor') ? direita.valor : direita;
+        if (
+            (typeof valorEsquerda === 'number' || typeof valorEsquerda === 'bigint') &&
+            (typeof valorDireita === 'number' || typeof valorDireita === 'bigint')
+        ) {
+            return;
         }
 
         throw new ErroEmTempoDeExecucao(
