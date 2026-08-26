@@ -446,4 +446,110 @@ describe('Tipo longo', () => {
             expect(_saidas[0]).toBe('verdadeiro');
         });
     });
+
+    describe('Tipagem longo em parâmetros e retorno de função (issue #1429)', () => {
+        let lexador: Lexador;
+        let avaliadorSintatico: AvaliadorSintatico;
+        let interpretador: Interpretador;
+
+        let _saidas: string[] = [];
+        const funcaoSaida = (texto: string) => {
+            _saidas.push(texto);
+        };
+
+        beforeEach(() => {
+            _saidas = [];
+            lexador = new Lexador();
+            avaliadorSintatico = new AvaliadorSintatico();
+            interpretador = new Interpretador(process.cwd(), false, funcaoSaida, funcaoSaida);
+        });
+
+        it('parâmetro anotado como longo converte argumento number para BigInt', async () => {
+            const codigo = [
+                'funcao dobro(n: longo): longo {',
+                '    retorne n + n',
+                '}',
+                'escreva(dobro(9007199254740991))',
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saidas).toHaveLength(1);
+            // Sem a conversão, 9007199254740991 + 9007199254740991 em Number
+            // vira 18014398509481980 (perda de precisão). Com BigInt, correto.
+            expect(_saidas[0]).toBe('18014398509481982');
+        });
+
+        it('retorno anotado como longo converte valor de retorno number para BigInt', async () => {
+            const codigo = [
+                'funcao paraLongo(n): longo {',
+                '    retorne n',
+                '}',
+                'escreva(paraLongo(9007199254740991) + paraLongo(9007199254740991))',
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saidas).toHaveLength(1);
+            expect(_saidas[0]).toBe('18014398509481982');
+        });
+
+        it('variáveis locais sem anotação de tipo continuam Number mesmo com parâmetro/retorno longo', async () => {
+            // Documenta um limite conhecido: `n: longo` e `: longo` no retorno
+            // só convertem o parâmetro e o valor de retorno. Variáveis locais
+            // declaradas sem anotação (`var a = 0`) não herdam o tipo da
+            // função e continuam sofrendo perda de precisão.
+            const codigo = [
+                'funcao fibonacci(n: longo): longo {',
+                '    var a = 0',
+                '    var b = 1',
+                '    var i = 0',
+                '    enquanto i < n {',
+                '        var temp = a + b',
+                '        a = b',
+                '        b = temp',
+                '        i = i + 1',
+                '    }',
+                '    retorne a',
+                '}',
+                'escreva(fibonacci(80))',
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saidas).toHaveLength(1);
+            expect(_saidas[0]).toBe('23416728348467684'); // Esperado real: 23416728348467685
+        });
+
+        it('variáveis locais anotadas explicitamente como longo produzem resultado correto', async () => {
+            const codigo = [
+                'funcao fibonacci(n: longo): longo {',
+                '    var a: longo = 0',
+                '    var b: longo = 1',
+                '    var i: longo = 0',
+                '    enquanto i < n {',
+                '        var temp = a + b',
+                '        a = b',
+                '        b = temp',
+                '        i = i + 1',
+                '    }',
+                '    retorne a',
+                '}',
+                'escreva(fibonacci(80))',
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saidas).toHaveLength(1);
+            expect(_saidas[0]).toBe('23416728348467685');
+        });
+    });
 });

@@ -13,6 +13,24 @@ import { inferirTipoVariavel } from '../../inferenciador';
 import { ReferenciaMontao } from './referencia-montao';
 
 /**
+ * Converte um valor para `BigInt`, seguindo a mesma lógica usada por `longo()`
+ * e pela conversão de variáveis com tipo explícito `longo` (ver `converterValor`
+ * em `PilhaEscoposExecucao`). Não lança `ErroEmTempoDeExecucao` em caso de
+ * texto inválido, apenas deixa `BigInt` lançar seu próprio erro nativo.
+ * @param {any} valor O valor a ser convertido.
+ * @returns {bigint} O valor convertido para `BigInt`.
+ */
+function converterParaLongo(valor: any): bigint {
+    if (typeof valor === 'bigint') return valor;
+    if (typeof valor === 'number') return globalThis.BigInt(Math.floor(valor));
+
+    const strValue = String(valor).trim();
+    if (!strValue) return globalThis.BigInt(0);
+
+    return globalThis.BigInt(strValue.split('.')[0]);
+}
+
+/**
  * Qualquer função declarada em código é uma DeleguaFuncao.
  */
 export class DeleguaFuncao extends Chamavel {
@@ -145,6 +163,13 @@ export class DeleguaFuncao extends Chamavel {
                     valorFinal = null;
                 }
 
+                // Parâmetro anotado como `longo` deve receber o argumento como
+                // `BigInt`, senão a anotação de tipo é apenas decorativa e a
+                // aritmética dentro da função perde precisão (issue #1429).
+                if (parametro.tipoDado === 'longo' && valorFinal !== null) {
+                    valorFinal = converterParaLongo(valorFinal);
+                }
+
                 if (parametro.fixo) {
                     // Vetores e dicionários vivem no montão; `valorFinal` é apenas
                     // o ponteiro (`ReferenciaMontao`). É preciso congelar o valor
@@ -243,6 +268,11 @@ export class DeleguaFuncao extends Chamavel {
         }
 
         if (retornoBloco instanceof RetornoQuebra) {
+            // Tipo de retorno `longo` também deve coagir o valor devolvido,
+            // pelo mesmo motivo do parâmetro (issue #1429).
+            if (this.declaracao.tipo === 'longo' && retornoBloco.valor !== null) {
+                return converterParaLongo(retornoBloco.valor);
+            }
             return retornoBloco.valor;
         }
 
