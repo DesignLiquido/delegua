@@ -96,6 +96,7 @@ import { MicroAvaliadorSintaticoBase } from '../avaliador-sintatico/micro-avalia
 
 import { EspacoMemoria } from './espaco-memoria';
 import { ErroEmTempoDeExecucao } from '../excecoes';
+import { encadear } from './encadear';
 import {
     ConstrutoInterface,
     InterpretadorInterface,
@@ -541,7 +542,7 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @param expressao A expressão, que pode ser um construto ou declaração.
      * @returns O retorno da execução do método de visita chamado.
      */
-    async avaliar(expressao: ConstrutoInterface | Declaracao): Promise<any> {
+    avaliar(expressao: ConstrutoInterface | Declaracao): any {
         // Descomente o código abaixo quando precisar detectar expressões undefined ou nulas.
         // Por algum motivo o depurador do VSCode não funciona direito aqui
         // com breakpoint condicional.
@@ -553,7 +554,7 @@ export class InterpretadorBase implements InterpretadorInterface {
             this.registrarExpressao?.((expressao as any).hashArquivo, (expressao as any).linha);
         }
 
-        return await expressao.aceitar(this);
+        return expressao.aceitar(this);
     }
 
     /**
@@ -670,11 +671,13 @@ export class InterpretadorBase implements InterpretadorInterface {
         );
     }
 
-    async visitarExpressaoLiteral(expressao: Literal): Promise<any> {
+    visitarExpressaoLiteral(expressao: Literal): any {
         if (this.regexInterpolacao.test(String(expressao.valor))) {
             const valorComoTexto = String(expressao.valor);
-            const interpolacoes = await this.resolverInterpolacoes(valorComoTexto, expressao.linha);
-            return this.retirarInterpolacao(valorComoTexto, interpolacoes);
+            return encadear(
+                this.resolverInterpolacoes(valorComoTexto, expressao.linha),
+                (interpolacoes) => this.retirarInterpolacao(valorComoTexto, interpolacoes)
+            );
         }
 
         return expressao.valor;
@@ -688,14 +691,14 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @returns O resultado da avaliação.
      * @see this.visitarExpressaoDeChamada
      */
-    async visitarExpressaoAgrupamento(expressao: Agrupamento): Promise<any> {
-        const avaliacaoAgrupamento = await this.avaliar(expressao.expressao);
+    visitarExpressaoAgrupamento(expressao: Agrupamento): any {
+        return encadear(this.avaliar(expressao.expressao), (avaliacaoAgrupamento) => {
+            if (avaliacaoAgrupamento !== null && avaliacaoAgrupamento.declaracao) {
+                return avaliacaoAgrupamento.declaracao;
+            }
 
-        if (avaliacaoAgrupamento !== null && avaliacaoAgrupamento.declaracao) {
-            return avaliacaoAgrupamento.declaracao;
-        }
-
-        return avaliacaoAgrupamento;
+            return avaliacaoAgrupamento;
+        });
     }
 
     eVerdadeiro(objeto: any): boolean {
@@ -724,85 +727,86 @@ export class InterpretadorBase implements InterpretadorInterface {
         );
     }
 
-    async visitarExpressaoUnaria(expressao: Unario): Promise<any> {
-        const operando = await this.avaliar(expressao.operando);
-        let valor: any = this.resolverValor(operando);
+    visitarExpressaoUnaria(expressao: Unario): any {
+        return encadear(this.avaliar(expressao.operando), (operando) => {
+            let valor: any = this.resolverValor(operando);
 
-        switch (expressao.operador.tipo) {
-            case tiposDeSimbolos.ADICAO:
-                this.verificarOperandoNumero(expressao.operador, valor);
-                return +valor;
-            case tiposDeSimbolos.SUBTRACAO:
-                this.verificarOperandoNumero(expressao.operador, valor);
-                return -valor;
-            case tiposDeSimbolos.NEGACAO:
-            case tiposDeSimbolos.NAO:
-                return !this.eVerdadeiro(valor);
-            case tiposDeSimbolos.BIT_NOT:
-                if (typeof valor === 'bigint') {
-                    return ~valor;
-                }
-                this.verificarOperandoNumero(expressao.operador, valor);
-                return ~Number(valor);
-            // Para incrementar e decrementar, primeiro precisamos saber se o operador
-            // veio antes do literal ou variável.
-            // Se veio antes e o operando é uma variável, precisamos incrementar/decrementar,
-            // armazenar o valor da variável pra só então devolver o valor.
-            case tiposDeSimbolos.INCREMENTAR:
-                if (typeof valor === 'string') {
-                    throw new ErroEmTempoDeExecucao(
-                        expressao.operador,
-                        `Operador '${expressao.operador.lexema}' não pode ser aplicado a um texto.`,
-                        expressao.linha
-                    );
-                }
-
-                if (expressao.incidenciaOperador === 'ANTES') {
-                    valor++;
-                    if (expressao.operando instanceof Variavel) {
-                        this.pilhaEscoposExecucao.atribuirVariavel(
-                            expressao.operando.simbolo,
-                            valor
+            switch (expressao.operador.tipo) {
+                case tiposDeSimbolos.ADICAO:
+                    this.verificarOperandoNumero(expressao.operador, valor);
+                    return +valor;
+                case tiposDeSimbolos.SUBTRACAO:
+                    this.verificarOperandoNumero(expressao.operador, valor);
+                    return -valor;
+                case tiposDeSimbolos.NEGACAO:
+                case tiposDeSimbolos.NAO:
+                    return !this.eVerdadeiro(valor);
+                case tiposDeSimbolos.BIT_NOT:
+                    if (typeof valor === 'bigint') {
+                        return ~valor;
+                    }
+                    this.verificarOperandoNumero(expressao.operador, valor);
+                    return ~Number(valor);
+                // Para incrementar e decrementar, primeiro precisamos saber se o operador
+                // veio antes do literal ou variável.
+                // Se veio antes e o operando é uma variável, precisamos incrementar/decrementar,
+                // armazenar o valor da variável pra só então devolver o valor.
+                case tiposDeSimbolos.INCREMENTAR:
+                    if (typeof valor === 'string') {
+                        throw new ErroEmTempoDeExecucao(
+                            expressao.operador,
+                            `Operador '${expressao.operador.lexema}' não pode ser aplicado a um texto.`,
+                            expressao.linha
                         );
                     }
 
-                    return valor;
-                }
+                    if (expressao.incidenciaOperador === 'ANTES') {
+                        valor++;
+                        if (expressao.operando instanceof Variavel) {
+                            this.pilhaEscoposExecucao.atribuirVariavel(
+                                expressao.operando.simbolo,
+                                valor
+                            );
+                        }
 
-                const valorAnteriorIncremento = valor;
-                if (expressao.operando instanceof Variavel) {
-                    this.pilhaEscoposExecucao.atribuirVariavel(expressao.operando.simbolo, ++valor);
-                }
-                return valorAnteriorIncremento;
-            case tiposDeSimbolos.DECREMENTAR:
-                if (typeof valor === 'string') {
-                    throw new ErroEmTempoDeExecucao(
-                        expressao.operador,
-                        `Operador '${expressao.operador.lexema}' não pode ser aplicado a um texto.`,
-                        expressao.linha
-                    );
-                }
+                        return valor;
+                    }
 
-                if (expressao.incidenciaOperador === 'ANTES') {
-                    valor--;
+                    const valorAnteriorIncremento = valor;
                     if (expressao.operando instanceof Variavel) {
-                        this.pilhaEscoposExecucao.atribuirVariavel(
-                            expressao.operando.simbolo,
-                            valor
+                        this.pilhaEscoposExecucao.atribuirVariavel(expressao.operando.simbolo, ++valor);
+                    }
+                    return valorAnteriorIncremento;
+                case tiposDeSimbolos.DECREMENTAR:
+                    if (typeof valor === 'string') {
+                        throw new ErroEmTempoDeExecucao(
+                            expressao.operador,
+                            `Operador '${expressao.operador.lexema}' não pode ser aplicado a um texto.`,
+                            expressao.linha
                         );
                     }
 
-                    return valor;
-                }
+                    if (expressao.incidenciaOperador === 'ANTES') {
+                        valor--;
+                        if (expressao.operando instanceof Variavel) {
+                            this.pilhaEscoposExecucao.atribuirVariavel(
+                                expressao.operando.simbolo,
+                                valor
+                            );
+                        }
 
-                const valorAnteriorDecremento = valor;
-                if (expressao.operando instanceof Variavel) {
-                    this.pilhaEscoposExecucao.atribuirVariavel(expressao.operando.simbolo, --valor);
-                }
-                return valorAnteriorDecremento;
-        }
+                        return valor;
+                    }
 
-        return null;
+                    const valorAnteriorDecremento = valor;
+                    if (expressao.operando instanceof Variavel) {
+                        this.pilhaEscoposExecucao.atribuirVariavel(expressao.operando.simbolo, --valor);
+                    }
+                    return valorAnteriorDecremento;
+            }
+
+            return null;
+        });
     }
 
     /**
@@ -919,9 +923,11 @@ export class InterpretadorBase implements InterpretadorInterface {
         return typeof valor === 'bigint' ? valor : BigInt(Math.floor(Number(valor)));
     }
 
-    async visitarExpressaoBinaria(expressao: Binario): Promise<any> {
-        const esquerda: VariavelInterface | any = await this.avaliar(expressao.esquerda);
-        const direita: VariavelInterface | any = await this.avaliar(expressao.direita);
+    // Corpo original mantido com a indentação de antes da conversão (só o cabeçalho e o
+    // fechamento mudaram) para manter este diff revisável — ver `encadear` para o porquê.
+    visitarExpressaoBinaria(expressao: Binario): any {
+        return encadear(this.avaliar(expressao.esquerda), (esquerda: VariavelInterface | any) =>
+        encadear(this.avaliar(expressao.direita), (direita: VariavelInterface | any) => {
         const valorEsquerdo: any = this.resolverValor(esquerda);
         const valorDireito: any = this.resolverValor(direita);
 
@@ -940,7 +946,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                               valor: valorDireito,
                               imutavel: false,
                           };
-                return await metodoASerChamado.chamar(this, [
+                return metodoASerChamado.chamar(this, [
                     { nome: null, valor: argumentoOperador },
                 ]);
             }
@@ -1312,6 +1318,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             case tiposDeSimbolos.IGUAL_IGUAL:
                 return this.eIgual(valorEsquerdo, valorDireito);
         }
+        })
+        );
     }
 
     /**
@@ -1701,74 +1709,75 @@ export class InterpretadorBase implements InterpretadorInterface {
         );
     }
 
-    async visitarExpressaoLogica(expressao: Logico): Promise<any> {
-        const esquerda = await this.avaliar(expressao.esquerda);
-
-        if ([tiposDeSimbolos.EM, tiposDeSimbolos.CONTEM].includes(expressao.operador.tipo)) {
-            const direita = await this.avaliar(expressao.direita);
-
-            // `3 em lista` é igual a `lista contém 3`.
-            // Portanto, precisamos inverter os operandos de acordo com a
-            // palavra reservada usada.
-            switch (expressao.operador.tipo) {
-                case tiposDeSimbolos.EM:
-                    return this.logicaContemOuEm(esquerda, direita, expressao);
-                case tiposDeSimbolos.CONTEM:
-                    return this.logicaContemOuEm(direita, esquerda, expressao);
-            }
-        }
-
-        // E/OU como bitwise quando ambos operandos são numéricos
-        if ([tiposDeSimbolos.E, tiposDeSimbolos.OU].includes(expressao.operador.tipo)) {
-            const valorEsquerdo = this.resolverValor(esquerda);
-            if (typeof valorEsquerdo === 'number' || typeof valorEsquerdo === 'bigint') {
-                const direita = await this.avaliar(expressao.direita);
-                const valorDireito = this.resolverValor(direita);
-
-                if (typeof valorDireito === 'number' || typeof valorDireito === 'bigint') {
-                    if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
-                        const esq =
-                            typeof valorEsquerdo === 'bigint'
-                                ? valorEsquerdo
-                                : BigInt(Math.floor(Number(valorEsquerdo)));
-                        const dir =
-                            typeof valorDireito === 'bigint'
-                                ? valorDireito
-                                : BigInt(Math.floor(Number(valorDireito)));
-                        return expressao.operador.tipo === tiposDeSimbolos.E
-                            ? esq & dir
-                            : esq | dir;
+    visitarExpressaoLogica(expressao: Logico): any {
+        return encadear(this.avaliar(expressao.esquerda), (esquerda) => {
+            if ([tiposDeSimbolos.EM, tiposDeSimbolos.CONTEM].includes(expressao.operador.tipo)) {
+                return encadear(this.avaliar(expressao.direita), (direita) => {
+                    // `3 em lista` é igual a `lista contém 3`.
+                    // Portanto, precisamos inverter os operandos de acordo com a
+                    // palavra reservada usada.
+                    switch (expressao.operador.tipo) {
+                        case tiposDeSimbolos.EM:
+                            return this.logicaContemOuEm(esquerda, direita, expressao);
+                        case tiposDeSimbolos.CONTEM:
+                            return this.logicaContemOuEm(direita, esquerda, expressao);
                     }
+                });
+            }
 
-                    return expressao.operador.tipo === tiposDeSimbolos.E
-                        ? Number(valorEsquerdo) & Number(valorDireito)
-                        : Number(valorEsquerdo) | Number(valorDireito);
-                }
+            // E/OU como bitwise quando ambos operandos são numéricos
+            if ([tiposDeSimbolos.E, tiposDeSimbolos.OU].includes(expressao.operador.tipo)) {
+                const valorEsquerdo = this.resolverValor(esquerda);
+                if (typeof valorEsquerdo === 'number' || typeof valorEsquerdo === 'bigint') {
+                    return encadear(this.avaliar(expressao.direita), (direita) => {
+                        const valorDireito = this.resolverValor(direita);
 
-                // Demais casos sem diferença de tipos
-                if (expressao.operador.tipo === tiposDeSimbolos.OU) {
-                    if (this.eVerdadeiro(esquerda)) return esquerda;
-                    return direita;
-                }
+                        if (typeof valorDireito === 'number' || typeof valorDireito === 'bigint') {
+                            if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                                const esq =
+                                    typeof valorEsquerdo === 'bigint'
+                                        ? valorEsquerdo
+                                        : BigInt(Math.floor(Number(valorEsquerdo)));
+                                const dir =
+                                    typeof valorDireito === 'bigint'
+                                        ? valorDireito
+                                        : BigInt(Math.floor(Number(valorDireito)));
+                                return expressao.operador.tipo === tiposDeSimbolos.E
+                                    ? esq & dir
+                                    : esq | dir;
+                            }
 
-                if (expressao.operador.tipo === tiposDeSimbolos.E) {
-                    if (!this.eVerdadeiro(esquerda)) return esquerda;
-                    return direita;
+                            return expressao.operador.tipo === tiposDeSimbolos.E
+                                ? Number(valorEsquerdo) & Number(valorDireito)
+                                : Number(valorEsquerdo) | Number(valorDireito);
+                        }
+
+                        // Demais casos sem diferença de tipos
+                        if (expressao.operador.tipo === tiposDeSimbolos.OU) {
+                            if (this.eVerdadeiro(esquerda)) return esquerda;
+                            return direita;
+                        }
+
+                        if (expressao.operador.tipo === tiposDeSimbolos.E) {
+                            if (!this.eVerdadeiro(esquerda)) return esquerda;
+                            return direita;
+                        }
+                    });
                 }
             }
-        }
 
-        // se um estado for verdadeiro, retorna verdadeiro
-        if (expressao.operador.tipo === tiposDeSimbolos.OU) {
-            if (this.eVerdadeiro(esquerda)) return esquerda;
-        }
+            // se um estado for verdadeiro, retorna verdadeiro
+            if (expressao.operador.tipo === tiposDeSimbolos.OU) {
+                if (this.eVerdadeiro(esquerda)) return esquerda;
+            }
 
-        // se um estado for falso, retorna falso
-        if (expressao.operador.tipo === tiposDeSimbolos.E) {
-            if (!this.eVerdadeiro(esquerda)) return esquerda;
-        }
+            // se um estado for falso, retorna falso
+            if (expressao.operador.tipo === tiposDeSimbolos.E) {
+                if (!this.eVerdadeiro(esquerda)) return esquerda;
+            }
 
-        return await this.avaliar(expressao.direita);
+            return this.avaliar(expressao.direita);
+        });
     }
 
     async visitarDeclaracaoPara(declaracao: Para): Promise<any> {

@@ -25,8 +25,8 @@ export class Literal implements ConstrutoInterface {
         this.delimitadorTexto = delimitadorTexto;
     }
 
-    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
-        return await visitante.visitarExpressaoLiteral(this);
+    aceitar(visitante: VisitanteComumInterface): any {
+        return visitante.visitarExpressaoLiteral(this);
     }
 
     paraTexto(): string {

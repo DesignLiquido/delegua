@@ -2267,7 +2267,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         }
     }
 
-    override async visitarExpressaoUnaria(expressao: Unario): Promise<any> {
+    override visitarExpressaoUnaria(expressao: Unario): any {
         // Tratamento especial para expressões unárias aplicadas a chamadas de método em literais numéricos.
         // Por exemplo: -5.absoluto() deve ser avaliado como (-5).absoluto(), não como -(5.absoluto())
         // Isso garante que o operador unário seja aplicado ao literal antes de chamar o método.
@@ -2321,13 +2321,13 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                     );
 
                     // Avalia a nova chamada
-                    return await this.avaliar(novaChamada);
+                    return this.avaliar(novaChamada);
                 }
             }
         }
 
         // Para outros casos, usa o comportamento padrão
-        return await super.visitarExpressaoUnaria(expressao);
+        return super.visitarExpressaoUnaria(expressao);
     }
 
     override async visitarExpressaoVetor(expressao: Vetor): Promise<any> {
