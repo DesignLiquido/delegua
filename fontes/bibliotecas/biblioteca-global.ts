@@ -995,7 +995,7 @@ export async function mapear(
         const informacoesRetorno = await valorFuncaoMapeamento.chamar(interpretador, [
             valorVetor[indice],
         ]);
-        if (!informacoesRetorno.hasOwnProperty('valorRetornado')) {
+        if (informacoesRetorno === null || !informacoesRetorno.hasOwnProperty('valorRetornado')) {
             console.warn(
                 `Retorno inconsistente em mapear(): ${JSON.stringify(informacoesRetorno)}.`
             );

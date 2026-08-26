@@ -7512,6 +7512,26 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
                 expect(_saidas[0]).toBe('verdadeiro');
             });
+
+            it('Não deve imprimir informação de depuração ao escrever retorno de função sem "retorna" explícito (issue #1425)', async () => {
+                const codigo = [
+                    'funcao teste(a, b) {',
+                    '    escreva(a & b)',
+                    '    escreva(a | b)',
+                    '    escreva(a ^ b)',
+                    '}',
+                    'escreva(teste(1, 2))',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(4);
+                expect(_saidas[0]).toBe('0');
+                expect(_saidas[1]).toBe('3');
+                expect(_saidas[2]).toBe('3');
+                expect(_saidas[3]).toBe('nulo');
+            });
         });
 
         describe('Operador Elvis (?:)', () => {

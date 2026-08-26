@@ -2146,10 +2146,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         try {
             const formatoTexto: string = await this.avaliarArgumentosEscreva(declaracao.argumentos);
             this.funcaoDeRetornoMesmaLinha?.(formatoTexto);
-            return {
-                tipo: 'vazio',
-                tipoExplicito: false,
-            };
+            return null;
         } catch (erro: any) {
             this.erros.push({
                 erroInterno: erro,
@@ -2169,10 +2166,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         try {
             const formatoTexto: string = await this.avaliarArgumentosEscreva(declaracao.argumentos);
             this.funcaoDeRetorno?.(formatoTexto);
-            return {
-                tipo: 'vazio',
-                tipoExplicito: false,
-            };
+            return null;
         } catch (erro: any) {
             this.erros.push({
                 erroInterno: erro,
