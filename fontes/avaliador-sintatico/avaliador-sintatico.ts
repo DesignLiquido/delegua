@@ -142,7 +142,8 @@ const simbolosInicioExpressao = new Set([
     tiposDeSimbolos.ADICAO,
     tiposDeSimbolos.SUBTRACAO,
     tiposDeSimbolos.INCREMENTAR,
-    tiposDeSimbolos.DECREMENTAR
+    tiposDeSimbolos.DECREMENTAR,
+    tiposDeSimbolos.BIT_NOT
 ]);
 
 /**

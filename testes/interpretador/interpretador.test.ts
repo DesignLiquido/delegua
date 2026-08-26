@@ -7477,6 +7477,15 @@ describe('Interpretador', () => {
                 expect(_saidas[0]).toBe('-6');
             });
 
+            it('NOT bitwise (~) retornado por função (issue 1428)', async () => {
+                const codigo = ['funcao teste(x) {', '    retorne ~x', '}', 'escreva(teste(42))'];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toBe('-43');
+            });
+
             it('Deslocamento à esquerda (<<)', async () => {
                 const codigo = ['escreva(1 << 3)'];
                 const retornoLexador = lexador.mapear(codigo, -1);
