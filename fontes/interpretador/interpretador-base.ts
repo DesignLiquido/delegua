@@ -1390,7 +1390,9 @@ export class InterpretadorBase implements InterpretadorInterface {
 
             // Funções anônimas
             if (entidadeChamada instanceof FuncaoConstruto) {
-                entidadeChamada = new DeleguaFuncao(null, entidadeChamada);
+                entidadeChamada = new DeleguaFuncao(null, entidadeChamada).capturarEscopo(
+                    this.pilhaEscoposExecucao
+                );
             }
 
             if (entidadeChamada instanceof DeleguaModulo) {
@@ -2285,7 +2287,7 @@ export class InterpretadorBase implements InterpretadorInterface {
     async visitarExpressaoFuncaoConstruto(
         funcaoConstruto: FuncaoConstruto
     ): Promise<DeleguaFuncao> {
-        return new DeleguaFuncao(null, funcaoConstruto);
+        return new DeleguaFuncao(null, funcaoConstruto).capturarEscopo(this.pilhaEscoposExecucao);
     }
 
     async visitarExpressaoAtribuicaoPorIndice(expressao: AtribuicaoPorIndice): Promise<any> {
@@ -2528,7 +2530,10 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     async visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): Promise<any> {
-        const funcao: any = new DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
+        const funcao: any = new DeleguaFuncao(
+            declaracao.simbolo.lexema,
+            declaracao.funcao
+        ).capturarEscopo(this.pilhaEscoposExecucao);
         funcao.documentacao = declaracao.documentacao;
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
         this.pilhaEscoposExecucao.registrarReferenciaFuncao(declaracao.id, funcao);
@@ -2616,7 +2621,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 metodoAtual.funcao,
                 undefined,
                 eInicializador
-            );
+            ).capturarEscopo(this.pilhaEscoposExecucao);
             funcao.documentacao = metodoAtual.documentacao;
             metodos[nomeMetodo] = funcao;
         }
@@ -2687,7 +2692,9 @@ export class InterpretadorBase implements InterpretadorInterface {
 
         for (const metodoDeclarado of declaracao.metodos) {
             const nomeMetodo = metodoDeclarado.simbolo.lexema;
-            const funcao = new DeleguaFuncao(nomeMetodo, metodoDeclarado.funcao);
+            const funcao = new DeleguaFuncao(nomeMetodo, metodoDeclarado.funcao).capturarEscopo(
+                this.pilhaEscoposExecucao
+            );
 
             if (declaracao.ehGlobal) {
                 if (!this.extensoesGlobais.has(tipoNome)) {

@@ -16,6 +16,18 @@ export interface InterpretadorInterface extends VisitanteComumInterface {
     linhaDeclaracaoAtual: number;
     /** Descritor da classe cujo método está sendo executado no momento. Nulo se fora de método de classe. */
     classeAtualEmExecucao: any;
+    /**
+     * `true` apenas nas variantes com depurador (`InterpretadorComDepuracao`,
+     * `InterpretadorBaseComDepuracao`). O depurador indexa `pilhaEscoposExecucao.pilha`
+     * por posição absoluta e por comprimento (passo a passo, pontos de parada), então
+     * depende de essa pilha ser um único histórico monotônico da execução real. Por isso
+     * `DeleguaFuncao.chamar` não pode trocar a pilha pelo ambiente léxico capturado da
+     * função (mecanismo de fecho/_closure_) quando este sinalizador estiver ativo — faria
+     * índices e contagens do depurador apontarem para o escopo errado, ou para nada.
+     * Em modo de depuração, chamadas continuam usando a pilha dinâmica corrente, como
+     * antes da introdução dos fechos léxicos.
+     */
+    emModoDepuracao?: boolean;
 
     eVerdadeiro(objeto: any): boolean;
     avaliar(expressao: ConstrutoInterface | Declaracao): any;

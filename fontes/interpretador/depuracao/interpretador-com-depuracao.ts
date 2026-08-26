@@ -38,6 +38,7 @@ export class InterpretadorComDepuracao
     pontosParada: PontoParada[];
     finalizacaoDaExecucao: Function;
     pontoDeParadaAtivo: boolean;
+    readonly emModoDepuracao = true;
     avisoPontoParadaAtivado: Function;
     escopoAtual: number;
     comando?: ComandoDepurador;

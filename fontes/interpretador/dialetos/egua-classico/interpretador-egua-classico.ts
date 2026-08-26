@@ -809,7 +809,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     async visitarExpressaoFuncaoConstruto(expressao: any): Promise<DeleguaFuncao> {
-        return new DeleguaFuncao(null, expressao);
+        return new DeleguaFuncao(null, expressao).capturarEscopo(this.pilhaEscoposExecucao);
     }
 
     async visitarExpressaoAtribuicaoPorIndice(expressao: any) {
@@ -936,7 +936,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
     }
 
     visitarDeclaracaoDefinicaoFuncao(declaracao: FuncaoDeclaracao): void {
-        const funcao = new DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
+        const funcao = new DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao).capturarEscopo(
+            this.pilhaEscoposExecucao
+        );
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
     }
 
@@ -973,7 +975,7 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                 metodoAtual.funcao,
                 undefined,
                 eInicializador
-            );
+            ).capturarEscopo(this.pilhaEscoposExecucao);
             metodos[metodoAtual.simbolo.lexema] = funcao;
         }
 

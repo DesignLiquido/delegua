@@ -9202,6 +9202,127 @@ describe('Interpretador', () => {
                 expect(_saidas[0]).toBe('15');
             });
         });
+
+        describe('Fechos léxicos (closures)', () => {
+            it('função devolvida por outra continua enxergando a variável capturada depois que a chamada externa retornou', async () => {
+                const codigo = [
+                    'funcao criarContador() {',
+                    '    var contador = 0',
+                    '    funcao incrementar() {',
+                    '        contador = contador + 1',
+                    '        retorna contador',
+                    '    }',
+                    '    retorna incrementar',
+                    '}',
+                    '',
+                    'var c1 = criarContador()',
+                    'escreva(c1())',
+                    'escreva(c1())',
+                    'escreva(c1())',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toEqual(['1', '2', '3']);
+            });
+
+            it('duas chamadas da mesma fábrica produzem fechos independentes, sem compartilhar estado', async () => {
+                const codigo = [
+                    'funcao criarContador() {',
+                    '    var contador = 0',
+                    '    funcao incrementar() {',
+                    '        contador = contador + 1',
+                    '        retorna contador',
+                    '    }',
+                    '    retorna incrementar',
+                    '}',
+                    '',
+                    'var c1 = criarContador()',
+                    'var c2 = criarContador()',
+                    'escreva(c1())',
+                    'escreva(c1())',
+                    'escreva(c2())',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toEqual(['1', '2', '1']);
+            });
+
+            it('fecho chamado recursivamente não perde a variável capturada nem mistura chamadas', async () => {
+                const codigo = [
+                    'funcao criarSomador(total) {',
+                    '    funcao somarAte(n) {',
+                    '        se (n <= 0) {',
+                    '            retorna total',
+                    '        }',
+                    '        total = total + n',
+                    '        retorna somarAte(n - 1)',
+                    '    }',
+                    '    retorna somarAte',
+                    '}',
+                    '',
+                    'var somador = criarSomador(0)',
+                    'escreva(somador(3))',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                // 0 + 3 + 2 + 1 = 6
+                expect(_saidas).toEqual(['6']);
+            });
+
+            it('closure passada como argumento e invocada de dentro de uma função nativa (vetor.mapear) continua funcionando (caso não-escapante)', async () => {
+                const codigo = [
+                    'var fator = 10',
+                    'var resultado = [1, 2, 3].mapear(funcao(x) { retorna x * fator })',
+                    'escreva(resultado)',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas[0]).toBe('[10, 20, 30]');
+            });
+
+            it('método de classe que devolve uma função interna preserva acesso a `isto` mesmo após a chamada do método retornar', async () => {
+                const codigo = [
+                    'classe Contador {',
+                    '    valor: numero',
+                    '',
+                    '    construtor() {',
+                    '        isto.valor = 0',
+                    '    }',
+                    '',
+                    '    fabricarIncrementador() {',
+                    '        funcao incrementar() {',
+                    '            isto.valor = isto.valor + 1',
+                    '            retorna isto.valor',
+                    '        }',
+                    '        retorna incrementar',
+                    '    }',
+                    '}',
+                    '',
+                    'var c = Contador()',
+                    'var incrementar = c.fabricarIncrementador()',
+                    'escreva(incrementar())',
+                    'escreva(incrementar())',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toEqual(['1', '2']);
+            });
+        });
     });
 });
 

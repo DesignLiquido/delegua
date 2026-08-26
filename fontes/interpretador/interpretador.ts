@@ -489,7 +489,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         let funcao: any = new DeleguaFuncao(
             declaracao.simbolo.lexema,
             declaracao.funcao
-        );
+        ).capturarEscopo(this.pilhaEscoposExecucao);
         funcao.documentacao = declaracao.documentacao;
 
         if (declaracao.decoradores && declaracao.decoradores.length > 0) {
@@ -1076,7 +1076,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 metodoAtual.funcao,
                 undefined,
                 eInicializador
-            );
+            ).capturarEscopo(this.pilhaEscoposExecucao);
             funcao.documentacao = metodoAtual.documentacao;
 
             // Numa classe estática, todos os métodos (exceto construtor) são estáticos.
