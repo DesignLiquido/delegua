@@ -608,7 +608,6 @@ export class Lexador extends LexadorBase {
 
         if (this.performance) {
             const deltaMapeamento: [number, number] = hrtime(inicioMapeamento);
-            // eslint-disable-next-line no-undef
             console.log(
                 `[Lexador] Tempo para mapeamento: ${deltaMapeamento[0] * 1e9 + deltaMapeamento[1]}ns`
             );

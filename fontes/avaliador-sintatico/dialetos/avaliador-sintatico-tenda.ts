@@ -1776,7 +1776,6 @@ export class AvaliadorSintaticoTenda extends AvaliadorSintaticoBase {
 
         if (this.performance) {
             const deltaAnalise: [number, number] = hrtime(inicioAnalise);
-            // eslint-disable-next-line no-undef
             console.log(
                 `[Avaliador Sintático Tenda] Tempo para análise: ${deltaAnalise[0] * 1e9 + deltaAnalise[1]}ns`
             );
