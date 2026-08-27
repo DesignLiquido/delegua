@@ -56,6 +56,7 @@ import {
 import { InterpretadorBase } from './interpretador-base';
 import { inferirTipoVariavel } from '../inferenciador';
 import { ErroEmTempoDeExecucao } from '../excecoes';
+import { encadear } from './encadear';
 import {
     Ajuda,
     Classe,
@@ -2350,37 +2351,14 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
      * @param manterAmbiente Se verdadeiro, ambiente do topo da pilha de escopo é copiado para o ambiente imediatamente abaixo.
      * @returns O resultado da execução do escopo, se houver.
      */
-    override async executarUltimoEscopo(
-        manterAmbiente = false
-    ): Promise<ResultadoParcialInterpretadorInterface | undefined> {
+    override executarUltimoEscopo(manterAmbiente = false): any {
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
         let retornoExecucao: ResultadoParcialInterpretadorInterface | undefined = undefined;
-        try {
-            for (
-                ;
-                !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
-                ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length;
-                ultimoEscopo.declaracaoAtual++
-            ) {
-                const declaracaoAtual = ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual];
-                this.linhaDeclaracaoAtual = declaracaoAtual.linha;
-                this.hashArquivoDeclaracaoAtual = declaracaoAtual.hashArquivo;
-                retornoExecucao = await this.executar(declaracaoAtual);
-            }
 
-            return retornoExecucao;
-        } catch (erro: any) {
-            const declaracaoAtual = ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual];
-            if (!this.emDeclaracaoTente) {
-                this.erros.push({
-                    erroInterno: erro,
-                    linha: declaracaoAtual.linha,
-                    hashArquivo: declaracaoAtual.hashArquivo,
-                });
-            } else {
-                return Promise.reject(erro);
-            }
-        } finally {
+        // Substitui o `finally` original: precisa rodar em toda saída (sucesso, erro síncrono
+        // ou rejeição assíncrona), então é chamado explicitamente em cada um desses três casos
+        // abaixo, nunca implicitamente — não há `finally` de verdade quando não se usa `await`.
+        const finalizar = (): void => {
             const escopoFinalizado = this.pilhaEscoposExecucao.removerUltimo();
             const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
 
@@ -2400,6 +2378,52 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             } else {
                 this.montao.excluirReferencias(...escopoFinalizado.espacoMemoria.enderecosMontao);
             }
+        };
+
+        const tratarErro = (erro: any): any => {
+            try {
+                const declaracaoAtual = ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual];
+                if (!this.emDeclaracaoTente) {
+                    this.erros.push({
+                        erroInterno: erro,
+                        linha: declaracaoAtual.linha,
+                        hashArquivo: declaracaoAtual.hashArquivo,
+                    });
+                    return undefined;
+                }
+                return Promise.reject(erro);
+            } finally {
+                finalizar();
+            }
+        };
+
+        const proximaDeclaracao = (): any => {
+            if (
+                (retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) ||
+                ultimoEscopo.declaracaoAtual >= ultimoEscopo.declaracoes.length
+            ) {
+                finalizar();
+                return retornoExecucao;
+            }
+
+            const declaracaoAtual = ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual];
+            this.linhaDeclaracaoAtual = declaracaoAtual.linha;
+            this.hashArquivoDeclaracaoAtual = declaracaoAtual.hashArquivo;
+
+            return encadear(this.executar(declaracaoAtual), (resultado: any) => {
+                retornoExecucao = resultado;
+                ultimoEscopo.declaracaoAtual++;
+                return proximaDeclaracao();
+            });
+        };
+
+        try {
+            const resultadoOuPromise = proximaDeclaracao();
+            return resultadoOuPromise instanceof Promise
+                ? resultadoOuPromise.catch(tratarErro)
+                : resultadoOuPromise;
+        } catch (erro: any) {
+            return tratarErro(erro);
         }
     }
 
