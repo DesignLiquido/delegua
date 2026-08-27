@@ -14,7 +14,8 @@
         "testes-unitarios:insignias": "yarn jest-coverage-badges --output ./recursos/imagens",
         "observar-testes-unitarios": "yarn jest --watchAll",
         "observar-testes-unitarios-com-coverage": "yarn jest --coverage --watchAll",
-        "lint": "yarn eslint . --ext .ts --fix",
+        "lint": "yarn eslint . --ext .ts",
+        "lint:fix": "yarn eslint . --ext .ts --fix",
         "deixar-codigo-bonito": "yarn prettier --config .prettierrc --write fontes/**/*.ts",
         "umd": "yarn browserify dist/index.js --s Delegua -o dist/umd/delegua.js"
     },

@@ -1,90 +1,48 @@
-name: Comentário de Cobertura
+name: Relatório de Cobertura
 
 on:
   workflow_run:
-    workflows: ["Testes Unitários"]
+    workflows: ["Integração Contínua - Principal"]
     types:
       - completed
 
-permissions:
-  pull-requests: write
-  checks: write
-
 jobs:
-  comentario:
-    runs-on: ubuntu-latest
+  relatorio:
+    name: Publicar Cobertura no PR
     if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+
+    permissions:
+      checks: write
+      pull-requests: write
+      actions: read
 
     steps:
-    - name: Baixar artefato de cobertura
-      uses: actions/download-artifact@v4
-      with:
-        name: coverage-report
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        run-id: ${{ github.event.workflow_run.id }}
+      - name: Baixar artefatos
+        uses: actions/download-artifact@v4
+        with:
+          name: relatorio-testes
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Obter número do PR
-      id: pr
-      uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b  # v7
-      with:
-        result-encoding: string
-        script: |
-          const response = await github.rest.repos.listPullRequestsAssociatedWithCommit({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            commit_sha: context.payload.workflow_run.head_sha
-          });
-          return response.data.length > 0 ? response.data[0].number : '';
+      - name: Ler número do PR
+        id: pr
+        run: echo "number=$(cat pr-number.txt)" >> $GITHUB_OUTPUT
 
-    - name: Criar comentário de cobertura
-      if: steps.pr.outputs.result != ''
-      uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b  # v7
-      with:
-        script: |
-          const fs = require('fs');
-          const coverage = JSON.parse(fs.readFileSync('coverage-summary.json', 'utf8'));
+      - name: Gerar relatório de cobertura
+        uses: ArtiomTr/jest-coverage-report-action@v2
+        id: coverage
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          coverage-file: report.json
+          base-coverage-file: report.json
+          prnumber: ${{ steps.pr.outputs.number }}
+          skip-step: all
+          output: report-markdown
 
-          const total = coverage.total;
-          const lines = total.lines.pct;
-          const statements = total.statements.pct;
-          const functions = total.functions.pct;
-          const branches = total.branches.pct;
-
-          const comment = `## 📊 Cobertura de Código
-
-          | Métrica     | Cobertura      |
-          |-------------|----------------|
-          | Linhas      | ${lines}%      |
-          | Declarações | ${statements}% |
-          | Funções     | ${functions}%  |
-          | Branches    | ${branches}%   |
-          `;
-
-          const prNumber = '${{ steps.pr.outputs.result }}';
-
-          const { data: comments } = await github.rest.issues.listComments({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: prNumber,
-          });
-
-          const botComment = comments.find(comment =>
-            comment.user.type === 'Bot' &&
-            comment.body.includes('📊 Cobertura de Código')
-          );
-
-          if (botComment) {
-            await github.rest.issues.updateComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              comment_id: botComment.id,
-              body: comment
-            });
-          } else {
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: prNumber,
-              body: comment
-            });
-          }
+      - name: Publicar comentário no PR
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          number: ${{ steps.pr.outputs.number }}
+          message: ${{ steps.coverage.outputs.report }}
