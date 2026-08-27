@@ -241,13 +241,14 @@ export class InterpretadorBase implements InterpretadorInterface {
     }
 
     /**
-     * Cede o controle ao loop de eventos do JavaScript.
-     * Usado em laços de repetição para evitar bloqueio do loop de eventos
-     * em iterações longas ou infinitas.
+     * Cede o controle ao loop de eventos do JavaScript, mas só de fato a cada
+     * `iteracoesParaCederControle` chamadas — nos outros casos retorna `undefined` diretamente,
+     * sem alocar Promise nem agendar microtarefa, já que isto é chamado em toda iteração de todo
+     * laço (`enquanto`, `para`) e o custo de um `await` "inútil" 999 em 1000 vezes se acumula.
      */
-    protected async cederControle(iteracoes: number): Promise<void> {
+    protected cederControle(iteracoes: number): any {
         if (iteracoes % this.iteracoesParaCederControle === 0) {
-            await new Promise<void>((resolve) => {
+            return new Promise<void>((resolve) => {
                 const _setImmediate = (globalThis as any).setImmediate;
                 if (_setImmediate) {
                     _setImmediate(resolve);
@@ -256,6 +257,8 @@ export class InterpretadorBase implements InterpretadorInterface {
                 }
             });
         }
+
+        return undefined;
     }
 
     visitarDeclaracaoTextoDocumentacao(declaracao: TextoDocumentacao): Promise<any> | void {
@@ -1686,8 +1689,8 @@ export class InterpretadorBase implements InterpretadorInterface {
         return this.procurarVariavel(expressao.simbolo);
     }
 
-    async visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<any> {
-        return await this.avaliar(declaracao.expressao);
+    visitarDeclaracaoDeExpressao(declaracao: Expressao): any {
+        return this.avaliar(declaracao.expressao);
     }
 
     protected logicaContemOuEm(esquerda: any, direita: any, expressao: Logico) {
@@ -1923,30 +1926,37 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @param declaracao A declaração Se.
      * @returns O resultado da avaliação do bloco cuja condição é verdadeira.
      */
-    async visitarDeclaracaoSe(declaracao: Se): Promise<any> {
-        const avaliacaoCondicaoSe = await this.avaliar(declaracao.condicao);
-        if (this.eVerdadeiro(avaliacaoCondicaoSe)) {
-            this.registrarRamo?.(declaracao.hashArquivo, declaracao.linha, 'verdadeiro');
-            return await this.executar(declaracao.caminhoEntao);
-        }
-
+    visitarDeclaracaoSe(declaracao: Se): any {
         const declaracaoCaminhosSeSenao = declaracao.caminhosSeSenao || [];
-        for (let i = 0; i < declaracaoCaminhosSeSenao.length; i++) {
-            const atual = declaracaoCaminhosSeSenao[i];
 
-            if (this.eVerdadeiro(await this.avaliar(atual.condicao))) {
-                this.registrarRamo?.(declaracao.hashArquivo, declaracao.linha, 'verdadeiro');
-                return await this.executar(atual.caminho);
+        const proximoCaminhoSeSenao = (i: number): any => {
+            if (i >= declaracaoCaminhosSeSenao.length) {
+                if (declaracao.caminhoSenao) {
+                    this.registrarRamo?.(declaracao.hashArquivo, declaracao.linha, 'senao');
+                    return this.executar(declaracao.caminhoSenao);
+                }
+                this.registrarRamo?.(declaracao.hashArquivo, declaracao.linha, 'falso');
+                return null;
             }
-        }
 
-        if (declaracao.caminhoSenao) {
-            this.registrarRamo?.(declaracao.hashArquivo, declaracao.linha, 'senao');
-            return await this.executar(declaracao.caminhoSenao);
-        }
+            const atual = declaracaoCaminhosSeSenao[i];
+            return encadear(this.avaliar(atual.condicao), (condicaoAtual: any) => {
+                if (this.eVerdadeiro(condicaoAtual)) {
+                    this.registrarRamo?.(declaracao.hashArquivo, declaracao.linha, 'verdadeiro');
+                    return this.executar(atual.caminho);
+                }
+                return proximoCaminhoSeSenao(i + 1);
+            });
+        };
 
-        this.registrarRamo?.(declaracao.hashArquivo, declaracao.linha, 'falso');
-        return null;
+        return encadear(this.avaliar(declaracao.condicao), (avaliacaoCondicaoSe: any) => {
+            if (this.eVerdadeiro(avaliacaoCondicaoSe)) {
+                this.registrarRamo?.(declaracao.hashArquivo, declaracao.linha, 'verdadeiro');
+                return this.executar(declaracao.caminhoEntao);
+            }
+
+            return proximoCaminhoSeSenao(0);
+        });
     }
 
     async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
@@ -2228,20 +2238,17 @@ export class InterpretadorBase implements InterpretadorInterface {
         return this.executarBloco(declaracao.declaracoes);
     }
 
-    async avaliacaoDeclaracaoVarOuConst(
-        declaracao: Const | ConstMultiplo | Var | VarMultiplo
-    ): Promise<any> {
-        let valorOuOutraVariavel = null;
-        if (declaracao.inicializador != null) {
-            valorOuOutraVariavel = await this.avaliar(declaracao.inicializador);
+    avaliacaoDeclaracaoVarOuConst(declaracao: Const | ConstMultiplo | Var | VarMultiplo): any {
+        if (declaracao.inicializador == null) {
+            return null;
         }
 
-        let valorFinal = null;
-        if (valorOuOutraVariavel !== null && valorOuOutraVariavel !== undefined) {
-            valorFinal = this.resolverValor(valorOuOutraVariavel);
-        }
-
-        return valorFinal;
+        return encadear(this.avaliar(declaracao.inicializador), (valorOuOutraVariavel: any) => {
+            if (valorOuOutraVariavel !== null && valorOuOutraVariavel !== undefined) {
+                return this.resolverValor(valorOuOutraVariavel);
+            }
+            return null;
+        });
     }
 
     /**
@@ -2249,19 +2256,19 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @param declaracao A declaração `Const`.
      * @returns Um descritor de informações importantes para o retorno externo.
      */
-    async visitarDeclaracaoConst(declaracao: Const): Promise<any> {
-        const valorFinal = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
+    visitarDeclaracaoConst(declaracao: Const): any {
+        return encadear(this.avaliacaoDeclaracaoVarOuConst(declaracao), (valorFinal: any) => {
+            this.pilhaEscoposExecucao.definirConstante(
+                declaracao.simbolo.lexema,
+                valorFinal,
+                declaracao.tipo
+            );
 
-        this.pilhaEscoposExecucao.definirConstante(
-            declaracao.simbolo.lexema,
-            valorFinal,
-            declaracao.tipo
-        );
-
-        return {
-            tipo: declaracao.tipo,
-            tipoExplicito: declaracao.tipoExplicito,
-        };
+            return {
+                tipo: declaracao.tipo,
+                tipoExplicito: declaracao.tipoExplicito,
+            };
+        });
     }
 
     /**
@@ -2269,18 +2276,19 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @param declaracao A declaração `ConstMultiplo`.
      * @returns Sempre retorna nulo.
      */
-    async visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): Promise<any> {
-        const valoresFinais: any[] = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
-        const tipoIndividual = (declaracao.tipo || '').replace('[]', '');
-        for (let [indice, valor] of valoresFinais.entries()) {
-            this.pilhaEscoposExecucao.definirConstante(
-                declaracao.simbolos[indice].lexema,
-                valor,
-                tipoIndividual
-            );
-        }
+    visitarDeclaracaoConstMultiplo(declaracao: ConstMultiplo): any {
+        return encadear(this.avaliacaoDeclaracaoVarOuConst(declaracao), (valoresFinais: any[]) => {
+            const tipoIndividual = (declaracao.tipo || '').replace('[]', '');
+            for (let [indice, valor] of valoresFinais.entries()) {
+                this.pilhaEscoposExecucao.definirConstante(
+                    declaracao.simbolos[indice].lexema,
+                    valor,
+                    tipoIndividual
+                );
+            }
 
-        return null;
+            return null;
+        });
     }
 
     visitarExpressaoContinua(_?: Continua): ContinuarQuebra {
@@ -2928,25 +2936,26 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @param declaracao A declaração Var
      * @returns Um descritor de informações importantes para o retorno externo.
      */
-    async visitarDeclaracaoVar(declaracao: Var): Promise<any> {
-        const valorFinal = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
-        let tipoResolvido = declaracao.tipo;
-        if (tipoResolvido.startsWith('função<')) {
-            tipoResolvido = tipoResolvido.replace('função<', '').replace('>', '');
-        }
+    visitarDeclaracaoVar(declaracao: Var): any {
+        return encadear(this.avaliacaoDeclaracaoVarOuConst(declaracao), (valorFinal: any) => {
+            let tipoResolvido = declaracao.tipo;
+            if (tipoResolvido.startsWith('função<')) {
+                tipoResolvido = tipoResolvido.replace('função<', '').replace('>', '');
+            }
 
-        if (!declaracao.tipoExplicito && tipoResolvido === tipoDeDadosDelegua.QUALQUER && valorFinal instanceof Array) {
-            tipoResolvido = inferirTipoVariavel(valorFinal) as string;
-        }
+            if (!declaracao.tipoExplicito && tipoResolvido === tipoDeDadosDelegua.QUALQUER && valorFinal instanceof Array) {
+                tipoResolvido = inferirTipoVariavel(valorFinal) as string;
+            }
 
-        this.pilhaEscoposExecucao.definirVariavel(
-            declaracao.simbolo.lexema,
-            valorFinal,
-            tipoResolvido,
-            declaracao.tipoExplicito && declaracao.tipoOriginal !== 'qualquer'
-        );
+            this.pilhaEscoposExecucao.definirVariavel(
+                declaracao.simbolo.lexema,
+                valorFinal,
+                tipoResolvido,
+                declaracao.tipoExplicito && declaracao.tipoOriginal !== 'qualquer'
+            );
 
-        return null;
+            return null;
+        });
     }
 
     /**
@@ -2954,18 +2963,19 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @param declaracao A declaração `VarMultiplo`.
      * @returns Sempre retorna nulo.
      */
-    async visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): Promise<any> {
-        const valoresFinais: any[] = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
-        const tipoIndividual = (declaracao.tipo || '').replace('[]', '');
-        for (let [indice, valor] of valoresFinais.entries()) {
-            this.pilhaEscoposExecucao.definirVariavel(
-                declaracao.simbolos[indice].lexema,
-                valor,
-                tipoIndividual
-            );
-        }
+    visitarDeclaracaoVarMultiplo(declaracao: VarMultiplo): any {
+        return encadear(this.avaliacaoDeclaracaoVarOuConst(declaracao), (valoresFinais: any[]) => {
+            const tipoIndividual = (declaracao.tipo || '').replace('[]', '');
+            for (let [indice, valor] of valoresFinais.entries()) {
+                this.pilhaEscoposExecucao.definirVariavel(
+                    declaracao.simbolos[indice].lexema,
+                    valor,
+                    tipoIndividual
+                );
+            }
 
-        return null;
+            return null;
+        });
     }
 
     /**

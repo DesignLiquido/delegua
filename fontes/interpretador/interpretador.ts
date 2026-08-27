@@ -360,20 +360,19 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         return objeto.toString();
     }
 
-    override async avaliacaoDeclaracaoVarOuConst(
+    override avaliacaoDeclaracaoVarOuConst(
         declaracao: Const | ConstMultiplo | Var | VarMultiplo
-    ): Promise<any> {
-        let valorOuOutraVariavel = null;
-        if (declaracao.inicializador != null) {
-            valorOuOutraVariavel = await this.avaliar(declaracao.inicializador);
+    ): any {
+        if (declaracao.inicializador == null) {
+            return null;
         }
 
-        let valorFinal = null;
-        if (valorOuOutraVariavel !== null && valorOuOutraVariavel !== undefined) {
-            valorFinal = this.resolverValor(valorOuOutraVariavel);
-        }
-
-        return valorFinal;
+        return encadear(this.avaliar(declaracao.inicializador), (valorOuOutraVariavel: any) => {
+            if (valorOuOutraVariavel !== null && valorOuOutraVariavel !== undefined) {
+                return this.resolverValor(valorOuOutraVariavel);
+            }
+            return null;
+        });
     }
 
     /**
@@ -556,66 +555,99 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         });
     }
 
-    protected async logicaComumExecucaoEnquanto(
+    protected logicaComumExecucaoEnquanto(
         enquanto: EnquantoInterface,
         acumularRetornos: boolean
-    ) {
+    ): any {
         const retornos = [];
         let retornoExecucao: ResultadoParcialInterpretadorInterface | undefined = undefined;
         let iteracoes = 0;
 
-        while (
-            (acumularRetornos ||
-                !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) &&
-            this.eVerdadeiro(await this.avaliar(enquanto.condicao))
-        ) {
-            try {
-                if (this.funcaoVerificarIteracao) {
-                    await this.funcaoVerificarIteracao();
-                }
-
-                await this.cederControle(++iteracoes);
-                retornoExecucao = await this.executar(enquanto.corpo);
-
-                if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
-                    if (acumularRetornos) {
-                        return {
-                            valorRetornado: retornos,
-                            tipo: 'vetor',
-                        };
-                    }
-
-                    return null;
-                }
-
-                if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) {
-                    retornoExecucao = undefined;
-                }
-
-                if (acumularRetornos) {
-                    retornos.push(this.resolverValor(retornoExecucao));
-                }
-            } catch (erro: any) {
-                this.erros.push({
-                    erroInterno: erro,
-                    linha: enquanto.linha,
-                    hashArquivo: enquanto.hashArquivo,
-                });
-                return Promise.reject(erro);
+        const finalizarNormal = (): any => {
+            if (acumularRetornos) {
+                return {
+                    valorRetornado: retornos,
+                    tipo: 'vetor',
+                };
             }
-        }
+            return retornoExecucao;
+        };
 
-        if (acumularRetornos) {
-            return {
-                valorRetornado: retornos,
-                tipo: 'vetor',
-            };
-        }
+        const tratarErro = (erro: any): any => {
+            this.erros.push({
+                erroInterno: erro,
+                linha: enquanto.linha,
+                hashArquivo: enquanto.hashArquivo,
+            });
+            return Promise.reject(erro);
+        };
 
-        return retornoExecucao;
+        const proximaIteracao = (): any => {
+            // Curto-circuito: espelha `(acumularRetornos || !(...Quebra)) && eVerdadeiro(...)` —
+            // se a primeira parte já é falsa, nem avalia a condição do laço.
+            if (
+                !acumularRetornos &&
+                retornoExecucao &&
+                retornoExecucao.valorRetornado instanceof Quebra
+            ) {
+                return finalizarNormal();
+            }
+
+            return encadear(this.avaliar(enquanto.condicao), (condicaoBruta: any) => {
+                if (!this.eVerdadeiro(condicaoBruta)) {
+                    return finalizarNormal();
+                }
+
+                const corpoIteracao = (): any =>
+                    encadear(this.cederControle(++iteracoes), () =>
+                        encadear(this.executar(enquanto.corpo), (resultado: any) => {
+                            retornoExecucao = resultado;
+
+                            if (
+                                retornoExecucao &&
+                                retornoExecucao.valorRetornado instanceof SustarQuebra
+                            ) {
+                                if (acumularRetornos) {
+                                    return {
+                                        valorRetornado: retornos,
+                                        tipo: 'vetor',
+                                    };
+                                }
+                                return null;
+                            }
+
+                            if (
+                                retornoExecucao &&
+                                retornoExecucao.valorRetornado instanceof ContinuarQuebra
+                            ) {
+                                retornoExecucao = undefined;
+                            }
+
+                            if (acumularRetornos) {
+                                retornos.push(this.resolverValor(retornoExecucao));
+                            }
+
+                            return proximaIteracao();
+                        })
+                    );
+
+                try {
+                    const resultadoOuPromise = this.funcaoVerificarIteracao
+                        ? encadear(this.funcaoVerificarIteracao(), () => corpoIteracao())
+                        : corpoIteracao();
+                    return resultadoOuPromise instanceof Promise
+                        ? resultadoOuPromise.catch(tratarErro)
+                        : resultadoOuPromise;
+                } catch (erro: any) {
+                    return tratarErro(erro);
+                }
+            });
+        };
+
+        return proximaIteracao();
     }
 
-    override async visitarDeclaracaoEnquanto(declaracao: Enquanto): Promise<any> {
+    override visitarDeclaracaoEnquanto(declaracao: Enquanto): any {
         return this.logicaComumExecucaoEnquanto(declaracao, false);
     }
 
@@ -677,72 +709,90 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         return this.logicaComumExecucaoFazer(declaracao, false);
     }
 
-    protected async logicaComumExecucaoPara(
-        para: ParaInterface,
-        acumularRetornos: boolean
-    ): Promise<any> {
+    protected logicaComumExecucaoPara(para: ParaInterface, acumularRetornos: boolean): any {
         const declaracaoInicializador = Array.isArray(para.inicializador)
             ? para.inicializador[0]
             : para.inicializador;
-
-        if (declaracaoInicializador !== null && declaracaoInicializador !== undefined) {
-            await this.avaliar(declaracaoInicializador);
-        }
 
         const retornos = [];
         let retornoExecucao: ResultadoParcialInterpretadorInterface | undefined = undefined;
         let iteracoes = 0;
 
-        while (
-            acumularRetornos ||
-            !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)
-        ) {
-            if (para.condicao !== null && !this.eVerdadeiro(await this.avaliar(para.condicao))) {
-                break;
+        const finalizarAcumulado = (): any => ({
+            valorRetornado: retornos,
+            tipo: 'vetor',
+        });
+
+        const proximaIteracao = (): any => {
+            if (
+                !(
+                    acumularRetornos ||
+                    !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)
+                )
+            ) {
+                return acumularRetornos ? finalizarAcumulado() : retornoExecucao;
             }
 
-            if (this.funcaoVerificarIteracao) {
-                await this.funcaoVerificarIteracao();
-            }
+            const continuarAposCondicao = (): any => {
+                const corpoIteracao = (): any =>
+                    encadear(this.cederControle(++iteracoes), () =>
+                        encadear(this.executar(para.corpo), (resultado: any) => {
+                            retornoExecucao = resultado;
 
-            await this.cederControle(++iteracoes);
-            retornoExecucao = await this.executar(para.corpo);
+                            if (
+                                retornoExecucao &&
+                                retornoExecucao.valorRetornado instanceof SustarQuebra
+                            ) {
+                                if (acumularRetornos) return finalizarAcumulado();
+                                return undefined;
+                            }
 
-            if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
-                if (acumularRetornos) {
-                    return {
-                        valorRetornado: retornos,
-                        tipo: 'vetor',
-                    };
-                }
+                            if (
+                                retornoExecucao &&
+                                retornoExecucao.valorRetornado instanceof ContinuarQuebra
+                            ) {
+                                retornoExecucao = undefined;
+                            }
 
-                return undefined;
-            }
+                            if (acumularRetornos) {
+                                retornos.push(this.resolverValor(retornoExecucao));
+                            }
 
-            if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) {
-                retornoExecucao = undefined;
-            }
+                            if (para.incrementar !== null) {
+                                return encadear(this.avaliar(para.incrementar), () =>
+                                    proximaIteracao()
+                                );
+                            }
 
-            if (acumularRetornos) {
-                retornos.push(this.resolverValor(retornoExecucao));
-            }
+                            return proximaIteracao();
+                        })
+                    );
 
-            if (para.incrementar !== null) {
-                await this.avaliar(para.incrementar);
-            }
-        }
-
-        if (acumularRetornos) {
-            return {
-                valorRetornado: retornos,
-                tipo: 'vetor',
+                return this.funcaoVerificarIteracao
+                    ? encadear(this.funcaoVerificarIteracao(), () => corpoIteracao())
+                    : corpoIteracao();
             };
+
+            if (para.condicao !== null) {
+                return encadear(this.avaliar(para.condicao), (condicaoBruta: any) => {
+                    if (!this.eVerdadeiro(condicaoBruta)) {
+                        return acumularRetornos ? finalizarAcumulado() : retornoExecucao;
+                    }
+                    return continuarAposCondicao();
+                });
+            }
+
+            return continuarAposCondicao();
+        };
+
+        if (declaracaoInicializador !== null && declaracaoInicializador !== undefined) {
+            return encadear(this.avaliar(declaracaoInicializador), () => proximaIteracao());
         }
 
-        return retornoExecucao;
+        return proximaIteracao();
     }
 
-    override async visitarDeclaracaoPara(declaracao: Para): Promise<any> {
+    override visitarDeclaracaoPara(declaracao: Para): any {
         return this.logicaComumExecucaoPara(declaracao, false);
     }
 
