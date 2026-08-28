@@ -2939,8 +2939,8 @@ export class InterpretadorBase implements InterpretadorInterface {
     visitarDeclaracaoVar(declaracao: Var): any {
         return encadear(this.avaliacaoDeclaracaoVarOuConst(declaracao), (valorFinal: any) => {
             let tipoResolvido = declaracao.tipo;
-            if (tipoResolvido.startsWith('função<')) {
-                tipoResolvido = tipoResolvido.replace('função<', '').replace('>', '');
+            if (tipoResolvido.startsWith('função<') && tipoResolvido.endsWith('>')) {
+                tipoResolvido = tipoResolvido.slice('função<'.length, -1);
             }
 
             if (!declaracao.tipoExplicito && tipoResolvido === tipoDeDadosDelegua.QUALQUER && valorFinal instanceof Array) {
