@@ -1379,6 +1379,25 @@ export class AvaliadorSintatico
                     return await this.resolverCadeiaChamadas(acessoVariavel);
                 }
             default:
+                // Se o próximo símbolo é um incremento ou um decremento, e a cadeia de
+                // chamadas terminou aqui (ex.: `x[0]++`, `objeto.propriedade--`), aqui
+                // deve retornar um unário pós-fixado correspondente.
+                if (
+                    this.simbolos[this.atual] &&
+                    [tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR].includes(
+                        this.simbolos[this.atual].tipo
+                    )
+                ) {
+                    const simboloIncrementoDecremento: SimboloInterface =
+                        this.avancarEDevolverAnterior();
+                    return new Unario(
+                        this.hashArquivo,
+                        simboloIncrementoDecremento,
+                        expressaoAnterior,
+                        'DEPOIS'
+                    );
+                }
+
                 return expressaoAnterior;
         }
     }

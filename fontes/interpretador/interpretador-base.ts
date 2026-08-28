@@ -730,6 +730,49 @@ export class InterpretadorBase implements InterpretadorInterface {
         );
     }
 
+    /**
+     * Atribui `valor` de volta ao operando de um unário de incremento/decremento
+     * (`++operando` / `operando++` / `--operando` / `operando--`).
+     * Suporta variáveis simples e elementos de vetor/dicionário acessados por índice
+     * (ex.: `x[0]++`). Outros tipos de operando (literais, chamadas, etc.) apenas
+     * devolvem o valor, sem persistir a mudança em lugar nenhum.
+     * @param operando O construto à esquerda/direita do operador de incremento/decremento.
+     * @param valor O novo valor a ser armazenado.
+     * @returns {any} O próprio `valor`, possivelmente encadeado numa `Promise`.
+     */
+    protected atribuirValorAoOperandoUnario(operando: ConstrutoInterface, valor: any): any {
+        if (operando instanceof Variavel) {
+            this.pilhaEscoposExecucao.atribuirVariavel(operando.simbolo, valor);
+            return valor;
+        }
+
+        if (operando instanceof AcessoIndiceVariavel) {
+            return encadear(this.avaliar(operando.entidadeChamada), (entidadeBruta) => {
+                const entidade = this.resolverValor(entidadeBruta);
+
+                return encadear(this.avaliar(operando.indice), (indiceBruto) => {
+                    let indice = this.resolverValor(indiceBruto);
+
+                    if (Array.isArray(entidade)) {
+                        if (indice < 0 && entidade.length !== 0) {
+                            while (indice < 0) {
+                                indice += entidade.length;
+                            }
+                        }
+
+                        entidade[indice] = valor;
+                    } else if (entidade && typeof entidade === 'object') {
+                        entidade[indice] = valor;
+                    }
+
+                    return valor;
+                });
+            });
+        }
+
+        return valor;
+    }
+
     visitarExpressaoUnaria(expressao: Unario): any {
         return encadear(this.avaliar(expressao.operando), (operando) => {
             let valor: any = this.resolverValor(operando);
@@ -764,22 +807,14 @@ export class InterpretadorBase implements InterpretadorInterface {
                     }
 
                     if (expressao.incidenciaOperador === 'ANTES') {
-                        valor++;
-                        if (expressao.operando instanceof Variavel) {
-                            this.pilhaEscoposExecucao.atribuirVariavel(
-                                expressao.operando.simbolo,
-                                valor
-                            );
-                        }
-
-                        return valor;
+                        return this.atribuirValorAoOperandoUnario(expressao.operando, valor + 1);
                     }
 
                     const valorAnteriorIncremento = valor;
-                    if (expressao.operando instanceof Variavel) {
-                        this.pilhaEscoposExecucao.atribuirVariavel(expressao.operando.simbolo, ++valor);
-                    }
-                    return valorAnteriorIncremento;
+                    return encadear(
+                        this.atribuirValorAoOperandoUnario(expressao.operando, valor + 1),
+                        () => valorAnteriorIncremento
+                    );
                 case tiposDeSimbolos.DECREMENTAR:
                     if (typeof valor === 'string') {
                         throw new ErroEmTempoDeExecucao(
@@ -790,22 +825,14 @@ export class InterpretadorBase implements InterpretadorInterface {
                     }
 
                     if (expressao.incidenciaOperador === 'ANTES') {
-                        valor--;
-                        if (expressao.operando instanceof Variavel) {
-                            this.pilhaEscoposExecucao.atribuirVariavel(
-                                expressao.operando.simbolo,
-                                valor
-                            );
-                        }
-
-                        return valor;
+                        return this.atribuirValorAoOperandoUnario(expressao.operando, valor - 1);
                     }
 
                     const valorAnteriorDecremento = valor;
-                    if (expressao.operando instanceof Variavel) {
-                        this.pilhaEscoposExecucao.atribuirVariavel(expressao.operando.simbolo, --valor);
-                    }
-                    return valorAnteriorDecremento;
+                    return encadear(
+                        this.atribuirValorAoOperandoUnario(expressao.operando, valor - 1),
+                        () => valorAnteriorDecremento
+                    );
             }
 
             return null;

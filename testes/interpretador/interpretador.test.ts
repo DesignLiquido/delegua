@@ -8662,6 +8662,52 @@ describe('Interpretador', () => {
                 expect(retornoInterpretador.erros).toHaveLength(1);
                 expect(_saidas).toHaveLength(0);
             });
+
+            it('Pré-incremento em elemento de vetor (++x[0]) muda o vetor', async () => {
+                const codigo = [
+                    'var x = [66]',
+                    'escreva(++x[0])',
+                    'escreva(x[0])',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('67');
+                expect(_saidas[1]).toBe('67');
+            });
+
+            it('Pós-incremento em elemento de vetor (x[0]++) retorna valor original e muda o vetor', async () => {
+                const codigo = [
+                    'var x = [66]',
+                    'escreva(x[0]++)',
+                    'escreva(x[0])',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('66');
+                expect(_saidas[1]).toBe('67');
+            });
+
+            it('Pós-decremento em elemento de vetor (x[0]--) retorna valor original e muda o vetor', async () => {
+                const codigo = [
+                    'var x = [66]',
+                    'var z = x[0]--',
+                    'escreva(z)',
+                    'escreva(x[0])',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(2);
+                expect(_saidas[0]).toBe('66');
+                expect(_saidas[1]).toBe('65');
+            });
         });
 
         describe('Divisão e exponenciação', () => {
