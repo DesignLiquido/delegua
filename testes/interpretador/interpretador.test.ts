@@ -459,6 +459,54 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                     expect(_saidas[0]).toEqual('bcd');
                 });
+
+                it('fatiamento de texto com apenas início negativo', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var texto = "arquivo.delegua"',
+                        'escreva(texto[-8:])'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toEqual('.delegua');
+                });
+
+                it('vetor[::passo] sem início nem fim explícitos', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var vetor = [1, 2, 3, 4, 5]',
+                        'escreva(vetor[::2])'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toEqual('[1, 3, 5]');
+                });
+
+                it('vetor[::-1] inverte o vetor', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var vetor = [1, 2, 3, 4, 5]',
+                        'escreva(vetor[::-1])'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toEqual('[5, 4, 3, 2, 1]');
+                });
+
+                it('vetor[inicio:fim] com fim além do tamanho não lança erro, apenas ajusta ao final', async () => {
+                    const retornoLexador = lexador.mapear([
+                        'var vetor = [1, 2, 3]',
+                        'escreva(vetor[0:10])'
+                    ], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(_saidas[0]).toEqual('[1, 2, 3]');
+                });
             });
 
             describe('Atribuições', () => {
