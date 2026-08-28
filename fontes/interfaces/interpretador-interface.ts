@@ -31,7 +31,7 @@ export interface InterpretadorInterface extends VisitanteComumInterface {
 
     eVerdadeiro(objeto: any): boolean;
     avaliar(expressao: ConstrutoInterface | Declaracao): any;
-    executarBloco(declaracoes: Declaracao[], ambiente?: EspacoMemoria): Promise<any>;
+    executarBloco(declaracoes: Declaracao[], ambiente?: EspacoMemoria): any;
     paraTexto(objeto: any): any;
     executar(declaracao: Declaracao, mostrarResultado?: boolean): any;
     resolverValor(objeto: any, referencia?: boolean): any;

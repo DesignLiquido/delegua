@@ -51,8 +51,8 @@ export class Atribuir<TTipoSimbolo extends string = string> implements Construto
         }
     }
 
-    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
-        return await visitante.visitarExpressaoDeAtribuicao(this);
+    aceitar(visitante: VisitanteComumInterface): any {
+        return visitante.visitarExpressaoDeAtribuicao(this);
     }
 
     paraTexto(): string {

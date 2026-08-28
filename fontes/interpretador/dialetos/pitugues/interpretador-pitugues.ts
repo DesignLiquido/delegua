@@ -19,6 +19,7 @@ import {
 import { Interpretador } from '../../interpretador';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
 import { EspacoMemoria } from '../../espaco-memoria';
+import { encadear } from '../../encadear';
 
 import { Classe, Declaracao, ParaCada, Retorna } from '../../../declaracoes';
 import { inferirTipoVariavel } from '../../../inferenciador';
@@ -115,10 +116,7 @@ export class InterpretadorPitugues extends Interpretador {
      * Isso permite que `PilhaEscoposExecucaoPitugues` identifique fronteiras de
      * função e aplique a semântica LEGB corretamente.
      */
-    override async executarBloco(
-        declaracoes: Declaracao[],
-        ambiente?: EspacoMemoria
-    ): Promise<any> {
+    override executarBloco(declaracoes: Declaracao[], ambiente?: EspacoMemoria): any {
         if (ambiente !== undefined && ambiente !== null) {
             const escopoFuncao = {
                 declaracoes,
@@ -129,11 +127,12 @@ export class InterpretadorPitugues extends Interpretador {
                 emLacoRepeticao: false,
             };
             this.pilhaEscoposExecucao.empilhar(escopoFuncao);
-            const retorno = await this.executarUltimoEscopo();
-            if (retorno instanceof ErroEmTempoDeExecucao) {
-                return Promise.reject(retorno);
-            }
-            return retorno;
+            return encadear(this.executarUltimoEscopo(), (retorno: any) => {
+                if (retorno instanceof ErroEmTempoDeExecucao) {
+                    return Promise.reject(retorno);
+                }
+                return retorno;
+            });
         }
         return super.executarBloco(declaracoes, ambiente);
     }
