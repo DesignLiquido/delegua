@@ -437,7 +437,8 @@ export class FormatadorPitugues implements VisitantePituguesInterface {
         const operador =
             expressão.operador.tipo === tiposDeSimbolos.SUBTRACAO
                 ? '-'
-                : expressão.operador.tipo === tiposDeSimbolos.NEGACAO
+                : expressão.operador.tipo === tiposDeSimbolos.NEGACAO ||
+                    expressão.operador.tipo === tiposDeSimbolos.NAO
                   ? 'não '
                   : '';
         const operando = await expressão.operando.aceitar(this);

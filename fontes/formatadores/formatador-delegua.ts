@@ -982,6 +982,9 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
             case tiposDeSimbolos.NEGACAO:
                 operador = `!`;
                 break;
+            case tiposDeSimbolos.NAO:
+                operador = `não `;
+                break;
             case tiposDeSimbolos.SUBTRACAO:
                 operador = `-`;
                 break;

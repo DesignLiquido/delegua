@@ -776,6 +776,17 @@ describe('Formatadores > Delégua', () => {
         expect(resultado).toContain("!");
     });
     
+    it('Unário negação com "não"', async () => {
+        const resultadoLexador = lexador.mapear([
+            "var x = não verdadeiro"
+        ], -1);
+
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+
+        expect(resultado).toContain("não verdadeiro");
+    });
+
     it('Unário subtração', async () => {
         const resultadoLexador = lexador.mapear([
             "var x = -5"
