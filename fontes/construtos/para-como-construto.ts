@@ -13,6 +13,7 @@ export class ParaComoConstruto implements ConstrutoInterface, ParaInterface {
     inicializada: boolean;
     blocoPosExecucao?: Bloco;
     resolverIncrementoEmExecucao: boolean;
+    comParenteses: boolean;
 
     constructor(
         hashArquivo: number,
@@ -20,7 +21,8 @@ export class ParaComoConstruto implements ConstrutoInterface, ParaInterface {
         inicializador: Declaracao | Declaracao[],
         condicao: ConstrutoInterface,
         incrementar: ConstrutoInterface,
-        corpo: Bloco
+        corpo: Bloco,
+        comParenteses: boolean = true
     ) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
@@ -31,6 +33,7 @@ export class ParaComoConstruto implements ConstrutoInterface, ParaInterface {
         this.inicializada = false;
         this.blocoPosExecucao = undefined;
         this.resolverIncrementoEmExecucao = false;
+        this.comParenteses = comParenteses;
     }
 
     async aceitar(visitante: VisitanteDeleguaInterface): Promise<any> {

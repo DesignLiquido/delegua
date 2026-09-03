@@ -11,4 +11,11 @@ export interface ParaInterface {
     inicializada: boolean;
     blocoPosExecucao?: Bloco;
     resolverIncrementoEmExecucao: boolean;
+    /**
+     * Indica se o cabeçalho do `para` (inicializador; condição; incremento) foi
+     * escrito entre parênteses no código-fonte original. Os parênteses são
+     * opcionais na gramática; este campo existe para que o formatador possa
+     * reproduzir o estilo original em vez de impor um estilo fixo.
+     */
+    comParenteses?: boolean;
 }

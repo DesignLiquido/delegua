@@ -19,10 +19,8 @@ describe('Formatadores > Delégua', () => {
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         const linhasResultado = resultado.split(quebraLinha);
         
-        expect(linhasResultado).toHaveLength(4);
-        expect(linhasResultado[0]).toBe("3 ** 4 - 9(10 * -1");
-        expect(linhasResultado[1]).toBe(" - -2");
-        expect(linhasResultado[2]).toBe(")");
+        expect(linhasResultado).toHaveLength(2);
+        expect(linhasResultado[0]).toBe("3 ** 4 - 9(10 * -1 - -2)");
     });
     
     describe('Atribuições', () => {
@@ -572,8 +570,57 @@ describe('Formatadores > Delégua', () => {
             expect(linhasResultado[13]).toBe("    }");
             expect(linhasResultado[14]).toBe("}");
         });
+
+        it('Laço "para" com condição contendo número negativo (issue #1437)', async () => {
+            const codigo = [
+                "var soma = 0",
+                "var quantidade = 0",
+                "",
+                "para (var i = 1; i <= 10; i = i + 1) {",
+                "    var numero = inteiro(leia(\"Digite um número inteiro (ou -1 para sair): \"))",
+                "",
+                "    se (numero == -1) {",
+                "        sustar",
+                "    }",
+                "",
+                "    soma = soma + numero",
+                "    quantidade = quantidade + 1",
+                "}",
+                "",
+                "se (quantidade > 0) {",
+                "    var media = soma / quantidade",
+                "} senão {",
+                "    escreva(\"Nenhum número válido foi inserido.\")",
+                "}",
+            ];
+
+            const resultadoLexador = lexador.mapear(codigo, -1);
+            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+            const linhasResultado = resultado.split(quebraLinha);
+
+            expect(resultado).toContain("para (var i = 1; i <= 10; i = i + 1) {");
+            expect(resultado).not.toContain("para var i = 1");
+            expect(linhasResultado).toContain("    se (numero == -1) {");
+            expect(resultado).not.toContain("se (numero == -1\n)");
+        });
+
+        it('Laço "para" sem parênteses no código-fonte preserva a ausência de parênteses', async () => {
+            const codigo = [
+                "para var i = 1; i <= 10; i = i + 1 {",
+                "    escreva(i)",
+                "}",
+            ];
+
+            const resultadoLexador = lexador.mapear(codigo, -1);
+            const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+            const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
+
+            expect(resultado).toContain("para var i = 1; i <= 10; i = i + 1 {");
+            expect(resultado).not.toContain("para (var i = 1");
+        });
     });
-    
+
     it('Comentários multilinha', async () => {
         const resultadoLexador = lexador.mapear([
             "/* Este é um comentário de múltiplas linhas */",

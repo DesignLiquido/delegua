@@ -202,7 +202,8 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
     }
 
     visitarExpressaoPara(expressao: ParaComoConstruto): Promise<any> | void {
-        this.codigoFormatado += `para `;
+        const comParenteses = expressao.comParenteses !== false;
+        this.codigoFormatado += comParenteses ? `para (` : `para `;
         this.devePularLinha = false;
         if (expressao.inicializador) {
             if (Array.isArray(expressao.inicializador)) {
@@ -221,7 +222,7 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
         this.codigoFormatado += `; `;
         this.formatarDeclaracaoOuConstruto(expressao.incrementar);
         this.devePularLinha = true;
-        this.codigoFormatado += ` {${this.quebraLinha}`;
+        this.codigoFormatado += comParenteses ? `) {${this.quebraLinha}` : ` {${this.quebraLinha}`;
         this.indentacaoAtual += this.tamanhoIndentacao;
         for (let declaracao of (expressao.corpo as Bloco).declaracoes) {
             this.formatarDeclaracaoOuConstruto(declaracao);
@@ -531,7 +532,10 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
     }
 
     visitarDeclaracaoPara(declaracao: Para): any {
-        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}para `;
+        const comParenteses = declaracao.comParenteses !== false;
+        this.codigoFormatado += comParenteses
+            ? `${' '.repeat(this.indentacaoAtual)}para (`
+            : `${' '.repeat(this.indentacaoAtual)}para `;
         this.devePularLinha = false;
         if (declaracao.inicializador) {
             if (Array.isArray(declaracao.inicializador)) {
@@ -551,7 +555,7 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
         this.codigoFormatado += `; `;
         this.formatarDeclaracaoOuConstruto(declaracao.incrementar);
         this.devePularLinha = true;
-        this.codigoFormatado += ` {${this.quebraLinha}`;
+        this.codigoFormatado += comParenteses ? `) {${this.quebraLinha}` : ` {${this.quebraLinha}`;
 
         this.indentacaoAtual += this.tamanhoIndentacao;
         for (let declaracaoBloco of declaracao.corpo.declaracoes) {
@@ -999,10 +1003,6 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
                 this.formatarDeclaracaoOuConstruto(expressao.operando);
                 this.codigoFormatado += operador;
                 break;
-        }
-
-        if (this.devePularLinha) {
-            this.codigoFormatado += this.quebraLinha;
         }
     }
 

@@ -16,6 +16,7 @@ export class Para extends Declaracao implements ParaInterface {
     inicializada: boolean;
     blocoPosExecucao?: Bloco;
     resolverIncrementoEmExecucao: boolean;
+    comParenteses: boolean;
 
     constructor(
         hashArquivo: number,
@@ -23,7 +24,8 @@ export class Para extends Declaracao implements ParaInterface {
         inicializador: Declaracao | Declaracao[],
         condicao: ConstrutoInterface,
         incrementar: ConstrutoInterface,
-        corpo: Bloco
+        corpo: Bloco,
+        comParenteses: boolean = true
     ) {
         super(linha, hashArquivo);
         this.inicializador = inicializador;
@@ -33,6 +35,7 @@ export class Para extends Declaracao implements ParaInterface {
         this.inicializada = false;
         this.blocoPosExecucao = undefined;
         this.resolverIncrementoEmExecucao = false;
+        this.comParenteses = comParenteses;
     }
 
     async aceitar(visitante: VisitanteComumInterface): Promise<any> {

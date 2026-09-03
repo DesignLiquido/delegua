@@ -609,7 +609,8 @@ export class AvaliadorSintatico
     }
 
     protected async paraTradicionalComoConstruto(simboloPara: SimboloInterface) {
-        const { inicializador, condicao, incrementar, corpo } = await this.logicaComumPara();
+        const { inicializador, condicao, incrementar, corpo, comParenteses } =
+            await this.logicaComumPara();
 
         return new ParaComoConstruto(
             simboloPara.hashArquivo,
@@ -617,7 +618,8 @@ export class AvaliadorSintatico
             inicializador as Expressao | Var[] | Const[],
             condicao as ConstrutoInterface,
             incrementar as ConstrutoInterface,
-            corpo
+            corpo,
+            comParenteses
         );
     }
 
@@ -3079,11 +3081,13 @@ export class AvaliadorSintatico
             condicao,
             incrementar,
             corpo,
+            comParenteses,
         };
     }
 
     protected async declaracaoParaTradicional(simboloPara: SimboloInterface): Promise<Para> {
-        const { inicializador, condicao, incrementar, corpo } = await this.logicaComumPara();
+        const { inicializador, condicao, incrementar, corpo, comParenteses } =
+            await this.logicaComumPara();
 
         return new Para(
             this.hashArquivo,
@@ -3091,7 +3095,8 @@ export class AvaliadorSintatico
             inicializador as Expressao,
             condicao as ConstrutoInterface,
             incrementar as ConstrutoInterface,
-            corpo
+            corpo,
+            comParenteses
         );
     }
 
