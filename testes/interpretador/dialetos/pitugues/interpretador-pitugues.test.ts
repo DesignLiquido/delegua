@@ -3,6 +3,8 @@ import { LexadorPitugues } from "../../../../fontes/lexador";
 import { InterpretadorPitugues } from "../../../../fontes/interpretador/dialetos/pitugues"
 import { Iteravel } from "../../../../fontes/interpretador/estruturas/iteravel";
 import { obterMensagemErro } from "../../../../fontes/excecoes";
+import { DeleguaModulo, FuncaoPadrao } from "../../../../fontes/interpretador/estruturas";
+import { InformacaoElementoSintatico } from "../../../../fontes/informacao-elemento-sintatico";
 
 describe('Interpretador (Pituguês)', () => {
     describe('interpretar()', () => {
@@ -4982,6 +4984,67 @@ describe('Interpretador (Pituguês)', () => {
             expect(retornoInterpretador.erros).toHaveLength(0);
             expect(_saidas).toHaveLength(1);
             expect(_saidas[0]).toBe('1');
+        });
+
+        describe('Módulos', () => {
+            it('Chama método de módulo (DeleguaModulo) via acesso ponto', async () => {
+                // Reproduz o cenário de bibliotecas injetadas como módulo
+                // (ex.: `lincones` em Líquido), cujos métodos ficam em
+                // `componentes` em vez de serem propriedades diretas do
+                // objeto. `visitarExpressaoAcessoMetodoOuPropriedade` (usada
+                // por Pituguês para toda expressão `objeto.algo`) precisa
+                // reconhecer `DeleguaModulo`, assim como já faz
+                // `visitarExpressaoAcessoMetodo` (Delégua) e
+                // `visitarExpressaoAcessoPropriedade`.
+                const moduloTeste = new DeleguaModulo('moduloTeste');
+                moduloTeste.componentes['metodo'] = new FuncaoPadrao(
+                    1,
+                    (_interpretador: unknown, valor: string) => `recebido:${valor}`
+                );
+                interpretador.pilhaEscoposExecucao.definirVariavel('moduloTeste', moduloTeste);
+
+                // O avaliador sintático de Pituguês não processa
+                // `tiposDeFerramentasExternas` em `inicializarPilhaEscopos()`
+                // (só a classe base não-Pituguês faz isso — ver mesma ressalva
+                // em Líquido, `AvaliadorSintaticoLiquidoPitugues`). Replicamos
+                // aqui o mesmo contorno para registrar `moduloTeste` como
+                // variável conhecida do tipo 'módulo' e isolar o teste do
+                // método sob teste (o acesso a `DeleguaModulo` em tempo de
+                // execução), sem depender de corrigir essa lacuna separada.
+                avaliadorSintatico.tiposDeFerramentasExternas = {
+                    testes: { moduloTeste: 'módulo' },
+                };
+                const inicializarPilhaEscoposOriginal = (
+                    avaliadorSintatico as any
+                ).inicializarPilhaEscopos.bind(avaliadorSintatico);
+                (avaliadorSintatico as any).inicializarPilhaEscopos = () => {
+                    inicializarPilhaEscoposOriginal();
+                    for (const tipos of Object.values(avaliadorSintatico.tiposDeFerramentasExternas)) {
+                        for (const [nomeTipo, tipo] of Object.entries(tipos)) {
+                            (avaliadorSintatico as any).pilhaEscopos.definirInformacoesVariavel(
+                                nomeTipo,
+                                new InformacaoElementoSintatico(nomeTipo, tipo)
+                            );
+                        }
+                    }
+                };
+
+                const retornoLexador = lexador.mapear([
+                    'escreva(moduloTeste.metodo("abc"))',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                    retornoLexador,
+                    -1
+                );
+                const retornoInterpretador = await interpretador.interpretar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                expect(retornoInterpretador.erros).toHaveLength(0);
+                expect(_saidas).toHaveLength(1);
+                expect(_saidas[0]).toBe('recebido:abc');
+            });
         });
 
         describe('Cenários de falha', () => {

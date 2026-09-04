@@ -171,6 +171,12 @@ export async function visitarExpressaoAcessoMetodoOuPropriedade(
         );
     }
 
+    // A partir daqui, presume-se que o objeto é uma das estruturas
+    // de Delégua.
+    if (objeto instanceof DeleguaModulo) {
+        return objeto.componentes[expressao.simbolo.lexema] || null;
+    }
+
     // Fallback para propriedades simples do objeto
     if (objeto.hasOwnProperty && objeto.hasOwnProperty(expressao.simbolo.lexema)) {
         return objeto[expressao.simbolo.lexema];
