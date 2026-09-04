@@ -126,7 +126,11 @@ export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implement
         [nomeTipo: string]: ClasseDeModulo;
     };
     pilhaEscopos: PilhaEscopos;
-    tiposDeFerramentasExternas: { [nomeFerramenta: string]: { [nomeTipo: string]: string } };
+    // Precisa de inicializador aqui (e não apenas na `constructor`): um campo
+    // de classe sem inicializador roda como `= undefined` logo após `super()`
+    // (semântica `useDefineForClassFields`), o que quebraria
+    // `inicializarPilhaEscopos()` caso o valor fosse atribuído só depois.
+    tiposDeFerramentasExternas: { [nomeFerramenta: string]: { [nomeTipo: string]: string } } = {};
     primitivasConhecidas: {
         [nomeModuloOuClasse: string]: { [nomePrimitiva: string]: InformacaoElementoSintatico };
     };
@@ -3176,6 +3180,29 @@ export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implement
                 new InformacaoElementoSintatico('iteravel', 'qualquer'),
             ])
         );
+
+        for (const tipos of Object.values(this.tiposDeFerramentasExternas)) {
+            for (const [nomeTipo, tipo] of Object.entries(tipos)) {
+                if (!nomeTipo || !tipo) {
+                    continue;
+                }
+
+                if (nomeTipo in this.tiposDefinidosEmCodigo) {
+                    this.erros.push(
+                        new ErroAvaliadorSintatico(
+                            new Simbolo(tiposDeSimbolos.IDENTIFICADOR, nomeTipo, nomeTipo, 0, 0),
+                            `Tipo '${nomeTipo}' de ferramenta externa conflita com tipo já definido em código.`
+                        )
+                    );
+                    continue;
+                }
+
+                this.pilhaEscopos.definirInformacoesVariavel(
+                    nomeTipo,
+                    new InformacaoElementoSintatico(nomeTipo, tipo)
+                );
+            }
+        }
     }
 
     async analisar(

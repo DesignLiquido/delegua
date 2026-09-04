@@ -4,7 +4,6 @@ import { InterpretadorPitugues } from "../../../../fontes/interpretador/dialetos
 import { Iteravel } from "../../../../fontes/interpretador/estruturas/iteravel";
 import { obterMensagemErro } from "../../../../fontes/excecoes";
 import { DeleguaModulo, FuncaoPadrao } from "../../../../fontes/interpretador/estruturas";
-import { InformacaoElementoSintatico } from "../../../../fontes/informacao-elemento-sintatico";
 
 describe('Interpretador (Pituguês)', () => {
     describe('interpretar()', () => {
@@ -5002,31 +5001,11 @@ describe('Interpretador (Pituguês)', () => {
                     (_interpretador: unknown, valor: string) => `recebido:${valor}`
                 );
                 interpretador.pilhaEscoposExecucao.definirVariavel('moduloTeste', moduloTeste);
-
-                // O avaliador sintático de Pituguês não processa
-                // `tiposDeFerramentasExternas` em `inicializarPilhaEscopos()`
-                // (só a classe base não-Pituguês faz isso — ver mesma ressalva
-                // em Líquido, `AvaliadorSintaticoLiquidoPitugues`). Replicamos
-                // aqui o mesmo contorno para registrar `moduloTeste` como
-                // variável conhecida do tipo 'módulo' e isolar o teste do
-                // método sob teste (o acesso a `DeleguaModulo` em tempo de
-                // execução), sem depender de corrigir essa lacuna separada.
+                // Registra `moduloTeste` como ferramenta externa do tipo
+                // 'módulo', do mesmo modo que Líquido faz para `lincones`.
+                // `inicializarPilhaEscopos()` processa isso ao analisar.
                 avaliadorSintatico.tiposDeFerramentasExternas = {
                     testes: { moduloTeste: 'módulo' },
-                };
-                const inicializarPilhaEscoposOriginal = (
-                    avaliadorSintatico as any
-                ).inicializarPilhaEscopos.bind(avaliadorSintatico);
-                (avaliadorSintatico as any).inicializarPilhaEscopos = () => {
-                    inicializarPilhaEscoposOriginal();
-                    for (const tipos of Object.values(avaliadorSintatico.tiposDeFerramentasExternas)) {
-                        for (const [nomeTipo, tipo] of Object.entries(tipos)) {
-                            (avaliadorSintatico as any).pilhaEscopos.definirInformacoesVariavel(
-                                nomeTipo,
-                                new InformacaoElementoSintatico(nomeTipo, tipo)
-                            );
-                        }
-                    }
                 };
 
                 const retornoLexador = lexador.mapear([
