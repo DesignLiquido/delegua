@@ -46,6 +46,7 @@ import {
     Bote,
 } from '../../construtos';
 import {
+    BlocoPegue,
     Escreva,
     Se,
     Enquanto,
@@ -102,6 +103,7 @@ import primitivasNumero from '../../bibliotecas/primitivas-numero';
 import primitivasTexto from '../../bibliotecas/primitivas-texto';
 import primitivasVetor from '../../bibliotecas/primitivas-vetor';
 import primitivasTupla from '../../bibliotecas/dialetos/pitugues/primitivas-tupla';
+import { AvaliadorSintaticoBase } from '../avaliador-sintatico-base';
 
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
@@ -111,7 +113,7 @@ import primitivasTupla from '../../bibliotecas/dialetos/pitugues/primitivas-tupl
  * A grande diferença entre este avaliador e os demais é a forma como são entendidos os blocos de escopo.
  * Este avaliador espera uma estrutura de pragmas, que explica quantos espaços há na frente de cada linha.
  */
-export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
+export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implements AvaliadorSintaticoInterface<
     SimboloInterface,
     Declaracao
 > {
@@ -124,7 +126,11 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         [nomeTipo: string]: ClasseDeModulo;
     };
     pilhaEscopos: PilhaEscopos;
-    tiposDeFerramentasExternas: { [nomeFerramenta: string]: { [nomeTipo: string]: string } };
+    // Precisa de inicializador aqui (e não apenas na `constructor`): um campo
+    // de classe sem inicializador roda como `= undefined` logo após `super()`
+    // (semântica `useDefineForClassFields`), o que quebraria
+    // `inicializarPilhaEscopos()` caso o valor fosse atribuído só depois.
+    tiposDeFerramentasExternas: { [nomeFerramenta: string]: { [nomeTipo: string]: string } } = {};
     primitivasConhecidas: {
         [nomeModuloOuClasse: string]: { [nomePrimitiva: string]: InformacaoElementoSintatico };
     };
@@ -139,6 +145,8 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
     pilhaDecoradores: Decorador[];
 
     constructor(performance = false) {
+        super();
+
         this.atual = 0;
         this.blocos = 0;
         this.performance = performance;
@@ -151,7 +159,8 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         this.tiposDefinidosPorBibliotecas = {};
 
         registrarPrimitiva(this.primitivasConhecidas, 'dicionário', primitivasDicionario);
-        registrarPrimitiva(this.primitivasConhecidas, 'número', primitivasNumero);
+        registrarPrimitiva(this.primitivasConhecidas, 'inteiro', primitivasNumero);
+        registrarPrimitiva(this.primitivasConhecidas, 'real', primitivasNumero);
         registrarPrimitiva(this.primitivasConhecidas, 'texto', primitivasTexto);
         registrarPrimitiva(this.primitivasConhecidas, 'vetor', primitivasVetor);
         registrarPrimitiva(this.primitivasConhecidas, 'tupla', primitivasTupla);
@@ -204,6 +213,13 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             ) {
                 return this.primitivasConhecidas[primitiva][entidadeChamada.simbolo.lexema].tipo;
             }
+        }
+
+        // 'módulo' é um tipo opaco (usado por integrações externas, como o Liquido,
+        // para objetos cujo formato não é conhecido em tempo de análise estática).
+        // Não há como validar a existência do membro, então assumimos 'qualquer'.
+        if (entidadeChamada.objeto.tipo === 'módulo') {
+            return 'qualquer';
         }
 
         throw new ErroAvaliadorSintatico(
@@ -532,7 +548,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             this.hashArquivo,
             chamadaTamanho,
             new Simbolo(tiposDeSimbolos.DIFERENTE, '!=', null, linha, -1),
-            new Literal(this.hashArquivo, linha, qtdEsperada, 'número')
+            new Literal(this.hashArquivo, linha, qtdEsperada, 'inteiro')
         );
 
         const mensagem = `Erro de execução: Você tentou desempacotar em ${qtdEsperada} variáveis, mas o vetor possui tamanho diferente.`;
@@ -681,7 +697,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                             this.hashArquivo,
                             identificador.linha,
                             i,
-                            'número'
+                            'inteiro'
                         ),
                         new Simbolo(
                             tiposDeSimbolos.COLCHETE_DIREITO,
@@ -1006,6 +1022,14 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             case tiposDeSimbolos.LEIA:
                 return await this.expressaoLeia();
             case tiposDeSimbolos.NUMERO:
+                const simboloNumero: SimboloInterface = this.avancarEDevolverAnterior();
+                const tipoNumeroInferido = Number.isInteger(simboloNumero.literal) ? 'inteiro' : 'real';
+                return new Literal(
+                    this.hashArquivo,
+                    Number(simboloNumero.linha),
+                    simboloNumero.literal,
+                    tipoNumeroInferido as TipoInferencia
+                );
             case tiposDeSimbolos.TEXTO:
                 const simboloLiteral: SimboloInterface = this.avancarEDevolverAnterior();
                 const tipoInferido = inferirTipoVariavel(simboloLiteral.literal);
@@ -1133,7 +1157,9 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         throw this.erro(this.simboloAtual(), 'Esperado expressão.');
     }
 
-    async finalizarChamada(entidadeChamada: ConstrutoInterface): Promise<ConstrutoInterface> {
+    async finalizarChamada(
+        entidadeChamada: ConstrutoInterface
+    ): Promise<Chamada> {
         const argumentos = [];
 
         if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
@@ -1230,13 +1256,14 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
 
         if (
             this.verificarSeSimboloAtualEIgualA(
+                tiposDeSimbolos.NAO,
                 tiposDeSimbolos.NEGACAO,
                 tiposDeSimbolos.SUBTRACAO,
                 tiposDeSimbolos.BIT_NOT
             )
         ) {
             const operador = this.simboloAnterior();
-            const direito = await this.unario();
+            const direito = await this.exponenciacao();
             return new Unario(this.hashArquivo, operador, direito);
         }
 
@@ -1331,23 +1358,65 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return expressao;
     }
 
-    async comparar(): Promise<ConstrutoInterface> {
-        let expressao = await this.bitOu();
+    private eOperadorDeComparacao(tipo: any): boolean {
+        return [
+            tiposDeSimbolos.MAIOR,
+            tiposDeSimbolos.MAIOR_IGUAL,
+            tiposDeSimbolos.MENOR,
+            tiposDeSimbolos.MENOR_IGUAL
+        ].includes(tipo);
+    }
 
-        while (
-            this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.MAIOR,
-                tiposDeSimbolos.MAIOR_IGUAL,
-                tiposDeSimbolos.MENOR,
-                tiposDeSimbolos.MENOR_IGUAL
-            )
+    protected override criarConstrutoComparacao(
+        esquerda: ConstrutoInterface,
+        operador: any,
+        direita: ConstrutoInterface
+    ): ConstrutoInterface {
+        let operandoCentral = null;
+
+        // Lógica de desugaring para comparações encadeadas (ex: 1 < x < 10)
+        if (
+            esquerda instanceof Binario &&
+            this.eOperadorDeComparacao((esquerda as Binario<any>).operador.tipo)
         ) {
-            const operador = this.simboloAnterior();
-            const direito = await this.bitOu();
-            expressao = new Binario(this.hashArquivo, expressao, operador, direito);
+            operandoCentral = (esquerda as Binario<any>).direita;
+        } else if (
+            esquerda instanceof Logico &&
+            (esquerda as Logico).direita instanceof Binario &&
+            this.eOperadorDeComparacao(((esquerda as Logico).direita as Binario<any>).operador.tipo)
+        ) {
+            operandoCentral = ((esquerda as Logico).direita as Binario<any>).direita;
         }
 
-        return expressao;
+        if (operandoCentral !== null) {
+            const operadorE = {
+                tipo: tiposDeSimbolos.E,
+                lexema: 'e',
+                literal: null,
+                linha: operador.linha,
+                hashArquivo: this.hashArquivo
+            } as any;
+            const novaComparacaoDireita = new Binario(
+                this.hashArquivo,
+                operandoCentral,
+                operador,
+                direita
+            );
+
+            return new Logico(
+                this.hashArquivo,
+                esquerda,
+                operadorE,
+                novaComparacaoDireita
+            );
+        }
+
+        // Se não for encadeada, cria o Binário normal
+        return new Binario(this.hashArquivo, esquerda, operador, direita);
+    }
+
+    override async comparar(): Promise<ConstrutoInterface> {
+        return await this.logicaComumComparacao(() => this.bitOu());
     }
 
     async comparacaoIgualdade(): Promise<ConstrutoInterface> {
@@ -1591,7 +1660,9 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                 return new Atribuir(
                     this.hashArquivo,
                     expressao,
-                    operacaoBinaria
+                    operacaoBinaria,
+                    undefined,
+                    operadorAtribuicao
                 );
             }
 
@@ -1624,7 +1695,11 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return expressao;
     }
 
-    async declaracaoEscreva(simboloEscreva: SimboloInterface): Promise<Escreva> {
+    async declaracaoEscreva(): Promise<Escreva> {
+        const simboloEscreva = this.simboloAnterior
+            ? this.simboloAnterior()
+            : this.simbolos[this.atual - 1];
+
         this.consumir(
             tiposDeSimbolos.PARENTESE_ESQUERDO,
             "Esperado '(' antes dos valores em escreva."
@@ -1647,6 +1722,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             argumentos
         );
         declaracaoEscreva.simboloEscreva = simboloEscreva;
+
         return declaracaoEscreva;
     }
 
@@ -1977,15 +2053,16 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
     protected async resolverDecoradores(): Promise<void> {
         while (this.verificarTipoSimboloAtual(tiposDeSimbolos.ARROBA)) {
             this.avancarEDevolverAnterior();
-            let nomeDecorador = '@';
-            let linha: number;
-            let parametros: Array<Partial<ParametroInterface>> = [];
-            const atributos: { [key: string]: any } = {};
 
+            const atributos: { [key: string]: any } = {};
             const primeiraParteNomeDecorador = this.consumir(
                 tiposDeSimbolos.IDENTIFICADOR,
                 'Esperado nome de decorador após "@".'
             );
+
+            let linha: number;
+            let nomeDecorador = '@';
+
             linha = Number(primeiraParteNomeDecorador.linha);
             nomeDecorador += primeiraParteNomeDecorador.lexema;
 
@@ -1994,28 +2071,29 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                     tiposDeSimbolos.IDENTIFICADOR,
                     'Esperado nome de decorador após "."'
                 );
+
                 nomeDecorador += '.' + parteNomeDecorador.lexema;
             }
 
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
-                if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
-                    parametros = await this.logicaComumParametros();
-                }
-
-                for (const parametro of parametros) {
-                    if (parametro.nome.lexema in atributos) {
-                        throw this.erro(
-                            parametro.nome,
-                            `Atributo de decorador declarado duas ou mais vezes: ${parametro.nome.lexema}`
-                        );
-                    }
-                    atributos[parametro.nome.lexema] = parametro.valorPadrao;
-                }
-
-                this.consumir(
-                    tiposDeSimbolos.PARENTESE_DIREITO,
-                    'Esperado ")" após argumentos do decorador.'
+                const entidadeChamada = new Variavel(
+                    this.hashArquivo,
+                    primeiraParteNomeDecorador
                 );
+                const chamada = await this.finalizarChamada(entidadeChamada);
+
+                if (chamada && 'argumentos' in chamada) {
+                    const argumentos = chamada.argumentos;
+
+                    for (let i = 0; i < argumentos.length; i++) {
+                        atributos[i] = argumentos[i];
+                    }
+                } else {
+                    throw this.erro(
+                        primeiraParteNomeDecorador,
+                        `Esperado formato de chamada de função para os parâmetros do decorador '@${nomeDecorador}'.`
+                    );
+                }
             }
 
             this.pilhaDecoradores.push(
@@ -2126,52 +2204,32 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
 
         const blocoTente = await this.blocoEscopo();
 
-        let blocoPegue = null;
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PEGUE)) {
-            if (this.verificarTipoSimboloAtual(tiposDeSimbolos.COMO)) {
-                this.avancarEDevolverAnterior();
-                const variavelExcecao = this.consumir(
+        const blocosPegue: BlocoPegue[] = [];
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PEGUE)) {
+            let tipoExcecao: SimboloInterface | undefined;
+            let parametro: SimboloInterface | undefined;
+
+            // Opcional: tipo de exceção (identificador que não é 'como')
+            if (this.verificarTipoSimboloAtual(tiposDeSimbolos.IDENTIFICADOR)) {
+                tipoExcecao = this.avancarEDevolverAnterior() as SimboloInterface;
+            }
+
+            // Opcional: 'como nome'
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COMO)) {
+                parametro = this.consumir(
                     tiposDeSimbolos.IDENTIFICADOR,
-                    `Esperado identificador após palavra reservada 'como' em bloco tente. Atual: ${this.simbolos[this.atual].lexema}.`
-                );
-                // Caso 1: com parâmetro de erro.
-                // `pegue` recebe um `FuncaoConstruto`.
-                this.consumir(
-                    tiposDeSimbolos.DOIS_PONTOS,
-                    `Esperado ':' antes do escopo do bloco 'pegue'.`
-                );
+                    `Esperado identificador após palavra reservada 'como' em bloco 'pegue'.`
+                ) as SimboloInterface;
 
                 this.pilhaEscopos.definirInformacoesVariavel(
-                    variavelExcecao.lexema,
-                    new InformacaoElementoSintatico(variavelExcecao.lexema, 'qualquer')
+                    parametro.lexema,
+                    new InformacaoElementoSintatico(parametro.lexema, 'qualquer')
                 );
-
-                const corpo = await this.blocoEscopo();
-
-                blocoPegue = new FuncaoConstruto(
-                    this.hashArquivo,
-                    simboloTente.linha,
-                    [
-                        {
-                            abrangencia: 'padrao',
-                            nome: variavelExcecao,
-                            tipoDado: 'qualquer',
-                        } as ParametroInterface,
-                    ],
-                    corpo,
-                    'vazio',
-                    false
-                );
-            } else {
-                // Caso 2: sem parâmetro de erro.
-                // `pegue` recebe um bloco.
-                this.consumir(
-                    tiposDeSimbolos.DOIS_PONTOS,
-                    "Esperado ':' após a declaração 'pegue'."
-                );
-
-                blocoPegue = await this.blocoEscopo();
             }
+
+            this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' antes do escopo do bloco 'pegue'.");
+            const corpo = await this.blocoEscopo();
+            blocosPegue.push(new BlocoPegue(parametro, tipoExcecao, corpo as Declaracao[]));
         }
 
         let blocoSenao = null;
@@ -2192,7 +2250,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             simboloTente.hashArquivo,
             Number(simboloTente.linha),
             blocoTente,
-            blocoPegue,
+            blocosPegue,
             blocoSenao,
             blocoFinalmente
         );
@@ -2256,7 +2314,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         return funcaoDeclaracao;
     }
 
-    async logicaComumParametros(): Promise<Array<Partial<ParametroInterface>>> {
+    async logicaComumParametros(): Promise<ParametroInterface[]> {
         const parametros: Array<Partial<ParametroInterface>> = [];
 
         do {
@@ -2300,7 +2358,8 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
 
             if (parametro.abrangencia === 'multiplo') break;
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
-        return parametros;
+
+        return parametros as ParametroInterface[];
     }
 
     /**
@@ -2419,8 +2478,6 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         if (this.verificarTipoProximoSimbolo(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
             const tiposVetores = [
                 'inteiro[]',
-                'numero[]',
-                'número[]',
                 'qualquer[]',
                 'real[]',
                 'texto[]',
@@ -2583,6 +2640,25 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
     ): Promise<void> {
         const ehConstrutor = simboloAnterior.tipo === tiposDeSimbolos.CONSTRUTOR;
         const metodoResolvido = await this.funcao('método', ehConstrutor);
+
+        if (
+            metodoResolvido.decoradores &&
+            metodoResolvido.decoradores.length > 0
+        ) {
+            for (const decorador of metodoResolvido.decoradores) {
+                if (decorador.nome === '@propriedade') {
+                    metodoResolvido.eObtenedor = true;
+                } else if (
+                    typeof decorador.nome === 'string' &&
+                    decorador.nome.endsWith('.definidor')
+                ) {
+                    metodoResolvido.eDefinidor = true;
+                } else if (decorador.nome === '@metodo_estatico') {
+                    metodoResolvido.estatico = true;
+                }
+            }
+        }
+
         metodos.push(metodoResolvido);
     }
 
@@ -2816,8 +2892,8 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                 return this.declaracaoEscolha();
             case tiposDeSimbolos.IMPRIMA:
             case tiposDeSimbolos.ESCREVA:
-                const simboloEscrevaOuImprima = this.avancarEDevolverAnterior();
-                return this.declaracaoEscreva(simboloEscrevaOuImprima);
+                this.avancarEDevolverAnterior();
+                return this.declaracaoEscreva();
             case tiposDeSimbolos.FALHAR:
                 this.avancarEDevolverAnterior();
                 return await this.declaracaoFalhar();
@@ -2881,13 +2957,13 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         // Funções nativas de Delégua (e de Pituguês também, por enquanto)
         this.pilhaEscopos.definirInformacoesVariavel(
             'aleatorio',
-            new InformacaoElementoSintatico('aleatorio', 'número')
+            new InformacaoElementoSintatico('aleatorio', 'real')
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'aleatorio_entre',
-            new InformacaoElementoSintatico('aleatorio_entre', 'número', true, [
-                new InformacaoElementoSintatico('minimo', 'número'),
-                new InformacaoElementoSintatico('maximo', 'número'),
+            new InformacaoElementoSintatico('aleatorio_entre', 'inteiro', true, [
+                new InformacaoElementoSintatico('minimo', 'inteiro'),
+                new InformacaoElementoSintatico('maximo', 'inteiro'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
@@ -2958,7 +3034,7 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
             'enumerar',
             new InformacaoElementoSintatico('intervalo', 'dicionario', true, [
                 new InformacaoElementoSintatico('iteravel', 'qualquer'),
-                new InformacaoElementoSintatico('inicio', 'numero', false),
+                new InformacaoElementoSintatico('inicio', 'inteiro', false),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
@@ -3018,13 +3094,13 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'maximo',
-            new InformacaoElementoSintatico('maximo', 'número', true, [
+            new InformacaoElementoSintatico('maximo', 'real', true, [
                 new InformacaoElementoSintatico('iteravel', 'qualquer'),
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
             'minimo',
-            new InformacaoElementoSintatico('minimo', 'número', true, [
+            new InformacaoElementoSintatico('minimo', 'real', true, [
                 new InformacaoElementoSintatico('iteravel', 'qualquer'),
             ])
         );
@@ -3111,6 +3187,29 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
                 new InformacaoElementoSintatico('iteravel', 'qualquer'),
             ])
         );
+
+        for (const tipos of Object.values(this.tiposDeFerramentasExternas)) {
+            for (const [nomeTipo, tipo] of Object.entries(tipos)) {
+                if (!nomeTipo || !tipo) {
+                    continue;
+                }
+
+                if (nomeTipo in this.tiposDefinidosEmCodigo) {
+                    this.erros.push(
+                        new ErroAvaliadorSintatico(
+                            new Simbolo(tiposDeSimbolos.IDENTIFICADOR, nomeTipo, nomeTipo, 0, 0),
+                            `Tipo '${nomeTipo}' de ferramenta externa conflita com tipo já definido em código.`
+                        )
+                    );
+                    continue;
+                }
+
+                this.pilhaEscopos.definirInformacoesVariavel(
+                    nomeTipo,
+                    new InformacaoElementoSintatico(nomeTipo, tipo)
+                );
+            }
+        }
     }
 
     async analisar(
@@ -3164,7 +3263,6 @@ export class AvaliadorSintaticoPitugues implements AvaliadorSintaticoInterface<
 
         if (this.performance) {
             const deltaAnalise: [number, number] = hrtime(inicioAnalise);
-            // eslint-disable-next-line no-undef
             console.log(
                 `[Avaliador Sintático] Tempo para análise: ${deltaAnalise[0] * 1e9 + deltaAnalise[1]}ns`
             );

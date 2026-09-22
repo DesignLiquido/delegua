@@ -209,12 +209,13 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         let operador = this.traduzirSimboloOperador(binario.operador);
         resultado += ` ${operador} `;
 
-        if (binario.direita.constructor.name === 'Agrupamento')
+        if (binario.direita.constructor === Agrupamento) {
+            const agrupamentoDireita = binario.direita as Agrupamento;
             resultado +=
                 '(' +
-                this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita) +
+                this.dicionarioConstrutos[agrupamentoDireita.constructor.name](binario.direita) +
                 ')';
-        else
+        } else
             resultado += this.dicionarioConstrutos[binario.direita.constructor.name](
                 binario.direita
             );
@@ -305,6 +306,10 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
             return possuiInterpolacao ? `\`${valor}\`` : `'${literal.valor}'`;
         }
 
+        if (typeof literal.valor === 'number' && literal.tipo === 'real' && Number.isInteger(literal.valor)) {
+            return `${literal.valor}.0`;
+        }
+
         return String(literal.valor);
     }
 
@@ -326,6 +331,8 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         switch (variavel.simbolo.lexema) {
             case 'texto':
                 return `String(${textoArgumentos})`;
+            case 'real':
+                return `Number(${textoArgumentos})`;
             default:
                 const buscaClasseCorrespondente = this.declaracoesDeClasses.filter(
                     (d) => d.simbolo.lexema === variavel.simbolo.lexema
@@ -560,7 +567,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
 
     traduzirDeclaracaoPara(declaracaoPara: Para): string {
         let resultado = 'for (';
-        if (declaracaoPara.inicializador.constructor.name === 'Array') {
+        if (Array.isArray(declaracaoPara.inicializador)) {
             resultado +=
                 this.dicionarioDeclaracoes[declaracaoPara.inicializador[0].constructor.name](
                     declaracaoPara.inicializador[0],
@@ -649,17 +656,13 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         }
         resultado += '}';
 
-        if (declaracaoTente.caminhoPegue !== null) {
+        if (declaracaoTente.caminhoPegue.length > 0) {
             resultado += '\ncatch {\n';
             resultado += ' '.repeat(this.indentacao);
-            if (Array.isArray(declaracaoTente.caminhoPegue)) {
-                for (let declaracao of declaracaoTente.caminhoPegue) {
+            for (const bloco of declaracaoTente.caminhoPegue) {
+                for (let declaracao of bloco.corpo) {
                     resultado +=
                         this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
-                }
-            } else {
-                for (let corpo of declaracaoTente.caminhoPegue.corpo) {
-                    resultado += this.dicionarioDeclaracoes[corpo.constructor.name](corpo) + '\n';
                 }
             }
 
@@ -829,10 +832,19 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
 
     traduzirExpressaoAcessoMetodoOuPropriedade(
         acessoMetodo: AcessoMetodoOuPropriedade,
-        argumentos: ConstrutoInterface[]
+        argumentos?: ConstrutoInterface[]
     ): string {
         if (acessoMetodo.objeto instanceof Variavel) {
             let objetoVariavel = acessoMetodo.objeto as Variavel;
+
+            // Quando `argumentos` não é passado, não estamos dentro de uma
+            // `Chamada` (ex: `obj.metodo()`), e sim um simples acesso de
+            // propriedade (ex: `obj.propriedade`), então não deve ser
+            // traduzido como chamada de método.
+            if (!argumentos) {
+                return `${objetoVariavel.simbolo.lexema}.${acessoMetodo.simbolo.lexema}`;
+            }
+
             return `${this.traduzirFuncaoOuMetodo(acessoMetodo.simbolo.lexema, objetoVariavel.simbolo.lexema, argumentos)}`;
         }
 

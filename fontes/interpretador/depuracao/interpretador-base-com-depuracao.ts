@@ -43,6 +43,7 @@ export class InterpretadorBaseComDepuracao
 {
     comando?: ComandoDepurador;
     pontoDeParadaAtivo: boolean;
+    readonly emModoDepuracao = true;
     pontosParada: PontoParada[];
     avisoPontoParadaAtivado: Function;
     finalizacaoDaExecucao: Function;

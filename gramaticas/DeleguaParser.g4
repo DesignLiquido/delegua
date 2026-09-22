@@ -49,7 +49,7 @@ options {
 }
 
 programa
-    : HashBangLinha? elementosFonte? EOF
+    : elementosFonte? EOF
     ;
 
 elementosFonte
@@ -81,6 +81,9 @@ comando
     | comandoEscolha
     | comandoFalhar
     | comandoTente
+    | comandoTendoComo
+    | comandoAssercao
+    | comandoAjuda
 //    | comandoDebugger
     | declaracaoFuncao
     ;
@@ -103,6 +106,7 @@ comandoImportar
 
 importarDeBloco
     : importPadrao? (importEspacoNomes | moduleItems) importDe fimDoComando
+    | Tudo Como identificadorNome fimDoComando
     | LiteralTexto fimDoComando
     ;
 
@@ -149,7 +153,7 @@ variavelDeclaracaoList
     ;
 
 variavelDeclaracao
-    : designavel ('=' expressaoUnica)? // ECMAScript 6: Array & Object Matching
+    : designavel (':' identificadorNome)? ('=' expressaoUnica)? // Suporte a anotação de tipo: var x: texto = "oi"
     ;
 
 comandoVazio_
@@ -170,7 +174,6 @@ comandoIteracao
     | Enquanto '(' expressaoSequencia ')' comando                                                                               # EnquantoComando
     | Para '(' (expressaoSequencia | variavelDeclaracaoList)? ';' expressaoSequencia? ';' expressaoSequencia? ')' comando       # ParaComando
     | Para '(' (expressaoUnica | variavelDeclaracaoList) Em expressaoSequencia ')' comando                                      # ParaEmComando
-    | Para Aguardar? '(' (expressaoUnica | variavelDeclaracaoList) identificador{this.p("of")}? expressaoSequencia ')' comando  # ParaOfComando
     | Para Cada alvoParaCada (Em | De) expressaoSequencia comando                                                                # ParaCadaComando
     ;
 
@@ -237,12 +240,35 @@ blocoFinalmente
     : Finalmente bloco
     ;
 
+comandoAssercao
+    : Assercao '(' expressaoUnica (',' expressaoUnica)? ')' fimDoComando
+    | Assercao expressaoUnica fimDoComando
+    ;
+
+comandoAjuda
+    : Ajuda ('(' expressaoUnica? ')')? fimDoComando
+    ;
+
+comandoTendoComo
+    : Tendo expressaoSequencia Como identificador bloco
+    ;
+
 declaracaoFuncao
-    : Assincrono? Funcao_ '*'? identificador '(' listaFormalParametros? ')' corpoFuncao
+    : Assincrono? decorador* Funcao_ '*'? identificador '(' listaFormalParametros? ')' (':' identificadorNome)? corpoFuncao
+    ;
+
+decorador
+    : Arroba identificadorNome argumentos?
     ;
 
 declaracaoClasse
-    : Classe Abstrato? Estatico? identificador fimDaClasse
+    : Arroba* Classe modificadoresClasse? identificador fimDaClasse
+    ;
+
+modificadoresClasse
+    : Abstrato Estrangeira? Estatico?
+    | Estrangeira Abstrato? Estatico?
+    | Estatico
     ;
 
 declaracaoInterface
@@ -250,11 +276,11 @@ declaracaoInterface
     ;
 
 declaracaoExtensao
-    : Extensao identificador? De identificadorNome '{' extensaoElemento* '}'
+    : Extensao De identificadorNome '{' extensaoElemento* '}'
     ;
 
 fimDaClasse
-    : (classeHeranca classeImplementacoes? | classeImplementacoes classeHeranca?)? '{' classElement* '}'
+    : (classeHeranca classeImplementacoes? classeMesclas? | classeImplementacoes classeHeranca? classeMesclas?)? '{' classElement* '}'
     ;
 
 classeHeranca
@@ -265,10 +291,40 @@ classeImplementacoes
     : Implementa identificador (',' identificador)*
     ;
 
+classeMesclas
+    : Mescla identificador (',' identificador)*
+    ;
+
 classElement
     : (Publico | Privado | Protegido | Estatico | {this.n("static")}? identificador | Assincrono)* (definicaoMetodo | designavel '=' objetoLiteral ';')
+    | blocoModificadorAcesso
+    | blocoModificadorEstatico
+    | blocoModificadorAbstrato
+    | sobrecarregaOperador
     | comandoVazio_
-    | '#'? nomePropriedade '=' expressaoUnica
+    | nomePropriedade '=' expressaoUnica
+    ;
+
+blocoModificadorAcesso
+    : (Privado | Protegido) '{' classElement* '}'
+    ;
+
+blocoModificadorEstatico
+    : Estatico '{' classElement* '}'
+    ;
+
+blocoModificadorAbstrato
+    : Abstrato '{' classElement* '}'
+    ;
+
+sobrecarregaOperador
+    : Operador operadorSobrecarga '(' listaFormalParametros? ')' corpoFuncao
+    ;
+
+operadorSobrecarga
+    : Mais | Menos | Multiplicacao | Divisao | DivisaoInteira | Modulo | Potencia
+    | MenosQue | MaiorQue | MenosQueIgual | MaiorQueIgual | Igual_ | NaoIgual
+    | And | Or | Not
     ;
 
 interfaceElemento
@@ -281,9 +337,14 @@ extensaoElemento
     ;
 
 definicaoMetodo
-    : '*'? '#'? nomePropriedade '(' listaFormalParametros? ')' corpoFuncao
-    | '*'? '#'? obtenedor '(' ')' corpoFuncao
-    | '*'? '#'? definidor '(' listaFormalParametros? ')' corpoFuncao
+    : '*'? nomeMetodo '(' listaFormalParametros? ')' (':' identificadorNome)? corpoFuncao?
+    | '*'? obtenedor '(' ')' corpoFuncao
+    | '*'? definidor '(' listaFormalParametros? ')' corpoFuncao
+    ;
+
+nomeMetodo
+    : nomePropriedade
+    | Construtor
     ;
 
 listaFormalParametros
@@ -292,7 +353,7 @@ listaFormalParametros
     ;
 
 parametroArgumentoFormal
-    : designavel ('=' expressaoUnica)?      // ECMAScript 6: Emitialization
+    : designavel (':' identificadorNome)? ('=' expressaoUnica)?      // Tipos opcionais, valor padrão opcional
     ;
 
 ultimoArgumentoParametroFormal              // ECMAScript 6: Rest Parameter
@@ -349,17 +410,15 @@ expressaoUnica
     | Para Cada alvoParaCada (Em | De) expressaoSequencia bloco         # ParaCadaExpressao
     | expressaoUnica '?.' expressaoUnica                                # OptionalChainExpressao
     | expressaoUnica '?.'? '[' expressaoSequencia ']'                   # MemberEmdexExpressao
-    | expressaoUnica '?'? '.' '#'? identificadorNome                    # MemberDotExpressao
-    // Split to try `new Date()` first, then `new Date`.
+    | expressaoUnica '?'? '.' identificadorNome                        # MemberDotExpressao
     | Novo expressaoUnica argumentos                                    # NovoExpressao
     | Novo expressaoUnica                                               # NovoExpressao
     | expressaoUnica argumentos                                         # ArgumentsExpressao
-    | Novo '.' identificador                                            # MetaExpressao // new.target
     | expressaoUnica {this.notLinhaTerminador()}? '++'                  # PostEmcrementExpressao
     | expressaoUnica {this.notLinhaTerminador()}? '--'                  # PostDecreaseExpressao
     | Excluir expressaoUnica                                            # ExcluirExpressao
     | Vazio expressaoUnica                                              # VazioExpressao
-    | TipoDe expressaoUnica                                             # TipoDeExpressao
+    | Tipo De expressaoUnica                                            # TipoDeExpressao
     | '++' expressaoUnica                                               # PreEmcrementExpressao
     | '--' expressaoUnica                                               # PreDecreaseExpressao
     | '+' expressaoUnica                                                # UnaryMaisExpressao
@@ -367,11 +426,11 @@ expressaoUnica
     | '~' expressaoUnica                                                # BitNotExpressao
     | Not expressaoUnica                                                # NotExpressao
     | Aguardar expressaoUnica                                           # AguardarExpressao
-    | <assoc=right> expressaoUnica '**' expressaoUnica                  # PotenciaExpressao
+    | <assoc=right> expressaoNaoUnaria '**' expressaoUnica              # PotenciaExpressao
     | expressaoUnica ('*' | '/' | '%') expressaoUnica                   # MultiplicativeExpressao
     | expressaoUnica ('+' | '-') expressaoUnica                         # AdditiveExpressao
     | expressaoUnica '?:' expressaoUnica                                # CoalesceExpressao
-    | expressaoUnica ('<<' | '>>' | '>>>') expressaoUnica               # BitShiftExpressao
+    | expressaoUnica ('<<' | '>>') expressaoUnica                      # BitShiftExpressao
     | expressaoUnica ('<' | '>' | '<=' | '>=') expressaoUnica           # RelationalExpressao
     | expressaoUnica Contem expressaoUnica                              # ContemExpressao
     | expressaoUnica Not Contem expressaoUnica                          # NaoContemExpressao
@@ -386,7 +445,6 @@ expressaoUnica
     | <assoc=right> expressaoUnica '=' expressaoUnica                   # AtribuicaoExpressao
     | <assoc=right> expressaoUnica operadorAtribuicao expressaoUnica    # AtribuicaoOperadorExpressao
     | Importar '(' expressaoUnica ')'                                   # ImportarExpressao
-    | expressaoUnica templateLiteralTexto                               # TemplateStringExpressao  // ECMAScript 6
     | Isto                                                              # IstoExpressao
     | identificador                                                     # IdentificadorExpressao
     | Super                                                             # SuperExpressao
@@ -394,6 +452,30 @@ expressaoUnica
     | vetorLiteral                                                      # ArrayLiteralExpressao
     | objetoLiteral                                                     # ObjectLiteralExpressao
     | '(' expressaoSequencia ')'                                        # ParenthesizedExpressao
+    ;
+
+// Expressões que não iniciam com operador unário prefixado.
+// Usada no lado esquerdo de '**' para garantir que '-3 ** 2' seja lido como '-(3 ** 2)'.
+expressaoNaoUnaria
+    : funcaoAnonima
+    | Classe identificador? fimDaClasse
+    | Para Cada alvoParaCada (Em | De) expressaoSequencia bloco
+    | expressaoNaoUnaria '?.' expressaoUnica
+    | expressaoNaoUnaria '?.'? '[' expressaoSequencia ']'
+    | expressaoNaoUnaria '?'? '.' identificadorNome
+    | Novo expressaoUnica argumentos
+    | Novo expressaoUnica
+    | expressaoNaoUnaria argumentos
+    | expressaoNaoUnaria {this.notLinhaTerminador()}? '++'
+    | expressaoNaoUnaria {this.notLinhaTerminador()}? '--'
+    | Importar '(' expressaoUnica ')'
+    | Isto
+    | identificador
+    | Super
+    | literal
+    | vetorLiteral
+    | objetoLiteral
+    | '(' expressaoSequencia ')'
     ;
 
 designavel
@@ -428,9 +510,6 @@ operadorAtribuicao
     | '%='
     | '+='
     | '-='
-    | '<<='
-    | '>>='
-    | '>>>='
     | '&='
     | '^='
     | '|='
@@ -441,34 +520,14 @@ literal
     : LiteralNulo
     | LiteralLogico
     | LiteralTexto
-    | templateLiteralTexto
-    | ExpressaoRegularLiteral
     | numericoLiteral
-    | bigintLiteral
-    ;
-
-templateLiteralTexto
-    : BackTick templateStringAtom* BackTick
-    ;
-
-templateStringAtom
-    : TemplateStringAtom
-    | TemplateStringStartExpressao expressaoUnica TemplateFechaChave
     ;
 
 numericoLiteral
     : DecimalLiteral
     | HexInteiroLiteral
-    | OctalInteiroLiteral
     | OctalInteiroLiteral2
     | BinaryInteiroLiteral
-    ;
-
-bigintLiteral
-    : BigDecimalInteiroLiteral
-    | BigHexInteiroLiteral
-    | BigOctalInteiroLiteral
-    | BigBinaryInteiroLiteral
     ;
 
 obtenedor
@@ -486,7 +545,6 @@ identificadorNome
 
 identificador
     : Identificador
-    | NonStrictLet
     | Assincrono
     | Como
     ;
@@ -500,7 +558,7 @@ palavraReservada
 palavraChave
     : Sustar
     | Do
-    | TipoDe
+    | Tipo
     | Caso
     | Senao
     | Novo
@@ -538,11 +596,9 @@ palavraChave
     | Exportar
     | Importar
     | Implementa
-    | let_
     | Privado
     | Publico
     | Interface
-    | Pacote
     | Protegido
     | Estatico
     | Acumular
@@ -550,11 +606,14 @@ palavraChave
     | Aguardar
     | De
     | Como
-    ;
 
-let_
-    : NonStrictLet
-    | StrictLet
+    | Ajuda
+    | Assercao
+    | Construtor
+    | Estrangeira
+    | Mescla
+    | Operador
+    | Tudo
     ;
 
 fimDoComando

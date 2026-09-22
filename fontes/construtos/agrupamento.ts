@@ -21,8 +21,8 @@ export class Agrupamento implements ConstrutoInterface {
         this.tipo = expressao.tipo;
     }
 
-    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
-        return await visitante.visitarExpressaoAgrupamento(this);
+    aceitar(visitante: VisitanteComumInterface): any {
+        return visitante.visitarExpressaoAgrupamento(this);
     }
 
     paraTexto(): string {

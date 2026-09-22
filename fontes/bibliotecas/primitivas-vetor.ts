@@ -224,6 +224,7 @@ export default {
             for (let elemento of vetor) {
                 const resultadoChamada = await funcao.chamar(interpretador, [elemento]);
                 if (
+                    resultadoChamada &&
                     resultadoChamada.hasOwnProperty('valorRetornado') &&
                     resultadoChamada.valorRetornado.valor === true
                 ) {

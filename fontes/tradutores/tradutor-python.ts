@@ -204,8 +204,8 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
             const primeiraDeclaracao = funcao.corpo[0];
 
             // Se for uma declaração de retorno, extraímos a expressão
-            if (primeiraDeclaracao.constructor.name === 'Retorna') {
-                const retorna = primeiraDeclaracao as Retorna;
+            if (primeiraDeclaracao instanceof Retorna) {
+                const retorna = primeiraDeclaracao;
                 if (retorna.valor) {
                     expressao = this.dicionarioConstrutos[retorna.valor.constructor.name](
                         retorna.valor
@@ -389,7 +389,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         const valorEsquerdo = this.dicionarioConstrutos[binario.esquerda.constructor.name](
             binario.esquerda
         );
-        if (binario.esquerda.constructor.name === 'Agrupamento')
+        if (binario.esquerda instanceof Agrupamento)
             resultado += '(' + valorEsquerdo + ')';
         else resultado += valorEsquerdo;
 
@@ -399,7 +399,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         const valorDireito = this.dicionarioConstrutos[binario.direita.constructor.name](
             binario.direita
         );
-        if (binario.direita.constructor.name === 'Agrupamento')
+        if (binario.direita instanceof Agrupamento)
             resultado += '(' + valorDireito + ')';
         else resultado += valorDireito;
 
@@ -465,6 +465,9 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
             return literal.valor ? 'True' : 'False';
         }
         if (typeof literal.valor === 'number') {
+            if (literal.tipo === 'real' && Number.isInteger(literal.valor)) {
+                return `${literal.valor}.0`;
+            }
             return String(literal.valor);
         }
         if (!literal.valor) return 'None';
@@ -550,6 +553,8 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         switch (variavel.simbolo.lexema) {
             case 'texto':
                 return `str(${textoArgumentos})`;
+            case 'real':
+                return `float(${textoArgumentos})`;
             default:
                 if (
                     argumentosValidados.length === 0 &&
@@ -774,6 +779,31 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         return (resultado += this.dicionarioConstrutos[nomeConstrutor](declaracaoRetorna?.valor));
     }
 
+    /**
+     * Traduz o corpo de uma declaração `se` / `senão`. Quando o corpo é um `Bloco`
+     * (delimitado por `{}`), a indentação já é resolvida por `logicaComumBlocoEscopo`.
+     * Quando o corpo é uma declaração única sem chaves (ex.: `se x <= 1 retorne x`),
+     * a indentação e a quebra de linha precisam ser adicionadas aqui, já que as
+     * traduções de declaração isolada (`traduzirDeclaracaoRetorna`, etc.) não o fazem.
+     */
+    protected traduzirCorpoSe(corpo: Declaracao): string {
+        if (corpo instanceof Bloco) {
+            return this.dicionarioDeclaracoes[corpo.constructor.name](corpo);
+        }
+
+        this.indentacao += 4;
+        const nomeConstrutor = corpo.constructor.name;
+        let resultado = ' '.repeat(this.indentacao);
+        if (this.dicionarioConstrutos.hasOwnProperty(nomeConstrutor)) {
+            resultado += this.dicionarioConstrutos[nomeConstrutor](corpo);
+        } else {
+            resultado += this.dicionarioDeclaracoes[nomeConstrutor](corpo);
+        }
+        resultado += '\n';
+        this.indentacao -= 4;
+        return resultado;
+    }
+
     traduzirDeclaracaoSe(declaracaoSe: Se, iniciarComIf: boolean = true): string {
         let resultado = '';
         if (iniciarComIf) {
@@ -787,9 +817,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         );
         resultado += condicao;
         resultado += ':\n';
-        resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoEntao.constructor.name](
-            declaracaoSe.caminhoEntao
-        );
+        resultado += this.traduzirCorpoSe(declaracaoSe.caminhoEntao);
 
         if (declaracaoSe.caminhoSenao) {
             resultado += ' '.repeat(this.indentacao);
@@ -801,9 +829,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
                     false
                 );
                 resultado += ':\n';
-                resultado += this.dicionarioDeclaracoes[senao.caminhoEntao.constructor.name](
-                    senao.caminhoEntao
-                );
+                resultado += this.traduzirCorpoSe(senao.caminhoEntao);
                 resultado += ' '.repeat(this.indentacao);
 
                 if (senao?.caminhoSenao) {
@@ -815,18 +841,23 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
                         return resultado;
                     }
 
-                    resultado += this.dicionarioDeclaracoes[senao.caminhoSenao.constructor.name](
-                        senao.caminhoSenao,
-                        false
-                    );
+                    if (senao.caminhoSenao instanceof Se) {
+                        // Continuação da cadeia 'senão se': a própria recursão
+                        // resolve seu prefixo ('elif') e indentação.
+                        resultado += this.dicionarioDeclaracoes[
+                            senao.caminhoSenao.constructor.name
+                        ](senao.caminhoSenao, false);
+                        return resultado;
+                    }
+
+                    resultado += 'else:\n';
+                    resultado += this.traduzirCorpoSe(senao.caminhoSenao);
                     return resultado;
                 }
             }
 
             resultado += 'else:\n';
-            resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoSenao.constructor.name](
-                declaracaoSe.caminhoSenao
-            );
+            resultado += this.traduzirCorpoSe(declaracaoSe.caminhoSenao);
         }
 
         return resultado;
@@ -842,17 +873,13 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
             resultado += ' '.repeat(this.indentacao);
         }
 
-        if (declaracaoTente.caminhoPegue !== null) {
+        if (declaracaoTente.caminhoPegue.length > 0) {
             resultado += '\nexcept:\n';
             resultado += ' '.repeat(this.indentacao);
-            if (Array.isArray(declaracaoTente.caminhoPegue)) {
-                for (let declaracao of declaracaoTente.caminhoPegue) {
+            for (const bloco of declaracaoTente.caminhoPegue) {
+                for (let declaracao of bloco.corpo) {
                     resultado +=
                         this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
-                }
-            } else {
-                for (let corpo of declaracaoTente.caminhoPegue.corpo) {
-                    resultado += this.dicionarioDeclaracoes[corpo.constructor.name](corpo) + '\n';
                 }
             }
 

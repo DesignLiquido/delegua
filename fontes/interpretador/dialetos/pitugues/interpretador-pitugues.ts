@@ -19,6 +19,7 @@ import {
 import { Interpretador } from '../../interpretador';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
 import { EspacoMemoria } from '../../espaco-memoria';
+import { encadear } from '../../encadear';
 
 import { Classe, Declaracao, ParaCada, Retorna } from '../../../declaracoes';
 import { inferirTipoVariavel } from '../../../inferenciador';
@@ -48,6 +49,31 @@ export class InterpretadorPitugues extends Interpretador {
         this.requerDeclaracaoPropriedades = false;
     }
 
+    override eVerdadeiro(objeto: any): boolean {
+        const valorResolvido = this.resolverValor(objeto);
+
+        if (valorResolvido === null || valorResolvido === undefined) return false;
+        if (typeof valorResolvido === 'boolean') return valorResolvido;
+        if (typeof valorResolvido === 'number') return valorResolvido !== 0;
+        if (typeof valorResolvido === 'string') return valorResolvido.length > 0;
+        if (Array.isArray(valorResolvido)) return valorResolvido.length > 0;
+        if (valorResolvido instanceof TuplaN) return valorResolvido.elementos.length > 0;
+
+        if (
+            valorResolvido.constructor === Object &&
+            !('valor' in valorResolvido) &&
+            !('tipo' in valorResolvido)
+        ) {
+            return Object.keys(valorResolvido).length > 0;
+        }
+
+        if (valorResolvido.hasOwnProperty?.('valor')) {
+            return this.eVerdadeiro(valorResolvido.valor);
+        }
+
+        return true;
+    }
+
     protected override pontoInicializacaoBibliotecasGlobais() {
         for (const [nome, valor] of Object.entries(bibliotecaGlobalPitugues)) {
             if (typeof valor === 'function') {
@@ -59,6 +85,30 @@ export class InterpretadorPitugues extends Interpretador {
         }
     }
 
+    protected override atribuirVariavel(
+        alvoVariavel: Variavel,
+        valorResolvido: any,
+        indice: any
+    ): void {
+        let variavelExiste = false;
+
+        try {
+            // Verifica se a variável existe no escopo
+            this.pilhaEscoposExecucao.obterValorVariavel(alvoVariavel.simbolo);
+            variavelExiste = true;
+        } catch (e) {
+            // Variável completamente nova: declaração implícita no escopo atual.
+            this.pilhaEscoposExecucao.definirVariavel(
+                alvoVariavel.simbolo.lexema,
+                valorResolvido
+            );
+        }
+
+        if (variavelExiste) {
+            super.atribuirVariavel(alvoVariavel, valorResolvido, indice);
+        }
+    }
+
     /**
      * Sobrescreve `executarBloco` para marcar escopos de chamadas de função com
      * `tipo: 'funcao'`. Quando `ambiente` é fornecido, a chamada vem de
@@ -66,10 +116,7 @@ export class InterpretadorPitugues extends Interpretador {
      * Isso permite que `PilhaEscoposExecucaoPitugues` identifique fronteiras de
      * função e aplique a semântica LEGB corretamente.
      */
-    override async executarBloco(
-        declaracoes: Declaracao[],
-        ambiente?: EspacoMemoria
-    ): Promise<any> {
+    override executarBloco(declaracoes: Declaracao[], ambiente?: EspacoMemoria): any {
         if (ambiente !== undefined && ambiente !== null) {
             const escopoFuncao = {
                 declaracoes,
@@ -80,11 +127,12 @@ export class InterpretadorPitugues extends Interpretador {
                 emLacoRepeticao: false,
             };
             this.pilhaEscoposExecucao.empilhar(escopoFuncao);
-            const retorno = await this.executarUltimoEscopo();
-            if (retorno instanceof ErroEmTempoDeExecucao) {
-                return Promise.reject(retorno);
-            }
-            return retorno;
+            return encadear(this.executarUltimoEscopo(), (retorno: any) => {
+                if (retorno instanceof ErroEmTempoDeExecucao) {
+                    return Promise.reject(retorno);
+                }
+                return retorno;
+            });
         }
         return super.executarBloco(declaracoes, ambiente);
     }
@@ -109,7 +157,7 @@ export class InterpretadorPitugues extends Interpretador {
             return await objeto.obterEstatico(expressao.nomeMetodo, this);
         }
 
-        return comum.visitarExpressaoAcessoMetodo(this, expressao);
+        return comum.visitarExpressaoAcessoMetodo(this, expressao, variavelObjeto);
     }
 
     override async visitarExpressaoAcessoMetodoOuPropriedade(
@@ -132,7 +180,7 @@ export class InterpretadorPitugues extends Interpretador {
             return await objeto.obterEstatico(expressao.simbolo.lexema, this);
         }
 
-        return comum.visitarExpressaoAcessoMetodoOuPropriedade(this, expressao);
+        return comum.visitarExpressaoAcessoMetodoOuPropriedade(this, expressao, variavelObjeto);
     }
 
     override async visitarExpressaoAcessoPropriedade(
@@ -166,36 +214,6 @@ export class InterpretadorPitugues extends Interpretador {
 
     async visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> {
         return comum.visitarExpressaoTuplaN(this, expressao);
-    }
-
-    override async visitarExpressaoDeAtribuicao(
-        expressao: Atribuir
-    ): Promise<any> {
-        if (expressao.alvo.constructor === Variavel) {
-            const alvoVariavel = expressao.alvo as Variavel;
-            try {
-                // Verifica se a variável existe em algum escopo.
-                // Se não existir, obterValorVariavel lança uma exceção.
-                this.pilhaEscoposExecucao.obterValorVariavel(alvoVariavel.simbolo);
-            } catch (e) {
-                // Variável completamente nova: declaração implícita no escopo atual.
-                let valor = await this.avaliar(expressao.valor);
-                if (valor && valor.hasOwnProperty('valorRetornado')) {
-                    valor = valor.valorRetornado;
-                }
-                const valorResolvido = this.resolverValor(valor);
-                this.pilhaEscoposExecucao.definirVariavel(
-                    alvoVariavel.simbolo.lexema,
-                    valorResolvido
-                );
-                return valorResolvido;
-            }
-        }
-        // Variável já existe em algum escopo. O método atribuirVariavel de
-        // PilhaEscoposExecucaoPitugues decide onde escrever: se estivermos dentro
-        // de uma função e a variável só existir no escopo global, ela é criada
-        // localmente na função (semântica LEGB do Python).
-        return super.visitarExpressaoDeAtribuicao(expressao);
     }
 
     override async visitarExpressaoAtribuicaoPorIndice(

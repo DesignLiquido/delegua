@@ -815,5 +815,464 @@ describe('Interpretador com Depuração', () => {
                 expect(_saidas[1]).toBe("Au Au Au Au");
             });
         });
+
+        describe('Operações binárias em modo depuração', () => {
+            let execucaoFinalizada: boolean = false;
+
+            beforeEach(() => {
+                _saidas = [];
+                interpretador = new InterpretadorComDepuracao(
+                    process.cwd(),
+                    funcaoSaida,
+                    funcaoSaida
+                );
+
+                execucaoFinalizada = false;
+                interpretador.finalizacaoDaExecucao = () => {
+                    execucaoFinalizada = true;
+                };
+            });
+
+            it('Deve executar adição de números', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var a = 3 + 4",
+                    "escreva(a)"
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+                expect(execucaoFinalizada).toBe(true);
+                expect(_saidas[0]).toBe('7');
+            });
+
+            it('Deve executar subtração de números', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var a = 10 - 3",
+                    "escreva(a)"
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+                expect(execucaoFinalizada).toBe(true);
+                expect(_saidas[0]).toBe('7');
+            });
+
+            it('Deve executar multiplicação de números', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var a = 3 * 4",
+                    "escreva(a)"
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+                expect(execucaoFinalizada).toBe(true);
+                expect(_saidas[0]).toBe('12');
+            });
+
+            it('Deve executar divisão de números', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var a = 10 / 2",
+                    "escreva(a)"
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+                expect(execucaoFinalizada).toBe(true);
+                expect(_saidas[0]).toBe('5');
+            });
+
+            it('Deve executar divisão inteira', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var a = 7 \\ 2",
+                    "escreva(a)"
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+                expect(execucaoFinalizada).toBe(true);
+                expect(_saidas[0]).toBe('3');
+            });
+
+            it('Deve executar módulo', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var a = 10 % 3",
+                    "escreva(a)"
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+                expect(execucaoFinalizada).toBe(true);
+                expect(_saidas[0]).toBe('1');
+            });
+
+            it('Deve executar comparação maior', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var a = 5 > 3",
+                    "escreva(a)"
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+                expect(execucaoFinalizada).toBe(true);
+                expect(_saidas[0]).toBe('verdadeiro');
+            });
+
+            it('Deve executar comparação maior ou igual', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var a = 5 >= 5",
+                    "escreva(a)"
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+                expect(execucaoFinalizada).toBe(true);
+                expect(_saidas[0]).toBe('verdadeiro');
+            });
+
+            it('Deve executar comparação menor', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var a = 3 < 5",
+                    "escreva(a)"
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+                expect(execucaoFinalizada).toBe(true);
+                expect(_saidas[0]).toBe('verdadeiro');
+            });
+
+            it('Deve executar comparação menor ou igual', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var a = 3 <= 3",
+                    "escreva(a)"
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+                expect(execucaoFinalizada).toBe(true);
+                expect(_saidas[0]).toBe('verdadeiro');
+            });
+
+            it('Deve executar comparação de igualdade', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var a = 3 == 3",
+                    "escreva(a)"
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+                expect(execucaoFinalizada).toBe(true);
+                expect(_saidas[0]).toBe('verdadeiro');
+            });
+
+            it('Deve executar comparação de diferença', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var a = 3 != 4",
+                    "escreva(a)"
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+                expect(execucaoFinalizada).toBe(true);
+                expect(_saidas[0]).toBe('verdadeiro');
+            });
+
+            it('Deve executar exponenciação', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var a = 2 ** 8",
+                    "escreva(a)"
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+                expect(execucaoFinalizada).toBe(true);
+                expect(_saidas[0]).toBe('256');
+            });
+
+            it('Deve executar concatenação de vetores', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var a = [1, 2] + [3, 4]",
+                    "escreva(tamanho(a))"
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+                expect(execucaoFinalizada).toBe(true);
+                expect(_saidas[0]).toBe('4');
+            });
+        });
+
+        describe('Laços de repetição em modo depuração', () => {
+            let execucaoFinalizada: boolean = false;
+
+            beforeEach(() => {
+                _saidas = [];
+                interpretador = new InterpretadorComDepuracao(
+                    process.cwd(),
+                    funcaoSaida,
+                    funcaoSaida
+                );
+
+                execucaoFinalizada = false;
+                interpretador.finalizacaoDaExecucao = () => {
+                    execucaoFinalizada = true;
+                };
+            });
+
+            it('Deve executar laço para com passo', async () => {
+                const retornoLexador = lexador.mapear([
+                    "para (var i = 0; i < 3; i = i + 1) {",
+                    "    escreva(i)",
+                    "}"
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+                expect(execucaoFinalizada).toBe(true);
+                expect(_saidas).toContain('0');
+                expect(_saidas).toContain('1');
+                expect(_saidas).toContain('2');
+            });
+
+            it('Deve executar laço enquanto', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var i = 0",
+                    "enquanto (i < 3) {",
+                    "    escreva(i)",
+                    "    i = i + 1",
+                    "}"
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+                expect(execucaoFinalizada).toBe(true);
+                expect(_saidas).toContain('0');
+            });
+
+            it('Deve executar laço fazer...enquanto', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var i = 0",
+                    "fazer {",
+                    "    escreva(i)",
+                    "    i = i + 1",
+                    "} enquanto (i < 3)"
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+                expect(execucaoFinalizada).toBe(true);
+                expect(_saidas).toContain('0');
+            });
+
+            it('Deve executar laço com sustar', async () => {
+                const retornoLexador = lexador.mapear([
+                    "para (var i = 0; i < 10; i = i + 1) {",
+                    "    se (i == 2) { sustar }",
+                    "    escreva(i)",
+                    "}"
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+                expect(execucaoFinalizada).toBe(true);
+                // O laço é interrompido no i == 2, portanto 9 não deve aparecer
+                expect(_saidas).not.toContain('9');
+            });
+
+            it('Deve executar laço enquanto com sustar', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var i = 0",
+                    "enquanto (i < 10) {",
+                    "    se (i == 2) { sustar }",
+                    "    escreva(i)",
+                    "    i = i + 1",
+                    "}"
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+                expect(execucaoFinalizada).toBe(true);
+            });
+
+            it('Deve executar laço para com continuar', async () => {
+                const retornoLexador = lexador.mapear([
+                    "para (var i = 0; i < 5; i = i + 1) {",
+                    "    se (i == 2) { continuar }",
+                    "    escreva(i)",
+                    "}"
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+                expect(execucaoFinalizada).toBe(true);
+                // Deve conter 0 e 1 (executados antes do continuar)
+                expect(_saidas).toContain('0');
+                expect(_saidas).toContain('1');
+            });
+
+            it('Deve executar laço enquanto com continuar', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var i = 0",
+                    "enquanto (i < 5) {",
+                    "    i = i + 1",
+                    "    se (i == 2) { continuar }",
+                    "    escreva(i)",
+                    "}"
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+                expect(execucaoFinalizada).toBe(true);
+            });
+        });
+
+        describe('obterVariavel()', () => {
+            let execucaoFinalizada: boolean = false;
+
+            beforeEach(() => {
+                _saidas = [];
+                interpretador = new InterpretadorComDepuracao(
+                    process.cwd(),
+                    funcaoSaida,
+                    funcaoSaida
+                );
+
+                execucaoFinalizada = false;
+                interpretador.finalizacaoDaExecucao = () => {
+                    execucaoFinalizada = true;
+                };
+            });
+
+            it('Deve obter valor de variável no escopo atual quando há ponto de parada', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var x = 42",
+                    "var y = x + 1",
+                    "escreva(y)"
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                interpretador.pontosParada = [{
+                    hashArquivo: -1,
+                    linha: 2,
+                }];
+
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+
+                expect(interpretador.pontoDeParadaAtivo).toBe(true);
+
+                const varX = interpretador.obterVariavel('x');
+                expect(varX).toBeDefined();
+                expect(varX.valor).toBe(42);
+            });
+        });
+
+        describe('Passo com operações binárias envolvendo chamadas de função', () => {
+            let execucaoFinalizada: boolean = false;
+            let pontoParadaAtivado: boolean = false;
+
+            beforeEach(() => {
+                _saidas = [];
+                interpretador = new InterpretadorComDepuracao(
+                    process.cwd(),
+                    funcaoSaida,
+                    funcaoSaida
+                );
+
+                execucaoFinalizada = false;
+                pontoParadaAtivado = false;
+
+                interpretador.finalizacaoDaExecucao = () => {
+                    execucaoFinalizada = true;
+                };
+
+                interpretador.avisoPontoParadaAtivado = () => {
+                    pontoParadaAtivado = true;
+                };
+            });
+
+            it('Deve executar expressão binária com chamadas de função em modo passo a passo', async () => {
+                const retornoLexador = lexador.mapear([
+                    "funcao dobrar(x) {",
+                    "    retorna x * 2",
+                    "}",
+                    "var resultado = dobrar(3) + dobrar(4)",
+                    "escreva(resultado)"
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+
+                expect(execucaoFinalizada).toBe(true);
+                expect(_saidas[0]).toBe('14');
+            });
+        });
+
+        describe('Comparação de textos em modo depuração', () => {
+            let execucaoFinalizada: boolean = false;
+
+            beforeEach(() => {
+                _saidas = [];
+                interpretador = new InterpretadorComDepuracao(
+                    process.cwd(),
+                    funcaoSaida,
+                    funcaoSaida
+                );
+
+                execucaoFinalizada = false;
+                interpretador.finalizacaoDaExecucao = () => {
+                    execucaoFinalizada = true;
+                };
+            });
+
+            it('Deve comparar textos com maior', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var a = 'b' > 'a'",
+                    "escreva(a)"
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+                expect(execucaoFinalizada).toBe(true);
+                expect(_saidas[0]).toBe('verdadeiro');
+            });
+
+            it('Deve comparar textos com menor', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var a = 'a' < 'b'",
+                    "escreva(a)"
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+                expect(execucaoFinalizada).toBe(true);
+                expect(_saidas[0]).toBe('verdadeiro');
+            });
+
+            it('Deve concatenar textos com adição', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var a = 'Olá' + ' ' + 'mundo'",
+                    "escreva(a)"
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+                expect(execucaoFinalizada).toBe(true);
+                expect(_saidas[0]).toBe('Olá mundo');
+            });
+
+            it('Deve repetir texto com multiplicação', async () => {
+                const retornoLexador = lexador.mapear([
+                    "var a = 'ab' * 3",
+                    "escreva(a)"
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+                await interpretador.instrucaoContinuarInterpretacao();
+                expect(execucaoFinalizada).toBe(true);
+                expect(_saidas[0]).toBe('ababab');
+            });
+        });
     });
 });

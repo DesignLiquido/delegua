@@ -6,8 +6,6 @@ export default {
     LÓGICO: 'lógico',
     MODULO: 'modulo',
     MÓDULO: 'módulo',
-    NUMERO: 'numero',
-    NÚMERO: 'número',
     NULO: 'nulo',
     OBJETO: 'objeto',
     QUALQUER: 'qualquer',
@@ -19,8 +17,6 @@ export default {
     VETOR_INTEIRO: 'inteiro[]',
     VETOR_LOGICO: 'logico[]',
     VETOR_LÓGICO: 'lógico[]',
-    VETOR_NUMERO: 'numero[]',
-    VETOR_NÚMERO: 'número[]',
     VETOR_QUALQUER: 'qualquer[]',
     VETOR_TEXTO: 'texto[]',
 };

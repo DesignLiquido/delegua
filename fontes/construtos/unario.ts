@@ -25,8 +25,8 @@ export class Unario<TTipoSimbolo extends string = string> implements ConstrutoIn
         this.tipo = operando.tipo;
     }
 
-    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
-        return await visitante.visitarExpressaoUnaria(this);
+    aceitar(visitante: VisitanteComumInterface): any {
+        return visitante.visitarExpressaoUnaria(this);
     }
 
     paraTexto(): string {

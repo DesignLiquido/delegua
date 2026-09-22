@@ -200,8 +200,8 @@ export class TradutorRuby implements TradutorInterface<Declaracao> {
             const primeiraDeclaracao = funcao.corpo[0];
 
             // Se for uma declaração de retorno, extraímos a expressão
-            if (primeiraDeclaracao.constructor.name === 'Retorna') {
-                const retorna = primeiraDeclaracao as Retorna;
+            if (primeiraDeclaracao instanceof Retorna) {
+                const retorna = primeiraDeclaracao;
                 if (retorna.valor) {
                     expressao = this.dicionarioConstrutos[retorna.valor.constructor.name](
                         retorna.valor
@@ -386,7 +386,7 @@ export class TradutorRuby implements TradutorInterface<Declaracao> {
         const valorEsquerdo = this.dicionarioConstrutos[binario.esquerda.constructor.name](
             binario.esquerda
         );
-        if (binario.esquerda.constructor.name === 'Agrupamento')
+        if (binario.esquerda instanceof Agrupamento)
             resultado += '(' + valorEsquerdo + ')';
         else resultado += valorEsquerdo;
 
@@ -396,7 +396,7 @@ export class TradutorRuby implements TradutorInterface<Declaracao> {
         const valorDireito = this.dicionarioConstrutos[binario.direita.constructor.name](
             binario.direita
         );
-        if (binario.direita.constructor.name === 'Agrupamento')
+        if (binario.direita instanceof Agrupamento)
             resultado += '(' + valorDireito + ')';
         else resultado += valorDireito;
 
@@ -431,7 +431,9 @@ export class TradutorRuby implements TradutorInterface<Declaracao> {
             resultado = '@' + definirValor.nome.lexema + ' = ';
         }
 
-        resultado += definirValor.valor.simbolo.lexema;
+        resultado += this.dicionarioConstrutos[definirValor.valor.constructor.name](
+            definirValor.valor
+        );
         return resultado;
     }
 
@@ -462,6 +464,9 @@ export class TradutorRuby implements TradutorInterface<Declaracao> {
             return literal.valor ? 'true' : 'false';
         }
         if (typeof literal.valor === 'number') {
+            if (literal.tipo === 'real' && Number.isInteger(literal.valor)) {
+                return `${literal.valor}.0`;
+            }
             return String(literal.valor);
         }
         if (!literal.valor) return 'nil';
@@ -547,6 +552,8 @@ export class TradutorRuby implements TradutorInterface<Declaracao> {
         switch (variavel.simbolo.lexema) {
             case 'texto':
                 return `(${textoArgumentos}).to_s`;
+            case 'real':
+                return `(${textoArgumentos}).to_f`;
             default:
                 if (
                     argumentosValidados.length === 0 &&
@@ -840,17 +847,13 @@ export class TradutorRuby implements TradutorInterface<Declaracao> {
             resultado += ' '.repeat(this.indentacao);
         }
 
-        if (declaracaoTente.caminhoPegue !== null) {
+        if (declaracaoTente.caminhoPegue.length > 0) {
             resultado += '\nrescue\n';
             resultado += ' '.repeat(this.indentacao);
-            if (Array.isArray(declaracaoTente.caminhoPegue)) {
-                for (let declaracao of declaracaoTente.caminhoPegue) {
+            for (const bloco of declaracaoTente.caminhoPegue) {
+                for (let declaracao of bloco.corpo) {
                     resultado +=
                         this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
-                }
-            } else {
-                for (let corpo of declaracaoTente.caminhoPegue.corpo) {
-                    resultado += this.dicionarioDeclaracoes[corpo.constructor.name](corpo) + '\n';
                 }
             }
 

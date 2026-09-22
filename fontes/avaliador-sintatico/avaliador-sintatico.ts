@@ -3,6 +3,7 @@ import { ConstrutoInterface } from '../interfaces/construtos/construto-interface
 
 import {
     AcessoIndiceVariavel,
+    AcessoIntervaloVariavel,
     AcessoMetodo,
     AcessoMetodoOuPropriedade,
     AcessoPropriedade,
@@ -70,6 +71,7 @@ import {
 import {
     Ajuda,
     AssinaturaMetodo,
+    BlocoPegue,
     Bloco,
     Classe,
     Comentario,
@@ -140,7 +142,8 @@ const simbolosInicioExpressao = new Set([
     tiposDeSimbolos.ADICAO,
     tiposDeSimbolos.SUBTRACAO,
     tiposDeSimbolos.INCREMENTAR,
-    tiposDeSimbolos.DECREMENTAR
+    tiposDeSimbolos.DECREMENTAR,
+    tiposDeSimbolos.BIT_NOT
 ]);
 
 /**
@@ -236,7 +239,10 @@ export class AvaliadorSintatico
         }
 
         const lexemaOriginal = this.simbolos[this.atual].lexema;
-        const lexemaElementar = lexemaOriginal.toLowerCase();
+        // `decimal` é sinônimo de `real` como nome de tipo; `real` é o nome
+        // preferido e é o único usado internamente a partir daqui.
+        const lexemaElementarBruto = lexemaOriginal.toLowerCase();
+        const lexemaElementar = lexemaElementarBruto === 'decimal' ? 'real' : lexemaElementarBruto;
         const tipoElementarResolvido = tipos.find((tipo) => tipo === lexemaElementar);
         if (!tipoElementarResolvido) {
             // Mantém o avaliador sintático sincronizado mesmo com tipos não reconhecidos
@@ -475,6 +481,8 @@ export class AvaliadorSintatico
         const chaves = [];
         const valores = [];
 
+        this.pularComentarios();
+
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA)) {
             return new Dicionario(this.hashArquivo, Number(simboloChaveEsquerda.linha), [], []);
         }
@@ -482,10 +490,13 @@ export class AvaliadorSintatico
         while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA)) {
             const chave = await this.obterChaveDicionario();
             this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' entre chave e valor.");
+            this.pularComentarios();
             const valor = await this.atribuir();
 
             chaves.push(chave);
             valores.push(valor);
+
+            this.pularComentarios();
 
             if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.CHAVE_DIREITA) {
                 this.consumir(
@@ -493,6 +504,8 @@ export class AvaliadorSintatico
                     'Esperado vírgula antes da próxima expressão.'
                 );
             }
+
+            this.pularComentarios();
         }
 
         return new Dicionario(
@@ -596,7 +609,8 @@ export class AvaliadorSintatico
     }
 
     protected async paraTradicionalComoConstruto(simboloPara: SimboloInterface) {
-        const { inicializador, condicao, incrementar, corpo } = await this.logicaComumPara();
+        const { inicializador, condicao, incrementar, corpo, comParenteses } =
+            await this.logicaComumPara();
 
         return new ParaComoConstruto(
             simboloPara.hashArquivo,
@@ -604,7 +618,8 @@ export class AvaliadorSintatico
             inicializador as Expressao | Var[] | Const[],
             condicao as ConstrutoInterface,
             incrementar as ConstrutoInterface,
-            corpo
+            corpo,
+            comParenteses
         );
     }
 
@@ -925,7 +940,9 @@ export class AvaliadorSintatico
             case tiposDeSimbolos.NÚMERO:
             case tiposDeSimbolos.TEXTO:
                 const simboloNumeroTexto: SimboloInterface = this.avancarEDevolverAnterior();
-                const tipoInferido = inferirTipoVariavel(simboloNumeroTexto.literal);
+                const tipoInferido = simboloNumeroTexto.ehNumeroReal
+                    ? 'real'
+                    : inferirTipoVariavel(simboloNumeroTexto.literal);
                 const delimitadorTexto =
                     simboloNumeroTexto.tipo === tiposDeSimbolos.TEXTO
                         ? simboloNumeroTexto.delimitadorTexto
@@ -1126,10 +1143,16 @@ export class AvaliadorSintatico
                 return new TipoDe(this.hashArquivo, simboloAtual, construto);
         }
 
-        // TODO: O correto seria emitir algum aviso aqui que este avaliador sintático não consegue
-        // lidar com tópicos de ajuda neste ponto.
         if (this.emAjuda) {
-            console.log(this.simbolos[this.atual]);
+            const simboloNaoTratado = this.simbolos[this.atual];
+            this.erros.push(
+                this.erro(
+                    simboloNaoTratado,
+                    `Avaliador sintático não consegue lidar com o tópico de ajuda '${simboloNaoTratado.lexema}'.`
+                )
+            );
+            this.avancarEDevolverAnterior();
+            return new Literal(this.hashArquivo, Number(simboloNaoTratado.linha), null, 'nulo');
         }
 
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
@@ -1290,22 +1313,93 @@ export class AvaliadorSintatico
                 const tipoAcesso = this.resolverTipoAcessoIndiceVariavel(expressaoAnterior);
 
                 this.avancarEDevolverAnterior();
-                const indice = await this.expressao();
-                const simboloFechamento = this.consumir(
-                    tiposDeSimbolos.COLCHETE_DIREITO,
-                    "Esperado ']' após escrita do indice."
-                );
 
-                const acessoVariavel = new AcessoIndiceVariavel(
-                    this.hashArquivo,
-                    expressaoAnterior,
-                    indice,
-                    simboloFechamento,
-                    tipoAcesso
-                );
+                // Determina se é intervalo ([:]), índice único ([indice]) ou
+                // intervalo com passo ([inicio:fim:passo]).
+                let indiceInicio: ConstrutoInterface | null = null;
+                let indiceFim: ConstrutoInterface | null = null;
+                let indicePasso: ConstrutoInterface | null = null;
 
-                return await this.resolverCadeiaChamadas(acessoVariavel);
+                // Se começar com ':', não há início explícito (ex.: `[:fim]`).
+                if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.DOIS_PONTOS) {
+                    indiceInicio = await this.expressao();
+                }
+
+                if (this.simbolos[this.atual].tipo === tiposDeSimbolos.DOIS_PONTOS) {
+                    // É um intervalo: [inicio:fim] ou [inicio:fim:passo].
+                    this.avancarEDevolverAnterior(); // Pula ':'.
+
+                    if (
+                        this.simbolos[this.atual].tipo !== tiposDeSimbolos.COLCHETE_DIREITO &&
+                        this.simbolos[this.atual].tipo !== tiposDeSimbolos.DOIS_PONTOS
+                    ) {
+                        indiceFim = await this.expressao();
+                    }
+
+                    if (this.simbolos[this.atual].tipo === tiposDeSimbolos.DOIS_PONTOS) {
+                        this.avancarEDevolverAnterior(); // Pula segundo ':'.
+
+                        if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
+                            indicePasso = await this.expressao();
+                        }
+                    }
+
+                    const simboloFechamento = this.consumir(
+                        tiposDeSimbolos.COLCHETE_DIREITO,
+                        "Esperado ']' após intervalo."
+                    );
+
+                    // Fatiamento sempre retorna uma coleção do mesmo tipo de elemento.
+                    const tipoIntervalo = tipoAcesso + '[]';
+
+                    const acessoIntervalo = new AcessoIntervaloVariavel(
+                        this.hashArquivo,
+                        expressaoAnterior,
+                        indiceInicio,
+                        indiceFim,
+                        indicePasso,
+                        simboloFechamento,
+                        tipoIntervalo
+                    );
+
+                    return await this.resolverCadeiaChamadas(acessoIntervalo);
+                } else {
+                    // É um índice único
+                    const simboloFechamento = this.consumir(
+                        tiposDeSimbolos.COLCHETE_DIREITO,
+                        "Esperado ']' após escrita do indice."
+                    );
+
+                    const acessoVariavel = new AcessoIndiceVariavel(
+                        this.hashArquivo,
+                        expressaoAnterior,
+                        indiceInicio!,
+                        simboloFechamento,
+                        tipoAcesso
+                    );
+
+                    return await this.resolverCadeiaChamadas(acessoVariavel);
+                }
             default:
+                // Se o próximo símbolo é um incremento ou um decremento, e a cadeia de
+                // chamadas terminou aqui (ex.: `x[0]++`, `objeto.propriedade--`), aqui
+                // deve retornar um unário pós-fixado correspondente.
+                if (
+                    this.simbolos[this.atual] &&
+                    [tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR].includes(
+                        this.simbolos[this.atual].tipo
+                    )
+                ) {
+                    const simboloIncrementoDecremento: SimboloInterface =
+                        this.avancarEDevolverAnterior();
+                    return new Unario(
+                        this.hashArquivo,
+                        simboloIncrementoDecremento,
+                        expressaoAnterior,
+                        'DEPOIS'
+                    );
+                }
+
                 return expressaoAnterior;
         }
     }
@@ -1518,12 +1612,12 @@ export class AvaliadorSintatico
                 argumentoUtilizado.tipo.startsWith('função') ||
                 argumentoUtilizado instanceof FuncaoConstruto
                     ? 'função'
-                    : argumentoUtilizado.tipo;
+                    : this.normalizarTipoNumerico(argumentoUtilizado.tipo);
             const tipoArgumentoEntidadeChamada =
                 argumentoEntidadeChamada.tipo.startsWith('funcao') ||
                 argumentoEntidadeChamada.tipo.startsWith('função')
                     ? 'função'
-                    : argumentoEntidadeChamada.tipo;
+                    : this.normalizarTipoNumerico(argumentoEntidadeChamada.tipo);
 
             if (tipoArgumentoUtilizado !== tipoArgumentoEntidadeChamada) {
                 possiveisErros.push(
@@ -1533,6 +1627,73 @@ export class AvaliadorSintatico
         }
 
         return possiveisErros;
+    }
+
+    /**
+     * `número`, `real`, `inteiro` e `longo` são todos representados internamente
+     * como números primitivos, então são intercambiáveis na validação de tipos de
+     * argumentos de chamadas de função/método.
+     * @param tipo O tipo a ser normalizado.
+     * @returns `número` quando `tipo` é um dos tipos numéricos primitivos, ou `tipo` sem alterações.
+     */
+    private normalizarTipoNumerico(tipo: string): string {
+        return ['número', 'numero', 'real', 'inteiro', 'longo'].includes(tipo) ? 'número' : tipo;
+    }
+
+    /**
+     * Garante que um construto usado em um contexto explicitamente tipado como `real`
+     * (declaração de variável/constante, valor padrão de parâmetro, retorno de função ou
+     * argumento de `real()`) seja tratado como ponto flutuante na tradução, mesmo que o
+     * valor original seja um `número` inteiro-valorado:
+     * - Se for um literal numérico (ex.: `10`), apenas marca seu tipo como `real` para que
+     *   os tradutores emitam `10.0` em vez de `10`.
+     * - Se for outra expressão de tipo numérico conhecido (variável, chamada, etc., ex.: `y`
+     *   onde `y: número`), envolve o construto em uma chamada a `real(...)`, que os
+     *   tradutores mapeiam para a conversão de ponto flutuante idiomática de cada linguagem
+     *   (ex.: `float(y)` em Python, `y.to_f` em Ruby).
+     * - Se o tipo do construto já é `real`, ou é desconhecido (`qualquer`) ou não numérico,
+     *   retorna o construto sem alterações — não é seguro converter estaticamente.
+     * @param construto O construto a ser garantido como `real`.
+     * @returns O construto (possivelmente envolvido em `real(...)`) a ser usado no lugar do original.
+     */
+    private garantirTipoReal<T extends ConstrutoInterface | undefined>(construto: T): T | Chamada {
+        if (!construto) {
+            return construto;
+        }
+
+        if (construto.constructor === Literal && typeof (construto as Literal).valor === 'number') {
+            (construto as Literal).tipo = 'real';
+            return construto;
+        }
+
+        if (construto.tipo === 'real') {
+            return construto;
+        }
+
+        const ehTipoNumericoConhecido =
+            typeof construto.tipo === 'string' &&
+            ['número', 'numero', 'inteiro', 'longo'].includes(construto.tipo);
+
+        if (!ehTipoNumericoConhecido) {
+            return construto;
+        }
+
+        const simboloReal = new Simbolo(
+            tiposDeSimbolos.IDENTIFICADOR,
+            'real',
+            null,
+            construto.linha,
+            construto.hashArquivo
+        );
+
+        const chamadaReal = new Chamada(
+            construto.hashArquivo,
+            new Variavel(construto.hashArquivo, simboloReal, 'função'),
+            [construto]
+        );
+        chamadaReal.tipo = 'real';
+
+        return chamadaReal;
     }
 
     /**
@@ -1555,6 +1716,21 @@ export class AvaliadorSintatico
 
         if (entidadeChamada.constructor === Variavel) {
             const entidadeChamadaResolvidaVariavel = entidadeChamada as Variavel;
+
+            // `real(valor)` converte explicitamente para ponto flutuante, então um
+            // literal numérico passado diretamente deve preservar a natureza real
+            // na tradução (ex.: `real(10)` -> `real(10.0)`). Note que aqui só marcamos
+            // literais diretamente, sem usar garantirTipoReal(): o argumento já está
+            // dentro de uma chamada a `real(...)`, então não deve ser envolvido de novo.
+            if (entidadeChamadaResolvidaVariavel.simbolo.lexema === 'real' && argumentos.length > 0) {
+                const primeiroArgumento = argumentos[0];
+                if (
+                    primeiroArgumento.constructor === Literal &&
+                    typeof (primeiroArgumento as Literal).valor === 'number'
+                ) {
+                    (primeiroArgumento as Literal).tipo = 'real';
+                }
+            }
 
             const informacoesFuncaoBibliotecaGlobal = this.pilhaEscopos.obterBibliotecaGlobal(
                 entidadeChamadaResolvidaVariavel.simbolo.lexema
@@ -1717,7 +1893,7 @@ export class AvaliadorSintatico
             )
         ) {
             const operador = this.simbolos[this.atual - 1];
-            const direito = await this.unario();
+            const direito = await this.exponenciacao();
             if (
                 operador.tipo === tiposDeSimbolos.NEGACAO ||
                 operador.tipo === tiposDeSimbolos.NAO
@@ -2003,30 +2179,29 @@ export class AvaliadorSintatico
         return expressao;
     }
 
+    protected override validacaoComparacao(
+        operador: any,
+        esquerda: ConstrutoInterface,
+        direita: ConstrutoInterface
+    ): void {
+        this.verificarOperandosComparacao(operador, esquerda, direita);
+    }
+
+    protected override criarConstrutoComparacao(
+        esquerda: ConstrutoInterface,
+        operador: any,
+        direita: ConstrutoInterface
+    ): ConstrutoInterface {
+        return new Binario<TipoDeSimboloDelegua>(
+            this.hashArquivo,
+            esquerda,
+            operador,
+            direita
+        );
+    }
+
     override async comparar(): Promise<ConstrutoInterface> {
-        let expressao = await this.bitOu();
-
-        while (
-            this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.MAIOR,
-                tiposDeSimbolos.MAIOR_IGUAL,
-                tiposDeSimbolos.MENOR,
-                tiposDeSimbolos.MENOR_IGUAL
-            )
-        ) {
-            const operador = this.simbolos[this.atual - 1];
-            const esquerda = expressao;
-            const direito = await this.bitOu();
-            this.verificarOperandosComparacao(operador, esquerda, direito);
-            expressao = new Binario<TipoDeSimboloDelegua>(
-                this.hashArquivo,
-                esquerda,
-                operador,
-                direito
-            );
-        }
-
-        return expressao;
+        return await this.logicaComumComparacao(() => this.bitOu());
     }
 
     override async comparacaoIgualdade(): Promise<ConstrutoInterface> {
@@ -2365,6 +2540,14 @@ export class AvaliadorSintatico
                 !this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA) &&
                 !this.estaNoFinal()
             ) {
+                if (
+                    this.simbolos[this.atual].tipo === tiposDeSimbolos.COMENTARIO ||
+                    this.simbolos[this.atual].tipo === tiposDeSimbolos.LINHA_COMENTARIO
+                ) {
+                    this.avancarEDevolverAnterior();
+                    continue;
+                }
+
                 if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CASO)) {
                     const caminhoCondicoes = [await this.expressao()];
                     this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após o 'caso'.");
@@ -2784,17 +2967,17 @@ export class AvaliadorSintatico
 
         let vetorOuDicionario = await this.expressao();
 
-        if (vetorOuDicionario.constructor === AcessoIndiceVariavel) {
-            const construtoAcessoIndiceVariavel = vetorOuDicionario as AcessoIndiceVariavel;
-            if (construtoAcessoIndiceVariavel.entidadeChamada.tipo === 'dicionário') {
-                // A avaliação sintática não deve verificar valores de dicionários.
-                // Aqui se supõe que o programador sabe o que está fazendo.
-                // TODO: Talvez pensar numa forma melhor de fazer isso.
-                (vetorOuDicionario as any).tipo = 'vetor';
-            }
+        // Quando o iterável é um acesso a índice de dicionário, o tipo dos elementos
+        // não é determinável estaticamente — assume-se 'qualquer[]' para não bloquear a iteração.
+        let tipoVetor: string;
+        if (
+            vetorOuDicionario.constructor === AcessoIndiceVariavel &&
+            (vetorOuDicionario as AcessoIndiceVariavel).entidadeChamada.tipo === 'dicionário'
+        ) {
+            tipoVetor = 'qualquer[]';
+        } else {
+            tipoVetor = (vetorOuDicionario as any).tipo as string;
         }
-
-        const tipoVetor = (vetorOuDicionario as any).tipo as string;
 
         if (
             !tipoVetor.endsWith('[]') &&
@@ -2898,11 +3081,13 @@ export class AvaliadorSintatico
             condicao,
             incrementar,
             corpo,
+            comParenteses,
         };
     }
 
     protected async declaracaoParaTradicional(simboloPara: SimboloInterface): Promise<Para> {
-        const { inicializador, condicao, incrementar, corpo } = await this.logicaComumPara();
+        const { inicializador, condicao, incrementar, corpo, comParenteses } =
+            await this.logicaComumPara();
 
         return new Para(
             this.hashArquivo,
@@ -2910,7 +3095,8 @@ export class AvaliadorSintatico
             inicializador as Expressao,
             condicao as ConstrutoInterface,
             incrementar as ConstrutoInterface,
-            corpo
+            corpo,
+            comParenteses
         );
     }
 
@@ -2962,21 +3148,46 @@ export class AvaliadorSintatico
 
         const blocoTente: any[] = await this.blocoEscopo();
 
-        let blocoPegue: FuncaoConstruto | Declaracao[] | null = null;
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PEGUE)) {
-            if (this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
-                // Caso 1: com parâmetro de erro.
-                // `pegue` recebe um `FuncaoConstruto`.
-                blocoPegue = await this.corpoDaFuncao('bloco `pegue`');
-            } else {
-                // Caso 2: sem parâmetro de erro.
-                // `pegue` recebe um bloco.
-                this.consumir(
-                    tiposDeSimbolos.CHAVE_ESQUERDA,
-                    "Esperado '{' após a declaração 'pegue'."
-                );
-                blocoPegue = await this.blocoEscopo();
+        const blocosPegue: BlocoPegue[] = [];
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PEGUE)) {
+            let parametro: SimboloInterface | undefined;
+            let tipoExcecao: SimboloInterface | undefined;
+
+            let temParenteses = false;
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
+                temParenteses = true;
             }
+
+            if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.CHAVE_ESQUERDA) {
+                parametro = this.consumir(
+                    tiposDeSimbolos.IDENTIFICADOR,
+                    "Esperado nome do parâmetro em bloco 'pegue'."
+                ) as SimboloInterface;
+
+                this.pilhaEscopos.definirInformacoesVariavel(
+                    parametro.lexema,
+                    new InformacaoElementoSintatico(parametro.lexema, 'qualquer')
+                );
+
+                if (this.verificarTipoSimboloAtual(tiposDeSimbolos.DOIS_PONTOS)) {
+                    this.avancarEDevolverAnterior(); // consome ':'
+                    tipoExcecao = this.consumir(
+                        tiposDeSimbolos.IDENTIFICADOR,
+                        "Esperado nome do tipo de exceção após ':' em bloco 'pegue'."
+                    ) as SimboloInterface;
+                }
+
+                if (temParenteses) {
+                    this.consumir(
+                        tiposDeSimbolos.PARENTESE_DIREITO,
+                        "Esperado ')' após parâmetro do bloco 'pegue'."
+                    );
+                }
+            }
+
+            this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'pegue'.");
+            const corpo = await this.blocoEscopo();
+            blocosPegue.push(new BlocoPegue(parametro, tipoExcecao, corpo as Declaracao[]));
         }
 
         let blocoSenao: any[] | null = null;
@@ -3003,7 +3214,7 @@ export class AvaliadorSintatico
             simboloTente.hashArquivo,
             Number(simboloTente.linha),
             blocoTente,
-            blocoPegue as FuncaoConstruto | Declaracao[],
+            blocosPegue,
             blocoSenao as Declaracao[],
             blocoFinalmente as Declaracao[]
         );
@@ -3094,12 +3305,30 @@ export class AvaliadorSintatico
                             construtoChamada.entidadeChamada as Variavel;
                         tipoInicializacao = entidadeChamadaVariavel.tipo as string;
                         break;
-                    // TODO: Demais casos
+                    case ReferenciaFuncao:
+                        const entidadeChamadaReferenciaFuncao =
+                            construtoChamada.entidadeChamada as ReferenciaFuncao;
+                        tipoInicializacao = entidadeChamadaReferenciaFuncao.tipo as string;
+                        break;
+                    case ArgumentoReferenciaFuncao:
+                        tipoInicializacao = 'qualquer';
+                        break;
                     default:
                         break;
                 }
                 break;
-            // TODO: Demais casos
+            case Variavel:
+                tipoInicializacao = (expressaoInicializacao as Variavel).tipo as string;
+                break;
+            case Literal:
+                tipoInicializacao = (expressaoInicializacao as Literal).tipo as string;
+                break;
+            case FuncaoConstruto:
+                tipoInicializacao = `função<${(expressaoInicializacao as FuncaoConstruto).tipo}>`;
+                break;
+            case AcessoIndiceVariavel:
+                tipoInicializacao = (expressaoInicializacao as AcessoIndiceVariavel).tipo;
+                break;
             default:
                 break;
         }
@@ -3310,17 +3539,30 @@ export class AvaliadorSintatico
                                 entidadeChamadaAcessoMetodo.objeto.tipo as string
                             );
                         return tipoRetornoAcessoMetodoResolvido;
-                    case AcessoMetodoOuPropriedade:
-                        return this.logicaComumInferenciaTiposAcessoMetodoOuPropriedade(
+                    case AcessoMetodoOuPropriedade: {
+                        const tipoMetodo = this.logicaComumInferenciaTiposAcessoMetodoOuPropriedade(
                             entidadeChamadaChamada as AcessoMetodoOuPropriedade
                         );
+                        // logicaComumInferenciaTiposAcessoMetodoOuPropriedade retorna o tipo da
+                        // função ('função<X>') para métodos definidos em código. Em contexto de
+                        // Chamada, queremos o tipo de retorno X, não o tipo da função em si.
+                        const correspondencia = tipoMetodo.match(/^função<(.+)>$/);
+                        return correspondencia ? correspondencia[1] : tipoMetodo;
+                    }
 
                     case AcessoPropriedade:
                         const entidadeChamadaAcessoPropriedade =
                             entidadeChamadaChamada as AcessoPropriedade;
                         return entidadeChamadaAcessoPropriedade.tipoRetornoPropriedade;
                     case ArgumentoReferenciaFuncao:
-                        // TODO: Voltar aqui se necessário.
+                        const entidadeChamadaArgumentoReferencia =
+                            entidadeChamadaChamada as ArgumentoReferenciaFuncao;
+                        const referenciaFuncaoArgumentada = this.pilhaEscopos.obterReferenciaFuncao(
+                            entidadeChamadaArgumentoReferencia.simboloFuncao.lexema
+                        );
+                        if (referenciaFuncaoArgumentada) {
+                            return referenciaFuncaoArgumentada.tipo;
+                        }
                         return 'qualquer';
                     case ReferenciaFuncao:
                         const entidadeChamadaReferenciaFuncao =
@@ -3468,11 +3710,16 @@ export class AvaliadorSintatico
             }
 
             for (let [indice, identificador] of identificadores.entries()) {
-                const inicializador = inicializadores[indice];
                 const tipoInferido = this.logicaComumInferenciaTiposVariaveisEConstantes(
-                    inicializador,
+                    inicializadores[indice],
                     tipo
                 ) ?? tipo;
+
+                if (tipoExplicito && tipo === 'real') {
+                    inicializadores[indice] = this.garantirTipoReal(inicializadores[indice]);
+                }
+
+                const inicializador = inicializadores[indice];
 
                 const informacaoSintatica = tipo === 'dicionário'
                     ? this.resolverInformacaoElementoSintaticoDeDicionario(inicializador as Dicionario)
@@ -3606,6 +3853,10 @@ export class AvaliadorSintatico
                     tipo
                 ) ?? tipo;
 
+            if (tipoExplicito && tipo === 'real') {
+                inicializadores[indice] = this.garantirTipoReal(inicializadores[indice]);
+            }
+
             if (tipo !== 'dicionário') {
                 this.pilhaEscopos.definirInformacoesVariavel(
                     identificador.lexema,
@@ -3679,6 +3930,15 @@ export class AvaliadorSintatico
         do {
             const parametro: Partial<ParametroInterface> = {};
 
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONSTANTE)) {
+                const modificador = this.simbolos[this.atual - 1];
+                if (modificador.lexema === 'fixo') {
+                    parametro.fixo = true;
+                } else {
+                    parametro.imutavel = true;
+                }
+            }
+
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.RETICENCIAS)) {
                 parametro.abrangencia = 'multiplo';
             } else {
@@ -3711,6 +3971,10 @@ export class AvaliadorSintatico
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
                 const valorPadrao = await this.primario();
                 parametro.valorPadrao = valorPadrao;
+            }
+
+            if (parametro.tipoDado === 'real') {
+                parametro.valorPadrao = this.garantirTipoReal(parametro.valorPadrao);
             }
 
             this.pilhaEscopos.definirInformacoesVariavel(
@@ -3758,6 +4022,12 @@ export class AvaliadorSintatico
             expressoesRetorna = expressoesRetorna.concat(buscarRetornos(declaracao));
         }
 
+        if (tipoRetorno === 'real') {
+            for (const retorno of expressoesRetorna) {
+                retorno.valor = this.garantirTipoReal(retorno.valor);
+            }
+        }
+
         if (tipoRetorno === 'vazio' && expressoesRetorna.length > 0) {
             // Filtra retornos que têm tipo conhecido e diferente de 'vazio'.
             // 'qualquer' é excluído pois o tipo não pode ser determinado em tempo de análise sintática.
@@ -3775,7 +4045,12 @@ export class AvaliadorSintatico
         const tiposRetornos = new Set(
             expressoesRetorna.filter((e) => e.tipo !== 'qualquer').map((e) => e.tipo)
         );
-        let retornaChamadoExplicitamente = tiposRetornos.size > 0;
+        // Não usar `tiposRetornos.size > 0` aqui: esse conjunto já descarta
+        // retornos de tipo 'qualquer' (ex.: `retorna x * y` com parâmetros sem
+        // tipo). Um `retorna` com valor de tipo indeterminado ainda conta como
+        // retorno explícito, senão a função seria incorretamente inferida como
+        // 'vazio' em vez de 'qualquer'.
+        let retornaChamadoExplicitamente = expressoesRetorna.some((e) => e.valor !== undefined);
         if (tiposRetornos.size > 1 && tipoRetorno !== 'qualquer') {
             let tiposEncontrados = Array.from(tiposRetornos).reduce(
                 (acumulador, valor) => (acumulador += valor + ', '),
@@ -3791,10 +4066,11 @@ export class AvaliadorSintatico
         tiposRetornos.delete('qualquer');
 
         if (tipoRetorno === 'qualquer') {
-            if (tiposRetornos.size > 0) {
-                // Se o tipo de retorno é 'qualquer', seja implícito ou explícito,
+            if (tiposRetornos.size > 0 && !definicaoExplicitaDeTipo) {
+                // Se o tipo de retorno é 'qualquer' implícito (não anotado),
                 // este avaliador sintático pode restringir o tipo baseado nos construtos
                 // de retornos encontrados nos blocos internos da função.
+                // Se o tipo foi explicitamente anotado como 'qualquer', respeitamos a anotação.
                 const tipoRetornoDeduzido = tiposRetornos.values().next().value;
                 tipoRetorno = tipoRetornoDeduzido as string;
             } else if (!retornaChamadoExplicitamente && !definicaoExplicitaDeTipo) {
@@ -3873,6 +4149,381 @@ export class AvaliadorSintatico
         const declaracao = new InterfaceDeclaracao(simbolo, metodos, propriedades);
         this.interfacesDeclaradas[simbolo.lexema] = declaracao;
         return declaracao;
+    }
+
+    protected async analisarMembroOperador(
+        ehEstatico: boolean,
+        modificadorAcesso: 'privado' | 'protegido' | 'publico',
+        metodos: FuncaoDeclaracao[],
+        docAtual: ComentarioComoConstruto | undefined
+    ): Promise<void> {
+        const simboloOperadorKeyword = this.avancarEDevolverAnterior();
+        const simboloDoOperador = this.avancarEDevolverAnterior();
+        const nomeMetodoOp = 'operador' + simboloDoOperador.lexema;
+        const simboloNomeMetodo = {
+            tipo: tiposDeSimbolos.IDENTIFICADOR,
+            lexema: nomeMetodoOp,
+            literal: null,
+            linha: simboloOperadorKeyword.linha,
+            hashArquivo: this.hashArquivo,
+        } as SimboloInterface;
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após operador sobrecarregado.");
+        let paramsOp: ParametroInterface[] = [];
+        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+            paramsOp = await this.logicaComumParametros();
+        }
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros do operador.");
+        this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' antes do corpo do operador.");
+        const indiceAberturaCorpoOp = this.atual - 1;
+        const quantidadeErrosAntesCorpoOp = this.erros.length;
+        let corpoOp: Declaracao[] = [];
+        try {
+            corpoOp = await this.blocoEscopo();
+        } catch (erro: any) {
+            this.erros.push(erro);
+        }
+        if (this.erros.length > quantidadeErrosAntesCorpoOp) {
+            this.atual = this.encontrarIndiceAposFechamentoDeBloco(indiceAberturaCorpoOp);
+            corpoOp = [];
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+        }
+        const corpoFuncaoOp = new FuncaoConstruto(this.hashArquivo, simboloNomeMetodo.linha, paramsOp, corpoOp);
+        const metodoOp = new FuncaoDeclaracao(simboloNomeMetodo, corpoFuncaoOp);
+        metodoOp.estatico = ehEstatico;
+        metodoOp.acesso = modificadorAcesso;
+        metodoOp.documentacao = docAtual;
+        metodos.push(metodoOp);
+        this.pilhaDecoradores = [];
+    }
+
+    protected async analisarMembroMetodo(
+        ehEstatico: boolean,
+        modificadorAcesso: 'privado' | 'protegido' | 'publico',
+        ehAbstratoPadrao: boolean,
+        ehAbstrata: boolean,
+        ehEstrangeira: boolean,
+        metodos: FuncaoDeclaracao[],
+        docAtual: ComentarioComoConstruto | undefined
+    ): Promise<void> {
+        const nomeMetodo = this.avancarEDevolverAnterior();
+        // Pré-registrar para suportar chamadas recursivas (igual a funcao()).
+        this.pilhaEscopos.definirInformacoesVariavel(
+            nomeMetodo.lexema,
+            new InformacaoElementoSintatico(nomeMetodo.lexema, 'qualquer')
+        );
+        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após nome do método.");
+        let params: ParametroInterface[] = [];
+        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+            params = await this.logicaComumParametros();
+        }
+        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros do método.");
+
+        let tipoRetorno = 'qualquer';
+        let definicaoExplicitaDeTipo = false;
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+            tipoRetorno = this.verificarDefinicaoTipoAtual();
+            this.avancarEDevolverAnterior();
+            definicaoExplicitaDeTipo = true;
+        }
+
+        if (ehEstrangeira && this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_ESQUERDA)) {
+            throw this.erro(this.simbolos[this.atual], 'Métodos de classe estrangeira não podem ter corpo.');
+        }
+
+        // Método é abstrato quando: (a) está dentro de um bloco `abstrato {}`,
+        // ou (b) a classe é abstrata/estrangeira e o próximo token não é `{`.
+        const ehAbstrato =
+            ehAbstratoPadrao ||
+            ehEstrangeira ||
+            (ehAbstrata && !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_ESQUERDA));
+
+        if (ehAbstrato) {
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+            const corpoVazio = new FuncaoConstruto(
+                this.hashArquivo,
+                nomeMetodo.linha,
+                params,
+                [],
+                tipoRetorno,
+                definicaoExplicitaDeTipo
+            );
+            const metodoAbstrato = new FuncaoDeclaracao(nomeMetodo, corpoVazio, tipoRetorno);
+            metodoAbstrato.estatico = ehEstatico;
+            metodoAbstrato.abstrato = true;
+            metodoAbstrato.acesso = modificadorAcesso;
+            metodoAbstrato.decoradores = Array.from(this.pilhaDecoradores);
+            metodoAbstrato.documentacao = docAtual;
+            metodos.push(metodoAbstrato);
+        } else {
+            // Método concreto: com corpo. Inferência de tipo de retorno igual a corpoDaFuncao().
+            this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' antes do corpo do método.");
+            const indiceAberturaCorpo = this.atual - 1;
+            const quantidadeErrosAntesCorpo = this.erros.length;
+            let corpo: Declaracao[] = [];
+            try {
+                corpo = await this.blocoEscopo();
+            } catch (erro: any) {
+                this.erros.push(erro);
+            }
+            if (this.erros.length > quantidadeErrosAntesCorpo) {
+                this.atual = this.encontrarIndiceAposFechamentoDeBloco(indiceAberturaCorpo);
+                corpo = [];
+                this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+            }
+
+            let expressoesRetorna: any[] = [];
+            for (const declaracao of corpo) {
+                expressoesRetorna = expressoesRetorna.concat(buscarRetornos(declaracao));
+            }
+            const tiposRetornos = new Set(
+                expressoesRetorna.filter((e) => e.tipo !== 'qualquer').map((e) => e.tipo)
+            );
+            const retornaChamadoExplicitamente = tiposRetornos.size > 0;
+            tiposRetornos.delete('qualquer');
+            if (tipoRetorno === 'qualquer') {
+                if (tiposRetornos.size > 0 && !definicaoExplicitaDeTipo) {
+                    tipoRetorno = tiposRetornos.values().next().value;
+                } else if (!retornaChamadoExplicitamente && !definicaoExplicitaDeTipo) {
+                    tipoRetorno = 'vazio';
+                }
+            }
+
+            if (tipoRetorno === 'real') {
+                for (const retorno of expressoesRetorna) {
+                    retorno.valor = this.garantirTipoReal(retorno.valor);
+                }
+            }
+
+            const corpoFuncao = new FuncaoConstruto(this.hashArquivo, nomeMetodo.linha, params, corpo, tipoRetorno);
+            const tipoDaFuncao = `função<${tipoRetorno}>`;
+            const metodo = new FuncaoDeclaracao(nomeMetodo, corpoFuncao, tipoDaFuncao);
+            metodo.estatico = ehEstatico;
+            metodo.acesso = modificadorAcesso;
+            metodo.decoradores = Array.from(this.pilhaDecoradores);
+            metodo.documentacao = docAtual;
+            metodos.push(metodo);
+
+            this.pilhaEscopos.definirInformacoesVariavel(
+                nomeMetodo.lexema,
+                new InformacaoElementoSintatico(nomeMetodo.lexema, tipoDaFuncao)
+            );
+            this.pilhaEscopos.registrarReferenciaFuncao(nomeMetodo.lexema, metodo);
+        }
+        this.pilhaDecoradores = [];
+    }
+
+    protected async analisarMembroPropriedade(
+        ehEstatico: boolean,
+        modificadorAcesso: 'privado' | 'protegido' | 'publico',
+        metodos: FuncaoDeclaracao[],
+        propriedades: PropriedadeClasse[],
+        docAtual: ComentarioComoConstruto | undefined
+    ): Promise<void> {
+        const nomePropriedade = this.consumir(
+            tiposDeSimbolos.IDENTIFICADOR,
+            'Esperado identificador para nome de propriedade.'
+        );
+        this.consumir(tiposDeSimbolos.DOIS_PONTOS, 'Esperado dois-pontos após nome de propriedade.');
+        const tipoPropriedade = this.avancarEDevolverAnterior();
+        // `decimal` é sinônimo de `real` como nome de tipo; `real` é o nome preferido.
+        let nomeTipoPropriedade =
+            tipoPropriedade.lexema.toLowerCase() === 'decimal' ? 'real' : tipoPropriedade.lexema;
+        if (this.verificarTipoSimboloAtual(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
+            this.avancarEDevolverAnterior();
+            this.consumir(tiposDeSimbolos.COLCHETE_DIREITO, "Esperado ']' após '[' na definição do tipo de propriedade.");
+            nomeTipoPropriedade = `${nomeTipoPropriedade}[]`;
+        }
+
+        const prop = new PropriedadeClasse(
+            nomePropriedade,
+            nomeTipoPropriedade,
+            Array.from(this.pilhaDecoradores),
+            modificadorAcesso,
+            ehEstatico
+        );
+        prop.documentacao = docAtual;
+
+        // Auto-propriedade: `nome: tipo { obter; definir; }`
+        // Ou corpo personalizado: `nome: tipo { obter() { ... } definir(valor) { ... } }`
+        if (this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_ESQUERDA)) {
+            this.avancarEDevolverAnterior();
+            let temCorpoPersonalizado = false;
+            while (!this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) && !this.estaNoFinal()) {
+                const lexema = String(this.simbolos[this.atual].lexema || '').toLowerCase();
+                if (lexema === 'obter' || lexema === 'definir') {
+                    const ehObter = lexema === 'obter';
+                    this.avancarEDevolverAnterior();
+
+                    if (this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_ESQUERDO)) {
+                        // Corpo personalizado: obter() { ... } / definir(valor) { ... }
+                        temCorpoPersonalizado = true;
+                        this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após acessor.");
+                        let paramsAcessor: ParametroInterface[] = [];
+                        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
+                            paramsAcessor = await this.logicaComumParametros();
+                        }
+                        this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após parâmetros do acessor.");
+                        this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' antes do corpo do acessor.");
+                        const indiceAberturaCorpoAcessor = this.atual - 1;
+                        const quantidadeErrosAntesCorpoAcessor = this.erros.length;
+                        let corpoAcessor: Declaracao[] = [];
+                        try {
+                            corpoAcessor = await this.blocoEscopo();
+                        } catch (erro: any) {
+                            this.erros.push(erro);
+                        }
+                        if (this.erros.length > quantidadeErrosAntesCorpoAcessor) {
+                            this.atual = this.encontrarIndiceAposFechamentoDeBloco(indiceAberturaCorpoAcessor);
+                            corpoAcessor = [];
+                            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+                        }
+
+                        let tipoAcessor = 'qualquer';
+                        let expressoesRetornaAcessor: any[] = [];
+                        for (const declaracao of corpoAcessor) {
+                            expressoesRetornaAcessor = expressoesRetornaAcessor.concat(buscarRetornos(declaracao));
+                        }
+                        const tiposRetornosAcessor = new Set(
+                            expressoesRetornaAcessor.filter((e) => e.tipo !== 'qualquer').map((e) => e.tipo)
+                        );
+                        const retornaExplicitamenteAcessor = tiposRetornosAcessor.size > 0;
+                        tiposRetornosAcessor.delete('qualquer');
+                        if (tiposRetornosAcessor.size > 0) {
+                            tipoAcessor = tiposRetornosAcessor.values().next().value;
+                        } else if (!retornaExplicitamenteAcessor) {
+                            tipoAcessor = 'vazio';
+                        }
+
+                        const corpoFuncaoAcessor = new FuncaoConstruto(
+                            this.hashArquivo,
+                            nomePropriedade.linha,
+                            paramsAcessor,
+                            corpoAcessor,
+                            tipoAcessor
+                        );
+                        const tipoDaFuncaoAcessor = `função<${tipoAcessor}>`;
+                        const metodoAcessor = new FuncaoDeclaracao(nomePropriedade, corpoFuncaoAcessor, tipoDaFuncaoAcessor);
+                        metodoAcessor.estatico = ehEstatico;
+                        metodoAcessor.acesso = modificadorAcesso;
+                        metodoAcessor.eObtenedor = ehObter;
+                        metodoAcessor.eDefinidor = !ehObter;
+                        metodos.push(metodoAcessor);
+                    } else {
+                        // Forma trivial: obter; / definir;
+                        if (ehObter) {
+                            prop.autoObter = true;
+                        } else {
+                            prop.autoDefinir = true;
+                        }
+                        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+                    }
+                } else {
+                    break;
+                }
+            }
+            this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após acessores da propriedade.");
+            // Corpo personalizado: obtenedor/definidor são métodos — não há campos base a declarar.
+            // Para auto-propriedades, o campo base iniciado por '_' é criado em tempo de execução com base
+            // nos indicadores autoObter/autoDefinir. O avaliador sintático usa o nome original ('nome').
+            if (!temCorpoPersonalizado) {
+                propriedades.push(prop);
+            }
+        } else {
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
+            propriedades.push(prop);
+        }
+
+        this.pilhaDecoradores = [];
+    }
+
+    protected async compreenderMembros(
+        acessoPadrao: 'privado' | 'protegido' | 'publico',
+        ehEstaticoPadrao: boolean,
+        ehAbstratoPadrao: boolean,
+        ehAbstrata: boolean,
+        ehEstrangeira: boolean,
+        metodos: FuncaoDeclaracao[],
+        propriedades: PropriedadeClasse[]
+    ): Promise<void> {
+        while (
+            !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) &&
+            !this.estaNoFinal()
+        ) {
+            if (
+                this.simbolos[this.atual].tipo === tiposDeSimbolos.COMENTARIO ||
+                this.simbolos[this.atual].tipo === tiposDeSimbolos.LINHA_COMENTARIO
+            ) {
+                this.avancarEDevolverAnterior();
+                continue;
+            }
+
+            let docAtual: ComentarioComoConstruto | undefined = undefined;
+            if (this.simbolos[this.atual].tipo === tiposDeSimbolos.DOCUMENTARIO) {
+                const simboloDoc = this.avancarEDevolverAnterior();
+                docAtual = new ComentarioComoConstruto(simboloDoc);
+            }
+
+            if (this.simbolos[this.atual].tipo === tiposDeSimbolos.ARROBA) {
+                await this.resolverDecoradores();
+                continue;
+            }
+
+            const tipoAtual = this.simbolos[this.atual].tipo;
+            const tipoProximo = this.simbolos[this.atual + 1]?.tipo;
+            const ehBlocoAcesso =
+                [tiposDeSimbolos.PRIVADO, tiposDeSimbolos.PROTEGIDO].includes(tipoAtual) &&
+                tipoProximo === tiposDeSimbolos.CHAVE_ESQUERDA;
+            const ehBlocoEstatico =
+                tipoAtual === tiposDeSimbolos.ESTATICO && tipoProximo === tiposDeSimbolos.CHAVE_ESQUERDA;
+            const ehBlocoAbstrato =
+                tipoAtual === tiposDeSimbolos.ABSTRATO && tipoProximo === tiposDeSimbolos.CHAVE_ESQUERDA;
+
+            if (ehBlocoAcesso) {
+                const novoAcesso: 'privado' | 'protegido' =
+                    tipoAtual === tiposDeSimbolos.PRIVADO ? 'privado' : 'protegido';
+                this.avancarEDevolverAnterior();
+                this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após modificador de acesso de bloco.");
+                await this.compreenderMembros(novoAcesso, ehEstaticoPadrao, ehAbstratoPadrao, ehAbstrata, ehEstrangeira, metodos, propriedades);
+                this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' para fechar bloco de modificador de acesso.");
+                continue;
+            }
+
+            if (ehBlocoEstatico) {
+                this.avancarEDevolverAnterior();
+                this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após 'estático'.");
+                await this.compreenderMembros(acessoPadrao, true, ehAbstratoPadrao, ehAbstrata, ehEstrangeira, metodos, propriedades);
+                this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' para fechar bloco estático.");
+                continue;
+            }
+
+            if (ehBlocoAbstrato) {
+                this.avancarEDevolverAnterior();
+                this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após 'abstrato'.");
+                await this.compreenderMembros(acessoPadrao, ehEstaticoPadrao, true, ehAbstrata, ehEstrangeira, metodos, propriedades);
+                this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' para fechar bloco abstrato.");
+                continue;
+            }
+
+            const modificadorAcesso: 'privado' | 'protegido' | 'publico' = acessoPadrao;
+            const ehEstatico = ehEstaticoPadrao;
+
+            if (this.simbolos[this.atual].tipo === tiposDeSimbolos.OPERADOR) {
+                await this.analisarMembroOperador(ehEstatico, modificadorAcesso, metodos, docAtual);
+                continue;
+            }
+
+            const proximoSimbolo = this.simbolos[this.atual + 1];
+            switch (proximoSimbolo?.tipo) {
+                case tiposDeSimbolos.PARENTESE_ESQUERDO:
+                    await this.analisarMembroMetodo(ehEstatico, modificadorAcesso, ehAbstratoPadrao, ehAbstrata, ehEstrangeira, metodos, docAtual);
+                    break;
+                case tiposDeSimbolos.DOIS_PONTOS:
+                    await this.analisarMembroPropriedade(ehEstatico, modificadorAcesso, metodos, propriedades, docAtual);
+                    break;
+                default:
+                    throw this.erro(this.simbolos[this.atual], 'Esperado definição de método ou propriedade.');
+            }
+        }
     }
 
     override async declaracaoDeClasse(): Promise<Classe> {
@@ -3956,481 +4607,8 @@ export class AvaliadorSintatico
         const metodos: FuncaoDeclaracao[] = [];
         const propriedades: PropriedadeClasse[] = [];
 
-        /**
-         * Analisa membros do corpo da classe com um contexto de acesso e estático padrão.
-         * Suporta blocos de contexto aninhados: `estático { }`, `abstrato { }`, `privado { }`, `protegido { }`, `publico { }`.
-         */
-        const compreenderMembros = async (
-            acessoPadrao: 'privado' | 'protegido' | 'publico',
-            ehEstaticoPadrao: boolean,
-            ehAbstratoPadrao: boolean = false
-        ): Promise<void> => {
-            while (
-                !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) &&
-                !this.estaNoFinal()
-            ) {
-                // Pular comentários normais dentro do corpo da classe.
-                if (
-                    this.simbolos[this.atual].tipo === tiposDeSimbolos.COMENTARIO ||
-                    this.simbolos[this.atual].tipo === tiposDeSimbolos.LINHA_COMENTARIO
-                ) {
-                    this.avancarEDevolverAnterior();
-                    continue;
-                }
-
-                // Documentário (/** ... */)
-                let docAtual: ComentarioComoConstruto | undefined = undefined;
-                if (this.simbolos[this.atual].tipo === tiposDeSimbolos.DOCUMENTARIO) {
-                    const simboloDoc = this.avancarEDevolverAnterior();
-                    docAtual = new ComentarioComoConstruto(simboloDoc);
-                }
-
-                // Decorador
-                if (this.simbolos[this.atual].tipo === tiposDeSimbolos.ARROBA) {
-                    await this.resolverDecoradores();
-                    continue;
-                }
-
-                // Detecção de bloco de contexto: modificador seguido de '{'
-                const tipoAtual = this.simbolos[this.atual].tipo;
-                const tipoProximo = this.simbolos[this.atual + 1]?.tipo;
-                const ehBlocoAcesso =
-                    [tiposDeSimbolos.PRIVADO, tiposDeSimbolos.PROTEGIDO].includes(tipoAtual) &&
-                    tipoProximo === tiposDeSimbolos.CHAVE_ESQUERDA;
-                const ehBlocoEstatico =
-                    tipoAtual === tiposDeSimbolos.ESTATICO &&
-                    tipoProximo === tiposDeSimbolos.CHAVE_ESQUERDA;
-                const ehBlocoAbstrato =
-                    tipoAtual === tiposDeSimbolos.ABSTRATO &&
-                    tipoProximo === tiposDeSimbolos.CHAVE_ESQUERDA;
-
-                if (ehBlocoAcesso) {
-                    const novoAcesso: 'privado' | 'protegido' =
-                        tipoAtual === tiposDeSimbolos.PRIVADO ? 'privado' : 'protegido';
-                    this.avancarEDevolverAnterior(); // consume modificador de acesso
-                    this.consumir(
-                        tiposDeSimbolos.CHAVE_ESQUERDA,
-                        "Esperado '{' após modificador de acesso de bloco."
-                    );
-                    await compreenderMembros(novoAcesso, ehEstaticoPadrao, ehAbstratoPadrao);
-                    this.consumir(
-                        tiposDeSimbolos.CHAVE_DIREITA,
-                        "Esperado '}' para fechar bloco de modificador de acesso."
-                    );
-                    continue;
-                }
-
-                if (ehBlocoEstatico) {
-                    this.avancarEDevolverAnterior(); // consume 'estático'
-                    this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após 'estático'.");
-                    await compreenderMembros(acessoPadrao, true, ehAbstratoPadrao);
-                    this.consumir(
-                        tiposDeSimbolos.CHAVE_DIREITA,
-                        "Esperado '}' para fechar bloco estático."
-                    );
-                    continue;
-                }
-
-                if (ehBlocoAbstrato) {
-                    this.avancarEDevolverAnterior(); // consume 'abstrato'
-                    this.consumir(tiposDeSimbolos.CHAVE_ESQUERDA, "Esperado '{' após 'abstrato'.");
-                    await compreenderMembros(acessoPadrao, ehEstaticoPadrao, true);
-                    this.consumir(
-                        tiposDeSimbolos.CHAVE_DIREITA,
-                        "Esperado '}' para fechar bloco abstrato."
-                    );
-                    continue;
-                }
-
-                const modificadorAcesso: 'privado' | 'protegido' | 'publico' = acessoPadrao;
-
-                const ehEstatico = ehEstaticoPadrao;
-
-                // Método operador sobrecarregado: `operador+ (outro) { ... }`
-                if (this.simbolos[this.atual].tipo === tiposDeSimbolos.OPERADOR) {
-                    const simboloOperadorKeyword = this.avancarEDevolverAnterior();
-                    const simboloDoOperador = this.avancarEDevolverAnterior();
-                    const nomeMetodoOp = 'operador' + simboloDoOperador.lexema;
-                    const simboloNomeMetodo = {
-                        tipo: tiposDeSimbolos.IDENTIFICADOR,
-                        lexema: nomeMetodoOp,
-                        literal: null,
-                        linha: simboloOperadorKeyword.linha,
-                        hashArquivo: this.hashArquivo,
-                    } as SimboloInterface;
-                    this.consumir(
-                        tiposDeSimbolos.PARENTESE_ESQUERDO,
-                        "Esperado '(' após operador sobrecarregado."
-                    );
-                    let paramsOp: ParametroInterface[] = [];
-                    if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
-                        paramsOp = await this.logicaComumParametros();
-                    }
-                    this.consumir(
-                        tiposDeSimbolos.PARENTESE_DIREITO,
-                        "Esperado ')' após parâmetros do operador."
-                    );
-                    this.consumir(
-                        tiposDeSimbolos.CHAVE_ESQUERDA,
-                        "Esperado '{' antes do corpo do operador."
-                    );
-                    const indiceAberturaCorpoOp = this.atual - 1;
-                    const quantidadeErrosAntesCorpoOp = this.erros.length;
-                    let corpoOp: Declaracao[] = [];
-                    try {
-                        corpoOp = await this.blocoEscopo();
-                    } catch (erro: any) {
-                        this.erros.push(erro);
-                    }
-                    if (this.erros.length > quantidadeErrosAntesCorpoOp) {
-                        this.atual =
-                            this.encontrarIndiceAposFechamentoDeBloco(indiceAberturaCorpoOp);
-                        corpoOp = [];
-                        this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-                    }
-                    const corpoFuncaoOp = new FuncaoConstruto(
-                        this.hashArquivo,
-                        simboloNomeMetodo.linha,
-                        paramsOp,
-                        corpoOp
-                    );
-                    const metodoOp = new FuncaoDeclaracao(simboloNomeMetodo, corpoFuncaoOp);
-                    metodoOp.estatico = ehEstatico;
-                    metodoOp.acesso = modificadorAcesso;
-                    metodoOp.documentacao = docAtual;
-                    metodos.push(metodoOp);
-                    this.pilhaDecoradores = [];
-                    continue;
-                }
-
-                // Método ou propriedade, determinado pelo token seguinte ao nome
-                const proximoSimbolo = this.simbolos[this.atual + 1];
-                switch (proximoSimbolo?.tipo) {
-                    case tiposDeSimbolos.PARENTESE_ESQUERDO: {
-                        // Analisa: nome ( params ) [abstrato] [: tipoRetorno] { corpo }
-                        const nomeMetodo = this.avancarEDevolverAnterior();
-
-                        // Pré-registrar para suportar chamadas recursivas (igual a funcao()).
-                        this.pilhaEscopos.definirInformacoesVariavel(
-                            nomeMetodo.lexema,
-                            new InformacaoElementoSintatico(nomeMetodo.lexema, 'qualquer')
-                        );
-
-                        this.consumir(
-                            tiposDeSimbolos.PARENTESE_ESQUERDO,
-                            "Esperado '(' após nome do método."
-                        );
-                        let params: ParametroInterface[] = [];
-                        if (!this.verificarTipoSimboloAtual(tiposDeSimbolos.PARENTESE_DIREITO)) {
-                            params = await this.logicaComumParametros();
-                        }
-                        this.consumir(
-                            tiposDeSimbolos.PARENTESE_DIREITO,
-                            "Esperado ')' após parâmetros do método."
-                        );
-
-                        // Tipo de retorno opcional (igual a corpoDaFuncao())
-                        let tipoRetorno = 'qualquer';
-                        let definicaoExplicitaDeTipo = false;
-                        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
-                            tipoRetorno = this.verificarDefinicaoTipoAtual();
-                            this.avancarEDevolverAnterior();
-                            definicaoExplicitaDeTipo = true;
-                        }
-
-                        // Método de classe estrangeira não pode ter corpo.
-                        if (
-                            ehEstrangeira &&
-                            this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_ESQUERDA)
-                        ) {
-                            throw this.erro(
-                                this.simbolos[this.atual],
-                                'Métodos de classe estrangeira não podem ter corpo.'
-                            );
-                        }
-
-                        // Método é abstrato quando: (a) está dentro de um bloco `abstrato {}`,
-                        // ou (b) a classe é abstrata/estrangeira e o próximo token não é `{`.
-                        const ehAbstrato =
-                            ehAbstratoPadrao ||
-                            ehEstrangeira ||
-                            (ehAbstrata &&
-                                !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_ESQUERDA));
-
-                        if (ehAbstrato) {
-                            // Método abstrato/estrangeiro: sem corpo
-                            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-                            const corpoVazio = new FuncaoConstruto(
-                                this.hashArquivo,
-                                nomeMetodo.linha,
-                                params,
-                                [],
-                                tipoRetorno,
-                                definicaoExplicitaDeTipo
-                            );
-                            const metodoAbstrato = new FuncaoDeclaracao(
-                                nomeMetodo,
-                                corpoVazio,
-                                tipoRetorno
-                            );
-                            metodoAbstrato.estatico = ehEstatico;
-                            metodoAbstrato.abstrato = true;
-                            metodoAbstrato.acesso = modificadorAcesso;
-                            metodoAbstrato.documentacao = docAtual;
-                            metodos.push(metodoAbstrato);
-                        } else {
-                            // Método concreto: com corpo.
-                            // Inferência de tipo de retorno igual a corpoDaFuncao().
-                            this.consumir(
-                                tiposDeSimbolos.CHAVE_ESQUERDA,
-                                "Esperado '{' antes do corpo do método."
-                            );
-                            const indiceAberturaCorpo = this.atual - 1;
-                            const quantidadeErrosAntesCorpo = this.erros.length;
-                            let corpo: Declaracao[] = [];
-                            try {
-                                corpo = await this.blocoEscopo();
-                            } catch (erro: any) {
-                                this.erros.push(erro);
-                            }
-                            if (this.erros.length > quantidadeErrosAntesCorpo) {
-                                this.atual =
-                                    this.encontrarIndiceAposFechamentoDeBloco(indiceAberturaCorpo);
-                                corpo = [];
-                                this.verificarSeSimboloAtualEIgualA(
-                                    tiposDeSimbolos.PONTO_E_VIRGULA
-                                );
-                            }
-
-                            let expressoesRetorna: any[] = [];
-                            for (const declaracao of corpo) {
-                                expressoesRetorna = expressoesRetorna.concat(
-                                    buscarRetornos(declaracao)
-                                );
-                            }
-                            const tiposRetornos = new Set(
-                                expressoesRetorna
-                                    .filter((e) => e.tipo !== 'qualquer')
-                                    .map((e) => e.tipo)
-                            );
-                            const retornaChamadoExplicitamente = tiposRetornos.size > 0;
-                            tiposRetornos.delete('qualquer');
-                            if (tipoRetorno === 'qualquer') {
-                                if (tiposRetornos.size > 0) {
-                                    tipoRetorno = tiposRetornos.values().next().value;
-                                } else if (
-                                    !retornaChamadoExplicitamente &&
-                                    !definicaoExplicitaDeTipo
-                                ) {
-                                    tipoRetorno = 'vazio';
-                                }
-                            }
-
-                            const corpoFuncao = new FuncaoConstruto(
-                                this.hashArquivo,
-                                nomeMetodo.linha,
-                                params,
-                                corpo,
-                                tipoRetorno
-                            );
-                            const tipoDaFuncao = `função<${tipoRetorno}>`;
-                            const metodo = new FuncaoDeclaracao(
-                                nomeMetodo,
-                                corpoFuncao,
-                                tipoDaFuncao
-                            );
-                            metodo.estatico = ehEstatico;
-                            metodo.acesso = modificadorAcesso;
-                            metodo.decoradores = Array.from(this.pilhaDecoradores);
-                            metodo.documentacao = docAtual;
-                            metodos.push(metodo);
-
-                            this.pilhaEscopos.definirInformacoesVariavel(
-                                nomeMetodo.lexema,
-                                new InformacaoElementoSintatico(nomeMetodo.lexema, tipoDaFuncao)
-                            );
-                            this.pilhaEscopos.registrarReferenciaFuncao(nomeMetodo.lexema, metodo);
-                        }
-                        this.pilhaDecoradores = [];
-                        break;
-                    }
-                    case tiposDeSimbolos.DOIS_PONTOS: {
-                        const nomePropriedade = this.consumir(
-                            tiposDeSimbolos.IDENTIFICADOR,
-                            'Esperado identificador para nome de propriedade.'
-                        );
-                        this.consumir(
-                            tiposDeSimbolos.DOIS_PONTOS,
-                            'Esperado dois-pontos após nome de propriedade.'
-                        );
-                        const tipoPropriedade = this.avancarEDevolverAnterior();
-                        let nomeTipoPropriedade = tipoPropriedade.lexema;
-                        if (this.verificarTipoSimboloAtual(tiposDeSimbolos.COLCHETE_ESQUERDO)) {
-                            this.avancarEDevolverAnterior(); // consume '['
-                            this.consumir(
-                                tiposDeSimbolos.COLCHETE_DIREITO,
-                                "Esperado ']' após '[' na definição do tipo de propriedade."
-                            );
-                            nomeTipoPropriedade = `${nomeTipoPropriedade}[]`;
-                        }
-
-                        const prop = new PropriedadeClasse(
-                            nomePropriedade,
-                            nomeTipoPropriedade,
-                            Array.from(this.pilhaDecoradores),
-                            modificadorAcesso,
-                            ehEstatico
-                        );
-                        prop.documentacao = docAtual;
-
-                        // Auto-propriedade: `nome: tipo { obter; definir; }`
-                        // Ou corpo personalizado: `nome: tipo { obter() { ... } definir(valor) { ... } }`
-                        if (this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_ESQUERDA)) {
-                            this.avancarEDevolverAnterior(); // consume '{'
-                            let temCorpoPersonalizado = false;
-                            while (
-                                !this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_DIREITA) &&
-                                !this.estaNoFinal()
-                            ) {
-                                const lexema = String(
-                                    this.simbolos[this.atual].lexema || ''
-                                ).toLowerCase();
-                                if (lexema === 'obter' || lexema === 'definir') {
-                                    const ehObter = lexema === 'obter';
-                                    this.avancarEDevolverAnterior(); // consume 'obter' / 'definir'
-
-                                    if (
-                                        this.verificarTipoSimboloAtual(
-                                            tiposDeSimbolos.PARENTESE_ESQUERDO
-                                        )
-                                    ) {
-                                        // Corpo personalizado: obter() { ... } / definir(valor) { ... }
-                                        temCorpoPersonalizado = true;
-                                        this.consumir(
-                                            tiposDeSimbolos.PARENTESE_ESQUERDO,
-                                            "Esperado '(' após acessor."
-                                        );
-                                        let paramsAcessor: ParametroInterface[] = [];
-                                        if (
-                                            !this.verificarTipoSimboloAtual(
-                                                tiposDeSimbolos.PARENTESE_DIREITO
-                                            )
-                                        ) {
-                                            paramsAcessor = await this.logicaComumParametros();
-                                        }
-                                        this.consumir(
-                                            tiposDeSimbolos.PARENTESE_DIREITO,
-                                            "Esperado ')' após parâmetros do acessor."
-                                        );
-                                        this.consumir(
-                                            tiposDeSimbolos.CHAVE_ESQUERDA,
-                                            "Esperado '{' antes do corpo do acessor."
-                                        );
-                                        const indiceAberturaCorpoAcessor = this.atual - 1;
-                                        const quantidadeErrosAntesCorpoAcessor = this.erros.length;
-                                        let corpoAcessor: Declaracao[] = [];
-                                        try {
-                                            corpoAcessor = await this.blocoEscopo();
-                                        } catch (erro: any) {
-                                            this.erros.push(erro);
-                                        }
-                                        if (this.erros.length > quantidadeErrosAntesCorpoAcessor) {
-                                            this.atual = this.encontrarIndiceAposFechamentoDeBloco(
-                                                indiceAberturaCorpoAcessor
-                                            );
-                                            corpoAcessor = [];
-                                            this.verificarSeSimboloAtualEIgualA(
-                                                tiposDeSimbolos.PONTO_E_VIRGULA
-                                            );
-                                        }
-
-                                        // Inferência de tipo de retorno
-                                        let tipoAcessor = 'qualquer';
-                                        let expressoesRetornaAcessor: any[] = [];
-                                        for (const declaracao of corpoAcessor) {
-                                            expressoesRetornaAcessor =
-                                                expressoesRetornaAcessor.concat(
-                                                    buscarRetornos(declaracao)
-                                                );
-                                        }
-                                        const tiposRetornosAcessor = new Set(
-                                            expressoesRetornaAcessor
-                                                .filter((e) => e.tipo !== 'qualquer')
-                                                .map((e) => e.tipo)
-                                        );
-                                        const retornaExplicitamenteAcessor =
-                                            tiposRetornosAcessor.size > 0;
-                                        tiposRetornosAcessor.delete('qualquer');
-                                        if (tiposRetornosAcessor.size > 0) {
-                                            tipoAcessor = tiposRetornosAcessor
-                                                .values()
-                                                .next().value;
-                                        } else if (!retornaExplicitamenteAcessor) {
-                                            tipoAcessor = 'vazio';
-                                        }
-
-                                        const corpoFuncaoAcessor = new FuncaoConstruto(
-                                            this.hashArquivo,
-                                            nomePropriedade.linha,
-                                            paramsAcessor,
-                                            corpoAcessor,
-                                            tipoAcessor
-                                        );
-                                        const tipoDaFuncaoAcessor = `função<${tipoAcessor}>`;
-                                        const metodoAcessor = new FuncaoDeclaracao(
-                                            nomePropriedade,
-                                            corpoFuncaoAcessor,
-                                            tipoDaFuncaoAcessor
-                                        );
-                                        metodoAcessor.estatico = ehEstatico;
-                                        metodoAcessor.acesso = modificadorAcesso;
-                                        metodoAcessor.eObtenedor = ehObter;
-                                        metodoAcessor.eDefinidor = !ehObter;
-                                        metodos.push(metodoAcessor);
-                                    } else {
-                                        // Forma trivial: obter; / definir;
-                                        if (ehObter) {
-                                            prop.autoObter = true;
-                                        } else {
-                                            prop.autoDefinir = true;
-                                        }
-                                        this.verificarSeSimboloAtualEIgualA(
-                                            tiposDeSimbolos.PONTO_E_VIRGULA
-                                        );
-                                    }
-                                } else {
-                                    break;
-                                }
-                            }
-                            this.consumir(
-                                tiposDeSimbolos.CHAVE_DIREITA,
-                                "Esperado '}' após acessores da propriedade."
-                            );
-                            // Corpo personalizado: obtenedor/definidor são métodos — não há campos base a declarar.
-                            // Para auto-propriedades, o campo base iniciado por '_' é criado em tempo de execução com base
-                            // nos indicadores autoObter/autoDefinir. O avaliador sintático usa o nome original ('nome').
-                            if (!temCorpoPersonalizado) {
-                                propriedades.push(prop);
-                            }
-                        } else {
-                            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-                            propriedades.push(prop);
-                        }
-
-                        this.pilhaDecoradores = [];
-                        break;
-                    }
-                    default:
-                        throw this.erro(
-                            this.simbolos[this.atual],
-                            'Esperado definição de método ou propriedade.'
-                        );
-                }
-            }
-        };
-
         this.metodosClasseAtualEmAnalise = metodos;
-        await compreenderMembros('publico', false);
+        await this.compreenderMembros('publico', false, false, ehAbstrata, ehEstrangeira, metodos, propriedades);
 
         this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após o escopo da classe.");
 
@@ -4597,10 +4775,16 @@ export class AvaliadorSintatico
             const retornaChamadoExplicitamente = tiposRetornos.size > 0;
             tiposRetornos.delete('qualquer');
             if (tipoRetorno === 'qualquer') {
-                if (tiposRetornos.size > 0) {
+                if (tiposRetornos.size > 0 && !definicaoExplicitaDeTipo) {
                     tipoRetorno = tiposRetornos.values().next().value;
                 } else if (!retornaChamadoExplicitamente && !definicaoExplicitaDeTipo) {
                     tipoRetorno = 'vazio';
+                }
+            }
+
+            if (tipoRetorno === 'real') {
+                for (const retorno of expressoesRetorna) {
+                    retorno.valor = this.garantirTipoReal(retorno.valor);
                 }
             }
 
@@ -4955,6 +5139,13 @@ export class AvaliadorSintatico
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
+            'arredondar',
+            new InformacaoElementoSintatico('arredondar', 'número', true, [
+                new InformacaoElementoSintatico('numero', 'número'),
+                new InformacaoElementoSintatico('casasDecimais', 'número'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
             'clonar',
             new InformacaoElementoSintatico('clonar', 'qualquer', true, [
                 new InformacaoElementoSintatico('valor', 'qualquer'),
@@ -5136,6 +5327,12 @@ export class AvaliadorSintatico
             ])
         );
         this.pilhaEscopos.definirInformacoesVariavel(
+            'somar',
+            new InformacaoElementoSintatico('somar', 'número', true, [
+                new InformacaoElementoSintatico('vetor', 'qualquer[]'),
+            ])
+        );
+        this.pilhaEscopos.definirInformacoesVariavel(
             'tamanho',
             new InformacaoElementoSintatico('tamanho', 'inteiro', true, [
                 new InformacaoElementoSintatico('objeto', 'qualquer'),
@@ -5173,6 +5370,12 @@ export class AvaliadorSintatico
                 new InformacaoElementoSintatico('vetor', 'qualquer[]'),
             ])
         );
+        this.pilhaEscopos.definirInformacoesVariavel(
+            'vetor',
+            new InformacaoElementoSintatico('vetor', 'qualquer[]', true, [
+                new InformacaoElementoSintatico('tupla', 'qualquer'),
+            ])
+        );
 
         // Classe base global `Objeto`, registrada pelo interpretador em tempo de execução.
         this.pilhaEscopos.definirInformacoesVariavel(
@@ -5180,9 +5383,22 @@ export class AvaliadorSintatico
             new InformacaoElementoSintatico('Objeto', 'qualquer')
         );
 
-        // TODO: Escrever algum tipo de validação aqui.
         for (const tipos of Object.values(this.tiposDeFerramentasExternas)) {
             for (const [nomeTipo, tipo] of Object.entries(tipos)) {
+                if (!nomeTipo || !tipo) {
+                    continue;
+                }
+
+                if (nomeTipo in this.tiposDefinidosEmCodigo) {
+                    this.erros.push(
+                        new ErroAvaliadorSintatico(
+                            new Simbolo(tiposDeSimbolos.IDENTIFICADOR, nomeTipo, nomeTipo, 0, 0),
+                            `Tipo '${nomeTipo}' de ferramenta externa conflita com tipo já definido em código.`
+                        )
+                    );
+                    continue;
+                }
+
                 this.pilhaEscopos.definirInformacoesVariavel(
                     nomeTipo,
                     new InformacaoElementoSintatico(nomeTipo, tipo)
@@ -5221,7 +5437,6 @@ export class AvaliadorSintatico
 
         if (this.performance) {
             const deltaAnalise: [number, number] = hrtime(inicioAnalise);
-            // eslint-disable-next-line no-undef
             console.log(
                 `[Avaliador Sintático] Tempo para análise: ${deltaAnalise[0] * 1e9 + deltaAnalise[1]}ns`
             );

@@ -202,7 +202,8 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
     }
 
     visitarExpressaoPara(expressao: ParaComoConstruto): Promise<any> | void {
-        this.codigoFormatado += `para `;
+        const comParenteses = expressao.comParenteses !== false;
+        this.codigoFormatado += comParenteses ? `para (` : `para `;
         this.devePularLinha = false;
         if (expressao.inicializador) {
             if (Array.isArray(expressao.inicializador)) {
@@ -221,7 +222,7 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
         this.codigoFormatado += `; `;
         this.formatarDeclaracaoOuConstruto(expressao.incrementar);
         this.devePularLinha = true;
-        this.codigoFormatado += ` {${this.quebraLinha}`;
+        this.codigoFormatado += comParenteses ? `) {${this.quebraLinha}` : ` {${this.quebraLinha}`;
         this.indentacaoAtual += this.tamanhoIndentacao;
         for (let declaracao of (expressao.corpo as Bloco).declaracoes) {
             this.formatarDeclaracaoOuConstruto(declaracao);
@@ -531,7 +532,10 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
     }
 
     visitarDeclaracaoPara(declaracao: Para): any {
-        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}para `;
+        const comParenteses = declaracao.comParenteses !== false;
+        this.codigoFormatado += comParenteses
+            ? `${' '.repeat(this.indentacaoAtual)}para (`
+            : `${' '.repeat(this.indentacaoAtual)}para `;
         this.devePularLinha = false;
         if (declaracao.inicializador) {
             if (Array.isArray(declaracao.inicializador)) {
@@ -551,7 +555,7 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
         this.codigoFormatado += `; `;
         this.formatarDeclaracaoOuConstruto(declaracao.incrementar);
         this.devePularLinha = true;
-        this.codigoFormatado += ` {${this.quebraLinha}`;
+        this.codigoFormatado += comParenteses ? `) {${this.quebraLinha}` : ` {${this.quebraLinha}`;
 
         this.indentacaoAtual += this.tamanhoIndentacao;
         for (let declaracaoBloco of declaracao.corpo.declaracoes) {
@@ -597,20 +601,20 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
 
         this.indentacaoAtual -= this.tamanhoIndentacao;
 
-        if (declaracao.caminhoPegue) {
-            this.codigoFormatado += `} pegue {${this.quebraLinha}`;
-            if (declaracao.caminhoPegue instanceof FuncaoConstruto) {
-                // Se tem um parâmetro de erro.
-            } else {
-                // Se não tem um parâmetro de erro.
-                this.indentacaoAtual += this.tamanhoIndentacao;
-                for (let declaracaoBloco of declaracao.caminhoPegue as Declaracao[]) {
-                    this.formatarDeclaracaoOuConstruto(declaracaoBloco);
-                }
+        for (const bloco of declaracao.caminhoPegue) {
+            let cabecalho = '} pegue';
+            if (bloco.parametro) {
+                cabecalho += bloco.tipoExcecao
+                    ? ` (${bloco.parametro.lexema}: ${bloco.tipoExcecao.lexema})`
+                    : ` (${bloco.parametro.lexema})`;
             }
+            this.codigoFormatado += `${cabecalho} {${this.quebraLinha}`;
+            this.indentacaoAtual += this.tamanhoIndentacao;
+            for (let declaracaoBloco of bloco.corpo) {
+                this.formatarDeclaracaoOuConstruto(declaracaoBloco);
+            }
+            this.indentacaoAtual -= this.tamanhoIndentacao;
         }
-
-        this.indentacaoAtual -= this.tamanhoIndentacao;
 
         if (declaracao.caminhoFinalmente) {
             this.codigoFormatado += `} finalmente {${this.quebraLinha}`;
@@ -618,9 +622,8 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
             for (let declaracaoBloco of declaracao.caminhoFinalmente) {
                 this.formatarDeclaracaoOuConstruto(declaracaoBloco);
             }
+            this.indentacaoAtual -= this.tamanhoIndentacao;
         }
-
-        this.indentacaoAtual -= this.tamanhoIndentacao;
 
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}`;
     }
@@ -983,6 +986,9 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
             case tiposDeSimbolos.NEGACAO:
                 operador = `!`;
                 break;
+            case tiposDeSimbolos.NAO:
+                operador = `não `;
+                break;
             case tiposDeSimbolos.SUBTRACAO:
                 operador = `-`;
                 break;
@@ -997,10 +1003,6 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
                 this.formatarDeclaracaoOuConstruto(expressao.operando);
                 this.codigoFormatado += operador;
                 break;
-        }
-
-        if (this.devePularLinha) {
-            this.codigoFormatado += this.quebraLinha;
         }
     }
 

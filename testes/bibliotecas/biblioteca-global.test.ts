@@ -1017,4 +1017,354 @@ describe('Biblioteca Global', () => {
             expect(_saidas).toBe('(1, 2, 3)');
         });
     });
+
+    describe('arredondar()', () => {
+        it('Sucesso - arredonda número com casas decimais', async () => {
+            let _saida = '';
+            interpretador.funcaoDeRetorno = (saida: string) => { _saida += saida; };
+            const retornoLexador = lexador.mapear(["escreva(arredondar(3.14159, 2))"], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saida).toBe('3.14');
+        });
+
+        it('Sucesso - arredonda para inteiro', async () => {
+            let _saida = '';
+            interpretador.funcaoDeRetorno = (saida: string) => { _saida += saida; };
+            const retornoLexador = lexador.mapear(["escreva(arredondar(3.7, 0))"], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saida).toBe('4');
+        });
+    });
+
+    describe('longo()', () => {
+        it('Sucesso - converte número inteiro para longo', async () => {
+            let _saida = '';
+            interpretador.funcaoDeRetorno = (saida: string) => { _saida += saida; };
+            const retornoLexador = lexador.mapear(["escreva(longo(42))"], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+
+        it('Nulo - retorna 0n', async () => {
+            const retornoLexador = lexador.mapear(["escreva(longo(nulo))"], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+
+        it('Sucesso - converte texto numérico para longo', async () => {
+            const retornoLexador = lexador.mapear(["escreva(longo('123'))"], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+
+        it('Falha - texto não numérico', async () => {
+            const retornoLexador = lexador.mapear(["escreva(longo('abc'))"], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+        });
+    });
+
+    describe('numero()', () => {
+        it('Sucesso - número real', async () => {
+            let _saida = '';
+            interpretador.funcaoDeRetorno = (saida: string) => { _saida += saida; };
+            const retornoLexador = lexador.mapear(["escreva(numero(3.14))"], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saida).toBe('3.14');
+        });
+
+        it('Nulo - retorna zero', async () => {
+            let _saida = '';
+            interpretador.funcaoDeRetorno = (saida: string) => { _saida += saida; };
+            const retornoLexador = lexador.mapear(["escreva(numero(nulo))"], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saida).toBe('0');
+        });
+
+        it('Falha - texto não numérico', async () => {
+            const retornoLexador = lexador.mapear(["escreva(numero('abc'))"], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+        });
+    });
+
+    describe('somar()', () => {
+        it('Sucesso - soma vetor de números', async () => {
+            let _saida = '';
+            interpretador.funcaoDeRetorno = (saida: string) => { _saida += saida; };
+            const retornoLexador = lexador.mapear(["escreva(somar([1, 2, 3, 4, 5]))"], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saida).toBe('15');
+        });
+
+        it('Sucesso - soma números reais', async () => {
+            let _saida = '';
+            interpretador.funcaoDeRetorno = (saida: string) => { _saida += saida; };
+            const retornoLexador = lexador.mapear(["escreva(somar([1.5, 2.5, 3.0]))"], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saida).toBe('7');
+        });
+    });
+
+    describe('reduzir()', () => {
+        it('Sucesso - reduz vetor com valor inicial', async () => {
+            let _saida = '';
+            interpretador.funcaoDeRetorno = (saida: string) => { _saida += saida; };
+            const codigo = [
+                "var resultado = reduzir([1, 2, 3, 4], funcao(acumulador, atual) { retorna acumulador + atual }, 0)",
+                "escreva(resultado)"
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+
+        it('Falha - primeiro parâmetro não é vetor', async () => {
+            const retornoLexador = lexador.mapear(
+                ["escreva(reduzir(5, funcao(a, b) { retorna a + b }, 0))"],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+        });
+    });
+
+    describe('todos()', () => {
+        it('Sucesso - todos os elementos são verdadeiros', async () => {
+            let _saida = '';
+            interpretador.funcaoDeRetorno = (saida: string) => { _saida += saida; };
+            const retornoLexador = lexador.mapear(["escreva(todos([verdadeiro, verdadeiro, 1]))"], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saida).toBe('verdadeiro');
+        });
+
+        it('Sucesso - nem todos são verdadeiros', async () => {
+            let _saida = '';
+            interpretador.funcaoDeRetorno = (saida: string) => { _saida += saida; };
+            const retornoLexador = lexador.mapear(["escreva(todos([verdadeiro, falso, 1]))"], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saida).toBe('falso');
+        });
+
+        it('Falha - parâmetro não é iterável', async () => {
+            const retornoLexador = lexador.mapear(["escreva(todos(5))"], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+        });
+    });
+
+    describe('vetor()', () => {
+        it('Sucesso - converte tupla para vetor', async () => {
+            let _saida = '';
+            interpretador.funcaoDeRetorno = (saida: string) => { _saida += saida; };
+            const codigo = [
+                "var t = tupla([1, 2, 3])",
+                "var v = vetor(t)",
+                "escreva(tamanho(v))"
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saida).toBe('3');
+        });
+
+        it('Falha - argumento é texto (não é tupla)', async () => {
+            const retornoLexador = lexador.mapear(["escreva(vetor('nao eh tupla'))"], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+        });
+    });
+
+    describe('encontrar() - sem resultado', () => {
+        it('Executa sem erros com função de busca', async () => {
+            const retornoLexador = lexador.mapear(
+                ["escreva(encontrar([1, 2, 3], funcao(x) { retorna x == 99 }))"],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+    });
+
+    describe('encontrarUltimo() - sem resultado', () => {
+        it('Executa sem erros com função de busca', async () => {
+            const retornoLexador = lexador.mapear(
+                ["escreva(encontrarUltimo([1, 2, 3], funcao(x) { retorna x == 99 }))"],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+    });
+
+    describe('encontrarUltimoIndice() - sem resultado', () => {
+        it('Executa sem erros com função de busca', async () => {
+            const retornoLexador = lexador.mapear(
+                ["escreva(encontrarUltimoIndice([1, 2, 3], funcao(x) { retorna x == 99 }))"],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+    });
+
+    describe('incluido() - não encontrado', () => {
+        it('Retorna falso quando elemento não está no vetor', async () => {
+            let _saida = '';
+            interpretador.funcaoDeRetorno = (saida: string) => { _saida += saida; };
+            const retornoLexador = lexador.mapear(["escreva(incluido([1, 2, 3], 99))"], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saida).toBe('falso');
+        });
+    });
+
+    describe('algum() - iteração completa', () => {
+        it('Executa sem erros ao iterar todos os elementos', async () => {
+            const retornoLexador = lexador.mapear(
+                ["escreva(algum([1, 2, 3], funcao(x) { retorna x > 10 }))"],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+    });
+
+    describe('filtrarPor() - erros', () => {
+        it('Falha - primeiro parâmetro nulo', async () => {
+            const retornoLexador = lexador.mapear(
+                ["filtrarPor(nulo, funcao(x) { retorna x })"],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+        });
+
+        it('Falha - primeiro parâmetro não é vetor', async () => {
+            const retornoLexador = lexador.mapear(
+                ["filtrarPor(5, funcao(x) { retorna x })"],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+        });
+    });
+
+    describe('primeiroEmCondicao() - erros e sem resultado', () => {
+        it('Retorna indefinido quando nenhum elemento satisfaz', async () => {
+            const codigo = [
+                "var f = funcao(x) { se(x > 100) { retorna(x) } }",
+                "var resultado = primeiroEmCondicao([1, 2, 3], f)",
+                "escreva(resultado == nulo)"
+            ];
+            let _saida = '';
+            interpretador.funcaoDeRetorno = (saida: string) => { _saida += saida; };
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros).toHaveLength(0);
+        });
+
+        it('Falha - parâmetro nulo', async () => {
+            const retornoLexador = lexador.mapear(
+                ["primeiroEmCondicao(nulo, funcao(x) { retorna x })"],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+        });
+
+        it('Falha - primeiro parâmetro não é vetor', async () => {
+            const retornoLexador = lexador.mapear(
+                ["primeiroEmCondicao(5, funcao(x) { retorna x })"],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+        });
+    });
+
+    describe('ordenar() - erros', () => {
+        it('Falha - parâmetro não é vetor', async () => {
+            const retornoLexador = lexador.mapear(["ordenar(5)"], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+        });
+    });
+
+    describe('todosEmCondicao() - erros', () => {
+        it('Falha - primeiro parâmetro não é iterável', async () => {
+            const retornoLexador = lexador.mapear(
+                ["todosEmCondicao(5, funcao(x) { retorna x > 0 })"],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros.length).toBeGreaterThan(0);
+        });
+
+        it('Sucesso - todos satisfazem a condição', async () => {
+            let _saida = '';
+            interpretador.funcaoDeRetorno = (saida: string) => { _saida += saida; };
+            const codigo = [
+                "var f = funcao(x) { retorna(x > 0) }",
+                "escreva(todosEmCondicao([1, 2, 3], f))"
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saida).toBe('verdadeiro');
+        });
+
+        it('Sucesso - nem todos satisfazem a condição', async () => {
+            let _saida = '';
+            interpretador.funcaoDeRetorno = (saida: string) => { _saida += saida; };
+            const codigo = [
+                "var f = funcao(x) { retorna(x > 0) }",
+                "escreva(todosEmCondicao([1, -2, 3], f))"
+            ];
+            const retornoLexador = lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saida).toBe('falso');
+        });
+    });
 });

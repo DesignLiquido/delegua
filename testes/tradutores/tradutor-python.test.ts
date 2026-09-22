@@ -25,6 +25,91 @@ describe('Tradutor Delégua -> Python', () => {
         expect(resultado).toMatch(/print\('Olá mundo'\)/i);
     });
 
+    it('número decimal com parte fracionária zero preserva o ponto decimal (resolve #1407)', async () => {
+        const retornoLexador = lexador.mapear(['escreva(10.0)'], -1);
+
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+        const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+        expect(resultado).toBeTruthy();
+        expect(resultado).toMatch(/print\(10\.0\)/i);
+    });
+
+    describe('Tipo real explícito sempre com parte decimal (resolve #1407)', () => {
+        it('variável real inicializada com literal inteiro -> 10.0', async () => {
+            const retornoLexador = lexador.mapear(['var x: real = 10'], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+            expect(resultado).toMatch(/x = 10\.0/i);
+        });
+
+        it('variável real inicializada com variável número -> conversão explícita', async () => {
+            const retornoLexador = lexador.mapear(['var y = 10', 'var x: real = y'], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+            expect(resultado).toMatch(/x = float\(y\)/i);
+        });
+
+        it('função com retorno tipado real e literal inteiro -> 10.0', async () => {
+            const retornoLexador = lexador.mapear(
+                ['funcao f(): real {', '    retorna 10', '}'],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+            expect(resultado).toMatch(/return 10\.0/i);
+        });
+
+        it('função com retorno tipado real e variável número -> conversão explícita', async () => {
+            const retornoLexador = lexador.mapear(
+                ['funcao f(): real {', '    var y = 10', '    retorna y', '}'],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+            expect(resultado).toMatch(/return float\(y\)/i);
+        });
+
+        it('real(10) converte para float(10.0)', async () => {
+            const retornoLexador = lexador.mapear(['escreva(real(10))'], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+            expect(resultado).toMatch(/print\(float\(10\.0\)\)/i);
+        });
+
+        it('real(y) com y número converte para float(y)', async () => {
+            const retornoLexador = lexador.mapear(['var y = 10', 'escreva(real(y))'], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+            expect(resultado).toMatch(/print\(float\(y\)\)/i);
+        });
+
+        it('tipo `decimal` é sinônimo de `real`: variável decimal inicializada com literal inteiro -> 10.0', async () => {
+            const retornoLexador = lexador.mapear(['var x: decimal = 10'], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+            expect(resultado).toMatch(/x = 10\.0/i);
+        });
+
+        it('tipo `decimal` é sinônimo de `real`: função com retorno tipado decimal e literal inteiro -> 10.0', async () => {
+            const retornoLexador = lexador.mapear(
+                ['funcao f(): decimal {', '    retorna 10', '}'],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+
+            expect(resultado).toMatch(/return 10\.0/i);
+        });
+    });
+
     it('Literais com primitivas', async () => {
         const retornoLexador = lexador.mapear(
             ['[1, 2, 3].adicionar(1)'],
@@ -447,6 +532,45 @@ describe('Tradutor Delégua -> Python', () => {
             expect(resultado).toMatch(/print\(\'40\'\)/i);
             expect(resultado).toMatch(/else:/i);
             expect(resultado).toMatch(/print\('Não é nenhum desses valores: 10, 20, 30, 40'\)/i);
+        });
+
+        it('se sem chaves -> if, corpo indentado corretamente (issue #1403)', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'funcao fibonacci(n)',
+                    '{',
+                    '    se n <= 1',
+                    '        retorne n',
+                    '    retorne fibonacci(n - 2) + fibonacci(n - 1)',
+                    '}',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/if n <= 1:\n {8}return n\n/i);
+            expect(resultado).toMatch(/\n {4}return fibonacci\(n - 2\) \+ fibonacci\(n - 1\)/i);
+        });
+
+        it('se senão sem chaves -> if/else, corpo indentado corretamente', async () => {
+            const retornoLexador = lexador.mapear(
+                [
+                    'var a = 2',
+                    'se (a == 1)',
+                    '    escreva(10)',
+                    'senão',
+                    '    escreva(20)',
+                ],
+                -1
+            );
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+            const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            expect(resultado).toBeTruthy();
+            expect(resultado).toMatch(/if a \=\= 1:\n {4}print\(10\)\n/i);
+            expect(resultado).toMatch(/else:\n {4}print\(20\)/i);
         });
 
         it('se ternário -> expressão condicional', async () => {

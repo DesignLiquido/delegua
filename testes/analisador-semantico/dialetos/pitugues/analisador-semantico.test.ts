@@ -172,8 +172,8 @@ describe('Analisador semântico', () => {
 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(3);
-                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('\'caso 0:\' não é do mesmo tipo esperado em \'escolha\' (esperado: texto, atual: número).');
-                expect(retornoAnalisadorSemantico.diagnosticos[1].mensagem).toBe('\'caso 1:\' não é do mesmo tipo esperado em \'escolha\' (esperado: texto, atual: número).');
+                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toBe('\'caso 0:\' não é do mesmo tipo esperado em \'escolha\' (esperado: texto, atual: inteiro).');
+                expect(retornoAnalisadorSemantico.diagnosticos[1].mensagem).toBe('\'caso 1:\' não é do mesmo tipo esperado em \'escolha\' (esperado: texto, atual: inteiro).');
                 expect(retornoAnalisadorSemantico.diagnosticos[2].mensagem).toBe("Variável 'opcao' foi declarada mas nunca usada.");
             });
 
@@ -592,7 +592,7 @@ describe('Analisador semântico', () => {
                         retornoAvaliadorSintatico.declaracoes
                     );
                     expect(retornoAnalisadorSemantico).toBeTruthy();
-                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(1);
+                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
                 });
 
 
@@ -605,7 +605,7 @@ describe('Analisador semântico', () => {
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                     const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
                     expect(retornoAnalisadorSemantico).toBeTruthy();
-                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(2);
+                    expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
                 });
             });
         });
@@ -1378,6 +1378,19 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico).toBeTruthy();
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
             });
+            it('Concatenação de vetores com operador + não deve gerar erro (issue #1328)', async () => {
+                const retornoLexador = lexador.mapear([
+                    `vetor1 = [1, 2, 4]`,
+                    `vetor2 = [1, 3, 4]`,
+                    `vetor_final = vetor1 + vetor2`,
+                    `escreva(vetor_final)`,
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
         });
         describe('Atribuição de tipos vetoriais - atribuição inconsciente com o tipo só gera aviso', () => {
             describe('Tipo inteiro[]', () => {
@@ -2051,7 +2064,7 @@ describe('Analisador semântico', () => {
                 const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toContain('Atribuição inválida para \'nome\': é esperado um valor do tipo texto. Atual: número.');
+                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toContain('Atribuição inválida para \'nome\': é esperado um valor do tipo texto. Atual: inteiro.');
             });
 
             it('Erro - declaração com tipo inteiro recebendo texto', async () => {
@@ -2062,7 +2075,7 @@ describe('Analisador semântico', () => {
                 const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
 
                 expect(retornoAnalisadorSemantico).toBeTruthy();
-                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toContain('Atribuição inválida para \'valor\': é esperado um valor do tipo número. Atual: texto.');
+                expect(retornoAnalisadorSemantico.diagnosticos[0].mensagem).toContain('Atribuição inválida para \'valor\': é esperado um valor do tipo inteiro. Atual: texto.');
             });
         });
 

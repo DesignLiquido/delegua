@@ -44,7 +44,7 @@ export class DescritorTipoClasse extends Chamavel {
      * Inclui a própria classe como primeiro elemento. */
     orem: DescritorTipoClasse[];
     metodos: { [nome: string]: DeleguaFuncao | DeleguaFuncao[] };
-    metodosEstaticos: { [nome: string]: DeleguaFuncao | DeleguaFuncao[] };
+    metodosEstaticos: { [nome: string]: Chamavel | Chamavel[] };
     membrosEstaticos: { [nome: string]: any };
     obtenedores: { [nome: string]: DeleguaFuncao };
     definidores: { [nome: string]: DeleguaFuncao };

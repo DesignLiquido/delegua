@@ -3,7 +3,7 @@ import { InterpretadorInterface, PrimitivaInterface } from '../../../interfaces'
 
 export default {
     absoluto: {
-        tipoRetorno: 'número',
+        tipoRetorno: 'real',
         argumentos: [],
         implementacao: (interpretador: InterpretadorInterface, valor: number): Promise<number> => {
             return Promise.resolve(Math.abs(valor));
@@ -14,13 +14,13 @@ export default {
             'Retorna a versão absoluta de um número, ou seja, seu valor sem sinal.' +
             '\n\n ## Exemplo de Código\n' +
             '\n\n```pitugues\n' +
-            'var n = -5\n' +
+            'n = -5\n' +
             'escreva(n.absoluto()) // 5\n```' +
             '\n\n## Formas de uso\n',
         exemploCodigo: 'numero.absoluto()',
     },
     arredondar: {
-        tipoRetorno: 'numero',
+        tipoRetorno: 'inteiro',
         argumentos: [
             new InformacaoElementoSintatico(
                 'casasDecimais',
@@ -50,14 +50,14 @@ export default {
             '\n\n ## Exemplo de Código\n' +
             '\n\n```pitugues\n' +
             'n = 2.4\n' +
-            'escreva(n.arredondar()) // 2\n```' +
+            'escreva(n.arredondar()) // 2\n' +
             'x = 2.468\n' +
             'escreva(x.arredondar(2)) // 2.47\n```' +
             '\n\n## Formas de uso\n',
         exemploCodigo: 'numero.arredondar()',
     },
     arredondar_para_baixo: {
-        tipoRetorno: 'número',
+        tipoRetorno: 'inteiro',
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
@@ -77,7 +77,7 @@ export default {
         exemploCodigo: 'numero.arredondar_para_baixo()',
     },
     arredondar_para_cima: {
-        tipoRetorno: 'número',
+        tipoRetorno: 'inteiro',
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
@@ -142,7 +142,7 @@ export default {
         exemploCodigo: 'numero.formatar({ maximoCasasDecimais: 2 })',
     },
     raiz_quadrada: {
-        tipoRetorno: 'numero',
+        tipoRetorno: 'real',
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,
@@ -162,7 +162,7 @@ export default {
         exemploCodigo: 'numero.raiz_quadrada()',
     },
     truncar: {
-        tipoRetorno: 'numero',
+        tipoRetorno: 'inteiro',
         argumentos: [],
         implementacao: (
             interpretador: InterpretadorInterface,

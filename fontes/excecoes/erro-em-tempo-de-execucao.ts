@@ -4,6 +4,7 @@ export class ErroEmTempoDeExecucao extends Error {
     simbolo: SimboloInterface;
     mensagem: string;
     linha?: number;
+    valorDelegua?: any;
 
     constructor(simbolo?: SimboloInterface, mensagem?: string, linha?: number) {
         super(mensagem);

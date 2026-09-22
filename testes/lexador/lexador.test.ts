@@ -516,6 +516,32 @@ describe('Lexador', () => {
                 const resultado = lexador.mapear(['平'], -1);
                 expect(resultado.simbolos).toHaveLength(0);
                 expect(resultado.erros).toHaveLength(1);
+                expect(resultado.erros[0].mensagem).toBe(
+                    'Caractere inesperado.'
+                );
+            });
+
+            it('Deve apontar erro ao utilizar `#`', () => {
+                const resultado = lexador.mapear(['#'], -1);
+                expect(resultado.simbolos).toHaveLength(0);
+                expect(resultado.erros).toHaveLength(1);
+                expect(resultado.erros[0].mensagem).toBe(
+                    'Caractere inesperado.'
+                );
+            });
+
+            describe('Emojis', () => {
+                it('Deve acusar erro ao usar emoji sem aspas ao redor', async () => {
+                    const codigo = [
+                        'escreva(👋)'
+                    ];
+                    const retornoLexador = lexador.mapear(codigo, -1);
+
+                    expect(retornoLexador.erros).toHaveLength(1);
+                    expect(retornoLexador.erros[0].mensagem).toBe(
+                        'Emojis devem estar envoltos por aspas.'
+                    );
+                });
             });
         });
     });

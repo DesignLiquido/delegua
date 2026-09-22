@@ -132,6 +132,40 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                     expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
                 });
+
+                it('Comentário de linha antes da primeira chave de um dicionário', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var objeto = {',
+                            '    // comentario',
+                            "    'chave': 'valor'",
+                            '}',
+                            'escreva(objeto)',
+                        ], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                });
+
+                it('Comentários entre pares de um dicionário', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'var objeto = {',
+                            "    'chave1': 'valor1', // Comentário após a primeira chave",
+                            '    // Comentário antes da segunda chave',
+                            "    'chave2': 'valor2'",
+                            '    // Comentário antes da chave direita',
+                            '}',
+                            'escreva(objeto)',
+                        ], -1);
+
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(2);
+                });
             });
 
             describe('Desestruturações', () => {
@@ -1427,6 +1461,52 @@ describe('Avaliador sintático', () => {
                 });
             });
 
+            describe('Tipo `decimal` como sinônimo de `real`', () => {
+                it('Var com tipo explícito `decimal` é normalizada para `real`', async () => {
+                    const retornoLexador = lexador.mapear(['var x: decimal = 10'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                    const declaracaoTipada = retornoAvaliadorSintatico.declaracoes[0] as Var;
+                    expect(declaracaoTipada.constructor).toBe(Var);
+                    expect(declaracaoTipada.tipo).toBe('real');
+                });
+
+                it('Const com tipo explícito `decimal` é normalizada para `real`', async () => {
+                    const retornoLexador = lexador.mapear(['const x: decimal = 10'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+                    const declaracaoTipada = retornoAvaliadorSintatico.declaracoes[0] as Const;
+                    expect(declaracaoTipada.constructor).toBe(Const);
+                    expect(declaracaoTipada.tipo).toBe('real');
+                });
+
+                it('Vetor `decimal[]` é normalizado para `real[]`', async () => {
+                    const retornoLexador = lexador.mapear(['var x: decimal[] = [1.0, 2.0]'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    const declaracaoTipada = retornoAvaliadorSintatico.declaracoes[0] as Var;
+                    expect(declaracaoTipada.tipo).toBe('real[]');
+                });
+
+                it('Parâmetro de função com tipo `decimal` é normalizado para `real`', async () => {
+                    const retornoLexador = lexador.mapear(
+                        ['funcao f(x: decimal): decimal {', '    retorna x', '}'],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    const funcaoDeclarada = retornoAvaliadorSintatico.declaracoes[0] as FuncaoDeclaracao;
+                    expect(funcaoDeclarada.funcao.parametros[0].tipoDado).toBe('real');
+                    expect(funcaoDeclarada.funcao.tipo).toBe('real');
+                });
+            });
+
             describe('Enquanto', () => {
                 it('Enquanto com retorno pelo escopo', async () => {
                     const retornoLexador = lexador.mapear(
@@ -1690,6 +1770,19 @@ describe('Avaliador sintático', () => {
                 );
             });
 
+            it('Declaração de constante com número literal no lugar do tipo (fixo pi: 14) não deve lançar exceção de lexema', async () => {
+                const retornoLexador = lexador.mapear(['fixo pi: 14'], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                const erro = retornoAvaliadorSintatico.erros[0];
+                expect(erro.hashArquivo).toBeDefined();
+                expect(erro.linha).toBeDefined();
+                expect(erro.message).toBe(
+                    "Esperado '=' ou '<-' após identificador em instrução 'constante'."
+                );
+            });
+
             describe('Dicionários', () => {
                 it('Tipo de chave de dicionário inválida', async () => {
                     const retornoLexador = lexador.mapear(
@@ -1744,6 +1837,42 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
                     const erro = retornoAvaliadorSintatico.erros[0];
                     expect(erro.message).toBe("Função retorna valores com mais de um tipo. Tipo esperado: número. Tipos encontrados: texto, número.");
+                });
+
+                it('Função sem tipo de retorno explícito que retorna expressão com parâmetros sem tipo é inferida como qualquer, não vazio', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao multiplicacao(x, y) {',
+                            '    retorne x * y',
+                            '}',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros.length).toBe(0);
+                    const [funcaoMultiplicacao] = retornoAvaliadorSintatico.declaracoes as any[];
+                    expect(funcaoMultiplicacao.tipo).toBe('função<qualquer>');
+                });
+
+                it('Função sem tipo de retorno explícito que retorna chamada de outra função de tipo qualquer é inferida como qualquer, não vazio', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao multiplicacao(x, y) {',
+                            '    retorne x * y',
+                            '}',
+                            '',
+                            'funcao quadrado(x) {',
+                            '    retorne multiplicacao(x, x)',
+                            '}',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros.length).toBe(0);
+                    const [, funcaoQuadrado] = retornoAvaliadorSintatico.declaracoes as any[];
+                    expect(funcaoQuadrado.tipo).toBe('função<qualquer>');
                 });
             });
 
@@ -2800,5 +2929,24 @@ describe('Avaliador sintático', () => {
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
             });
         });
+    });
+
+    describe('Issue #1360 - escolha vazio com mesmo parâmetro da função', () => {
+        it('Não deve travar ao analisar função com escolha vazio usando o mesmo parâmetro da função', async () => {
+            const lexador = new Lexador();
+            const avaliadorSintatico = new AvaliadorSintatico();
+            const retornoLexador = lexador.mapear([
+                'funcao teste(param) {',
+                '    escolha param {',
+                '        // Comentário',
+                '    }',
+                '}',
+            ], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            expect(retornoAvaliadorSintatico).toBeTruthy();
+            expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+            expect(retornoAvaliadorSintatico.declaracoes[0]).toBeInstanceOf(FuncaoDeclaracao);
+        }, 2000);
     });
 });

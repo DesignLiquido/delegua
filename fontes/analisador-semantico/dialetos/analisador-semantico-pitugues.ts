@@ -67,8 +67,6 @@ const FUNCOES_NATIVAS_PITUGUES = [
     'mapear',
     'maximo',
     'minimo',
-    'numero',
-    'número',
     'ordenar',
     'para_cada',
     'primeiro_em_condicao',
@@ -195,6 +193,9 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                 } else if (declaracao.inicializador instanceof Chamada) {
                     // Chamadas de método/função podem retornar vetores, então não geramos erro
                     // A verificação de tipo será feita em tempo de execução
+                } else if (declaracao.inicializador instanceof Binario) {
+                    // Expressões binárias podem produzir vetores em tempo de execução
+                    // (ex: vetor1 + vetor2 concatena dois vetores), então não geramos erro
                 } else {
                     this.erro(
                         declaracao.simbolo,
@@ -211,12 +212,12 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                     );
                 }
                 if (
-                    ['inteiro', 'número', 'real'].includes(declaracao.tipo) &&
-                    !['inteiro', 'número', 'real'].includes(literal.tipo)
+                    ['inteiro', 'real'].includes(declaracao.tipo) &&
+                    !['inteiro', 'real'].includes(literal.tipo)
                 ) {
                     this.erro(
                         declaracao.simbolo,
-                        `Atribuição inválida para '${declaracao.simbolo.lexema}': é esperado um valor do tipo número. Atual: ${literal.tipo}.`
+                        `Atribuição inválida para '${declaracao.simbolo.lexema}': é esperado um valor do tipo ${declaracao.tipo}. Atual: ${literal.tipo}.`
                     );
                 }
             }
@@ -233,6 +234,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
     }
 
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
+        this.marcarVariaveisUsadasEmExpressao(expressao.valor);
         return this.verificarTipoDe(expressao.valor);
     }
 
@@ -471,16 +473,26 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
 
             if (expressao.valor instanceof Literal) {
                 let valorLiteral = typeof (expressao.valor as Literal).valor;
+
                 if (!['qualquer'].includes(valor.tipo)) {
                     if (valorLiteral === 'string') {
                         if (valor.tipo != 'texto') {
-                            this.erro(simboloAlvo, `Esperado tipo '${valor.tipo}' na atribuição.`);
+                            this.erro(
+                                simboloAlvo,
+                                `Esperado tipo '${valor.tipo}' na atribuição.`
+                            );
+
                             return Promise.resolve();
                         }
                     }
+
                     if (valorLiteral === 'number') {
-                        if (!['inteiro', 'número', 'real'].includes(valor.tipo)) {
-                            this.erro(simboloAlvo, `Esperado tipo '${valor.tipo}' na atribuição.`);
+                        if (!['inteiro', 'real'].includes(valor.tipo)) {
+                            this.erro(
+                                simboloAlvo,
+                                `Esperado tipo '${valor.tipo}' na atribuição.`
+                            );
+
                             return Promise.resolve();
                         }
                     }
@@ -488,16 +500,26 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
             }
             if (expressao.valor instanceof Vetor) {
                 let valoresSemSeparador = (expressao.valor as Vetor).elementos;
+
                 if (!['qualquer[]'].includes(valor.tipo)) {
                     if (valor.tipo === 'texto[]') {
                         if (!valoresSemSeparador.every((v) => typeof v.valor === 'string')) {
-                            this.erro(simboloAlvo, `Esperado tipo '${valor.tipo}' na atribuição.`);
+                            this.erro(
+                                simboloAlvo,
+                                `Esperado tipo '${valor.tipo}' na atribuição.`
+                            );
+
                             return Promise.resolve();
                         }
                     }
-                    if (['inteiro[]', 'numero[]'].includes(valor.tipo)) {
+
+                    if (['inteiro[]'].includes(valor.tipo)) {
                         if (!valoresSemSeparador.every((v) => typeof v.valor === 'number')) {
-                            this.erro(simboloAlvo, `Esperado tipo '${valor.tipo}' na atribuição.`);
+                            this.erro(
+                                simboloAlvo,
+                                `Esperado tipo '${valor.tipo}' na atribuição.`
+                            );
+
                             return Promise.resolve();
                         }
                     }
@@ -667,6 +689,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         const variavelHipotetica = this.gerenciadorEscopos.buscar(variavel.simbolo.lexema);
         if (
             variavelHipotetica &&
+            variavelHipotetica.tipo !== 'lógico' &&
             !(variavelHipotetica.valor instanceof Binario) &&
             typeof variavelHipotetica.valor !== 'boolean'
         ) {
@@ -766,7 +789,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
 
         if (tipoEsquerda && tipoDireita && tipoEsquerda !== tipoDireita) {
             // Verificar se são tipos numéricos compatíveis
-            const tiposNumericos = ['inteiro', 'número', 'real'];
+            const tiposNumericos = ['inteiro', 'real'];
             const ambosNumericos =
                 tiposNumericos.includes(tipoEsquerda) && tiposNumericos.includes(tipoDireita);
 
@@ -920,19 +943,28 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
         }
 
         if (operadoresMatematicos.includes(binario.operador.tipo)) {
-            const tiposNumericos = ['inteiro', 'número', 'real'];
+            const tiposNumericos = ['inteiro', 'real'];
             if (tiposNumericos.includes(tipoEsquerda) && tiposNumericos.includes(tipoDireita)) {
                 // Se um dos lados é 'real', o resultado é 'real'
                 if (tipoEsquerda === 'real' || tipoDireita === 'real') {
                     return 'real';
                 }
 
-                return 'número';
+                return 'inteiro';
             }
 
             // Concatenação de textos
             if (tipoEsquerda === 'texto' || tipoDireita === 'texto') {
                 return 'texto';
+            }
+
+            // Concatenação de vetores com operador +
+            if (
+                binario.operador.tipo === 'ADICAO' &&
+                (tipoEsquerda.endsWith('[]') || tipoEsquerda === 'vetor') &&
+                (tipoDireita.endsWith('[]') || tipoDireita === 'vetor')
+            ) {
+                return tipoEsquerda === tipoDireita ? tipoEsquerda : 'qualquer[]';
             }
         }
 
@@ -1146,6 +1178,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
 
                             if (funcaoContemRetorno && funcaoContemRetorno.valor) {
                                 const tipoValor = typeof funcaoContemRetorno.valor.valor;
+
                                 if (!['qualquer'].includes(tipoRetornoFuncao)) {
                                     if (tipoValor === 'string' && tipoRetornoFuncao !== 'texto') {
                                         this.erro(
@@ -1153,9 +1186,10 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                                             `Esperado retorno do tipo '${tipoRetornoFuncao}' dentro da função.`
                                         );
                                     }
+
                                     if (
                                         tipoValor === 'number' &&
-                                        !['inteiro', 'real', 'número'].includes(tipoRetornoFuncao)
+                                        !['inteiro', 'real'].includes(tipoRetornoFuncao)
                                     ) {
                                         this.erro(
                                             declaracao.simbolo,
@@ -1440,6 +1474,7 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
 
                 if (retornoComValor) {
                     const tipoValor = typeof retornoComValor.valor?.valor;
+
                     if (!['qualquer'].includes(tipoRetornoFuncao)) {
                         if (tipoValor === 'string' && tipoRetornoFuncao !== 'texto') {
                             this.erro(
@@ -1447,9 +1482,10 @@ export class AnalisadorSemanticoPitugues extends AnalisadorSemanticoBase {
                                 `Esperado retorno do tipo '${tipoRetornoFuncao}' dentro da função.`
                             );
                         }
+
                         if (
                             tipoValor === 'number' &&
-                            !['inteiro', 'real', 'número'].includes(tipoRetornoFuncao)
+                            !['inteiro', 'real'].includes(tipoRetornoFuncao)
                         ) {
                             this.erro(
                                 declaracao.simbolo,

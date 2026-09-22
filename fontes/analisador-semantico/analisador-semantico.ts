@@ -33,6 +33,7 @@ import {
     Fazer,
     Falhar,
     FuncaoDeclaracao,
+    Importar,
     Para,
     ParaCada,
     Retorna,
@@ -62,6 +63,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     classesDeclaradas: Set<string>;
     classesRegistradas: Map<string, Classe>;
     private classesExternasRegistradas: Map<string, Classe>;
+    private funcoesImportadasDeTestes: Set<string>;
     classeAtualEmAnalise: Classe | null;
     atual: number;
     diagnosticos: DiagnosticoAnalisadorSemanticoInterface[];
@@ -77,9 +79,36 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         this.classesDeclaradas = new Set<string>();
         this.classesRegistradas = new Map<string, Classe>();
         this.classesExternasRegistradas = new Map<string, Classe>();
+        this.funcoesImportadasDeTestes = new Set<string>();
         this.classeAtualEmAnalise = null;
         this.atual = 0;
         this.diagnosticos = [];
+    }
+
+    private registrarFuncoesImportadasDeTestes(declaracao: Importar): void {
+        const caminho = declaracao.caminho as Literal;
+        if (caminho?.valor !== 'testes') {
+            return;
+        }
+
+        const funcoesDoModulo = ['teste', 'grupo'];
+        if (declaracao.simboloTudo) {
+            for (const nome of funcoesDoModulo) {
+                this.funcoesImportadasDeTestes.add(nome);
+            }
+            return;
+        }
+
+        for (const simboloImportado of declaracao.elementosImportacao || []) {
+            if (funcoesDoModulo.includes(simboloImportado.lexema)) {
+                this.funcoesImportadasDeTestes.add(simboloImportado.lexema);
+            }
+        }
+    }
+
+    override async visitarDeclaracaoImportar(declaracao: Importar): Promise<any> {
+        this.registrarFuncoesImportadasDeTestes(declaracao);
+        return Promise.resolve();
     }
 
     registrarClassesExternas(classes: Classe[]): void {
@@ -120,6 +149,9 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 } else if (declaracao.inicializador instanceof Chamada) {
                     // Chamadas de método/função podem retornar vetores.
                     // A validação detalhada é feita em tempo de execução.
+                } else if (declaracao.inicializador instanceof Binario) {
+                    // Expressões binárias podem produzir vetores em tempo de execução
+                    // (ex: vetor1 + vetor2 concatena dois vetores), então não geramos erro
                 } else {
                     this.erro(
                         declaracao.simbolo,
@@ -158,6 +190,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     }
 
     visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
+        this.marcarVariaveisUsadasEmExpressao(expressao.valor);
         return this.verificarTipoDe(expressao.valor);
     }
 
@@ -283,6 +316,11 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     visitarChamadaPorVariavel(entidadeChamadaVariavel: Variavel, argumentos: ConstrutoInterface[]) {
         const variavel = entidadeChamadaVariavel as Variavel;
         const nomeFuncao = variavel.simbolo.lexema;
+
+        if (this.funcoesImportadasDeTestes.has(nomeFuncao)) {
+            return Promise.resolve();
+        }
+
         const funcoesNativas = [
             'aleatorio',
             'aleatorioEntre',
@@ -688,7 +726,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             // O laço precisa visitar condição/incremento/corpo para registrar usos de variáveis.
             if (declaracao.condicao) {
                 this.marcarVariaveisUsadasEmExpressao(declaracao.condicao);
-                await this.verificarCondicao(declaracao.condicao);
+                await this.verificarCondicao(declaracao.condicao, 'para');
             }
 
             if (declaracao.incrementar) {
@@ -757,7 +795,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         // Marca variáveis usadas na condição
         this.marcarVariaveisUsadasEmExpressao(declaracao.condicao);
         // Verifica a condição (incluindo validação de tipos para operadores lógicos)
-        await this.verificarCondicao(declaracao.condicao);
+        await this.verificarCondicao(declaracao.condicao, 'se');
 
         if (declaracao.caminhoEntao) {
             await declaracao.caminhoEntao.aceitar(this);
@@ -766,7 +804,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         if (declaracao.caminhosSeSenao && declaracao.caminhosSeSenao.length > 0) {
             for (const caminhoSeSenao of declaracao.caminhosSeSenao) {
                 this.marcarVariaveisUsadasEmExpressao(caminhoSeSenao.condicao);
-                await this.verificarCondicao(caminhoSeSenao.condicao);
+                await this.verificarCondicao(caminhoSeSenao.condicao, 'se');
                 await caminhoSeSenao.caminho.aceitar(this);
             }
         }
@@ -803,13 +841,16 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         }
     }
 
-    private verificarCondicao(condicao: ConstrutoInterface): Promise<void> {
+    private verificarCondicao(
+        condicao: ConstrutoInterface,
+        rotulo: string = 'enquanto'
+    ): Promise<void> {
         if (condicao instanceof Agrupamento) {
-            return this.verificarCondicao(condicao.expressao);
+            return this.verificarCondicao(condicao.expressao, rotulo);
         }
 
         if (condicao instanceof Variavel) {
-            return this.verificarVariavelBinaria(condicao);
+            return this.verificarVariavelBinaria(condicao, rotulo);
         }
 
         if (condicao instanceof Binario) {
@@ -827,15 +868,19 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
-    private verificarVariavelBinaria(variavel: Variavel): Promise<void> {
+    private verificarVariavelBinaria(
+        variavel: Variavel,
+        rotulo: string = 'enquanto'
+    ): Promise<void> {
         this.verificarVariavel(variavel);
         const variavelHipotetica = this.gerenciadorEscopos.buscar(variavel.simbolo.lexema);
         if (
             variavelHipotetica &&
+            variavelHipotetica.tipo !== 'lógico' &&
             !(variavelHipotetica.valor instanceof Binario) &&
             typeof variavelHipotetica.valor !== 'boolean'
         ) {
-            this.erro(variavel.simbolo, `Esperado tipo 'lógico' na condição do 'enquanto'.`);
+            this.erro(variavel.simbolo, `Esperado tipo 'lógico' na condição do '${rotulo}'.`);
         }
         return Promise.resolve();
     }
@@ -1826,6 +1871,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         this.gerenciadorEscopos = new GerenciadorEscopos();
         this.classesDeclaradas = new Set<string>(this.classesExternasRegistradas.keys());
         this.classesRegistradas = new Map<string, Classe>(this.classesExternasRegistradas);
+        this.funcoesImportadasDeTestes = new Set<string>();
         this.classeAtualEmAnalise = null;
         this.atual = 0;
         this.diagnosticos = [];

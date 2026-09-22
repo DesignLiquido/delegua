@@ -416,7 +416,7 @@ export class ResolvedorEguaClassico implements ResolvedorInterface, Interpretado
     visitarDeclaracaoTente(declaracao: any): any {
         this.resolver(declaracao.caminhoTente);
 
-        if (declaracao.caminhoPegue !== null) this.resolver(declaracao.caminhoPegue);
+        for (const bloco of declaracao.caminhoPegue) this.resolver(bloco.corpo);
         if (declaracao.caminhoSenao !== null) this.resolver(declaracao.caminhoSenao);
         if (declaracao.caminhoFinalmente !== null) this.resolver(declaracao.caminhoFinalmente);
     }

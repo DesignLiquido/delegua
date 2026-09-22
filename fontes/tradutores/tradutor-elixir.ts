@@ -88,6 +88,17 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
     dentroDeMetodo: boolean;
     nomeParametroStruct: string | null;
     contadorVariavelTemporaria: number;
+    /** Nome do módulo implícito usado para envolver funções declaradas no escopo global (resolve #1408). */
+    nomeModuloGlobal: string;
+    /** Indica se a tradução em curso está dentro do módulo implícito de funções globais. */
+    dentroDeModuloGlobal: boolean;
+    /**
+     * Métodos de vetor que mutam o vetor original em Delégua (via `push`, `sort`, etc.).
+     * Em Elixir os dados são imutáveis, então quando uma chamada a um desses métodos
+     * aparece como declaração isolada (valor de retorno descartado), é preciso
+     * reatribuir o resultado de volta à variável original (resolve #1410).
+     */
+    protected metodosVetorMutantes: Set<string>;
 
     constructor() {
         this.indentacaoAtual = 0;
@@ -98,6 +109,15 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
         this.dentroDeMetodo = false;
         this.nomeParametroStruct = null;
         this.contadorVariavelTemporaria = 0;
+        this.nomeModuloGlobal = 'Main';
+        this.dentroDeModuloGlobal = false;
+        this.metodosVetorMutantes = new Set([
+            'adicionar',
+            'empilhar',
+            'remover',
+            'inverter',
+            'ordenar',
+        ]);
     }
 
     /**
@@ -226,11 +246,47 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
 
     /**
      * Ponto de entrada para tradução
+     *
+     * Em Elixir, `def` não pode existir fora de um módulo. Por isso, funções
+     * declaradas diretamente no escopo global de Delégua são envolvidas em
+     * um módulo implícito (`defmodule Main do ... end`), e chamadas a essas
+     * funções feitas fora do módulo são qualificadas com o nome do módulo
+     * (resolve #1408).
      */
     async traduzir(declaracoes: Declaracao[]): Promise<string> {
         let resultado = '';
 
-        for (const declaracao of declaracoes) {
+        const funcoesGlobais = declaracoes.filter(
+            (declaracao) => declaracao.constructor === FuncaoDeclaracao
+        ) as FuncaoDeclaracao[];
+        const demaisDeclaracoes = declaracoes.filter(
+            (declaracao) => declaracao.constructor !== FuncaoDeclaracao
+        );
+
+        if (funcoesGlobais.length > 0) {
+            for (const funcaoGlobal of funcoesGlobais) {
+                this.funcoesConhecidas.add(
+                    this.converterIdentificador(funcaoGlobal.simbolo.lexema)
+                );
+            }
+
+            resultado += `defmodule ${this.nomeModuloGlobal} do\n`;
+            this.aumentarIndentacao();
+            this.dentroDeModuloGlobal = true;
+
+            for (const funcaoGlobal of funcoesGlobais) {
+                const traducao = await funcaoGlobal.aceitar(this);
+                if (traducao) {
+                    resultado += traducao + '\n\n';
+                }
+            }
+
+            this.dentroDeModuloGlobal = false;
+            this.diminuirIndentacao();
+            resultado += 'end\n\n';
+        }
+
+        for (const declaracao of demaisDeclaracoes) {
             const traducao = await declaracao.aceitar(this);
             if (traducao) {
                 resultado += traducao + '\n';
@@ -321,22 +377,22 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
      */
     protected extrairCamposDeDeclaracao(declaracao: any, campos: Set<string>): void {
         // Se é uma expressão de atribuição com isto.campo
-        if (declaracao.constructor.name === 'Expressao' && declaracao.expressao) {
-            const expressao = declaracao.expressao;
+        if (declaracao instanceof Expressao && declaracao.expressao) {
+            const expressao: any = declaracao.expressao;
 
             // DefinirValor: usado para isto.campo = valor
-            if (expressao.constructor.name === 'DefinirValor') {
-                if (expressao.objeto && expressao.objeto.constructor.name === 'Isto') {
+            if (expressao instanceof DefinirValor) {
+                if (expressao.objeto && expressao.objeto.constructor === Isto) {
                     campos.add(expressao.nome.lexema);
                 }
             }
 
             // Atribuir: pode ser usado para isto.campo = valor
-            if (expressao.constructor.name === 'Atribuir') {
+            if (expressao instanceof Atribuir) {
                 // Verificar se o alvo é um acesso a propriedade de isto
-                if (expressao.alvo && expressao.alvo.constructor.name === 'AcessoPropriedade') {
-                    const acesso = expressao.alvo;
-                    if (acesso.objeto && acesso.objeto.constructor.name === 'Isto') {
+                if (expressao.alvo instanceof AcessoPropriedade) {
+                    const acesso: any = expressao.alvo;
+                    if (acesso.objeto && acesso.objeto.constructor === Isto) {
                         campos.add(acesso.nomePropriedade);
                     }
                 }
@@ -344,7 +400,7 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
         }
 
         // Se é um bloco, processar declarações internas
-        if (declaracao.constructor.name === 'Bloco') {
+        if (declaracao.constructor === Bloco) {
             for (const decl of declaracao.declaracoes) {
                 this.extrairCamposDeDeclaracao(decl, campos);
             }
@@ -425,12 +481,12 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
         const inicializacoes: string[] = [];
 
         for (const declaracao of corpo) {
-            if (declaracao.constructor.name === 'Expressao' && declaracao.expressao) {
-                const expressao = declaracao.expressao;
+            if (declaracao instanceof Expressao && declaracao.expressao) {
+                const expressao: any = declaracao.expressao;
 
                 // DefinirValor: isto.campo = valor
-                if (expressao.constructor.name === 'DefinirValor') {
-                    if (expressao.objeto && expressao.objeto.constructor.name === 'Isto') {
+                if (expressao instanceof DefinirValor) {
+                    if (expressao.objeto && expressao.objeto.constructor === Isto) {
                         const campo = this.converterIdentificador(expressao.nome.lexema);
                         const valor = await expressao.valor.aceitar(this);
                         inicializacoes.push(`${campo}: ${valor}`);
@@ -438,10 +494,10 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
                 }
 
                 // Atribuir: pode ser isto.campo = valor (se alvo é AcessoPropriedade)
-                if (expressao.constructor.name === 'Atribuir') {
-                    if (expressao.alvo && expressao.alvo.constructor.name === 'AcessoPropriedade') {
-                        const acesso = expressao.alvo;
-                        if (acesso.objeto && acesso.objeto.constructor.name === 'Isto') {
+                if (expressao instanceof Atribuir) {
+                    if (expressao.alvo instanceof AcessoPropriedade) {
+                        const acesso: any = expressao.alvo;
+                        if (acesso.objeto && acesso.objeto.constructor === Isto) {
                             const campo = this.converterIdentificador(acesso.nomePropriedade);
                             const valor = await expressao.valor.aceitar(this);
                             inicializacoes.push(`${campo}: ${valor}`);
@@ -490,6 +546,34 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
     }
 
     async visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<string> {
+        const expressaoInterna = declaracao.expressao;
+
+        // Chamada isolada a um método que muta vetor (ex: `arr.adicionar(x)`) precisa
+        // virar reatribuição em Elixir, já que não há mutação de dado (resolve #1410).
+        if (expressaoInterna instanceof Chamada) {
+            const entidadeChamada = expressaoInterna.entidadeChamada;
+            let nomeMetodo: string | null = null;
+            let objetoConstruto: any = null;
+
+            if (entidadeChamada instanceof AcessoMetodo) {
+                nomeMetodo = entidadeChamada.nomeMetodo;
+                objetoConstruto = entidadeChamada.objeto;
+            } else if (entidadeChamada instanceof AcessoMetodoOuPropriedade) {
+                nomeMetodo = entidadeChamada.simbolo.lexema;
+                objetoConstruto = entidadeChamada.objeto;
+            }
+
+            if (
+                nomeMetodo &&
+                this.metodosVetorMutantes.has(nomeMetodo) &&
+                objetoConstruto instanceof Variavel
+            ) {
+                const objeto = await objetoConstruto.aceitar(this);
+                const traducaoChamada = await expressaoInterna.aceitar(this);
+                return Promise.resolve(`${this.adicionarIndentacao()}${objeto} = ${traducaoChamada}`);
+            }
+        }
+
         const resultado = this.adicionarIndentacao() + (await declaracao.expressao.aceitar(this));
         return Promise.resolve(resultado);
     }
@@ -677,7 +761,7 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
                 ? declaracao.inicializador[0]
                 : declaracao.inicializador;
 
-            if (init.constructor.name === 'Var') {
+            if (init.constructor === Var) {
                 nomeVar = this.converterIdentificador((init as any).simbolo.lexema);
                 if ((init as any).inicializador) {
                     valorInicial = await (init as any).inicializador.aceitar(this);
@@ -933,6 +1017,14 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
     async visitarExpressaoBinaria(expressao: Binario): Promise<string> {
         const esquerda = await expressao.esquerda.aceitar(this);
         const direita = await expressao.direita.aceitar(this);
+
+        // Em Elixir, `+` é exclusivo de números. Concatenação de textos usa `<>`,
+        // que exige binários dos dois lados, então convertemos ambos os lados
+        // com `to_string/1` para lidar com operandos de tipo dinâmico (ex.: acesso a lista).
+        if (expressao.operador.tipo === tiposDeSimbolos.ADICAO && expressao.tipo === 'texto') {
+            return Promise.resolve(`to_string(${esquerda}) <> to_string(${direita})`);
+        }
+
         const operador = this.traduzirOperador(expressao.operador);
 
         return Promise.resolve(`${esquerda} ${operador} ${direita}`);
@@ -970,7 +1062,7 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
         }
 
         // Verificar se é instanciação de módulo (classe)
-        if (expressao.entidadeChamada.constructor.name === 'Variavel') {
+        if (expressao.entidadeChamada.constructor === Variavel) {
             const nomeEntidade = (expressao.entidadeChamada as any).simbolo.lexema;
             if (this.modulosConhecidos.has(this.converterNomeModulo(nomeEntidade))) {
                 // Chamada de construtor de módulo
@@ -978,10 +1070,17 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
                     `${this.converterNomeModulo(nomeEntidade)}.new(${argumentos.join(', ')})`
                 );
             }
+
+            // `real(valor)` converte explicitamente para ponto flutuante. Em Elixir,
+            // dividir por 1 força o resultado a ser float independentemente do valor
+            // de entrada ser inteiro ou já ser float.
+            if (nomeEntidade === 'real' && argumentos.length > 0) {
+                return Promise.resolve(`(${argumentos[0]}) / 1`);
+            }
         }
 
         // Verificar se é chamada de método (AcessoMetodo ou AcessoMetodoOuPropriedade)
-        if (expressao.entidadeChamada.constructor.name === 'AcessoMetodo') {
+        if (expressao.entidadeChamada.constructor === AcessoMetodo) {
             const acessoMetodo = expressao.entidadeChamada as any;
             const objeto = await acessoMetodo.objeto.aceitar(this);
             const metodo = this.converterIdentificador(acessoMetodo.nomeMetodo);
@@ -998,7 +1097,7 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
             );
         }
 
-        if (expressao.entidadeChamada.constructor.name === 'AcessoMetodoOuPropriedade') {
+        if (expressao.entidadeChamada.constructor === AcessoMetodoOuPropriedade) {
             const acesso = expressao.entidadeChamada as any;
             const objeto = await acesso.objeto.aceitar(this);
             const simbolo = this.converterIdentificador(acesso.simbolo.lexema);
@@ -1015,7 +1114,20 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
             );
         }
 
-        // Chamada normal de função
+        // Chamada normal de função. Se for chamada a uma função declarada no
+        // escopo global de Delégua feita fora do módulo implícito que a envolve
+        // em Elixir, é preciso qualificar a chamada com o nome do módulo (#1408).
+        if (expressao.entidadeChamada.constructor === Variavel && !this.dentroDeModuloGlobal) {
+            const nomeFuncao = this.converterIdentificador(
+                (expressao.entidadeChamada as any).simbolo.lexema
+            );
+            if (this.funcoesConhecidas.has(nomeFuncao)) {
+                return Promise.resolve(
+                    `${this.nomeModuloGlobal}.${nomeFuncao}(${argumentos.join(', ')})`
+                );
+            }
+        }
+
         const entidadeChamada = await expressao.entidadeChamada.aceitar(this);
         return Promise.resolve(`${entidadeChamada}(${argumentos.join(', ')})`);
     }
@@ -1135,6 +1247,9 @@ export class TradutorElixir implements TradutorInterface<Declaracao>, VisitanteC
 
         // Number
         if (typeof valor === 'number') {
+            if (expressao.tipo === 'real' && Number.isInteger(valor)) {
+                return Promise.resolve(`${valor}.0`);
+            }
             return Promise.resolve(String(valor));
         }
 

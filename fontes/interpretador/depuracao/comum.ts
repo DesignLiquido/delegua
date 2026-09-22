@@ -22,6 +22,7 @@ import { PontoParada } from '../../depuracao';
 import { EscopoExecucaoInterface, TipoEscopoExecucao } from '../../interfaces/escopo-execucao';
 import { inferirTipoVariavel } from '../../inferenciador';
 import { EspacoMemoria } from '../espaco-memoria';
+import { ObjetoDeleguaClasse } from '../estruturas';
 import tiposDeSimbolos from '../../tipos-de-simbolos/delegua';
 import tipoDeDadosDelegua from '../../tipos-de-dados/delegua';
 
@@ -48,6 +49,15 @@ async function avaliarArgumentosEscreva(
     for (const argumento of argumentos) {
         const resultadoAvaliacao = await interpretador.avaliar(argumento);
         let valor = interpretador.resolverValor(resultadoAvaliacao);
+
+        if (valor instanceof ObjetoDeleguaClasse) {
+            const metodoParaTexto = valor.classe.encontrarMetodo('paraTexto');
+            if (metodoParaTexto) {
+                const funcaoBound = metodoParaTexto.funcaoPorMetodoDeClasse(valor);
+                valor = interpretador.resolverValor(await funcaoBound.chamar(interpretador as any, []));
+            }
+        }
+
         formatoTexto += `${interpretador.paraTexto(valor)} `;
     }
 
@@ -87,7 +97,7 @@ async function gerarIdResolucaoChamada(
 
     return argumentosResolvidos.reduce(
         (acumulador, argumento) =>
-            (acumulador += `,${escaparVirgulas(
+            (acumulador += `,${argumento == null ? 'null' : escaparVirgulas(
                 argumento.hasOwnProperty('valor') ? argumento.valor : argumento
             )}`),
         expressao.id
@@ -193,7 +203,7 @@ export async function visitarDeclaracaoEnquanto(
             let retornoExecucao: any;
             let iteracoes = 0;
             while (
-                !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
+                !(retornoExecucao instanceof Quebra || (retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) &&
                 !interpretador.pontoDeParadaAtivo &&
                 interpretador.comando !== 'pausar' &&
                 interpretador.eVerdadeiro(await interpretador.avaliar(declaracao.condicao))
@@ -202,13 +212,13 @@ export async function visitarDeclaracaoEnquanto(
                 try {
                     await cederControle(++iteracoes);
                     retornoExecucao = await interpretador.executar(declaracao.corpo);
-                    if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
+                    if (retornoExecucao instanceof SustarQuebra || (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra)) {
                         return null;
                     }
 
                     if (
-                        retornoExecucao &&
-                        retornoExecucao.valorRetornado instanceof ContinuarQuebra
+                        retornoExecucao instanceof ContinuarQuebra ||
+                        (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra)
                     ) {
                         retornoExecucao = null;
                     }
@@ -296,7 +306,7 @@ export async function visitarDeclaracaoPara(
             let retornoExecucao: any;
             let iteracoes = 0;
             while (
-                !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
+                !(retornoExecucao instanceof Quebra || (retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) &&
                 !interpretador.pontoDeParadaAtivo &&
                 interpretador.comando !== 'pausar'
             ) {
@@ -312,15 +322,18 @@ export async function visitarDeclaracaoPara(
                 try {
                     await cederControle(++iteracoes);
                     retornoExecucao = await interpretador.executar(corpoExecucao);
-                    if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
+                    if (retornoExecucao instanceof SustarQuebra || (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra)) {
                         return null;
                     }
 
                     if (
-                        retornoExecucao &&
-                        retornoExecucao.valorRetornado instanceof ContinuarQuebra
+                        retornoExecucao instanceof ContinuarQuebra ||
+                        (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra)
                     ) {
                         retornoExecucao = null;
+                        if (cloneDeclaracao.incrementar !== null) {
+                            await interpretador.avaliar(cloneDeclaracao.incrementar);
+                        }
                     }
                 } catch (erro: any) {
                     return Promise.reject(erro);
@@ -341,18 +354,18 @@ export async function visitarDeclaracaoFazer(
         try {
             await cederControle(++iteracoes);
             retornoExecucao = await interpretador.executar(declaracao.caminhoFazer);
-            if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra) {
+            if (retornoExecucao instanceof SustarQuebra || (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra)) {
                 return null;
             }
 
-            if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra) {
+            if (retornoExecucao instanceof ContinuarQuebra || (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra)) {
                 retornoExecucao = null;
             }
         } catch (erro: any) {
             return Promise.reject(erro);
         }
     } while (
-        !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
+        !(retornoExecucao instanceof Quebra || (retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) &&
         !interpretador.pontoDeParadaAtivo &&
         interpretador.comando !== 'pausar' &&
         interpretador.eVerdadeiro(await interpretador.avaliar(declaracao.condicaoEnquanto))
@@ -375,7 +388,8 @@ export async function visitarDeclaracaoTente(
     declaracao: Tente
 ): Promise<any> {
     let valorRetorno: any;
-    (interpretador as any).emDeclaracaoTente = true;
+    const emDeclaracaoTenteAnterior = interpretador.emDeclaracaoTente;
+    interpretador.emDeclaracaoTente = true;
 
     // Captura o número de escopos antes de executar o bloco try
     const escoposAntes = interpretador.pilhaEscoposExecucao.elementos();
@@ -384,22 +398,13 @@ export async function visitarDeclaracaoTente(
         try {
             valorRetorno = await interpretador.executarBloco(declaracao.caminhoTente);
         } catch (erro: any) {
-            if (declaracao.caminhoPegue !== null) {
-                if (Array.isArray(declaracao.caminhoPegue)) {
-                    valorRetorno = await interpretador.executarBloco(declaracao.caminhoPegue);
-                } else {
-                    const literalErro = new Literal(
-                        declaracao.hashArquivo,
-                        Number(declaracao.linha),
-                        erro.mensagem
-                    );
-                    const chamadaPegue = new Chamada(
-                        declaracao.caminhoPegue.hashArquivo,
-                        declaracao.caminhoPegue,
-                        [literalErro]
-                    );
-                    valorRetorno = await chamadaPegue.aceitar(interpretador);
-                }
+            if (declaracao.caminhoPegue.length > 0) {
+                valorRetorno = await (interpretador as any).executarBlocoPegue(
+                    declaracao.caminhoPegue,
+                    erro
+                );
+            } else {
+                throw erro;
             }
         }
     } finally {
@@ -418,7 +423,7 @@ export async function visitarDeclaracaoTente(
         ) {
             valorRetorno = await interpretador.executarBloco(declaracao.caminhoFinalmente);
         }
-        (interpretador as any).emDeclaracaoTente = false;
+        interpretador.emDeclaracaoTente = emDeclaracaoTenteAnterior;
     }
 
     return valorRetorno;
@@ -769,7 +774,7 @@ export async function executarBloco(
 
         for (
             ;
-            !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
+            !(retornoExecucao instanceof Quebra || (retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) &&
             proximoEscopo.declaracaoAtual < proximoEscopo.declaracoes.length;
             proximoEscopo.declaracaoAtual++
         ) {
@@ -965,7 +970,7 @@ export async function executarUltimoEscopoComandoContinuar(
     try {
         for (
             ;
-            !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
+            !(retornoExecucao instanceof Quebra || (retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) &&
             ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length;
             ultimoEscopo.declaracaoAtual++
         ) {
@@ -1002,10 +1007,19 @@ export async function executarUltimoEscopoComandoContinuar(
     } catch (erro: any) {
         // Se estamos dentro de uma declaração tente, re-lança o erro
         // para que o bloco pegue possa capturá-lo
-        if ((interpretador as any).emDeclaracaoTente) {
+        if (interpretador.emDeclaracaoTente) {
             throw erro;
         }
-        interpretador.erros.push(erro);
+
+        const declaracaoAtual = ultimoEscopo.declaracoes[
+            ultimoEscopo.declaracaoAtual
+        ];
+
+        interpretador.erros.push({
+            erroInterno: erro,
+            linha: declaracaoAtual?.linha ?? -1,
+            hashArquivo: declaracaoAtual?.hashArquivo ?? -1,
+        });
     } finally {
         if (!interpretador.pontoDeParadaAtivo && interpretador.comando !== 'adentrarEscopo') {
             interpretador.pilhaEscoposExecucao.removerUltimo();

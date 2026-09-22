@@ -335,7 +335,7 @@ async visitarDeclaracaoEscreva(declaracao: Escreva): Promise<any> {
             declaracao.argumentos
         );
         this.funcaoDeRetorno(formatoTexto);
-        return { tipo: 'vazio', tipoExplicito: false };
+        return null;
     } catch (erro: any) {
         this.erros.push({
             erroInterno: erro,

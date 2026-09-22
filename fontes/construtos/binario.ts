@@ -92,8 +92,8 @@ export class Binario<TTipoSimbolo extends string = string> implements ConstrutoI
         return 'qualquer';
     }
 
-    async aceitar(visitante: VisitanteComumInterface): Promise<any> {
-        return await visitante.visitarExpressaoBinaria(this);
+    aceitar(visitante: VisitanteComumInterface): any {
+        return visitante.visitarExpressaoBinaria(this);
     }
 
     paraTexto(): string {

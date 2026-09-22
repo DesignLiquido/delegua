@@ -53,6 +53,18 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         codigoDiagnostico?: string,
         simboloRelacionado?: SimboloInterface
     ): ErroAvaliadorSintatico {
+        // Chamadores costumam passar `this.simbolos[this.atual]` diretamente. Se o
+        // cursor já passou do último símbolo (ex.: código termina logo após um
+        // token sem ';' ou EOF explícito), esse acesso devolve `undefined`, e o
+        // construtor de `ErroAvaliadorSintatico` quebraria ao ler `simbolo.hashArquivo`.
+        // Mesma lógica de fallback já usada em `consumir()`.
+        if (!simbolo) {
+            simbolo =
+                this.simbolos.length === 0
+                    ? ({ hashArquivo: this.hashArquivo, linha: 1 } as SimboloInterface)
+                    : this.simbolos[this.simbolos.length - 1];
+        }
+
         const excecao = new ErroAvaliadorSintatico(
             simbolo,
             mensagemDeErro,
@@ -117,6 +129,25 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
     }
 
     /**
+     * Avança o cursor por quaisquer símbolos de comentário (de linha ou
+     * multilinha) consecutivos, descartando-os. Usado em construtos onde
+     * comentários podem aparecer entre elementos, mas não fazem sentido
+     * como parte da árvore sintática resultante (ex.: dicionários).
+     */
+    protected pularComentarios(): void {
+        // Os tipos de símbolo de comentário não fazem parte do conjunto reduzido
+        // de `tiposDeSimbolos` importado nesta classe base, por isso são usados
+        // aqui como literais de texto (seus valores são idênticos às chaves do
+        // conjunto completo, definido em `tipos-de-simbolos/delegua.ts`).
+        while (
+            this.simbolos[this.atual].tipo === 'COMENTARIO' ||
+            this.simbolos[this.atual].tipo === 'LINHA_COMENTARIO'
+        ) {
+            this.avancarEDevolverAnterior();
+        }
+    }
+
+    /**
      * Os métodos a seguir devem ser implementados nos seus respectivos
      * dialetos por diferentes razões: seja porque o dialeto correspondente
      * tem uma abordagem diferente sobre entrada e saída, seja porque a
@@ -177,7 +208,7 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
             this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NEGACAO, tiposDeSimbolos.SUBTRACAO)
         ) {
             const operador = this.simbolos[this.atual - 1];
-            const direito = await this.unario();
+            const direito = await this.exponenciacao();
             return Promise.resolve(new Unario(this.hashArquivo, operador, direito, 'ANTES'));
         }
 
@@ -242,8 +273,24 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
         throw new Error('Método não implementado.');
     }
 
-    protected async comparar(): Promise<ConstrutoInterface> {
-        let expressao = await this.adicaoOuSubtracao();
+    protected validacaoComparacao(
+        operador: any,
+        esquerda: ConstrutoInterface,
+        direita: ConstrutoInterface
+    ): void { }
+
+    protected criarConstrutoComparacao(
+        esquerda: ConstrutoInterface,
+        operador: any,
+        direita: ConstrutoInterface
+    ): ConstrutoInterface {
+        return new Binario(this.hashArquivo, esquerda, operador, direita);
+    }
+
+    protected async logicaComumComparacao(
+        metodoProximoNivel: () => Promise<ConstrutoInterface>
+    ): Promise<ConstrutoInterface> {
+        let expressao = await metodoProximoNivel();
 
         while (
             this.verificarSeSimboloAtualEIgualA(
@@ -253,12 +300,25 @@ export abstract class AvaliadorSintaticoBase implements AvaliadorSintaticoInterf
                 tiposDeSimbolos.MENOR_IGUAL
             )
         ) {
-            const operador = this.simbolos[this.atual - 1];
-            const direito = await this.adicaoOuSubtracao();
-            expressao = new Binario(this.hashArquivo, expressao, operador, direito);
+            const operador = this.simboloAnterior
+                ? this.simboloAnterior()
+                : this.simbolos[this.atual - 1];
+            const esquerda = expressao;
+            const direita = await metodoProximoNivel();
+
+            this.validacaoComparacao(operador, esquerda, direita);
+            expressao = this.criarConstrutoComparacao(
+                esquerda,
+                operador,
+                direita
+            );
         }
 
         return expressao;
+    }
+
+    protected async comparar(): Promise<ConstrutoInterface> {
+        return await this.logicaComumComparacao(() => this.adicaoOuSubtracao());
     }
 
     protected async comparacaoIgualdade(): Promise<ConstrutoInterface> {
