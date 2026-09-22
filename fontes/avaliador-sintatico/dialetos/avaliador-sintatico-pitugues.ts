@@ -215,6 +215,13 @@ export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implement
             }
         }
 
+        // 'módulo' é um tipo opaco (usado por integrações externas, como o Liquido,
+        // para objetos cujo formato não é conhecido em tempo de análise estática).
+        // Não há como validar a existência do membro, então assumimos 'qualquer'.
+        if (entidadeChamada.objeto.tipo === 'módulo') {
+            return 'qualquer';
+        }
+
         throw new ErroAvaliadorSintatico(
             entidadeChamada.simbolo,
             `Primitiva '${entidadeChamada.simbolo.lexema}' não existe.`

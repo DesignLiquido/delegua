@@ -909,6 +909,51 @@ describe('Avaliador sintático (Pituguês)', () => {
                     expect(declaracao.elementosImportacao[0].lexema).toBe('raiz_quadrada');
                     expect(declaracao.elementosImportacao[1].lexema).toBe('potencia');
                 });
+
+                it('importar json (sem alias)', async () => {
+                    const retornoLexador = lexador.mapear(['importar json'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+
+                    const declaracao = retornoAvaliadorSintatico.declaracoes[0] as Importar;
+                    expect(declaracao).toBeInstanceOf(Importar);
+                    expect(declaracao.caminho.valor).toBe('json');
+                    expect(declaracao.simboloTudo).not.toBeNull();
+                    expect(declaracao.simboloTudo?.lexema).toBe('json');
+                    expect(declaracao.elementosImportacao).toHaveLength(0);
+                });
+
+                it('importar json como j (com alias)', async () => {
+                    const retornoLexador = lexador.mapear(['importar json como j'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+
+                    const declaracao = retornoAvaliadorSintatico.declaracoes[0] as Importar;
+                    expect(declaracao).toBeInstanceOf(Importar);
+                    expect(declaracao.caminho.valor).toBe('json');
+                    expect(declaracao.simboloTudo).not.toBeNull();
+                    expect(declaracao.simboloTudo?.lexema).toBe('j');
+                    expect(declaracao.elementosImportacao).toHaveLength(0);
+                });
+
+                it('de json importar textoParaJson (importação seletiva)', async () => {
+                    const retornoLexador = lexador.mapear(['de json importar textoParaJson'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+
+                    const declaracao = retornoAvaliadorSintatico.declaracoes[0] as Importar;
+                    expect(declaracao).toBeInstanceOf(Importar);
+                    expect(declaracao.caminho.valor).toBe('json');
+                    expect(declaracao.simboloTudo).toBeNull();
+                    expect(declaracao.elementosImportacao).toHaveLength(1);
+                    expect(declaracao.elementosImportacao[0].lexema).toBe('textoParaJson');
+                });
             });
 
             it('Deve exigir o corpo do escopo e lançar erro se o fim de arquivo for alcançado', async () => {
