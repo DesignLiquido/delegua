@@ -15,20 +15,23 @@ import {
     Morsa,
     Bote,
     Chamada,
+    ImportarComoConstruto
 } from '../../../construtos';
 import { Interpretador } from '../../interpretador';
 import { ErroEmTempoDeExecucao } from '../../../excecoes';
 import { EspacoMemoria } from '../../espaco-memoria';
 import { encadear } from '../../encadear';
 
-import { Classe, Declaracao, ParaCada, Retorna } from '../../../declaracoes';
+import { Classe, Declaracao, Importar, ParaCada, Retorna } from '../../../declaracoes';
 import { inferirTipoVariavel } from '../../../inferenciador';
 import { ContinuarQuebra, Quebra, SustarQuebra, RetornoQuebra } from '../../../quebras';
 import { PilhaEscoposExecucaoPitugues } from './pilha-escopos-execucao-pitugues';
-import { DescritorTipoClasse, FuncaoPadrao } from '../../estruturas';
+import { DeleguaModulo, DescritorTipoClasse, FuncaoPadrao } from '../../estruturas';
 
 import * as bibliotecaGlobalPitugues from '../../../bibliotecas/dialetos/pitugues/biblioteca-global';
 import * as comum from './comum';
+import { RegistroTestes } from '../../../bibliotecas/testes/registro-testes';
+import { construirModuloDeTestes } from '../../../bibliotecas/testes/modulo-testes';
 
 export class InterpretadorPitugues extends Interpretador {
     constructor(
@@ -48,17 +51,17 @@ export class InterpretadorPitugues extends Interpretador {
         this.lancarErroPorDivisaoPorZero = true;
         this.requerDeclaracaoPropriedades = false;
     }
-
+    
     override eVerdadeiro(objeto: any): boolean {
         const valorResolvido = this.resolverValor(objeto);
-
+        
         if (valorResolvido === null || valorResolvido === undefined) return false;
         if (typeof valorResolvido === 'boolean') return valorResolvido;
         if (typeof valorResolvido === 'number') return valorResolvido !== 0;
         if (typeof valorResolvido === 'string') return valorResolvido.length > 0;
         if (Array.isArray(valorResolvido)) return valorResolvido.length > 0;
         if (valorResolvido instanceof TuplaN) return valorResolvido.elementos.length > 0;
-
+        
         if (
             valorResolvido.constructor === Object &&
             !('valor' in valorResolvido) &&
@@ -66,14 +69,14 @@ export class InterpretadorPitugues extends Interpretador {
         ) {
             return Object.keys(valorResolvido).length > 0;
         }
-
+        
         if (valorResolvido.hasOwnProperty?.('valor')) {
             return this.eVerdadeiro(valorResolvido.valor);
         }
-
+        
         return true;
     }
-
+    
     protected override pontoInicializacaoBibliotecasGlobais() {
         for (const [nome, valor] of Object.entries(bibliotecaGlobalPitugues)) {
             if (typeof valor === 'function') {
@@ -84,14 +87,14 @@ export class InterpretadorPitugues extends Interpretador {
             }
         }
     }
-
+    
     protected override atribuirVariavel(
         alvoVariavel: Variavel,
         valorResolvido: any,
         indice: any
     ): void {
         let variavelExiste = false;
-
+        
         try {
             // Verifica se a variável existe no escopo
             this.pilhaEscoposExecucao.obterValorVariavel(alvoVariavel.simbolo);
@@ -103,19 +106,19 @@ export class InterpretadorPitugues extends Interpretador {
                 valorResolvido
             );
         }
-
+        
         if (variavelExiste) {
             super.atribuirVariavel(alvoVariavel, valorResolvido, indice);
         }
     }
-
+    
     /**
-     * Sobrescreve `executarBloco` para marcar escopos de chamadas de função com
-     * `tipo: 'funcao'`. Quando `ambiente` é fornecido, a chamada vem de
-     * `DeleguaFuncao.chamar`, que repassa o espaço de memória dos parâmetros.
-     * Isso permite que `PilhaEscoposExecucaoPitugues` identifique fronteiras de
-     * função e aplique a semântica LEGB corretamente.
-     */
+    * Sobrescreve `executarBloco` para marcar escopos de chamadas de função com
+    * `tipo: 'funcao'`. Quando `ambiente` é fornecido, a chamada vem de
+    * `DeleguaFuncao.chamar`, que repassa o espaço de memória dos parâmetros.
+    * Isso permite que `PilhaEscoposExecucaoPitugues` identifique fronteiras de
+    * função e aplique a semântica LEGB corretamente.
+    */
     override executarBloco(declaracoes: Declaracao[], ambiente?: EspacoMemoria): any {
         if (ambiente !== undefined && ambiente !== null) {
             const escopoFuncao = {
@@ -136,13 +139,13 @@ export class InterpretadorPitugues extends Interpretador {
         }
         return super.executarBloco(declaracoes, ambiente);
     }
-
+    
     override async visitarExpressaoAcessoMetodo(
         expressao: AcessoMetodo
     ): Promise<any> {
         const variavelObjeto = await this.avaliar(expressao.objeto);
         const objeto = this.resolverValor(variavelObjeto, true);
-
+        
         if (objeto === null || objeto === undefined) {
             return Promise.reject(
                 new ErroEmTempoDeExecucao(
@@ -152,20 +155,20 @@ export class InterpretadorPitugues extends Interpretador {
                 )
             );
         }
-
+        
         if (objeto instanceof DescritorTipoClasse) {
             return await objeto.obterEstatico(expressao.nomeMetodo, this);
         }
-
+        
         return comum.visitarExpressaoAcessoMetodo(this, expressao, variavelObjeto);
     }
-
+    
     override async visitarExpressaoAcessoMetodoOuPropriedade(
         expressao: AcessoMetodoOuPropriedade
     ): Promise<any> {
         const variavelObjeto = await this.avaliar(expressao.objeto);
         const objeto = this.resolverValor(variavelObjeto, true);
-
+        
         if (objeto === null || objeto === undefined) {
             return Promise.reject(
                 new ErroEmTempoDeExecucao(
@@ -175,20 +178,20 @@ export class InterpretadorPitugues extends Interpretador {
                 )
             );
         }
-
+        
         if (objeto instanceof DescritorTipoClasse) {
             return await objeto.obterEstatico(expressao.simbolo.lexema, this);
         }
-
+        
         return comum.visitarExpressaoAcessoMetodoOuPropriedade(this, expressao, variavelObjeto);
     }
-
+    
     override async visitarExpressaoAcessoPropriedade(
         expressao: AcessoPropriedade
     ): Promise<any> {
         const variavelObjeto = await this.avaliar(expressao.objeto);
         const objeto = this.resolverValor(variavelObjeto, true);
-
+        
         if (objeto === null || objeto === undefined) {
             return Promise.reject(
                 new ErroEmTempoDeExecucao(
@@ -198,30 +201,30 @@ export class InterpretadorPitugues extends Interpretador {
                 )
             );
         }
-
+        
         if (objeto instanceof DescritorTipoClasse) {
             return await objeto.obterEstatico(expressao.nomePropriedade, this);
         }
-
+        
         return super.visitarExpressaoAcessoPropriedade(expressao);
     }
-
+    
     override async visitarExpressaoAcessoIntervaloVariavel(
         expressao: AcessoIntervaloVariavel
     ): Promise<any> {
         return comum.visitarExpressaoAcessoIntervaloVariavel(this, expressao);
     }
-
+    
     async visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> {
         return comum.visitarExpressaoTuplaN(this, expressao);
     }
-
+    
     override async visitarExpressaoAtribuicaoPorIndice(
         expressao: AtribuicaoPorIndice
     ): Promise<any> {
         const objeto = await this.avaliar(expressao.objeto);
         const objetoResolvido = this.resolverValor(objeto);
-
+        
         if (objetoResolvido instanceof TuplaN || objetoResolvido.tipo === 'tupla') {
             throw new ErroEmTempoDeExecucao(
                 (expressao.objeto as any).simbolo,
@@ -229,10 +232,10 @@ export class InterpretadorPitugues extends Interpretador {
                 expressao.linha
             );
         }
-
+        
         return super.visitarExpressaoAtribuicaoPorIndice(expressao);
     }
-
+    
     override async visitarExpressaoAcessoIndiceVariavel(
         expressao: AcessoIndiceVariavel
     ): Promise<any> {
@@ -240,7 +243,7 @@ export class InterpretadorPitugues extends Interpretador {
         const indice = await this.avaliar(expressao.indice);
         let valorIndice = this.resolverValor(indice);
         const objetoResolvido = this.resolverValor(objeto);
-
+        
         if (objetoResolvido instanceof TuplaN) {
             if (!Number.isInteger(valorIndice)) {
                 throw new ErroEmTempoDeExecucao(
@@ -249,11 +252,11 @@ export class InterpretadorPitugues extends Interpretador {
                     expressao.linha
                 );
             }
-
+            
             if (valorIndice < 0 && objetoResolvido.elementos.length !== 0) {
                 valorIndice += objetoResolvido.elementos.length;
             }
-
+            
             if (valorIndice < 0 || valorIndice >= objetoResolvido.elementos.length) {
                 throw new ErroEmTempoDeExecucao(
                     expressao.simboloFechamento,
@@ -261,62 +264,62 @@ export class InterpretadorPitugues extends Interpretador {
                     expressao.linha
                 );
             }
-
+            
             const elemento = objetoResolvido.elementos[valorIndice];
             if (elemento instanceof Literal) return elemento.valor;
             return this.avaliar(elemento);
         }
-
+        
         return super.visitarExpressaoAcessoIndiceVariavel(expressao);
     }
-
+    
     override async visitarExpressaoTipoDe(expressao: TipoDe): Promise<any> {
         const resultado = await super.visitarExpressaoTipoDe(expressao);
-
+        
         if (typeof resultado === 'string') return resultado.replace('tipo de', 'tipo');
-
+        
         return resultado;
     }
-
+    
     /**
-     * Normaliza o valor resolvido para um array iterável.
-     * Converte dicionários em listas de Duplas e strings em listas de caracteres.
-     */
+    * Normaliza o valor resolvido para um array iterável.
+    * Converte dicionários em listas de Duplas e strings em listas de caracteres.
+    */
     private prepararListaParaIteracao(valor: any, declaracao: ParaCada): any[] {
         let valorFinal = this.resolverValor(valor);
-
+        
         const ehDicionario = declaracao.vetorOuDicionario.tipo === 'dicionário';
         const ehObjetoPuro =
-            valorFinal && typeof valorFinal === 'object' && !Array.isArray(valorFinal);
-
+        valorFinal && typeof valorFinal === 'object' && !Array.isArray(valorFinal);
+        
         if (ehDicionario || ehObjetoPuro) {
             return Object.entries(valorFinal).map(
                 ([chave, valor]) =>
                     new Dupla(
-                        new Literal(declaracao.hashArquivo, declaracao.linha, chave, 'texto'),
-                        new Literal(
-                            declaracao.hashArquivo,
-                            declaracao.linha,
-                            valor as any,
-                            inferirTipoVariavel(valor) as any
-                        )
+                    new Literal(declaracao.hashArquivo, declaracao.linha, chave, 'texto'),
+                    new Literal(
+                        declaracao.hashArquivo,
+                        declaracao.linha,
+                        valor as any,
+                        inferirTipoVariavel(valor) as any
                     )
+                )
             );
         }
-
+        
         if (typeof valorFinal === 'string') return valorFinal.split('');
-
+        
         if (!Array.isArray(valorFinal)) {
             throw new Error("O objeto provido para 'para cada' não é iterável.");
         }
-
+        
         return valorFinal;
     }
-
+    
     /**
-     * Resolve a lógica de atribuição das variáveis no escopo.
-     * Suporta variáveis simples ou pares (Dupla).
-     */
+    * Resolve a lógica de atribuição das variáveis no escopo.
+    * Suporta variáveis simples ou pares (Dupla).
+    */
     private definirVariaveisIteracao(
         variavel: Variavel | Dupla,
         elemento: any
@@ -326,16 +329,16 @@ export class InterpretadorPitugues extends Interpretador {
                 variavel.simbolo.lexema,
                 this.resolverValor(elemento)
             );
-
+            
             return;
         }
-
+        
         if (variavel instanceof Dupla) {
             const var1 = variavel.primeiro as Variavel;
             const var2 = variavel.segundo as Variavel;
-
+            
             let v1: any, v2: any;
-
+            
             if (elemento instanceof Dupla) {
                 v1 = this.resolverValor(elemento.primeiro);
                 v2 = this.resolverValor(elemento.segundo);
@@ -343,17 +346,17 @@ export class InterpretadorPitugues extends Interpretador {
                 v1 = elemento[0];
                 v2 = elemento[1];
             }
-
+            
             this.pilhaEscoposExecucao.definirVariavel(var1.simbolo.lexema, v1);
-
+            
             this.pilhaEscoposExecucao.definirVariavel(var2.simbolo.lexema, v2);
         }
     }
-
+    
     async visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
         let retornoExecucao: any;
         declaracao.posicaoAtual = 0;
-
+        
         const valorResolvido = await this.avaliar(declaracao.vetorOuDicionario);
         let listaParaIterar: any[];
         try {
@@ -366,23 +369,23 @@ export class InterpretadorPitugues extends Interpretador {
             });
             return Promise.reject(erro);
         }
-
+        
         while (
             !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
             declaracao.posicaoAtual < listaParaIterar.length
         ) {
             try {
                 const elementoAtual = listaParaIterar[declaracao.posicaoAtual];
-
+                
                 this.definirVariaveisIteracao(declaracao.variavelIteracao, elementoAtual);
-
+                
                 retornoExecucao = await this.executar(declaracao.corpo);
-
+                
                 if (retornoExecucao && retornoExecucao.valorRetornado instanceof SustarQuebra)
                     return null;
                 if (retornoExecucao && retornoExecucao.valorRetornado instanceof ContinuarQuebra)
                     retornoExecucao = null;
-
+                
                 declaracao.posicaoAtual++;
             } catch (erro: any) {
                 this.erros.push({
@@ -393,10 +396,10 @@ export class InterpretadorPitugues extends Interpretador {
                 return Promise.reject(erro);
             }
         }
-
+        
         return retornoExecucao;
     }
-
+    
     override async visitarExpressaoRetornar(
         declaracao: Retorna
     ): Promise<RetornoQuebra> {
@@ -404,65 +407,65 @@ export class InterpretadorPitugues extends Interpretador {
         if (declaracao.valor !== null && declaracao.valor !== undefined) {
             valor = await this.avaliar(declaracao.valor);
         }
-
+        
         const retornoQuebra = new RetornoQuebra(valor, declaracao.tipo);
-
+        
         if (retornoQuebra.valor) {
             const valorResolvido = this.resolverValor(retornoQuebra.valor);
             const construtorRetorno = valorResolvido?.constructor?.name?.replaceAll('_', '') ?? '';
             if (['DeleguaFuncao', 'ReferenciaMontao'].includes(construtorRetorno))
                 retornoQuebra.preservarEscopo = true;
         }
-
+        
         return retornoQuebra;
     }
-
+    
     override async visitarDeclaracaoClasse(
         declaracao: Classe
     ): Promise<DescritorTipoClasse> {
         const descritor = await super.visitarDeclaracaoClasse(declaracao);
         descritor.sombrearPropriedadesDeClasse = true;
-
+        
         for (const propriedade of declaracao.propriedades) {
             if (propriedade.estatico) {
                 const propriedadeNome = propriedade.nome.lexema;
                 const propriedadeValor = await this.avaliar(
                     propriedade.valorInicial
                 );
-
+                
                 descritor.membrosEstaticos[propriedadeNome] = propriedadeValor;
             }
         }
-
+        
         return descritor;
     }
-
+    
     override async visitarExpressaoDefinirValor(
         expressao: DefinirValor
     ): Promise<any> {
         const variavelObjeto = await this.avaliar(expressao.objeto);
         const objeto = this.resolverValor(variavelObjeto, true);
-
+        
         if (objeto instanceof DescritorTipoClasse) {
             const valor = await this.avaliar(expressao.valor);
             await objeto.definirEstatico(expressao.nome.lexema, valor, this);
-
+            
             return valor;
         }
-
+        
         return super.visitarExpressaoDefinirValor(expressao);
     }
-
+    
     async visitarExpressaoMorsa(expressao: Morsa): Promise<any> {
         let valor = await this.avaliar(expressao.valor);
-
+        
         if (valor && valor.hasOwnProperty('valorRetornado')) {
             valor = valor.valorRetornado;
         }
-
+        
         const valorResolvido = this.resolverValor(valor);
         const simbolo = expressao.variavel.simbolo;
-
+        
         try {
             this.pilhaEscoposExecucao.obterValorVariavel(simbolo);
             this.pilhaEscoposExecucao.atribuirVariavel(simbolo, valorResolvido);
@@ -472,10 +475,10 @@ export class InterpretadorPitugues extends Interpretador {
                 valorResolvido
             );
         }
-
+        
         return valorResolvido;
     }
-
+    
     async visitarExpressaoBote(expressao: Bote): Promise<any> {
         if (!(expressao.direita instanceof Chamada)) {
             return Promise.reject(
@@ -490,14 +493,46 @@ export class InterpretadorPitugues extends Interpretador {
                 )
             );
         }
-
+        
         const chamadaOriginal = expressao.direita as Chamada;
         const novaChamada = new Chamada(
             chamadaOriginal.hashArquivo,
             chamadaOriginal.entidadeChamada,
             [expressao.esquerda, ...chamadaOriginal.argumentos]
         );
-
+        
         return await this.avaliar(novaChamada);
+    }
+    override async visitarDeclaracaoImportar(declaracao: Importar): Promise<DeleguaModulo> {
+        const resultadoCaminho = await this.avaliar(declaracao.caminho);
+        const caminho: string = this.resolverValor(resultadoCaminho);
+        
+        if (caminho === 'testes') {
+            this.registroTestes = new RegistroTestes();
+            const modulo = construirModuloDeTestes(this, this.registroTestes);
+            
+            if (declaracao.simboloTudo !== null) {
+                this.pilhaEscoposExecucao.definirVariavel(
+                    (declaracao.simboloTudo as any).lexema,
+                    modulo
+                );
+            } else {
+                for (const elemento of declaracao.elementosImportacao) {
+                    const componente = modulo.componentes[(elemento as any).lexema];
+                    if (componente !== undefined) {
+                        this.pilhaEscoposExecucao.definirVariavel(
+                            (elemento as any).lexema,
+                            componente
+                        );
+                    }
+                }
+            }
+            
+            return modulo;
+        }
+        
+        return Promise.reject(
+            'Importação de arquivos não suportada neste interpretador. Use delegua-node para importações de arquivos.'
+        );
     }
 }
