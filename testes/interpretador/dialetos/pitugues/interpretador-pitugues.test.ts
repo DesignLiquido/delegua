@@ -5849,6 +5849,16 @@ describe('Interpretador (Pituguês)', () => {
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
+            it('Falha - Importar "testes" com importação dinâmica', async () => {
+                const codigo = [
+                    'importar("testes")',
+                ];
+                const retornoLexador = lexador.mapear(codigo, -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(retornoInterpretador.erros).toHaveLength(1);
+                
+            });
         });
     });
 });
