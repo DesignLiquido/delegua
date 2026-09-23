@@ -5821,9 +5821,9 @@ describe('Interpretador (Pituguês)', () => {
             });
         });
            describe('Importação do módulo de testes', () => {
-            it('Importar "testes" disponibiliza funções de teste', async () => {
+            it('Importar testes disponibiliza funções de teste', async () => {
                 const codigo = [
-                    'importar "testes"',
+                    'importar testes',
                 ];
                 const retornoLexador = lexador.mapear(codigo, -1);
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
@@ -5831,33 +5831,23 @@ describe('Interpretador (Pituguês)', () => {
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
 
-            it('Importar "testes" com wildcard (*) define variável global', async () => {
+            it('Importar elemento de testes sem aspas', async () => {
                 const codigo = [
-                    'importar * de "testes"',
+                    'de testes importar afirmar',
                 ];
                 const retornoLexador = lexador.mapear(codigo, -1);
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
             });
-            it('Importar "testes" com alias define variável global', async () => {
+            it('Importar testes com alias define variável global', async () => {
                 const codigo = [
-                    'importar "testes" como t',
+                    'importar testes como t',
                 ];
                 const retornoLexador = lexador.mapear(codigo, -1);
                 const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
                 const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
                 expect(retornoInterpretador.erros).toHaveLength(0);
-            });
-            it('Falha - Importar "testes" com importação dinâmica', async () => {
-                const codigo = [
-                    'importar("testes")',
-                ];
-                const retornoLexador = lexador.mapear(codigo, -1);
-                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
-                const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
-                expect(retornoInterpretador.erros).toHaveLength(1);
-                
             });
         });
     });
