@@ -864,6 +864,14 @@ describe('Avaliador sintático (Pituguês)', () => {
                     expect(declaracao.elementosImportacao).toHaveLength(0);
                 });
 
+                it('importar "matematica" deve ser rejeitado em Pituguês', async () => {
+                    const retornoLexador = lexador.mapear(['importar "matematica"'], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(1);
+                    expect(retornoAvaliadorSintatico.erros[0].message).toContain("Esperado nome do módulo após 'importar'.");
+                });
+
                 it('importar matematica como mat (com alias)', async () => {
                     const retornoLexador = lexador.mapear(['importar matematica como mat'], -1);
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);

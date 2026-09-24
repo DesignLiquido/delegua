@@ -199,9 +199,9 @@ export class Lexador extends LexadorBase {
 
     override analisarTexto(delimitador = '"'): void {
         let valor = '';
-
+        
         this.avancar();
-
+        
         while (!this.eFinalDoCodigo()) {
             const c = this.simboloAtual();
 
@@ -257,10 +257,10 @@ export class Lexador extends LexadorBase {
             } else {
                 valor += c;
             }
-
+            
             this.avancar();
         }
-
+        
         this.erros.push({
             linha: this.linha + 1,
             caractere: this.simboloAnterior(),
@@ -597,22 +597,22 @@ export class Lexador extends LexadorBase {
         this.linha = 0;
         this.codigo = codigo && codigo.length > 0 ? codigo : [''];
         this.hashArquivo = hashArquivo;
-
+        
         for (let iterador = 0; iterador < this.codigo.length; iterador++) {
             this.codigo[iterador] += '\0';
         }
-
+        
         while (!this.eFinalDoCodigo()) {
             this.analisarToken();
         }
-
+        
         if (this.performance) {
             const deltaMapeamento: [number, number] = hrtime(inicioMapeamento);
             console.log(
                 `[Lexador] Tempo para mapeamento: ${deltaMapeamento[0] * 1e9 + deltaMapeamento[1]}ns`
             );
         }
-
+        
         return {
             simbolos: this.simbolos,
             erros: this.erros
