@@ -10,6 +10,7 @@ export class Importar extends Declaracao {
     caminho: ConstrutoInterface;
     simboloTudo: SimboloInterface | null = null;
     elementosImportacao: SimboloInterface[] = [];
+    elementosImportacaoComo: { elemento: SimboloInterface; alias: SimboloInterface }[] = [];
 
     constructor(caminho: ConstrutoInterface) {
         super(caminho.linha, caminho.hashArquivo);

@@ -106,7 +106,37 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         }
     }
 
+    private declararVariaveisImportadas(declaracao: Importar): void {
+        if (declaracao.simboloTudo) {
+            this.gerenciadorEscopos.declarar(declaracao.simboloTudo.lexema, {
+                nome: declaracao.simboloTudo.lexema,
+                tipo: 'módulo',
+                imutavel: true,
+                valor: undefined,
+                inicializada: true,
+                usada: false,
+                hashArquivo: declaracao.simboloTudo.hashArquivo,
+                linha: declaracao.simboloTudo.linha,
+            });
+            return;
+        }
+
+        for (const simboloImportado of declaracao.elementosImportacao || []) {
+            this.gerenciadorEscopos.declarar(simboloImportado.lexema, {
+                nome: simboloImportado.lexema,
+                tipo: 'qualquer',
+                imutavel: true,
+                valor: undefined,
+                inicializada: true,
+                usada: false,
+                hashArquivo: simboloImportado.hashArquivo,
+                linha: simboloImportado.linha,
+            });
+        }
+    }
+
     override async visitarDeclaracaoImportar(declaracao: Importar): Promise<any> {
+        this.declararVariaveisImportadas(declaracao);
         this.registrarFuncoesImportadasDeTestes(declaracao);
         return Promise.resolve();
     }

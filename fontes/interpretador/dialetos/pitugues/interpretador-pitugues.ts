@@ -159,6 +159,10 @@ export class InterpretadorPitugues extends Interpretador {
         if (objeto instanceof DescritorTipoClasse) {
             return await objeto.obterEstatico(expressao.nomeMetodo, this);
         }
+
+        if (objeto instanceof DeleguaModulo) {
+            return objeto.componentes[expressao.nomeMetodo] || null;
+        }
         
         return comum.visitarExpressaoAcessoMetodo(this, expressao, variavelObjeto);
     }
@@ -181,6 +185,10 @@ export class InterpretadorPitugues extends Interpretador {
         
         if (objeto instanceof DescritorTipoClasse) {
             return await objeto.obterEstatico(expressao.simbolo.lexema, this);
+        }
+
+        if (objeto instanceof DeleguaModulo) {
+            return objeto.componentes[expressao.simbolo.lexema] || null;
         }
         
         return comum.visitarExpressaoAcessoMetodoOuPropriedade(this, expressao, variavelObjeto);
@@ -512,10 +520,16 @@ export class InterpretadorPitugues extends Interpretador {
             const modulo = construirModuloDeTestes(this, this.registroTestes);
             
             if (declaracao.simboloTudo !== null) {
-                this.pilhaEscoposExecucao.definirVariavel(
-                    (declaracao.simboloTudo as any).lexema,
-                    modulo
-                );
+                if ((declaracao.simboloTudo as any).lexema === '*') {
+                    for (const [nome, componente] of Object.entries(modulo.componentes)) {
+                        this.pilhaEscoposExecucao.definirVariavel(nome, componente);
+                    }
+                } else {
+                    this.pilhaEscoposExecucao.definirVariavel(
+                        (declaracao.simboloTudo as any).lexema,
+                        modulo
+                    );
+                }
             } else {
                 for (const elemento of declaracao.elementosImportacao) {
                     const componente = modulo.componentes[(elemento as any).lexema];
@@ -524,6 +538,13 @@ export class InterpretadorPitugues extends Interpretador {
                             (elemento as any).lexema,
                             componente
                         );
+                    }
+                }
+
+                for (const { elemento, alias } of declaracao.elementosImportacaoComo) {
+                    const componente = modulo.componentes[elemento.lexema];
+                    if (componente !== undefined) {
+                        this.pilhaEscoposExecucao.definirVariavel(alias.lexema, componente);
                     }
                 }
             }
