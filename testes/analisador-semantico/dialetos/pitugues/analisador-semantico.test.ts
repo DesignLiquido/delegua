@@ -58,6 +58,18 @@ describe('Analisador semântico', () => {
                 expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
             });
 
+            it('Importar testes com alias não gera variável não definida', async () => {
+                const retornoLexador = lexador.mapear([
+                    'importar testes como t',
+                    't.afirmar(1 == 1)',
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+
+                expect(retornoAnalisadorSemantico).toBeTruthy();
+                expect(retornoAnalisadorSemantico.diagnosticos).toHaveLength(0);
+            });
+
             it('Absoluto', async () => {
                 const retornoLexador = lexador.mapear([
                     `funcao maior(x, y):`,

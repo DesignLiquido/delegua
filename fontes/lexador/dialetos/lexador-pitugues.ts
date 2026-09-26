@@ -504,6 +504,18 @@ export class LexadorPitugues implements LexadorInterface<SimboloInterface> {
                 break;
             case '*':
                 this.inicioSimbolo = this.atual;
+                const terminaLinha = this.atual + 1 >= this.codigo[this.linha].length;
+                if (terminaLinha) {
+                    this.atual += 1;
+                    this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
+                    if (!this.eUltimaLinha()) {
+                        this.linha += 1;
+                        this.atual = 0;
+                        this.analisarIndentacao();
+                    }
+                    break;
+                }
+
                 this.avancar();
                 if (this.simboloAtual() === '*') {
                     this.avancar();

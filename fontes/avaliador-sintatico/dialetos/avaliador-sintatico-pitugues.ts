@@ -142,6 +142,7 @@ export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implement
     performance: boolean;
     superclasseAtual: string | undefined;
     intuirTipoQualquerParaIdentificadores: boolean;
+    existeImportacaoCoringa: boolean;
     pilhaDecoradores: Decorador[];
 
     constructor(performance = false) {
@@ -151,6 +152,7 @@ export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implement
         this.blocos = 0;
         this.performance = performance;
         this.intuirTipoQualquerParaIdentificadores = false;
+        this.existeImportacaoCoringa = false;
         this.escopos = [];
         this.pilhaDecoradores = [];
         this.pilhaEscopos = new PilhaEscopos();
@@ -1089,7 +1091,11 @@ export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implement
                                 simboloIdentificador.lexema
                             );
                     } catch (erro: any) {
-                        throw this.erro(simboloIdentificador, erro.message);
+                        if (this.existeImportacaoCoringa) {
+                            tipoOperando = 'qualquer';
+                        } else {
+                            throw this.erro(simboloIdentificador, erro.message);
+                        }
                     }
                 }
 
@@ -2165,10 +2171,13 @@ export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implement
             declaracao.simboloTudo = nomeModulo;
         }
 
+        await this.registrarAliasImportacao(declaracao);
+
         return Promise.resolve(declaracao);
     }
 
     async declaracaoImportarDe(): Promise<Importar> {
+        
         const nomeModulo = this.consumir(
             tiposDeSimbolos.IDENTIFICADOR,
             "Esperado nome do módulo após 'de'."
@@ -2178,24 +2187,73 @@ export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implement
             Number(nomeModulo.linha),
             nomeModulo.lexema
         );
+        
 
         this.consumir(
             tiposDeSimbolos.IMPORTAR,
             "Esperado 'importar' após nome do módulo em declaração 'de ... importar'."
         );
 
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.MULTIPLICACAO)) {
+            const declaracao = new Importar(caminho);
+            declaracao.simboloTudo = this.simboloAnterior();
+            this.existeImportacaoCoringa = true;
+            return Promise.resolve(declaracao);
+        }
+
         const elementosImportacao: SimboloInterface[] = [];
+        const elementosImportacaoComo: { elemento: SimboloInterface; alias: SimboloInterface }[] = [];
         do {
             const elemento = this.consumir(
                 tiposDeSimbolos.IDENTIFICADOR,
                 'Esperado identificador de elemento a ser importado.'
             );
             elementosImportacao.push(elemento);
+
+            if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COMO)) {
+                const alias = this.consumir(
+                    tiposDeSimbolos.IDENTIFICADOR,
+                    "Esperado identificador após 'como' em importação seletiva."
+                );
+                elementosImportacaoComo.push({ elemento, alias });
+            }
         } while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.VIRGULA));
 
         const declaracao = new Importar(caminho);
         declaracao.elementosImportacao = elementosImportacao;
+        declaracao.elementosImportacaoComo = elementosImportacaoComo;
+        await this.registrarAliasImportacao(declaracao);
         return Promise.resolve(declaracao);
+    }
+    async registrarAliasImportacao(declaracao: Importar): Promise<void> {
+        if (declaracao.simboloTudo) {
+            this.pilhaEscopos.definirInformacoesVariavel(
+                declaracao.simboloTudo.lexema,
+                new InformacaoElementoSintatico(declaracao.simboloTudo.lexema, 'qualquer')
+            );
+        }
+        if (declaracao.elementosImportacao) {
+            for (const elemento of declaracao.elementosImportacao) {
+                this.pilhaEscopos.definirInformacoesVariavel(
+                    elemento.lexema,
+                    new InformacaoElementoSintatico(elemento.lexema, 'qualquer')
+                );
+            }
+
+            for (const { alias } of declaracao.elementosImportacaoComo) {
+                this.pilhaEscopos.definirInformacoesVariavel(
+                    alias.lexema,
+                    new InformacaoElementoSintatico(alias.lexema, 'qualquer')
+                );
+            }
+        }
+        else {
+            const alias = this.avancarEDevolverAnterior();
+            this.pilhaEscopos.definirInformacoesVariavel(
+                alias.lexema,
+                new InformacaoElementoSintatico(alias.lexema, 'qualquer')
+            );
+        }
     }
 
     async declaracaoTente(): Promise<Tente> {
