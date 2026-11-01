@@ -9,6 +9,8 @@ export class FuncaoPadrao extends Chamavel {
     valorAridade: number;
     funcao: Function;
     simbolo: SimboloInterface | undefined;
+    /** Nome com que a função foi registrada (ex.: `real`, `inteiro`). */
+    nome?: string;
     argumentos?: { nome: string; tipo: string }[];
     tipoRetorno?: string;
     documentacao?: string;
@@ -37,7 +39,7 @@ export class FuncaoPadrao extends Chamavel {
      * @returns {string} A representação da função como texto.
      */
     paraTexto(): string {
-        return `<função-padrão nome=${this.simbolo?.lexema || '(função anônima)'} />`;
+        return `<função-padrão nome=${this.nome || this.simbolo?.lexema || '(função anônima)'} />`;
     }
 
     /**

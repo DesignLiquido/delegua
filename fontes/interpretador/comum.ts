@@ -90,75 +90,85 @@ export async function visitarExpressaoAcessoIntervaloVariavel(
 }
 
 export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExecucaoInterface) {
-    pilhaEscoposExecucao.definirVariavel(
+    // Registra a variável e, para funções padrão, guarda o nome com que foram
+    // registradas, usado para representá-las como texto (ex.: `escreva(real)`).
+    const definir = (nome: string, valor: any) => {
+        if (valor instanceof FuncaoPadrao && !valor.nome) {
+            valor.nome = nome;
+        }
+
+        pilhaEscoposExecucao.definirVariavel(nome, valor);
+    };
+
+    definir(
         'aleatorio',
         new FuncaoPadrao(1, bibliotecaGlobal.aleatorio)
     );
-    pilhaEscoposExecucao.definirVariavel(
+    definir(
         'aleatório',
         new FuncaoPadrao(1, bibliotecaGlobal.aleatorio)
     );
 
-    pilhaEscoposExecucao.definirVariavel(
+    definir(
         'aleatorioEntre',
         new FuncaoPadrao(2, bibliotecaGlobal.aleatorioEntre)
     );
-    pilhaEscoposExecucao.definirVariavel(
+    definir(
         'aleatórioEntre',
         new FuncaoPadrao(2, bibliotecaGlobal.aleatorioEntre)
     );
 
-    pilhaEscoposExecucao.definirVariavel('algum', new FuncaoPadrao(2, bibliotecaGlobal.algum));
+    definir('algum', new FuncaoPadrao(2, bibliotecaGlobal.algum));
 
-    pilhaEscoposExecucao.definirVariavel(
+    definir(
         'arredondar',
         new FuncaoPadrao(2, bibliotecaGlobal.arredondar)
     );
 
-    pilhaEscoposExecucao.definirVariavel('clonar', new FuncaoPadrao(1, bibliotecaGlobal.clonar));
+    definir('clonar', new FuncaoPadrao(1, bibliotecaGlobal.clonar));
 
-    pilhaEscoposExecucao.definirVariavel(
+    definir(
         'encontrar',
         new FuncaoPadrao(2, bibliotecaGlobal.encontrar)
     );
 
-    pilhaEscoposExecucao.definirVariavel(
+    definir(
         'encontrarIndice',
         new FuncaoPadrao(2, bibliotecaGlobal.encontrarIndice)
     );
-    pilhaEscoposExecucao.definirVariavel(
+    definir(
         'encontrarÍndice',
         new FuncaoPadrao(2, bibliotecaGlobal.encontrarIndice)
     );
 
-    pilhaEscoposExecucao.definirVariavel(
+    definir(
         'encontrarUltimo',
         new FuncaoPadrao(2, bibliotecaGlobal.encontrarUltimo)
     );
-    pilhaEscoposExecucao.definirVariavel(
+    definir(
         'encontrarÚltimo',
         new FuncaoPadrao(2, bibliotecaGlobal.encontrarUltimo)
     );
 
-    pilhaEscoposExecucao.definirVariavel(
+    definir(
         'encontrarUltimoIndice',
         new FuncaoPadrao(2, bibliotecaGlobal.encontrarUltimoIndice)
     );
-    pilhaEscoposExecucao.definirVariavel(
+    definir(
         'encontrarÚltimoÍndice',
         new FuncaoPadrao(2, bibliotecaGlobal.encontrarUltimoIndice)
     );
 
-    pilhaEscoposExecucao.definirVariavel(
+    definir(
         'filtrarPor',
         new FuncaoPadrao(2, bibliotecaGlobal.filtrarPor)
     );
 
-    pilhaEscoposExecucao.definirVariavel(
+    definir(
         'incluido',
         new FuncaoPadrao(2, bibliotecaGlobal.incluido)
     );
-    pilhaEscoposExecucao.definirVariavel(
+    definir(
         'incluído',
         new FuncaoPadrao(2, bibliotecaGlobal.incluido)
     );
@@ -168,48 +178,48 @@ export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExe
     (funcaoInteiro as any).MÁXIMO = 2147483647;
     (funcaoInteiro as any).MINIMO = -2147483648;
     (funcaoInteiro as any).MÍNIMO = -2147483648;
-    pilhaEscoposExecucao.definirVariavel('inteiro', funcaoInteiro);
+    definir('inteiro', funcaoInteiro);
 
     const funcaoLongo = new FuncaoPadrao(1, bibliotecaGlobal.longo);
     (funcaoLongo as any).MAXIMO = globalThis.BigInt('9223372036854775807');
     (funcaoLongo as any).MÁXIMO = globalThis.BigInt('9223372036854775807');
     (funcaoLongo as any).MINIMO = globalThis.BigInt('-9223372036854775808');
     (funcaoLongo as any).MÍNIMO = globalThis.BigInt('-9223372036854775808');
-    pilhaEscoposExecucao.definirVariavel('longo', funcaoLongo);
+    definir('longo', funcaoLongo);
 
-    pilhaEscoposExecucao.definirVariavel(
+    definir(
         'intervalo',
         new FuncaoPadrao(3, bibliotecaGlobal.intervalo)
     );
 
-    pilhaEscoposExecucao.definirVariavel('mapear', new FuncaoPadrao(2, bibliotecaGlobal.mapear));
+    definir('mapear', new FuncaoPadrao(2, bibliotecaGlobal.mapear));
 
-    pilhaEscoposExecucao.definirVariavel('maximo', new FuncaoPadrao(1, bibliotecaGlobal.maximo));
-    pilhaEscoposExecucao.definirVariavel('máximo', new FuncaoPadrao(1, bibliotecaGlobal.maximo));
+    definir('maximo', new FuncaoPadrao(1, bibliotecaGlobal.maximo));
+    definir('máximo', new FuncaoPadrao(1, bibliotecaGlobal.maximo));
 
-    pilhaEscoposExecucao.definirVariavel('minimo', new FuncaoPadrao(1, bibliotecaGlobal.minimo));
-    pilhaEscoposExecucao.definirVariavel('mínimo', new FuncaoPadrao(1, bibliotecaGlobal.minimo));
+    definir('minimo', new FuncaoPadrao(1, bibliotecaGlobal.minimo));
+    definir('mínimo', new FuncaoPadrao(1, bibliotecaGlobal.minimo));
 
     const funcaoNumero = new FuncaoPadrao(1, bibliotecaGlobal.numero);
     (funcaoNumero as any).MAXIMO = Number.MAX_VALUE;
     (funcaoNumero as any).MÁXIMO = Number.MAX_VALUE;
     (funcaoNumero as any).MINIMO = -Number.MAX_VALUE;
     (funcaoNumero as any).MÍNIMO = -Number.MAX_VALUE;
-    pilhaEscoposExecucao.definirVariavel('numero', funcaoNumero);
-    pilhaEscoposExecucao.definirVariavel('número', funcaoNumero);
+    definir('numero', funcaoNumero);
+    definir('número', funcaoNumero);
 
-    pilhaEscoposExecucao.definirVariavel('ordenar', new FuncaoPadrao(1, bibliotecaGlobal.ordenar));
+    definir('ordenar', new FuncaoPadrao(1, bibliotecaGlobal.ordenar));
 
-    pilhaEscoposExecucao.definirVariavel(
+    definir(
         'paraCada',
         new FuncaoPadrao(2, bibliotecaGlobal.paraCada)
     );
 
-    pilhaEscoposExecucao.definirVariavel(
+    definir(
         'primeiroEmCondicao',
         new FuncaoPadrao(2, bibliotecaGlobal.primeiroEmCondicao)
     );
-    pilhaEscoposExecucao.definirVariavel(
+    definir(
         'primeiroEmCondição',
         new FuncaoPadrao(2, bibliotecaGlobal.primeiroEmCondicao)
     );
@@ -219,30 +229,30 @@ export function carregarBibliotecasGlobais(pilhaEscoposExecucao: PilhaEscoposExe
     (funcaoReal as any).MÁXIMO = Number.MAX_VALUE;
     (funcaoReal as any).MINIMO = -Number.MAX_VALUE;
     (funcaoReal as any).MÍNIMO = -Number.MAX_VALUE;
-    pilhaEscoposExecucao.definirVariavel('real', funcaoReal);
+    definir('real', funcaoReal);
 
-    pilhaEscoposExecucao.definirVariavel('reduzir', new FuncaoPadrao(3, bibliotecaGlobal.reduzir));
+    definir('reduzir', new FuncaoPadrao(3, bibliotecaGlobal.reduzir));
 
-    pilhaEscoposExecucao.definirVariavel('somar', new FuncaoPadrao(1, bibliotecaGlobal.somar));
+    definir('somar', new FuncaoPadrao(1, bibliotecaGlobal.somar));
 
-    pilhaEscoposExecucao.definirVariavel('tamanho', new FuncaoPadrao(1, bibliotecaGlobal.tamanho));
+    definir('tamanho', new FuncaoPadrao(1, bibliotecaGlobal.tamanho));
 
-    pilhaEscoposExecucao.definirVariavel('texto', new FuncaoPadrao(1, bibliotecaGlobal.texto));
+    definir('texto', new FuncaoPadrao(1, bibliotecaGlobal.texto));
 
-    pilhaEscoposExecucao.definirVariavel('todos', new FuncaoPadrao(1, bibliotecaGlobal.todos));
+    definir('todos', new FuncaoPadrao(1, bibliotecaGlobal.todos));
 
-    pilhaEscoposExecucao.definirVariavel(
+    definir(
         'todosEmCondicao',
         new FuncaoPadrao(2, bibliotecaGlobal.todosEmCondicao)
     );
-    pilhaEscoposExecucao.definirVariavel(
+    definir(
         'todosEmCondição',
         new FuncaoPadrao(2, bibliotecaGlobal.todosEmCondicao)
     );
 
-    pilhaEscoposExecucao.definirVariavel('tupla', new FuncaoPadrao(1, bibliotecaGlobal.tupla));
+    definir('tupla', new FuncaoPadrao(1, bibliotecaGlobal.tupla));
 
-    pilhaEscoposExecucao.definirVariavel('vetor', new FuncaoPadrao(1, bibliotecaGlobal.vetor));
+    definir('vetor', new FuncaoPadrao(1, bibliotecaGlobal.vetor));
 }
 
 export function pontoEntradaAjuda(funcao: boolean, topico: any) {

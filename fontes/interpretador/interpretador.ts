@@ -258,7 +258,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             if (typeof objeto.valor === 'boolean') return objeto.valor ? 'verdadeiro' : 'falso';
         }
 
-        if (objeto instanceof MetodoPrimitiva) {
+        if (objeto instanceof MetodoPrimitiva || objeto instanceof FuncaoPadrao) {
             return objeto.paraTexto();
         }
 

@@ -152,4 +152,23 @@ describe('Constantes de tipo', () => {
             expect(_saidas[0]).toBe(String(-Number.MAX_VALUE));
         });
     });
+    describe('Escrita da própria função de tipo', () => {
+        it('escreva de função de tipo atribuída a variável não expõe estrutura interna', async () => {
+            const retornoLexador = lexador.mapear(['var valor = real', 'escreva(valor)'], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saidas[0]).toBe('<função-padrão nome=real />');
+        });
+
+        it('escreva de função padrão usa o nome registrado', async () => {
+            const retornoLexador = lexador.mapear(['escreva(inteiro)', 'escreva(tamanho)'], -1);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+            const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+            expect(retornoInterpretador.erros).toHaveLength(0);
+            expect(_saidas).toEqual(['<função-padrão nome=inteiro />', '<função-padrão nome=tamanho />']);
+        });
+    });
 });

@@ -3212,7 +3212,8 @@ export class InterpretadorBase implements InterpretadorInterface {
         if (
             objeto instanceof ObjetoDeleguaClasse ||
             objeto instanceof DeleguaFuncao ||
-            objeto instanceof DescritorTipoClasse
+            objeto instanceof DescritorTipoClasse ||
+            objeto instanceof FuncaoPadrao
         )
             return objeto.paraTexto();
 
