@@ -965,6 +965,8 @@ export async function executarUltimoEscopoComandoContinuar(
     naoVerificarPrimeiraExecucao = false
 ): Promise<any> {
     const ultimoEscopo = interpretador.pilhaEscoposExecucao.topoDaPilha();
+    // O escopo de nível superior fica logo acima do escopo global.
+    const ehEscopoRaiz = interpretador.pilhaEscoposExecucao.elementos() <= 2;
     let retornoExecucao: ResultadoParcialInterpretadorInterface;
 
     try {
@@ -1005,21 +1007,22 @@ export async function executarUltimoEscopoComandoContinuar(
 
         return retornoExecucao;
     } catch (erro: any) {
-        // Se estamos dentro de uma declaração tente, re-lança o erro
-        // para que o bloco pegue possa capturá-lo
-        if (interpretador.emDeclaracaoTente) {
-            throw erro;
-        }
-
         const declaracaoAtual = ultimoEscopo.declaracoes[
             ultimoEscopo.declaracaoAtual
         ];
 
-        interpretador.erros.push({
-            erroInterno: erro,
-            linha: declaracaoAtual?.linha ?? -1,
-            hashArquivo: declaracaoAtual?.hashArquivo ?? -1,
-        });
+        interpretador.registrarErro(
+            erro,
+            declaracaoAtual?.linha ?? -1,
+            declaracaoAtual?.hashArquivo ?? -1,
+            ehEscopoRaiz
+        );
+
+        // Dentro de `tente`, o erro é relançado para que `pegue` o capture.
+        // Fora do escopo raiz, o erro é propagado para interromper a execução.
+        if (interpretador.emDeclaracaoTente || !ehEscopoRaiz) {
+            throw erro;
+        }
     } finally {
         if (!interpretador.pontoDeParadaAtivo && interpretador.comando !== 'adentrarEscopo') {
             interpretador.pilhaEscoposExecucao.removerUltimo();

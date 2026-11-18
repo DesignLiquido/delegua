@@ -5760,20 +5760,25 @@ describe('Interpretador (Pituguês)', () => {
             });
 
             it('Deve acusar erro em comparações relacionais com tipos incompatíveis', async () => {
-                const retornoLexador = lexador.mapear([
-                    'escreva(10 != "10")',
-                    'escreva(10 == "10")',
-                    'escreva(10 > "10")',
-                    'escreva(10 < "10")',
-                    'escreva(10 >= "10")',
-                    'escreva(10 <= "10")',
-                ], -1);
-                const retornoAvaliadorSintatico = await avaliadorSintatico
-                    .analisar(retornoLexador, -1);
-                const retornoInterpretador = await interpretador
-                    .interpretar(retornoAvaliadorSintatico.declaracoes);
+                // Um erro interrompe a execução, então cada comparação é executada isoladamente.
+                const casos: [string, number][] = [
+                    ['escreva(10 != "10")', 0],
+                    ['escreva(10 == "10")', 0],
+                    ['escreva(10 > "10")', 1],
+                    ['escreva(10 < "10")', 1],
+                    ['escreva(10 >= "10")', 1],
+                    ['escreva(10 <= "10")', 1],
+                ];
 
-                expect(retornoInterpretador.erros).toHaveLength(4);
+                for (const [codigo, quantidadeErros] of casos) {
+                    const retornoLexador = lexador.mapear([codigo], -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico
+                        .analisar(retornoLexador, -1);
+                    const retornoInterpretador = await interpretador
+                        .interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(quantidadeErros);
+                }
             });
 
             it('Deve acusar erro ao tentar usar operador de incremento em texto', async () => {

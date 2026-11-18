@@ -2837,4 +2837,123 @@ describe('Analisador semântico', () => {
             ).toHaveLength(0);
         });
     });
+
+    describe('Diagnósticos (jsvm)', () => {
+        const analisar = async (linhas: string[]) => {
+            const retornoAvaliadorSintatico = await new AvaliadorSintatico().analisar(
+                new Lexador().mapear(linhas, -1),
+                -1
+            );
+            expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            return new AnalisadorSemantico().analisar(retornoAvaliadorSintatico.declaracoes);
+        };
+
+        it('Condição de se com variável do tipo qualquer não gera erro', async () => {
+            const retorno = await analisar([
+                'funcao formatar(x: qualquer): texto {',
+                '    se (x) {',
+                '        retorna "true"',
+                '    }',
+                '    retorna "false"',
+                '}',
+                'escreva(formatar(verdadeiro))',
+            ]);
+            expect(retorno.diagnosticos.filter((d) => d.mensagem.includes("'lógico'"))).toHaveLength(0);
+        });
+
+        it('Condição de se com variável do tipo logico (sem acento) não gera erro', async () => {
+            const retorno = await analisar([
+                'funcao f(ativo: logico) {',
+                '    se (ativo) {',
+                '        escreva("sim")',
+                '    }',
+                '}',
+                'f(verdadeiro)',
+            ]);
+            expect(retorno.diagnosticos.filter((d) => d.mensagem.includes("'lógico'"))).toHaveLength(0);
+        });
+
+        it('Condição de se com variável de texto continua gerando erro', async () => {
+            const retorno = await analisar([
+                'funcao f(t: texto) {',
+                '    se (t) {',
+                '        escreva("sim")',
+                '    }',
+                '}',
+                'f("a")',
+            ]);
+            expect(retorno.diagnosticos.some((d) => d.mensagem.includes("'lógico'"))).toBe(true);
+        });
+
+        it('falhar encerra o caminho de execução da função', async () => {
+            const retorno = await analisar([
+                'funcao f(x: numero): numero {',
+                '    se (x > 0) {',
+                '        retorna 1',
+                '    }',
+                '    falhar "valor inválido"',
+                '}',
+                'f(1)',
+            ]);
+            expect(
+                retorno.diagnosticos.filter((d) => d.mensagem.includes('todos os caminhos'))
+            ).toHaveLength(0);
+        });
+
+        it('Função sem retorno em algum caminho continua gerando erro', async () => {
+            const retorno = await analisar([
+                'funcao f(x: numero): numero {',
+                '    se (x > 0) {',
+                '        retorna 1',
+                '    }',
+                '    escreva("sem retorno")',
+                '}',
+                'f(1)',
+            ]);
+            expect(retorno.diagnosticos.some((d) => d.mensagem.includes('todos os caminhos'))).toBe(true);
+        });
+
+        it('Atribuição de texto a variável inicializada com fatiamento de texto', async () => {
+            const retorno = await analisar([
+                'classe Lexer {',
+                '    src: texto',
+                '    construtor(src: texto) { isto.src = src }',
+                '    trecho(): texto {',
+                '        var s = isto.src[0:2]',
+                '        s = "console.log"',
+                '        retorna s',
+                '    }',
+                '}',
+                'escreva(Lexer("abc").trecho())',
+            ]);
+            expect(retorno.diagnosticos.filter((d) => d.severidade === DiagnosticoSeveridade.ERRO)).toHaveLength(0);
+        });
+
+        it('Método inexistente sobre literal de texto ou vetor gera aviso', async () => {
+            const retorno = await analisar([
+                'escreva("abc".metodoInexistente("a"))',
+                'escreva([1, 2].outroInexistente(1))',
+            ]);
+            const avisos = retorno.diagnosticos.filter(
+                (d) =>
+                    d.severidade === DiagnosticoSeveridade.AVISO &&
+                    d.mensagem.includes('não existe para o tipo')
+            );
+            expect(avisos).toHaveLength(2);
+            expect(avisos[0].mensagem).toContain("'metodoInexistente'");
+            expect(avisos[1].mensagem).toContain("'outroInexistente'");
+        });
+
+        it('Primitivas existentes e sinônimos sobre literais não geram aviso', async () => {
+            const retorno = await analisar([
+                'escreva("abc".inclui("a"))',
+                'escreva("abc".contem("a"))',
+                'escreva([1, 2].contem(1))',
+                'escreva([1, 2].tamanho())',
+            ]);
+            expect(
+                retorno.diagnosticos.filter((d) => d.mensagem.includes('não existe para o tipo'))
+            ).toHaveLength(0);
+        });
+    });
 });

@@ -401,7 +401,8 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
         for (let i = 0; i < declaracoes.length; i++) {
             const declaracao = declaracoes[i];
 
-            if (declaracao instanceof Retorna) {
+            // `falhar` também encerra o caminho de execução.
+            if (declaracao instanceof Retorna || declaracao instanceof Falhar) {
                 return true;
             }
 

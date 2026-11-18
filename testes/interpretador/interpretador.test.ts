@@ -9477,5 +9477,175 @@ describe('Interpretador', () => {
             });
         });
     });
-});
 
+    describe('Propagação de erros, primitivas e tipos (jsvm)', () => {
+        let _saidas: string[] = [];
+
+        const executar = async (codigo: string[]) => {
+            _saidas = [];
+            const funcaoSaida = (texto: string) => {
+                _saidas.push(texto);
+            };
+            const lexador = new Lexador();
+            const avaliadorSintatico = new AvaliadorSintatico();
+            const interpretador = new Interpretador(process.cwd(), false, funcaoSaida, funcaoSaida);
+            const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                lexador.mapear(codigo, -1),
+                -1
+            );
+            expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            return interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        };
+
+        describe('Erros dentro de chamadas e blocos', () => {
+            it('tente/pegue captura falhar dentro de função chamada', async () => {
+                const retorno = await executar([
+                    'funcao f() { falhar "boom" }',
+                    'tente {',
+                    '    f()',
+                    '    escreva("não deveria executar")',
+                    '} pegue (erro) {',
+                    '    escreva("pegou")',
+                    '}',
+                    'escreva("depois")',
+                ]);
+                expect(retorno.erros).toHaveLength(0);
+                expect(_saidas).toEqual(['pegou', 'depois']);
+            });
+
+            it('tente/pegue captura falhar em funções aninhadas', async () => {
+                const retorno = await executar([
+                    'funcao g() { falhar "boom" }',
+                    'funcao f() {',
+                    '    g()',
+                    '    escreva("não deveria executar")',
+                    '}',
+                    'tente { f() } pegue (erro) { escreva("pegou " + erro.mensagem) }',
+                ]);
+                expect(retorno.erros).toHaveLength(0);
+                expect(_saidas).toEqual(['pegou boom']);
+            });
+
+            it('tente/pegue captura erro dentro de laço', async () => {
+                const retorno = await executar([
+                    'tente {',
+                    '    para (var i = 0; i < 3; i++) { falhar "boom" }',
+                    '} pegue (erro) { escreva("pegou") }',
+                ]);
+                expect(retorno.erros).toHaveLength(0);
+                expect(_saidas).toEqual(['pegou']);
+            });
+
+            it('tente/pegue captura erro em argumento de escreva', async () => {
+                const retorno = await executar([
+                    'funcao f() { falhar "boom" }',
+                    'tente { escreva(f()) } pegue (erro) { escreva("pegou") }',
+                ]);
+                expect(retorno.erros).toHaveLength(0);
+                expect(_saidas).toEqual(['pegou']);
+            });
+
+            it('Erro dentro de função interrompe a execução', async () => {
+                const retorno = await executar([
+                    'funcao f() { falhar "boom" }',
+                    'funcao h() {',
+                    '    f()',
+                    '    escreva("não deveria executar")',
+                    '}',
+                    'h()',
+                    'escreva("não deveria executar")',
+                ]);
+                expect(retorno.erros).toHaveLength(1);
+                expect(_saidas).toHaveLength(0);
+            });
+
+            it('Erro dentro de laço interrompe a execução', async () => {
+                const retorno = await executar([
+                    'para (var i = 0; i < 3; i++) { falhar "boom" }',
+                    'escreva("não deveria executar")',
+                ]);
+                expect(retorno.erros).toHaveLength(1);
+                expect(_saidas).toHaveLength(0);
+            });
+
+            it('tente sem pegue executa finalmente e propaga o erro', async () => {
+                const retorno = await executar([
+                    'funcao f() { falhar "boom" }',
+                    'tente { f() } finalmente { escreva("fim") }',
+                    'escreva("não deveria executar")',
+                ]);
+                expect(retorno.erros).toHaveLength(1);
+                expect(_saidas).toEqual(['fim']);
+            });
+
+            it('Erro é registrado na linha em que ocorreu', async () => {
+                const retorno = await executar([
+                    'funcao f() {',
+                    '    escreva("a")',
+                    '    falhar "boom"',
+                    '}',
+                    'f()',
+                ]);
+                expect(retorno.erros).toHaveLength(1);
+                expect(retorno.erros[0].linha).toBe(3);
+            });
+
+            it('Mensagem de método inexistente usa o nome do método', async () => {
+                const retorno = await executar(['var d = {"a": 1}', 'd.metodoInexistente("a")']);
+                expect(retorno.erros).toHaveLength(1);
+                expect(retorno.erros[0].erroInterno.message).toBe(
+                    'Chamada de função ou método inexistente: metodoInexistente'
+                );
+            });
+        });
+
+        describe('Primitivas', () => {
+            it('dicionário.obter com e sem valor padrão', async () => {
+                const retorno = await executar([
+                    'var d = {"a": 1}',
+                    'escreva(d.obter("a", 0))',
+                    'escreva(d.obter("b", 0))',
+                    'escreva(d.obter("b"))',
+                ]);
+                expect(retorno.erros).toHaveLength(0);
+                expect(_saidas).toEqual(['1', '0', 'nulo']);
+            });
+
+            it('texto.contem e vetor.contem são sinônimos de inclui', async () => {
+                const retorno = await executar([
+                    'escreva("0123456789".contem("5"))',
+                    'escreva("abc".contém("z"))',
+                    'escreva([" ", "\\n"].contem(" "))',
+                    'escreva([1, 2].contem(3))',
+                ]);
+                expect(retorno.erros).toHaveLength(0);
+                expect(_saidas).toEqual(['verdadeiro', 'falso', 'verdadeiro', 'falso']);
+            });
+        });
+
+        describe('tipo de com grafias sem acento', () => {
+            it('Nomes de tipos acentuados são iguais às grafias sem acento', async () => {
+                const retorno = await executar([
+                    'const t = tipo de verdadeiro',
+                    'escreva(t == "logico")',
+                    'escreva(t == "lógico")',
+                    'escreva((tipo de 1) == "numero")',
+                    'escreva((tipo de {}) == "dicionario")',
+                    'escreva(t != "logico")',
+                    'escreva(t == "texto")',
+                    'escreva("abc" == "abd")',
+                ]);
+                expect(retorno.erros).toHaveLength(0);
+                expect(_saidas).toEqual([
+                    'verdadeiro',
+                    'verdadeiro',
+                    'verdadeiro',
+                    'verdadeiro',
+                    'falso',
+                    'falso',
+                    'falso',
+                ]);
+            });
+        });
+    });
+});

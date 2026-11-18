@@ -12,6 +12,7 @@ export type ComandoDepurador =
 
 export interface InterpretadorComDepuracaoInterface extends InterpretadorInterface {
     emDeclaracaoTente: boolean;
+    registrarErro(erro: any, linha: number, hashArquivo: number, ehEscopoRaiz?: boolean): void;
     comando?: ComandoDepurador;
     pontoDeParadaAtivo: boolean;
     pontosParada: PontoParada[];

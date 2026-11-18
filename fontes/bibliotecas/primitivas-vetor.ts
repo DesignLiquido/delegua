@@ -29,7 +29,7 @@ const mapaConstrutoresTupla: { [tamanho: number]: any } = {
     10: Deceto,
 };
 
-export default {
+const primitivas = {
     adicionar: {
         tipoRetorno: 'qualquer[]',
         argumentos: [
@@ -586,3 +586,21 @@ export default {
         exemploCodigo: 'vetor.tamanho()',
     },
 } as { [nome: string]: PrimitivaInterface };
+
+/**
+ * `contem` (e `contém`) é sinônimo de `inclui`.
+ */
+const sinonimoInclui = (nome: string): PrimitivaInterface => ({
+    ...primitivas.inclui,
+    assinaturaFormato: 'vetor.' + nome + '(elemento: qualquer)',
+    documentacao:
+        '# `vetor.' + nome + '(elemento)`\n\n' +
+        'Sinônimo de `vetor.inclui(elemento)`. ' +
+        'Devolve `verdadeiro` se o elemento está contido, e `falso` em caso contrário.',
+    exemploCodigo: 'vetor.' + nome + '(elemento)',
+});
+
+primitivas.contem = sinonimoInclui('contem');
+primitivas.contém = sinonimoInclui('contém');
+
+export default primitivas;

@@ -55,6 +55,15 @@ function* buscarRetornosEmSe(construtoSe: Se): Generator<Retorna> {
  * @param tipos Conjunto de tipos de retorno encontrados.
  * @returns O mesmo conjunto, com as grafias de número unificadas.
  */
+/**
+ * `dicionario` e `dicionário` são grafias do mesmo tipo.
+ * @param tipo O tipo a verificar.
+ * @returns Verdadeiro se o tipo é dicionário, em qualquer das grafias.
+ */
+export function ehTipoDicionario(tipo: string | undefined | null): boolean {
+    return tipo === 'dicionário' || tipo === 'dicionario';
+}
+
 export function unificarGrafiasNumero(tipos: Set<string>): Set<string> {
     if (tipos.has('numero') && tipos.has('número')) {
         const primeira = Array.from(tipos).find((t) => t === 'numero' || t === 'número');

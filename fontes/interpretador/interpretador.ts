@@ -574,11 +574,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         };
 
         const tratarErro = (erro: any): any => {
-            this.erros.push({
-                erroInterno: erro,
-                linha: enquanto.linha,
-                hashArquivo: enquanto.hashArquivo,
-            });
+            this.registrarErro(erro, enquanto.linha, enquanto.hashArquivo);
             return Promise.reject(erro);
         };
 
@@ -684,11 +680,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                     retornos.push(this.resolverValor(retornoExecucao));
                 }
             } catch (erro: any) {
-                this.erros.push({
-                    erroInterno: erro,
-                    linha: fazer.linha,
-                    hashArquivo: fazer.hashArquivo,
-                });
+                this.registrarErro(erro, fazer.linha, fazer.hashArquivo);
                 return Promise.reject(erro);
             }
         } while (
@@ -913,11 +905,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
 
                 paraCada.posicaoAtual++;
             } catch (erro: any) {
-                this.erros.push({
-                    erroInterno: erro,
-                    linha: paraCada.linha,
-                    hashArquivo: paraCada.hashArquivo,
-                });
+                this.registrarErro(erro, paraCada.linha, paraCada.hashArquivo);
                 return Promise.reject(erro);
             }
         }
@@ -2403,6 +2391,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
      */
     override executarUltimoEscopo(manterAmbiente = false): any {
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
+        // O escopo de nível superior fica logo acima do escopo global.
+        const ehEscopoRaiz = this.pilhaEscoposExecucao.elementos() <= 2;
         let retornoExecucao: ResultadoParcialInterpretadorInterface | undefined = undefined;
 
         // Substitui o `finally` original: precisa rodar em toda saída (sucesso, erro síncrono
@@ -2433,12 +2423,11 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         const tratarErro = (erro: any): any => {
             try {
                 const declaracaoAtual = ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual];
-                if (!this.emDeclaracaoTente) {
-                    this.erros.push({
-                        erroInterno: erro,
-                        linha: declaracaoAtual.linha,
-                        hashArquivo: declaracaoAtual.hashArquivo,
-                    });
+                this.registrarErro(erro, declaracaoAtual?.linha, declaracaoAtual?.hashArquivo, ehEscopoRaiz);
+                // Apenas o escopo raiz encerra a execução com o erro registrado.
+                // Escopos internos (blocos, laços, corpos de funções) propagam o erro,
+                // para que a execução não continue após a falha.
+                if (ehEscopoRaiz && !this.emDeclaracaoTente) {
                     return undefined;
                 }
                 return Promise.reject(erro);

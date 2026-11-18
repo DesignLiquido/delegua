@@ -53,6 +53,9 @@ import { EscopoVariavel } from './escopo-variavel';
 import { FuncaoHipoteticaInterface } from './funcao-hipotetica-interface';
 import { GerenciadorEscopos } from './gerenciador-escopos';
 import { PilhaVariaveis } from './pilha-variaveis';
+import primitivasTexto from '../bibliotecas/primitivas-texto';
+import primitivasVetor from '../bibliotecas/primitivas-vetor';
+import { Extensao } from '../declaracoes/extensao';
 
 /**
  * O Analisador Semântico de Delégua.
@@ -412,6 +415,43 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         );
     }
 
+    /**
+     * Nomes de métodos declarados em extensões no código analisado.
+     */
+    protected metodosDeclaradosEmExtensoes: Set<string> = new Set<string>();
+
+    /**
+     * Avisa quando um método inexistente é chamado diretamente sobre um literal de
+     * texto ou de vetor (ex.: `"abc".metodoInexistente()`). Nesses casos o tipo do
+     * objeto é conhecido, e a chamada falharia em tempo de execução.
+     * @param acesso O acesso ao método.
+     */
+    protected verificarPrimitivaSobreLiteral(acesso: AcessoMetodoOuPropriedade): void {
+        let primitivas: { [nome: string]: any } | undefined;
+        let nomeTipo: string = '';
+        if (acesso.objeto instanceof Literal && typeof acesso.objeto.valor === 'string') {
+            primitivas = primitivasTexto;
+            nomeTipo = 'texto';
+        } else if (acesso.objeto instanceof Vetor) {
+            primitivas = primitivasVetor;
+            nomeTipo = 'vetor';
+        }
+
+        if (!primitivas) {
+            return;
+        }
+
+        const nomeMetodo = acesso.simbolo.lexema;
+        if (nomeMetodo in primitivas || this.metodosDeclaradosEmExtensoes.has(nomeMetodo)) {
+            return;
+        }
+
+        this.aviso(
+            acesso.simbolo,
+            `Método de primitiva '${nomeMetodo}' não existe para o tipo ${nomeTipo}.`
+        );
+    }
+
     async visitarExpressaoDeChamada(expressao: Chamada) {
         for (const argumento of expressao.argumentos) {
             this.marcarVariaveisUsadasEmExpressao(argumento);
@@ -431,6 +471,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 this.marcarVariaveisUsadasEmExpressao(
                     entidadeChamadaAcessoMetodoOuPropriedade.objeto
                 );
+                this.verificarPrimitivaSobreLiteral(entidadeChamadaAcessoMetodoOuPropriedade);
                 await expressao.entidadeChamada.aceitar(this);
                 break;
             case ArgumentoReferenciaFuncao:
@@ -904,9 +945,11 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     ): Promise<void> {
         this.verificarVariavel(variavel);
         const variavelHipotetica = this.gerenciadorEscopos.buscar(variavel.simbolo.lexema);
+        // 'qualquer' é tipo indeterminado em análise: o valor pode ser lógico.
+        // 'logico' é outra grafia de 'lógico'.
         if (
             variavelHipotetica &&
-            variavelHipotetica.tipo !== 'lógico' &&
+            !['lógico', 'logico', 'qualquer'].includes(variavelHipotetica.tipo) &&
             !(variavelHipotetica.valor instanceof Binario) &&
             typeof variavelHipotetica.valor !== 'boolean'
         ) {
@@ -1913,6 +1956,16 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         this.classeAtualEmAnalise = null;
         this.atual = 0;
         this.diagnosticos = [];
+
+        // Métodos declarados em extensões podem ser chamados sobre literais.
+        this.metodosDeclaradosEmExtensoes = new Set<string>();
+        for (const declaracao of declaracoes) {
+            if (declaracao instanceof Extensao) {
+                for (const metodo of declaracao.metodos) {
+                    this.metodosDeclaradosEmExtensoes.add(metodo.simbolo.lexema);
+                }
+            }
+        }
 
         // Funções de nível superior podem ser chamadas antes de sua declaração
         // no arquivo (por exemplo, dentro de outra função ou de um método).

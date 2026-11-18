@@ -91,7 +91,7 @@ export const implementacaoParticao = (
     return Promise.resolve(tupla);
 };
 
-export default {
+const primitivas = {
     aparar: {
         tipoRetorno: 'texto',
         argumentos: [],
@@ -613,4 +613,20 @@ export default {
     },
 } as { [nome: string]: PrimitivaInterface };
 
+/**
+ * `contem` (e `contém`) é sinônimo de `inclui`.
+ */
+const sinonimoInclui = (nome: string): PrimitivaInterface => ({
+    ...primitivas.inclui,
+    assinaturaFormato: 'texto.' + nome + '(elemento: texto)',
+    documentacao:
+        '# `texto.' + nome + '(elemento)`\n\n' +
+        'Sinônimo de `texto.inclui(elemento)`. ' +
+        'Devolve `verdadeiro` se o elemento está contido, e `falso` em caso contrário.',
+    exemploCodigo: 'texto.' + nome + '(elemento)',
+});
 
+primitivas.contem = sinonimoInclui('contem');
+primitivas.contém = sinonimoInclui('contém');
+
+export default primitivas;

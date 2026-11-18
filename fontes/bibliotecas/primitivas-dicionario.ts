@@ -147,6 +147,51 @@ export default {
         exemploCodigo: 'dicionário.itens()',
     },
 
+    obter: {
+        tipoRetorno: 'qualquer',
+        argumentos: [
+            new InformacaoElementoSintatico(
+                'chave',
+                'qualquer',
+                true,
+                [],
+                'A chave a ser buscada no dicionário.'
+            ),
+            new InformacaoElementoSintatico(
+                'valorPadrao',
+                'qualquer',
+                false,
+                [],
+                'O valor devolvido quando a chave não existe. Se omitido, é `nulo`.'
+            ),
+        ],
+        implementacao: (
+            interpretador: InterpretadorInterface,
+            valor: object,
+            chave: any,
+            valorPadrao: any
+        ): Promise<any> =>
+            Promise.resolve(
+                Object.prototype.hasOwnProperty.call(valor, chave)
+                    ? valor[chave]
+                    : valorPadrao === undefined
+                      ? null
+                      : valorPadrao
+            ),
+        assinaturaFormato: 'dicionário.obter(chave: qualquer, valorPadrao?: qualquer)',
+        documentacao:
+            '# `dicionário.obter(chave, valorPadrao)`\n\n' +
+            'Devolve o valor associado à chave. Se a chave não existe, devolve `valorPadrao`, ou `nulo` se ele for omitido.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var d = {"a": 1}\n' +
+            'escreva(d.obter("a", 0)) // 1\n' +
+            'escreva(d.obter("b", 0)) // 0\n' +
+            'escreva(d.obter("b")) // nulo\n```' +
+            '\n\n## Formas de uso\n',
+        exemploCodigo: 'dicionário.obter("minhaChave", valorPadrao)',
+    },
+
     remover: {
         tipoRetorno: 'lógico',
         argumentos: [new InformacaoElementoSintatico('chave', 'texto')],

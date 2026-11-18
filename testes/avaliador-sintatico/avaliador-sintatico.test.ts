@@ -3018,4 +3018,139 @@ describe('Avaliador sintático', () => {
             expect(retorno.erros.length).toBeGreaterThan(0);
         });
     });
+
+    describe('Inferência de tipos (jsvm)', () => {
+        const analisar = async (linhas: string[]) => {
+            const lexador = new Lexador();
+            const avaliadorSintatico = new AvaliadorSintatico();
+            return avaliadorSintatico.analisar(lexador.mapear(linhas, -1), -1);
+        };
+
+        it('Primitiva de vetor sobre propriedade de classe do tipo vetor de classe', async () => {
+            const retorno = await analisar([
+                'classe Instrucao { }',
+                'classe Trecho {',
+                '    codigo: Instrucao[]',
+                '    construtor() { isto.codigo = [] }',
+                '    tamanho(): numero {',
+                '        const n = isto.codigo.tamanho()',
+                '        retorna n',
+                '    }',
+                '}',
+            ]);
+            expect(retorno.erros).toHaveLength(0);
+        });
+
+        it('Para cada sobre propriedade declarada de objeto de classe', async () => {
+            const retorno = await analisar([
+                'classe Bloco {',
+                '    itens: numero[]',
+                '    construtor() { isto.itens = [1, 2] }',
+                '}',
+                'funcao percorrer(b: Bloco) {',
+                '    para cada i em b.itens { escreva(i) }',
+                '}',
+            ]);
+            expect(retorno.erros).toHaveLength(0);
+        });
+
+        it('Para cada sobre propriedade herdada de superclasse', async () => {
+            const retorno = await analisar([
+                'classe Base {',
+                '    itens: numero[]',
+                '    construtor() { isto.itens = [1] }',
+                '}',
+                'classe Derivada herda Base {',
+                '    construtor() { super() }',
+                '}',
+                'funcao percorrer(d: Derivada) {',
+                '    para cada i em d.itens { escreva(i) }',
+                '}',
+            ]);
+            expect(retorno.erros).toHaveLength(0);
+        });
+
+        it('Para cada sobre propriedade existente apenas em subclasse tem tipo indeterminado', async () => {
+            const retorno = await analisar([
+                'classe abstrata No { }',
+                'classe Bloco herda No {',
+                '    itens: No[]',
+                '    construtor() { super() isto.itens = [] }',
+                '}',
+                'funcao percorrer(n: No) {',
+                '    para cada item em n.itens { escreva(item) }',
+                '}',
+            ]);
+            expect(retorno.erros).toHaveLength(0);
+        });
+
+        it('Para cada sobre objeto de classe continua rejeitado', async () => {
+            const retorno = await analisar([
+                'classe Bloco { }',
+                'funcao percorrer(b: Bloco) {',
+                '    para cada i em b { escreva(i) }',
+                '}',
+            ]);
+            expect(retorno.erros.length).toBeGreaterThan(0);
+        });
+
+        it('Tipo dicionario (sem acento) suporta acesso por índice', async () => {
+            const retorno = await analisar([
+                'var d: dicionario = {}',
+                'd[0] = 1',
+                'escreva(d[0])',
+                'para cada {chave, valor} em d { escreva(chave) }',
+            ]);
+            expect(retorno.erros).toHaveLength(0);
+        });
+
+        it('Chamada de membro sobre objeto do tipo qualquer', async () => {
+            const retorno = await analisar([
+                'const arquivos: qualquer = importar("arquivos")',
+                'const arquivo = arquivos.Arquivo("programa.js")',
+                'funcao abrir(modulo: qualquer) {',
+                '    const outro = modulo.Arquivo("programa.js")',
+                '    retorna outro',
+                '}',
+            ]);
+            expect(retorno.erros).toHaveLength(0);
+        });
+
+        it('Fatiamento de texto tem tipo texto; de vetor, tipo vetor', async () => {
+            const retorno = await analisar([
+                'var t: texto = "abcdef"',
+                'var s = t[1:3]',
+                'var v: numero[] = [1, 2, 3]',
+                'var w = v[0:2]',
+                'var u = "literal"[0:2]',
+            ]);
+            expect(retorno.erros).toHaveLength(0);
+            expect((retorno.declaracoes[1] as Var).tipo).toBe('texto');
+            expect((retorno.declaracoes[3] as Var).tipo).toBe('numero[]');
+            expect((retorno.declaracoes[4] as Var).tipo).toBe('texto');
+        });
+
+        it('Fatiamento de propriedade de texto acessada por isto tem tipo texto', async () => {
+            const retorno = await analisar([
+                'classe Lexer {',
+                '    src: texto',
+                '    construtor(src: texto) { isto.src = src }',
+                '    trecho(): texto {',
+                '        var s = isto.src[0:2]',
+                '        s = "console.log"',
+                '        retorna s',
+                '    }',
+                '}',
+            ]);
+            expect(retorno.erros).toHaveLength(0);
+            const classe = retorno.declaracoes[0] as Classe;
+            const metodo = classe.metodos.find((m) => m.simbolo.lexema === 'trecho') as FuncaoDeclaracao;
+            expect((metodo.funcao.corpo[0] as Var).tipo).toBe('texto');
+        });
+
+        it('Primitiva inexistente sobre tipo conhecido continua gerando erro', async () => {
+            const retorno = await analisar(['const t: texto = "a"', 'const r = t.metodoQueNaoExiste()']);
+            expect(retorno.erros.length).toBeGreaterThan(0);
+        });
+    });
 });

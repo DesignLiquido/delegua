@@ -150,6 +150,13 @@ export class InterpretadorBase implements InterpretadorInterface {
     funcaoVerificarIteracao: (() => Promise<void>) | undefined = undefined;
     emDeclaracaoTente: boolean = false;
 
+    /**
+     * Erros já registrados em `this.erros`. Um erro é registrado uma única vez,
+     * no ponto mais interno em que é capturado, e depois propagado até o escopo
+     * raiz (ou até um `tente`).
+     */
+    protected errosRegistrados: WeakSet<object> = new WeakSet<object>();
+
     pilhaEscoposExecucao: PilhaEscoposExecucaoInterface;
 
     // typeName → methodName → DeleguaFuncao
@@ -889,7 +896,35 @@ export class InterpretadorBase implements InterpretadorInterface {
             return BigInt(esquerda) == direita;
         }
 
+        // Nomes de tipos devolvidos por `tipo de` são acentuados (ex.: 'lógico'),
+        // mas também podem ser escritos sem acento (ex.: 'logico').
+        if (typeof esquerda === 'string' && typeof direita === 'string' && esquerda !== direita) {
+            return this.normalizarNomeTipo(esquerda) === this.normalizarNomeTipo(direita);
+        }
+
         return esquerda === direita;
+    }
+
+    /**
+     * Grafias sem acento de nomes de tipos de Delégua.
+     */
+    protected static readonly grafiasNomesTipos: { [nomeAcentuado: string]: string } = {
+        dicionário: 'dicionario',
+        função: 'funcao',
+        lógico: 'logico',
+        método: 'metodo',
+        módulo: 'modulo',
+        número: 'numero',
+    };
+
+    /**
+     * Normaliza um nome de tipo acentuado para a grafia sem acento.
+     * Textos que não são nomes de tipos são devolvidos sem alteração.
+     * @param texto O texto a normalizar.
+     * @returns O texto normalizado.
+     */
+    protected normalizarNomeTipo(texto: string): string {
+        return InterpretadorBase.grafiasNomesTipos[texto] ?? texto;
     }
 
     /**
@@ -1410,7 +1445,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                     new ErroEmTempoDeExecucao(
                         (expressao as any).parentese,
                         'Chamada de função ou método inexistente: ' +
-                            String(expressao.entidadeChamada),
+                            this.nomeEntidadeChamada(expressao.entidadeChamada),
                         expressao.linha
                     )
                 );
@@ -1511,15 +1546,8 @@ export class InterpretadorBase implements InterpretadorInterface {
                         simboloChamada
                     );
                 } catch (erro: any) {
-                    if (this.emDeclaracaoTente) {
-                        return Promise.reject(erro);
-                    }
-                    this.erros.push({
-                        erroInterno: erro,
-                        linha: expressao.linha,
-                        hashArquivo: expressao.hashArquivo,
-                    });
-                    return;
+                    this.registrarErro(erro, expressao.linha, expressao.hashArquivo);
+                    return Promise.reject(erro);
                 }
             }
 
@@ -1574,12 +1602,60 @@ export class InterpretadorBase implements InterpretadorInterface {
                 )
             );
         } catch (erro: any) {
-            this.erros.push({
-                erroInterno: erro,
-                linha: expressao.linha,
-                hashArquivo: expressao.hashArquivo,
-            });
+            // O erro precisa ser propagado: assim, interrompe a execução e pode
+            // ser capturado por `tente ... pegue`. Registrá-lo aqui e continuar
+            // faria a execução seguir com um valor nulo.
+            throw erro;
         }
+    }
+
+    /**
+     * Registra um erro em tempo de execução, uma única vez.
+     * Erros dentro de `tente` não são registrados, porque serão tratados por `pegue`
+     * (ou registrados por um escopo externo, se nenhum `pegue` os tratar).
+     * @param erro O erro.
+     * @param linha A linha em que o erro ocorreu.
+     * @param hashArquivo O hash do arquivo em que o erro ocorreu.
+     * @param ehEscopoRaiz Se o registro ocorre no escopo raiz. Erros primitivos (ex.: textos),
+     *                     que não podem ser marcados como registrados, só são registrados no escopo raiz.
+     */
+    registrarErro(erro: any, linha: number, hashArquivo: number, ehEscopoRaiz = false): void {
+        if (this.emDeclaracaoTente) {
+            return;
+        }
+
+        if (erro !== null && typeof erro === 'object') {
+            if (this.errosRegistrados.has(erro)) {
+                return;
+            }
+            this.errosRegistrados.add(erro);
+        } else if (!ehEscopoRaiz) {
+            return;
+        }
+
+        this.erros.push({
+            erroInterno: erro,
+            linha: linha,
+            hashArquivo: hashArquivo,
+        });
+    }
+
+    /**
+     * Obtém um nome legível para a entidade de uma chamada, para mensagens de erro.
+     * @param entidadeChamada A entidade chamada.
+     * @returns O nome da função ou do método chamado.
+     */
+    protected nomeEntidadeChamada(entidadeChamada: ConstrutoInterface): string {
+        const entidade = entidadeChamada as any;
+        if (typeof entidade?.nomeMetodo === 'string') {
+            return entidade.nomeMetodo;
+        }
+
+        if (entidade?.simbolo?.lexema) {
+            return entidade.simbolo.lexema;
+        }
+
+        return entidadeChamada?.constructor?.name || String(entidadeChamada);
     }
 
     /** Gancho para linguagens definirem lógica de escopo (Pituguês LEGB) ou de memória (Delégua) */
@@ -1845,11 +1921,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                     retornoExecucao = undefined;
                 }
             } catch (erro: any) {
-                this.erros.push({
-                    erroInterno: erro,
-                    linha: declaracao.linha,
-                    hashArquivo: declaracao.hashArquivo,
-                });
+                this.registrarErro(erro, declaracao.linha, declaracao.hashArquivo);
                 return Promise.reject(erro);
             }
 
@@ -1935,11 +2007,7 @@ export class InterpretadorBase implements InterpretadorInterface {
 
                 declaracao.posicaoAtual++;
             } catch (erro: any) {
-                this.erros.push({
-                    erroInterno: erro,
-                    linha: declaracao.linha,
-                    hashArquivo: declaracao.hashArquivo,
-                });
+                this.registrarErro(erro, declaracao.linha, declaracao.hashArquivo);
                 return Promise.reject(erro);
             }
         }
@@ -2005,11 +2073,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                     retornoExecucao = undefined;
                 }
             } catch (erro: any) {
-                this.erros.push({
-                    erroInterno: erro,
-                    linha: declaracao.linha,
-                    hashArquivo: declaracao.hashArquivo,
-                });
+                this.registrarErro(erro, declaracao.linha, declaracao.hashArquivo);
                 return Promise.reject(erro);
             }
         }
@@ -2046,11 +2110,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                 return await this.executarBloco(caminhoPadrao.declaracoes);
             }
         } catch (erro: any) {
-            this.erros.push({
-                erroInterno: erro,
-                linha: declaracao.linha,
-                hashArquivo: declaracao.hashArquivo,
-            });
+            this.registrarErro(erro, declaracao.linha, declaracao.hashArquivo);
 
             throw erro;
         }
@@ -2072,11 +2132,7 @@ export class InterpretadorBase implements InterpretadorInterface {
                     retornoExecucao = undefined;
                 }
             } catch (erro: any) {
-                this.erros.push({
-                    erroInterno: erro,
-                    linha: declaracao.linha,
-                    hashArquivo: declaracao.hashArquivo,
-                });
+                this.registrarErro(erro, declaracao.linha, declaracao.hashArquivo);
                 return Promise.reject(erro);
             }
         } while (
@@ -2206,11 +2262,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             this.funcaoDeRetornoMesmaLinha?.(formatoTexto);
             return null;
         } catch (erro: any) {
-            this.erros.push({
-                erroInterno: erro,
-                linha: declaracao.linha,
-                hashArquivo: declaracao.hashArquivo,
-            });
+            this.registrarErro(erro, declaracao.linha, declaracao.hashArquivo);
+            return Promise.reject(erro);
         }
     }
 
@@ -2226,11 +2279,8 @@ export class InterpretadorBase implements InterpretadorInterface {
             this.funcaoDeRetorno?.(formatoTexto);
             return null;
         } catch (erro: any) {
-            this.erros.push({
-                erroInterno: erro,
-                linha: declaracao.linha,
-                hashArquivo: declaracao.hashArquivo,
-            });
+            this.registrarErro(erro, declaracao.linha, declaracao.hashArquivo);
+            return Promise.reject(erro);
         }
     }
 
@@ -3332,6 +3382,8 @@ export class InterpretadorBase implements InterpretadorInterface {
      */
     executarUltimoEscopo(manterAmbiente = false): any {
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
+        // O escopo de nível superior fica logo acima do escopo global.
+        const ehEscopoRaiz = this.pilhaEscoposExecucao.elementos() <= 2;
         let retornoExecucao: any;
 
         // Substitui o `finally` original: precisa rodar em toda saída (sucesso, erro síncrono
@@ -3352,12 +3404,11 @@ export class InterpretadorBase implements InterpretadorInterface {
         const tratarErro = (erro: any): any => {
             try {
                 const declaracaoAtual = ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual];
-                if (!this.emDeclaracaoTente) {
-                    this.erros.push({
-                        erroInterno: erro,
-                        linha: declaracaoAtual.linha,
-                        hashArquivo: declaracaoAtual.hashArquivo,
-                    });
+                this.registrarErro(erro, declaracaoAtual?.linha, declaracaoAtual?.hashArquivo, ehEscopoRaiz);
+                // Apenas o escopo raiz encerra a execução com o erro registrado.
+                // Escopos internos (blocos, laços, corpos de funções) propagam o erro,
+                // para que a execução não continue após a falha.
+                if (ehEscopoRaiz && !this.emDeclaracaoTente) {
                     return undefined;
                 }
                 return Promise.reject(erro);
@@ -3424,6 +3475,7 @@ export class InterpretadorBase implements InterpretadorInterface {
         manterAmbiente = false
     ): Promise<RetornoInterpretadorInterface> {
         this.erros = [];
+        this.errosRegistrados = new WeakSet<object>();
         this.emDeclaracaoTente = false;
         this.linhaDeclaracaoAtual = -1;
         this.hashArquivoDeclaracaoAtual = -1;

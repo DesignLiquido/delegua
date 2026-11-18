@@ -105,7 +105,7 @@ import { inferirTipoVariavel, TipoInferencia } from '../inferenciador';
 import { PilhaEscopos } from './pilha-escopos';
 import { InformacaoEscopo } from './informacao-escopo';
 import { InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
-import { buscarRetornos, registrarPrimitiva, unificarGrafiasNumero } from './comum';
+import { buscarRetornos, ehTipoDicionario, registrarPrimitiva, unificarGrafiasNumero } from './comum';
 import { MontaoTipos } from './montao-tipos';
 import { ElementoMontaoTipos } from './elemento-montao-tipos';
 import { ClasseDeModulo } from '../interpretador/estruturas';
@@ -680,7 +680,7 @@ export class AvaliadorSintatico
             'Espero fechamento de colchetes após condição.'
         );
 
-        const tipoVetor = (vetor as any).tipo as string;
+        const tipoVetor = this.resolverTipoIteravel(vetor) || 'qualquer';
         if (!tipoVetor.endsWith('[]') && !['qualquer', 'vetor'].includes(tipoVetor)) {
             throw this.erro(
                 localizacaoVetor,
@@ -1159,6 +1159,44 @@ export class AvaliadorSintatico
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
     }
 
+    /**
+     * Resolve o tipo de uma coleção que está sendo fatiada (ex.: `colecao[1:3]`).
+     * @param colecao O construto da coleção.
+     * @returns O tipo da coleção, se conhecido.
+     */
+    protected resolverTipoColecaoFatiada(colecao: ConstrutoInterface): string | undefined {
+        if (colecao instanceof Variavel) {
+            try {
+                return this.pilhaEscopos.obterTipoVariavelPorNome(colecao.simbolo.lexema);
+            } catch (erro: any) {
+                return 'qualquer';
+            }
+        }
+
+        if (colecao instanceof AcessoMetodoOuPropriedade) {
+            if (colecao.objeto instanceof Isto) {
+                return this.resolverTipoObjetoAcessoMembro(colecao);
+            }
+
+            // Por convenção, o tipo de `AcessoMetodoOuPropriedade` é o do objeto acessado.
+            const tipoObjeto = this.resolverTipoObjetoAcessoMembro(colecao.objeto);
+            if (tipoObjeto && this.tiposDefinidosEmCodigo[tipoObjeto] instanceof Classe) {
+                return this.buscarTipoMembroClasseDefinidaEmCodigo(
+                    tipoObjeto,
+                    colecao.simbolo.lexema
+                );
+            }
+
+            return 'qualquer';
+        }
+
+        if (colecao instanceof Literal && typeof colecao.valor === 'string') {
+            return 'texto';
+        }
+
+        return colecao.tipo;
+    }
+
     protected resolverTipoAcessoIndiceVariavel(expressaoAnterior: ConstrutoInterface): string {
         let identificadorAcessado: string = '';
         switch (expressaoAnterior.constructor) {
@@ -1183,9 +1221,8 @@ export class AvaliadorSintatico
 
         if (
             !tipoIdentificadorCorrespondente.endsWith('[]') &&
-            !['dicionário', 'qualquer', 'texto', 'tupla', 'vetor'].includes(
-                tipoIdentificadorCorrespondente
-            )
+            !ehTipoDicionario(tipoIdentificadorCorrespondente) &&
+            !['qualquer', 'texto', 'tupla', 'vetor'].includes(tipoIdentificadorCorrespondente)
         ) {
             throw this.erro(
                 this.simbolos[this.atual],
@@ -1294,7 +1331,7 @@ export class AvaliadorSintatico
                 let tipoInferido = expressaoAnterior.tipo;
                 // Se não for um dicionário anônimo (ou seja, ser variável ou constante com nome)
                 if (
-                    expressaoAnterior.tipo === 'dicionário' &&
+                    ehTipoDicionario(expressaoAnterior.tipo) &&
                     expressaoAnterior.constructor !== Dicionario
                 ) {
                     const elementoMontaoTipos = this.resolverElementoMontao(expressaoAnterior);
@@ -1350,8 +1387,16 @@ export class AvaliadorSintatico
                         "Esperado ']' após intervalo."
                     );
 
-                    // Fatiamento sempre retorna uma coleção do mesmo tipo de elemento.
-                    const tipoIntervalo = tipoAcesso + '[]';
+                    // Fatiamento retorna uma coleção do mesmo tipo de elemento.
+                    // Fatiar um texto resulta em texto. Se o tipo da coleção é
+                    // indeterminado, o tipo do fatiamento também é.
+                    const tipoColecao = this.resolverTipoColecaoFatiada(expressaoAnterior);
+                    let tipoIntervalo = tipoAcesso + '[]';
+                    if (tipoColecao === 'texto') {
+                        tipoIntervalo = 'texto';
+                    } else if (!tipoColecao || tipoColecao === 'qualquer') {
+                        tipoIntervalo = 'qualquer';
+                    }
 
                     const acessoIntervalo = new AcessoIntervaloVariavel(
                         this.hashArquivo,
@@ -2941,7 +2986,7 @@ export class AvaliadorSintatico
         }
 
         const tipoDicionario = (dicionario as any).tipo as string;
-        if (tipoDicionario !== 'dicionário') {
+        if (!ehTipoDicionario(tipoDicionario) && tipoDicionario !== 'qualquer') {
             throw this.erro(
                 simboloPara,
                 `Variável ou constante em 'para cada' não é um dicionário. Tipo resolvido: ${tipoDicionario}.`
@@ -3000,16 +3045,17 @@ export class AvaliadorSintatico
         let tipoVetor: string;
         if (
             vetorOuDicionario.constructor === AcessoIndiceVariavel &&
-            (vetorOuDicionario as AcessoIndiceVariavel).entidadeChamada.tipo === 'dicionário'
+            ehTipoDicionario((vetorOuDicionario as AcessoIndiceVariavel).entidadeChamada.tipo)
         ) {
             tipoVetor = 'qualquer[]';
         } else {
-            tipoVetor = (vetorOuDicionario as any).tipo as string;
+            tipoVetor = this.resolverTipoIteravel(vetorOuDicionario) || 'qualquer';
         }
 
         if (
             !tipoVetor.endsWith('[]') &&
-            !['dicionário', 'qualquer', 'texto', 'vetor'].includes(tipoVetor)
+            !ehTipoDicionario(tipoVetor) &&
+            !['qualquer', 'texto', 'vetor'].includes(tipoVetor)
         ) {
             throw this.erro(
                 simboloPara,
@@ -3453,6 +3499,74 @@ export class AvaliadorSintatico
         return objeto.tipo;
     }
 
+    /**
+     * Busca um membro (método ou propriedade) em uma classe definida em código,
+     * percorrendo também as superclasses.
+     * @param nomeClasse O nome da classe.
+     * @param nomeMembro O nome do membro.
+     * @returns O tipo do membro, ou `undefined` se a classe ou o membro não forem encontrados.
+     */
+    protected buscarTipoMembroClasseDefinidaEmCodigo(
+        nomeClasse: string,
+        nomeMembro: string
+    ): string | undefined {
+        const visitadas = new Set<string>();
+        let nomeAtual: string | undefined = nomeClasse;
+        while (nomeAtual && !visitadas.has(nomeAtual)) {
+            visitadas.add(nomeAtual);
+            const classeDefinida = this.tiposDefinidosEmCodigo[nomeAtual];
+            if (!(classeDefinida instanceof Classe)) {
+                return undefined;
+            }
+
+            const metodo = classeDefinida.metodos?.find((m) => m.simbolo.lexema === nomeMembro);
+            if (metodo) {
+                return metodo.tipo || 'qualquer';
+            }
+
+            const propriedade = classeDefinida.propriedades?.find(
+                (p) => p.nome.lexema === nomeMembro
+            );
+            if (propriedade) {
+                return propriedade.tipo || 'qualquer';
+            }
+
+            const superClasse = classeDefinida.superClasses?.[0];
+            nomeAtual = superClasse?.simbolo?.lexema;
+        }
+
+        return undefined;
+    }
+
+    /**
+     * Resolve o tipo de um iterável de `para cada` ou de lista de compreensão.
+     * Por convenção, `AcessoMetodoOuPropriedade.tipo` carrega o tipo do objeto
+     * acessado, e não do membro. Para objetos de classes definidas em código,
+     * o tipo correto é o do membro: `qualquer` se o membro não é declarado
+     * (por exemplo, propriedade existente apenas em uma subclasse).
+     * @param iteravel O construto iterável.
+     * @returns O tipo do iterável.
+     */
+    protected resolverTipoIteravel(iteravel: ConstrutoInterface): string {
+        if (iteravel instanceof AcessoMetodoOuPropriedade) {
+            const tipoObjeto = this.resolverTipoObjetoAcessoMembro(iteravel.objeto);
+            if (tipoObjeto && this.tiposDefinidosEmCodigo[tipoObjeto] instanceof Classe) {
+                return (
+                    this.buscarTipoMembroClasseDefinidaEmCodigo(
+                        tipoObjeto,
+                        iteravel.simbolo.lexema
+                    ) || 'qualquer'
+                );
+            }
+
+            if (iteravel.objeto instanceof Isto) {
+                return this.resolverTipoObjetoAcessoMembro(iteravel) || 'qualquer';
+            }
+        }
+
+        return (iteravel as any).tipo as string;
+    }
+
     protected logicaComumInferenciaTiposAcessoMetodoOuPropriedade(
         entidadeChamada: AcessoMetodoOuPropriedade
     ): string {
@@ -3461,28 +3575,22 @@ export class AvaliadorSintatico
         // Isso ocorre quando a importação é feita de uma biblioteca Node.js.
         // Nesse caso, o tipo de `entidadeChamada.objeto` começa com uma letra maiúscula.
         const tipoObjetoResolvido = this.resolverTipoObjetoAcessoMembro(entidadeChamada.objeto);
-        if (tipoObjetoResolvido && tipoObjetoResolvido.match(/^[A-Z]/)) {
+        // Vetores de classes (ex.: `Classe[]`) são vetores: a inferência segue pelas primitivas.
+        if (
+            tipoObjetoResolvido &&
+            tipoObjetoResolvido.match(/^[A-Z]/) &&
+            !tipoObjetoResolvido.endsWith('[]')
+        ) {
             const tipoObjeto = tipoObjetoResolvido;
 
             // Classe definida em código (local ou importada de arquivo .delegua) tem precedência.
-            if (tipoObjeto in this.tiposDefinidosEmCodigo) {
-                const classeDefinida = this.tiposDefinidosEmCodigo[tipoObjeto];
-                if (classeDefinida instanceof Classe) {
-                    const nomeMembro = entidadeChamada.simbolo.lexema;
-                    const metodo = classeDefinida.metodos?.find(
-                        (m) => m.simbolo.lexema === nomeMembro
-                    );
-                    if (metodo) {
-                        return metodo.tipo || 'qualquer';
-                    }
-                    const propriedade = classeDefinida.propriedades?.find(
-                        (p) => p.nome.lexema === nomeMembro
-                    );
-                    if (propriedade) {
-                        return propriedade.tipo || 'qualquer';
-                    }
-                    return 'qualquer';
-                }
+            if (this.tiposDefinidosEmCodigo[tipoObjeto] instanceof Classe) {
+                return (
+                    this.buscarTipoMembroClasseDefinidaEmCodigo(
+                        tipoObjeto,
+                        entidadeChamada.simbolo.lexema
+                    ) || 'qualquer'
+                );
             }
 
             const tipoCorrespondente = this.tiposDefinidosPorBibliotecas[tipoObjeto];
@@ -3537,6 +3645,15 @@ export class AvaliadorSintatico
             ) {
                 return this.primitivasConhecidas[primitiva][entidadeChamada.simbolo.lexema].tipo;
             }
+        }
+
+        // Objeto de tipo indeterminado (`qualquer`, módulo importado etc.): o membro
+        // pode existir em tempo de execução, então não há como afirmar que não existe.
+        if (
+            !tipoObjetoResolvido ||
+            ['qualquer', 'módulo', 'modulo'].includes(tipoObjetoResolvido)
+        ) {
+            return 'qualquer';
         }
 
         throw new ErroAvaliadorSintatico(
@@ -3783,7 +3900,7 @@ export class AvaliadorSintatico
 
                 const inicializador = inicializadores[indice];
 
-                const informacaoSintatica = tipo === 'dicionário'
+                const informacaoSintatica = ehTipoDicionario(tipo)
                     ? this.resolverInformacaoElementoSintaticoDeDicionario(inicializador as Dicionario)
                     : new InformacaoElementoSintatico(identificador.lexema, tipoInferido);
 
@@ -3919,7 +4036,7 @@ export class AvaliadorSintatico
                 inicializadores[indice] = this.garantirTipoReal(inicializadores[indice]);
             }
 
-            if (tipo !== 'dicionário') {
+            if (!ehTipoDicionario(tipo)) {
                 this.pilhaEscopos.definirInformacoesVariavel(
                     identificador.lexema,
                     new InformacaoElementoSintatico(identificador.lexema, tipo)
