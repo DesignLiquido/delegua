@@ -48,7 +48,7 @@ import { RetornoQuebra } from '../quebras';
 import { buscarRetornos } from '../avaliador-sintatico/comum';
 import { MicroAvaliadorSintatico } from '../avaliador-sintatico/micro-avaliador-sintatico';
 import { MicroLexador } from '../lexador/micro-lexador';
-import { AnalisadorSemanticoBase } from './analisador-semantico-base';
+import { AnalisadorSemanticoBase, tiposNumericosPrimitivos } from './analisador-semantico-base';
 import { EscopoVariavel } from './escopo-variavel';
 import { FuncaoHipoteticaInterface } from './funcao-hipotetica-interface';
 import { GerenciadorEscopos } from './gerenciador-escopos';
@@ -198,8 +198,8 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                     );
                 }
                 if (
-                    ['inteiro', 'número', 'real'].includes(declaracao.tipo) &&
-                    !['inteiro', 'número', 'real'].includes(literal.tipo)
+                    tiposNumericosPrimitivos.includes(declaracao.tipo) &&
+                    !tiposNumericosPrimitivos.includes(literal.tipo)
                 ) {
                     this.erro(
                         declaracao.simbolo,
@@ -298,9 +298,9 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                     simboloFuncao,
                     `O valor passado para o parâmetro '${parametro.nome.lexema}' (${parametro.tipoDado}) é diferente do esperado pela função (${tipoArgumento}).`
                 );
-            } else if (['inteiro', 'número', 'real'].includes(parametro.tipoDado)) {
+            } else if (tiposNumericosPrimitivos.includes(parametro.tipoDado)) {
                 // Delégua pode trabalhar com conversões implícitas entre tipos numéricos.
-                if (!['inteiro', 'número', 'real'].includes(tipoArgumento)) {
+                if (!tiposNumericosPrimitivos.includes(tipoArgumento)) {
                     this.erro(
                         simboloFuncao,
                         `O valor passado para o parâmetro '${parametro.nome.lexema}' (${parametro.tipoDado}) é diferente do esperado pela função (${tipoArgumento}).`
@@ -545,7 +545,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                         }
                     }
                     if (valorLiteral === 'number') {
-                        if (!['inteiro', 'número', 'real'].includes(valor.tipo)) {
+                        if (!tiposNumericosPrimitivos.includes(valor.tipo)) {
                             this.erro(simboloAlvo, `Esperado tipo '${valor.tipo}' na atribuição.`);
                             return Promise.resolve();
                         }
@@ -636,7 +636,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 switch (condicao.constructor) {
                     case Literal:
                         const condicaoLiteral = condicao as Literal;
-                        const tiposNumericos = ['inteiro', 'número', 'real'];
+                        const tiposNumericos = tiposNumericosPrimitivos;
                         const ambosSaoNumericos =
                             tiposNumericos.includes(condicaoLiteral.tipo) &&
                             tiposNumericos.includes(tipo);
@@ -988,7 +988,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     private verificarTiposOperandos(binario: Binario): void {
         const tipoEsquerda = this.obterTipoExpressao(binario.esquerda);
         const tipoDireita = this.obterTipoExpressao(binario.direita);
-        const tiposNumericos = ['inteiro', 'número', 'real'];
+        const tiposNumericos = tiposNumericosPrimitivos;
 
         // Verifica se algum operando é do tipo texto em operação aritmética
         if (tipoEsquerda === 'texto' || tipoDireita === 'texto') {
@@ -1026,7 +1026,15 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             }
         }
 
-        if (tipoEsquerda && tipoDireita && tipoEsquerda !== tipoDireita) {
+        // 'qualquer' indica tipo não determinado em análise: não há como afirmar
+        // que os tipos são diferentes.
+        if (
+            tipoEsquerda &&
+            tipoDireita &&
+            tipoEsquerda !== tipoDireita &&
+            tipoEsquerda !== 'qualquer' &&
+            tipoDireita !== 'qualquer'
+        ) {
             // Verificar se são tipos numéricos compatíveis
             const ambosNumericos =
                 tiposNumericos.includes(tipoEsquerda) && tiposNumericos.includes(tipoDireita);
@@ -1046,7 +1054,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     private verificarTiposComparacao(binario: Binario): void {
         const tipoEsquerda = this.obterTipoExpressao(binario.esquerda);
         const tipoDireita = this.obterTipoExpressao(binario.direita);
-        const tiposNumericos = ['inteiro', 'número', 'real'];
+        const tiposNumericos = tiposNumericosPrimitivos;
 
         if (!tipoEsquerda || !tipoDireita) {
             return;
@@ -1448,7 +1456,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                                     }
                                     if (
                                         tipoValor === 'number' &&
-                                        !['inteiro', 'real', 'número'].includes(tipoRetornoFuncao)
+                                        !tiposNumericosPrimitivos.includes(tipoRetornoFuncao)
                                     ) {
                                         this.erro(
                                             declaracao.simbolo,
@@ -1827,7 +1835,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                         }
                         if (
                             tipoValor === 'number' &&
-                            !['inteiro', 'real', 'número'].includes(tipoRetornoFuncao)
+                            !tiposNumericosPrimitivos.includes(tipoRetornoFuncao)
                         ) {
                             this.erro(
                                 declaracao.simbolo,
@@ -1905,6 +1913,16 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         this.classeAtualEmAnalise = null;
         this.atual = 0;
         this.diagnosticos = [];
+
+        // Funções de nível superior podem ser chamadas antes de sua declaração
+        // no arquivo (por exemplo, dentro de outra função ou de um método).
+        for (const declaracao of declaracoes) {
+            if (declaracao instanceof FuncaoDeclaracao) {
+                this.funcoes[declaracao.simbolo.lexema] = {
+                    valor: declaracao.funcao,
+                };
+            }
+        }
 
         try {
             while (this.atual < declaracoes.length) {

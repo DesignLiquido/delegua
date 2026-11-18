@@ -2583,6 +2583,56 @@ describe('Interpretador', () => {
             });
 
             describe('Laços de repetição', () => {
+                describe('Corpo sem chaves', () => {
+                    const executar = async (codigo: string[]) => {
+                        const retornoLexador = lexador.mapear(codigo, -1);
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+                        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                    };
+
+                    it('para tradicional com uma única declaração', async () => {
+                        await executar([
+                            'var soma = 0',
+                            'para (var i = 1; i <= 4; i++) soma += i',
+                            'escreva(soma)',
+                        ]);
+                        expect(_saidas).toEqual(['10']);
+                    });
+
+                    it('para tradicional com atribuição dentro de função', async () => {
+                        await executar([
+                            'funcao raiz(x: numero): numero {',
+                            '    var y: numero = x',
+                            '    para (var i = 0; i < 25; i++) y = (y + x / y) / 2',
+                            '    retorna y',
+                            '}',
+                            'escreva(raiz(16))',
+                        ]);
+                        expect(_saidas).toEqual(['4']);
+                    });
+
+                    it('enquanto com uma única declaração', async () => {
+                        await executar(['var a = 0', 'enquanto (a < 5) a++', 'escreva(a)']);
+                        expect(_saidas).toEqual(['5']);
+                    });
+
+                    it('para cada com uma única declaração', async () => {
+                        await executar(['para cada x em [1, 2, 3] escreva(x)']);
+                        expect(_saidas).toEqual(['1', '2', '3']);
+                    });
+
+                    it('sustar em corpo sem chaves', async () => {
+                        await executar([
+                            'var i = 0',
+                            'enquanto (verdadeiro) sustar',
+                            'escreva("fim")',
+                        ]);
+                        expect(_saidas).toEqual(['fim']);
+                    });
+                });
+
                 it('enquanto', async () => {
                     const retornoLexador = lexador.mapear(['var a = 0;\nenquanto (a < 10) { a = a + 1 }'], -1);
                     const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);

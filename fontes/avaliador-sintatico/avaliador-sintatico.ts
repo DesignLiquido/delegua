@@ -105,7 +105,7 @@ import { inferirTipoVariavel, TipoInferencia } from '../inferenciador';
 import { PilhaEscopos } from './pilha-escopos';
 import { InformacaoEscopo } from './informacao-escopo';
 import { InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
-import { buscarRetornos, registrarPrimitiva } from './comum';
+import { buscarRetornos, registrarPrimitiva, unificarGrafiasNumero } from './comum';
 import { MontaoTipos } from './montao-tipos';
 import { ElementoMontaoTipos } from './elemento-montao-tipos';
 import { ClasseDeModulo } from '../interpretador/estruturas';
@@ -190,6 +190,7 @@ export class AvaliadorSintatico
     performance: boolean;
     superclasseAtual: string | undefined;
     metodosClasseAtualEmAnalise: FuncaoDeclaracao[] | undefined;
+    propriedadesClasseAtualEmAnalise: PropriedadeClasse[] | undefined;
     intuirTipoQualquerParaIdentificadores: boolean;
     emAjuda: boolean;
 
@@ -2463,6 +2464,33 @@ export class AvaliadorSintatico
         return declaracoes;
     }
 
+    /**
+     * Resolve o corpo de um laço de repetição. Conforme a gramática, o corpo
+     * pode ser um bloco (`{ ... }`) ou uma única declaração, como em
+     * `para (var i = 0; i < 10; i++) x += i`. Uma declaração única é
+     * envolvida em um bloco, para que o restante do pipeline receba
+     * sempre um `Bloco`.
+     */
+    protected async corpoLacoRepeticao(): Promise<Bloco> {
+        if (this.verificarTipoSimboloAtual(tiposDeSimbolos.CHAVE_ESQUERDA)) {
+            return await this.declaracaoBloco();
+        }
+
+        const simboloInicio = this.simbolos[this.atual];
+        this.pilhaEscopos.empilhar(new InformacaoEscopo());
+        try {
+            const retornoDeclaracao = await this.resolverDeclaracaoForaDeBloco();
+            const declaracoes: Declaracao[] = Array.isArray(retornoDeclaracao)
+                ? retornoDeclaracao
+                : retornoDeclaracao != null
+                  ? [retornoDeclaracao as Declaracao]
+                  : [];
+            return new Bloco(this.hashArquivo, Number(simboloInicio.linha), declaracoes);
+        } finally {
+            this.pilhaEscopos.removerUltimo();
+        }
+    }
+
     protected declaracaoComentarioMultilinha(): Comentario {
         let simboloComentario: SimboloInterface;
         const conteudos: string[] = [];
@@ -2504,7 +2532,7 @@ export class AvaliadorSintatico
 
     protected async logicaComumEnquanto() {
         const condicao = await this.expressao();
-        const corpo: Bloco = await this.declaracaoBloco();
+        const corpo: Bloco = await this.corpoLacoRepeticao();
 
         return {
             condicao,
@@ -2739,7 +2767,7 @@ export class AvaliadorSintatico
     }
 
     protected async logicaComumFazer() {
-        const caminhoFazer: Bloco = await this.declaracaoBloco();
+        const caminhoFazer: Bloco = await this.corpoLacoRepeticao();
         this.consumir(
             tiposDeSimbolos.ENQUANTO,
             "Esperado declaração do 'enquanto' após o escopo do 'fazer'."
@@ -2928,7 +2956,7 @@ export class AvaliadorSintatico
             nomeVariavelValor.lexema,
             new InformacaoElementoSintatico(nomeVariavelValor.lexema, 'qualquer')
         );
-        const corpo: Bloco = await this.declaracaoBloco();
+        const corpo: Bloco = await this.corpoLacoRepeticao();
 
         return {
             nomeVariavelChave,
@@ -2998,7 +3026,7 @@ export class AvaliadorSintatico
             nomeVariavelIteracao.lexema,
             new InformacaoElementoSintatico(nomeVariavelIteracao.lexema, tipoVariavelIteracao)
         );
-        const corpo: Bloco = await this.declaracaoBloco();
+        const corpo: Bloco = await this.corpoLacoRepeticao();
 
         return {
             variavelIteracao,
@@ -3074,7 +3102,9 @@ export class AvaliadorSintatico
             );
         }
 
-        const corpo: Bloco = await this.declaracaoBloco();
+        const corpo: Bloco = comParenteses
+            ? await this.corpoLacoRepeticao()
+            : await this.declaracaoBloco();
 
         return {
             inicializador,
@@ -3399,6 +3429,30 @@ export class AvaliadorSintatico
         return retornos;
     }
 
+    /**
+     * Resolve o tipo do objeto de um acesso a membro. Para `isto.propriedade`,
+     * usa o tipo declarado da propriedade na classe em análise, já que o
+     * construto em si não carrega essa informação.
+     * @param objeto O objeto do acesso a membro.
+     * @returns O tipo do objeto, se conhecido.
+     */
+    protected resolverTipoObjetoAcessoMembro(objeto: ConstrutoInterface): string | undefined {
+        if (
+            objeto instanceof AcessoMetodoOuPropriedade &&
+            objeto.objeto instanceof Isto &&
+            this.propriedadesClasseAtualEmAnalise
+        ) {
+            const propriedade = this.propriedadesClasseAtualEmAnalise.find(
+                (p) => p.nome.lexema === objeto.simbolo.lexema
+            );
+            if (propriedade && propriedade.tipo) {
+                return propriedade.tipo;
+            }
+        }
+
+        return objeto.tipo;
+    }
+
     protected logicaComumInferenciaTiposAcessoMetodoOuPropriedade(
         entidadeChamada: AcessoMetodoOuPropriedade
     ): string {
@@ -3406,8 +3460,9 @@ export class AvaliadorSintatico
         // Uma delas é a variável/constante ser uma classe padrão.
         // Isso ocorre quando a importação é feita de uma biblioteca Node.js.
         // Nesse caso, o tipo de `entidadeChamada.objeto` começa com uma letra maiúscula.
-        if (entidadeChamada.objeto.tipo && entidadeChamada.objeto.tipo.match(/^[A-Z]/)) {
-            const tipoObjeto = entidadeChamada.objeto.tipo;
+        const tipoObjetoResolvido = this.resolverTipoObjetoAcessoMembro(entidadeChamada.objeto);
+        if (tipoObjetoResolvido && tipoObjetoResolvido.match(/^[A-Z]/)) {
+            const tipoObjeto = tipoObjetoResolvido;
 
             // Classe definida em código (local ou importada de arquivo .delegua) tem precedência.
             if (tipoObjeto in this.tiposDefinidosEmCodigo) {
@@ -3444,7 +3499,7 @@ export class AvaliadorSintatico
             ) {
                 throw new ErroAvaliadorSintatico(
                     entidadeChamada.simbolo,
-                    `Membro '${entidadeChamada.simbolo.lexema}' não existe no tipo '${entidadeChamada.objeto.tipo}'.`
+                    `Membro '${entidadeChamada.simbolo.lexema}' não existe no tipo '${tipoObjeto}'.`
                 );
             }
 
@@ -3570,7 +3625,14 @@ export class AvaliadorSintatico
                         return entidadeChamadaReferenciaFuncao.tipo;
                     case Variavel:
                         const entidadeChamadaVariavel = entidadeChamadaChamada as Variavel;
-                        return entidadeChamadaVariavel.tipo;
+                        // Funções declaradas são registradas com tipo 'função<X>'.
+                        // O resultado da chamada tem o tipo de retorno X.
+                        const correspondenciaFuncao = (entidadeChamadaVariavel.tipo || '').match(
+                            /^função<(.+)>$/
+                        );
+                        return correspondenciaFuncao
+                            ? correspondenciaFuncao[1]
+                            : entidadeChamadaVariavel.tipo;
                 }
 
                 break;
@@ -4042,8 +4104,8 @@ export class AvaliadorSintatico
             }
         }
 
-        const tiposRetornos = new Set(
-            expressoesRetorna.filter((e) => e.tipo !== 'qualquer').map((e) => e.tipo)
+        const tiposRetornos = unificarGrafiasNumero(
+            new Set(expressoesRetorna.filter((e) => e.tipo !== 'qualquer').map((e) => e.tipo))
         );
         // Não usar `tiposRetornos.size > 0` aqui: esse conjunto já descarta
         // retornos de tipo 'qualquer' (ex.: `retorna x * y` com parâmetros sem
@@ -4275,8 +4337,8 @@ export class AvaliadorSintatico
             for (const declaracao of corpo) {
                 expressoesRetorna = expressoesRetorna.concat(buscarRetornos(declaracao));
             }
-            const tiposRetornos = new Set(
-                expressoesRetorna.filter((e) => e.tipo !== 'qualquer').map((e) => e.tipo)
+            const tiposRetornos = unificarGrafiasNumero(
+                new Set(expressoesRetorna.filter((e) => e.tipo !== 'qualquer').map((e) => e.tipo))
             );
             const retornaChamadoExplicitamente = tiposRetornos.size > 0;
             tiposRetornos.delete('qualquer');
@@ -4383,8 +4445,8 @@ export class AvaliadorSintatico
                         for (const declaracao of corpoAcessor) {
                             expressoesRetornaAcessor = expressoesRetornaAcessor.concat(buscarRetornos(declaracao));
                         }
-                        const tiposRetornosAcessor = new Set(
-                            expressoesRetornaAcessor.filter((e) => e.tipo !== 'qualquer').map((e) => e.tipo)
+                        const tiposRetornosAcessor = unificarGrafiasNumero(
+                            new Set(expressoesRetornaAcessor.filter((e) => e.tipo !== 'qualquer').map((e) => e.tipo))
                         );
                         const retornaExplicitamenteAcessor = tiposRetornosAcessor.size > 0;
                         tiposRetornosAcessor.delete('qualquer');
@@ -4608,6 +4670,7 @@ export class AvaliadorSintatico
         const propriedades: PropriedadeClasse[] = [];
 
         this.metodosClasseAtualEmAnalise = metodos;
+        this.propriedadesClasseAtualEmAnalise = propriedades;
         await this.compreenderMembros('publico', false, false, ehAbstrata, ehEstrangeira, metodos, propriedades);
 
         this.consumir(tiposDeSimbolos.CHAVE_DIREITA, "Esperado '}' após o escopo da classe.");
@@ -4691,6 +4754,7 @@ export class AvaliadorSintatico
         this.tiposDefinidosEmCodigo[definicaoClasse.simbolo.lexema] = definicaoClasse;
         this.superclasseAtual = undefined;
         this.metodosClasseAtualEmAnalise = undefined;
+        this.propriedadesClasseAtualEmAnalise = undefined;
         return definicaoClasse;
     }
 
@@ -4769,8 +4833,8 @@ export class AvaliadorSintatico
             for (const declaracao of corpo) {
                 expressoesRetorna = expressoesRetorna.concat(buscarRetornos(declaracao));
             }
-            const tiposRetornos = new Set(
-                expressoesRetorna.filter((e) => e.tipo !== 'qualquer').map((e) => e.tipo)
+            const tiposRetornos = unificarGrafiasNumero(
+                new Set(expressoesRetorna.filter((e) => e.tipo !== 'qualquer').map((e) => e.tipo))
             );
             const retornaChamadoExplicitamente = tiposRetornos.size > 0;
             tiposRetornos.delete('qualquer');
@@ -5104,6 +5168,38 @@ export class AvaliadorSintatico
      * É separada da inicialização do avaliador sintático, pois é necessário manipular essa
      * inicialização de outra forma em `delegua-node`.
      */
+    /**
+     * Registra antecipadamente, com tipo 'qualquer', os nomes das funções
+     * declaradas no nível superior do arquivo. Assim, uma função (ou método)
+     * pode chamar outra função declarada mais adiante no mesmo arquivo, como
+     * ocorre em tempo de execução. O tipo real é registrado quando a
+     * declaração da função é efetivamente avaliada.
+     */
+    protected predeclararFuncoesDeNivelSuperior() {
+        let profundidade = 0;
+        for (let i = 0; i < this.simbolos.length - 1; i++) {
+            const simbolo = this.simbolos[i];
+            switch (simbolo.tipo) {
+                case tiposDeSimbolos.CHAVE_ESQUERDA:
+                    profundidade++;
+                    break;
+                case tiposDeSimbolos.CHAVE_DIREITA:
+                    profundidade--;
+                    break;
+                case tiposDeSimbolos.FUNCAO:
+                case tiposDeSimbolos.FUNÇÃO:
+                    const proximo = this.simbolos[i + 1];
+                    if (profundidade === 0 && proximo.tipo === tiposDeSimbolos.IDENTIFICADOR) {
+                        this.pilhaEscopos.definirInformacoesVariavel(
+                            proximo.lexema,
+                            new InformacaoElementoSintatico(proximo.lexema, 'qualquer')
+                        );
+                    }
+                    break;
+            }
+        }
+    }
+
     protected inicializarPilhaEscopos() {
         this.pilhaEscopos = new PilhaEscopos();
         this.pilhaEscopos.empilhar(new InformacaoEscopo());
@@ -5423,6 +5519,7 @@ export class AvaliadorSintatico
         this.interfacesDeclaradas = {};
         this.montaoTipos = new MontaoTipos();
         this.inicializarPilhaEscopos();
+        this.predeclararFuncoesDeNivelSuperior();
 
         let declaracoes: Declaracao[] = [];
         while (!this.estaNoFinal()) {

@@ -48,6 +48,21 @@ function* buscarRetornosEmSe(construtoSe: Se): Generator<Retorna> {
     }
 }
 
+/**
+ * `numero` e `número` são grafias do mesmo tipo. Ao coletar os tipos de
+ * retorno de uma função, ambas não devem contar como tipos distintos.
+ * Mantém a grafia que aparece primeiro.
+ * @param tipos Conjunto de tipos de retorno encontrados.
+ * @returns O mesmo conjunto, com as grafias de número unificadas.
+ */
+export function unificarGrafiasNumero(tipos: Set<string>): Set<string> {
+    if (tipos.has('numero') && tipos.has('número')) {
+        const primeira = Array.from(tipos).find((t) => t === 'numero' || t === 'número');
+        tipos.delete(primeira === 'numero' ? 'número' : 'numero');
+    }
+    return tipos;
+}
+
 export function buscarRetornos(declaracao: Declaracao): Retorna[] {
     let retornasEncontrados: Retorna[] = [];
     switch (declaracao.constructor) {
@@ -92,8 +107,8 @@ export function logicaDescobertaRetornoFuncao(
         }
     }
 
-    const tiposRetornos = new Set(
-        expressoesRetorna.filter((e) => e.tipo !== 'qualquer').map((e) => e.tipo)
+    const tiposRetornos = unificarGrafiasNumero(
+        new Set(expressoesRetorna.filter((e) => e.tipo !== 'qualquer').map((e) => e.tipo))
     );
     let retornaChamadoExplicitamente = tiposRetornos.size > 0;
     // Verifica se há retornos com valores (incluindo retornos 'qualquer')

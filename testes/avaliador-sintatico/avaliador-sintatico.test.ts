@@ -2949,4 +2949,73 @@ describe('Avaliador sintático', () => {
             expect(retornoAvaliadorSintatico.declaracoes[0]).toBeInstanceOf(FuncaoDeclaracao);
         }, 2000);
     });
+
+    describe('Inferência de tipos (minigpt)', () => {
+        const analisar = async (linhas: string[]) => {
+            const lexador = new Lexador();
+            const avaliadorSintatico = new AvaliadorSintatico();
+            return avaliadorSintatico.analisar(lexador.mapear(linhas, -1), -1);
+        };
+
+        it('Função com retorno numero aceita literal numérico e variável numero', async () => {
+            const retorno = await analisar([
+                'funcao raiz(x: numero): numero {',
+                '    se (x <= 0) retorna 0',
+                '    var y: numero = x',
+                '    retorna y',
+                '}',
+            ]);
+            expect(retorno.erros).toHaveLength(0);
+        });
+
+        it('Resultado de chamada de função com retorno vetor suporta acesso por índice', async () => {
+            const retorno = await analisar([
+                'funcao gerar(a: qualquer[]): numero[] {',
+                '    var r: numero[] = []',
+                '    retorna r',
+                '}',
+                'funcao usar(a: qualquer[]): numero {',
+                '    const p = gerar(a)',
+                '    retorna p[0]',
+                '}',
+            ]);
+            expect(retorno.erros).toHaveLength(0);
+            const usar = retorno.declaracoes[1] as FuncaoDeclaracao;
+            const constante = usar.funcao.corpo[0] as any;
+            expect(constante.tipo).toBe('numero[]');
+        });
+
+        it('Chamada de método em propriedade de classe acessada por isto', async () => {
+            const retorno = await analisar([
+                'classe Tabela {',
+                '    obter(i: numero): qualquer[] { retorna [] }',
+                '}',
+                'classe Modelo {',
+                '    tabela: Tabela',
+                '    construtor() { isto.tabela = Tabela() }',
+                '    usar() {',
+                '        const t = isto.tabela.obter(0)',
+                '        retorna t[0]',
+                '    }',
+                '}',
+            ]);
+            expect(retorno.erros).toHaveLength(0);
+        });
+
+        it('Chamada de função declarada posteriormente no arquivo', async () => {
+            const retorno = await analisar([
+                'funcao antes(): numero { retorna depois(1) }',
+                'classe K {',
+                '    m() { retorna depois(2) }',
+                '}',
+                'funcao depois(x: numero): numero { retorna x }',
+            ]);
+            expect(retorno.erros).toHaveLength(0);
+        });
+
+        it('Variável não declarada continua gerando erro', async () => {
+            const retorno = await analisar(['funcao f() { retorna naoExiste(1) }']);
+            expect(retorno.erros.length).toBeGreaterThan(0);
+        });
+    });
 });

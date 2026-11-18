@@ -82,6 +82,11 @@ import { GerenciadorEscopos } from './gerenciador-escopos';
 import { inferirCodigoDiagnosticoSemantico } from './tabela-diagnosticos-semanticos';
 
 /**
+ * Tipos numéricos primitivos. `numero` e `número` são grafias do mesmo tipo.
+ */
+export const tiposNumericosPrimitivos = ['inteiro', 'numero', 'número', 'real'];
+
+/**
  * Essa classe só existe para eliminar redundância entre todos os analisadores
  * semânticos. Por padrão, quando um método não é implementado, ao invés de dar erro,
  * simplesmente passa por ele (`return Promise.resolve()`).
@@ -201,10 +206,10 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
                             simboloFuncao,
                             `O valor passado para o parâmetro '${parametro.nome.lexema}' (${parametro.tipoDado}) é diferente do esperado pela função (${tipoArgumento}).`
                         );
-                    } else if (['inteiro', 'número', 'real'].includes(parametro.tipoDado)) {
+                    } else if (tiposNumericosPrimitivos.includes(parametro.tipoDado)) {
                         // Delegua suporta conversões implícitas entre tipos numéricos, mas não
                         // entre texto e número.
-                        if (!['inteiro', 'número', 'real'].includes(tipoArgumento)) {
+                        if (!tiposNumericosPrimitivos.includes(tipoArgumento)) {
                             this.erro(
                                 simboloFuncao,
                                 `O valor passado para o parâmetro '${parametro.nome.lexema}' (${parametro.tipoDado}) é diferente do esperado pela função (${tipoArgumento}).`
@@ -278,7 +283,7 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
         }
 
         if (operadoresMatematicos.includes(binario.operador.tipo)) {
-            const tiposNumericos = ['inteiro', 'número', 'real'];
+            const tiposNumericos = tiposNumericosPrimitivos;
             if (tiposNumericos.includes(tipoEsquerda) && tiposNumericos.includes(tipoDireita)) {
                 // Se um dos lados é 'real', o resultado é 'real'
                 if (tipoEsquerda === 'real' || tipoDireita === 'real') {
@@ -419,26 +424,25 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     }
 
     protected verificarSeRetorna(declaracaoSe: Se): boolean {
-        const caminhoEntaoResolvido = declaracaoSe.caminhoEntao as Bloco;
-        const entaoRetorna = this.verificarBlocoRetorna(caminhoEntaoResolvido.declaracoes);
-
-        const caminhoSenaoResolvido = declaracaoSe.caminhoSenao as Bloco | Se | null;
-        if (!caminhoSenaoResolvido || (caminhoSenaoResolvido as Bloco).declaracoes?.length === 0) {
+        const entaoRetorna = this.verificarCaminhoRetorna(declaracaoSe.caminhoEntao);
+        if (!entaoRetorna || !declaracaoSe.caminhoSenao) {
             return false;
         }
 
-        if (
-            caminhoSenaoResolvido instanceof Se &&
-            (caminhoSenaoResolvido.caminhoEntao as Bloco).declaracoes?.length === 1
-        ) {
-            const senaoSeRetorna = this.verificarSeRetorna(caminhoSenaoResolvido as Se);
-            return entaoRetorna && senaoSeRetorna;
+        return this.verificarCaminhoRetorna(declaracaoSe.caminhoSenao);
+    }
+
+    /**
+     * Verifica se um caminho de `se` sempre retorna. O caminho pode ser
+     * um bloco (`{ ... }`), outro `se` (`senão se`) ou uma única declaração,
+     * quando escrito sem chaves (`se (x) retorna y`).
+     */
+    private verificarCaminhoRetorna(caminho: Declaracao): boolean {
+        if (caminho instanceof Bloco) {
+            return this.verificarBlocoRetorna(caminho.declaracoes || []);
         }
 
-        const senaoRetorna = this.verificarBlocoRetorna(
-            (declaracaoSe.caminhoSenao as Bloco).declaracoes
-        );
-        return entaoRetorna && senaoRetorna;
+        return this.verificarBlocoRetorna([caminho]);
     }
 
     private verificarEscolhaRetorna(declaracaoEscolha: Escolha): boolean {

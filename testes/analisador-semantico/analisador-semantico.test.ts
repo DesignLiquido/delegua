@@ -2721,4 +2721,120 @@ describe('Analisador semântico', () => {
             expect(erros[0].mensagem).toContain('privado');
         });
     });
+
+    describe('Se sem chaves dentro de função', () => {
+        it('Não interrompe a análise com se sem chaves que retorna', async () => {
+            const lexador = new Lexador();
+            const avaliadorSintatico = new AvaliadorSintatico();
+            const analisadorSemantico = new AnalisadorSemantico();
+            const espiao = jest.spyOn(console, 'error').mockImplementation(() => {});
+            try {
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(
+                    lexador.mapear(
+                        [
+                            'funcao absoluto(x: numero): numero {',
+                            '    se (x < 0) retorna - x',
+                            '    retorna x',
+                            '}',
+                            'funcao sinal(x: numero): numero {',
+                            '    se (x < 0) retorna - 1 senão retorna 1',
+                            '}',
+                            'funcao incompleta(x: numero): numero {',
+                            '    se (x < 0) retorna - 1',
+                            '}',
+                        ],
+                        -1
+                    ),
+                    -1
+                );
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                const retornoAnalisadorSemantico = await analisadorSemantico.analisar(
+                    retornoAvaliadorSintatico.declaracoes
+                );
+                expect(espiao).not.toHaveBeenCalled();
+                const mensagens = retornoAnalisadorSemantico.diagnosticos.map((d) => d.mensagem);
+                expect(mensagens.some((m) => m.includes("'absoluto'"))).toBe(false);
+                expect(mensagens.some((m) => m.includes("'sinal'"))).toBe(false);
+                expect(mensagens.some((m) => m.includes("'incompleta'"))).toBe(true);
+            } finally {
+                espiao.mockRestore();
+            }
+        });
+    });
+
+    describe('Grafia numero e funções declaradas posteriormente', () => {
+        const analisar = async (linhas: string[]) => {
+            const retornoAvaliadorSintatico = await new AvaliadorSintatico().analisar(
+                new Lexador().mapear(linhas, -1),
+                -1
+            );
+            expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            return new AnalisadorSemantico().analisar(retornoAvaliadorSintatico.declaracoes);
+        };
+
+        it('Tipo numero (sem acento) aceita literais numéricos em retorno e atribuição', async () => {
+            const retorno = await analisar([
+                'funcao raiz(x: numero): numero {',
+                '    se (x <= 0) {',
+                '        retorna 0',
+                '    }',
+                '    var y: numero = x',
+                '    se (x < 1) {',
+                '        y = 1',
+                '    }',
+                '    const base = 1 + x / 1024',
+                '    retorna y + base',
+                '}',
+                'raiz(4)',
+            ]);
+            expect(retorno.diagnosticos).toHaveLength(0);
+        });
+
+        it('Tipo numero continua rejeitando texto', async () => {
+            const retorno = await analisar([
+                'funcao f(): numero {',
+                '    retorna "a"',
+                '}',
+                'f()',
+            ]);
+            expect(retorno.diagnosticos.some((d) => d.mensagem.includes("'numero'"))).toBe(true);
+        });
+
+        it('Operação entre número e tipo indeterminado não gera aviso', async () => {
+            const retorno = await analisar([
+                'classe Corpus {',
+                '    entradas: qualquer[]',
+                '    construtor() { isto.entradas = [1, 2] }',
+                '}',
+                'funcao treinar() {',
+                '    const corpus = Corpus()',
+                '    const quantidade = corpus.entradas.tamanho()',
+                '    para (var i = 0; i < 2; i++) {',
+                '        const posicao = (i + 3 * 13) % quantidade',
+                '        escreva(posicao)',
+                '    }',
+                '}',
+                'treinar()',
+            ]);
+            expect(
+                retorno.diagnosticos.filter((d) => d.mensagem.includes('Operação entre tipos diferentes'))
+            ).toHaveLength(0);
+        });
+
+        it('Chamada de função declarada posteriormente não gera diagnóstico', async () => {
+            const retorno = await analisar([
+                'classe K {',
+                '    m(): numero {',
+                '        const r = depois(2)',
+                '        retorna r',
+                '    }',
+                '}',
+                'funcao depois(x: numero): numero { retorna x }',
+                'escreva(K().m())',
+            ]);
+            expect(
+                retorno.diagnosticos.filter((d) => d.mensagem.includes("'depois'"))
+            ).toHaveLength(0);
+        });
+    });
 });
