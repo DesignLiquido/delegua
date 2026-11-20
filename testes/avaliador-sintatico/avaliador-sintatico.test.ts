@@ -1839,6 +1839,68 @@ describe('Avaliador sintático', () => {
                     expect(erro.message).toBe("Função retorna valores com mais de um tipo. Tipo esperado: número. Tipos encontrados: texto, número.");
                 });
 
+                it('Função com tipo de retorno inteiro pode retornar literal numérico e variável inteiro', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao comparar(a: inteiro, b: inteiro): inteiro {',
+                            '    var resultado: inteiro = a - b',
+                            '    se resultado < 0 {',
+                            '        retorna -1',
+                            '    }',
+                            '    se resultado == 0 {',
+                            '        retorna 0',
+                            '    }',
+                            '    retorna resultado',
+                            '}',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect((retornoAvaliadorSintatico.declaracoes[0] as FuncaoDeclaracao).funcao.tipo).toBe('inteiro');
+                });
+
+                it('Função com tipo de retorno número pode retornar real e inteiro', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao decidir(a: número): número {',
+                            '    var dois: inteiro = 2',
+                            '    se a > 0 {',
+                            '        retorna 1.5',
+                            '    }',
+                            '    retorna dois',
+                            '}',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+
+                it('Função com tipo de retorno numérico ainda rejeita retorno de texto', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao executar(a: inteiro): inteiro {',
+                            '    var resultado: inteiro = a',
+                            '    se a > 0 {',
+                            '        retorna "positivo"',
+                            '    }',
+                            '    se a < 0 {',
+                            '        retorna -1',
+                            '    }',
+                            '    retorna resultado',
+                            '}',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros.length).toBeGreaterThan(0);
+                    expect(retornoAvaliadorSintatico.erros[0].message).toContain('Função retorna valores com mais de um tipo. Tipo esperado: inteiro.');
+                });
+
                 it('Função sem tipo de retorno explícito que retorna expressão com parâmetros sem tipo é inferida como qualquer, não vazio', async () => {
                     const retornoLexador = lexador.mapear(
                         [

@@ -977,6 +977,27 @@ describe('Avaliador sintático (Pituguês)', () => {
                 expect(retornoAvaliador.erros[0].message).toBe('Esperado corpo do escopo após a declaração.');
             });
 
+            it('Função com tipo de retorno numérico aceita retornos inteiro e real', async () => {
+                const retornoLexador = lexador.mapear(
+                    ['funcao escolher(a: inteiro) -> real:', '    se a > 0:', '        retorna a', '    retorna 2.5'],
+                    -1
+                );
+                const retornoAvaliador = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliador.erros).toHaveLength(0);
+            });
+
+            it('Função com tipo de retorno numérico rejeita retorno de texto', async () => {
+                const retornoLexador = lexador.mapear(
+                    ['funcao executar(a: inteiro) -> inteiro:', '    se a > 0:', '        retorna "positivo"', '    retorna a'],
+                    -1
+                );
+                const retornoAvaliador = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliador.erros).toHaveLength(1);
+                expect(retornoAvaliador.erros[0].message).toContain('Função retorna valores com mais de um tipo. Tipo esperado: inteiro.');
+            });
+
             it('Deve exigir o identificador da função e barrar falha silenciosa no final do arquivo', async () => {
                 const codigo = [`
                     funcao
