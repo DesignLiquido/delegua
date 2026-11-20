@@ -72,6 +72,29 @@ export function unificarGrafiasNumero(tipos: Set<string>): Set<string> {
     return tipos;
 }
 
+const tiposNumericos = ['número', 'numero', 'inteiro', 'real', 'longo'];
+
+/**
+ * Tipos de retorno a comparar com o tipo declarado de uma função. Quando o tipo declarado
+ * é numérico (`número`, `inteiro`, `real` ou `longo`), todos os tipos numéricos dos
+ * retornos contam como um só, porque são representados como números primitivos e são
+ * intercambiáveis, como na validação de argumentos. Assim, `retorna 0` (literal `número`)
+ * e `retorna resultado` (variável `inteiro`) podem coexistir numa função `: inteiro`.
+ * @param tipos Os tipos dos retornos, já com as grafias de número unificadas.
+ * @param tipoRetorno O tipo de retorno declarado da função.
+ * @returns Um novo conjunto, com os tipos numéricos reduzidos a `tipoRetorno`.
+ */
+export function unificarTiposNumericosDeRetorno(tipos: Set<string>, tipoRetorno: string): Set<string> {
+    if (!tiposNumericos.includes(tipoRetorno)) {
+        return new Set(tipos);
+    }
+    const unificados = new Set<string>();
+    for (const tipo of tipos) {
+        unificados.add(tiposNumericos.includes(tipo) ? tipoRetorno : tipo);
+    }
+    return unificados;
+}
+
 export function buscarRetornos(declaracao: Declaracao): Retorna[] {
     let retornasEncontrados: Retorna[] = [];
     switch (declaracao.constructor) {
@@ -125,7 +148,7 @@ export function logicaDescobertaRetornoFuncao(
         (e) => e.valor !== null && e.valor !== undefined
     );
 
-    if (tiposRetornos.size > 1 && tipoRetorno !== 'qualquer') {
+    if (unificarTiposNumericosDeRetorno(tiposRetornos, tipoRetorno).size > 1 && tipoRetorno !== 'qualquer') {
         let tiposEncontrados = Array.from(tiposRetornos).reduce(
             (acumulador, valor) => (acumulador += valor + ', '),
             ''

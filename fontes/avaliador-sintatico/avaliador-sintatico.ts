@@ -105,7 +105,13 @@ import { inferirTipoVariavel, TipoInferencia } from '../inferenciador';
 import { PilhaEscopos } from './pilha-escopos';
 import { InformacaoEscopo } from './informacao-escopo';
 import { InformacaoElementoSintatico } from '../informacao-elemento-sintatico';
-import { buscarRetornos, ehTipoDicionario, registrarPrimitiva, unificarGrafiasNumero } from './comum';
+import {
+    buscarRetornos,
+    ehTipoDicionario,
+    registrarPrimitiva,
+    unificarGrafiasNumero,
+    unificarTiposNumericosDeRetorno,
+} from './comum';
 import { MontaoTipos } from './montao-tipos';
 import { ElementoMontaoTipos } from './elemento-montao-tipos';
 import { ClasseDeModulo } from '../interpretador/estruturas';
@@ -4230,7 +4236,7 @@ export class AvaliadorSintatico
         // retorno explícito, senão a função seria incorretamente inferida como
         // 'vazio' em vez de 'qualquer'.
         let retornaChamadoExplicitamente = expressoesRetorna.some((e) => e.valor !== undefined);
-        if (tiposRetornos.size > 1 && tipoRetorno !== 'qualquer') {
+        if (unificarTiposNumericosDeRetorno(tiposRetornos, tipoRetorno).size > 1 && tipoRetorno !== 'qualquer') {
             let tiposEncontrados = Array.from(tiposRetornos).reduce(
                 (acumulador, valor) => (acumulador += valor + ', '),
                 ''
