@@ -1879,6 +1879,55 @@ describe('Avaliador sintático', () => {
                     expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
                 });
 
+                it('Função lógica pode retornar literal lógico e expressão com ou', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao semZeroAEsquerda(valor: texto): lógico {',
+                            '    se valor == "" {',
+                            '        retorna falso',
+                            '    }',
+                            '    retorna valor == "0" ou valor[0] != "0"',
+                            '}',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+
+                it('Tipos deduzidos de expressões lógicas', async () => {
+                    const casos: [string, string][] = [
+                        ['b e c', 'lógico'],
+                        ['b ou (n > 1)', 'lógico'],
+                        ['"a" em lista', 'lógico'],
+                        ['lista contém "a"', 'lógico'],
+                        ['n e 3', 'número'],
+                        ['n ou m', 'inteiro'],
+                        ['t ou "padrão"', 'qualquer'],
+                    ];
+                    for (const [expressao, tipoEsperado] of casos) {
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'var b = verdadeiro',
+                                'var c = falso',
+                                'var n: inteiro = 5',
+                                'var m: inteiro = 6',
+                                'var t = "a"',
+                                'var lista = ["a"]',
+                                `var x = ${expressao}`,
+                            ],
+                            -1
+                        );
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                        const inicializador = (retornoAvaliadorSintatico.declaracoes[6] as Var).inicializador;
+                        expect(inicializador).toBeInstanceOf(Logico);
+                        expect([expressao, inicializador.tipo]).toEqual([expressao, tipoEsperado]);
+                    }
+                });
+
                 it('Função com tipo de retorno numérico ainda rejeita retorno de texto', async () => {
                     const retornoLexador = lexador.mapear(
                         [
