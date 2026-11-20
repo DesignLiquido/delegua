@@ -1,7 +1,7 @@
 import { Lexador } from '../../fontes/lexador';
 import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
 import { Ajuda, Bloco, Classe, Const, Escreva, Expressao, FuncaoDeclaracao, Importar, ParaCada, Retorna, Se, TendoComo, Tente, Var } from '../../fontes/declaracoes';
-import { Binario, Chamada, DefinirValor, Elvis, FuncaoConstruto, Leia, ListaCompreensao, Literal, Logico, SeTernario, Variavel } from '../../fontes/construtos';
+import { Binario, Chamada, DefinirValor, Elvis, ExpressaoRegular, FuncaoConstruto, ImportarComoConstruto, Leia, ListaCompreensao, Literal, Logico, SeTernario, TipoDe, Variavel } from '../../fontes/construtos';
 
 describe('Avaliador sintático', () => {
     describe('analisar()', () => {
@@ -1926,6 +1926,104 @@ describe('Avaliador sintático', () => {
                         expect(inicializador).toBeInstanceOf(Logico);
                         expect([expressao, inicializador.tipo]).toEqual([expressao, tipoEsperado]);
                     }
+                });
+
+                it('Acesso a propriedade de classe tem o tipo da propriedade', async () => {
+                    const classes = [
+                        'classe Endereco {',
+                        '    rua: texto',
+                        '    construtor() { isto.rua = "r" }',
+                        '}',
+                        'classe Pessoa {',
+                        '    nome: texto',
+                        '    idade: inteiro',
+                        '    endereco: Endereco',
+                        '    apelidos: texto[]',
+                        '    construtor() { isto.nome = "a" }',
+                        '    obterNome(): texto { retorna isto.nome }',
+                        '}',
+                        'classe Aluno herda Pessoa {',
+                        '    construtor() { super.construtor() }',
+                        '}',
+                    ];
+                    const casos: [string, string][] = [
+                        ['pessoa.nome', 'texto'],
+                        ['pessoa.idade', 'inteiro'],
+                        ['pessoa.endereco', 'Endereco'],
+                        ['pessoa.endereco.rua', 'texto'],
+                        ['pessoa.apelidos', 'texto[]'],
+                        ['pessoa.obterNome()', 'texto'],
+                        ['aluno.nome', 'texto'],
+                        ['aluno.obterNome()', 'texto'],
+                    ];
+                    for (const [expressao, tipoEsperado] of casos) {
+                        const retornoLexador = lexador.mapear(
+                            [...classes, 'var pessoa = Pessoa()', 'var aluno = Aluno()', `var x = ${expressao}`],
+                            -1
+                        );
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                        const declaracoes = retornoAvaliadorSintatico.declaracoes;
+                        expect([expressao, (declaracoes[declaracoes.length - 1] as Var).tipo]).toEqual([expressao, tipoEsperado]);
+                    }
+                });
+
+                it('Função pode retornar literal e propriedade de classe do mesmo tipo', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'classe Pessoa {',
+                            '    nome: texto',
+                            '    construtor() { isto.nome = "a" }',
+                            '}',
+                            'funcao nomeOuPadrao(pessoa: Pessoa, usarPadrao: lógico): texto {',
+                            '    se usarPadrao {',
+                            '        retorna "padrão"',
+                            '    }',
+                            '    retorna pessoa.nome',
+                            '}',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                });
+
+                it('`retorna` aceita tipo de, leia, importar e expressão regular', async () => {
+                    const casos: [string, any][] = [
+                        ['tipo de valor', TipoDe],
+                        ['leia("x")', Leia],
+                        ['importar("json")', ImportarComoConstruto],
+                        ['||[a-z]+||', ExpressaoRegular],
+                    ];
+                    for (const [expressao, construto] of casos) {
+                        const retornoLexador = lexador.mapear(['funcao f(valor) {', `    retorna ${expressao}`, '}'], -1);
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                        const corpo = (retornoAvaliadorSintatico.declaracoes[0] as FuncaoDeclaracao).funcao.corpo;
+                        expect(corpo).toHaveLength(1);
+                        expect((corpo[0] as Retorna).valor).toBeInstanceOf(construto);
+                    }
+                });
+
+                it('`tipo de` resulta em texto', async () => {
+                    const retornoLexador = lexador.mapear(
+                        [
+                            'funcao descrever(valor, curto: lógico): texto {',
+                            '    se curto {',
+                            '        retorna "?"',
+                            '    }',
+                            '    retorna tipo de valor',
+                            '}',
+                        ],
+                        -1
+                    );
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                    expect((retornoAvaliadorSintatico.declaracoes[0] as FuncaoDeclaracao).funcao.tipo).toBe('texto');
                 });
 
                 it('Função com tipo de retorno numérico ainda rejeita retorno de texto', async () => {
