@@ -149,7 +149,12 @@ const simbolosInicioExpressao = new Set([
     tiposDeSimbolos.SUBTRACAO,
     tiposDeSimbolos.INCREMENTAR,
     tiposDeSimbolos.DECREMENTAR,
-    tiposDeSimbolos.BIT_NOT
+    tiposDeSimbolos.BIT_NOT,
+    tiposDeSimbolos.NÚMERO,
+    tiposDeSimbolos.TIPO,
+    tiposDeSimbolos.LEIA,
+    tiposDeSimbolos.IMPORTAR,
+    tiposDeSimbolos.EXPRESSAO_REGULAR
 ]);
 
 /**
@@ -1299,6 +1304,32 @@ export class AvaliadorSintatico
         }
     }
 
+    /**
+     * Tipo de uma propriedade declarada em uma classe definida no código, procurando também
+     * nas superclasses.
+     * @param nomeClasse O tipo do objeto acessado.
+     * @param nomePropriedade O nome do membro acessado.
+     * @returns O tipo da propriedade (`qualquer` se ela não declara tipo), ou `undefined` se
+     *          o tipo não é uma classe conhecida ou o membro não é uma propriedade declarada.
+     */
+    protected tipoPropriedadeDeClasse(nomeClasse: string, nomePropriedade: string): string | undefined {
+        const visitadas = new Set<string>();
+        let atual: string | undefined = nomeClasse;
+        while (atual && !visitadas.has(atual)) {
+            visitadas.add(atual);
+            const classe = this.tiposDefinidosEmCodigo[atual];
+            if (!(classe instanceof Classe)) {
+                return undefined;
+            }
+            const propriedade = classe.propriedades?.find((p) => p.nome.lexema === nomePropriedade);
+            if (propriedade) {
+                return propriedade.tipo || 'qualquer';
+            }
+            atual = classe.superClasses?.[0]?.simbolo?.lexema;
+        }
+        return undefined;
+    }
+
     protected async resolverCadeiaChamadas(
         expressaoAnterior: ConstrutoInterface,
         tipoAnterior: string = 'qualquer'
@@ -1335,6 +1366,13 @@ export class AvaliadorSintatico
                 const nome = this.avancarEDevolverAnterior();
 
                 let tipoInferido = expressaoAnterior.tipo;
+                // Propriedade declarada de uma classe: o tipo do acesso é o da propriedade, não
+                // o do objeto. (Métodos continuam com o tipo do objeto: a inferência da chamada
+                // usa o objeto para encontrar o tipo de retorno.)
+                const tipoPropriedade = this.tipoPropriedadeDeClasse(expressaoAnterior.tipo, nome.lexema);
+                if (tipoPropriedade !== undefined) {
+                    tipoInferido = tipoPropriedade;
+                }
                 // Se não for um dicionário anônimo (ou seja, ser variável ou constante com nome)
                 if (
                     ehTipoDicionario(expressaoAnterior.tipo) &&

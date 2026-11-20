@@ -18,7 +18,7 @@ export class ImportarComoConstruto implements ConstrutoInterface {
     }
 
     valor?: any;
-    tipo?: string;
+    tipo?: string = 'qualquer';
 
     async aceitar(visitante: VisitanteDeleguaInterface): Promise<any> {
         return await visitante.visitarExpressaoImportar(this);

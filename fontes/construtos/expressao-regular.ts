@@ -5,6 +5,7 @@ export class ExpressaoRegular<TTipoSimbolo extends string = string> implements C
     linha: number;
     hashArquivo: number;
     valor: any;
+    tipo: string = 'qualquer';
 
     simbolo: SimboloInterface<TTipoSimbolo>;
 

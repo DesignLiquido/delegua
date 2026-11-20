@@ -9,6 +9,8 @@ export class TipoDe<TTipoSimbolo extends string = string> implements ConstrutoIn
     linha: number;
     hashArquivo: number;
     valor: ConstrutoInterface;
+    // `tipo de x` resulta no nome do tipo, um texto.
+    tipo: string = 'texto';
 
     simbolo: SimboloInterface<TTipoSimbolo>;
 
