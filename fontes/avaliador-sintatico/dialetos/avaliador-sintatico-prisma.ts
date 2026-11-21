@@ -237,7 +237,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
                 return this.expressaoImportar();
             case tiposDeSimbolos.NULO:
                 this.avancarEDevolverAnterior();
-                return new Literal(this.hashArquivo, simboloAtual.linha, null);
+                return new Literal(this.hashArquivo, simboloAtual.linha, null, 'nulo');
             case tiposDeSimbolos.ISTO:
                 const simboloIsto = this.avancarEDevolverAnterior();
                 return new Isto(this.hashArquivo, simboloAtual.linha, simboloIsto);
@@ -311,7 +311,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             this.avancarEDevolverAnterior();
         }
         this.consumir(tiposDeSimbolos.COLCHETE_DIREITO, "Esperado ']' após o texto multilinhas.");
-        return new Literal(this.hashArquivo, segundoColchete.linha, texto);
+        return new Literal(this.hashArquivo, segundoColchete.linha, texto, 'texto');
     }
 
     async expressaoLeia(): Promise<Leia> {
@@ -1145,6 +1145,10 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         const retornoVar = new Var(identificador, valor, tipo);
         // Pelo manual de Prisma, variáveis implícitas estão sempre no escopo global.
         retornoVar.escopo = 'global';
+        this.pilhaEscopos.definirInformacoesVariavelGlobal(
+            identificador.lexema,
+            new InformacaoElementoSintatico(identificador.lexema, tipo)
+        );
         return retornoVar;
     }
 
@@ -1159,17 +1163,68 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
     protected logicaComumInferenciaTiposVariaveisEConstantes(
         inicializador: ConstrutoInterface,
         tipoPrevio: string
-    ) {
+    ): string {
         if (tipoPrevio !== 'qualquer') {
             return tipoPrevio;
         }
 
         switch (inicializador.constructor) {
-            case Literal:
-                return (inicializador as Literal).tipo;
-            // TODO: Terminar
+            case Binario: {
+                // Prisma é derivada de Lua 5.2: `..` sempre resulta em texto, e operadores
+                // aritméticos e de bits convertem operandos textuais para número.
+                const binario = inicializador as Binario;
+                const tipoOperador = binario.operador.tipo;
+                if (tipoOperador === tiposDeSimbolos.CONCATENACAO) {
+                    return 'texto';
+                }
+
+                if (
+                    [
+                        tiposDeSimbolos.ADICAO,
+                        tiposDeSimbolos.SUBTRACAO,
+                        tiposDeSimbolos.MULTIPLICACAO,
+                        tiposDeSimbolos.DIVISAO,
+                        tiposDeSimbolos.DIVISAO_INTEIRA,
+                        tiposDeSimbolos.MODULO,
+                        tiposDeSimbolos.EXPONENCIACAO,
+                        tiposDeSimbolos.BIT_AND,
+                        tiposDeSimbolos.BIT_OR,
+                        tiposDeSimbolos.BIT_XOR,
+                        tiposDeSimbolos.MAIOR_MAIOR,
+                        tiposDeSimbolos.MENOR_MENOR,
+                    ].includes(tipoOperador)
+                ) {
+                    return 'número';
+                }
+
+                return binario.tipo || 'qualquer';
+            }
+            case Unario: {
+                const unario = inicializador as Unario;
+                switch (unario.operador.tipo) {
+                    case tiposDeSimbolos.NAO:
+                    case tiposDeSimbolos.NEGACAO:
+                        return 'lógico';
+                    case tiposDeSimbolos.SUBTRACAO:
+                    case tiposDeSimbolos.BIT_NOT:
+                    case tiposDeSimbolos.COMPRIMENTO:
+                        return 'número';
+                }
+
+                return unario.tipo || 'qualquer';
+            }
+            case Agrupamento:
+                return this.logicaComumInferenciaTiposVariaveisEConstantes(
+                    (inicializador as Agrupamento).expressao,
+                    'qualquer'
+                );
+            case FuncaoConstruto:
+                return `função<${(inicializador as FuncaoConstruto).tipo || 'qualquer'}>`;
+            case Leia:
+                return 'texto';
             default:
-                console.log(inicializador.constructor.name);
+                // `Literal`, `Logico`, `Dicionario`, `Variavel`, etc. já deduzem o próprio tipo.
+                return inicializador.tipo || 'qualquer';
         }
     }
 
@@ -1327,7 +1382,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         }
     }
 
-    async resolverDeclaracaoForaDeBloco(): Promise<Declaracao | null> {
+    async resolverDeclaracaoForaDeBloco(): Promise<Declaracao | undefined> {
         try {
             if (
                 (this.verificarTipoSimboloAtual(tiposDeSimbolos.FUNCAO) ||
@@ -1345,7 +1400,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
         } catch (erro) {
             this.sincronizar();
             this.erros.push(erro);
-            return null;
+            return undefined;
         }
     }
 
@@ -1595,7 +1650,7 @@ export class AvaliadorSintaticoPrisma extends AvaliadorSintaticoBase {
             const retornoDeclaracao = await this.resolverDeclaracaoForaDeBloco();
             if (Array.isArray(retornoDeclaracao)) {
                 declaracoes = declaracoes.concat(retornoDeclaracao);
-            } else if (retornoDeclaracao !== null) {
+            } else if (retornoDeclaracao != null) {
                 declaracoes.push(retornoDeclaracao);
             }
         }

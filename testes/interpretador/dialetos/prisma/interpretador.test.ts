@@ -46,6 +46,21 @@ describe('Interpretador (Prisma)', () => {
                 expect(resultado.erros).toHaveLength(0);
             });
 
+            it('Variável global implícita e divisão inteira', async () => {
+                const retornoLexador = lexador.mapear([
+                    'x = 7;',
+                    'x = x /. 2;',
+                    'imprima(x);'
+                ], -1);
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+
+                const resultado = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+                expect(resultado.erros).toHaveLength(0);
+                expect(_saidas).toEqual(['3']);
+            });
+
             it('Valores booleanos', async () => {
                 const retornoLexador = lexador.mapear([
                     'local verdade = verdadeiro;',
