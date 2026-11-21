@@ -360,6 +360,10 @@ export class LexadorPrisma implements LexadorInterface<SimboloInterface> {
                         }
                         this.avancar();
                     }
+                } else if (this.simboloAtual() === '.') {
+                    // Divisão inteira: `5 /. 2` resulta em 2.
+                    this.avancar();
+                    this.adicionarSimbolo(tiposDeSimbolos.DIVISAO_INTEIRA);
                 } else {
                     this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
                 }

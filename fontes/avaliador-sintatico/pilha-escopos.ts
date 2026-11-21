@@ -70,6 +70,21 @@ export class PilhaEscopos implements PilhaInterface<InformacaoEscopo> {
         topoDaPilha.elementosSintaticos[nomeVariavel] = informacoes;
     }
 
+    /**
+     * Define informações de uma variável no escopo global (base da pilha),
+     * independentemente do escopo atual.
+     */
+    definirInformacoesVariavelGlobal(
+        nomeVariavel: string,
+        informacoes: InformacaoElementoSintatico | ElementoMontaoTipos
+    ) {
+        if (this.eVazio()) {
+            throw new Error('Pilha de escopos vazia.');
+        }
+
+        this.pilha[0].elementosSintaticos[nomeVariavel] = informacoes;
+    }
+
     registrarReferenciaFuncao(nome: string, definicao: FuncaoDeclaracao) {
         const topoDaPilha = this.topoDaPilha();
         topoDaPilha.referenciasFuncoes[nome] = definicao;

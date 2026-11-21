@@ -38,6 +38,46 @@ describe('Avaliador Sintático (Prisma)', () => {
                 expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
             });
 
+            it('Inferência de tipos em atribuições implícitas', async () => {
+                const retornoLexador = lexador.mapear(
+                    [
+                        'v_a = 1 + 2;',
+                        'v_b = "10" * 2;',
+                        'v_c = "x" .. 1;',
+                        'v_d = 1 .. 2;',
+                        'v_e = 1 < 2;',
+                        'v_f = nao verdadeiro;',
+                        'v_g = -v_a;',
+                        'v_h = #"texto";',
+                        'v_i = (1 + 2);',
+                        'v_j = { 1, 2 };',
+                        'v_k = 5 /. 2;',
+                        'v_l = nulo;',
+                    ],
+                    -1
+                );
+                const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+                const tipos = Object.fromEntries(
+                    (retornoAvaliadorSintatico.declaracoes as Var[]).map((d) => [d.simbolo.lexema, d.tipo])
+                );
+                expect(tipos).toEqual({
+                    v_a: 'número',
+                    v_b: 'número',
+                    v_c: 'texto',
+                    v_d: 'texto',
+                    v_e: 'lógico',
+                    v_f: 'lógico',
+                    v_g: 'número',
+                    v_h: 'número',
+                    v_i: 'número',
+                    v_j: 'dicionário',
+                    v_k: 'número',
+                    v_l: 'nulo',
+                });
+            });
+
             it('leia', async () => {
                 const retornoLexador = lexador.mapear(
                     ['local x = leia();'],
