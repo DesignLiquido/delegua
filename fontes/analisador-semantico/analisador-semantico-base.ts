@@ -52,6 +52,7 @@ import {
     Escreva,
     Fazer,
     Importar,
+    InterfaceDeclaracao,
     Para,
     ParaCada,
     Se,
@@ -575,6 +576,10 @@ export abstract class AnalisadorSemanticoBase implements AnalisadorSemanticoInte
     }
 
     visitarDeclaracaoImportar(declaracao: Importar): Promise<any> {
+        return Promise.resolve();
+    }
+
+    visitarDeclaracaoInterface(declaracao: InterfaceDeclaracao): Promise<any> {
         return Promise.resolve();
     }
 

@@ -38,6 +38,7 @@ import {
     ParaCada,
     Retorna,
     Se,
+    Tente,
     Var,
 } from '../declaracoes';
 import { ParametroInterface, SimboloInterface } from '../interfaces';
@@ -185,7 +186,9 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
                 } else if (declaracao.inicializador instanceof Binario) {
                     // Expressões binárias podem produzir vetores em tempo de execução
                     // (ex: vetor1 + vetor2 concatena dois vetores), então não geramos erro
-                } else {
+                } else if (declaracao.inicializador instanceof Literal) {
+                    // Apenas literais são certamente não-vetores. Variáveis, acessos a
+                    // propriedades (ex.: `objeto.lista`), índices etc. podem conter vetores.
                     this.erro(
                         declaracao.simbolo,
                         `Atribuição inválida para '${declaracao.simbolo.lexema}': é esperado um vetor de elementos.`
@@ -253,6 +256,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     }
 
     visitarExpressaoFalhar(expressao: Falhar): Promise<any> {
+        this.marcarVariaveisUsadasEmExpressao(expressao.explicacao);
         return this.verificarFalhar(expressao.explicacao);
     }
 
@@ -282,6 +286,12 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         parametros: ParametroInterface[],
         argumentos: ConstrutoInterface[]
     ) {
+        // Funções importadas (ex.: `importar { f } de "./modulo"`) são declaradas
+        // sem valor conhecido; não há parâmetros para comparar.
+        if (!Array.isArray(parametros)) {
+            return;
+        }
+
         if (parametros.length !== argumentos.length) {
             this.erro(
                 simboloFuncao,
@@ -341,7 +351,7 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
 
         this.comparacaoArgumentosContraParametrosFuncao(
             referenciaFuncao.simboloFuncao,
-            funcaoCorrespondente.valor.parametros,
+            funcaoCorrespondente.valor?.parametros,
             argumentos
         );
     }
@@ -407,10 +417,12 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
             return Promise.resolve();
         }
 
-        const funcao = funcaoChamada.valor as FuncaoConstruto;
+        this.gerenciadorEscopos.marcarComoUsada(nomeFuncao);
+
+        const funcao = funcaoChamada.valor as FuncaoConstruto | undefined;
         this.comparacaoArgumentosContraParametrosFuncao(
             entidadeChamadaVariavel.simbolo,
-            funcao.parametros,
+            funcao?.parametros,
             argumentos
         );
     }
@@ -862,6 +874,71 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
         return Promise.resolve();
     }
 
+    /**
+     * Quantidade de corpos de `tente` (com `pegue`) em análise no momento.
+     */
+    protected profundidadeTenteComPegue: number = 0;
+
+    /**
+     * Analisa todos os caminhos de `tente`: o corpo, cada `pegue` (com seu
+     * parâmetro declarado em escopo próprio e seu tipo de exceção marcado como
+     * usado), `senao` e `finalmente`.
+     */
+    override async visitarDeclaracaoTente(declaracao: Tente): Promise<any> {
+        const possuiPegue = (declaracao.caminhoPegue || []).length > 0;
+        if (possuiPegue) this.profundidadeTenteComPegue++;
+        try {
+            await this.analisarDeclaracoesEmEscopo(declaracao.caminhoTente);
+        } finally {
+            if (possuiPegue) this.profundidadeTenteComPegue--;
+        }
+
+        for (const blocoPegue of declaracao.caminhoPegue || []) {
+            if (blocoPegue.tipoExcecao) {
+                this.gerenciadorEscopos.marcarComoUsada(blocoPegue.tipoExcecao.lexema);
+            }
+
+            await this.analisarDeclaracoesEmEscopo(blocoPegue.corpo, () => {
+                if (blocoPegue.parametro) {
+                    this.gerenciadorEscopos.declarar(blocoPegue.parametro.lexema, {
+                        nome: blocoPegue.parametro.lexema,
+                        tipo: blocoPegue.tipoExcecao?.lexema ?? 'qualquer',
+                        imutavel: false,
+                        valor: undefined,
+                        inicializada: true,
+                        usada: true,
+                        hashArquivo: blocoPegue.parametro.hashArquivo,
+                        linha: blocoPegue.parametro.linha,
+                    });
+                }
+            });
+        }
+
+        await this.analisarDeclaracoesEmEscopo(declaracao.caminhoSenao);
+        await this.analisarDeclaracoesEmEscopo(declaracao.caminhoFinalmente);
+
+        return Promise.resolve();
+    }
+
+    private async analisarDeclaracoesEmEscopo(
+        declaracoes: Declaracao[] | undefined,
+        prepararEscopo?: () => void
+    ): Promise<void> {
+        if (!declaracoes || declaracoes.length === 0) {
+            return;
+        }
+
+        this.gerenciadorEscopos.empilharEscopo();
+        try {
+            prepararEscopo?.();
+            for (const declaracao of declaracoes) {
+                await declaracao.aceitar(this);
+            }
+        } finally {
+            this.gerenciadorEscopos.desempilharEscopo();
+        }
+    }
+
     override async visitarDeclaracaoSe(declaracao: Se) {
         // Marca variáveis usadas na condição
         this.marcarVariaveisUsadasEmExpressao(declaracao.condicao);
@@ -1120,7 +1197,8 @@ export class AnalisadorSemantico extends AnalisadorSemanticoBase {
     private verificarDivisaoPorZero(binario: Binario): void {
         const valorDireita = this.avaliarExpressaoConstante(binario.direita);
 
-        if (valorDireita === 0) {
+        // Dentro de `tente` com `pegue`, a exceção de divisão por zero é tratada.
+        if (valorDireita === 0 && this.profundidadeTenteComPegue === 0) {
             this.erro(binario.operador, `Divisão por zero.`);
         }
     }
