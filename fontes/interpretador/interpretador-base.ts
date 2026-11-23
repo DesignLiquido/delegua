@@ -2145,8 +2145,39 @@ export class InterpretadorBase implements InterpretadorInterface {
         return objeto.classe.orem.some((d) => d.simboloOriginal?.lexema === nomeTipo);
     }
 
+    /**
+     * Erros que não vêm de `falhar` (por exemplo, acesso a propriedade de valor nulo,
+     * índice fora do intervalo ou erros de bibliotecas em JavaScript) não carregam
+     * um objeto Delégua. Para que `pegue (erro)` possa ler `erro.mensagem`, eles
+     * são envelopados em uma instância de `Excecao`.
+     */
+    private obterExcecaoDelegua(erro: any): ObjetoDeleguaClasse | null {
+        if (erro?.valorDelegua) {
+            return erro.valorDelegua;
+        }
+
+        if (erro === null || erro === undefined) {
+            return null;
+        }
+
+        let mensagem: string;
+        if (typeof erro === 'string') {
+            mensagem = erro;
+        } else if (typeof erro.mensagem === 'string') {
+            mensagem = erro.mensagem;
+        } else if (typeof erro.message === 'string') {
+            mensagem = erro.message;
+        } else {
+            mensagem = String(erro);
+        }
+
+        const objetoDelegua = new ObjetoDeleguaClasse(EXCECAO_BASE);
+        objetoDelegua.propriedades['mensagem'] = mensagem;
+        return objetoDelegua;
+    }
+
     private async executarBlocoPegue(blocos: BlocoPegue[], erro: any): Promise<any> {
-        const objetoDelegua: ObjetoDeleguaClasse | null = erro?.valorDelegua ?? null;
+        const objetoDelegua: ObjetoDeleguaClasse | null = this.obterExcecaoDelegua(erro);
         for (const bloco of blocos) {
             const corresponde =
                 !bloco.tipoExcecao ||

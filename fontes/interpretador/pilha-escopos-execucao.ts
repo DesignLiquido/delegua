@@ -53,6 +53,13 @@ export class PilhaEscoposExecucao implements PilhaEscoposExecucaoInterface {
     }
 
     private converterValor(tipo: string, valor: any) {
+        // `nulo` é um valor válido para qualquer tipo: não deve virar o texto "null",
+        // o número 0 ou o lógico falso (por exemplo, quando uma função de biblioteca
+        // com retorno do tipo `texto` devolve nulo para indicar falha).
+        if (valor === null || valor === undefined) {
+            return valor;
+        }
+
         switch (tipo) {
             case 'inteiro':
                 return parseInt(valor);

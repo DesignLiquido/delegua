@@ -2426,6 +2426,64 @@ describe('Interpretador', () => {
                     expect(retornoInterpretador.erros).toHaveLength(0);
                 });
 
+                it('Variáveis tipadas mantêm nulo', async () => {
+                    const saidas: string[] = [];
+                    const codigo = [
+                        'var t: texto = nulo',
+                        'var n: número = nulo',
+                        'escreva(t == nulo)',
+                        'escreva(n == nulo)',
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        saidas.push(saida);
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(saidas).toEqual(['verdadeiro', 'verdadeiro']);
+                });
+
+                it('Pegue recebe exceção com mensagem para erros internos de funções chamadas', async () => {
+                    const saidas: string[] = [];
+                    const codigo = [
+                        'funcao acessar(dados) {',
+                        '    var vetor = [1]',
+                        '    retorna vetor[5].algo',
+                        '}',
+                        'funcao lancar() {',
+                        '    falhar "erro do usuário"',
+                        '}',
+                        'tente {',
+                        '    acessar({})',
+                        "    escreva('não deveria chegar aqui')",
+                        '} pegue (erro) {',
+                        '    escreva(erro.mensagem != nulo)',
+                        '}',
+                        'tente {',
+                        '    lancar()',
+                        '} pegue (erro) {',
+                        '    escreva(erro.mensagem)',
+                        '}',
+                    ];
+
+                    const retornoLexador = lexador.mapear(codigo, -1);
+                    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                    interpretador.funcaoDeRetorno = (saida: any) => {
+                        saidas.push(saida);
+                    };
+
+                    const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                    expect(retornoInterpretador.erros).toHaveLength(0);
+                    expect(saidas).toEqual(['verdadeiro', 'erro do usuário']);
+                });
+
                 it('Tente com senão interno', async () => {
                     const saidasMensagens = ['é diferente', 'pronto'];
                     const codigo = [
