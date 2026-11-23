@@ -207,6 +207,80 @@ export class MicroLexador {
                     this.adicionarSimbolo(tiposDeSimbolos.INTERROGACAO);
                 }
                 break;
+            case '{':
+                this.adicionarSimbolo(tiposDeSimbolos.CHAVE_ESQUERDA);
+                this.atual++;
+                break;
+            case '}':
+                this.adicionarSimbolo(tiposDeSimbolos.CHAVE_DIREITA);
+                this.atual++;
+                break;
+            case ':':
+                this.adicionarSimbolo(tiposDeSimbolos.DOIS_PONTOS);
+                this.atual++;
+                break;
+            case '&':
+                this.adicionarSimbolo(tiposDeSimbolos.BIT_AND);
+                this.atual++;
+                break;
+            case '|':
+                this.adicionarSimbolo(tiposDeSimbolos.BIT_OR);
+                this.atual++;
+                break;
+            case '^':
+                this.adicionarSimbolo(tiposDeSimbolos.BIT_XOR);
+                this.atual++;
+                break;
+            case '~':
+                this.adicionarSimbolo(tiposDeSimbolos.BIT_NOT);
+                this.atual++;
+                break;
+            case '=':
+                this.atual++;
+                if (this.codigo[this.atual] === '=') {
+                    this.atual++;
+                    this.adicionarSimbolo(tiposDeSimbolos.IGUAL_IGUAL);
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.IGUAL);
+                }
+
+                break;
+            case '!':
+                this.atual++;
+                if (this.codigo[this.atual] === '=') {
+                    this.atual++;
+                    this.adicionarSimbolo(tiposDeSimbolos.DIFERENTE);
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.NEGACAO);
+                }
+
+                break;
+            case '<':
+                this.atual++;
+                if (this.codigo[this.atual] === '=') {
+                    this.atual++;
+                    this.adicionarSimbolo(tiposDeSimbolos.MENOR_IGUAL);
+                } else if (this.codigo[this.atual] === '<') {
+                    this.atual++;
+                    this.adicionarSimbolo(tiposDeSimbolos.MENOR_MENOR);
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.MENOR);
+                }
+
+                break;
+            case '>':
+                this.atual++;
+                if (this.codigo[this.atual] === '=') {
+                    this.atual++;
+                    this.adicionarSimbolo(tiposDeSimbolos.MAIOR_IGUAL);
+                } else if (this.codigo[this.atual] === '>') {
+                    this.atual++;
+                    this.adicionarSimbolo(tiposDeSimbolos.MAIOR_MAIOR);
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.MAIOR);
+                }
+
+                break;
             case ' ':
             case '\0':
             case '\r':

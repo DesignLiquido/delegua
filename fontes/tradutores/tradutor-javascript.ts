@@ -98,6 +98,12 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
                 return '*';
             case tiposDeSimbolos.OU:
                 return '||';
+            case tiposDeSimbolos.MENOR_MENOR:
+                return '<<';
+            case tiposDeSimbolos.MAIOR_MAIOR:
+                return '>>';
+            case tiposDeSimbolos.NEGACAO:
+                return '!';
             case tiposDeSimbolos.SUBTRACAO:
                 return '-';
         }
@@ -163,7 +169,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
                 return `${objetoResolvido}.length`;
         }
 
-        return `${objetoResolvido}.${nomeMetodo}(${textoArgumentos}))`;
+        return `${objetoResolvido}.${nomeMetodo}(${textoArgumentos})`;
     }
 
     traduzirConstrutoAgrupamento(agrupamento: Agrupamento): string {
@@ -251,13 +257,12 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
     }
 
     traduzirConstrutoDefinirValor(definirValor: DefinirValor): string {
-        let resultado = '';
-        if (definirValor.objeto instanceof Isto) {
-            resultado = 'this.' + definirValor.nome.lexema + ' = ';
-        }
-
-        resultado += definirValor.valor.simbolo.lexema;
-        return resultado;
+        const objeto =
+            definirValor.objeto instanceof Isto
+                ? 'this'
+                : this.dicionarioConstrutos[definirValor.objeto.constructor.name](definirValor.objeto);
+        const valor = this.dicionarioConstrutos[definirValor.valor.constructor.name](definirValor.valor);
+        return `${objeto}.${definirValor.nome.lexema} = ${valor}`;
     }
 
     traduzirConstrutoDicionario(dicionario: Dicionario): string {
@@ -617,26 +622,9 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         );
 
         if (declaracaoSe.caminhoSenao != null) {
+            // Se o caminho senão for outro `Se`, a tradução recursiva produz `else if (...)`.
             resultado += ' '.repeat(this.indentacao);
             resultado += 'else ';
-            const se = declaracaoSe?.caminhoSenao as Se;
-            if (se?.caminhoEntao) {
-                resultado += 'if (';
-                resultado += this.dicionarioConstrutos[se.condicao.constructor.name](se.condicao);
-                resultado += ')';
-                resultado += this.dicionarioDeclaracoes[se.caminhoEntao.constructor.name](
-                    se.caminhoEntao
-                );
-                resultado += ' '.repeat(this.indentacao);
-                if (se?.caminhoSenao) {
-                    resultado += 'else ';
-                    resultado += this.dicionarioDeclaracoes[se.caminhoSenao.constructor.name](
-                        se.caminhoSenao
-                    );
-                    return resultado;
-                }
-            }
-
             resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoSenao.constructor.name](
                 declaracaoSe.caminhoSenao
             );

@@ -62,3 +62,23 @@ describe('Lexador', () => {
         });
     });
 });
+
+describe('MicroLexador (Pituguês) - símbolos adicionais', () => {
+    it.each([
+        ['2 ** 3', ['EXPONENCIACAO']],
+        ['6 / 3', ['DIVISAO']],
+        ['7 \\ 2', ['DIVISAO_INTEIRA']],
+        ["'texto'", ['TEXTO']],
+        ['1.25', ['NUMERO']],
+    ])('Mapeia %s', (codigo: string, tiposEsperados: string[]) => {
+        const resultado = new MicroLexadorPitugues().mapear(codigo);
+        expect(resultado.erros).toHaveLength(0);
+        const tipos = resultado.simbolos.map((simbolo) => simbolo.tipo);
+        expect(tipos).toEqual(expect.arrayContaining(tiposEsperados));
+    });
+
+    it('Texto não finalizado', () => {
+        const resultado = new MicroLexadorPitugues().mapear('"abc');
+        expect(resultado.erros.length).toBeGreaterThan(0);
+    });
+});

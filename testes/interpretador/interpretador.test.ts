@@ -9707,3 +9707,74 @@ describe('Interpretador', () => {
         });
     });
 });
+
+describe('Interpretador - casos adicionais', () => {
+    const executar = async (codigo: string[]) => {
+        const saidas: string[] = [];
+        const funcaoSaida = (texto: string) => saidas.push(texto);
+        const lexador = new Lexador();
+        const avaliadorSintatico = new AvaliadorSintatico();
+        const interpretador = new Interpretador(process.cwd(), false, funcaoSaida, funcaoSaida);
+        const retornoLexador = lexador.mapear(codigo, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+        const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        const erros = retorno.erros.map(
+            (erro: any) => erro.erroInterno?.message ?? erro.mensagem ?? erro.message ?? String(erro)
+        );
+        return { saidas, erros };
+    };
+
+    it.each([
+        [['var t = [(1, 2, 3)]', 'escreva(t[-1])', 'escreva(t[0])'], ['3', '1']],
+        [['var t = (1, 2, 3)', 'escreva(t.paraVetor())'], ['[1, 2, 3]']],
+        [['var d = {"a": 1}', 'var f = d.chaves', 'escreva(f())'], ["['a']"]],
+        [['var d = {"a": 1}', 'escreva(d.a)', 'escreva(d.x)'], ['1', 'nulo']],
+        [['var v = [1, 2]', 'var f = v.tamanho', 'escreva(f())'], ['2']],
+        [['classe A { m() { retorna 1 } }', 'var a = A()', 'var f = a.m', 'escreva(f())'], ['1']],
+        [
+            ['classe L { nome: texto { obter; definir; } }', 'classe S mescla L { }', 'var s = S()', 's.nome = "x"', 'escreva(s.nome)'],
+            ['x'],
+        ],
+        [
+            ['funcao f() { }', 'escreva(tipo de f)', 'funcao g(): texto { retorna "a" }', 'escreva(tipo de g)'],
+            ['função<vazio>', 'função<texto>'],
+        ],
+        [['classe A { }', 'escreva(tipo de A)', 'var a = A()', 'escreva(tipo de a)'], ['A', 'A']],
+        [['escreva({"a": verdadeiro})'], ['{"a":"verdadeiro"}']],
+        [['var v = [1, 2]', 'v[-1] = 9', 'v[3] = 7', 'escreva(v)'], ['[1, 9, null, 7]']],
+        [['var d = {"a": 1}', 'd.b = 2', 'escreva(d)'], ['{"a":1,"b":2}']],
+        [['funcao f() { retorna [1, 2] }', 'escreva(f()[0])'], ['1']],
+        [['var v = [1, 2, 3]', 'escreva(v[1:])', 'escreva(v[:2])', 'var s = "abcd"', 'escreva(s[1:3])'], ['[2, 3]', '[1, 2]', 'bc']],
+        [['var t = [(1, 2, 3)]', 'escreva(t[0:2])'], ['[1, 2]']],
+        [['var i = 0', 'fazer { i = i + 1; se i == 2 { continua } } enquanto i < 3', 'escreva(i)'], ['3']],
+        [['funcao f() { enquanto verdadeiro { retorna 5 } }', 'escreva(f())'], ['5']],
+        [['funcao f() { para (var i = 0; i < 3; i++) { retorna i } }', 'escreva(f())'], ['0']],
+        [['funcao f() { para cada x em [1, 2] { retorna x } }', 'escreva(f())'], ['1']],
+        [['var a = nulo', 'escreva(a ?: 3)'], ['3']],
+        [['var f = funcao() { }', 'escreva(f())'], ['nulo']],
+        [['escreva(longo(2) + 1)'], ['3']],
+        [['var v = [x * 2 para cada x em [1, 2, 3] se x > 1]', 'escreva(v)'], ['[4, 6]']],
+        [['var a = 1', 'escreva("${a < 2} ${a == 1} ${a != 1} ${a >= 2} ${!verdadeiro}")'], ['verdadeiro verdadeiro falso falso falso']],
+        [['var a = 6', 'escreva("${a & 3} ${a | 1} ${a ^ 2} ${a << 1} ${a >> 1}")'], ['2 7 4 12 3']],
+    ])('Executa %j', async (codigo: string[], saidasEsperadas: string[]) => {
+        const { saidas, erros } = await executar(codigo);
+        expect(erros).toHaveLength(0);
+        expect(saidas).toEqual(saidasEsperadas);
+    });
+
+    it.each([
+        [['var t = [(1, 2, 3)]', 'escreva(t[1.5])'], 'Somente inteiros podem ser usados para indexar um vetor.'],
+        [['var t = [(1, 2, 3)]', 'escreva(t[7])'], 'Índice do vetor fora do intervalo.'],
+        [['var n = 5', 'escreva(n.inexistente())'], "Método de primitiva 'inexistente' não existe para o tipo número."],
+        [['var s = "abc"', 'escreva(s.inexistente())'], "Método de primitiva 'inexistente' não existe para o tipo texto."],
+        [['var v = [1]', 'escreva(v.inexistente())'], "Método de primitiva 'inexistente' não existe para o tipo número[]."],
+        [['classe A { }', 'var a = A()', 'escreva(a.inexistente())'], "Método ou propriedade 'inexistente' não encontrado em 'A'."],
+        [['var x = nulo', 'escreva(x.a)'], "Não é possível acessar a propriedade 'a' de um valor nulo."],
+        [['var x = 1', 'x.y = 2'], 'Somente instâncias e dicionários podem possuir campos.'],
+        [['escreva(-"a")'], 'Operando precisa ser um número.'],
+    ])('Erro em %j', async (codigo: string[], mensagem: string) => {
+        const { erros } = await executar(codigo);
+        expect(erros[0]).toContain(mensagem);
+    });
+});

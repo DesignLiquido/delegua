@@ -324,7 +324,7 @@ describe('Tradutor Tenda -> Delégua', () => {
         const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
         expect(resultado).toBeTruthy();
         expect(resultado).toMatch(/var total = 0/i);
-        expect(resultado).toMatch(/para i = 1; i <= 10; i = i \+ 1 {/i);
+        expect(resultado).toMatch(/para var i = 1; i <= 10; i = i \+ 1 {/i);
         expect(resultado).toMatch(/total = total \+ i/i);
         expect(resultado).toMatch(/escreva\(total\)/i);
     });

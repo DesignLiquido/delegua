@@ -3363,3 +3363,32 @@ describe('Avaliador sintático', () => {
         });
     });
 });
+
+describe('Avaliador sintático - erros adicionais', () => {
+    it.each([
+        [['var x: inteiro[ = 1'], "Esperado símbolo de fechamento do vetor: ']'."],
+        [['var v = [1]', 'var d = {v: 1}'], 'Tipo número[] de identificador v não é válido como chave de dicionário.'],
+        [['var d = {nulo: 1}'], 'Símbolo NULO inesperado ou inválido como chave de dicionário.'],
+        [['para cada 1 em [1] { }'], 'Identificador de iteração deve ser ou um par chave-valor, ou um nome de variável.'],
+        [['para cada x [1] { }'], "Esperado palavras reservadas 'em' ou 'de' após variável de iteração em instrução 'para cada'."],
+        [['var n = 5', 'para cada x em n { }'], "Variável ou constante em 'para cada' não é iterável. Tipo resolvido: número."],
+        [['var v = [1, , 2]'], 'Não podem haver duas vírgulas seguidas em uma definição de vetor'],
+        [['var x = ajuda(escreva)'], "Avaliador sintático não consegue lidar com o tópico de ajuda 'escreva'."],
+        [['var x = 5', 'x[0] = 1'], 'Tipo número não suporta acesso por índice.'],
+        [
+            ['funcao f(...a) { }', 'f(' + Array.from({ length: 256 }, (_, i) => String(i)).join(', ') + ')'],
+            'Não pode haver mais de 255 argumentos.',
+        ],
+        [['var v = [1]', 'escreva(-v + 1)'], 'Operação inválida: não é possível realizar operação + com expressão unária aplicada a vetor.'],
+        [['1 = 2'], 'Tarefa de atribuição inválida'],
+        [['escolha 1 { padrao: escreva(1) padrao: escreva(2) }'], "Você só pode ter um 'padrao' em cada declaração de 'escolha'."],
+        [['importar tudo como m de 5'], 'Esperado caminho do módulo como texto ou identificador em declaração de importação.'],
+        [['var {a, b} 5'], 'Esperado igual ou seta esquerda após relação de propriedades da desestruturação.'],
+        [['classe { }'], 'Esperado nome da classe.'],
+        [['extensão de número { 5 }'], 'Esperado declaração de método na extensão.'],
+        [['var a = 1', 'var b = 2', 'a b'], 'Não é permitido ter dois identificadores seguidos na mesma linha.'],
+    ])('Erro em %j', async (codigo: string[], mensagem: string) => {
+        const retorno = await new AvaliadorSintatico().analisar(new Lexador().mapear(codigo, -1), -1);
+        expect(retorno.erros.map((erro) => erro.message).some((m) => m.includes(mensagem))).toBe(true);
+    });
+});

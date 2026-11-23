@@ -162,26 +162,11 @@ export class EstilizadorDelegua implements EstilizadorInterface {
     private estilizarConstruto(construto: ConstrutoInterface): ConstrutoInterface {
         let construtoAtual = construto;
 
-        // Aplica regras de construto
+        // Aplica regras de construto. Construtos só são visitados fora do modo de validação
+        // (ver `estilizarDeclaracao`), então aqui as regras sempre transformam o construto.
         for (const regra of this.regras) {
             if (regra.aplicarEmConstruto) {
-                if (this.modoValidacao) {
-                    // Em modo validação, não modifica, apenas verifica
-                    const construtoOriginal = JSON.stringify(construtoAtual);
-                    const construtoModificado = regra.aplicarEmConstruto(construtoAtual);
-
-                    if (JSON.stringify(construtoModificado) !== construtoOriginal) {
-                        this.violacoes.push({
-                            regra: regra.nome,
-                            mensagem: `${regra.descricao} não foi aplicada`,
-                            linha: (construto as any).linha || 0,
-                            hashArquivo: -1,
-                            severidade: 'aviso',
-                        });
-                    }
-                } else {
-                    construtoAtual = regra.aplicarEmConstruto(construtoAtual);
-                }
+                construtoAtual = regra.aplicarEmConstruto(construtoAtual);
             }
         }
 
@@ -225,20 +210,15 @@ export class EstilizadorDelegua implements EstilizadorInterface {
      * Verifica se um objeto é uma Declaração.
      */
     private ehDeclaracao(obj: any): obj is Declaracao {
-        return (
-            obj &&
-            typeof obj === 'object' &&
-            'paraTexto' in obj &&
-            'linha' in obj &&
-            'hashArquivo' in obj
-        );
+        return obj instanceof Declaracao;
     }
 
     /**
      * Verifica se um objeto é um Construto.
      */
     private ehConstruto(obj: any): obj is ConstrutoInterface {
-        return obj && typeof obj === 'object' && 'aceitar' in obj && !('paraTexto' in obj);
+        // Construtos também implementam `paraTexto`, então a distinção é feita pela classe.
+        return !!obj && typeof obj === 'object' && 'aceitar' in obj && !(obj instanceof Declaracao);
     }
 
     estilizar(declaracoes: Declaracao[]): Declaracao[] {

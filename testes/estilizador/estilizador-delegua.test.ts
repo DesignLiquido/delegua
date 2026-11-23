@@ -952,3 +952,17 @@ describe('Estilizador Delégua', () => {
         });
     });
 });
+
+describe('Estilizador Delégua - regras em construtos', () => {
+    it('Convenção de nomenclatura alcança declarações dentro de funções anônimas', async () => {
+        const retornoAvaliadorSintatico = await new AvaliadorSintatico().analisar(
+            new Lexador().mapear(['var f = funcao() { var MeuNome = 1; retorna MeuNome }', 'escreva(f() + 1)'], -1),
+            -1
+        );
+        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+        const estilizador = new EstilizadorDelegua([new RegraConvencaoNomenclatura({ variavel: 'caixaCamelo' })]);
+        const declaracoes = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
+        const funcaoAnonima: any = (declaracoes[0] as Var).inicializador;
+        expect(funcaoAnonima.corpo[0].simbolo.lexema).toBe('meuNome');
+    });
+});

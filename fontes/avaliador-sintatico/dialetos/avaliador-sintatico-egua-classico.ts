@@ -756,6 +756,12 @@ export class AvaliadorSintaticoEguaClassico implements AvaliadorSintaticoInterfa
                     caminhoPadrao = {
                         declaracoes,
                     };
+                } else {
+                    // Sem este caso, um símbolo inesperado faria o laço nunca avançar.
+                    throw this.erro(
+                        this.simboloAtual(),
+                        "Esperado 'caso' ou 'padrao' em declaração de 'escolha'."
+                    );
                 }
             }
 

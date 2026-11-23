@@ -225,3 +225,21 @@ describe('Lexador (Prisma)', () => {
         });
     });
 });
+
+describe('Lexador (Prisma) - símbolos adicionais', () => {
+    it.each([
+        ['a : b', ['DOIS_PONTOS']],
+        ['a != b', ['DIFERENTE']],
+        ['a += 1', ['MAIS_IGUAL']],
+        ['a -> b', ['SETA']],
+        ['a ^ b', ['BIT_XOR']],
+        ["a = 'texto'", ['TEXTO']],
+        ['a = "texto"', ['TEXTO']],
+        ['a = 12.5', ['NUMERO']],
+    ])('Mapeia %s', (codigo: string, tiposEsperados: string[]) => {
+        const resultado = new LexadorPrisma().mapear([codigo], -1);
+        expect(resultado.erros).toHaveLength(0);
+        const tipos = resultado.simbolos.map((simbolo) => simbolo.tipo);
+        expect(tipos).toEqual(expect.arrayContaining(tiposEsperados));
+    });
+});

@@ -1517,3 +1517,116 @@ describe('Tradutor Delégua -> AssemblyScript', () => {
         });
     })
 })
+
+describe('Tradutor Delégua -> AssemblyScript (casos adicionais)', () => {
+    const traduzir = async (codigo: string[]) => {
+        const lexador = new Lexador();
+        const avaliadorSintatico = new AvaliadorSintatico();
+        const retornoLexador = lexador.mapear(codigo, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+        return new TradutorAssemblyScript().traduzir(retornoAvaliadorSintatico.declaracoes);
+    };
+
+    it.each([
+        [
+            ['var t2 = [(1, 2)]', 'var t3 = [(1, 2, 3)]', 'var t4 = [(1, 2, 3, 4)]', 'var t5 = [(1, 2, 3, 4, 5)]'],
+            ['[1, 2]', '[1, 2, 3]', '[1, 2, 3, 4]', '[1, 2, 3, 4, 5]'],
+        ],
+        [
+            ['var t6 = [(1, 2, 3, 4, 5, 6)]', 'var t7 = [(1, 2, 3, 4, 5, 6, 7)]', 'var t8 = [(1, 2, 3, 4, 5, 6, 7, 8)]'],
+            ['[1, 2, 3, 4, 5, 6]', '[1, 2, 3, 4, 5, 6, 7]', '[1, 2, 3, 4, 5, 6, 7, 8]'],
+        ],
+        [
+            ['var t9 = [(1, 2, 3, 4, 5, 6, 7, 8, 9)]', 'var t10 = [(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)]'],
+            ['[1, 2, 3, 4, 5, 6, 7, 8, 9]', '[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]'],
+        ],
+        [
+            ['funcao f(): inteiro { retorna 1 }', 'funcao g(): texto { se verdadeiro { retorna "a" } }'],
+            ['function f(): i32', 'function g(): string'],
+        ],
+        [
+            ['para (var i = 0; i < 3; i++) { se i == 1 { continua } se i == 2 { sustar } }'],
+            ['for (let i: f64 = 0; i < 3; i++)', 'continue', 'break'],
+        ],
+        [['enquanto verdadeiro { sustar }', 'fazer { escreva(1) } enquanto falso'], ['while (true)', 'do {', 'while (false)']],
+        [['para cada x em [1, 2] { escreva(x) }'], ['const __arr_x = [1, 2];', 'const x = __arr_x[__i_x];']],
+        [['escolha 1 { caso 1: escreva(1) caso 2: escreva(2) padrao: escreva(3) }'], ['switch (1)', 'case 2:', 'default:']],
+        [['tente { escreva(1) } pegue (erro) { escreva(erro) } finalmente { escreva(2) }'], ['try {', 'catch {', 'finally {']],
+        [
+            ['escreva("a" + texto(1))', 'escreva(inteiro("1"), real("1.5"))'],
+            ['String(1)', 'Math.trunc("1")', 'parseFloat("1.5")'],
+        ],
+        [
+            ['var s = "abc"', 'escreva(s.maiusculo())', 'var v = [3, 1]', 'v.adicionar(2)', 'escreva(v.ordenar())'],
+            ['s.toUpperCase()', 'v.push(2)', 'v.sort()'],
+        ],
+        [['var v = [1, 2]', 'v[0] = 3', 'v[1] = v[0]'], ['v[0] = 3', 'v[1] = v[0]']],
+        [
+            ['se 1 > 2 { escreva(1) } senao se 2 > 1 { escreva(2) } senao { escreva(3) }'],
+            ['if (1 > 2)', 'else if (2 > 1)', 'else {'],
+        ],
+        [['escreva(1)', '// comentario', '/* bloco */'], ['// comentario', '/*bloco']],
+        [
+            ['var x: real = 1.5', 'var w: logico = verdadeiro', 'var v: inteiro[] = [1]'],
+            ['let x: f64 = 1.5', 'let w: bool = true', 'let v: i32[] = [1]'],
+        ],
+    ])('Traduz %j', async (codigo: string[], esperados: string[]) => {
+        const resultado = await traduzir(codigo);
+        for (const esperado of esperados) {
+            expect(resultado).toContain(esperado);
+        }
+    });
+
+    it('Parâmetro sem tipo gera erro', async () => {
+        await expect(traduzir(['funcao f(a, b) { retorna a + b }'])).rejects.toThrow(
+            "Parâmetro 'a' da função 'f' não tem tipo definido."
+        );
+    });
+
+    it('tipo de não é suportado', async () => {
+        await expect(traduzir(['var a = 1', 'escreva(tipo de a)'])).rejects.toThrow(
+            'O operador typeof não é suportado no AssemblyScript.'
+        );
+    });
+});
+
+describe('TradutorAssemblyScript (correções de operadores, métodos e senão se)', () => {
+    const traduzir = async (codigo: string[]) => {
+        const retornoAvaliadorSintatico = await new AvaliadorSintatico().analisar(new Lexador().mapear(codigo, -1), -1);
+        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+        return await new TradutorAssemblyScript().traduzir(retornoAvaliadorSintatico.declaracoes);
+    };
+
+    it.each([
+        [['escreva(1 << 2, 8 >> 1, 5 ^ 1, !verdadeiro, ~1)'], ['trace(1 << 2, 8 >> 1, 5 ^ 1, !true, ~1)']],
+        [
+            ['var v = [1, 2, 3]', 'escreva(v.fatiar(0, 1), v.inclui(2), v.inverter(), v.juntar(","))', 'v.removerPrimeiro()', 'v.removerUltimo()'],
+            ['v.slice(0, 1)', 'v.includes(2)', 'v.reverse()', 'v.join(",")', 'v.shift()', 'v.pop()'],
+        ],
+        [['var s = "abc"', 'escreva(s.minusculo(), s.substituir("a", "b"))'], ['s.toLowerCase()', 's.replace("a", "b")']],
+        [['var x = 1', 'se x == 1 { escreva(1) } senao se x == 2 { escreva(2) }'], ['if (x == 1){\n    trace(1)\n}\nelse if (x == 2){\n    trace(2)\n}\n \n']],
+        [['escolha 1 { caso 1: caso 2: escreva(1) padrao: escreva(3) }'], ['case 1:\n    case 2:']],
+    ])('Traduz %j', async (codigo: string[], esperados: string[]) => {
+        const resultado = await traduzir(codigo);
+        for (const esperado of esperados) {
+            expect(resultado).toContain(esperado);
+        }
+    });
+});
+
+describe('TradutorAssemblyScript (vetores tipados e classes)', () => {
+    const traduzir = async (codigo: string[]) => {
+        const retornoAvaliadorSintatico = await new AvaliadorSintatico().analisar(new Lexador().mapear(codigo, -1), -1);
+        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+        return await new TradutorAssemblyScript().traduzir(retornoAvaliadorSintatico.declaracoes);
+    };
+
+    it.each([
+        [['var v: inteiro[] = [1, 2, 3]', 'v.adicionar(4)', 'escreva(v.fatiar(0, 1), v.inclui(2), v.inverter(), v.juntar(","), v.ordenar(), v.somar(), v.tamanho())', 'v.removerPrimeiro()', 'v.removerUltimo()', 'escreva(v.mapear(funcao(x: inteiro) { retorna x * 2 }))'], ['let v: i32[] = [1, 2, 3];', 'v.push(4)', 'v.slice(0, 1)', 'v.includes(2)', 'v.reverse()', 'v.shift()', 'v.pop()']],
+    ])('Traduz %j', async (codigo: string[], esperados: string[]) => {
+        const resultado = await traduzir(codigo);
+        for (const esperado of esperados) {
+            expect(resultado).toContain(esperado);
+        }
+    });
+});

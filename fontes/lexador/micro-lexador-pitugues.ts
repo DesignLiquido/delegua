@@ -166,7 +166,7 @@ export class MicroLexadorPitugues {
             case '*':
                 this.atual++;
                 switch (this.codigo[this.atual]) {
-                    case '**':
+                    case '*':
                         this.atual++;
                         this.adicionarSimbolo(tiposDeSimbolos.EXPONENCIACAO);
                         break;

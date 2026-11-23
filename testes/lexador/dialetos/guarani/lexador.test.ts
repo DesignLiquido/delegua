@@ -42,3 +42,22 @@ describe('Lexador', () => {
         });
     });
 });
+
+describe('Lexador (Guarani) - casos adicionais', () => {
+    it('Números inteiros e decimais', () => {
+        const resultado = new LexadorGuarani().mapear(['hai(12.5)', 'hai(7)'], -1);
+        expect(resultado.erros).toHaveLength(0);
+        const numeros = resultado.simbolos.filter((simbolo) => simbolo.tipo === tiposDeSimbolos.NUMERO);
+        expect(numeros.map((simbolo) => simbolo.literal)).toEqual([12.5, 7]);
+    });
+
+    it('Texto não finalizado', () => {
+        const resultado = new LexadorGuarani().mapear(['hai("abc'], -1);
+        expect(resultado.erros.length).toBeGreaterThan(0);
+    });
+
+    it('Caractere inesperado', () => {
+        const resultado = new LexadorGuarani().mapear(['hai($)'], -1);
+        expect(resultado.erros.length).toBeGreaterThan(0);
+    });
+});

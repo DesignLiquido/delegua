@@ -135,16 +135,13 @@ export class FormatadorPitugues implements VisitantePituguesInterface {
     }
 
     async visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> {
-        this.códigoFormatado += '(';
-        for (let i = 0; i < expressao.elementos.length; i++) {
-            const elemento = expressao.elementos[i];
-            this.códigoFormatado += await elemento.aceitar(this);
-            if (i < expressao.elementos.length - 1) {
-                this.códigoFormatado += ', ';
-            }
+        // Tuplas são expressões: o texto é devolvido para quem as usa.
+        const elementos: string[] = [];
+        for (const elemento of expressao.elementos) {
+            elementos.push(await elemento.aceitar(this));
         }
 
-        this.códigoFormatado += ')';
+        return `(${elementos.join(', ')})`;
     }
 
     async visitarDeclaracaoDeExpressao(declaracao: Expressao): Promise<any> {
@@ -359,7 +356,7 @@ export class FormatadorPitugues implements VisitantePituguesInterface {
 
     async visitarDeclaracaoImportar(declaração: Importar): Promise<any> {
         const caminho = await declaração.caminho.aceitar(this);
-        this.adicionarLinha(`importar "${caminho.replace(/'/g, '')}"`);
+        this.adicionarLinha(`importar ${caminho.replace(/['"]/g, '')}`);
     }
 
     async visitarDeclaracaoComentario(declaração: Comentario): Promise<any> {
@@ -385,7 +382,7 @@ export class FormatadorPitugues implements VisitantePituguesInterface {
     }
 
     visitarExpressaoContinua(): any {
-        this.adicionarLinha('continue');
+        this.adicionarLinha('continua');
     }
 
     visitarExpressaoSustar(): any {
@@ -394,7 +391,7 @@ export class FormatadorPitugues implements VisitantePituguesInterface {
 
     async visitarExpressaoFalhar(expressão: Falhar): Promise<any> {
         const mensagem = expressão.explicacao ? await expressão.explicacao.aceitar(this) : '"Erro"';
-        this.adicionarLinha(`levante Erro(${mensagem})`);
+        this.adicionarLinha(`falhar ${mensagem}`);
     }
 
     async visitarExpressaoDeAtribuicao(expressão: Atribuir): Promise<any> {
@@ -520,20 +517,28 @@ export class FormatadorPitugues implements VisitantePituguesInterface {
             })
             .join(', ');
 
-        let funçãoStr = `função(${parâmetros || ''}):\n`;
+        // Função anônima de uma única expressão: `função(x): x * 2`.
+        if (expressão.corpo.length === 1 && expressão.corpo[0] instanceof Expressao) {
+            const corpoExpressao = await (expressão.corpo[0] as Expressao).expressao.aceitar(this);
+            return `função(${parâmetros || ''}): ${corpoExpressao}`;
+        }
 
+        // As declarações do corpo escrevem diretamente no código formatado.
+        // Por isso, o código formatado é temporariamente trocado para capturar o corpo.
+        const códigoAnterior = this.códigoFormatado;
+        this.códigoFormatado = '';
         this.aumentarIndentação();
         for (const instrução of expressão.corpo) {
             const linha = await instrução.aceitar(this);
-            if (linha) {
-                // Only add if it returns something
-                funçãoStr += this.indentar() + linha;
-                if (!linha.endsWith('\n')) funçãoStr += '\n';
+            if (typeof linha === 'string' && linha) {
+                this.códigoFormatado += this.indentar() + linha + this.quebraLinha;
             }
         }
         this.diminuirIndentação();
+        const corpo = this.códigoFormatado;
+        this.códigoFormatado = códigoAnterior;
 
-        return funçãoStr.trimEnd();
+        return `função(${parâmetros || ''}):${this.quebraLinha}${corpo}`.trimEnd();
     }
 
     async visitarExpressaoLeia(expressão: Leia): Promise<any> {
@@ -543,7 +548,7 @@ export class FormatadorPitugues implements VisitantePituguesInterface {
 
     async visitarExpressaoTipoDe(expressão: TipoDe): Promise<any> {
         const valor = await expressão.valor.aceitar(this);
-        return `type(${valor})`;
+        return `tipo(${valor})`;
     }
 
     async visitarExpressaoMorsa(expressao: Morsa): Promise<any> {

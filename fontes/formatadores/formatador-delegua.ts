@@ -176,7 +176,7 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
 
     visitarExpressaoElvis(expressao: Elvis): Promise<any> | void {
         this.formatarDeclaracaoOuConstruto(expressao.esquerda);
-        this.codigoFormatado += ` ?? `;
+        this.codigoFormatado += ` ?: `;
         this.formatarDeclaracaoOuConstruto(expressao.direita);
     }
 
@@ -195,7 +195,7 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
         this.codigoFormatado += `[`;
         this.formatarDeclaracaoOuConstruto(listaCompreensao.expressaoRetorno);
         this.codigoFormatado += ` para cada `;
-        this.formatarDeclaracaoOuConstruto(listaCompreensao.referenciaVariavelIteracao);
+        this.formatarDeclaracaoOuConstruto(listaCompreensao.paraCada.variavelIteracao);
         this.codigoFormatado += ` de `;
         this.formatarDeclaracaoOuConstruto(listaCompreensao.paraCada.vetorOuDicionario);
         this.codigoFormatado += `]`;
@@ -265,7 +265,27 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
 
     /* istanbul ignore next */
     visitarExpressaoTuplaN(expressao: TuplaN): Promise<any> | void {
-        throw new Error('Método não implementado.');
+        this.codigoFormatado += '(';
+        this.formatarListaConstrutos(expressao.elementos);
+        this.codigoFormatado += ')';
+    }
+
+    /**
+     * Formata uma lista de construtos separados por vírgula.
+     * Separadores vindos do avaliador sintático são ignorados, já que as
+     * vírgulas são escritas aqui.
+     */
+    protected formatarListaConstrutos(construtos: ConstrutoInterface[]): void {
+        const construtosSemSeparadores = construtos.filter(
+            (construto) => !(construto instanceof Separador)
+        );
+        for (const [indice, construto] of construtosSemSeparadores.entries()) {
+            if (indice > 0) {
+                this.codigoFormatado += ', ';
+            }
+
+            this.formatarDeclaracaoOuConstruto(construto);
+        }
     }
 
     /* istanbul ignore next */
@@ -346,7 +366,24 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
     }
 
     visitarExpressaoTupla(expressao: Tupla): any {
-        return '';
+        const propriedades = [
+            'primeiro',
+            'segundo',
+            'terceiro',
+            'quarto',
+            'quinto',
+            'sexto',
+            'setimo',
+            'oitavo',
+            'nono',
+            'decimo',
+        ];
+        const elementos = propriedades
+            .map((propriedade) => (expressao as any)[propriedade])
+            .filter((elemento) => elemento !== undefined);
+        this.codigoFormatado += '[(';
+        this.formatarListaConstrutos(elementos);
+        this.codigoFormatado += ')]';
     }
 
     visitarDeclaracaoClasse(declaracao: Classe) {
@@ -451,7 +488,7 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
             this.codigoFormatado += `${declaracao.simbolo.lexema}`;
         }
 
-        this.formatarDeclaracaoOuConstruto(declaracao.funcao);
+        this.visitarExpressaoFuncaoConstruto(declaracao.funcao);
     }
 
     visitarDeclaracaoEnquanto(declaracao: Enquanto) {
@@ -927,6 +964,11 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
             return;
         }
 
+        if (expressao.valor === null) {
+            this.codigoFormatado += 'nulo';
+            return;
+        }
+
         this.codigoFormatado += expressao.valor;
     }
 
@@ -1008,15 +1050,7 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
 
     visitarExpressaoVetor(expressao: Vetor): void {
         this.codigoFormatado += '[';
-        for (let valor of expressao.valores) {
-            this.formatarDeclaracaoOuConstruto(valor);
-            this.codigoFormatado += ', ';
-        }
-
-        if (expressao.valores.length > 0) {
-            this.codigoFormatado = this.codigoFormatado.slice(0, -2);
-        }
-
+        this.formatarListaConstrutos(expressao.valores);
         this.codigoFormatado += ']';
     }
 
@@ -1103,6 +1137,8 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
                 this.visitarDeclaracaoFazer(declaracaoOuConstruto as Fazer);
                 break;
             case FuncaoConstruto:
+                // Função anônima usada como expressão.
+                this.codigoFormatado += 'função';
                 this.visitarExpressaoFuncaoConstruto(declaracaoOuConstruto as FuncaoConstruto);
                 break;
             case FuncaoDeclaracao:
@@ -1175,7 +1211,12 @@ export class FormatadorDelegua implements VisitanteDeleguaInterface {
                 this.visitarExpressaoVetor(declaracaoOuConstruto as Vetor);
                 break;
             default:
-                console.log(declaracaoOuConstruto.constructor.name);
+                // Demais construtos (tuplas, ternários, compreensões de lista, etc.)
+                // são resolvidos pelo seu próprio método `aceitar`.
+                // Os métodos de visita do formatador são síncronos, mas `aceitar` pode
+                // devolver uma promessa. Erros de construtos não suportados são ignorados,
+                // como já acontecia antes com construtos desconhecidos.
+                Promise.resolve(declaracaoOuConstruto.aceitar(this)).catch(() => {});
                 break;
         }
     }

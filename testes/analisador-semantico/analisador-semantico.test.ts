@@ -2957,3 +2957,70 @@ describe('Analisador semântico', () => {
         });
     });
 });
+
+describe('Analisador semântico (casos adicionais)', () => {
+    const analisar = async (codigo: string[]) => {
+        const lexador = new Lexador();
+        const avaliadorSintatico = new AvaliadorSintatico();
+        const retornoLexador = lexador.mapear(codigo, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+        const retorno = await new AnalisadorSemantico().analisar(retornoAvaliadorSintatico.declaracoes);
+        return retorno.diagnosticos.map((d) => d.mensagem);
+    };
+
+    it.each([
+        [['importar tudo como m de "outro"', 'escreva(m)']],
+        [['funcao f(a: numero) { retorna a }', 'funcao g(h) { retorna h(1) }', 'escreva(g(f))']],
+        [['var x = 1', 'se x > 1 { escreva(1) } senao se x > 0 { escreva(2) }']],
+        [[
+            'const a = 1 + 2 * 3',
+            'const b = (a - 1) / 2 % 3',
+            'se b > 1 e b >= 1 e b < 9 e b <= 9 e b == 1 e b != 2 { escreva(b) }',
+        ]],
+        [['classe A { m() { } }', 'classe B herda A { }', 'var b = B()', 'b.m()']],
+        [['extensão de número { dobro() { retorna isto * 2 } }', 'var n = 5', 'escreva(n.dobro())']],
+        [['tente { escreva(1) } pegue (e_) { escreva(e_) }']],
+    ])('Sem diagnósticos: %j', async (codigo: string[]) => {
+        const diagnosticos = await analisar(codigo);
+        expect(diagnosticos).toHaveLength(0);
+    });
+
+    it.each([
+        [
+            ['var x = 1', 'escolha x { caso "a": escreva(1) caso "b": escreva(2) }'],
+            "'caso a:' não é do mesmo tipo esperado em 'escolha' (esperado: número, atual: texto).",
+        ],
+        [['var x', 'escolha x { caso 1: escreva(1) caso 2: escreva(2) }'], "Um tipo melhor pode ser inferido para 'x': 'número'"],
+        [['var x', 'escreva(x)'], "Variável 'x' não foi inicializada."],
+        [['var x = leia()', 'var y = x * 2'], "A variável foi inicializada com 'leia()' que retorna texto."],
+        [['var y = leia() * 2'], "Função 'leia()' retorna texto."],
+        [['funcao f(): numero { se verdadeiro { retorna 1 } }'], "Função 'f' deve retornar 'numero' em todos os caminhos de execução."],
+        [['funcao f(): texto { retorna 1 }'], "Esperado retorno do tipo 'texto' dentro da função."],
+        [['funcao f(): numero { retorna "a" }'], "Esperado retorno do tipo 'numero' dentro da função."],
+        [['funcao f(): numero { }'], "especifica tipo de retorno 'numero', mas não há qualquer retorno correspondente"],
+        [['classe A { m(): numero { } }'], "especifica tipo de retorno 'numero', mas não há qualquer retorno correspondente"],
+        [['classe A { m() { } }', 'var a = A()', 'a.inexistente()'], "Método não encontrado na classe 'A': inexistente."],
+        [['const a = 1', 'const a = 2'], 'Declaração de constante já feita.'],
+        [['var x: numero = "a"'], "Atribuição inválida para 'x': é esperado um valor do tipo número. Atual: texto."],
+    ])('Diagnóstico em %j', async (codigo: string[], mensagem: string) => {
+        const diagnosticos = await analisar(codigo);
+        expect(diagnosticos.some((d) => d.includes(mensagem))).toBe(true);
+    });
+});
+
+describe('Analisador semântico base - métodos de visita padrão', () => {
+    it('Todos os métodos de visita padrão resolvem sem erros', async () => {
+        const { AnalisadorSemanticoBase } = require('../../fontes/analisador-semantico/analisador-semantico-base');
+        const nomesMetodos = Object.getOwnPropertyNames(AnalisadorSemanticoBase.prototype).filter((nome) =>
+            nome.startsWith('visitar')
+        );
+        expect(nomesMetodos.length).toBeGreaterThan(0);
+        const analisador: any = new AnalisadorSemantico();
+        for (const nomeMetodo of nomesMetodos) {
+            await expect(
+                Promise.resolve().then(() => AnalisadorSemanticoBase.prototype[nomeMetodo].call(analisador, {}))
+            ).resolves.not.toThrow();
+        }
+    });
+});

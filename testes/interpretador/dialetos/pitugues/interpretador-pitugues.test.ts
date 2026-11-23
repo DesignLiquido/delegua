@@ -5899,3 +5899,48 @@ describe('Interpretador (Pituguês)', () => {
         });
     });
 });
+
+describe('Interpretador (Pituguês) - acesso a métodos e propriedades', () => {
+    const executar = async (codigo: string[]) => {
+        const saidas: string[] = [];
+        const retornoAvaliadorSintatico = await new AvaliadorSintaticoPitugues().analisar(
+            new LexadorPitugues().mapear(codigo, -1),
+            -1
+        );
+        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+        const interpretador = new InterpretadorPitugues(process.cwd(), false, (s: string) => saidas.push(s));
+        const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        const erros = retorno.erros.map((erro: any) => erro.erroInterno?.message ?? erro.mensagem ?? String(erro));
+        return { saidas, erros };
+    };
+
+    it.each([
+        [['v = [3, 1, 2]', 'f = v.ordenar', 'escreva(f())', 'escreva(v.juntar("-"))'], ['[1, 2, 3]', '1-2-3']],
+        [['t = (1, 2, 3)', 'escreva(t.juntar("-"))', 'f = t.juntar', 'escreva(f(","))'], ['1-2-3', '1,2,3']],
+        [['d = {"a": 1}', 'escreva(d.chaves())', 'escreva(d.valores())', 'f = d.chaves', 'escreva(f())'], ["['a']", '[1]', "['a']"]],
+        [['s = "abc"', 'escreva(s.maiusculo())', 'f = s.maiusculo', 'escreva(f())'], ['ABC', 'ABC']],
+        [['classe A:', '    funcao m():', '        retorna 1', 'a = A()', 'f = a.m', 'escreva(f())', 'escreva(a.m())'], ['1', '1']],
+        [['funcao f():', '    retorna [3, 1]', 'escreva(f().ordenar())'], ['[1, 3]']],
+        [['funcao f():', '    retorna (1, 2)', 'escreva(f().juntar("-"))'], ['1-2']],
+        [['funcao f():', '    retorna {"a": 1}', 'escreva(f().chaves())'], ["['a']"]],
+        [['funcao f():', '    retorna "ab"', 'escreva(f().maiusculo())'], ['AB']],
+        [['n = 5.5', 'escreva(n.arredondar())'], ['6']],
+        [['t = (1, 2)', 'escreva(t[0], t[-1])'], ['1 2']],
+        [['v = [1, 2, 3]', 'escreva(v[1:], v[:1], v[::2])'], ['[2, 3] [1] [1, 3]']],
+        [['x = 3', 'escreva(f"valor {x}")'], ['valor 3']],
+        [['escreva("${2 ** 3}")'], ['8']],
+    ])('Executa %j', async (codigo: string[], saidasEsperadas: string[]) => {
+        const { saidas, erros } = await executar(codigo);
+        expect(erros).toHaveLength(0);
+        expect(saidas).toEqual(saidasEsperadas);
+    });
+
+    it.each([
+        [['x = 5', 'escreva(x.inexistente())'], 'Método ou propriedade para objeto ou primitiva não encontrado: inexistente.'],
+        [['x = 5', 'escreva(x.inexistente)'], 'Método ou propriedade para objeto ou primitiva não encontrado: inexistente.'],
+        [['v = [1]', 'escreva(v.inexistente)'], 'Método ou propriedade para objeto ou primitiva não encontrado: inexistente.'],
+    ])('Erro em %j', async (codigo: string[], mensagem: string) => {
+        const { erros } = await executar(codigo);
+        expect(erros[0]).toContain(mensagem);
+    });
+});

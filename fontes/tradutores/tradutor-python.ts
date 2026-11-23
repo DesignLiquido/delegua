@@ -86,6 +86,12 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
                 return '*';
             case tiposDeSimbolos.OU:
                 return 'or';
+            case tiposDeSimbolos.MENOR_MENOR:
+                return '<<';
+            case tiposDeSimbolos.MAIOR_MAIOR:
+                return '>>';
+            case tiposDeSimbolos.NEGACAO:
+                return 'not ';
             case tiposDeSimbolos.SUBTRACAO:
                 return '-';
         }
@@ -114,7 +120,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
             case 'empilhar':
                 return `${objetoResolvido}.append(${textoArgumentos})`;
             case 'fatiar':
-                return `${objetoResolvido}[${argumentos[0]}:${argumentos[1]}]`;
+                return `${objetoResolvido}[${argumentosResolvidos[0]}:${argumentosResolvidos[1]}]`;
             case 'inclui':
                 return `${argumentosResolvidos[0]} in ${objetoResolvido}`;
             case 'inverter':
@@ -124,7 +130,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
             case 'maiusculo':
                 return `${objetoResolvido}.upper()`;
             case 'mapear':
-                return `list(map(${this.traduzirFuncaoAnonimaParaLambda(argumentos[0])}), ${objetoResolvido})`;
+                return `list(map(${this.traduzirFuncaoAnonimaParaLambda(argumentos[0])}, ${objetoResolvido}))`;
             case 'minusculo':
                 return `${objetoResolvido}.lower()`;
             case 'ordenar':
@@ -141,7 +147,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
                 return `len(${objetoResolvido})`;
         }
 
-        return `${objetoResolvido}.${nomeMetodo}(${textoArgumentos}))`;
+        return `${objetoResolvido}.${nomeMetodo}(${textoArgumentos})`;
     }
 
     protected logicaComumBlocoEscopo(declaracoes: Declaracao[]): string {
@@ -242,19 +248,19 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
                 textoArgumentos = textoArgumentos.slice(0, -2);
                 return `${objetoResolvido}.append(${textoArgumentos})`;
             case 'fatiar':
-                return `${objetoResolvido}[${argumentos[0]}:${argumentos[1]}]`;
+                return `${objetoResolvido}[${argumentosResolvidos[0]}:${argumentosResolvidos[1]}]`;
             case 'inclui':
-                return `${argumentos[0]} in ${objetoResolvido}`;
+                return `${argumentosResolvidos[0]} in ${objetoResolvido}`;
             case 'inverter':
                 return `reversed(${objetoResolvido})`;
             case 'juntar':
-                return `${argumentos[0]}.join(${objetoResolvido})`;
+                return `${argumentosResolvidos[0]}.join(${objetoResolvido})`;
             case 'mapear':
-                return `list(map(${this.traduzirFuncaoAnonimaParaLambda(argumentos[0])}), ${objetoResolvido})`;
+                return `list(map(${this.traduzirFuncaoAnonimaParaLambda(argumentos[0])}, ${objetoResolvido}))`;
             case 'ordenar':
                 return `${objetoResolvido}.sort()`;
             case 'remover':
-                return `del ${objetoResolvido}[${argumentos[0]}]`;
+                return `del ${objetoResolvido}[${argumentosResolvidos[0]}]`;
             case 'removerPrimeiro':
                 return `del ${objetoResolvido}[0]`;
             case 'removerUltimo':
@@ -429,13 +435,12 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
     }
 
     traduzirConstrutoDefinirValor(definirValor: DefinirValor): string {
-        let resultado = '';
-        if (definirValor.objeto instanceof Isto) {
-            resultado = 'self.' + definirValor.nome.lexema + ' = ';
-        }
-
-        resultado += definirValor.valor.simbolo.lexema;
-        return resultado;
+        const objeto =
+            definirValor.objeto instanceof Isto
+                ? 'self'
+                : this.dicionarioConstrutos[definirValor.objeto.constructor.name](definirValor.objeto);
+        const valor = this.dicionarioConstrutos[definirValor.valor.constructor.name](definirValor.valor);
+        return `${objeto}.${definirValor.nome.lexema} = ${valor}`;
     }
 
     traduzirConstrutoDicionario(dicionario: Dicionario): string {
@@ -854,6 +859,9 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
                     resultado += this.traduzirCorpoSe(senao.caminhoSenao);
                     return resultado;
                 }
+
+                // Cadeia 'senão se' sem 'senão' final.
+                return resultado;
             }
 
             resultado += 'else:\n';

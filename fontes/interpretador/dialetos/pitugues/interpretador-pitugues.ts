@@ -419,9 +419,13 @@ export class InterpretadorPitugues extends Interpretador {
         const retornoQuebra = new RetornoQuebra(valor, declaracao.tipo);
         
         if (retornoQuebra.valor) {
+            // Verifica tanto o valor original (que pode ser uma `ReferenciaMontao`)
+            // quanto o valor resolvido (que pode ser uma `DeleguaFuncao`).
             const valorResolvido = this.resolverValor(retornoQuebra.valor);
-            const construtorRetorno = valorResolvido?.constructor?.name?.replaceAll('_', '') ?? '';
-            if (['DeleguaFuncao', 'ReferenciaMontao'].includes(construtorRetorno))
+            const construtores = [retornoQuebra.valor, valorResolvido].map(
+                (valorAtual) => valorAtual?.constructor?.name?.replaceAll('_', '') ?? ''
+            );
+            if (construtores.some((construtor) => ['DeleguaFuncao', 'ReferenciaMontao'].includes(construtor)))
                 retornoQuebra.preservarEscopo = true;
         }
         

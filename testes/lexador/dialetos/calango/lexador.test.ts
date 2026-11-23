@@ -298,3 +298,32 @@ describe('Lexador (Calango)', () => {
         });
     });
 });
+
+describe('Lexador (Calango) - símbolos adicionais', () => {
+    it.each([
+        ['a, b', ['VIRGULA']],
+        ['a - b * c / d', ['SUBTRACAO', 'MULTIPLICACAO', 'DIVISAO']],
+        ['a > b', ['MAIOR']],
+        ['a >= b', ['MAIOR_IGUAL']],
+    ])('Mapeia %s', (codigo: string, tiposEsperados: string[]) => {
+        const resultado = new LexadorCalango().mapear([codigo], -1);
+        expect(resultado.erros).toHaveLength(0);
+        const tipos = resultado.simbolos.map((simbolo) => simbolo.tipo);
+        expect(tipos).toEqual(expect.arrayContaining(tiposEsperados));
+    });
+
+    it('Quebra de linha dentro da linha', () => {
+        const resultado = new LexadorCalango().mapear(['a\nb'], -1);
+        expect(resultado.simbolos.map((simbolo) => simbolo.tipo)).toContain('QUEBRA_LINHA');
+    });
+
+    it('Caractere inesperado', () => {
+        const resultado = new LexadorCalango().mapear(['a $ b'], -1);
+        expect(resultado.erros.length).toBeGreaterThan(0);
+    });
+
+    it('Texto não finalizado', () => {
+        const resultado = new LexadorCalango().mapear(['"abc'], -1);
+        expect(resultado.erros.length).toBeGreaterThan(0);
+    });
+});

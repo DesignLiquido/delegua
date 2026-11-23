@@ -77,7 +77,7 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
 
             case tiposDeSimbolos.FALSO:
                 this.avancarEDevolverAnterior();
-                return new Literal(-1, Number(this.linha), false);
+                return new Literal(-1, Number(this.linha), false, 'lógico');
 
             case tiposDeSimbolos.IDENTIFICADOR:
                 const simboloIdentificador: SimboloInterface = this.avancarEDevolverAnterior();
@@ -120,7 +120,7 @@ export class MicroAvaliadorSintatico extends MicroAvaliadorSintaticoBase {
 
             case tiposDeSimbolos.VERDADEIRO:
                 this.avancarEDevolverAnterior();
-                return new Literal(-1, Number(this.linha), true);
+                return new Literal(-1, Number(this.linha), true, 'lógico');
         }
 
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');

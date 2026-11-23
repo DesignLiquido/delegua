@@ -1,3 +1,4 @@
+import { obterErroDeMetodo, obterMetodosNaoImplementados } from '../../_auxiliares/metodos-nao-implementados';
 import { AvaliadorSintatico } from "../../../fontes/avaliador-sintatico";
 import { Lexador } from "../../../fontes/lexador";
 import { TradutorMermaidJs } from '../../../fontes/tradutores';
@@ -875,5 +876,56 @@ describe('Tradutor Delégua -> MermaidJs', () => {
             expect(resultado).toContain('subgraph imprimir_Impressora["Método: imprimir()"]');
             expect(resultado).toContain("chamada a formatar");
         });
+    });
+});
+describe('TradutorMermaidJs - métodos não implementados', () => {
+    const instancia: any = new TradutorMermaidJs();
+    const metodos = obterMetodosNaoImplementados(Object.getPrototypeOf(instancia));
+
+    it('Possui métodos não implementados', () => {
+        expect(metodos.length).toBeGreaterThan(0);
+    });
+
+    it.each(metodos)('%s sinaliza que não está implementado', async (nomeMetodo: string) => {
+        expect(await obterErroDeMetodo(instancia, nomeMetodo)).toContain('não implementado');
+    });
+});
+
+describe('Tradutor Delégua -> Mermaid (casos adicionais)', () => {
+    const traduzir = async (codigo: string[]) => {
+        const retornoAvaliadorSintatico = await new AvaliadorSintatico().analisar(new Lexador().mapear(codigo, -1), -1);
+        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+        return await new TradutorMermaidJs().traduzir(retornoAvaliadorSintatico.declaracoes);
+    };
+
+    it.each([
+        [['const c = 1', 'escreva(c)'], ['variável: c, iniciada com: 1']],
+        [['var v = [1, 2]', 'escreva(v[0])'], ['escreva: no índice 0']],
+        [['classe A { x: numero }', 'var a = A()', 'a.x = 2', 'escreva(a.x)'], ['x em a recebe 2', 'método ou propriedade x']],
+        [
+            ['var d = {"a": 1, "b": 2}', 'var e_ = {}'],
+            ["dicionário, com chave \\'a\\' definida com o valor 1, chave \\'b\\' definida com o valor 2", 'dicionário vazio'],
+        ],
+        [['escreva(1 != 2, 2 ** 3, 1 << 2, 8 >> 1, 1 & 1, 1 | 2, 1 ^ 3)'], [
+            '1 for diferente de 2',
+            '2 elevado a 3',
+            'deslocar 1 à esquerda em 2 bits',
+            'deslocar 8 à direita em 1 bits',
+            '1 e bit a bit 1',
+            '1 ou bit a bit 2',
+            '1 ou exclusivo bit a bit 3',
+        ]],
+        [
+            ['tente { escreva(1) } pegue { escreva(2) } senao { escreva(3) }'],
+            ['|Erro|Linha1Pegue(pegue)', '|Sucesso|Linha1Senao(senão - sem erro)'],
+        ],
+        [['tente { escreva(1) } senao { escreva(3) } finalmente { escreva(4) }'], ['Linha1Finalmente(finalmente)']],
+        [['classe A { m() { retorna isto } }'], ['retorna: this']],
+        [['var t = (1, 2)', 'escreva(t)'], ['iniciada com: tupla(1, 2)']],
+    ])('Traduz %j', async (codigo: string[], esperados: string[]) => {
+        const resultado = await traduzir(codigo);
+        for (const esperado of esperados) {
+            expect(resultado).toContain(esperado);
+        }
     });
 });

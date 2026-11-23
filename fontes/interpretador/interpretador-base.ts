@@ -2271,7 +2271,14 @@ export class InterpretadorBase implements InterpretadorInterface {
                 const metodoParaTexto = valor.classe.encontrarMetodo('paraTexto');
                 if (metodoParaTexto) {
                     const funcaoBound = metodoParaTexto.funcaoPorMetodoDeClasse(valor);
-                    valor = this.resolverValor(await funcaoBound.chamar(this, []));
+                    let retornoParaTexto = await funcaoBound.chamar(this, []);
+                    // No Interpretador Base, o retorno de `chamar` pode vir envelopado
+                    // como resultado parcial, contendo um `RetornoQuebra`.
+                    if (retornoParaTexto?.valorRetornado instanceof RetornoQuebra) {
+                        retornoParaTexto = retornoParaTexto.valorRetornado.valor;
+                    }
+
+                    valor = this.resolverValor(retornoParaTexto);
                 }
             }
 
@@ -2771,6 +2778,12 @@ export class InterpretadorBase implements InterpretadorInterface {
             descritorTipoClasse.superClasses = [OBJETO_BASE];
         }
 
+        // Marcar a classe definidora em cada método, para que `super` resolva
+        // a partir da classe correta em heranças de vários níveis.
+        for (const funcao of Object.values(metodos)) {
+            (funcao as DeleguaFuncao).classeDefinidora = descritorTipoClasse;
+        }
+
         descritorTipoClasse.orem = DescritorTipoClasse.computarOReM(descritorTipoClasse);
         if (declaracao.estrangeira) {
             descritorTipoClasse.estrangeira = true;
@@ -2864,6 +2877,13 @@ export class InterpretadorBase implements InterpretadorInterface {
     async visitarExpressaoAcessoMetodoOuPropriedade(
         expressao: AcessoMetodoOuPropriedade
     ): Promise<any> {
+        if (expressao.objeto instanceof Super) {
+            const metodoSuperClasse = this.resolverMetodoSuperClasse(expressao.simbolo.lexema);
+            if (metodoSuperClasse) {
+                return metodoSuperClasse;
+            }
+        }
+
         let variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
         const nomeObjeto = this.resolverNomeObjectoAcessado(expressao.objeto);
 
@@ -3032,6 +3052,33 @@ export class InterpretadorBase implements InterpretadorInterface {
         }
 
         return valores;
+    }
+
+    /**
+     * Resolve `super.metodo` procurando o método nas superclasses da classe
+     * que está executando o método atual (ou, na falta dela, da classe da instância),
+     * e vincula o método encontrado à instância atual.
+     * @param nomeMetodo O nome do método.
+     * @returns O método vinculado, ou `null` se não encontrado.
+     */
+    protected resolverMetodoSuperClasse(nomeMetodo: string): any {
+        const instancia = this.pilhaEscoposExecucao.obterVariavelPorNome('isto')
+            .valor as ObjetoDeleguaClasse;
+        let classePartida: DescritorTipoClasse = instancia.classe;
+        try {
+            classePartida = this.pilhaEscoposExecucao.obterVariavelPorNome('classeExecutora').valor;
+        } catch (_erro: any) {
+            // Sem classe executora registrada, usa a classe da instância.
+        }
+
+        for (const superClasse of classePartida.superClasses || []) {
+            const metodo = superClasse.encontrarMetodo(nomeMetodo);
+            if (metodo) {
+                return metodo.funcaoPorMetodoDeClasse(instancia);
+            }
+        }
+
+        return null;
     }
 
     visitarExpressaoSuper(expressao: Super): any {

@@ -1083,3 +1083,23 @@ describe('Avaliador sintático (Pituguês)', () => {
         });
     });
 });
+
+describe('Avaliador sintático (Pituguês) - erros adicionais', () => {
+    it.each([
+        [['a, b = 1,'], 'Esperado inicializador após vírgula.'],
+        [['v = [1, , 2]'], 'Não podem haver duas vírgulas seguidas em uma definição de vetor'],
+        [['funcao f(*a):', '    retorna a', 'f(' + Array.from({ length: 256 }, (_, i) => String(i)).join(', ') + ')'], 'Não pode haver mais de 255 argumentos.'],
+        [['1 = 2'], 'Tarefa de atribuição inválida'],
+        [
+            ['escolha 1:', '    padrao:', '        escreva(1)', '    padrao:', '        escreva(2)'],
+            "Você só pode ter um caminho padrão em cada declaração de 'escolha'.",
+        ],
+        [['para cada 1 em [1]:', '    escreva(1)'], "Esperado identificador de variável de iteração para instrução 'para cada'."],
+        [['para cada x [1]:', '    escreva(1)'], "Esperado palavras reservadas 'em' ou 'de' após variável de iteração"],
+        [['n = 5', 'para cada x em n:', '    escreva(x)'], "O objeto do tipo 'inteiro' não é iterável."],
+        [['x: inteiro[ = [1]'], "Esperado símbolo de fechamento do vetor: ']'."],
+    ])('Erro em %j', async (codigo: string[], mensagem: string) => {
+        const retorno = await new AvaliadorSintaticoPitugues().analisar(new LexadorPitugues().mapear(codigo, -1), -1);
+        expect(retorno.erros.map((erro) => erro.message).some((m) => m.includes(mensagem))).toBe(true);
+    });
+});

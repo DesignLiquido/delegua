@@ -36,3 +36,32 @@ describe('MicroAvaliadorSintatico (Pituguês)', () => {
         });
     });
 });
+
+describe('MicroAvaliadorSintatico (Pituguês) - expressões adicionais', () => {
+    it.each([
+        ['[]'],
+        ['[1, 2, 3]'],
+        ['verdadeiro'],
+        ['falso'],
+        ['nulo'],
+        ['-5'],
+        ['2 ** 3'],
+        ['1 + 2 - 3'],
+        ['1 << 2 >> 1'],
+        ['1 & 2'],
+        ['1 | 2 ^ 3'],
+        ['verdadeiro e falso'],
+        ['verdadeiro ou falso'],
+        ['1 em [1, 2]'],
+        ['1 == 2'],
+        ['v[0]'],
+    ])('Analisa %s', (codigo: string) => {
+        const lexador = new LexadorPitugues();
+        const microAvaliadorSintatico = new MicroAvaliadorSintaticoPitugues();
+        const retornoLexador = lexador.mapear([codigo], -1);
+        const retorno = microAvaliadorSintatico.analisar(retornoLexador, -1);
+        expect(retorno.erros).toHaveLength(0);
+        expect(retorno.declaracoes).toHaveLength(1);
+        expect(retorno.declaracoes[0]).toBeInstanceOf(Expressao);
+    });
+});

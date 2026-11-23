@@ -645,3 +645,44 @@ describe('Interpretador Base com Depuração', () => {
         });
     });
 });
+
+describe('Interpretador Base com Depuração - métodos auxiliares', () => {
+    const analisar = async (codigo: string[]) => {
+        const retornoAvaliadorSintatico = await new AvaliadorSintatico().analisar(new Lexador().mapear(codigo, -1), -1);
+        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+        return retornoAvaliadorSintatico.declaracoes;
+    };
+
+    it('interpretar() executa todas as declarações', async () => {
+        const saidas: string[] = [];
+        const interpretador = new InterpretadorBaseComDepuracao(process.cwd(), (t: string) => saidas.push(t), () => {});
+        const retorno = await interpretador.interpretar(await analisar(['var a = 2', 'escreva(a * 3)']));
+        expect(retorno.erros).toHaveLength(0);
+        expect(saidas).toEqual(['6']);
+    });
+
+    it('avaliarArgumentosEscreva() e obterVariavel() durante ponto de parada', async () => {
+        const interpretador = new InterpretadorBaseComDepuracao(process.cwd(), () => {}, () => {});
+        interpretador.finalizacaoDaExecucao = () => {};
+        const declaracoes = await analisar(['var x = 1', 'escreva(x, 3)']);
+        interpretador.pontosParada = [{ hashArquivo: -1, linha: 2 }];
+        interpretador.prepararParaDepuracao(declaracoes);
+        await interpretador.instrucaoContinuarInterpretacao();
+        expect(interpretador.pontoDeParadaAtivo).toBe(true);
+        const escreva: any = declaracoes[declaracoes.length - 1];
+        expect(await interpretador.avaliarArgumentosEscreva(escreva.argumentos)).toBe('1 3');
+        expect(interpretador.obterVariavel('x').valor).toBe(1);
+    });
+
+    it('instrucaoProximoESair() conclui o escopo', async () => {
+        const saidas: string[] = [];
+        const interpretador = new InterpretadorBaseComDepuracao(process.cwd(), (t: string) => saidas.push(t), () => {});
+        interpretador.finalizacaoDaExecucao = () => {};
+        interpretador.pontosParada = [{ hashArquivo: -1, linha: 2 }];
+        interpretador.prepararParaDepuracao(await analisar(['var a = 1', 'escreva(a)', 'escreva(a + 1)']));
+        await interpretador.instrucaoContinuarInterpretacao();
+        interpretador.pontoDeParadaAtivo = false;
+        await interpretador.instrucaoProximoESair();
+        expect(saidas).toEqual(['1', '2']);
+    });
+});

@@ -260,7 +260,7 @@ export class InterpretadorComDepuracao
      * @param escopo Indica o escopo a ser visitado. Usado para construir uma pilha de chamadas do lado JS.
      */
     async instrucaoProximoESair() {
-        comum.executarUltimoEscopoComandoContinuar(this, false, true);
+        await comum.executarUltimoEscopoComandoContinuar(this, false, true);
     }
 
     /**

@@ -1,6 +1,7 @@
 import { AvaliadorSintatico } from "../../fontes/avaliador-sintatico";
 import { Interpretador } from "../../fontes/interpretador";
 import { Lexador } from "../../fontes/lexador";
+import * as bibliotecaGlobal from "../../fontes/bibliotecas/biblioteca-global";
 
 describe('Biblioteca Global', () => {
     let lexador: Lexador;
@@ -1365,6 +1366,182 @@ describe('Biblioteca Global', () => {
             const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
             expect(retornoInterpretador.erros).toHaveLength(0);
             expect(_saida).toBe('falso');
+        });
+    });
+});
+
+describe('Biblioteca Global - chamadas diretas e validações', () => {
+    let interpretador: Interpretador;
+
+    beforeEach(() => {
+        interpretador = new Interpretador(process.cwd());
+    });
+
+    const executar = async (codigo: string[]) => {
+        const saidas: string[] = [];
+        const funcaoSaida = (texto: string) => saidas.push(texto);
+        const lexador = new Lexador();
+        const avaliadorSintatico = new AvaliadorSintatico();
+        const interpretadorComSaida = new Interpretador(process.cwd(), false, funcaoSaida, funcaoSaida);
+        const retornoLexador = lexador.mapear(codigo, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+        const retorno = await interpretadorComSaida.interpretar(retornoAvaliadorSintatico.declaracoes);
+        return { saidas, erros: retorno.erros };
+    };
+
+    describe('Funções que esperam vetor e função', () => {
+        const funcoes: [string, Function][] = [
+            ['algum', bibliotecaGlobal.algum],
+            ['encontrar', bibliotecaGlobal.encontrar],
+            ['encontrarIndice', bibliotecaGlobal.encontrarIndice],
+            ['encontrarUltimo', bibliotecaGlobal.encontrarUltimo],
+            ['encontrarUltimoIndice', bibliotecaGlobal.encontrarUltimoIndice],
+            ['filtrarPor', bibliotecaGlobal.filtrarPor],
+            ['paraCada', bibliotecaGlobal.paraCada],
+            ['primeiroEmCondicao', bibliotecaGlobal.primeiroEmCondicao],
+            ['reduzir', bibliotecaGlobal.reduzir],
+            ['mapear', bibliotecaGlobal.mapear],
+            ['todosEmCondicao', bibliotecaGlobal.todosEmCondicao],
+        ];
+
+        it.each(funcoes)('%s rejeita quando o segundo argumento não é função', async (_nome, funcao) => {
+            await expect(funcao(interpretador, [1, 2], 5)).rejects.toBeTruthy();
+        });
+
+        it.each(funcoes.filter(([nome]) => !['paraCada', 'mapear'].includes(nome)))('%s rejeita quando o primeiro argumento não é vetor', async (_nome, funcao) => {
+            await expect(funcao(interpretador, 5, 5)).rejects.toBeTruthy();
+        });
+    });
+
+    describe('aleatorioEntre()', () => {
+        it('Rejeita sem argumentos', async () => {
+            await expect((bibliotecaGlobal.aleatorioEntre as any)(interpretador)).rejects.toBeTruthy();
+        });
+
+        it('Rejeita mínimo não numérico com um argumento', async () => {
+            await expect((bibliotecaGlobal.aleatorioEntre as any)(interpretador, 'a')).rejects.toBeTruthy();
+        });
+
+        it('Um argumento numérico', async () => {
+            const resultado = await (bibliotecaGlobal.aleatorioEntre as any)(interpretador, 5);
+            expect(typeof resultado).toBe('number');
+        });
+
+        it('Rejeita mais de dois argumentos', async () => {
+            await expect((bibliotecaGlobal.aleatorioEntre as any)(interpretador, 1, 2, 3)).rejects.toBeTruthy();
+        });
+
+        it('Rejeita máximo não numérico', async () => {
+            await expect((bibliotecaGlobal.aleatorioEntre as any)(interpretador, 1, 'b')).rejects.toBeTruthy();
+        });
+    });
+
+    describe('arredondar()', () => {
+        it('Rejeita nulo', async () => {
+            await expect(bibliotecaGlobal.arredondar(interpretador, null, 2)).rejects.toBeTruthy();
+        });
+
+        it('Rejeita texto', async () => {
+            await expect(bibliotecaGlobal.arredondar(interpretador, 'a', 2)).rejects.toBeTruthy();
+        });
+    });
+
+    describe('Validações de vetor', () => {
+        it('incluido() rejeita não vetor', async () => {
+            await expect(bibliotecaGlobal.incluido(interpretador, 5, 1)).rejects.toBeTruthy();
+        });
+
+        it('maximo() rejeita nulo', async () => {
+            await expect(bibliotecaGlobal.maximo(interpretador, null)).rejects.toBeTruthy();
+        });
+
+        it('minimo() rejeita não vetor', async () => {
+            await expect(bibliotecaGlobal.minimo(interpretador, 5)).rejects.toBeTruthy();
+        });
+
+        it('ordenar() rejeita nulo', async () => {
+            await expect(bibliotecaGlobal.ordenar(interpretador, null)).rejects.toBeTruthy();
+        });
+
+        it('paraCada() rejeita nulo', async () => {
+            await expect(bibliotecaGlobal.paraCada(interpretador, null, null)).rejects.toBeTruthy();
+        });
+
+        it('somar() rejeita nulo', async () => {
+            await expect(bibliotecaGlobal.somar(interpretador, null)).rejects.toBeTruthy();
+        });
+
+        it('somar() rejeita não vetor', async () => {
+            await expect(bibliotecaGlobal.somar(interpretador, 5)).rejects.toBeTruthy();
+        });
+
+        it('somar() rejeita elemento não numérico', async () => {
+            await expect(bibliotecaGlobal.somar(interpretador, [1, 'a'])).rejects.toBeTruthy();
+        });
+
+        it('ordenar() com vetores aninhados compara por tamanho', async () => {
+            const resultado = await bibliotecaGlobal.ordenar(interpretador, [[1, 2, 3], [1]]);
+            expect(resultado).toEqual([[1], [1, 2, 3]]);
+        });
+    });
+
+    describe('Conversões', () => {
+        it('inteiro() rejeita texto não numérico', async () => {
+            await expect(bibliotecaGlobal.inteiro(interpretador, 'abc')).rejects.toBeTruthy();
+        });
+
+        it('longo() de BigInt', async () => {
+            const resultado = await bibliotecaGlobal.longo(interpretador, BigInt(5));
+            expect(resultado).toBe(BigInt(5));
+        });
+    });
+
+    describe('tamanho()', () => {
+        it('De função', async () => {
+            const { saidas, erros } = await executar(['funcao f(a, b) { retorna a }', 'escreva(tamanho(f))']);
+            expect(erros).toHaveLength(0);
+            expect(saidas).toEqual(['2']);
+        });
+
+        it('De função padrão', async () => {
+            const { saidas, erros } = await executar(['escreva(tamanho(somar))']);
+            expect(erros).toHaveLength(0);
+            expect(saidas).toEqual(['1']);
+        });
+
+        it('De classe com construtor', async () => {
+            const { saidas, erros } = await executar([
+                'classe A { construtor(x, y) { } }',
+                'escreva(tamanho(A))',
+            ]);
+            expect(erros).toHaveLength(0);
+            expect(saidas).toHaveLength(1);
+        });
+
+        it('De objeto de classe', async () => {
+            const { erros } = await executar(['classe A { }', 'var a = A()', 'escreva(tamanho(a))']);
+            expect(erros.length).toBeGreaterThan(0);
+        });
+    });
+
+    describe('clonar()', () => {
+        it('Objeto de classe', async () => {
+            const { saidas, erros } = await executar([
+                'classe A { x: numero', 'construtor() { isto.x = 1 } }',
+                'var a = A()',
+                'var b = clonar(a)',
+                'b.x = 2',
+                'escreva(a.x, b.x)',
+            ]);
+            expect(erros).toHaveLength(0);
+            expect(saidas).toEqual(['1 2']);
+        });
+
+        it('Tupla', async () => {
+            const { saidas, erros } = await executar(['var t = [(1, 2)]', 'var c = clonar(t)', 'escreva(c)']);
+            expect(erros).toHaveLength(0);
+            expect(saidas).toHaveLength(1);
         });
     });
 });

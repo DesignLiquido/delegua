@@ -2396,3 +2396,59 @@ describe('Analisador semântico', () => {
     });
 }
 )
+
+describe('Analisador semântico (Pituguês) - casos adicionais', () => {
+    const analisar = async (codigo: string[]) => {
+        const retornoAvaliadorSintatico = await new AvaliadorSintaticoPitugues().analisar(
+            new LexadorPitugues().mapear(codigo, -1),
+            -1
+        );
+        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+        const retorno = await new AnalisadorSemanticoPitugues().analisar(retornoAvaliadorSintatico.declaracoes);
+        return retorno.diagnosticos.map((d) => d.mensagem);
+    };
+
+    it.each([
+        [['falhar "erro"', 'falhar 1 + 2']],
+        [['funcao f(a):', '    retorna a', 'funcao g(h):', '    retorna h(1)', 'escreva(g(f))']],
+        [['importar matematica', 'escreva(matematica)']],
+        [['de matematica importar raiz', 'escreva(raiz(4))']],
+        [['d = {"a": 1}', 'para cada chave, valor em d:', '    escreva(chave, valor)']],
+        [['para cada x em [1, 2]:', '    escreva(x)']],
+        [['x = 1', 'escreva("valor ${x}")']],
+        [['escreva("${1 + 1:.2f}")']],
+        [['t = (1, 2, 3)', 'escreva(t)']],
+        [['se (n := 5) > 2:', '    escreva(n)']],
+    ])('Sem diagnósticos: %j', async (codigo: string[]) => {
+        expect(await analisar(codigo)).toHaveLength(0);
+    });
+
+    it.each([
+        [
+            ['x = 1', 'escolha x:', '    caso "a":', '        escreva(1)', '    caso "b":', '        escreva(2)'],
+            "'caso a:' não é do mesmo tipo esperado em 'escolha' (esperado: inteiro, atual: texto).",
+        ],
+        [
+            ['x = verdadeiro', 'escolha x:', '    caso 1:', '        escreva(1)'],
+            "'caso 1:' não é do mesmo tipo esperado em 'escolha' (esperado: lógico, atual: inteiro).",
+        ],
+        [['x = 1', 'enquanto x:', '    x = 0'], "Esperado tipo 'lógico' na condição do 'enquanto'."],
+        [['x = 10 / 0'], 'Divisão por zero.'],
+        [['x = "a" - 1', 'escreva(x)'], "Operação entre tipos diferentes: tipo esquerdo 'texto' e tipo direito 'inteiro'."],
+        [['x: inteiro = "a"'], "Atribuição inválida para 'x': é esperado um valor do tipo inteiro. Atual: texto."],
+        [['z: texto = 1'], "Atribuição inválida para 'z': é esperado um valor do tipo texto. Atual: inteiro."],
+        [['r: real = "a"'], "Atribuição inválida para 'r': é esperado um valor do tipo real. Atual: texto."],
+        [['x: inteiro[] = [1, "a"]'], "Atribuição inválida para 'x': é esperado um valor do tipo vetor de inteiro ou real."],
+        [['funcao f() -> inteiro:', '    retorna "a"'], "Esperado retorno do tipo 'inteiro' dentro da função."],
+        [['funcao f() -> texto:', '    retorna 1'], "Esperado retorno do tipo 'texto' dentro da função."],
+        [
+            ['funcao f() -> inteiro:', '    se verdadeiro:', '        retorna 1'],
+            "Função 'f' deve retornar 'inteiro' em todos os caminhos de execução.",
+        ],
+        [['x = 1', 'x = "a"'], "Esperado tipo 'inteiro' na atribuição."],
+        [['x = 1', 'y = 2'], "Variável 'x' foi declarada mas nunca usada."],
+    ])('Diagnóstico em %j', async (codigo: string[], mensagem: string) => {
+        const diagnosticos = await analisar(codigo);
+        expect(diagnosticos.some((d) => d.includes(mensagem))).toBe(true);
+    });
+});

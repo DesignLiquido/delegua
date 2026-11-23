@@ -34,3 +34,20 @@ describe('Avaliador sintático (Égua Clássico)', () => {
         });
     });
 });
+describe('Avaliador sintático (Égua Clássico) - erros adicionais', () => {
+    it.each([
+        ['classe A herda B { m() { retorna super.; } }', "Esperado nome do método após '.'."],
+        ['escreva(+);', 'Esperado expressão.'],
+        ['1 = 2;', 'Tarefa de atribuição inválida'],
+        [
+            'escolha (1) { padrão: escreva(1); padrão: escreva(2); }',
+            "Você só pode ter um 'padrao' em cada declaração de 'escolha'.",
+        ],
+        // Antes, um símbolo que não fosse `caso` nem `padrão` fazia o laço de `escolha` nunca terminar.
+        ['escolha (1) { escreva(1); }', "Esperado 'caso' ou 'padrao' em declaração de 'escolha'."],
+        ['escolha (1) { padrao: escreva(1); }', "Esperado 'caso' ou 'padrao' em declaração de 'escolha'."],
+    ])('Erro em %s', async (codigo: string, mensagem: string) => {
+        const retorno = await new AvaliadorSintaticoEguaClassico().analisar(new LexadorEguaClassico().mapear([codigo]), -1);
+        expect(retorno.erros.map((erro) => erro.message).some((m) => m.includes(mensagem))).toBe(true);
+    });
+});

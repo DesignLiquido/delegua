@@ -1,3 +1,4 @@
+import { obterErroDeMetodo, obterMetodosNaoImplementados } from '../_auxiliares/metodos-nao-implementados';
 const quebraLinha = '\n';
 
 import { Lexador } from '../../fontes/lexador';
@@ -759,7 +760,7 @@ describe('Formatadores > Delégua', () => {
         const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
         const resultado = formatador.formatar(resultadoAvaliacaoSintatica.declaracoes);
         
-        expect(resultado).toContain("null");
+        expect(resultado).toContain("var x = nulo");
     });
     
     it('Literal com string com caracteres especiais', async () => {
@@ -1503,5 +1504,77 @@ describe('Formatadores > Delégua', () => {
             expect(linhaCorpo).toBeGreaterThan(-1);
             expect(linhaFechamento).toBeGreaterThan(linhaCorpo);
         });
+    });
+});
+
+describe('Formatadores > Delégua (casos adicionais)', () => {
+    const formatar = async (codigo: string[]) => {
+        const lexador = new Lexador();
+        const avaliadorSintatico = new AvaliadorSintatico();
+        const resultadoLexador = lexador.mapear(codigo, -1);
+        const resultadoAvaliacaoSintatica = await avaliadorSintatico.analisar(resultadoLexador, -1);
+        expect(resultadoAvaliacaoSintatica.erros).toHaveLength(0);
+        return new FormatadorDelegua(quebraLinha).formatar(resultadoAvaliacaoSintatica.declaracoes);
+    };
+
+    it('Referência a função como argumento', async () => {
+        const resultado = await formatar([
+            'funcao f(a) { retorna a }',
+            'funcao g(h) { retorna h(1) }',
+            'escreva(g(f))',
+        ]);
+        expect(resultado).toBe('função f(a) {\n    retorna a\n}\nfunção g(h) {\n    retorna h(1)\n}\nescreva(g(f))\n');
+    });
+
+    it('Acesso a propriedade', async () => {
+        const resultado = await formatar([
+            'classe A { x: numero',
+            'construtor() { isto.x = 1 } }',
+            'var a = A()',
+            'escreva(a.x)',
+        ]);
+        expect(resultado).toContain('escreva(a.x)');
+        expect(resultado).toContain('isto.x = 1');
+    });
+
+    it('Tente com tipo de exceção', async () => {
+        const resultado = await formatar(['tente { escreva(1) } pegue (e_: Erro) { escreva(2) }']);
+        expect(resultado).toBe('tente {\n    escreva(1)\n} pegue (e_: Erro) {\n    escreva(2)\n}\n');
+    });
+
+    it.each([
+        [['var a = nulo', 'var b = a ?: 1'], 'var a = nulo\nvar b = a ?: 1\n'],
+        [['var v = [x * 2 para cada x em [1, 2]]'], 'var v = [x * 2 para cada x de [1, 2]]\n'],
+        [['var r = verdadeiro ? 1 : 2'], 'var r = verdadeiro ? 1 : 2\n'],
+        [['funcao g(a) { retorna a }'], 'função g(a) {\n    retorna a\n}\n'],
+        [['var t = [(1, 2)]', 'var t3 = [(1, 2, 3)]'], 'var t = [(1, 2)]\nvar t3 = [(1, 2, 3)]\n'],
+        [['var x = 5', 'var y = x em [1, 5]'], 'var x = 5\nvar y = x em [1, 5]\n'],
+        [['var v = [1, 2, 3]'], 'var v = [1, 2, 3]\n'],
+        [['var t = (1, 2)'], 'var t = (1, 2)\n'],
+    ])('Formata %j', async (codigo: string[], esperado: string) => {
+        expect(await formatar(codigo)).toBe(esperado);
+    });
+
+    it('Função anônima', async () => {
+        const resultado = await formatar(['var f = funcao(a) { retorna a }']);
+        expect(resultado).toContain('var f = função(a) {');
+    });
+
+    it('Maior ou igual e exponenciação encadeada', async () => {
+        const resultado = await formatar(['escreva(1 >= 2, 2 ** 3, 4 ** 2 ** 1)']);
+        expect(resultado).toBe('escreva(1 >= 2, 2 ** 3, 4 ** 2 ** 1)\n');
+    });
+});
+
+describe('FormatadorDelegua - métodos não implementados', () => {
+    const instancia: any = new FormatadorDelegua('\n');
+    const metodos = obterMetodosNaoImplementados(Object.getPrototypeOf(instancia));
+
+    it('Possui métodos não implementados', () => {
+        expect(metodos.length).toBeGreaterThan(0);
+    });
+
+    it.each(metodos)('%s sinaliza que não está implementado', async (nomeMetodo: string) => {
+        expect(await obterErroDeMetodo(instancia, nomeMetodo)).toContain('não implementado');
     });
 });

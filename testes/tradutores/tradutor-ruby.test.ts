@@ -1298,3 +1298,45 @@ describe('Tradutor Delégua -> Ruby', () => {
 
 
 
+
+describe('Tradutor Delégua -> Ruby (casos adicionais)', () => {
+    const traduzir = async (codigo: string[]) => {
+        const lexador = new Lexador();
+        const avaliadorSintatico = new AvaliadorSintatico();
+        const retornoLexador = lexador.mapear(codigo, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+        return new TradutorRuby().traduzir(retornoAvaliadorSintatico.declaracoes);
+    };
+
+    it.each([
+        [['funcao f(a, b) { retorna a + b }', 'escreva(f(1, 2))'], ['def f(a, b)', 'return a + b', 'puts(f(1, 2))']],
+        [['var f = funcao(a: inteiro, b: texto) { retorna a }'], ['f = lambda { |a, b| a }']],
+        [
+            ['classe A { construtor() { isto.x = 1 } metodo() { retorna isto.x } }'],
+            ['class A', 'def initialize()', '@x = 1', 'return @x'],
+        ],
+        [['classe A { m() { retorna 1 } }', 'classe B herda A { m() { retorna 2 } }'], ['class B < A']],
+        [['var d = {"a": 1, verdadeiro: 3}'], ["'a' => 1,", 'true => 3,']],
+        [['enquanto verdadeiro { sustar }'], ['while true', 'break']],
+        [['para cada x em [1, 2] { escreva(x) }'], ['[1, 2].each do |x|']],
+        [['tente { escreva(1) } pegue (erro) { escreva(erro) } finalmente { escreva(2) }'], ['begin', 'rescue', 'ensure']],
+        [['escreva(verdadeiro e falso ou verdadeiro)', 'var y = nulo'], ['true && false || true', 'y = nil']],
+        [['var a = leia("x")'], ["print('x'); gets.chomp"]],
+        [['escreva("a" + texto(1), real("1.5"))'], ['(1).to_s', "('1.5').to_f"]],
+        [
+            ['var s = "abc"', 'escreva(s.maiusculo(), s.tamanho())', 'var v = [3, 1]', 'v.adicionar(2)', 'escreva(v.ordenar())'],
+            ['s.upcase', 's.length', 'v.push(2)', 'v.sort!'],
+        ],
+        [['const c = 1', 'var p, q = 3, 4'], ['C = 1', 'p = 3', 'q = 4']],
+        [['escreva(1)', '// comentario', '/* bloco */'], ['# comentario', '=begin', '=end']],
+        [
+            ['se 1 > 2 { escreva(1) } senao se 2 > 1 { escreva(2) } senao { escreva(3) }'],
+            ['if 1 > 2', 'elsif 2 > 1', 'else'],
+        ],
+    ])('Traduz %j', async (codigo: string[], esperados: string[]) => {
+        const resultado = await traduzir(codigo);
+        for (const esperado of esperados) {
+            expect(resultado).toContain(esperado);
+        }
+    });
+});

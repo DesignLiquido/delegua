@@ -1,3 +1,4 @@
+import { obterErroDeMetodo, obterMetodosNaoImplementados } from '../_auxiliares/metodos-nao-implementados';
 import { AvaliadorSintatico } from '../../fontes/avaliador-sintatico';
 import { Lexador } from '../../fontes/lexador';
 import { TradutorElixir } from '../../fontes/tradutores';
@@ -1068,5 +1069,60 @@ describe('Tradutor Delégua -> Elixir', () => {
             expect(resultado).toContain('def incrementar(contador)');
             expect(resultado).toContain('end');
         });
+    });
+});
+
+describe('Tradutor Delégua -> Elixir (casos adicionais)', () => {
+    const traduzir = async (codigo: string[]) => {
+        const lexador = new Lexador();
+        const avaliadorSintatico = new AvaliadorSintatico();
+        const retornoLexador = lexador.mapear(codigo, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+        return await new TradutorElixir().traduzir(retornoAvaliadorSintatico.declaracoes);
+    };
+
+    it.each([
+        [
+            ['funcao f(a, b) { retorna a + b }', 'funcao g(h) { retorna h(1, 2) }', 'escreva(g(f))'],
+            ['defmodule Main do', 'def f(a, b) do', 'def g(h) do', 'IO.puts(Main.g(f))'],
+        ],
+        [['var f = funcao(a: inteiro, b: texto) { retorna a }', 'escreva(f(1, "a"))'], ['f = fn a, b -> a end']],
+        [['funcao g(): texto { se verdadeiro { retorna "a" } }'], ['def g() do', 'if true do']],
+        [['para cada x em [1, 2] { escreva(x) }'], ['Enum.each([1, 2], fn x ->']],
+        [['escolha 1 { caso 1: escreva(1) caso 2: escreva(2) padrao: escreva(3) }'], ['case 1 do', '  _ ->']],
+        [
+            ['escreva(2 ** 3, 7 % 2, 1 << 2, 8 >> 1, 1 & 1, 1 | 2, 1 ^ 3)'],
+            ['7 rem 2', '1 &&& 1', '1 ||| 2', '1 ^^^ 3'],
+        ],
+        [['escreva(verdadeiro e falso ou verdadeiro)', 'var y = nulo'], ['true and false or true', 'y = nil']],
+        [
+            ['var s = "abc"', 'escreva(s.maiusculo(), s.tamanho())', 'var v = [3, 1]', 'v.adicionar(2)', 'escreva(v.ordenar())'],
+            ['String.upcase(s)', 'length(s)', 'v = [2 | v]', 'Enum.sort(v)'],
+        ],
+        [['const a, b = 1, 2', 'var p, q = 3, 4'], ['a = 1', 'b = 2', 'p = 3', 'q = 4']],
+        [['escreva(1)', '// comentario', '/* bloco */'], ['# comentario', '# bloco']],
+        [
+            ['se 1 > 2 { escreva(1) } senao se 2 > 1 { escreva(2) } senao { escreva(3) }'],
+            ['if 1 > 2 do', 'if 2 > 1 do', 'else'],
+        ],
+        [['var x = 1', 'escreva(-x, !verdadeiro, ~x)'], ['- x', 'not true', '~~~ x']],
+    ])('Traduz %j', async (codigo: string[], esperados: string[]) => {
+        const resultado = await traduzir(codigo);
+        for (const esperado of esperados) {
+            expect(resultado).toContain(esperado);
+        }
+    });
+});
+
+describe('TradutorElixir - métodos não implementados', () => {
+    const instancia: any = new TradutorElixir();
+    const metodos = obterMetodosNaoImplementados(Object.getPrototypeOf(instancia));
+
+    it('Possui métodos não implementados', () => {
+        expect(metodos.length).toBeGreaterThan(0);
+    });
+
+    it.each(metodos)('%s sinaliza que não está implementado', async (nomeMetodo: string) => {
+        expect(await obterErroDeMetodo(instancia, nomeMetodo)).toContain('não implementado');
     });
 });

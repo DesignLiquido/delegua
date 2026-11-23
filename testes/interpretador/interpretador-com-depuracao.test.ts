@@ -1276,3 +1276,101 @@ describe('Interpretador com Depuração', () => {
         });
     });
 });
+
+describe('Interpretador com Depuração - execução completa de construções', () => {
+    const executar = async (codigo: string[], pontosParada: number[] = []) => {
+        const saidas: string[] = [];
+        const funcaoSaida = (texto: string) => saidas.push(texto);
+        const lexador = new Lexador();
+        const avaliadorSintatico = new AvaliadorSintatico();
+        const interpretador = new InterpretadorComDepuracao(process.cwd(), funcaoSaida, funcaoSaida);
+        let execucaoFinalizada = false;
+        interpretador.finalizacaoDaExecucao = () => {
+            execucaoFinalizada = true;
+        };
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(lexador.mapear(codigo, -1), -1);
+        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+        interpretador.pontosParada = pontosParada.map((linha) => ({ hashArquivo: -1, linha }));
+        interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+        await interpretador.instrucaoContinuarInterpretacao();
+        let paradas = 0;
+        while (interpretador.pontoDeParadaAtivo && paradas < 20) {
+            paradas++;
+            interpretador.pontoDeParadaAtivo = false;
+            await interpretador.instrucaoContinuarInterpretacao();
+        }
+        return { saidas, execucaoFinalizada, paradas };
+    };
+
+    it.each([
+        [['escreva(5 & 3, 5 ^ 3, 5 | 3, 1 << 2, 8 >> 1)'], ['1 6 7 4 4']],
+        [['escreva("ab" * 2, 2 * "ab", 2 * 3)'], ['abab abab 6']],
+        [['escreva("a" + 1, 1 + 2)'], ['a1 3']],
+        [['var i = 0', 'enquanto i < 2 { i = i + 1 }', 'escreva(i)'], ['2']],
+        [['var i = 0', 'fazer { i = i + 1 } enquanto i < 3', 'escreva(i)'], ['3']],
+        [['para (var i = 0; i < 2; i++) { escreva(i) }'], ['0', '1']],
+        [['tente { escreva(1) } pegue { escreva(2) } finalmente { escreva(3) }'], ['1', '3']],
+        [['funcao f(a) { retorna a * 2 }', 'escreva(f(3))'], ['6']],
+        [['funcao f(g) { retorna g(2) }', 'funcao h(x) { retorna x + 1 }', 'escreva(f(h))'], ['3']],
+    ])('Executa %j', async (codigo: string[], saidasEsperadas: string[]) => {
+        const { saidas, execucaoFinalizada } = await executar(codigo);
+        expect(execucaoFinalizada).toBe(true);
+        expect(saidas).toEqual(saidasEsperadas);
+    });
+
+    it.each([
+        [['var i = 0', 'enquanto i < 2 {', '    i = i + 1', '}', 'escreva(i)'], [3], ['2']],
+    ])('Pontos de parada dentro de blocos em %j', async (codigo: string[], pontos: number[], saidasEsperadas: string[]) => {
+        const { saidas, paradas } = await executar(codigo, pontos);
+        expect(paradas).toBeGreaterThan(0);
+        expect(saidas).toEqual(saidasEsperadas);
+    });
+});
+
+describe('Interpretador com Depuração - métodos auxiliares', () => {
+    const analisar = async (codigo: string[]) => {
+        const retornoAvaliadorSintatico = await new AvaliadorSintatico().analisar(new Lexador().mapear(codigo, -1), -1);
+        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+        return retornoAvaliadorSintatico.declaracoes;
+    };
+
+    it('interpretar() executa todas as declarações', async () => {
+        const saidas: string[] = [];
+        const interpretador = new InterpretadorComDepuracao(process.cwd(), (t: string) => saidas.push(t), () => {});
+        const retorno = await interpretador.interpretar(await analisar(['var a = 2', 'escreva(a * 3)']));
+        expect(retorno.erros).toHaveLength(0);
+        expect(saidas).toEqual(['6']);
+    });
+
+    it('avaliarArgumentosEscreva() com atribuição e objeto com paraTexto', async () => {
+        const interpretador = new InterpretadorComDepuracao(process.cwd(), () => {}, () => {});
+        interpretador.finalizacaoDaExecucao = () => {};
+        const declaracoes = await analisar([
+            'classe A { paraTexto() { retorna "objA" } }',
+            'var a = A()',
+            'var x = 1',
+            'escreva(a, x = 2, 3)',
+        ]);
+        interpretador.pontosParada = [{ hashArquivo: -1, linha: 4 }];
+        interpretador.prepararParaDepuracao(declaracoes);
+        await interpretador.instrucaoContinuarInterpretacao();
+        expect(interpretador.pontoDeParadaAtivo).toBe(true);
+        const escreva: any = declaracoes[declaracoes.length - 1];
+        const texto = await interpretador.avaliarArgumentosEscreva(escreva.argumentos);
+        expect(texto).toContain('objA');
+        expect(texto).toContain('3');
+    });
+
+    it('instrucaoProximoESair() conclui o escopo', async () => {
+        const saidas: string[] = [];
+        const interpretador = new InterpretadorComDepuracao(process.cwd(), (t: string) => saidas.push(t), () => {});
+        interpretador.finalizacaoDaExecucao = () => {};
+        interpretador.pontosParada = [{ hashArquivo: -1, linha: 2 }];
+        interpretador.prepararParaDepuracao(await analisar(['var a = 1', 'escreva(a)', 'escreva(a + 1)']));
+        await interpretador.instrucaoContinuarInterpretacao();
+        expect(interpretador.pontoDeParadaAtivo).toBe(true);
+        interpretador.pontoDeParadaAtivo = false;
+        await interpretador.instrucaoProximoESair();
+        expect(saidas).toEqual(['1', '2']);
+    });
+});

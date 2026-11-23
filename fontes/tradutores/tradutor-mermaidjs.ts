@@ -746,6 +746,28 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao>, Visitan
                 return Promise.resolve(`${operandoEsquerdo} for igual a ${operandoDireito}`);
             case tiposDeSimbolos.DIFERENTE:
                 return Promise.resolve(`${operandoEsquerdo} for diferente de ${operandoDireito}`);
+            case tiposDeSimbolos.EXPONENCIACAO:
+                return Promise.resolve(`${operandoEsquerdo} elevado a ${operandoDireito}`);
+            case tiposDeSimbolos.DIVISAO_INTEIRA:
+                return Promise.resolve(
+                    `dividir ${operandoEsquerdo} por ${operandoDireito}, sem parte fracionária`
+                );
+            case tiposDeSimbolos.BIT_AND:
+                return Promise.resolve(`${operandoEsquerdo} e bit a bit ${operandoDireito}`);
+            case tiposDeSimbolos.BIT_OR:
+                return Promise.resolve(`${operandoEsquerdo} ou bit a bit ${operandoDireito}`);
+            case tiposDeSimbolos.CIRCUMFLEXO:
+                return Promise.resolve(
+                    `${operandoEsquerdo} ou exclusivo bit a bit ${operandoDireito}`
+                );
+            case tiposDeSimbolos.MENOR_MENOR:
+                return Promise.resolve(
+                    `deslocar ${operandoEsquerdo} à esquerda em ${operandoDireito} bits`
+                );
+            case tiposDeSimbolos.MAIOR_MAIOR:
+                return Promise.resolve(
+                    `deslocar ${operandoEsquerdo} à direita em ${operandoDireito} bits`
+                );
         }
 
         return Promise.resolve('');
@@ -820,9 +842,14 @@ export class TradutorMermaidJs implements TradutorInterface<Declaracao>, Visitan
         let texto = `dicionário`;
         if (expressao.chaves.length > 0) {
             texto += `, com `;
-            for (const [chave, indice] of Object.entries(expressao.chaves)) {
-                texto += `chave ${chave} definida com o valor ${expressao.valores[0]}`;
+            const pares: string[] = [];
+            for (const [indice, chave] of expressao.chaves.entries()) {
+                const textoChave = await chave.aceitar(this);
+                const textoValor = await expressao.valores[indice].aceitar(this);
+                pares.push(`chave ${textoChave} definida com o valor ${textoValor}`);
             }
+
+            texto += pares.join(', ');
         } else {
             texto += ' vazio';
         }

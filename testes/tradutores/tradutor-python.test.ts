@@ -1184,7 +1184,7 @@ describe('Tradutor Delégua -> Python', () => {
             const resultado = tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
             expect(resultado).toBeTruthy();
             expect(resultado).toContain('numeros = [1, 2, 3, 4, 5]');
-            expect(resultado).toContain('list(map(lambda x: x * 2), numeros)');
+            expect(resultado).toContain('list(map(lambda x: x * 2, numeros))');
             expect(resultado).toContain('print(dobrados)');
         });
 
@@ -1243,5 +1243,92 @@ describe('Tradutor Delégua -> Python', () => {
             expect(resultado).toBeTruthy();
             expect(resultado).toContain("lambda nome: 'Olá, ' + nome");
         });
+    });
+});
+
+describe('Tradutor Delégua -> Python (casos adicionais)', () => {
+    const traduzir = async (codigo: string[]) => {
+        const lexador = new Lexador();
+        const avaliadorSintatico = new AvaliadorSintatico();
+        const retornoLexador = lexador.mapear(codigo, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+        return new TradutorPython().traduzir(retornoAvaliadorSintatico.declaracoes);
+    };
+
+    it.each([
+        [
+            ['funcao f(a, b) { retorna a + b }', 'funcao g(h) { retorna h(1, 2) }', 'escreva(g(f))'],
+            ['def f(a, b):', 'return h(1, 2)', 'print(g(f))'],
+        ],
+        [['var f = funcao(a: inteiro, b: texto) { retorna a }'], ['f = lambda a, b: a']],
+        [
+            ['classe A { m() { retorna 1 } }', 'classe B herda A { m() { retorna 2 } }'],
+            ['class A:', 'def m(self):', 'class B(A):'],
+        ],
+        [['var v = [1, 2]', 'v[0] = 3', 'var d = {"a": 1, verdadeiro: 3}'], ['v[0] = 3', "'a': 1,", 'True: 3,']],
+        [['enquanto verdadeiro { sustar }'], ['while True:', 'break']],
+        [['para cada x em [1, 2] { escreva(x) }'], ['for x in [1, 2]:']],
+        [['tente { escreva(1) } pegue (erro) { escreva(erro) } finalmente { escreva(2) }'], ['try:', 'except:', 'finally:']],
+        [['escreva(verdadeiro e falso ou verdadeiro)', 'var y = nulo'], ['True and False or True', 'y = None']],
+        [['var a = leia("x")'], ["a = input('x')"]],
+        [['escreva("a" + texto(1), real("1.5"))'], ['str(1)', "float('1.5')"]],
+        [
+            ['var s = "abc"', 'escreva(s.maiusculo(), s.tamanho())', 'var v = [3, 1]', 'v.adicionar(2)'],
+            ['s.upper()', 'len(s)', 'v.append(2)'],
+        ],
+        [['var x = 1', 'x += 1', 'x -= 1', 'x *= 2', 'x /= 2'], ['x += 1', 'x -= 1', 'x *= 2', 'x /= 2']],
+        [['escreva(1)', '// comentario', '/* bloco */'], ['# comentario', "'''bloco"]],
+        [
+            ['se 1 > 2 { escreva(1) } senao se 2 > 1 { escreva(2) } senao { escreva(3) }'],
+            ['if 1 > 2:', 'elif 2 > 1:', 'else:'],
+        ],
+    ])('Traduz %j', async (codigo: string[], esperados: string[]) => {
+        const resultado = await traduzir(codigo);
+        for (const esperado of esperados) {
+            expect(resultado).toContain(esperado);
+        }
+    });
+});
+
+describe('TradutorPython (correções de operadores, métodos e senão se)', () => {
+    const traduzir = async (codigo: string[]) => {
+        const retornoAvaliadorSintatico = await new AvaliadorSintatico().analisar(new Lexador().mapear(codigo, -1), -1);
+        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+        return await new TradutorPython().traduzir(retornoAvaliadorSintatico.declaracoes);
+    };
+
+    it.each([
+        [['escreva(1 << 2, 8 >> 1, 5 ^ 1, !verdadeiro, ~1)'], ['print(1 << 2, 8 >> 1, 5 ^ 1, not True, ~1)']],
+        [
+            ['var v = [1, 2, 3]', 'escreva(v.fatiar(0, 1), v.inclui(2), v.inverter(), v.juntar(","), v.somar(), v.tamanho())', 'v.remover(1)', 'v.removerPrimeiro()', 'v.removerUltimo()'],
+            ['v[0:1]', '2 in v', 'reversed(v)', "','.join(v)", 'sum(v)', 'len(v)', 'del v[1]', 'v.pop(0)', 'v.pop()'],
+        ],
+        [['var v = [1, 2, 3]', 'escreva(v.mapear(funcao(x) { retorna x * 2 }))'], ['list(map(lambda x: x * 2, v))']],
+        [['var s = "abc"', 'escreva(s.minusculo(), s.dividir(","))'], ['s.lower()', "s.dividir(',')"]],
+        [['var x = 1', 'se x == 1 { escreva(1) } senao se x == 2 { escreva(2) }'], ['if x == 1:\n    print(1)\nelif x == 2:\n    print(2)\n \n']],
+        [['var d = {1: "a", "b": verdadeiro, "c": nulo}'], ["1: 'a',", "'b': True,", "'c': None,"]],
+    ])('Traduz %j', async (codigo: string[], esperados: string[]) => {
+        const resultado = await traduzir(codigo);
+        for (const esperado of esperados) {
+            expect(resultado).toContain(esperado);
+        }
+    });
+});
+
+describe('TradutorPython (vetores tipados e classes)', () => {
+    const traduzir = async (codigo: string[]) => {
+        const retornoAvaliadorSintatico = await new AvaliadorSintatico().analisar(new Lexador().mapear(codigo, -1), -1);
+        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+        return await new TradutorPython().traduzir(retornoAvaliadorSintatico.declaracoes);
+    };
+
+    it.each([
+        [['var v: inteiro[] = [1, 2, 3]', 'v.adicionar(4)', 'escreva(v.fatiar(0, 1), v.inclui(2), v.inverter(), v.juntar(","), v.ordenar(), v.somar(), v.tamanho())', 'v.removerPrimeiro()', 'v.removerUltimo()', 'escreva(v.mapear(funcao(x: inteiro) { retorna x * 2 }))'], ['v.append(4)', 'v[0:1]', '2 in v', 'reversed(v)', "','.join(v)", 'v.sort()', 'sum(v)', 'len(v)', 'list(map(lambda x: x * 2, v))']],
+        [['classe A { x: inteiro', 'construtor() { isto.x = 1 }', 'm(): inteiro { retorna isto.x } }', 'var a = A()', 'escreva(a.x, a.m())'], ['class A:', 'def __init__(self):', 'self.x = 1', 'return self.x']],
+    ])('Traduz %j', async (codigo: string[], esperados: string[]) => {
+        const resultado = await traduzir(codigo);
+        for (const esperado of esperados) {
+            expect(resultado).toContain(esperado);
+        }
     });
 });

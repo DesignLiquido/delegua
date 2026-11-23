@@ -1,3 +1,4 @@
+import { obterErroDeMetodo, obterMetodosNaoImplementados } from '../../../_auxiliares/metodos-nao-implementados';
 import { AvaliadorSintaticoEguaClassico } from "../../../../fontes/avaliador-sintatico/dialetos";
 import { InterpretadorEguaClassico } from "../../../../fontes/interpretador/dialetos";
 import { LexadorEguaClassico } from "../../../../fontes/lexador/dialetos";
@@ -660,5 +661,74 @@ describe('Interpretador (Égua Clássico)', () => {
                 });
             });
         });
+    });
+});
+
+describe('Interpretador (Égua Clássico) - casos adicionais', () => {
+    const executar = async (codigo: string) => {
+        const saidas: any[] = [];
+        const lexador = new LexadorEguaClassico();
+        const avaliadorSintatico = new AvaliadorSintaticoEguaClassico();
+        const interpretador = new InterpretadorEguaClassico(process.cwd());
+        interpretador.funcaoDeRetorno = (texto: any) => saidas.push(texto);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(lexador.mapear([codigo]), -1);
+        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+        const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        const erros = retorno.erros.map(
+            (erro: any) => erro.erroInterno?.message ?? erro.mensagem ?? erro.message ?? String(erro)
+        );
+        return { saidas, erros };
+    };
+
+    it.each([
+        ['escreva(1 >= 1); escreva(1 <= 0);', ['verdadeiro', 'falso']],
+        ['escreva(nulo == nulo); escreva(nulo == 1); escreva(1 == 1);', ['verdadeiro', 'falso', 'verdadeiro']],
+        ['se (1 > 2) { escreva(1); } senão se (2 > 1) { escreva(2); } senão { escreva(3); }', ['2']],
+        ['função f(a, b) { retorna a; } escreva(f(1));', ['1']],
+        ['tente { escreva(1); } pegue { escreva(2); } finalmente { escreva(3); }', ['1', '3']],
+        ['tente { var x = 1 / nulo; } pegue { escreva(2); }', ['2']],
+        ['var v = [1, 2]; v[-1] = 9; v[3] = 7; escreva(v);', [[1, 9, null, 7]]],
+        ['var v = [1, 2]; escreva(v[-1]);', ['2']],
+        ["var d = {'a': 1}; d['b'] = 2; escreva(d);", ['{"a":1,"b":2}']],
+        ["var d = {'a': 1}; escreva(d['z']);", ['nulo']],
+        [
+            'classe A { construtor() { isto.x = 1; } m() { retorna isto.x; } } var a = A(); escreva(a.m()); a.x = 5; escreva(a.x);',
+            ['1', '5'],
+        ],
+        ["var d = {'a': 1}; d.b = 3; escreva(d.b);", ['3']],
+        ['escreva(tamanho([1, 2]));', ['2']],
+        ['escreva(1 / 0);', ['Infinity']],
+        ['var a; escreva(a);', ['nulo']],
+    ])('Executa %s', async (codigo: string, saidasEsperadas: any[]) => {
+        const { saidas, erros } = await executar(codigo);
+        expect(erros).toHaveLength(0);
+        expect(saidas).toEqual(saidasEsperadas);
+    });
+
+    it.each([
+        ['var v = [1, 2]; escreva(v[1.5]);', 'Somente inteiros podem ser usados para indexar um vetor.'],
+        ['var v = [1, 2]; escreva(v[9]);', 'Índice do vetor fora do intervalo.'],
+        ['var x = 5; x[0] = 1;', 'Somente listas, dicionários, classes e objetos podem ser mudados por sobrescrita.'],
+        ['var x = 5; x.b = 3;', 'Somente instâncias e dicionários podem possuir campos.'],
+        ['var x = 5; escreva(x.b);', 'Você só pode acessar métodos do objeto e dicionários.'],
+        ['var f = 5; f();', 'Só pode chamar função ou classe.'],
+        ['escreva("a" - 1);', 'Operadores precisam ser números.'],
+        ['escreva(-"a");', 'Operador precisa ser um número.'],
+    ])('Erro em %s', async (codigo: string, mensagem: string) => {
+        const { erros } = await executar(codigo);
+        expect(erros[0]).toContain(mensagem);
+    });
+});
+
+describe('InterpretadorEguaClassico - métodos não implementados', () => {
+    const instancia: any = new InterpretadorEguaClassico(process.cwd());
+    const metodos = obterMetodosNaoImplementados(Object.getPrototypeOf(instancia));
+
+    it('Possui métodos não implementados', () => {
+        expect(metodos.length).toBeGreaterThan(0);
+    });
+
+    it.each(metodos)('%s sinaliza que não está implementado', async (nomeMetodo: string) => {
+        expect(await obterErroDeMetodo(instancia, nomeMetodo)).toContain('não implementado');
     });
 });

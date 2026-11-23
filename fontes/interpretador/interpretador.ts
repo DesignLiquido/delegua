@@ -97,7 +97,7 @@ import primitivasDicionario from '../bibliotecas/primitivas-dicionario';
 import primitivasNumero from '../bibliotecas/primitivas-numero';
 import primitivasTexto from '../bibliotecas/primitivas-texto';
 import primitivasVetor from '../bibliotecas/primitivas-vetor';
-import primitivasTupla from '../bibliotecas/dialetos/pitugues/primitivas-tupla';
+import primitivasTupla from '../bibliotecas/primitivas-tupla';
 
 import tipoDeDadosPrimitivos from '../tipos-de-dados/primitivos';
 import tipoDeDadosDelegua from '../tipos-de-dados/delegua';
@@ -1306,7 +1306,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         // Por exemplo, `objeto1.metodo1().metodo2()`.
         // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
         // valor dele primeiro.
-        if (variavelObjeto.constructor === RetornoQuebra) {
+        if (variavelObjeto && variavelObjeto.constructor === RetornoQuebra) {
             variavelObjeto = (variavelObjeto as any).valor;
         }
 
@@ -1338,7 +1338,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             }
         }
 
-        if (objeto instanceof TuplaN || objeto.constructor === TuplaN) {
+        if (objeto instanceof TuplaN || objeto.constructor === TuplaN || objeto instanceof Tupla) {
             const metodoDePrimitivaTupla = primitivasTupla[expressao.nomeMetodo];
             if (metodoDePrimitivaTupla) {
                 return new MetodoPrimitiva(
@@ -1640,7 +1640,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             }
         }
 
-        if (objeto instanceof TuplaN || objeto.constructor === TuplaN) {
+        if (objeto instanceof TuplaN || objeto.constructor === TuplaN || objeto instanceof Tupla) {
             const metodoDePrimitivaTupla = primitivasTupla[expressao.simbolo.lexema];
             if (metodoDePrimitivaTupla) {
                 return new MetodoPrimitiva(
@@ -1894,7 +1894,7 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
             return (objeto as ObjetoDeleguaClasse).obterMetodo(expressao.nomePropriedade) || null;
         }
 
-        if (objeto instanceof TuplaN || objeto.constructor === TuplaN) {
+        if (objeto instanceof TuplaN || objeto.constructor === TuplaN || objeto instanceof Tupla) {
             const metodoPrimitivaTupla = primitivasTupla[expressao.nomePropriedade];
             if (metodoPrimitivaTupla) {
                 return new MetodoPrimitiva(

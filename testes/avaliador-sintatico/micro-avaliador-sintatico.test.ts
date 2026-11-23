@@ -1,7 +1,7 @@
 import { MicroLexador } from '../../fontes/lexador/micro-lexador';
 import { MicroAvaliadorSintatico } from '../../fontes/avaliador-sintatico';
 import { Expressao } from '../../fontes/declaracoes';
-import { Elvis } from '../../fontes/construtos';
+import { AcessoIndiceVariavel, Binario, Dicionario, Elvis, Logico, Unario, Vetor } from '../../fontes/construtos';
 
 describe('Avaliador sintático', () => {
     describe('analisar()', () => {
@@ -63,5 +63,41 @@ describe('Avaliador sintático', () => {
                 expect(expressao).toBeInstanceOf(Elvis);
             });
         });        
+    });
+});
+
+describe('Micro avaliador sintático (expressões adicionais)', () => {
+    it.each([
+        ['[]', Vetor],
+        ['-5', Unario],
+        ['2 ** 3', Binario],
+        ['2 * 3 / 4 % 5', Binario],
+        ['1 + 2 - 3', Binario],
+        ['verdadeiro e falso', Logico],
+        ['verdadeiro ou falso', Logico],
+        ['v[0]', AcessoIndiceVariavel],
+        ['{}', Dicionario],
+        ["{'a': 1, 'b': 2}", Dicionario],
+        ['!verdadeiro', Unario],
+        ['!!verdadeiro', Unario],
+        ['~5', Unario],
+        ['1 << 2 >> 1', Binario],
+        ['1 & 2', Binario],
+        ['1 | 2 ^ 3', Binario],
+        ['1 < 2', Binario],
+        ['1 <= 2', Binario],
+        ['1 > 2', Binario],
+        ['1 >= 2', Binario],
+        ['1 == 2', Binario],
+        ['1 != 2', Binario],
+    ])('Analisa %s', (codigo: string, tipoEsperado: any) => {
+        const microLexador = new MicroLexador();
+        const microAvaliadorSintatico = new MicroAvaliadorSintatico();
+        const retornoLexador = microLexador.mapear(codigo);
+        expect(retornoLexador.erros).toHaveLength(0);
+        const retornoAvaliadorSintatico = microAvaliadorSintatico.analisar(retornoLexador, 1);
+        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+        expect(retornoAvaliadorSintatico.declaracoes).toHaveLength(1);
+        expect(retornoAvaliadorSintatico.declaracoes[0]).toBeInstanceOf(tipoEsperado);
     });
 });

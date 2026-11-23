@@ -530,3 +530,43 @@ finalmente:
         expect(resultado).toContain('matriz = [[1, 2], [3, 4], [5, 6]]');
     });
 });
+
+describe('Formatador Pituguês - casos adicionais', () => {
+    const formatarCodigo = async (codigo: string[]) => {
+        const retorno = await new AvaliadorSintaticoPitugues().analisar(new LexadorPitugues().mapear(codigo, -1), -1);
+        expect(retorno.erros).toHaveLength(0);
+        return await new FormatadorPitugues('\n').formatar(retorno.declaracoes);
+    };
+
+    it.each([
+        [['t = (1, 2, 3)'], 't = (1, 2, 3)\n'],
+        [['se (n := 5) > 2:', '    escreva(n)'], 'se (n := 5) > 2:\n    escreva(n)\n'],
+        [['x = [1, 2] ~> mapear(funcao(x): x)'], 'x = [1, 2] ~> mapear(função(x): x)\n'],
+        [['falhar "erro"'], "falhar 'erro'\n"],
+        [['x = tipo(5)'], 'x = tipo(5)\n'],
+        [['importar matematica'], 'importar matematica\n'],
+        [['f = funcao(a, b):', '    escreva(a)', '    retorna b'], 'f = função(a, b):\n    escreva(a)\n    retorna b\n'],
+    ])('Formata %j', async (codigo: string[], esperado: string) => {
+        const resultado = await formatarCodigo(codigo);
+        expect(resultado).toBe(esperado);
+
+        // O código formatado deve continuar sendo Pituguês válido.
+        const reanalise = await new AvaliadorSintaticoPitugues().analisar(
+            new LexadorPitugues().mapear(resultado.split('\n'), -1),
+            -1
+        );
+        expect(reanalise.erros).toHaveLength(0);
+    });
+
+    it('Métodos de visita não usados em Pituguês resolvem sem erros', async () => {
+        const nomesMetodos = Object.getOwnPropertyNames(FormatadorPitugues.prototype).filter((nome) => {
+            const metodo = (FormatadorPitugues.prototype as any)[nome];
+            return typeof metodo === 'function' && /^visitar/.test(nome) && /return Promise\.resolve\(\)/.test(String(metodo));
+        });
+        expect(nomesMetodos.length).toBeGreaterThan(0);
+        const formatador: any = new FormatadorPitugues('\n');
+        for (const nomeMetodo of nomesMetodos) {
+            await expect(formatador[nomeMetodo]()).resolves.toBeUndefined();
+        }
+    });
+});

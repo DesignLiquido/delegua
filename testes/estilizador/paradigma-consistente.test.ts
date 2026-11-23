@@ -154,3 +154,28 @@ describe('Regra Paradigma Consistente', () => {
         });
     });
 });
+
+describe('Regra Paradigma Consistente - construtos leia/ler', () => {
+    const { AvaliadorSintatico } = require('../../fontes/avaliador-sintatico');
+
+    const estilizarLeitura = async (codigo: string, paradigma: 'imperativo' | 'infinitivo' | 'ambos') => {
+        const retorno = await new AvaliadorSintatico().analisar(new Lexador().mapear([codigo], -1), -1);
+        expect(retorno.erros).toHaveLength(0);
+        const declaracoes = new EstilizadorDelegua([new RegraParadigmaConsistente({ paradigma })]).estilizar(
+            retorno.declaracoes
+        );
+        return (declaracoes[0] as any).inicializador.simbolo.lexema;
+    };
+
+    it('Modo imperativo transforma "ler" em "leia"', async () => {
+        expect(await estilizarLeitura('var x = ler()', 'imperativo')).toBe('leia');
+    });
+
+    it('Modo infinitivo transforma "leia" em "ler"', async () => {
+        expect(await estilizarLeitura('var x = leia()', 'infinitivo')).toBe('ler');
+    });
+
+    it('Modo ambos mantém o lexema', async () => {
+        expect(await estilizarLeitura('var x = leia()', 'ambos')).toBe('leia');
+    });
+});

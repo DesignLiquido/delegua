@@ -1,4 +1,4 @@
-﻿import { Unario, Binario, Logico } from '../construtos';
+﻿import { Binario, Logico } from '../construtos';
 import { ConstrutoInterface } from '../interfaces/construtos/construto-interface';
 import { Declaracao } from '../declaracoes';
 import { SimboloInterface } from '../interfaces';
@@ -58,29 +58,11 @@ export abstract class MicroAvaliadorSintaticoBase {
 
     abstract chamar(): ConstrutoInterface;
 
-    unario(): ConstrutoInterface {
-        if (
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.NEGACAO, tiposDeSimbolos.SUBTRACAO)
-        ) {
-            const operador = this.simbolos[this.atual - 1];
-            const direito = this.unario();
-            return new Unario(-1, operador, direito, 'ANTES');
-        }
-
-        return this.chamar();
-    }
-
-    exponenciacao(): ConstrutoInterface {
-        let expressao = this.unario();
-
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.EXPONENCIACAO)) {
-            const operador = this.simbolos[this.atual - 1];
-            const direito = this.exponenciacao();
-            expressao = new Binario(-1, expressao, operador, direito);
-        }
-
-        return expressao;
-    }
+    // Os métodos a seguir variam entre dialetos e são implementados por cada micro avaliador sintático.
+    abstract unario(): ConstrutoInterface;
+    abstract exponenciacao(): ConstrutoInterface;
+    abstract comparar(): ConstrutoInterface;
+    abstract e(): ConstrutoInterface;
 
     multiplicar(): ConstrutoInterface {
         let expressao = this.exponenciacao();
@@ -115,25 +97,6 @@ export abstract class MicroAvaliadorSintaticoBase {
         return expressao;
     }
 
-    comparar(): ConstrutoInterface {
-        let expressao = this.adicaoOuSubtracao();
-
-        while (
-            this.verificarSeSimboloAtualEIgualA(
-                tiposDeSimbolos.MAIOR,
-                tiposDeSimbolos.MAIOR_IGUAL,
-                tiposDeSimbolos.MENOR,
-                tiposDeSimbolos.MENOR_IGUAL
-            )
-        ) {
-            const operador = this.simbolos[this.atual - 1];
-            const direito = this.adicaoOuSubtracao();
-            expressao = new Binario(-1, expressao, operador, direito);
-        }
-
-        return expressao;
-    }
-
     comparacaoIgualdade(): ConstrutoInterface {
         let expressao = this.comparar();
 
@@ -146,18 +109,6 @@ export abstract class MicroAvaliadorSintaticoBase {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.comparar();
             expressao = new Binario(-1, expressao, operador, direito);
-        }
-
-        return expressao;
-    }
-
-    e(): ConstrutoInterface {
-        let expressao = this.comparacaoIgualdade();
-
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.E)) {
-            const operador = this.simbolos[this.atual - 1];
-            const direito = this.comparacaoIgualdade();
-            expressao = new Logico(-1, expressao, operador, direito);
         }
 
         return expressao;

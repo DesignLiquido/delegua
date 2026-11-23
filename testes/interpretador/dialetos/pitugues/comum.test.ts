@@ -77,3 +77,60 @@ describe('comum (dialeto pitugues)', () => {
     expect(interpretador.avaliar).toHaveBeenCalled();
   });
 });
+
+describe('comum (dialeto pitugues) - acesso com interpretador real', () => {
+    const { InterpretadorPitugues } = require('../../../../fontes/interpretador/dialetos/pitugues');
+    const { AcessoPropriedade } = require('../../../../fontes/construtos/acesso-propriedade');
+    const { TuplaN } = require('../../../../fontes/construtos/tupla-n');
+    const { DeleguaModulo } = require('../../../../fontes/interpretador/estruturas');
+    const { visitarExpressaoAcessoPropriedade } = require('../../../../fontes/interpretador/dialetos/pitugues/comum');
+
+    const literal = (valor: any) => new Literal(-1, 1, valor);
+    const modulo = () => {
+        const moduloTeste = new DeleguaModulo('teste');
+        moduloTeste.componentes['componente'] = 42;
+        return moduloTeste;
+    };
+
+    describe.each([
+        ['visitarExpressaoAcessoMetodo', (objeto: any, nome: string) => new AcessoMetodo(-1, objeto, nome), visitarExpressaoAcessoMetodo],
+        [
+            'visitarExpressaoAcessoPropriedade',
+            (objeto: any, nome: string) => new AcessoPropriedade(-1, objeto, nome),
+            visitarExpressaoAcessoPropriedade,
+        ],
+    ])('%s', (_nome: string, criar: (objeto: any, nome: string) => any, visitarFuncao: any) => {
+        const visitar = (objeto: any, nome: string) =>
+            visitarFuncao(new InterpretadorPitugues(process.cwd()), criar(literal(objeto), nome));
+
+        it('Primitiva de vetor', async () => {
+            expect(await visitar([3, 1], 'ordenar')).toBeInstanceOf(MetodoPrimitiva);
+        });
+
+        it('Primitiva de tupla', async () => {
+            expect(await visitar(new TuplaN(-1, 1, [literal(1), literal(2)]), 'juntar')).toBeInstanceOf(MetodoPrimitiva);
+        });
+
+        it('Primitiva de dicionário', async () => {
+            expect(await visitar({ a: 1 }, 'chaves')).toBeInstanceOf(MetodoPrimitiva);
+        });
+
+        it('Primitiva de texto', async () => {
+            expect(await visitar('abc', 'maiusculo')).toBeInstanceOf(MetodoPrimitiva);
+        });
+
+        it('Função de objeto JavaScript', async () => {
+            const funcao = () => 1;
+            expect(await visitar(new (class { f = funcao })(), 'f')).toBe(funcao);
+        });
+
+        it('Componente de módulo', async () => {
+            expect(await visitar(modulo(), 'componente')).toBe(42);
+            expect(await visitar(modulo(), 'inexistente')).toBeNull();
+        });
+
+        it('Membro inexistente', async () => {
+            await expect(visitar(new (class { x = 1 })(), 'naoExiste')).rejects.toBeTruthy();
+        });
+    });
+});

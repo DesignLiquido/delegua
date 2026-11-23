@@ -26,3 +26,27 @@ describe('Avaliador sintático (Guarani)', () => {
         });
     });
 });
+
+describe('Avaliador sintático (Guarani) - casos adicionais', () => {
+    const { obterErroDeMetodo, obterMetodosNaoImplementados } = require('../../../_auxiliares/metodos-nao-implementados');
+
+    it.each([['hai(12.5)'], ['"texto"'], ['42']])('Analisa %s', async (codigo: string) => {
+        const retorno = await new AvaliadorSintaticoGuarani().analisar(new LexadorGuarani().mapear([codigo], -1), -1);
+        expect(retorno.erros).toHaveLength(0);
+        expect(retorno.declaracoes).toHaveLength(1);
+    });
+
+    it('Expressão inválida', async () => {
+        // O dialeto Guarani ainda não possui recuperação de erros: o erro é propagado.
+        await expect(
+            new AvaliadorSintaticoGuarani().analisar(new LexadorGuarani().mapear(['hai(,)'], -1), -1)
+        ).rejects.toThrow('Esperado expressão.');
+    });
+
+    it.each(obterMetodosNaoImplementados(AvaliadorSintaticoGuarani.prototype))(
+        '%s sinaliza que não está implementado',
+        async (nomeMetodo: string) => {
+            expect(await obterErroDeMetodo(new AvaliadorSintaticoGuarani(), nomeMetodo)).toContain('não implementado');
+        }
+    );
+});

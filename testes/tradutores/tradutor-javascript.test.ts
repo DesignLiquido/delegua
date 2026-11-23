@@ -1627,3 +1627,100 @@ describe('Tradutor Delégua -> JavaScript', () => {
         });
     });
 });
+
+describe('Tradutor Delégua -> JavaScript (casos adicionais)', () => {
+    const traduzir = async (codigo: string[]) => {
+        const lexador = new Lexador();
+        const avaliadorSintatico = new AvaliadorSintatico();
+        const retornoLexador = lexador.mapear(codigo, -1);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+        return new TradutorJavaScript().traduzir(retornoAvaliadorSintatico.declaracoes);
+    };
+
+    it.each([
+        [
+            ['funcao f(a, b) { retorna a + b }', 'funcao g(h) { retorna h(1, 2) }', 'escreva(g(f))'],
+            ['function f (a, b)', 'return h(1, 2)', 'console.log(g(f))'],
+        ],
+        [
+            ['var f = funcao(a: inteiro, b: texto) { retorna a }', 'escreva(f(1, "a"))'],
+            ['let f = function(a, b)', "console.log(f(1, 'a'))"],
+        ],
+        [
+            ['classe A { m() { retorna 1 } }', 'classe B herda A { m() { retorna 2 } }', 'var b = B()'],
+            ['export class A', 'export class B extends A', 'let b = new B();'],
+        ],
+        [
+            ['var v = [1, 2]', 'v[0] = 3', 'var d = {"a": 1, 2: "b", verdadeiro: 3}'],
+            ['v[0] = 3', "let d = {'a':1,2:'b',true:3,};"],
+        ],
+        [
+            ['para (var i = 0; i < 3; i++) { se i == 1 { continua } se i == 2 { sustar } }'],
+            ['for (let i = 0; i < 3; i++)', 'i === 1', 'continue', 'break'],
+        ],
+        [['enquanto verdadeiro { sustar }', 'fazer { escreva(1) } enquanto falso'], ['while (true)', 'do {', 'while (false)']],
+        [['tente { escreva(1) } pegue (erro) { escreva(erro) } finalmente { escreva(2) }'], ['try {', 'catch {', 'finally {']],
+        [['escreva(1 == 1, 1 != 2, 2 ** 3)'], ['1 === 1', '1 !== 2', '2 ** 3']],
+        [['var a = leia("x")', 'escreva(tipo de a)'], ['typeof a']],
+        [
+            ['var s = "abc"', 'escreva(s.maiusculo(), s.tamanho())', 'var v = [3, 1]', 'v.adicionar(2)'],
+            ['s.toUpperCase()', 's.length', 'v.push(2)'],
+        ],
+        [['const a, b = 1, 2', 'var p, q = 3, 4'], ['const a = 1;', 'const b = 2;', 'let p = 3;', 'let q = 4;']],
+        [['var x = 1', 'x += 1', 'x -= 1', 'x *= 2', 'x /= 2'], ['x += 1', 'x -= 1', 'x *= 2', 'x /= 2']],
+        [['escreva(1)', '// comentario', '/* bloco */'], ['// comentario', '/*bloco']],
+        [['escreva(verdadeiro e falso)', 'var y = nulo'], ['let y = null;']],
+    ])('Traduz %j', async (codigo: string[], esperados: string[]) => {
+        const resultado = await traduzir(codigo);
+        for (const esperado of esperados) {
+            expect(resultado).toContain(esperado);
+        }
+    });
+});
+
+describe('TradutorJavaScript (correções de operadores, métodos e senão se)', () => {
+    const traduzir = async (codigo: string[]) => {
+        const retornoAvaliadorSintatico = await new AvaliadorSintatico().analisar(new Lexador().mapear(codigo, -1), -1);
+        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+        return await new TradutorJavaScript().traduzir(retornoAvaliadorSintatico.declaracoes);
+    };
+
+    it.each([
+        [['escreva(1 << 2, 8 >> 1, 5 ^ 1, !verdadeiro, ~1)'], ['console.log(1 << 2, 8 >> 1, 5 ^ 1, !true, ~1)']],
+        [
+            ['var v = [1, 2, 3]', 'escreva(v.fatiar(0, 1), v.inclui(2), v.inverter(), v.juntar(","), v.somar(), v.tamanho())', 'v.remover(1)', 'v.removerPrimeiro()', 'v.removerUltimo()'],
+            ['v.slice(0, 1)', 'v.includes(2)', 'v.toReversed()', "v.join(',')", 'v.length', 'v.splice(v.indexOf(1), 1)', 'v.shift()', 'v.pop()'],
+        ],
+        [
+            ['var v = [1, 2, 3]', 'escreva(v.mapear(funcao(x) { retorna x * 2 }), v.filtrarPor(funcao(x) { retorna x > 1 }), v.concatenar([4]), v.encaixar(0, 1))'],
+            ['v.map((x) => x * 2)', 'v.filter((x) => x > 1)', 'v.concat([4])', 'v.splice(0, 1)'],
+        ],
+        [['var s = "abc"', 'escreva(s.minusculo(), s.dividir(","))'], ['s.toLowerCase()', "s.dividir(',')"]],
+        [['var x = 1', 'se x == 1 { escreva(1) } senao se x == 2 { escreva(2) }'], ['if (x === 1){\n    console.log(1)\n}\nelse if (x === 2){\n    console.log(2)\n}\n \n']],
+        [['var d = {1: "a", "b": verdadeiro, "c": nulo}'], ["let d = {1:'a','b':true,'c':null,};"]],
+        [['var y = tipo de 1'], ['let y = typeof 1;']],
+    ])('Traduz %j', async (codigo: string[], esperados: string[]) => {
+        const resultado = await traduzir(codigo);
+        for (const esperado of esperados) {
+            expect(resultado).toContain(esperado);
+        }
+    });
+});
+
+describe('TradutorJavaScript (vetores tipados e classes)', () => {
+    const traduzir = async (codigo: string[]) => {
+        const retornoAvaliadorSintatico = await new AvaliadorSintatico().analisar(new Lexador().mapear(codigo, -1), -1);
+        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+        return await new TradutorJavaScript().traduzir(retornoAvaliadorSintatico.declaracoes);
+    };
+
+    it.each([
+        [['var v: inteiro[] = [1, 2, 3]', 'v.adicionar(4)', 'escreva(v.fatiar(0, 1), v.inclui(2), v.inverter(), v.juntar(","), v.ordenar(), v.somar(), v.tamanho())', 'v.removerPrimeiro()', 'v.removerUltimo()', 'escreva(v.mapear(funcao(x: inteiro) { retorna x * 2 }))'], ['v.push(4)', 'v.slice(0, 1)', 'v.includes(2)', 'v.toReversed()', "v.join(',')", 'v.sort()', 'v.length', 'v.map((x) => x * 2)']],
+        [['classe A { x: inteiro', 'construtor() { isto.x = 1 }', 'm(): inteiro { retorna isto.x } }', 'var a = A()', 'escreva(a.x, a.m())'], ['export class A', 'constructor() {', 'this.x = 1', 'return this.x', 'let a = new A();', 'console.log(a.x, a.m())']],
+    ])('Traduz %j', async (codigo: string[], esperados: string[]) => {
+        const resultado = await traduzir(codigo);
+        for (const esperado of esperados) {
+            expect(resultado).toContain(esperado);
+        }
+    });
+});

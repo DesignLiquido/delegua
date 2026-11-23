@@ -1116,7 +1116,7 @@ export async function instrucaoPasso(
  * @param escopo Indica o escopo a ser visitado. Usado para construir uma pilha de chamadas do lado JS.
  */
 async function instrucaoProximoESair(interpretador: InterpretadorComDepuracaoInterface) {
-    executarUltimoEscopoComandoContinuar(interpretador, false, true);
+    await executarUltimoEscopoComandoContinuar(interpretador, false, true);
 }
 
 export function abrirNovoBlocoEscopo(

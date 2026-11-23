@@ -1,3 +1,4 @@
+import { obterErroDeMetodo, obterMetodosNaoImplementados } from '../../../_auxiliares/metodos-nao-implementados';
 import { AvaliadorSintaticoPortugolIpt } from "../../../../fontes/avaliador-sintatico/dialetos";
 import { InterpretadorPortugolIpt } from "../../../../fontes/interpretador/dialetos";
 import { LexadorPortugolIpt } from "../../../../fontes/lexador/dialetos";
@@ -738,5 +739,73 @@ describe('Interpretador (Portugol IPT)', () => {
             expect(erros).toHaveLength(0);
             expect(saidas).toContain('Você é maior de idade');
         });
+    });
+});
+
+describe('Interpretador (Portugol IPT) - casos adicionais', () => {
+    const executar = async (linhas: string[]) => {
+        const saidas: string[] = [];
+        const lexador = new LexadorPortugolIpt();
+        const avaliadorSintatico = new AvaliadorSintaticoPortugolIpt();
+        const interpretador = new InterpretadorPortugolIpt(process.cwd());
+        interpretador.funcaoDeRetorno = (s: string) => saidas.push(String(s));
+        interpretador.funcaoDeRetornoMesmaLinha = (s: string) => saidas.push(String(s));
+        const retornoAvaliador = await avaliadorSintatico.analisar(lexador.mapear(['inicio', ...linhas, 'fim'], -1), -1);
+        expect(retornoAvaliador.erros).toHaveLength(0);
+        const retorno = await interpretador.interpretar(retornoAvaliador.declaracoes);
+        const erros = retorno.erros.map(
+            (erro: any) => erro.erroInterno?.message ?? erro.mensagem ?? erro.message ?? String(erro)
+        );
+        return { saidas, erros };
+    };
+
+    it.each([
+        [['escrever 7 / 2'], ['3.5']],
+        [['escrever 7 % 2'], ['1']],
+        [['escrever "ab" * 2'], ['abab']],
+        [['escrever 2 * "ab"'], ['abab']],
+        [['escrever "2" * "3"'], ['6']],
+        [['escrever "a" + 1'], ['a1']],
+        [['escrever 1 = 1 ou 1 = 2'], ['verdadeiro']],
+        [['escrever 1 = 2 ou 1 = 1'], ['verdadeiro']],
+        [['escrever 1 = 1 xou 1 = 2'], ['verdadeiro']],
+        [['escrever 1 = 2 e 1 = 1'], ['falso']],
+        [['escrever 1 = 1 e 1 = 1'], ['verdadeiro']],
+        [['real r = 1.5', 'escrever r'], ['1.5']],
+        [['inteiro v[3]', 'v[0] <- 1', 'escrever v[0]'], ['1']],
+        [
+            ['inteiro x = 3', 'escolhe x', 'caso 1:', 'escrever "um"', 'caso 3:', 'escrever "tres"', 'defeito:', 'escrever "d"', 'fimescolhe'],
+            ['tres'],
+        ],
+        [['inteiro x = 9', 'escolhe x', 'caso 1:', 'escrever "um"', 'defeito:', 'escrever "d"', 'fimescolhe'], ['d']],
+        [['inteiro x = 0', 'repete', 'x <- x + 1', 'ate x >= 3', 'escrever x'], ['3']],
+        [['inteiro i', 'para i de 1 ate 5 passo 2', 'escrever i', 'proximo'], ['1', '3', '5']],
+    ])('Executa %j', async (linhas: string[], saidasEsperadas: string[]) => {
+        const { saidas, erros } = await executar(linhas);
+        expect(erros).toHaveLength(0);
+        expect(saidas).toEqual(saidasEsperadas);
+    });
+
+    it.each([
+        [['escrever "a" - 1'], 'Operadores precisam ser números.'],
+        [['escrever y'], "Variável não definida: 'y'."],
+        [['inteiro v[3]', 'escrever v[5]'], 'Índice do vetor fora do intervalo.'],
+        [['constante inteiro c = 5', 'c <- 6'], "Constante 'c' não pode receber novos valores."],
+    ])('Erro em %j', async (linhas: string[], mensagem: string) => {
+        const { erros } = await executar(linhas);
+        expect(erros[0]).toContain(mensagem);
+    });
+});
+
+describe('InterpretadorPortugolIpt - métodos não implementados', () => {
+    const instancia: any = new InterpretadorPortugolIpt(process.cwd());
+    const metodos = obterMetodosNaoImplementados(Object.getPrototypeOf(instancia));
+
+    it('Possui métodos não implementados', () => {
+        expect(metodos.length).toBeGreaterThan(0);
+    });
+
+    it.each(metodos)('%s sinaliza que não está implementado', async (nomeMetodo: string) => {
+        expect(await obterErroDeMetodo(instancia, nomeMetodo)).toContain('não implementado');
     });
 });
