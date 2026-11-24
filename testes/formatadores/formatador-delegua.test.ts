@@ -1551,6 +1551,8 @@ describe('Formatadores > Delégua (casos adicionais)', () => {
         [['var x = 5', 'var y = x em [1, 5]'], 'var x = 5\nvar y = x em [1, 5]\n'],
         [['var v = [1, 2, 3]'], 'var v = [1, 2, 3]\n'],
         [['var t = (1, 2)'], 'var t = (1, 2)\n'],
+        [['var x = 5', 'x--', '--x'], 'var x = 5\nx--\n--x\n'],
+        [['var x = 5', 'x++', '++x'], 'var x = 5\nx++\n++x\n'],
     ])('Formata %j', async (codigo: string[], esperado: string) => {
         expect(await formatar(codigo)).toBe(esperado);
     });

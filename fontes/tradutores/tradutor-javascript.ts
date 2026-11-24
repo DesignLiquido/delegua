@@ -455,11 +455,13 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
             switch (declaracao.constructor.name) {
                 case 'Retorna':
                     const declaracaoRetorna = declaracao as Retorna;
-                    resultado +=
-                        'return ' +
-                        this.dicionarioConstrutos[declaracaoRetorna.valor.constructor.name](
-                            declaracaoRetorna.valor
-                        );
+                    resultado += declaracaoRetorna.valor
+                        ? 'return ' +
+                          this.dicionarioConstrutos[declaracaoRetorna.valor.constructor.name](
+                              declaracaoRetorna.valor
+                          ) +
+                          '\n'
+                        : 'return\n';
                     break;
                 default:
                     resultado +=
@@ -487,8 +489,7 @@ export class TradutorJavaScript implements TradutorInterface<Declaracao> {
         }
 
         if (declaracaoEscolha.caminhoPadrao) {
-            resultado += ' '.repeat(4);
-            resultado += 'default:\n';
+            // `logicaComumCaminhosEscolha` já escreve `default:` para caminhos sem condições.
             resultado += this.logicaComumCaminhosEscolha(declaracaoEscolha.caminhoPadrao);
         }
 

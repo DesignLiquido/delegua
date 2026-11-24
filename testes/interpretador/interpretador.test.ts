@@ -9749,6 +9749,12 @@ describe('Interpretador - casos adicionais', () => {
         [['var t = [(1, 2, 3)]', 'escreva(t[0:2])'], ['[1, 2]']],
         [['var i = 0', 'fazer { i = i + 1; se i == 2 { continua } } enquanto i < 3', 'escreva(i)'], ['3']],
         [['funcao f() { enquanto verdadeiro { retorna 5 } }', 'escreva(f())'], ['5']],
+        [['funcao f() { fazer { retorna 5 } enquanto verdadeiro }', 'escreva(f())'], ['5']],
+        // `++` e `--` em uma nova linha são pré-fixados da próxima declaração.
+        [['var x = 5', 'x--', '--x', 'escreva(x)'], ['3']],
+        [['var x = 5', '--x', 'escreva(x)'], ['4']],
+        [['var x = 5', 'x++', '++x', 'escreva(x)'], ['7']],
+        [['funcao f() { var i = 0; fazer { i = i + 1; se i == 3 { retorna i } } enquanto verdadeiro }', 'escreva(f())'], ['3']],
         [['funcao f() { para (var i = 0; i < 3; i++) { retorna i } }', 'escreva(f())'], ['0']],
         [['funcao f() { para cada x em [1, 2] { retorna x } }', 'escreva(f())'], ['1']],
         [['var a = nulo', 'escreva(a ?: 3)'], ['3']],

@@ -1516,7 +1516,23 @@ describe('Biblioteca Global - chamadas diretas e validações', () => {
                 'escreva(tamanho(A))',
             ]);
             expect(erros).toHaveLength(0);
-            expect(saidas).toHaveLength(1);
+            expect(saidas).toEqual(['2']);
+        });
+
+        it('De classe sem construtor', async () => {
+            const { saidas, erros } = await executar(['classe A { }', 'escreva(tamanho(A))']);
+            expect(erros).toHaveLength(0);
+            expect(saidas).toEqual(['0']);
+        });
+
+        it('De classe com construtor herdado', async () => {
+            const { saidas, erros } = await executar([
+                'classe A { construtor(x) { } }',
+                'classe B herda A { }',
+                'escreva(tamanho(B))',
+            ]);
+            expect(erros).toHaveLength(0);
+            expect(saidas).toEqual(['1']);
         });
 
         it('De objeto de classe', async () => {

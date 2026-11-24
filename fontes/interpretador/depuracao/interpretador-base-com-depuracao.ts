@@ -142,6 +142,10 @@ export class InterpretadorBaseComDepuracao
      * @param declaracao A declaração.
      * @returns Sempre nulo, por convenção de visita.
      */
+    protected override deveInterromperLacoParaDepuracao(): boolean {
+        return this.pontoDeParadaAtivo || this.comando === 'pausar';
+    }
+
     override async visitarDeclaracaoEscreva(declaracao: Escreva): Promise<any> {
         return await comum.visitarDeclaracaoEscreva(this, declaracao);
     }

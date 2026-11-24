@@ -686,3 +686,56 @@ describe('Interpretador Base com Depuração - métodos auxiliares', () => {
         expect(saidas).toEqual(['1', '2']);
     });
 });
+
+describe('InterpretadorBaseComDepuracao - continuar após ponto de parada dentro de blocos', () => {
+    it.each([
+        [['para (var i = 0; i < 2; i++) {', '    escreva(i)', '}'], 2, [2, 2], ['0', '1']],
+        [['var i = 0', 'fazer {', '    i = i + 1', '} enquanto i < 2', 'escreva(i)'], 3, [3, 3], ['2']],
+        [['se verdadeiro {', '    escreva(1)', '    escreva(2)', '}'], 2, [2], ['1', '2']],
+        [['var i = 0', 'enquanto i < 2 {', '    i = i + 1', '}', 'escreva(i)'], 3, [3, 3], ['2']],
+        [['para cada x em [1, 2] {', '    escreva(x)', '}'], 2, [2, 2], ['1', '2']],
+        [['escolha 1 {', '    caso 1:', '        escreva(1)', '        escreva(2)', '}', 'escreva(3)'], 4, [4], ['1', '2', '3']],
+        [
+            ['para (var i = 0; i < 2; i++) {', '    para (var j = 0; j < 2; j++) {', '        escreva(i * 10 + j)', '    }', '}'],
+            3,
+            [3, 3, 3, 3],
+            ['0', '1', '10', '11'],
+        ],
+        [['se falso {', '    escreva(1)', '} senao {', '    escreva(2)', '    escreva(3)', '}'], 4, [4], ['2', '3']],
+        [['funcao f() {', '    retorna verdadeiro', '}', 'se f() {', '    escreva(1)', '}'], 2, [2], ['1']],
+        [['var i = 0', 'para (; i < 2; i++) {', '    escreva(i)', '}'], 3, [3, 3], ['0', '1']],
+        [
+            ['funcao f() {', '    para (var i = 0; i < 2; i++) {', '        escreva(i)', '    }', '}', 'f()', 'escreva(9)'],
+            3,
+            [3, 3],
+            ['0', '1', '9'],
+        ],
+    ])(
+        'Continuar após ponto de parada em %j',
+        async (codigo: string[], linhaPontoParada: number, paradasEsperadas: number[], saidasEsperadas: string[]) => {
+            const saidas: string[] = [];
+            const interpretador = new InterpretadorBaseComDepuracao(process.cwd(), (texto: string) => saidas.push(texto), () => {});
+            let execucaoFinalizada = false;
+            interpretador.finalizacaoDaExecucao = () => {
+                execucaoFinalizada = true;
+            };
+            const retornoAvaliadorSintatico = await new AvaliadorSintatico().analisar(new Lexador().mapear(codigo, -1), -1);
+            expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+            interpretador.pontosParada = [{ hashArquivo: -1, linha: linhaPontoParada }];
+            interpretador.prepararParaDepuracao(retornoAvaliadorSintatico.declaracoes);
+            await interpretador.instrucaoContinuarInterpretacao();
+
+            const paradas: number[] = [];
+            // O limite evita que um laço infinito trave o teste.
+            while (interpretador.pontoDeParadaAtivo && paradas.length < 10) {
+                paradas.push(interpretador.linhaDeclaracaoAtual);
+                interpretador.pontoDeParadaAtivo = false;
+                await interpretador.instrucaoContinuarInterpretacao();
+            }
+
+            expect(paradas).toEqual(paradasEsperadas);
+            expect(saidas).toEqual(saidasEsperadas);
+            expect(execucaoFinalizada).toBe(true);
+        }
+    );
+});

@@ -1332,3 +1332,11 @@ describe('TradutorPython (vetores tipados e classes)', () => {
         }
     });
 });
+
+describe('TradutorPython - escolha', () => {
+    it('Traduz escolha com caso múltiplo e padrão', async () => {
+        const retorno = await new AvaliadorSintatico().analisar(new Lexador().mapear(['var x = 2', 'escolha x { caso 1: caso 2: escreva("um ou dois") caso 3: escreva("tres") padrao: escreva("outro") }'], -1), -1);
+        expect(retorno.erros).toHaveLength(0);
+        expect(await new TradutorPython().traduzir(retorno.declaracoes)).toBe('x = 2 \nmatch x:\n    case 1 | 2:\n        print(\'um ou dois\')\n    \n    case 3:\n        print(\'tres\')\n    \n    case _:\n        print(\'outro\')\n    \n \n');
+    });
+});

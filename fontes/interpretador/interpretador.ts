@@ -695,6 +695,13 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
                 tipo: 'vetor',
             };
         }
+
+        // Propaga `retorna` executado dentro do laço para a função que o contém.
+        if (retornoExecucao && retornoExecucao.valorRetornado instanceof RetornoQuebra) {
+            return retornoExecucao;
+        }
+
+        return null;
     }
 
     override async visitarDeclaracaoFazer(declaracao: Fazer): Promise<any> {
@@ -828,8 +835,13 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
     ): Promise<any> {
         let retornoExecucao: ResultadoParcialInterpretadorInterface | undefined = undefined;
         // Posição atual precisa ser reiniciada, pois pode estar dentro de outro
-        // laço de repetição.
-        paraCada.posicaoAtual = 0;
+        // laço de repetição. A exceção é a retomada pelo depurador depois de um
+        // ponto de parada dentro do corpo: nesse caso, o laço continua de onde parou.
+        if ((paraCada as any).retomarDepuracao === true) {
+            (paraCada as any).retomarDepuracao = false;
+        } else {
+            paraCada.posicaoAtual = 0;
+        }
         const vetorOuDicionarioResolvido = await this.avaliar(paraCada.vetorOuDicionario);
         let valorVetorOuDicionarioResolvido: any = this.resolverValor(vetorOuDicionarioResolvido);
 
@@ -869,7 +881,8 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         while (
             (acumularRetornos ||
                 !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra)) &&
-            paraCada.posicaoAtual < valorVetorOuDicionarioResolvido.length
+            paraCada.posicaoAtual < valorVetorOuDicionarioResolvido.length &&
+            !this.deveInterromperLacoParaDepuracao()
         ) {
             try {
                 if (this.funcaoVerificarIteracao) {

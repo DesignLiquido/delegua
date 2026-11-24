@@ -1724,3 +1724,11 @@ describe('TradutorJavaScript (vetores tipados e classes)', () => {
         }
     });
 });
+
+describe('TradutorJavaScript - escolha', () => {
+    it('Traduz escolha com caso múltiplo e padrão', async () => {
+        const retorno = await new AvaliadorSintatico().analisar(new Lexador().mapear(['var x = 2', 'escolha x { caso 1: caso 2: escreva("um ou dois") caso 3: escreva("tres") padrao: escreva("outro") }'], -1), -1);
+        expect(retorno.erros).toHaveLength(0);
+        expect(await new TradutorJavaScript().traduzir(retorno.declaracoes)).toBe('let x = 2; \nswitch (x) {\n    case 1:\n    case 2:\n            console.log(\'um ou dois\')\n        break\n    case 3:\n            console.log(\'tres\')\n        break\n    default:\n            console.log(\'outro\')\n        break\n}\n \n');
+    });
+});

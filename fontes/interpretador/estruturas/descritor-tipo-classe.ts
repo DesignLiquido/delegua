@@ -60,6 +60,12 @@ export class DescritorTipoClasse extends Chamavel {
     acessoMetodos: { [nome: string]: 'privado' | 'protegido' | 'publico' };
     acessoPropriedades: { [nome: string]: 'privado' | 'protegido' | 'publico' };
     sombrearPropriedadesDeClasse: boolean = false;
+    /**
+     * Se verdadeiro, sobrecargas de mesmo nome das superclasses são mescladas às da
+     * classe, como em Delégua. Dialetos como Égua Clássico procuram primeiro o método
+     * da própria classe e só recorrem à superclasse quando ele não existe.
+     */
+    mesclarSobrecargasDaHierarquia: boolean = true;
 
     /** Obtenedor de compat: primeiro pai direto (usado por tradutores e partes do interpretador). */
     get superClasse(): DescritorTipoClasse | null {
@@ -292,6 +298,12 @@ export class DescritorTipoClasse extends Chamavel {
         if (this.metodos.hasOwnProperty(nome)) {
             const metodo = this.metodos[nome];
             metodosAtuais = Array.isArray(metodo) ? metodo : [metodo];
+        }
+
+        if (!this.mesclarSobrecargasDaHierarquia && metodosAtuais.length > 0) {
+            return metodosAtuais.length === 1
+                ? metodosAtuais[0]
+                : new MetodoPolimorfico(nome, metodosAtuais);
         }
 
         const metodosSuperclasse = this.obterSobrecargasDaSuperclasse(nome);

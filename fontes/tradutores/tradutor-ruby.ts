@@ -30,6 +30,7 @@ import {
     Const,
     Declaracao,
     Enquanto,
+    Escolha,
     Escreva,
     Expressao,
     FuncaoDeclaracao,
@@ -653,6 +654,29 @@ export class TradutorRuby implements TradutorInterface<Declaracao> {
         return resultado;
     }
 
+    /**
+     * `escolha` é traduzido para `case ... when ... else ... end`.
+     */
+    traduzirDeclaracaoEscolha(declaracaoEscolha: Escolha): string {
+        const traduzir = (construto: ConstrutoInterface) =>
+            this.dicionarioConstrutos[construto.constructor.name](construto);
+
+        let resultado = `case ${traduzir(declaracaoEscolha.identificadorOuLiteral)}\n`;
+        for (const caminho of declaracaoEscolha.caminhos) {
+            const condicoes = caminho.condicoes.map((condicao) => traduzir(condicao)).join(', ');
+            resultado += `${' '.repeat(this.indentacao)}when ${condicoes}\n`;
+            resultado += this.logicaComumBlocoEscopo(caminho.declaracoes);
+        }
+
+        if (declaracaoEscolha.caminhoPadrao) {
+            resultado += `${' '.repeat(this.indentacao)}else\n`;
+            resultado += this.logicaComumBlocoEscopo(declaracaoEscolha.caminhoPadrao.declaracoes);
+        }
+
+        resultado += `${' '.repeat(this.indentacao)}end\n`;
+        return resultado;
+    }
+
     traduzirDeclaracaoEnquanto(declaracaoEnquanto: Enquanto): string {
         let resultado = ' '.repeat(this.indentacao) + 'while ';
         const condicao = this.dicionarioConstrutos[declaracaoEnquanto.condicao.constructor.name](
@@ -925,6 +949,7 @@ export class TradutorRuby implements TradutorInterface<Declaracao> {
         Const: this.traduzirDeclaracaoConst.bind(this),
         Continua: () => 'next',
         Enquanto: this.traduzirDeclaracaoEnquanto.bind(this),
+        Escolha: this.traduzirDeclaracaoEscolha.bind(this),
         Escreva: this.traduzirDeclaracaoEscreva.bind(this),
         Expressao: this.traduzirDeclaracaoExpressao.bind(this),
         FuncaoDeclaracao: this.traduzirDeclaracaoFuncao.bind(this),
@@ -944,7 +969,9 @@ export class TradutorRuby implements TradutorInterface<Declaracao> {
 
         try {
             for (const declaracao of declaracoes) {
-                resultado += `${this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao)}`;
+                const traducao = `${this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao)}`;
+                // Cada declaração de primeiro nível fica em sua própria linha.
+                resultado += traducao.endsWith('\n') ? traducao : `${traducao}\n`;
             }
         } catch (erro) {
             console.error(`Erro em tradução para Ruby: ${erro}`);

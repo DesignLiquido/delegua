@@ -30,6 +30,7 @@ import {
     Const,
     Declaracao,
     Enquanto,
+    Escolha,
     Escreva,
     Expressao,
     FuncaoDeclaracao,
@@ -662,6 +663,30 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         return resultado;
     }
 
+    /**
+     * `escolha` é traduzido para `match` (Python 3.10+).
+     */
+    traduzirDeclaracaoEscolha(declaracaoEscolha: Escolha): string {
+        const traduzir = (construto: ConstrutoInterface) =>
+            this.dicionarioConstrutos[construto.constructor.name](construto);
+
+        let resultado = `match ${traduzir(declaracaoEscolha.identificadorOuLiteral)}:\n`;
+        this.indentacao += 4;
+        for (const caminho of declaracaoEscolha.caminhos) {
+            const condicoes = caminho.condicoes.map((condicao) => traduzir(condicao)).join(' | ');
+            resultado += `${' '.repeat(this.indentacao)}case ${condicoes}:\n`;
+            resultado += this.logicaComumBlocoEscopo(caminho.declaracoes);
+        }
+
+        if (declaracaoEscolha.caminhoPadrao) {
+            resultado += `${' '.repeat(this.indentacao)}case _:\n`;
+            resultado += this.logicaComumBlocoEscopo(declaracaoEscolha.caminhoPadrao.declaracoes);
+        }
+
+        this.indentacao -= 4;
+        return resultado;
+    }
+
     traduzirDeclaracaoEnquanto(declaracaoEnquanto: Enquanto): string {
         let resultado = ' '.repeat(this.indentacao) + 'while ';
         const condicao = this.dicionarioConstrutos[declaracaoEnquanto.condicao.constructor.name](
@@ -957,6 +982,7 @@ export class TradutorPython implements TradutorInterface<Declaracao> {
         Const: this.traduzirDeclaracaoConst.bind(this),
         Continua: () => 'continue',
         Enquanto: this.traduzirDeclaracaoEnquanto.bind(this),
+        Escolha: this.traduzirDeclaracaoEscolha.bind(this),
         Escreva: this.traduzirDeclaracaoEscreva.bind(this),
         Expressao: this.traduzirDeclaracaoExpressao.bind(this),
         FuncaoDeclaracao: this.traduzirDeclaracaoFuncao.bind(this),

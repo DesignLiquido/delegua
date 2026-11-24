@@ -2053,7 +2053,7 @@ export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implement
             );
         }
 
-        return new Sustar(this.simboloAtual());
+        return new Sustar(this.simboloAnterior());
     }
 
     protected async resolverDecoradores(): Promise<void> {
@@ -2126,7 +2126,7 @@ export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implement
             );
         }
 
-        return new Continua(this.simboloAtual());
+        return new Continua(this.simboloAnterior());
     }
 
     async declaracaoRetorna(): Promise<Retorna> {
@@ -2886,6 +2886,12 @@ export class AvaliadorSintaticoPitugues extends AvaliadorSintaticoBase implement
 
             return await this.resolverDeclaracao();
         } catch (erro: any) {
+            // Erros criados por `this.erro()` já estão registrados. Outros erros
+            // (por exemplo, falhas internas) também precisam ser informados.
+            if (!this.erros.includes(erro)) {
+                this.erros.push(erro);
+            }
+
             this.sincronizar();
             return null;
         }

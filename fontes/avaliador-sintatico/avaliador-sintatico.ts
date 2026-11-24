@@ -540,6 +540,24 @@ export class AvaliadorSintatico
         return Promise.resolve(new ImportarComoConstruto(caminho as Literal));
     }
 
+    /**
+     * Verifica se o símbolo atual é um `++` ou `--` pós-fixado, ou seja, na mesma linha
+     * do operando. Um `++` ou `--` em uma nova linha é o início (pré-fixado) da próxima
+     * declaração, como em:
+     *
+     *     x--
+     *     --x
+     */
+    protected proximoSimboloEIncrementoOuDecrementoPosfixado(): boolean {
+        const simboloAtual = this.simbolos[this.atual];
+        const simboloAnterior = this.simbolos[this.atual - 1];
+        return (
+            !!simboloAtual &&
+            [tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR].includes(simboloAtual.tipo) &&
+            (!simboloAnterior || simboloAnterior.linha === simboloAtual.linha)
+        );
+    }
+
     protected async construtoTupla(): Promise<Tupla> {
         const expressao = await this.expressao();
         const argumentos = [expressao];
@@ -907,12 +925,7 @@ export class AvaliadorSintatico
                 // Se o próximo símbolo é um incremento ou um decremento,
                 // aqui deve retornar um unário correspondente.
                 // Caso contrário, apenas retornar um construto de variável.
-                if (
-                    this.simbolos[this.atual] &&
-                    [tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR].includes(
-                        this.simbolos[this.atual].tipo
-                    )
-                ) {
+                if (this.proximoSimboloEIncrementoOuDecrementoPosfixado()) {
                     const simboloIncrementoDecremento: SimboloInterface =
                         this.avancarEDevolverAnterior();
                     return new Unario(
@@ -1474,12 +1487,7 @@ export class AvaliadorSintatico
                 // Se o próximo símbolo é um incremento ou um decremento, e a cadeia de
                 // chamadas terminou aqui (ex.: `x[0]++`, `objeto.propriedade--`), aqui
                 // deve retornar um unário pós-fixado correspondente.
-                if (
-                    this.simbolos[this.atual] &&
-                    [tiposDeSimbolos.INCREMENTAR, tiposDeSimbolos.DECREMENTAR].includes(
-                        this.simbolos[this.atual].tipo
-                    )
-                ) {
+                if (this.proximoSimboloEIncrementoOuDecrementoPosfixado()) {
                     const simboloIncrementoDecremento: SimboloInterface =
                         this.avancarEDevolverAnterior();
                     return new Unario(

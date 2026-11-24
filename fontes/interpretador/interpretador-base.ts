@@ -1938,11 +1938,25 @@ export class InterpretadorBase implements InterpretadorInterface {
      * @param {ParaCada} declaracao A declaração de `para cada` a ser executada.
      * @returns {Promise<any>} O resultado da execução da declaração.
      */
+    /**
+     * Ponto de extensão para o depurador: indica que um laço deve ser interrompido
+     * (por exemplo, quando um ponto de parada foi ativado dentro do seu corpo).
+     * Fora do depurador, laços nunca são interrompidos por este motivo.
+     */
+    protected deveInterromperLacoParaDepuracao(): boolean {
+        return false;
+    }
+
     async visitarDeclaracaoParaCada(declaracao: ParaCada): Promise<any> {
         let retornoExecucao: ResultadoParcialInterpretadorInterface | undefined | null = undefined;
         // Posição atual precisa ser reiniciada, pois pode estar dentro de outro
-        // laço de repetição.
-        declaracao.posicaoAtual = 0;
+        // laço de repetição. A exceção é a retomada pelo depurador depois de um
+        // ponto de parada dentro do corpo: nesse caso, o laço continua de onde parou.
+        if ((declaracao as any).retomarDepuracao === true) {
+            (declaracao as any).retomarDepuracao = false;
+        } else {
+            declaracao.posicaoAtual = 0;
+        }
         const vetorResolvido = await this.avaliar(declaracao.vetorOuDicionario);
         let valorVetorResolvido: any = this.resolverValor(vetorResolvido);
 
@@ -1966,7 +1980,8 @@ export class InterpretadorBase implements InterpretadorInterface {
         let iteracoes = 0;
         while (
             !(retornoExecucao && retornoExecucao.valorRetornado instanceof Quebra) &&
-            declaracao.posicaoAtual < valorVetorResolvido.length
+            declaracao.posicaoAtual < valorVetorResolvido.length &&
+            !this.deveInterromperLacoParaDepuracao()
         ) {
             this.registrarRamo?.(declaracao.hashArquivo, declaracao.linha, 'iteracao');
             try {

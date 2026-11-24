@@ -732,3 +732,66 @@ describe('InterpretadorEguaClassico - métodos não implementados', () => {
         expect(await obterErroDeMetodo(instancia, nomeMetodo)).toContain('não implementado');
     });
 });
+
+describe('Interpretador (Égua Clássico) - controle de fluxo e parâmetros variádicos, como no Égua original', () => {
+    const executar = async (codigo: string) => {
+        const saidas: any[] = [];
+        const interpretador = new InterpretadorEguaClassico(process.cwd());
+        interpretador.funcaoDeRetorno = (texto: any) => saidas.push(texto);
+        const retornoAvaliadorSintatico = await new AvaliadorSintaticoEguaClassico().analisar(
+            new LexadorEguaClassico().mapear([codigo]),
+            -1
+        );
+        expect(retornoAvaliadorSintatico.erros).toHaveLength(0);
+        const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        expect(retorno.erros).toHaveLength(0);
+        return saidas;
+    };
+
+    it.each([
+        [
+            'var i = 0; enquanto (i < 5) { i = i + 1; se (i == 2) { continua; } se (i == 4) { pausa; } } escreva(i);',
+            ['4'],
+        ],
+        ['para (var i = 0; i < 5; i = i + 1) { se (i == 3) { pausa; } escreva(i); }', ['0', '1', '2']],
+        ['para (var i = 0; i < 3; i = i + 1) { se (i == 1) { continua; } escreva(i); }', ['0', '2']],
+        ['var i = 0; fazer { i = i + 1; se (i == 3) { pausa; } } enquanto (i < 10) escreva(i);', ['3']],
+        ['função f() { para (var i = 0; i < 5; i = i + 1) { se (i == 2) { retorna i; } } } escreva(f());', ['2']],
+        ['função f() { enquanto (verdadeiro) { retorna 7; } } escreva(f());', ['7']],
+        ['função f() { fazer { retorna 8; } enquanto (verdadeiro) } escreva(f());', ['8']],
+        ['escolha (1) { caso 1: escreva(1); pausa; escreva(2); padrão: escreva(3); } escreva(4);', ['1', '4']],
+        ['função f(*a) { retorna a; } escreva(f(1, 2, 3));', [[1, 2, 3]]],
+        ['função f(a, *b) { retorna b; } escreva(f(1, 2, 3));', [[2, 3]]],
+        [
+            'classe A { m() { retorna 1; } } classe B herda A { m() { retorna super.m() + 1; } } escreva(B().m());',
+            ['2'],
+        ],
+        [
+            'classe A { m() { retorna 1; } } classe B herda A { m() { retorna super.m() + 1; } } classe C herda B { m() { retorna super.m() + 10; } } escreva(C().m());',
+            ['12'],
+        ],
+        [
+            'classe A { construtor(v) { isto.v = v; } } classe B herda A { construtor() { super.construtor(5); } } var b = B(); escreva(b.v);',
+            ['5'],
+        ],
+        [
+            'classe A { definir(v) { isto.v = v; } } classe B herda A { construtor() { super.definir(5); } } var b = B(); escreva(b.v);',
+            ['5'],
+        ],
+    ])('Executa %s', async (codigo: string, saidasEsperadas: any[]) => {
+        expect(await executar(codigo)).toEqual(saidasEsperadas);
+    });
+});
+
+describe('Interpretador (Égua Clássico) - super com método inexistente', () => {
+    it('Gera erro como no Égua original', async () => {
+        const interpretador = new InterpretadorEguaClassico(process.cwd());
+        interpretador.funcaoDeRetorno = () => {};
+        const retornoAvaliadorSintatico = await new AvaliadorSintaticoEguaClassico().analisar(
+            new LexadorEguaClassico().mapear(['classe A { } classe B herda A { m() { retorna super.x(); } } escreva(B().m());']),
+            -1
+        );
+        const retorno = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        expect(retorno.erros.map((erro: any) => erro.erroInterno?.message)).toContain('Método chamado indefinido.');
+    });
+});

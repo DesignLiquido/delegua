@@ -1103,3 +1103,18 @@ describe('Avaliador sintático (Pituguês) - erros adicionais', () => {
         expect(retorno.erros.map((erro) => erro.message).some((m) => m.includes(mensagem))).toBe(true);
     });
 });
+
+describe('Avaliador sintático (Pituguês) - continua e sustar no fim do arquivo', () => {
+    it.each([
+        [['para cada x em [1]:', '    continua'], 'Continua'],
+        [['para cada x em [1]:', '    sustar'], 'Sustar'],
+        [['enquanto verdadeiro:', '    continua'], 'Continua'],
+        [['para cada x em [1]:', '    escreva(x)', '    continua'], 'Continua'],
+    ])('Mantém a última declaração em %j', async (codigo: string[], tipoEsperado: string) => {
+        const retorno = await new AvaliadorSintaticoPitugues().analisar(new LexadorPitugues().mapear(codigo, -1), -1);
+        expect(retorno.erros).toHaveLength(0);
+        const corpo = (retorno.declaracoes[0] as any).corpo.declaracoes;
+        expect(corpo[corpo.length - 1].constructor.name).toBe(tipoEsperado);
+        expect(corpo[corpo.length - 1].linha).toBe(codigo.length);
+    });
+});

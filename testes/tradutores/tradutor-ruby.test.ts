@@ -1340,3 +1340,16 @@ describe('Tradutor Delégua -> Ruby (casos adicionais)', () => {
         }
     });
 });
+
+describe('TradutorRuby - escolha', () => {
+    it('Traduz escolha com caso múltiplo e padrão', async () => {
+        const retorno = await new AvaliadorSintatico().analisar(new Lexador().mapear(['var x = 2', 'escolha x { caso 1: caso 2: escreva("um ou dois") caso 3: escreva("tres") padrao: escreva("outro") }'], -1), -1);
+        expect(retorno.erros).toHaveLength(0);
+        expect(await new TradutorRuby().traduzir(retorno.declaracoes)).toBe('x = 2\ncase x\nwhen 1, 2\n    puts(\'um ou dois\')\nwhen 3\n    puts(\'tres\')\nelse\n    puts(\'outro\')\nend\n');
+    });
+
+    it('Declarações de primeiro nível ficam em linhas separadas', async () => {
+        const retorno = await new AvaliadorSintatico().analisar(new Lexador().mapear(['var a = 1', 'var b = 2', 'escreva(a + b)'], -1), -1);
+        expect(new TradutorRuby().traduzir(retorno.declaracoes)).toBe('a = 1\nb = 2\nputs(a + b)\n');
+    });
+});

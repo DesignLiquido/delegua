@@ -5,11 +5,14 @@ import {
     Bloco,
     Declaracao,
     Enquanto,
+    Escolha,
     Escreva,
     Expressao,
     Fazer,
     Para,
+    ParaCada,
     Retorna,
+    Se,
     Tente,
 } from '../../declaracoes';
 import {
@@ -278,12 +281,18 @@ export async function visitarDeclaracaoPara(
         ? declaracao.inicializador[0]
         : declaracao.inicializador;
 
-    if (declaracaoInicializador !== null) {
+    // Ao retomar a execução depois de um ponto de parada dentro do corpo do laço,
+    // o laço continua de onde estava: o inicializador não pode ser executado de novo.
+    const retomando = (declaracao as any).retomarDepuracao === true;
+    (declaracao as any).retomarDepuracao = false;
+
+    if (declaracaoInicializador !== null && !retomando) {
         await interpretador.avaliar(declaracaoInicializador);
-        // O incremento vai ao final do bloco de escopo.
-        if (cloneDeclaracao.incrementar !== null) {
-            corpoExecucao.declaracoes.push(new Expressao(cloneDeclaracao.incrementar));
-        }
+    }
+
+    // O incremento vai ao final do bloco de escopo.
+    if (cloneDeclaracao.incrementar !== null) {
+        corpoExecucao.declaracoes.push(new Expressao(cloneDeclaracao.incrementar));
     }
 
     cloneDeclaracao.inicializada = true;
@@ -350,6 +359,16 @@ export async function visitarDeclaracaoFazer(
 ): Promise<any> {
     let retornoExecucao: any;
     let iteracoes = 0;
+
+    // Ao retomar depois de um ponto de parada dentro do corpo, a iteração interrompida
+    // já terminou. Portanto, a condição precisa ser avaliada antes da próxima iteração.
+    if ((declaracao as any).retomarDepuracao === true) {
+        (declaracao as any).retomarDepuracao = false;
+        if (!interpretador.eVerdadeiro(await interpretador.avaliar(declaracao.condicaoEnquanto))) {
+            return null;
+        }
+    }
+
     do {
         try {
             await cederControle(++iteracoes);
@@ -962,9 +981,37 @@ async function executarUmPassoNoEscopo(interpretador: InterpretadorComDepuracaoI
 export async function executarUltimoEscopoComandoContinuar(
     interpretador: InterpretadorComDepuracaoInterface,
     manterEspacoMemoria = false,
-    naoVerificarPrimeiraExecucao = false
+    naoVerificarPrimeiraExecucao = false,
+    tipoEscopoFilhoConcluido: TipoEscopoExecucao | undefined = undefined
 ): Promise<any> {
     const ultimoEscopo = interpretador.pilhaEscoposExecucao.topoDaPilha();
+
+    // Se um bloco interno (não uma função) acabou de ser concluído, a declaração atual
+    // deste escopo é a que abriu esse bloco. Ela não pode simplesmente ser executada de novo:
+    // - `se`, `escolha` e blocos já executaram o seu corpo, então são pulados;
+    // - `para` e `fazer` continuam o laço sem reiniciá-lo.
+    // Chamadas de função são reexecutadas, já que seus resultados ficam em cache.
+    if (
+        tipoEscopoFilhoConcluido !== undefined &&
+        tipoEscopoFilhoConcluido !== 'funcao' &&
+        ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length
+    ) {
+        const declaracaoEmAndamento = ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual];
+        if (
+            declaracaoEmAndamento instanceof Se ||
+            declaracaoEmAndamento instanceof Escolha ||
+            declaracaoEmAndamento instanceof Bloco
+        ) {
+            ultimoEscopo.declaracaoAtual++;
+        } else if (
+            declaracaoEmAndamento instanceof Para ||
+            declaracaoEmAndamento instanceof Fazer ||
+            declaracaoEmAndamento instanceof ParaCada
+        ) {
+            (declaracaoEmAndamento as any).retomarDepuracao = true;
+        }
+    }
+
     // O escopo de nível superior fica logo acima do escopo global.
     const ehEscopoRaiz = interpretador.pilhaEscoposExecucao.elementos() <= 2;
     let retornoExecucao: ResultadoParcialInterpretadorInterface;
@@ -1060,7 +1107,9 @@ export async function instrucaoContinuarInterpretacao(
     interpretador: InterpretadorComDepuracaoInterface,
     escopo = 1
 ): Promise<any> {
+    let tipoEscopoFilhoConcluido: TipoEscopoExecucao | undefined = undefined;
     if (escopo < interpretador.escopoAtual) {
+        tipoEscopoFilhoConcluido = interpretador.pilhaEscoposExecucao.naPosicao(escopo + 1)?.tipo;
         await instrucaoContinuarInterpretacao(interpretador, escopo + 1);
     }
 
@@ -1068,7 +1117,7 @@ export async function instrucaoContinuarInterpretacao(
         return;
     }
 
-    await executarUltimoEscopoComandoContinuar(interpretador, false, true);
+    await executarUltimoEscopoComandoContinuar(interpretador, false, true, tipoEscopoFilhoConcluido);
 }
 
 /**

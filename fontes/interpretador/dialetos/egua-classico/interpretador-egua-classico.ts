@@ -508,10 +508,13 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                 parametros.length > 0 &&
                 parametros[parametros.length - 1]['tipo'] === 'multiplo'
             ) {
-                let novosArgumentos = argumentos.slice(0, parametros.length - 1);
-                novosArgumentos = novosArgumentos.concat(
-                    argumentos.slice(parametros.length - 1, argumentos.length)
-                );
+                // Como no Égua original, os argumentos restantes formam um único vetor.
+                const novosArgumentos = argumentos.slice(0, parametros.length - 1);
+                const restantes = argumentos.slice(parametros.length - 1, argumentos.length);
+                novosArgumentos.push({
+                    ...restantes[0],
+                    valor: restantes.map((argumento: any) => argumento?.valor),
+                } as ArgumentoInterface);
                 argumentos = novosArgumentos;
             }
         }
@@ -610,11 +613,9 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
                 }
             }
 
-            try {
-                await this.executar(declaracao.corpo);
-            } catch (erro: any) {
-                throw erro;
-            }
+            const retorno = await this.executar(declaracao.corpo);
+            if (retorno instanceof SustarQuebra) break;
+            if (retorno instanceof RetornoQuebra) return retorno;
 
             if (declaracao.incrementar !== null) {
                 await this.avaliar(declaracao.incrementar);
@@ -625,12 +626,12 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
     async visitarDeclaracaoFazer(declaracao: Fazer): Promise<any> {
         do {
-            try {
-                await this.executar(declaracao.caminhoFazer);
-            } catch (erro) {
-                throw erro;
-            }
+            const retorno = await this.executar(declaracao.caminhoFazer);
+            if (retorno instanceof SustarQuebra) break;
+            if (retorno instanceof RetornoQuebra) return retorno;
         } while (this.eVerdadeiro(await this.avaliar(declaracao.condicaoEnquanto)));
+
+        return null;
     }
 
     async visitarDeclaracaoEscolha(declaracao: Escolha) {
@@ -638,34 +639,36 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
         const caminhos = declaracao.caminhos;
         const caminhoPadrao = declaracao.caminhoPadrao;
 
+        // Como no Égua original: `pausa` encerra o `escolha`, `continua` encerra apenas
+        // o caminho atual, e `retorna` interrompe a função que contém o `escolha`.
         let encontrado = false;
-        try {
-            for (let i = 0; i < caminhos.length; i++) {
-                const caminho = caminhos[i];
+        for (let i = 0; i < caminhos.length; i++) {
+            const caminho = caminhos[i];
 
-                for (let j = 0; j < caminho.condicoes.length; j++) {
-                    if ((await this.avaliar(caminho.condicoes[j])) === condicaoEscolha) {
-                        encontrado = true;
+            for (let j = 0; j < caminho.condicoes.length; j++) {
+                if ((await this.avaliar(caminho.condicoes[j])) === condicaoEscolha) {
+                    encontrado = true;
 
-                        try {
-                            for (let k = 0; k < caminho.declaracoes.length; k++) {
-                                await this.executar(caminho.declaracoes[k]);
-                            }
-                        } catch (erro: any) {
-                            throw erro;
-                        }
+                    for (let k = 0; k < caminho.declaracoes.length; k++) {
+                        const retorno = await this.executar(caminho.declaracoes[k]);
+                        if (retorno instanceof SustarQuebra) return null;
+                        if (retorno instanceof RetornoQuebra) return retorno;
+                        if (retorno instanceof ContinuarQuebra) break;
                     }
                 }
             }
-
-            if (caminhoPadrao !== null && encontrado === false) {
-                for (let i = 0; i < caminhoPadrao.declaracoes.length; i++) {
-                    await this.executar(caminhoPadrao['declaracoes'][i]);
-                }
-            }
-        } catch (erro: any) {
-            throw erro;
         }
+
+        if (caminhoPadrao !== null && encontrado === false) {
+            for (let i = 0; i < caminhoPadrao.declaracoes.length; i++) {
+                const retorno = await this.executar(caminhoPadrao['declaracoes'][i]);
+                if (retorno instanceof SustarQuebra) return null;
+                if (retorno instanceof RetornoQuebra) return retorno;
+                if (retorno instanceof ContinuarQuebra) return retorno;
+            }
+        }
+
+        return null;
     }
 
     async visitarDeclaracaoTente(declaracao: Tente): Promise<any> {
@@ -701,11 +704,11 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
     async visitarDeclaracaoEnquanto(declaracao: Enquanto) {
         while (this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
-            try {
-                await this.executar(declaracao.corpo);
-            } catch (erro) {
-                throw erro;
-            }
+            const retorno = await this.executar(declaracao.corpo);
+            // Como no Égua original: `pausa` encerra o laço, `continua` segue para a
+            // próxima iteração, e `retorna` interrompe a função que contém o laço.
+            if (retorno instanceof SustarQuebra) break;
+            if (retorno instanceof RetornoQuebra) return retorno;
         }
 
         return null;
@@ -981,14 +984,40 @@ export class InterpretadorEguaClassico implements InterpretadorInterface {
 
         const deleguaClasse = new DescritorTipoClasse(declaracao.simbolo, superClasse, metodos);
         deleguaClasse.orem = DescritorTipoClasse.computarOReM(deleguaClasse);
+        // Como no Égua original, o método da própria classe tem precedência
+        // sobre o da superclasse, sem mesclar sobrecargas.
+        deleguaClasse.mesclarSobrecargasDaHierarquia = false;
+        // A classe definidora permite resolver `super` a partir da classe em que
+        // o método foi declarado, como a resolução léxica do Égua original.
+        for (const funcao of Object.values(metodos)) {
+            (funcao as DeleguaFuncao).classeDefinidora = deleguaClasse;
+        }
 
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, deleguaClasse);
         return null;
     }
 
     async visitarExpressaoAcessoMetodoOuPropriedade(expressao: any) {
+        // Como no Égua original, `super.metodo` procura o método na superclasse
+        // da classe em que o método atual foi declarado e o vincula a `isto`.
+        if (expressao.objeto instanceof Super) {
+            const classeExecutora: DescritorTipoClasse =
+                this.pilhaEscoposExecucao.obterVariavelPorNome('classeExecutora').valor;
+            const superClasse = classeExecutora.superClasses[0];
+            const objetoIsto = this.pilhaEscoposExecucao.obterVariavelPorNome('isto').valor;
+            const metodo = superClasse?.encontrarMetodo(expressao.simbolo.lexema);
+            if (metodo === undefined || metodo === null) {
+                throw new ErroEmTempoDeExecucao(expressao.simbolo, 'Método chamado indefinido.');
+            }
+
+            return metodo.funcaoPorMetodoDeClasse(objetoIsto);
+        }
+
         const variavelObjeto: VariavelInterface = await this.avaliar(expressao.objeto);
-        const objeto = variavelObjeto?.valor;
+        // O objeto pode vir como variável (com `valor`) ou diretamente, como no
+        // resultado de uma chamada (ex: `Classe().metodo()`).
+        const objeto =
+            variavelObjeto instanceof ObjetoDeleguaClasse ? variavelObjeto : variavelObjeto?.valor;
         if (objeto instanceof ObjetoDeleguaClasse) {
             return (await objeto.obter(expressao.simbolo, this)) || null;
         }
