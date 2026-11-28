@@ -2828,6 +2828,26 @@ describe('Interpretador', () => {
                         expect(retornoInterpretador.erros).toHaveLength(0);
                     });
 
+                    it('para cada - métodos de primitiva sobre vetor tipado', async () => {
+                        const retornoLexador = lexador.mapear(
+                            [
+                                'funcao partes(a: texto): inteiro { retorna a.dividir("/").tamanho() }',
+                                'var lista: texto[] = [" a/b ", "c"]',
+                                'para cada item em lista {',
+                                '   escreva(item.aparar())',
+                                '   escreva(partes(item))',
+                                '}'
+                            ],
+                            -1
+                        );
+                        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoLexador, -1);
+
+                        const retornoInterpretador = await interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+
+                        expect(retornoInterpretador.erros).toHaveLength(0);
+                        expect(_saidas).toEqual(['a/b', '2', 'c', '1']);
+                    });
+
                     it('para cada - dicionário', async () => {
                         const retornoLexador = lexador.mapear(
                             [

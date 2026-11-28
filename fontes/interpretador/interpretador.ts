@@ -1408,7 +1408,9 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         }
 
         let tipoObjeto = variavelObjeto.tipo;
-        if (tipoObjeto === null || tipoObjeto === undefined) {
+        // Variáveis de iteração de 'para cada' (e argumentos vindos delas) são
+        // definidas como 'qualquer': o tipo real vem do valor.
+        if (tipoObjeto === null || tipoObjeto === undefined || tipoObjeto === tipoDeDadosDelegua.QUALQUER) {
             tipoObjeto = inferirTipoVariavel(objeto as any);
         }
 
@@ -1716,7 +1718,9 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         }
 
         let tipoObjeto = variavelObjeto.tipo;
-        if (tipoObjeto === null || tipoObjeto === undefined) {
+        // Variáveis de iteração de 'para cada' (e argumentos vindos delas) são
+        // definidas como 'qualquer': o tipo real vem do valor.
+        if (tipoObjeto === null || tipoObjeto === undefined || tipoObjeto === tipoDeDadosDelegua.QUALQUER) {
             tipoObjeto = inferirTipoVariavel(objeto as any);
         }
 
@@ -1958,7 +1962,9 @@ export class Interpretador extends InterpretadorBase implements VisitanteDelegua
         }
 
         let tipoObjeto = variavelObjeto.tipo;
-        if (tipoObjeto === null || tipoObjeto === undefined) {
+        // Variáveis de iteração de 'para cada' (e argumentos vindos delas) são
+        // definidas como 'qualquer': o tipo real vem do valor.
+        if (tipoObjeto === null || tipoObjeto === undefined || tipoObjeto === tipoDeDadosDelegua.QUALQUER) {
             tipoObjeto = inferirTipoVariavel(objeto as any);
         }
 
